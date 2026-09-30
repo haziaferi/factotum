@@ -1,0 +1,17 @@
+{
+ "contest": "02-task",
+ "growth_note": "tables = tables + views, columns = all columns, both counted from the built SQLite schema by tools/task_sql.py (sync columns excluded: identical in every option).",
+ "options": [
+  {"id": "shared", "summary": "Tendril's shape: one item table with kind TASK|EVENT; Equipoise's capacity_rank joins as a nullable task-only column; CHECKs keep task state off events; index (kind, start_date)",
+   "growth": {"tables": 3, "columns": 19}},
+  {"id": "split", "summary": "Equipoise's shape: task and event tables; tasks gain Tendril's columns; the calendar is a UNION; reminder has task_id OR event_id",
+   "growth": {"tables": 4, "columns": 24}},
+  {"id": "split+view", "summary": "split plus a schedulable VIEW over both tables for the calendar and id lookups",
+   "growth": {"tables": 5, "columns": 29}},
+  {"id": "shared+side", "summary": "one item table for shared columns plus a 1:1 task_detail side table for task-only columns",
+   "growth": {"tables": 4, "columns": 20}},
+  {"id": "bare", "summary": "CONTROL: one table, no kind, no CHECKs, no foreign keys",
+   "growth": {"tables": 3, "columns": 18}, "control": true,
+   "expect_fail": ["tendril-reminder-fk", "tendril-subtask-cascade", "tendril-completion-log", "shared-event-has-no-task-state"]}
+ ]
+}

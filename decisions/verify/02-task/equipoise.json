@@ -1,0 +1,181 @@
+{
+ "repo": "Equipoise",
+ "claims": [
+  {
+   "claim": "1. TaskEntity is its own table: id, date, title, doneAt, capacityRank, parentId.",
+   "verdict": "confirmed",
+   "evidence": [
+    {
+     "file": "app/src/main/kotlin/com/hazia/equipoise/data/db/Entities.kt",
+     "line": 73,
+     "quote": "@Entity(tableName = \"task\", indices = [Index(\"date\"), Index(\"parentId\")])"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/equipoise/data/db/Entities.kt",
+     "line": 79,
+     "quote": "val capacityRank: Int,"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/equipoise/data/db/Entities.kt",
+     "line": 80,
+     "quote": "val parentId: Long?,"
+    }
+   ]
+  },
+  {
+   "claim": "2. Tasks are sized by the capacity-scaled day: a capacity rule decides how many tasks the day shows.",
+   "verdict": "partial",
+   "evidence": [
+    {
+     "file": "SPEC.md",
+     "line": 161,
+     "quote": "Phase 1 ships capacity-scaled day (G04: today's list shrinks to N items from the check-in, N ∈ {1, 3, 5})"
+    },
+    {
+     "file": "SPEC.md",
+     "line": 263,
+     "quote": "CapacityPlanner (G04), StateVsScar (G07) — not yet"
+    }
+   ]
+  },
+  {
+   "claim": "3. The capacity rule reads only the task table and today's check-in/daily index; it never reads calendar events.",
+   "verdict": "not_found",
+   "evidence": [
+    {
+     "file": "SPEC.md",
+     "line": 263,
+     "quote": "CapacityPlanner (G04), StateVsScar (G07) — not yet"
+    },
+    {
+     "file": "SPEC.md",
+     "line": 188,
+     "quote": "| G04 | Capacity-scaled day: plan auto-shrinks to N tasks from today's check-in | original"
+    }
+   ]
+  },
+  {
+   "claim": "4. Tasks have no time of day, no recurrence and no reminder.",
+   "verdict": "confirmed",
+   "evidence": [
+    {
+     "file": "app/src/main/kotlin/com/hazia/equipoise/data/db/Entities.kt",
+     "line": 76,
+     "quote": "val date: String,"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/equipoise/data/db/Entities.kt",
+     "line": 78,
+     "quote": "val doneAt: Long?,"
+    }
+   ]
+  },
+  {
+   "claim": "5. parentId gives subtasks, and the capacity rule counts or hides subtasks in a specific way.",
+   "verdict": "partial",
+   "evidence": [
+    {
+     "file": "SPEC.md",
+     "line": 283,
+     "quote": "`task(id, date, title, done_at?, capacity_rank, parent_id?)` — no \"missed\" state exists (0.14); `parent_id` holds F08 breakdowns"
+    }
+   ]
+  },
+  {
+   "claim": "6. capacityRank orders tasks, and the lowest-capacity day shows only the top-ranked ones.",
+   "verdict": "partial",
+   "evidence": [
+    {
+     "file": "app/src/main/kotlin/com/hazia/equipoise/data/db/Daos.kt",
+     "line": 61,
+     "quote": "@Query(\"SELECT * FROM task ORDER BY date, capacityRank\") suspend fun all(): List<TaskEntity>"
+    },
+    {
+     "file": "SPEC.md",
+     "line": 163,
+     "quote": "On a lower-than-usual day (§3.2), the day view shows at most one task."
+    }
+   ]
+  },
+  {
+   "claim": "7. A task not done on its date rolls to the next day, or stays on its date (say which, or neither).",
+   "verdict": "partial",
+   "evidence": [
+    {
+     "file": "app/src/main/kotlin/com/hazia/equipoise/data/db/Entities.kt",
+     "line": 72,
+     "quote": "/** No \"missed\" state exists (0.14). */"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/equipoise/data/db/Daos.kt",
+     "line": 59,
+     "quote": "@Insert suspend fun insert(row: TaskEntity): Long"
+    }
+   ]
+  }
+ ],
+ "missed": [
+  {
+   "fact": "The capacity rule does not exist in code. SPEC lists CapacityPlanner (G04) as 'not yet'. domain/ holds only TaskSplitter for tasks. So claims 2, 3, 5 and 6 describe a planned design, not shipped behaviour.",
+   "file": "SPEC.md",
+   "line": 263
+  },
+  {
+   "fact": "TaskDao has only insert, replaceAll, all and wipe. There is no per-date query, no update, no done-toggle and no rollover query. Nothing outside export/import calls db.tasks(), so nothing reads or writes tasks at runtime yet.",
+   "file": "app/src/main/kotlin/com/hazia/equipoise/data/db/Daos.kt",
+   "line": 58
+  },
+  {
+   "fact": "The capacity size N is specified as N ∈ {1, 3, 5}, taken from today's check-in. The 'lower than usual' test is defined in §3.2 and is a check-in comparison, not a task-table read. The day view shows at most one task on such a day.",
+   "file": "SPEC.md",
+   "line": 161
+  },
+  {
+   "fact": "The grey_day column is parked and never read. Capacity features read 'lower than usual' (§3.2) directly instead of a flag.",
+   "file": "app/src/main/kotlin/com/hazia/equipoise/data/db/Entities.kt",
+   "line": 99
+  },
+  {
+   "fact": "There is no calendar entry table. The entities are checkin, sensory_log, masking_entry, regulation_event, pending_outcome, task, daily_index, settings and llm_settings. SPEC rules out a visual timeline planner and calendar heatmap, so 'task as a kind of calendar Entry' has no counterpart in this repo. Task is its own table.",
+   "file": "SPEC.md",
+   "line": 246
+  },
+  {
+   "fact": "parentId holds F08 breakdowns, written by the rule-based TaskSplitter or the LLM. There is no foreign key on parentId, unlike regulation_event.checkinId, which has a CASCADE FK. Deleting a parent task leaves orphan children.",
+   "file": "app/src/main/kotlin/com/hazia/equipoise/data/db/Entities.kt",
+   "line": 80
+  },
+  {
+   "fact": "Tasks have no created-at, updated-at, deleted or tombstone column. Merge-by-id is REPLACE on the primary key, and import calls wipe() then replaceAll.",
+   "file": "app/src/main/kotlin/com/hazia/equipoise/data/export/Transfer.kt",
+   "line": 68
+  },
+  {
+   "fact": "capacityRank is an Int with no documented meaning in code. Whether a lower value means higher priority is not stated anywhere I found, and the only consumer is ORDER BY ascending.",
+   "file": "app/src/main/kotlin/com/hazia/equipoise/data/db/Entities.kt",
+   "line": 79
+  }
+ ],
+ "absence_probes": [
+  {
+   "pattern": "CapacityPlanner (kt sources)",
+   "hits": 0
+  },
+  {
+   "pattern": "CapacityPlanner|class .*Calendar|CalendarEntry|recurr|reminder|rollover|roll over|RRULE|AlarmManager (kt, case-insensitive)",
+   "hits": 0
+  },
+  {
+   "pattern": "capacity|task in domain/src/main (kt)",
+   "hits": 3
+  },
+  {
+   "pattern": ".tasks() callers in app/src/main outside export",
+   "hits": 0
+  },
+  {
+   "pattern": "calendar in kt sources",
+   "hits": 1
+  }
+ ]
+}

@@ -1,0 +1,57 @@
+{
+ "shared": {
+  "tendril-timeline": 1,
+  "tendril-reminder-fk": 1,
+  "tendril-subtask-cascade": 1,
+  "tendril-completion-log": 1,
+  "tendril-planned-and-due": 1,
+  "equipoise-capacity-query": 1,
+  "equipoise-capacity-ignores-events": 1,
+  "shared-event-has-no-task-state": 1,
+  "shared-one-id-space": 1
+ },
+ "split": {
+  "tendril-timeline": 1,
+  "tendril-reminder-fk": 1,
+  "tendril-subtask-cascade": 1,
+  "tendril-completion-log": 1,
+  "tendril-planned-and-due": 1,
+  "equipoise-capacity-query": 1,
+  "equipoise-capacity-ignores-events": 1,
+  "shared-event-has-no-task-state": 1,
+  "shared-one-id-space": 0
+ },
+ "split+view": {
+  "tendril-timeline": 1,
+  "tendril-reminder-fk": 1,
+  "tendril-subtask-cascade": 1,
+  "tendril-completion-log": 1,
+  "tendril-planned-and-due": 1,
+  "equipoise-capacity-query": 1,
+  "equipoise-capacity-ignores-events": 1,
+  "shared-event-has-no-task-state": 1,
+  "shared-one-id-space": 1
+ },
+ "shared+side": {
+  "tendril-timeline": 1,
+  "tendril-reminder-fk": 1,
+  "tendril-subtask-cascade": 0,
+  "tendril-completion-log": 1,
+  "tendril-planned-and-due": 1,
+  "equipoise-capacity-query": 1,
+  "equipoise-capacity-ignores-events": 1,
+  "shared-event-has-no-task-state": 0,
+  "shared-one-id-space": 1
+ },
+ "bare": {
+  "tendril-timeline": 1,
+  "tendril-reminder-fk": 0,
+  "tendril-subtask-cascade": 0,
+  "tendril-completion-log": 0,
+  "tendril-planned-and-due": 1,
+  "equipoise-capacity-query": 1,
+  "equipoise-capacity-ignores-events": 0,
+  "shared-event-has-no-task-state": 0,
+  "shared-one-id-space": 1
+ }
+}

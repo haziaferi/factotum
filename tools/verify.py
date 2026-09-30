@@ -33,6 +33,15 @@ def parse(text):
     try:
         return json.loads(text)
     except ValueError:
+        pass
+    # A prose preface despite "JSON only" (seen once in 7 runs, 2026-09-30): take the
+    # outermost object rather than lose the run.
+    start, end = text.find("{"), text.rfind("}")
+    if start < 0 or end <= start:
+        return None
+    try:
+        return json.loads(text[start:end + 1])
+    except ValueError:
         return None
 
 

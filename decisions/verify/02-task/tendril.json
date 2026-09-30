@@ -1,0 +1,269 @@
+{
+ "repo": "Tendril",
+ "claims": [
+  {
+   "claim": "1. A task is Entry(kind = TASK) and shares one table with calendar events (kind = EVENT).",
+   "verdict": "confirmed",
+   "evidence": [
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/entry/Entry.kt",
+     "line": 12,
+     "quote": "enum class EntryKind { TASK, EVENT }"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/entry/Entry.kt",
+     "line": 23,
+     "quote": "@Entity(tableName = \"entries\", indices = [Index(\"uid\", unique = true)])"
+    }
+   ]
+  },
+  {
+   "claim": "2. A task can carry RecurrenceRule.Elastic (an interval anchored to the original schedule, so a miss goes overdue instead of sliding).",
+   "verdict": "partial",
+   "evidence": [
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/entry/RecurrenceRule.kt",
+     "line": 36,
+     "quote": "data class Elastic(val period: Period) : RecurrenceRule()"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/entry/RecurrenceRule.kt",
+     "line": 27,
+     "quote": "* TASK recurrence — a plain repeating interval, anchored to the **original schedule** (§6.2),"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/ResolveEntryUseCase.kt",
+     "line": 75,
+     "quote": "startDate = nextOccurrenceAfter(occurrenceDate, recurrence.period, today),"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/entry/Entry.kt",
+     "line": 41,
+     "quote": "/** `Fixed` only legal for EVENT, `Elastic` only legal for TASK (§4.1 R2) — upheld by the"
+    }
+   ]
+  },
+  {
+   "claim": "3. Task-only columns (done/completedAt, priority, due date, subtasks/parent) live on Entry and are null for events.",
+   "verdict": "partial",
+   "evidence": [
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/entry/Entry.kt",
+     "line": 53,
+     "quote": "val status: EntryStatus? = null,"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/entry/Entry.kt",
+     "line": 62,
+     "quote": "val dueDate: LocalDate? = null,"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/entry/Entry.kt",
+     "line": 67,
+     "quote": "val parentEntryId: Long? = null,"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/entry/Entry.kt",
+     "line": 71,
+     "quote": "val estimate: Duration? = null,"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/entry/Entry.kt",
+     "line": 77,
+     "quote": "val importance: Int = 0,"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/EntryEditor.kt",
+     "line": 137,
+     "quote": "status = null, dueDate = null, estimate = null, importance = 0, parentEntryId = null,"
+    }
+   ]
+  },
+  {
+   "claim": "4. Event-only columns (start/end time, location, all-day, external calendar ids) live on Entry and are null for tasks.",
+   "verdict": "partial",
+   "evidence": [
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/entry/Entry.kt",
+     "line": 34,
+     "quote": "val startDate: LocalDate?,"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/entry/Entry.kt",
+     "line": 37,
+     "quote": "val endDate: LocalDate?,"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/entry/Entry.kt",
+     "line": 39,
+     "quote": "val endTime: LocalTime?,"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/entry/Entry.kt",
+     "line": 114,
+     "quote": "val providerEventId: Long? = null,"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/entry/Entry.kt",
+     "line": 120,
+     "quote": "val calendarKey: String? = null,"
+    }
+   ]
+  },
+  {
+   "claim": "5. Completion of a recurring task is stored per occurrence in EntryCompletion, not on the Entry row.",
+   "verdict": "partial",
+   "evidence": [
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/completion/EntryCompletion.kt",
+     "line": 31,
+     "quote": "val occurrenceDate: LocalDate,"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/ResolveEntryUseCase.kt",
+     "line": 68,
+     "quote": "completionDao.insert("
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/ResolveEntryUseCase.kt",
+     "line": 80,
+     "quote": "entry.copy(status = status, updatedAt = now)"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/ResolveEntryUseCase.kt",
+     "line": 76,
+     "quote": "status = EntryStatus.PENDING,"
+    }
+   ]
+  },
+  {
+   "claim": "6. Every query that lists tasks filters on kind = TASK; there is no separate task view or DAO.",
+   "verdict": "partial",
+   "evidence": [
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/entry/EntryDao.kt",
+     "line": 47,
+     "quote": "@Query(\"SELECT * FROM entries WHERE kind = 'TASK' AND deletedAt IS NULL ORDER BY startDate IS NULL, startDate, startTime\")"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/entry/EntryDao.kt",
+     "line": 51,
+     "quote": "@Query(\"SELECT * FROM entries WHERE startDate IS NOT NULL AND deletedAt IS NULL ORDER BY startDate, startTime\")"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/entry/EntryDao.kt",
+     "line": 99,
+     "quote": "\"AND (kind = 'EVENT' OR status = 'PENDING')\""
+    }
+   ]
+  },
+  {
+   "claim": "7. A task can have subtasks (a parent/child link).",
+   "verdict": "confirmed",
+   "evidence": [
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/entry/Entry.kt",
+     "line": 67,
+     "quote": "val parentEntryId: Long? = null,"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/ui/taskshabits/TasksHabitsViewModel.kt",
+     "line": 394,
+     "quote": "fun addSubtask(parentEntryId: Long, title: String) ="
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/TaskTree.kt",
+     "line": 7,
+     "quote": "(Things' checklist, not TickTick's tree): a child's own `parentEntryId` is never followed."
+    }
+   ]
+  },
+  {
+   "claim": "8. Reminders hang off an Entry by entryId, for tasks and events alike.",
+   "verdict": "confirmed",
+   "evidence": [
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/reminder/Reminder.kt",
+     "line": 20,
+     "quote": "ForeignKey(entity = Entry::class, parentColumns = [\"id\"], childColumns = [\"entryId\"], onDelete = ForeignKey.CASCADE),"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/reminder/Reminder.kt",
+     "line": 13,
+     "quote": "* §4 — a repeatable list per Entry, no cap on how many stack."
+    }
+   ]
+  }
+ ],
+ "missed": [
+  {
+   "fact": "Entry has no completedAt, priority, location or all-day column. Completion time is only EntryCompletion.resolvedAt. Priority is the non-null `importance: Int = 0` (0 to 4), so it is 0 rather than null for events. All-day is not a column: it is startTime == null, and ReminderSpec only has an AllDayAnchorPreset.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/data/entry/Entry.kt",
+   "line": 77
+  },
+  {
+   "fact": "The merge needs a third enum, EntryStatus { PENDING, DONE, SKIPPED }. A task can be SKIPPED as well as DONE, and EntryCompletion.status records it.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/data/entry/Entry.kt",
+   "line": 15
+  },
+  {
+   "fact": "Identity columns: `uid` is a unique cross-device key and `id` is autoGenerate. A merge must key on uid, and parentEntryId, originalEntryId and sourceRowId travel as uids.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/data/entry/Entry.kt",
+   "line": 30
+  },
+  {
+   "fact": "Deletion columns: Entry.deletedAt is a soft-delete with a Trash view, and updatedAt orders the merge. Reminder.deletedAt is a tombstone that wins on any device, with no updatedAt. EntryCompletion has no deletedAt and is append-only.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/data/entry/Entry.kt",
+   "line": 85
+  },
+  {
+   "fact": "Three more columns pack a second meaning into entries: originalEntryId, originalOccurrenceDate and isExceptionSkip make an Entry row double as a single-occurrence exception or skip tombstone of a recurring base. Queries that list tasks must also exclude originalEntryId != null, as DayTimeline, ReviewPlanner and Tray do.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/data/entry/Entry.kt",
+   "line": 48
+  },
+  {
+   "fact": "`startDate` and `startTime` are shared by both kinds. For a task they mean the planned When, not a span start, and Calendar draws tasks from them. `dueDate` is the separate deadline.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/data/entry/Entry.kt",
+   "line": 56
+  },
+  {
+   "fact": "The kind/rule correspondence (Fixed for EVENT, Elastic for TASK) is not enforced. SnapshotMappers rebuilds the rule from a tag with no cross-check, so a TASK can carry Fixed and resolves as a one-off.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/data/entry/RecurrenceRule.kt",
+   "line": 11
+  },
+  {
+   "fact": "A recurring task is one live row. Resolving writes an EntryCompletion, then advances startDate by whole periods until it is in the future and resets status to PENDING. Missed occurrences are skipped, so an Elastic task does not go overdue per occurrence. The name Elastic is a documented misnomer kept for the persisted \"ELASTIC:\" tag.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/ResolveEntryUseCase.kt",
+   "line": 115
+  },
+  {
+   "fact": "Entry has more provenance and identity columns: source (EntrySource: MANUAL, DATABASE_SYNC, GOOGLE_CALENDAR, CALENDAR), sourceRowId (Database row link), googleEventId (retired, but still carried by the merge), providerEventId (per-device, excluded from the snapshot) and calendarKey (travels). GOOGLE_CALENDAR also keeps a row out of the Calendar Provider mirror.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/data/entry/Entry.kt",
+   "line": 101
+  },
+  {
+   "fact": "Every Entry column by kind. Both kinds: id, uid, title, kind, startDate, startTime, recurrenceRule (Fixed for EVENT, Elastic for TASK), originalEntryId, originalOccurrenceDate, isExceptionSkip, sourceRowId, deletedAt, source, googleEventId, providerEventId, calendarKey, createdAt, updatedAt. EVENT only: endDate, endTime. TASK only: status, dueDate, parentEntryId, estimate, importance.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/data/entry/Entry.kt",
+   "line": 24
+  },
+  {
+   "fact": "Subtasks are one level deep. TaskTree follows only a root's direct children, and a child's own parentEntryId is never followed.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/TaskTree.kt",
+   "line": 7
+  }
+ ],
+ "absence_probes": [
+  {
+   "pattern": "class TaskDao|interface TaskDao|tableName = \"tasks\"|@DatabaseView (shared/src)",
+   "hits": 0
+  },
+  {
+   "pattern": "isAllDay|allDay|location|externalCalendarId|calendarId (shared/src/commonMain/kotlin/com/tendril/app/data; the only 2 hits, in Converters.kt and ReminderSpec.kt, are a KDoc line and AllDayAnchorPreset, not Entry columns)",
+   "hits": 0
+  },
+  {
+   "pattern": "completedAt|completed_at (Entry.kt)",
+   "hits": 0
+  }
+ ]
+}
