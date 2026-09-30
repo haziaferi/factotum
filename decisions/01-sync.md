@@ -1,0 +1,63 @@
+# ADR 01: Sync identity and conflict
+
+Status: **awaiting the owner's pick**. Date: 2026-09-30. Owners: Tendril, Chronicle, Mnemo, and Equipoise (import only; the map missed this).
+
+## Constraints from the owner
+
+- Fresh start: no existing rows to convert, so migration cost is not scored.
+- Folder sync with no server: one person, several devices, a folder they choose. No compatibility with the old apps' sync files.
+
+## Verified facts
+
+These were checked with the measured brief (`tools/verify.py`, Sonnet 5.5). The raw output is in `verify/01-sync/`. Two rows per app were spot-checked by hand with Read.
+
+| App | Fact | Source | Map said |
+|---|---|---|---|
+| Tendril | Entries and habits merge as a whole row, last writer wins on `updatedAt`. The comparison is a strict isAfter on wall-clock time. On a tie each device keeps its own copy, so a tie never converges. | `SnapshotSyncOrchestrator.kt:1571` | "snapshot union merge" (partial) |
+| Tendril | Moving a row to the trash sets `deletedAt`, an ordinary field. A later edit on another device beats it. | same, `:1869` | implied "tombstones win" (**refuted**) |
+| Tendril | `PurgedRecord` (a permanent delete) never expires. A record newer than `purgedAt` supersedes it. A device that never edited the row stays blocked. | `PurgeRegistry.kt:88-99`, `PurgedRecord.kt:59` | confirmed |
+| Tendril | 12 folder-wide array files plus one file per page. Undecodable records are quarantined and republished verbatim. `UnknownFieldMerge` carries undeclared keys. | `SnapshotSyncOrchestrator.kt:98, 442`; `UnknownFieldMerge.kt:32` | not stated |
+| Chronicle | Identity is a ULID primary key. Stamps are `(updatedAt, deviceId)` in total order, with the device id breaking ties. | `Ids.kt:18`, `FieldStamp.kt:36-39` | "scheduleUpdatedByDevice" (**refuted**: the column is `scheduleUpdatedAtDevice`, and it is a stamp, not the identity) |
+| Chronicle | Reminders merge per field group: *schedule* (with `deletedAt` in it) and *status*. The other 10 entity types merge as a whole row. | `ReminderMerge.kt:8-21`, `EntityMerge.kt:25` | not stated |
+| Chronicle | Stamps more than 24 h ahead are clamped to "now" for the comparison. A fast device wins for up to its skew, then stops winning. | `FieldStamp.kt:86-101` | not stated |
+| Chronicle | Tombstones are deleted after 90 days (garbage-collected). A device offline for longer brings the row back. | `Syncable.kt:22`, `RoomBackedRepository.kt:72` | not stated |
+| Mnemo | UUID id plus `updatedAtEpochMillis`. There is one file per reminder, `reminders/<uuid>.json`. | `Reminder.kt:34,81`; `ReminderSyncManager.kt:38` | confirmed |
+| Mnemo | `isArchived` is the sync tombstone. It also means done, or fired with nothing left. | `Reminder.kt:23-24` | **missed** |
+| Mnemo | A conflict is any differing `updatedAt` on a file that moved. There is no both-sides-changed test, so an edit made only on the other device still goes to the conflict screen. Equal stamps count as "unchanged", so a same-millisecond divergence is never noticed. | `ReminderSyncManager.kt:144-160` | contradicts its own KDoc (`:18`) |
+| Mnemo | Deleting a file from the folder does not delete the reminder; `pushMissingOrStale` rewrites the file. | `ReminderSyncManager.kt:197` | not stated |
+| Equipoise | `Importer.merge` merges by device-local autoincrement id using REPLACE. Deletes are hard, and nothing is deleted by an import, so a deleted row returns from any older export. Two devices that each create id=1 overwrite each other. | `Transfer.kt:57-69`, `Daos.kt:16` | "does not sync" (**partial**) |
+
+**The map's claim that "tombstone-union and last-writer-wins give different answers to the same delete-then-edit" is refuted.** For trash plus a later edit, Tendril and Chronicle agree: the edit brings the row back (simulated, `sync_sim.py`). They differ on *permanent* purge. Tendril's registry holds forever, while Chronicle's 90-day garbage collection lets a stale device bring the row back.
+
+## Cases and options
+
+The cases (`cases/01-sync.jsonl`) are the properties each owner app guarantees, each with its source line. The options (`options/01-sync.json`) are the three existing models, two hybrids, and a control (Equipoise's REPLACE). Every option was run by `tools/sync_sim.py`, which rebuilds each model's merge rule from the verified lines above. Nothing is marked by hand.
+
+## Scores
+
+See `01-sync-scores.md`. Coverage per owner, where 1 means the guarantee holds, 0.5 means a person is asked, and 0 means it is lost silently:
+
+| Option | Chronicle | Mnemo | Shared | Tendril | Growth |
+|---|---|---|---|---|---|
+| tendril | 0.00 | 0.00 | 0.50 | 1.00 | 3 |
+| chronicle | 1.00 | 0.00 | 0.50 | 0.67 | 5 |
+| mnemo | 0.50 | 1.00 | 0.50 | 0.50 | 3 |
+| **hybrid** | 1.00 | 0.00 | 1.00 | 1.00 | 6 |
+| **hybrid+** | 0.83 | 1.00 | 0.75 | 1.00 | 8 |
+| replace (control) | 0.33 | 0.00 | 0.50 | 0.33 | 0 |
+
+The control fails every case it was expected to fail, so the scorer can tell a loss from a win. All five real options are non-dominated, but only because growth separates them by one or two columns. On behaviour, **hybrid** and **hybrid+** are the only options that keep every Tendril guarantee and every Chronicle guarantee except one. They differ in a single decision: whether a concurrent change to a reminder's schedule is merged silently (hybrid) or shown to a person (hybrid+).
+
+## Decision
+
+_pending_
+
+## Consequences for later contests
+
+Either hybrid fixes the identity columns every later table carries:
+- a ULID primary key;
+- one `(hlc, deviceId)` stamp per field group, with a whole-row group by default;
+- `deletedAt` inside the group that decides "does this exist";
+- one purge registry table.
+
+Contest 02 (Task) and contest 03 (Reminder) must say which field groups their rows have.

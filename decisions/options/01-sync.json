@@ -1,0 +1,61 @@
+{
+ "contest": "01-sync",
+ "growth_note": "columns = sync-only columns on a two-group row (Reminder) beyond a string primary key (fresh start: every model can use a UUID/ULID PK); tables = sync-only tables (tendril/hybrid: purge registry; mnemo: sync_file_state). hybrid+ keeps its conflict list in memory as mnemo does (ReminderSyncManager.kt:194), so no extra table.",
+ "options": [
+  {
+   "id": "tendril",
+   "summary": "UUID uid + whole-row updatedAt LWW + deletedAt + permanent PurgedRecord registry; whole-database array files per family",
+   "growth": {
+    "tables": 1,
+    "columns": 2
+   }
+  },
+  {
+   "id": "chronicle",
+   "summary": "ULID id + per-field-group (updatedAt, deviceId) stamps + deletedAt in the schedule group + 24 h skew clamp + 90-day tombstone GC; one file per device",
+   "growth": {
+    "tables": 0,
+    "columns": 5
+   }
+  },
+  {
+   "id": "mnemo",
+   "summary": "UUID id + updatedAt; any difference goes to a person (keep mine / take theirs / keep both); isArchived tombstone; one file per row",
+   "growth": {
+    "tables": 1,
+    "columns": 2
+   }
+  },
+  {
+   "id": "hybrid",
+   "summary": "ULID id + per-field-group (HLC, deviceId) stamps + deletedAt in the schedule group + tendril's permanent purge registry",
+   "growth": {
+    "tables": 1,
+    "columns": 5
+   }
+  },
+  {
+   "id": "hybrid+",
+   "summary": "hybrid + per-row base stamp for the schedule group: a change on both sides since the last agreed stamp is shown to a person, everything else merges silently",
+   "growth": {
+    "tables": 1,
+    "columns": 7
+   }
+  },
+  {
+   "id": "replace",
+   "summary": "CONTROL: Equipoise's Importer.merge, REPLACE by id, hard deletes, no stamps",
+   "growth": {
+    "tables": 0,
+    "columns": 0
+   },
+   "control": true,
+   "expect_fail": [
+    "chronicle-group-merge",
+    "chronicle-delete-beats-status",
+    "tendril-purge-holds",
+    "mnemo-same-time-shown"
+   ]
+  }
+ ]
+}

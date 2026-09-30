@@ -1,0 +1,315 @@
+{
+ "repo": "Tendril",
+ "claims": [
+  {
+   "claim": "1. Every synced row carries a uid: String (UUID) alongside its local autoGenerate Long id.",
+   "verdict": "partial",
+   "evidence": [
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/entry/Entry.kt",
+     "line": 30,
+     "quote": "val uid: String = UUID.randomUUID().toString(),"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/entry/Entry.kt",
+     "line": 25,
+     "quote": "@PrimaryKey(autoGenerate = true) val id: Long = 0,"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/habit/Habit.kt",
+     "line": 52,
+     "quote": "val uid: String = UUID.randomUUID().toString(),"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/page/Page.kt",
+     "line": 24,
+     "quote": "val uid: String = UUID.randomUUID().toString(),"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/purge/PurgedRecord.kt",
+     "line": 34,
+     "quote": "@Entity(tableName = \"purged_records\", primaryKeys = [\"kind\", \"uid\"])"
+    },
+    {
+     "file": "shared/src/jvmCommon/kotlin/com/tendril/app/sync/SnapshotSyncOrchestrator.kt",
+     "line": 767,
+     "quote": "// §3.4's manual edges. Nothing is filtered against `suppressed`: a relation names"
+    }
+   ]
+  },
+  {
+   "claim": "2. Deletion is a deletedAt tombstone, and PurgedRecord remembers rows that were purged for good.",
+   "verdict": "confirmed",
+   "evidence": [
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/entry/Entry.kt",
+     "line": 85,
+     "quote": "val deletedAt: Instant? = null,"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/purge/PurgedRecord.kt",
+     "line": 37,
+     "quote": "val purgedAt: Instant,"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/PurgeRegistry.kt",
+     "line": 45,
+     "quote": "purgedRecordDao.insert(PurgedRecord(PurgedKind.PAGE, page.uid, now))"
+    }
+   ]
+  },
+  {
+   "claim": "3. Sync is a snapshot union merge: each device writes a whole-database snapshot file to the folder and reads the others.",
+   "verdict": "partial",
+   "evidence": [
+    {
+     "file": "shared/src/jvmCommon/kotlin/com/tendril/app/sync/SnapshotSyncOrchestrator.kt",
+     "line": 79,
+     "quote": "* §9.4's folder holds two shapes of file. A page is one file per record, so a record this build"
+    },
+    {
+     "file": "shared/src/jvmCommon/kotlin/com/tendril/app/sync/SnapshotSyncOrchestrator.kt",
+     "line": 80,
+     "quote": "* cannot read is protected by simply not writing its file. Everything else is a single array file"
+    },
+    {
+     "file": "shared/src/jvmCommon/kotlin/com/tendril/app/sync/SnapshotSyncOrchestrator.kt",
+     "line": 1108,
+     "quote": "mergeEntryFile(store, FolderArrayFile.ENTRIES_ACTIVE, read)"
+    }
+   ]
+  },
+  {
+   "claim": "4. Concurrent edits to the same row on two devices: the row with the later updatedAt wins, whole-row (not per field).",
+   "verdict": "partial",
+   "evidence": [
+    {
+     "file": "shared/src/jvmCommon/kotlin/com/tendril/app/sync/SnapshotSyncOrchestrator.kt",
+     "line": 1571,
+     "quote": "if (local != null && !remoteUpdatedAt.isAfter(local.updatedAt)) {"
+    },
+    {
+     "file": "shared/src/jvmCommon/kotlin/com/tendril/app/sync/SnapshotSyncOrchestrator.kt",
+     "line": 1616,
+     "quote": "entryDao.update("
+    },
+    {
+     "file": "shared/src/jvmCommon/kotlin/com/tendril/app/sync/SnapshotSyncOrchestrator.kt",
+     "line": 1620,
+     "quote": "googleEventId = adoptedGoogleEventId(winner = entity, loserId = local.googleEventId),"
+    },
+    {
+     "file": "shared/src/jvmCommon/kotlin/com/tendril/app/sync/SnapshotSyncOrchestrator.kt",
+     "line": 1699,
+     "quote": "if (local != null && !remoteUpdatedAt.isAfter(local.updatedAt)) continue"
+    },
+    {
+     "file": "shared/src/jvmCommon/kotlin/com/tendril/app/sync/SnapshotSyncOrchestrator.kt",
+     "line": 1871,
+     "quote": "else -> Unit"
+    }
+   ]
+  },
+  {
+   "claim": "5. Delete on device A, then a later edit of the same row on device B that never saw the delete: the merged row stays deleted (the tombstone wins regardless of time).",
+   "verdict": "refuted",
+   "evidence": [
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/PurgeRegistry.kt",
+     "line": 94,
+     "quote": "if (recordUpdatedAt.isAfter(purgedAt)) {"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/PurgeRegistry.kt",
+     "line": 113,
+     "quote": "if (page.updatedAt.isAfter(tombstone.purgedAt)) supersede(tombstone)"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/PurgeRegistry.kt",
+     "line": 25,
+     "quote": "* record (`updatedAt`) and a tombstone (`purgedAt`); the later of the two wins, the same"
+    },
+    {
+     "file": "shared/src/jvmCommon/kotlin/com/tendril/app/sync/SnapshotSyncOrchestrator.kt",
+     "line": 1571,
+     "quote": "if (local != null && !remoteUpdatedAt.isAfter(local.updatedAt)) {"
+    }
+   ]
+  },
+  {
+   "claim": "6. A tombstone is purged after some retention period; a device that was offline longer than that and still holds the live row does NOT resurrect it, because PurgedRecord blocks it.",
+   "verdict": "refuted",
+   "evidence": [
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/purge/PurgedRecord.kt",
+     "line": 59,
+     "quote": "@Query(\"DELETE FROM purged_records WHERE kind = :kind AND uid = :uid\")"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/purge/PurgedRecord.kt",
+     "line": 64,
+     "quote": "@Query(\"DELETE FROM purged_records\")"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/PurgeRegistry.kt",
+     "line": 94,
+     "quote": "if (recordUpdatedAt.isAfter(purgedAt)) {"
+    }
+   ]
+  },
+  {
+   "claim": "7. A device clock that is ahead does not change which edit wins (no wall-clock comparison decides a conflict).",
+   "verdict": "refuted",
+   "evidence": [
+    {
+     "file": "shared/src/jvmCommon/kotlin/com/tendril/app/sync/SnapshotSyncOrchestrator.kt",
+     "line": 1564,
+     "quote": "val remoteUpdatedAt = Instant.ofEpochMilli(record.updatedAt)"
+    },
+    {
+     "file": "shared/src/jvmCommon/kotlin/com/tendril/app/sync/SnapshotSyncOrchestrator.kt",
+     "line": 1571,
+     "quote": "if (local != null && !remoteUpdatedAt.isAfter(local.updatedAt)) {"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/PurgeRegistry.kt",
+     "line": 43,
+     "quote": "suspend fun purgePage(pageId: Long, now: Instant = Instant.now()) {"
+    }
+   ]
+  },
+  {
+   "claim": "8. A new device with an empty database adopts every live row and every tombstone from the folder.",
+   "verdict": "confirmed",
+   "evidence": [
+    {
+     "file": "shared/src/jvmCommon/kotlin/com/tendril/app/sync/SnapshotSyncOrchestrator.kt",
+     "line": 1608,
+     "quote": "if (local == null) {"
+    },
+    {
+     "file": "shared/src/jvmCommon/kotlin/com/tendril/app/sync/SnapshotSyncOrchestrator.kt",
+     "line": 1859,
+     "quote": "local == null -> {"
+    },
+    {
+     "file": "shared/src/jvmCommon/kotlin/com/tendril/app/sync/SnapshotSyncOrchestrator.kt",
+     "line": 1430,
+     "quote": "purgeRegistry.adopt(adopted)"
+    },
+    {
+     "file": "shared/src/jvmCommon/kotlin/com/tendril/app/sync/SnapshotSyncOrchestrator.kt",
+     "line": 1094,
+     "quote": "mergePurgedFile(store, read)"
+    }
+   ]
+  },
+  {
+   "claim": "9. Fields the running version does not know about are kept on round-trip (UnknownFieldMerge).",
+   "verdict": "partial",
+   "evidence": [
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/sync/UnknownFieldMerge.kt",
+     "line": 73,
+     "quote": "// Undeclared: this build has no member for it. Carry it, unless this build somehow"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/sync/UnknownFieldMerge.kt",
+     "line": 34,
+     "quote": "* that do not ([FormattingSpanSnapshot], [ViewFilterSnapshot], [CanvasEdgeSnapshotRecord]) are"
+    },
+    {
+     "file": "shared/src/jvmCommon/kotlin/com/tendril/app/sync/SnapshotSyncOrchestrator.kt",
+     "line": 938,
+     "quote": "val carried = carryUnknownFields(localRecords, previousByUid(store, file.fileName, read), file.elementDescriptor)"
+    },
+    {
+     "file": "shared/src/jvmCommon/kotlin/com/tendril/app/sync/SnapshotSyncOrchestrator.kt",
+     "line": 958,
+     "quote": "val text = decryptText(store.readRoot(name), read)"
+    }
+   ]
+  }
+ ],
+ "missed": [
+  {
+   "fact": "Claims 5/6: the merge's decider is per-record-family. Entry and Habit: whole-row last-write-wins on updatedAt, strict isAfter, so a tie keeps the local row. Trash (deletedAt) is an ordinary field of that row, so a later edit on B beats a trash on A. Purge: the later of purgedAt and updatedAt wins, and a newer record drops the tombstone. Reminders, habit completions and check-ins: delete wins, a live row never overwrites a deleted one, and there is no timestamp comparison.",
+   "file": "shared/src/jvmCommon/kotlin/com/tendril/app/sync/SnapshotSyncOrchestrator.kt",
+   "line": 1869
+  },
+  {
+   "fact": "TimeLog mixes both rules: an arriving delete applies, an existing local tombstone is kept, and otherwise the newer updatedAt wins.",
+   "file": "shared/src/jvmCommon/kotlin/com/tendril/app/sync/SnapshotSyncOrchestrator.kt",
+   "line": 2080
+  },
+  {
+   "fact": "PurgedKind has four members (PAGE, ENTRY, HABIT, PROPERTY), and PROPERTY has no supersede check: purge always wins, because a re-added column gets a fresh uid. Only three of the four kinds compare timestamps.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/data/purge/PurgedRecord.kt",
+   "line": 19
+  },
+  {
+   "fact": "Tombstone adoption keeps the EARLIEST purgedAt for a (kind, uid), which makes it convergent from any arrival order. PurgedRecord has no autoGenerate id, only the composite key (kind, uid).",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/PurgeRegistry.kt",
+   "line": 169
+  },
+  {
+   "fact": "Purge tombstones are never expired. The only deletes are clear(kind, uid), when a newer edit supersedes the tombstone, and deleteAll, for restore-from-backup. The tombstone file is republished in full on every pass.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/data/purge/PurgedRecord.kt",
+   "line": 59
+  },
+  {
+   "fact": "Because the registry compares updatedAt against purgedAt, a long-offline device that edited the row after the purge time supersedes the tombstone and resurrects the row. A device that did not edit stays blocked.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/PurgeRegistry.kt",
+   "line": 109
+  },
+  {
+   "fact": "Merge order puts tombstones first. mergePurgedFile and applyToLocalRecords run before any record file is read.",
+   "file": "shared/src/jvmCommon/kotlin/com/tendril/app/sync/SnapshotSyncOrchestrator.kt",
+   "line": 1094
+  },
+  {
+   "fact": "Some entry fields are merged per field, outside the whole-row rule. googleEventId goes from absent to known regardless of which record wins, and providerEventId is never adopted from a remote record.",
+   "file": "shared/src/jvmCommon/kotlin/com/tendril/app/sync/SnapshotSyncOrchestrator.kt",
+   "line": 1642
+  },
+  {
+   "fact": "There are 12 folder-wide array files, plus one file per page in pages/. Entries are split into active and archived files that share one suppression family.",
+   "file": "shared/src/jvmCommon/kotlin/com/tendril/app/sync/SnapshotSyncOrchestrator.kt",
+   "line": 98
+  },
+  {
+   "fact": "Records the build cannot decode are quarantined. The raw JsonElement is held and republished verbatim, and this device's own row for that uid is suppressed, but only when the peer's copy would have won the updatedAt race (outranks). This is a second, unknown-value path for keeping data, separate from UnknownFieldMerge.",
+   "file": "shared/src/jvmCommon/kotlin/com/tendril/app/sync/SnapshotSyncOrchestrator.kt",
+   "line": 442
+  },
+  {
+   "fact": "UnknownFieldMerge preserves only undeclared keys, and only for records that were decoded. List elements are matched by uid. FormattingSpanSnapshot, ViewFilterSnapshot and CanvasEdgeSnapshotRecord have no uid and are not carried. The previous copy comes from a best-effort read of the folder, so if that read fails nothing is carried and the write still proceeds.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/sync/UnknownFieldMerge.kt",
+   "line": 32
+  },
+  {
+   "fact": "Entry completions are an append-only grow-only union with no compare and no tombstone. page_relations.json edges name no uid of their own.",
+   "file": "shared/src/jvmCommon/kotlin/com/tendril/app/sync/SnapshotSyncOrchestrator.kt",
+   "line": 1886
+  },
+  {
+   "fact": "Sync writes into an encrypted folder are refused if the key cannot open existing snapshots. A passphrase mismatch blocks the write pass entirely.",
+   "file": "shared/src/jvmCommon/kotlin/com/tendril/app/sync/SnapshotSyncOrchestrator.kt",
+   "line": 668
+  }
+ ],
+ "absence_probes": [
+  {
+   "pattern": "retention|olderThan (shared/src/**/*.kt)",
+   "hits": 0
+  },
+  {
+   "pattern": "System\\.currentTimeMillis|Clock\\.|clockSkew|skew|Instant\\.now\\(\\) (shared/src/commonMain/.../sync)",
+   "hits": 0
+  },
+  {
+   "pattern": "Habit.kt, Page.kt and PurgedRecord.kt: autoGenerate on PurgedRecord",
+   "hits": 0
+  }
+ ]
+}

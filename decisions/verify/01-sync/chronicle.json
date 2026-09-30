@@ -1,0 +1,269 @@
+{
+ "repo": "Chronicle",
+ "claims": [
+  {
+   "claim": "1. Sync identity is scheduleUpdatedAtMillis plus scheduleUpdatedByDevice on reminders: a per-device stamp.",
+   "verdict": "refuted",
+   "evidence": [
+    {
+     "file": "data/src/main/kotlin/com/hazia/chronicle/data/sync/SyncCodec.kt",
+     "line": 92,
+     "quote": "\"${prefix}Millis\" to stamp.updatedAt.toEpochMilli().toJson(),"
+    },
+    {
+     "file": "data/src/main/kotlin/com/hazia/chronicle/data/sync/SyncCodec.kt",
+     "line": 93,
+     "quote": "\"${prefix}Device\" to stamp.deviceId.value.toJson(),"
+    },
+    {
+     "file": "data/src/main/kotlin/com/hazia/chronicle/data/sync/SyncCodec.kt",
+     "line": 283,
+     "quote": "*stampJson(\"scheduleUpdatedAt\", scheduleUpdatedAt).toTypedArray(),"
+    },
+    {
+     "file": "data/src/main/kotlin/com/hazia/chronicle/data/room/entity/ReminderEntity.kt",
+     "line": 24,
+     "quote": "@PrimaryKey val id: String,"
+    }
+   ]
+  },
+  {
+   "claim": "2. One file per device (chronicle-sync-<deviceId>.json), merged on app start.",
+   "verdict": "confirmed",
+   "evidence": [
+    {
+     "file": "app/src/main/kotlin/com/hazia/chronicle/backup/FolderSync.kt",
+     "line": 115,
+     "quote": "fun fileNameFor(deviceId: String) = PREFIX + deviceId + SUFFIX"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/chronicle/backup/FolderSync.kt",
+     "line": 86,
+     "quote": "when (val r = sync.importJson(text)) {"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/chronicle/MainViewModel.kt",
+     "line": 141,
+     "quote": "folderSync.syncNow()"
+    }
+   ]
+  },
+  {
+   "claim": "3. Every synced row has a globally unique id (UUID or similar), not a device-local autoincrement.",
+   "verdict": "confirmed",
+   "evidence": [
+    {
+     "file": "domain/src/main/kotlin/com/hazia/chronicle/domain/id/Ids.kt",
+     "line": 18,
+     "quote": "companion object { fun new(): ActivityId = ActivityId(Ulid.generate()) }"
+    },
+    {
+     "file": "data/src/main/kotlin/com/hazia/chronicle/data/room/entity/ActivityEntity.kt",
+     "line": 27,
+     "quote": "@PrimaryKey val id: String,"
+    }
+   ]
+  },
+  {
+   "claim": "4. The merge is per field or per field group (field stamps), not whole-row.",
+   "verdict": "partial",
+   "evidence": [
+    {
+     "file": "data/src/main/kotlin/com/hazia/chronicle/data/merge/EntityMerge.kt",
+     "line": 27,
+     "quote": "\"the whole record\" IS the merge unit: deletedAt travels with whichever copy wins,"
+    },
+    {
+     "file": "data/src/main/kotlin/com/hazia/chronicle/data/merge/ReminderMerge.kt",
+     "line": 21,
+     "quote": "val (scheduleWinner, effectiveScheduleStamp) = FieldMerge.resolve("
+    },
+    {
+     "file": "data/src/main/kotlin/com/hazia/chronicle/data/merge/ReminderMerge.kt",
+     "line": 25,
+     "quote": "val (statusWinner, effectiveStatusStamp) = FieldMerge.resolve("
+    }
+   ]
+  },
+  {
+   "claim": "5. Concurrent edits to the same field: the later stamp wins; ties are broken by device id.",
+   "verdict": "confirmed",
+   "evidence": [
+    {
+     "file": "domain/src/main/kotlin/com/hazia/chronicle/domain/sync/FieldStamp.kt",
+     "line": 36,
+     "quote": "override fun compareTo(other: FieldStamp): Int {"
+    },
+    {
+     "file": "domain/src/main/kotlin/com/hazia/chronicle/domain/sync/FieldStamp.kt",
+     "line": 39,
+     "quote": "return deviceId.value.compareTo(other.deviceId.value)"
+    },
+    {
+     "file": "domain/src/main/kotlin/com/hazia/chronicle/domain/sync/FieldStamp.kt",
+     "line": 70,
+     "quote": "return if (effectiveRemote > effectiveLocal) remote to effectiveRemote else local to effectiveLocal"
+    }
+   ]
+  },
+  {
+   "claim": "6. Delete on device A, then a later edit on device B that never saw the delete: the later stamp wins, so the edit resurrects the row.",
+   "verdict": "confirmed",
+   "evidence": [
+    {
+     "file": "data/src/main/kotlin/com/hazia/chronicle/data/merge/EntityMerge.kt",
+     "line": 27,
+     "quote": "\"the whole record\" IS the merge unit: deletedAt travels with whichever copy wins,"
+    },
+    {
+     "file": "data/src/main/kotlin/com/hazia/chronicle/data/merge/ReminderMerge.kt",
+     "line": 13,
+     "quote": "deletedAt is bundled into the schedule group: \"should this fire at all\" reads as a"
+    },
+    {
+     "file": "domain/src/main/kotlin/com/hazia/chronicle/domain/sync/FieldStamp.kt",
+     "line": 70,
+     "quote": "return if (effectiveRemote > effectiveLocal) remote to effectiveRemote else local to effectiveLocal"
+    }
+   ]
+  },
+  {
+   "claim": "7. Tombstones are purged after a retention period; a stale device can then resurrect a purged row.",
+   "verdict": "confirmed",
+   "evidence": [
+    {
+     "file": "domain/src/main/kotlin/com/hazia/chronicle/domain/sync/Syncable.kt",
+     "line": 22,
+     "quote": "val PURGE_AFTER: java.time.Duration = java.time.Duration.ofDays(90)"
+    },
+    {
+     "file": "data/src/main/kotlin/com/hazia/chronicle/data/sync/RoomSyncImporter.kt",
+     "line": 44,
+     "quote": "val purged = purgeAllTombstones()"
+    },
+    {
+     "file": "domain/src/main/kotlin/com/hazia/chronicle/domain/sync/Syncable.kt",
+     "line": 8,
+     "quote": "only once an entity is confirmed both deleted and old enough that resurrecting it via"
+    },
+    {
+     "file": "data/src/main/kotlin/com/hazia/chronicle/data/merge/EntityMerge.kt",
+     "line": 19,
+     "quote": "fun merge(local: T?, incoming: T): T"
+    }
+   ]
+  },
+  {
+   "claim": "8. A device clock that is ahead wins every conflict it takes part in.",
+   "verdict": "refuted",
+   "evidence": [
+    {
+     "file": "domain/src/main/kotlin/com/hazia/chronicle/domain/sync/FieldStamp.kt",
+     "line": 91,
+     "quote": "if (ClockSkewGuard.isImplausible(stamp, now)) stamp.copy(updatedAt = now) else stamp"
+    },
+    {
+     "file": "domain/src/main/kotlin/com/hazia/chronicle/domain/sync/FieldStamp.kt",
+     "line": 101,
+     "quote": "private val MAX_FUTURE_SKEW: Duration = Duration.ofHours(24)"
+    }
+   ]
+  },
+  {
+   "claim": "9. A new device with an empty database adopts every live row and every tombstone.",
+   "verdict": "partial",
+   "evidence": [
+    {
+     "file": "data/src/main/kotlin/com/hazia/chronicle/data/merge/EntityMerge.kt",
+     "line": 35,
+     "quote": "if (local == null) return incoming"
+    },
+    {
+     "file": "data/src/main/kotlin/com/hazia/chronicle/data/room/dao/RemindGoalChartDao.kt",
+     "line": 39,
+     "quote": "@Query(\"SELECT * FROM reminder\") suspend fun getAllRaw(): List<ReminderEntity>"
+    },
+    {
+     "file": "data/src/main/kotlin/com/hazia/chronicle/data/sync/RoomSyncImporter.kt",
+     "line": 44,
+     "quote": "val purged = purgeAllTombstones()"
+    }
+   ]
+  }
+ ],
+ "missed": [
+  {
+   "fact": "Reminder has TWO stamps, scheduleUpdatedAt and statusUpdatedAt, each encoded as Millis and Device columns. The stamp is a per-field-group merge stamp, not the row's identity. Identity is the ULID primary key `id`.",
+   "file": "data/src/main/kotlin/com/hazia/chronicle/data/sync/SyncCodec.kt",
+   "line": 284
+  },
+  {
+   "fact": "The JSON column names are scheduleUpdatedAtMillis / scheduleUpdatedAtDevice. There is no 'scheduleUpdatedByDevice' in the codec, so claim 1's field name is wrong as well.",
+   "file": "data/src/main/kotlin/com/hazia/chronicle/data/sync/SyncCodec.kt",
+   "line": 93
+  },
+  {
+   "fact": "A reminder's deletedAt is bundled into the schedule group. A delete therefore competes with due/repeat edits, not with done/notified flips, so a status-only change on B does not resurrect a row that A deleted. The status group can still carry done/notified onto the tombstone.",
+   "file": "data/src/main/kotlin/com/hazia/chronicle/data/merge/ReminderMerge.kt",
+   "line": 13
+  },
+  {
+   "fact": "Both stamps are clamped to now at comparison time when they are more than 24h in the future. The clamped stamp is persisted as the winner's effective stamp, and it is still replaced by any genuinely later edit. A skewed clock therefore cannot win forever. A skewed clock of less than 24h ahead does win conflicts.",
+   "file": "domain/src/main/kotlin/com/hazia/chronicle/domain/sync/FieldStamp.kt",
+   "line": 90
+  },
+  {
+   "fact": "On a first-time arrival the incoming row is stored as sent, stamp included, with no clamp. A tombstone older than 90 days is stored by applyIncoming and then purged by the GC sweep in the same import transaction. A fresh device therefore keeps live rows and recent tombstones but loses old tombstones. The FK-safe purge can skip some rows, because it swallows SQLiteConstraintException.",
+   "file": "data/src/main/kotlin/com/hazia/chronicle/data/sync/RoomSyncImporter.kt",
+   "line": 44
+  },
+  {
+   "fact": "A tombstone is purged when deletedAtMillis < now-90d, measured against deletedAt and not against the stamp. The local GC also runs after every import. A device that was offline for over 90 days and still holds the live row re-exports it, and every other device re-adopts it because it has no local copy (resurrection).",
+   "file": "data/src/main/kotlin/com/hazia/chronicle/data/room/RoomBackedRepository.kt",
+   "line": 72
+  },
+  {
+   "fact": "The 'own' file chronicle-sync-<thisDevice>.json is skipped on read. Peer files are skipped when lastModified has not moved since the last read. A lastModified of 0 forces a read every run. The folder sync reads first and writes second.",
+   "file": "app/src/main/kotlin/com/hazia/chronicle/backup/FolderSync.kt",
+   "line": 78
+  },
+  {
+   "fact": "Tie-break is a string comparison of deviceId.value, so the lexicographically larger device id wins a same-millisecond tie. The persisted stamp is truncated to epoch millis.",
+   "file": "domain/src/main/kotlin/com/hazia/chronicle/domain/sync/FieldStamp.kt",
+   "line": 39
+  },
+  {
+   "fact": "Each entity (except Reminder) has only a single `updatedAt` stamp. A concurrent rename on A and a colour change on B therefore means one whole row overwrites the other. The field stamps are per field group, which for 10 of 11 entity types is the whole row. Only Reminder has 2 groups.",
+   "file": "data/src/main/kotlin/com/hazia/chronicle/data/merge/EntityMerge.kt",
+   "line": 25
+  },
+  {
+   "fact": "Sessions and entries also carry extra identity or cross-row data: Session.plannedRun is packed into one 'plannedRun' string. Entry packs one of four value kinds into the columns numberValue, boolValue, ratingValue and choiceId. A reminder's repeatIntervalMillis holds a bitmask for WEEKDAYS and a packed value for RANDOM_DAYS, so it carries a second meaning beyond interval millis.",
+   "file": "data/src/main/kotlin/com/hazia/chronicle/data/sync/SyncCodec.kt",
+   "line": 273
+  },
+  {
+   "fact": "The import is transactional and the merge happens per row inside db.withTransaction. A record that cannot be decoded is skipped and counted in `undecodable`. A schemaVersion other than CURRENT rejects the whole file.",
+   "file": "data/src/main/kotlin/com/hazia/chronicle/data/sync/RoomSyncImporter.kt",
+   "line": 30
+  }
+ ],
+ "absence_probes": [
+  {
+   "pattern": "scheduleUpdatedByDevice",
+   "hits": 0
+  },
+  {
+   "pattern": "randomUUID|UUID.randomUUID",
+   "hits": 0
+  },
+  {
+   "pattern": "autoGenerate",
+   "hits": 0
+  },
+  {
+   "pattern": "getAllRaw with a deletedAtMillis IS NULL filter",
+   "hits": 0
+  }
+ ]
+}

@@ -1,0 +1,74 @@
+{
+ "tendril": {
+  "chronicle-group-merge": 0,
+  "chronicle-tie-converges": 0,
+  "shared-later-edit-beats-fast-clock": 0,
+  "chronicle-delete-beats-status": 0,
+  "tendril-purge-holds": 1,
+  "tendril-late-join": 1,
+  "tendril-remote-edit-silent": 1,
+  "mnemo-same-time-shown": 0,
+  "mnemo-delete-vs-edit-shown": 0,
+  "shared-converges": 1
+ },
+ "chronicle": {
+  "chronicle-group-merge": 1,
+  "chronicle-tie-converges": 1,
+  "shared-later-edit-beats-fast-clock": 0,
+  "chronicle-delete-beats-status": 1,
+  "tendril-purge-holds": 0,
+  "tendril-late-join": 1,
+  "tendril-remote-edit-silent": 1,
+  "mnemo-same-time-shown": 0,
+  "mnemo-delete-vs-edit-shown": 0,
+  "shared-converges": 1
+ },
+ "mnemo": {
+  "chronicle-group-merge": 0.5,
+  "chronicle-tie-converges": 0.5,
+  "shared-later-edit-beats-fast-clock": 0.5,
+  "chronicle-delete-beats-status": 0.5,
+  "tendril-purge-holds": 0.5,
+  "tendril-late-join": 1,
+  "tendril-remote-edit-silent": 0,
+  "mnemo-same-time-shown": 1,
+  "mnemo-delete-vs-edit-shown": 1,
+  "shared-converges": 0.5
+ },
+ "replace": {
+  "chronicle-group-merge": 0,
+  "chronicle-tie-converges": 1,
+  "shared-later-edit-beats-fast-clock": 0,
+  "chronicle-delete-beats-status": 0,
+  "tendril-purge-holds": 0,
+  "tendril-late-join": 1,
+  "tendril-remote-edit-silent": 0,
+  "mnemo-same-time-shown": 0,
+  "mnemo-delete-vs-edit-shown": 0,
+  "shared-converges": 1
+ },
+ "hybrid": {
+  "chronicle-group-merge": 1,
+  "chronicle-tie-converges": 1,
+  "shared-later-edit-beats-fast-clock": 1,
+  "chronicle-delete-beats-status": 1,
+  "tendril-purge-holds": 1,
+  "tendril-late-join": 1,
+  "tendril-remote-edit-silent": 1,
+  "mnemo-same-time-shown": 0,
+  "mnemo-delete-vs-edit-shown": 0,
+  "shared-converges": 1
+ },
+ "hybrid+": {
+  "chronicle-group-merge": 1,
+  "chronicle-tie-converges": 0.5,
+  "shared-later-edit-beats-fast-clock": 1,
+  "chronicle-delete-beats-status": 1,
+  "tendril-purge-holds": 1,
+  "tendril-late-join": 1,
+  "tendril-remote-edit-silent": 1,
+  "mnemo-same-time-shown": 1,
+  "mnemo-delete-vs-edit-shown": 1,
+  "shared-converges": 0.5
+ }
+}

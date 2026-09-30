@@ -1,0 +1,265 @@
+{
+ "repo": "Mnemo",
+ "claims": [
+  {
+   "claim": "1. Every Reminder has a client-generated UUID id and updatedAtEpochMillis.",
+   "verdict": "confirmed",
+   "evidence": [
+    {
+     "file": "app/src/main/kotlin/com/hazia/mnemo/data/local/Reminder.kt",
+     "line": 34,
+     "quote": "@PrimaryKey val id: String = UUID.randomUUID().toString(),"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/mnemo/data/local/Reminder.kt",
+     "line": 81,
+     "quote": "val updatedAtEpochMillis: Long = System.currentTimeMillis(),"
+    }
+   ]
+  },
+  {
+   "claim": "2. SyncFileState is a Room entity caching each sync file's last-seen lastModified.",
+   "verdict": "confirmed",
+   "evidence": [
+    {
+     "file": "app/src/main/kotlin/com/hazia/mnemo/data/local/SyncFileState.kt",
+     "line": 18,
+     "quote": "@Entity(tableName = \"sync_file_state\")"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/mnemo/data/local/SyncFileState.kt",
+     "line": 21,
+     "quote": "val lastSeenModifiedEpochMillis: Long,"
+    }
+   ]
+  },
+  {
+   "claim": "3. Conflicts go to a conflict-resolution screen offering keep mine, take theirs, keep both.",
+   "verdict": "confirmed",
+   "evidence": [
+    {
+     "file": "app/src/main/kotlin/com/hazia/mnemo/ui/sync/ConflictScreen.kt",
+     "line": 114,
+     "quote": ") { Text(\"Keep mine\") }"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/mnemo/ui/sync/ConflictScreen.kt",
+     "line": 118,
+     "quote": ") { Text(\"Take theirs\") }"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/mnemo/ui/sync/ConflictScreen.kt",
+     "line": 123,
+     "quote": ") { Text(\"Keep both (adds a second reminder)\") }"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/mnemo/data/sync/ReminderSyncManager.kt",
+     "line": 27,
+     "quote": "enum class ConflictResolution { KEEP_LOCAL, KEEP_REMOTE, KEEP_BOTH }"
+    }
+   ]
+  },
+  {
+   "claim": "4. One file per reminder (reminders/<uuid>.json), not one file per device.",
+   "verdict": "confirmed",
+   "evidence": [
+    {
+     "file": "app/src/main/kotlin/com/hazia/mnemo/data/sync/ReminderSyncManager.kt",
+     "line": 38,
+     "quote": "* Reads/writes `reminders/<uuid>.json` under a SAF-chosen root — one file per reminder, not one"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/mnemo/data/sync/ReminderSyncManager.kt",
+     "line": 76,
+     "quote": "val fileName = \"${reminder.id}.json\""
+    }
+   ]
+  },
+  {
+   "claim": "5. Deletion travels as isArchived = true (soft delete = sync tombstone); isArchived also means done, or fired with nothing left.",
+   "verdict": "confirmed",
+   "evidence": [
+    {
+     "file": "app/src/main/kotlin/com/hazia/mnemo/data/local/Reminder.kt",
+     "line": 23,
+     "quote": "* `isArchived` means \"no longer scheduled\": set by a delete (soft delete, and the sync tombstone"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/mnemo/data/local/Reminder.kt",
+     "line": 24,
+     "quote": "* that lets a deletion propagate), by Done on a reminder with nothing left, and by `recordFired`"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/mnemo/data/repository/ReminderRepository.kt",
+     "line": 183,
+     "quote": "isArchived = existing.isArchived || next == null,"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/mnemo/data/repository/ReminderRepository.kt",
+     "line": 81,
+     "quote": "update(existing.copy(isArchived = true))"
+    }
+   ]
+  },
+  {
+   "claim": "6. A conflict is raised only when BOTH sides changed since the last sync.",
+   "verdict": "refuted",
+   "evidence": [
+    {
+     "file": "app/src/main/kotlin/com/hazia/mnemo/data/sync/ReminderSyncManager.kt",
+     "line": 120,
+     "quote": "if (lastSeen != null && file.lastModified() <= lastSeen) continue // unchanged, skip parsing"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/mnemo/data/sync/ReminderSyncManager.kt",
+     "line": 155,
+     "quote": "local.updatedAtEpochMillis == remote.updatedAtEpochMillis -> {"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/mnemo/data/sync/ReminderSyncManager.kt",
+     "line": 159,
+     "quote": "else -> {"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/mnemo/data/sync/ReminderSyncManager.kt",
+     "line": 160,
+     "quote": "conflicts += ReminderConflict(local, remote)"
+    }
+   ]
+  },
+  {
+   "claim": "7. An edit made only on the other device (local copy untouched since last sync) is adopted silently.",
+   "verdict": "refuted",
+   "evidence": [
+    {
+     "file": "app/src/main/kotlin/com/hazia/mnemo/data/sync/ReminderSyncManager.kt",
+     "line": 155,
+     "quote": "local.updatedAtEpochMillis == remote.updatedAtEpochMillis -> {"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/mnemo/data/sync/ReminderSyncManager.kt",
+     "line": 160,
+     "quote": "conflicts += ReminderConflict(local, remote)"
+    }
+   ]
+  },
+  {
+   "claim": "8. Delete on device A, then a later edit on device B: goes to the conflict screen.",
+   "verdict": "confirmed",
+   "evidence": [
+    {
+     "file": "app/src/main/kotlin/com/hazia/mnemo/data/sync/ReminderSyncManager.kt",
+     "line": 159,
+     "quote": "else -> {"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/mnemo/data/sync/ReminderSyncManager.kt",
+     "line": 229,
+     "quote": "if (conflict.remote.isArchived) alarmScheduler.cancel(conflict.remote.id) else alarmScheduler.arm(conflict.remote)"
+    }
+   ]
+  },
+  {
+   "claim": "9. Tombstones (archived rows) are never purged.",
+   "verdict": "partial",
+   "evidence": [
+    {
+     "file": "app/src/main/kotlin/com/hazia/mnemo/data/local/ReminderDao.kt",
+     "line": 35,
+     "quote": "/** Hard delete by id — used only by [com.hazia.mnemo.data.backup.FullBackupManager.restore],"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/mnemo/data/backup/FullBackupManager.kt",
+     "line": 172,
+     "quote": "for (staleId in stale) db.reminderDao().deleteById(staleId)"
+    }
+   ]
+  },
+  {
+   "claim": "10. A device clock that is ahead has no effect on which side wins (a person decides every conflict).",
+   "verdict": "partial",
+   "evidence": [
+    {
+     "file": "app/src/main/kotlin/com/hazia/mnemo/data/sync/ReminderSyncManager.kt",
+     "line": 155,
+     "quote": "local.updatedAtEpochMillis == remote.updatedAtEpochMillis -> {"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/mnemo/data/sync/ReminderSyncManager.kt",
+     "line": 120,
+     "quote": "if (lastSeen != null && file.lastModified() <= lastSeen) continue // unchanged, skip parsing"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/mnemo/data/sync/ReminderSyncManager.kt",
+     "line": 299,
+     "quote": "updatedAtEpochMillis > lastSeenModifiedEpochMillis + MTIME_TOLERANCE_MS"
+    }
+   ]
+  }
+ ],
+ "missed": [
+  {
+   "fact": "The deciding rule for claims 6/7 is an updatedAt EQUALITY test plus an mtime gate, not a both-changed test. There is no base or ancestor version and no content comparison. Any differing updatedAt where the file mtime is newer than the cache becomes a conflict, including a one-sided remote edit. Nothing is ever adopted silently except a missing local row (local == null) or equal updatedAt.",
+   "file": "app/src/main/kotlin/com/hazia/mnemo/data/sync/ReminderSyncManager.kt",
+   "line": 144
+  },
+  {
+   "fact": "The last-writer timestamp never picks a winner, so there is no automatic last-write-wins. But a wrong-clock device can still hide edits. The skip test compares the file's lastModified() with a cached mtime. If a fast-clock device wrote a far-future mtime and this device cached it, later edits with a normal mtime are skipped without parsing and never reach the conflict screen.",
+   "file": "app/src/main/kotlin/com/hazia/mnemo/data/sync/ReminderSyncManager.kt",
+   "line": 120
+  },
+  {
+   "fact": "Sync only ever writes or reads files. A reminder file deleted from the folder is not treated as a deletion: pushMissingOrStale rewrites it from the local row (file == null -> true), so removing a file resurrects the reminder. Only the isArchived flag propagates deletion.",
+   "file": "app/src/main/kotlin/com/hazia/mnemo/data/sync/ReminderSyncManager.kt",
+   "line": 197
+  },
+  {
+   "fact": "The conflict list is held in memory and recomputed each sync. The cache is deliberately not advanced for conflicts, and pushMissingOrStale skips conflicted ids, so the conflict persists until resolved.",
+   "file": "app/src/main/kotlin/com/hazia/mnemo/data/sync/ReminderSyncManager.kt",
+   "line": 194
+  },
+  {
+   "fact": "KEEP_BOTH gives the REMOTE copy a new UUID and a fresh updatedAt. A remote tombstone (isArchived = true) is duplicated as an archived row with no alarm. KEEP_REMOTE upserts the remote row unchanged, without bumping updatedAt.",
+   "file": "app/src/main/kotlin/com/hazia/mnemo/data/sync/ReminderSyncManager.kt",
+   "line": 236
+  },
+  {
+   "fact": "isArchived carries more than two meanings. recordFired sets it when a one-shot fires, while its notification may still be showing. The widget relies on this, and ReminderDao.getById deliberately has no isArchived filter so sync and the widget can see tombstones.",
+   "file": "app/src/main/kotlin/com/hazia/mnemo/data/local/Reminder.kt",
+   "line": 24
+  },
+  {
+   "fact": "The only hard delete is FullBackupManager.restore(), which removes rows absent from the backup. That removes local tombstones too, and no sync path purges tombstones or their files.",
+   "file": "app/src/main/kotlin/com/hazia/mnemo/data/backup/FullBackupManager.kt",
+   "line": 172
+  },
+  {
+   "fact": "The FAT 2-second rounding is absorbed by a 5 s tolerance, used only in the push/retry pass. The import skip test is an exact `<=` with no tolerance.",
+   "file": "app/src/main/kotlin/com/hazia/mnemo/data/sync/ReminderSyncManager.kt",
+   "line": 294
+  },
+  {
+   "fact": "Files with a filename/content id mismatch or a non-UUID-shaped id are skipped, and the skip is not cached. Such files are re-parsed on every sync.",
+   "file": "app/src/main/kotlin/com/hazia/mnemo/data/sync/ReminderSyncManager.kt",
+   "line": 123
+  }
+ ],
+ "absence_probes": [
+  {
+   "pattern": "purge|prune|deleteArchived (main sources, non-.bak)",
+   "hits": 0
+  },
+  {
+   "pattern": "deleteById callers outside FullBackupManager.restore",
+   "hits": 0
+  },
+  {
+   "pattern": "base/ancestor/lastSyncedUpdatedAt field on Reminder or SyncFileState (only reminderId + lastSeenModifiedEpochMillis exist)",
+   "hits": 0
+  },
+  {
+   "pattern": "automatic winner (maxOf updatedAt / newer-wins) in ReminderSyncManager",
+   "hits": 0
+  }
+ ]
+}
