@@ -1,6 +1,6 @@
 # ADR 02: Task, a kind of calendar item or its own table
 
-Status: **recommended: shared, awaiting the owner's confirmation**. Date: 2026-09-30. Owners: Tendril and Equipoise. This ADR also settles the "Entry" name collision with Chronicle.
+Status: **decided: shared**. Date: 2026-09-30. Owners: Tendril and Equipoise. This ADR also settles the "Entry" name collision with Chronicle.
 
 Depends on ADR 01 (hybrid+). Every table below also carries a ULID key and per-group `(hlc, deviceId)` stamps. Those columns are the same in every option, so they are left out of the comparison.
 
@@ -50,7 +50,9 @@ The map called this "derivable in principle, contested in practice". Measured, i
 
 ## Decision
 
-_pending the owner's confirmation_
+**shared** was confirmed by the owner on 2026-09-30.
+
+Names: `Item` for a calendar task or event, and `TrackerReading` for Chronicle's logged value. Nothing in Factotum is called Entry.
 
 ## Consequences for later contests
 
