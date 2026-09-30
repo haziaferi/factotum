@@ -1,0 +1,154 @@
+{
+ "repo": "Chronicle",
+ "claims": [
+  {
+   "claim": "1. A repeating reminder can skip one occurrence without changing the rule; say how it is stored (field or separate row).",
+   "verdict": "not_found",
+   "evidence": [
+    {
+     "file": "data/src/main/kotlin/com/hazia/chronicle/data/room/entity/ReminderEntity.kt",
+     "line": 23,
+     "quote": "data class ReminderEntity("
+    },
+    {
+     "file": "data/src/main/kotlin/com/hazia/chronicle/data/room/entity/ReminderEntity.kt",
+     "line": 42,
+     "quote": "val deletedAtMillis: Long?,"
+    },
+    {
+     "file": "domain/src/main/kotlin/com/hazia/chronicle/domain/model/Reminder.kt",
+     "line": 27,
+     "quote": "data class Reminder("
+    }
+   ]
+  },
+  {
+   "claim": "2. A repeating reminder can move or retime one occurrence only; say how it is stored.",
+   "verdict": "not_found",
+   "evidence": [
+    {
+     "file": "data/src/main/kotlin/com/hazia/chronicle/data/room/entity/ReminderEntity.kt",
+     "line": 26,
+     "quote": "val dueAtIso: String, // DUE_AT_FORMATTER, e.g. \"2026-08-01T08:00:00\" — see the header above"
+    },
+    {
+     "file": "domain/src/main/kotlin/com/hazia/chronicle/domain/model/Reminder.kt",
+     "line": 30,
+     "quote": "val dueAt: LocalDateTime,"
+    }
+   ]
+  },
+  {
+   "claim": "3. 'This and following' edits exist; say how.",
+   "verdict": "not_found",
+   "evidence": [
+    {
+     "file": "domain/src/main/kotlin/com/hazia/chronicle/domain/model/Reminder.kt",
+     "line": 32,
+     "quote": "val repeatRule: RepeatRule,"
+    }
+   ]
+  },
+  {
+   "claim": "4. Snooze of one occurrence is stored on the reminder row (which column) and cleared at the next occurrence.",
+   "verdict": "refuted",
+   "evidence": [
+    {
+     "file": "app/src/main/kotlin/com/hazia/chronicle/alarm/PendingAlerts.kt",
+     "line": 22,
+     "quote": "* So they live here, in the same Preferences DataStore Settings uses, and deliberately NOT in"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/chronicle/alarm/PendingAlerts.kt",
+     "line": 104,
+     "quote": "const val SNOOZE_PREFIX = \"pending_snooze:\""
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/chronicle/alarm/PendingAlerts.kt",
+     "line": 99,
+     "quote": "private fun snoozeKey(id: String) = longPreferencesKey(SNOOZE_PREFIX + id)"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/chronicle/alarm/ReminderSnooze.kt",
+     "line": 13,
+     "quote": "* The stored `dueAt` is never touched. The NOTIFICATION kind used to snooze by rewriting"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/chronicle/alarm/ReminderAlarmReceiver.kt",
+     "line": 75,
+     "quote": "if (isSnooze) alerts.clearSnooze(id)"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/chronicle/alarm/AndroidAlarmScheduler.kt",
+     "line": 107,
+     "quote": "runBlocking { alerts.clear(reminderId.value) }"
+    }
+   ]
+  }
+ ],
+ "missed": [
+  {
+   "fact": "Snooze is device-local, not a ReminderEntity column and not synced. It lives in the Preferences DataStore as a long key 'pending_snooze:<reminderId>' holding the re-alert trigger time in epoch millis. The source says this is deliberate: a snooze pressed on one phone must not ring on another. A merge must not expect snooze in the reminder schema or the sync payload.",
+   "file": "app/src/main/kotlin/com/hazia/chronicle/alarm/PendingAlerts.kt",
+   "line": 22
+  },
+  {
+   "fact": "The snooze key is cleared when the snoozed alarm fires (isSnooze), or by PendingAlerts.clear when the reminder is cancelled (done, deleted or re-scheduled). It is not cleared 'at the next occurrence'. The fire path clears it on any snooze fire. The snooze duration is a global setting (alarmSettings.snoozeMinutes), not per occurrence.",
+   "file": "app/src/main/kotlin/com/hazia/chronicle/alarm/ReminderAlarmReceiver.kt",
+   "line": 75
+  },
+  {
+   "fact": "ReminderEntity.repeatIntervalMillis packs two meanings into one column. EVERY_INTERVAL stores a duration in millis and WEEKDAYS stores a day bitmask. RepeatRule.RandomDays also packs minDays*1000+maxDays into the same column. The enum comment mentions only two meanings and omits RandomDays.",
+   "file": "data/src/main/kotlin/com/hazia/chronicle/data/room/entity/ReminderEntity.kt",
+   "line": 29
+  },
+  {
+   "fact": "RepeatRule has more cases than the plain None/Daily/Weekly/Monthly set: EveryInterval(Duration), Weekdays(Set<DayOfWeek>) and RandomDays(minDays, maxDays). RandomDays is seeded deterministically from the occurrence it follows (RepeatSchedule.stepOnce).",
+   "file": "domain/src/main/kotlin/com/hazia/chronicle/domain/enums/Enums.kt",
+   "line": 83
+  },
+  {
+   "fact": "The reminder has no occurrence identity. One row per reminder holds a single dueAt, which is the next occurrence, and the rule rolls it forward in place. There is no per-occurrence key, series id or exception table, so per-occurrence edits have nothing to attach to.",
+   "file": "data/src/main/kotlin/com/hazia/chronicle/data/room/entity/ReminderEntity.kt",
+   "line": 24
+  },
+  {
+   "fact": "There are two separate merge stamp groups: schedule (scheduleUpdatedAtMillis, scheduleUpdatedByDevice) and status (statusUpdatedAtMillis, statusUpdatedByDevice). The done and notified flags are status, and dueAtIso, the repeat rule and nag settings are schedule. They merge independently through ReminderMerge.",
+   "file": "data/src/main/kotlin/com/hazia/chronicle/data/room/entity/ReminderEntity.kt",
+   "line": 38
+  },
+  {
+   "fact": "Deletion is a soft-delete tombstone column, deletedAtMillis (Long?), and also done/notified booleans on the row. The row also carries nag columns (nagEnabled, nagMaxRepeats, nagMaxDurationMillis) and soundRef.",
+   "file": "data/src/main/kotlin/com/hazia/chronicle/data/room/entity/ReminderEntity.kt",
+   "line": 42
+  },
+  {
+   "fact": "RepeatSchedule has skippedOccurrences(firedAt, rule, now), which returns a count of missed occurrences while catching up (capped by MAX_CATCH_UP_STEPS). It is not a user skip action and stores nothing.",
+   "file": "domain/src/main/kotlin/com/hazia/chronicle/domain/remind/RepeatSchedule.kt",
+   "line": 104
+  },
+  {
+   "fact": "The edit UI, ReminderSheet, has a RepeatMode enum and no scope choice such as 'only this' or 'this and following'. Its only 'skip' hit is skipPartiallyExpanded. Editing the sheet rewrites the whole rule and dueAt.",
+   "file": "feature/remind/src/main/kotlin/com/hazia/chronicle/feature/remind/ReminderSheet.kt",
+   "line": 70
+  }
+ ],
+ "absence_probes": [
+  {
+   "pattern": "(?i)skipNext|skipOccurrence|skippedDates|exdate|thisAndFollowing|rescheduleOnce|oneOff|moveOccurrence (*.kt, whole repo; the 6 raw hits were all substring matches inside 'ZoneOffset' and 'toEpochSecond(...ZoneOffset...)' in RepeatSchedule.kt, IcsWriter.kt and DateTimeField.kt, so 0 real hits)",
+   "hits": 0
+  },
+  {
+   "pattern": "(?i)skip|this and following|thisAndFollowing|occurrence|only this (feature/remind/src/main)",
+   "hits": 1
+  },
+  {
+   "pattern": "(?i)snooze (data/src/main, i.e. Room layer)",
+   "hits": 0
+  },
+  {
+   "pattern": "(?i)snooze|skip|postpone|exception|override|thisAndFollowing|following (domain/remind/RepeatSchedule.kt): only skippedOccurrences, lines 104-112",
+   "hits": 5
+  }
+ ]
+}

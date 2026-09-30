@@ -1,0 +1,367 @@
+{
+ "repo": "Tendril",
+ "claims": [
+  {
+   "claim": "1. HabitScheduleEdit columns: id Long, uid String, target String (HABIT or BLOCK), refUid String, scope String, changes String, createdAt Instant, deletedAt Instant?. Eight columns. scope and changes are opaque strings read by PlanCodec.",
+   "verdict": "confirmed",
+   "evidence": [
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/habit/HabitScheduleEdit.kt",
+     "line": 26,
+     "quote": "@PrimaryKey(autoGenerate = true) val id: Long = 0,"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/habit/HabitScheduleEdit.kt",
+     "line": 27,
+     "quote": "val uid: String = UUID.randomUUID().toString(),"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/habit/HabitScheduleEdit.kt",
+     "line": 29,
+     "quote": "val target: String,"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/habit/HabitScheduleEdit.kt",
+     "line": 31,
+     "quote": "val refUid: String,"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/habit/HabitScheduleEdit.kt",
+     "line": 32,
+     "quote": "val scope: String,"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/habit/HabitScheduleEdit.kt",
+     "line": 33,
+     "quote": "val changes: String,"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/habit/HabitScheduleEdit.kt",
+     "line": 34,
+     "quote": "val createdAt: Instant,"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/habit/HabitScheduleEdit.kt",
+     "line": 35,
+     "quote": "val deletedAt: Instant? = null,"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/habit/HabitScheduleEdit.kt",
+     "line": 28,
+     "quote": "/** `HABIT` or `BLOCK`. */"
+    }
+   ]
+  },
+  {
+   "claim": "2. EditScope has exactly Occurrence, Day, Week, From, Extra. Changes are applied in createdAt order, then uid, and the latest wins field by field.",
+   "verdict": "partial",
+   "evidence": [
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/plan/CalendarSchedule.kt",
+     "line": 97,
+     "quote": "data class Occurrence(val date: LocalDate, val key: String) : EditScope"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/plan/CalendarSchedule.kt",
+     "line": 98,
+     "quote": "data class Day(val date: LocalDate) : EditScope"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/plan/CalendarSchedule.kt",
+     "line": 100,
+     "quote": "data class Week(val monday: LocalDate, val days: Set<DayOfWeek>? = null) : EditScope"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/plan/CalendarSchedule.kt",
+     "line": 102,
+     "quote": "data class From(val date: LocalDate, val days: Set<DayOfWeek>? = null) : EditScope"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/plan/CalendarSchedule.kt",
+     "line": 104,
+     "quote": "data class Extra(val date: LocalDate) : EditScope"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/plan/CalendarSchedule.kt",
+     "line": 199,
+     "quote": "private val sorted = all.sortedWith(compareBy<ScheduleEdit>({ it.createdAt }, { it.uid }))"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/plan/CalendarSchedule.kt",
+     "line": 237,
+     "quote": "edits.byHabit[habit.uid].orEmpty().fold(DayHabit(habit)) { acc, e ->"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/plan/CalendarSchedule.kt",
+     "line": 215,
+     "quote": "c.blockUid?.let { h = h.copy(blockUid = it.value) }"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/plan/CalendarSchedule.kt",
+     "line": 190,
+     "quote": "internal fun EditScope.covers(d: LocalDate): Boolean = when (this) {"
+    }
+   ]
+  },
+  {
+   "claim": "3. A 'From' edit on a habit is an edit row and does not split the series. For a task or event, 'this and following' is NOT supported: the only scopes are MoveScope THIS_ONE and ALL, and no code splits an Entry.",
+   "verdict": "confirmed",
+   "evidence": [
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/plan/ScopeChoices.kt",
+     "line": 52,
+     "quote": "ScopeChoice.FROM_NOW_ON -> EditScope.From(d)"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/plan/CalendarSchedule.kt",
+     "line": 102,
+     "quote": "data class From(val date: LocalDate, val days: Set<DayOfWeek>? = null) : EditScope"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/EntryEditor.kt",
+     "line": 15,
+     "quote": "enum class MoveScope { THIS_ONE, ALL }"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/EntryEditor.kt",
+     "line": 110,
+     "quote": "// The series' anchor, or a plain entry, moves."
+    }
+   ]
+  },
+  {
+   "claim": "4. Task/event exceptions are Entry rows: a skip row (isExceptionSkip = true) or an override row with recurrenceRule = null. An override written by EntryEditor.move changes date, time and end (duration kept). Title is not changed by move, but an override row is a plain Entry, so EntryEditor.save edits title and the other fields on it. Duration and estimate are not changed by move. A skip row is written only by IcsImporter; no UI path writes one.",
+   "verdict": "partial",
+   "evidence": [
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/entry/Entry.kt",
+     "line": 47,
+     "quote": "(§4.1) — a skip tombstone (`isExceptionSkip = true`) or a full per-occurrence override. */"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/EntryEditor.kt",
+     "line": 95,
+     "quote": "startDate = toDate, startTime = newStartTime, endDate = newEndDate, endTime = newEndTime,"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/EntryEditor.kt",
+     "line": 96,
+     "quote": "recurrenceRule = null,"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/EntryEditor.kt",
+     "line": 97,
+     "quote": "originalEntryId = entry.id, originalOccurrenceDate = occurrenceDate, isExceptionSkip = false,"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/recurrence/EntryOccurrences.kt",
+     "line": 96,
+     "quote": "if (override.isExceptionSkip == true) continue"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/ics/IcsImporter.kt",
+     "line": 57,
+     "quote": "originalEntryId = stored.id, originalOccurrenceDate = date, isExceptionSkip = true,"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/EntryEditor.kt",
+     "line": 44,
+     "quote": "val merged = stored.copy("
+    }
+   ]
+  },
+  {
+   "claim": "5. The planner's TimesPerWeek placements: the engine's suggestion is recomputed on every read and never stored. Only the person's confirmed days are stored, as one HabitScheduleEdit with scope Week(monday) and changes weekDays. The claim that placements are Extra or Occurrence rows is wrong: Extra is used only for 'Move to another day', and Occurrence for skip or a single-entry change.",
+   "verdict": "partial",
+   "evidence": [
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/plan/HabitWeek.kt",
+     "line": 71,
+     "quote": "ScheduleEdit(uid, EditTarget.HABIT, habit.uid, EditScope.Week(monday), EditChanges(weekDays = days), now)"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/plan/CalendarSchedule.kt",
+     "line": 335,
+     "quote": "best!!.second.also { suggestions += WeekSuggestion(habit.uid, it) }"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/plan/CalendarSchedule.kt",
+     "line": 339,
+     "quote": "if (confirmed != null) placed.getValue(d).add(occurrence(h, d, tag = OccurrenceTag.Week(i + 1, chosen.size)))"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/plan/CalendarSchedule.kt",
+     "line": 239,
+     "quote": "if (e.scope.covers(d)) acc.apply(if (e.scope is EditScope.Week) e.changes else e.changes.copy(weekDays = null)) else acc"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/plan/EditMode.kt",
+     "line": 203,
+     "quote": "ScheduleEdit(newUid(), EditTarget.HABIT, u, EditScope.Extra(target), set, now),"
+    }
+   ]
+  },
+  {
+   "claim": "6. HabitBlock.overrides is a standing per-weekday rule carried in the block row (merged with the block). A one-day block change is a HabitScheduleEdit with target BLOCK in the engine and decoder, but no production code path writes one.",
+   "verdict": "partial",
+   "evidence": [
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/habit/HabitBlock.kt",
+     "line": 38,
+     "quote": "/** H2 — `PlanCodec.encodeOverrides`: `SAT,SUN@480-630;…`. Kept as text, like a calendar rule. */"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/habit/HabitBlock.kt",
+     "line": 39,
+     "quote": "val overrides: String? = null,"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/plan/CalendarSchedule.kt",
+     "line": 258,
+     "quote": "model.overrides.filter { d.dayOfWeek in it.days }.forEach { o -> set(o.blockUid) { it.copy(start = o.start, end = o.end) } }"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/plan/CalendarSchedule.kt",
+     "line": 259,
+     "quote": "edits.blocks.filter { it.scope.covers(d) }.forEach { e ->"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/ui/taskshabits/HabitPlanSheets.kt",
+     "line": 357,
+     "quote": "onOverrides(b.uid, encodeOverrides(overrides + o)) }"
+    }
+   ]
+  },
+  {
+   "claim": "7. Sync: HabitScheduleEdit is inserted once and tombstoned once, with no updatedAt. Entry rows, including exception rows, merge as whole records by updatedAt (last writer wins, ties keep local). Two devices editing the same occurrence differently: with habit edits both rows are kept and applied in createdAt then uid order, so the later createdAt wins per field, and a tombstone on any device wins. With Entry exceptions, if both edited the same override row (same uid), the later updatedAt wins the whole row. If each device created its own override row, the rows have different uids and both sync in, and expand() then keeps only one per (originalEntryId, originalOccurrenceDate) through associateBy, where the later row in list order wins and updatedAt is not compared.",
+   "verdict": "confirmed",
+   "evidence": [
+    {
+     "file": "shared/src/jvmCommon/kotlin/com/tendril/app/sync/SnapshotSyncOrchestrator.kt",
+     "line": 1784,
+     "quote": "local == null -> habitScheduleEditDao.insert(record.toEntity())"
+    },
+    {
+     "file": "shared/src/jvmCommon/kotlin/com/tendril/app/sync/SnapshotSyncOrchestrator.kt",
+     "line": 1785,
+     "quote": "local.deletedAt == null && remoteDeletedAt != null -> habitScheduleEditDao.softDelete(local.id, remoteDeletedAt)"
+    },
+    {
+     "file": "shared/src/jvmCommon/kotlin/com/tendril/app/sync/SnapshotSyncOrchestrator.kt",
+     "line": 1571,
+     "quote": "if (local != null && !remoteUpdatedAt.isAfter(local.updatedAt)) {"
+    },
+    {
+     "file": "shared/src/jvmCommon/kotlin/com/tendril/app/sync/SnapshotSyncOrchestrator.kt",
+     "line": 1616,
+     "quote": "entryDao.update("
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/recurrence/EntryOccurrences.kt",
+     "line": 79,
+     "quote": ".associateBy { it.originalEntryId!! to it.originalOccurrenceDate!! }"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/sync/SnapshotRecords.kt",
+     "line": 184,
+     "quote": "* [com.tendril.app.data.habit.HabitScheduleEdit] does locally: inserted once, tombstoned once, no"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/habit/HabitScheduleEdit.kt",
+     "line": 21,
+     "quote": "* every device (plan §7, risk 2)."
+    }
+   ]
+  }
+ ],
+ "missed": [
+  {
+   "fact": "EditScope.Day is per habit: the edit's refUid names one habit, and byHabit groups by refUid. It is NOT 'every habit on a day'. Claim 2's gloss is wrong.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/plan/CalendarSchedule.kt",
+   "line": 202
+  },
+  {
+   "fact": "Week and From scopes carry an optional weekday subset (days), which is what 'chosen weekdays' means. The codec encodes it as WEEK:<monday>[:<days>] and FROM:<date>[:<days>].",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/plan/PlanCodec.kt",
+   "line": 105
+  },
+  {
+   "fact": "Occurrence-scope edits apply only blockUid, time, minutes, sortOrder, skip and deleted. rule, rulePatch, pause and weekDays in an Occurrence edit are ignored. Day, Week and From edits go through DayHabit.apply, which takes all fields. Extra edits are applied on top of dayHabit(...).apply(changes).",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/plan/CalendarSchedule.kt",
+   "line": 358
+  },
+  {
+   "fact": "A Week scope's weekDays is honored only under Week scope; under any other scope it is nulled (changes.copy(weekDays = null)), so confirmed days never reach later weeks.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/plan/CalendarSchedule.kt",
+   "line": 239
+  },
+  {
+   "fact": "Habit edits are not last-writer-wins per row: all live rows are applied in (createdAt, uid) order, so a later edit overrides earlier ones only for the fields it sets. The skip and deleted booleans are sticky until a later edit sets them false.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/plan/CalendarSchedule.kt",
+   "line": 222
+  },
+  {
+   "fact": "'Move to another day' (non-weekly) writes TWO edit rows: an Occurrence skip on the old day plus an Extra on the target. The weekly variant writes a single From edit with a new Weekdays rule.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/plan/EditMode.kt",
+   "line": 202
+  },
+  {
+   "fact": "Extra occurrence identity is `x:<edit uid>`, so later Occurrence edits can address an added occurrence by that key.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/plan/CalendarSchedule.kt",
+   "line": 97
+  },
+  {
+   "fact": "The exception-row key is the pair (originalEntryId, originalOccurrenceDate), not a unique column. Nothing prevents two live exception rows for the same occurrence. expand() takes one via associateBy, and the others are consumed only if they match the same key. Because the map stores only one per key, the extra row's id is never added to `consumed`, and it then surfaces as an 'orphan' occurrence.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/recurrence/EntryOccurrences.kt",
+   "line": 130
+  },
+  {
+   "fact": "Entry exception rows travel with originalEntryUid. A row whose base has not merged yet resolves to a null originalEntryId, and the code calls this a known gap rather than a decision. It then shows as a plain entry (an orphan).",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/sync/SnapshotMappers.kt",
+   "line": 97
+  },
+  {
+   "fact": "The only writers of isExceptionSkip = true are the ICS importer's EXDATE handling. EntryEditor.move writes isExceptionSkip = false overrides. There is no UI path that skips one occurrence of a task or event.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/ics/IcsImporter.kt",
+   "line": 57
+  },
+  {
+   "fact": "Trash cascades to exception rows by matching deletedAt with the base's trashedAt, so exceptions are soft-deleted with the series.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/ResolveEntryUseCase.kt",
+   "line": 176
+  },
+  {
+   "fact": "The merge of habit edits skips an edit whose HABIT refUid is a purged habit. An edit whose habit has not arrived yet is stored and does nothing until it does.",
+   "file": "shared/src/jvmCommon/kotlin/com/tendril/app/sync/SnapshotSyncOrchestrator.kt",
+   "line": 1780
+  },
+  {
+   "fact": "HabitBlock is merged LWW by updatedAt with tombstone, unlike HabitScheduleEdit. A standing override edit on one device therefore replaces the whole overrides string on the other, with no per-weekday merge.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/data/habit/HabitBlock.kt",
+   "line": 21
+  },
+  {
+   "fact": "The override row is created via entry.copy(...), so it inherits title, estimate, importance and other fields from the base at the moment of override. It does not follow later title edits to the series.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/EntryEditor.kt",
+   "line": 92
+  }
+ ],
+ "absence_probes": [
+  {
+   "pattern": "EditTarget.BLOCK in production writers (shared/src, all .kt, excluding tests): writes of a BLOCK-target edit. Hits are only reads in CalendarSchedule.kt:200, HabitCalendar.kt:42,114 and HabitDay.kt:77",
+   "hits": 0
+  },
+  {
+   "pattern": "THIS_AND|AND_FOLLOWING|FOLLOWING|splitSeries (task/event 'this and following')",
+   "hits": 0
+  },
+  {
+   "pattern": "isExceptionSkip = true outside IcsImporter (shared/src/commonMain)",
+   "hits": 0
+  },
+  {
+   "pattern": "isExceptionSkip\\s*=\\s*(true|!) in shared/src/commonMain",
+   "hits": 1
+  }
+ ]
+}

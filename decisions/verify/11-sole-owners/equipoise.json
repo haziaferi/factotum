@@ -1,0 +1,256 @@
+{
+ "repo": "Equipoise",
+ "claims": [
+  {
+   "claim": "1. SensoryLogEntity is regulation-specific; a generic TRACKER_READING could not hold it without loss",
+   "verdict": "confirmed",
+   "evidence": [
+    {
+     "file": "app/src/main/kotlin/com/hazia/equipoise/data/db/Entities.kt",
+     "line": 24,
+     "quote": "data class SensoryLogEntity("
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/equipoise/data/db/Entities.kt",
+     "line": 26,
+     "quote": "val at: Long,"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/equipoise/data/db/Entities.kt",
+     "line": 27,
+     "quote": "val sound: Int,"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/equipoise/data/db/Entities.kt",
+     "line": 31,
+     "quote": "val touch: Int,"
+    }
+   ]
+  },
+  {
+   "claim": "2. MaskingEntryEntity is regulation-specific",
+   "verdict": "confirmed",
+   "evidence": [
+    {
+     "file": "app/src/main/kotlin/com/hazia/equipoise/data/db/Entities.kt",
+     "line": 34,
+     "quote": "@Entity(tableName = \"masking_entry\", indices = [Index(\"date\", unique = true)])"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/equipoise/data/db/Entities.kt",
+     "line": 37,
+     "quote": "val date: String,"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/equipoise/data/db/Entities.kt",
+     "line": 38,
+     "quote": "val maskedMinutes: Int,"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/equipoise/data/db/Entities.kt",
+     "line": 40,
+     "quote": "val recoveryMinutes: Int,"
+    },
+    {
+     "file": "SPEC.md",
+     "line": 280,
+     "quote": "written from the three felt levels via the §3.4 mapping (`domain/…/FeltScale.kt`); the numbers are the model's, never typed"
+    }
+   ]
+  },
+  {
+   "claim": "3. RegulationEventEntity records an episode or intervention, with a start and end (TIME_SPAN) or a scheduled follow-up",
+   "verdict": "partial",
+   "evidence": [
+    {
+     "file": "app/src/main/kotlin/com/hazia/equipoise/data/db/Entities.kt",
+     "line": 49,
+     "quote": "data class RegulationEventEntity("
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/equipoise/data/db/Entities.kt",
+     "line": 51,
+     "quote": "val at: Long,"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/equipoise/data/db/Entities.kt",
+     "line": 52,
+     "quote": "val checkinId: Long,"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/equipoise/data/db/Entities.kt",
+     "line": 55,
+     "quote": "val outcome: String,"
+    },
+    {
+     "file": "SPEC.md",
+     "line": 281,
+     "quote": "outcome ∈ {helped, no_change, not_now}"
+    }
+   ]
+  },
+  {
+   "claim": "4. PendingOutcomeEntity is a follow-up prompt scheduled for later that fires a notification at a time (overlapping a REMINDER)",
+   "verdict": "refuted",
+   "evidence": [
+    {
+     "file": "app/src/main/kotlin/com/hazia/equipoise/data/db/Entities.kt",
+     "line": 59,
+     "quote": "The one outcome still owed (§3.2, `OutcomeAtNextOpen`): a tool chosen and not yet answered. Single row,"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/equipoise/data/db/Entities.kt",
+     "line": 64,
+     "quote": "val chosenAt: Long,"
+    },
+    {
+     "file": "domain/src/main/kotlin/com/hazia/equipoise/domain/OutcomeAtNextOpen.kt",
+     "line": 25,
+     "quote": "fun open(current: PendingOutcome?): Step = when {"
+    },
+    {
+     "file": "domain/src/main/kotlin/com/hazia/equipoise/domain/OutcomeAtNextOpen.kt",
+     "line": 6,
+     "quote": "unanswered ask lapses as NOT_NOW — never a second prompt."
+    }
+   ]
+  },
+  {
+   "claim": "5. DailyIndexEntity is a derived daily score recomputable from other rows, not user input; computed by something, stored or cached",
+   "verdict": "partial",
+   "evidence": [
+    {
+     "file": "app/src/main/kotlin/com/hazia/equipoise/data/db/Entities.kt",
+     "line": 83,
+     "quote": "@Entity(tableName = \"daily_index\")"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/equipoise/data/db/Entities.kt",
+     "line": 89,
+     "quote": "val sleepHours: Double?,"
+    },
+    {
+     "file": "domain/src/main/kotlin/com/hazia/equipoise/domain/BurnoutIndex.kt",
+     "line": 12,
+     "quote": "/** The stored result (SPEC §5.2 `daily_index`). `energyTrend` is the fortnight slope: negative = declining. */"
+    },
+    {
+     "file": "domain/src/main/kotlin/com/hazia/equipoise/domain/BurnoutIndex.kt",
+     "line": 40,
+     "quote": "fun compute(window: List<DayRecord>, threshold: Double = DEFAULT_THRESHOLD): DailyIndex {"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/equipoise/data/db/Daos.kt",
+     "line": 67,
+     "quote": "@Upsert suspend fun upsert(row: DailyIndexEntity)"
+    }
+   ]
+  },
+  {
+   "claim": "6. Which entities Transfer.kt exports/imports",
+   "verdict": "confirmed",
+   "evidence": [
+    {
+     "file": "app/src/main/kotlin/com/hazia/equipoise/data/export/Transfer.kt",
+     "line": 29,
+     "quote": "sensoryLogs = db.sensoryLogs().all().map { SensoryLogRow("
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/equipoise/data/export/Transfer.kt",
+     "line": 30,
+     "quote": "maskingEntries = db.maskingEntries().all().map { MaskingEntryRow("
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/equipoise/data/export/Transfer.kt",
+     "line": 31,
+     "quote": "regulationEvents = db.regulationEvents().all().map { RegulationEventRow("
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/equipoise/data/export/Transfer.kt",
+     "line": 33,
+     "quote": "dailyIndex = db.dailyIndex().all().map { DailyIndexRow("
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/equipoise/data/export/Transfer.kt",
+     "line": 81,
+     "quote": "pendingOutcome().clear()"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/equipoise/data/db/Entities.kt",
+     "line": 60,
+     "quote": "id = 1; transient, so not exported."
+    }
+   ]
+  }
+ ],
+ "missed": [
+  {
+   "fact": "SensoryLogEntity is five integer channels (sound, light, crowd, temperature, touch) with no value column, note column or label. A generic TRACKER_READING holds one typed value per row, so it would need five trackers or lose the simultaneous five-channel snapshot. The entity does not overlap any decided schema.",
+   "file": "app/src/main/kotlin/com/hazia/equipoise/data/db/Entities.kt",
+   "line": 24
+  },
+  {
+   "fact": "MaskingEntryEntity is unique per day (unique index on date), not a timestamped log. It is an upsert-per-day row of maskedMinutes, demandEvents and recoveryMinutes, and it has no note. SPEC says its numbers are derived from three felt levels and never typed, so it is a model output stored as a row.",
+   "file": "app/src/main/kotlin/com/hazia/equipoise/data/db/Entities.kt",
+   "line": 34
+  },
+  {
+   "fact": "RegulationEventEntity has a single instant `at`, with no end column and no scheduled follow-up, so it does not overlap TIME_SPAN. It has a cascading FK to checkin (onDelete = CASCADE) and stores direction and tool as strings (the quadrant direction and the tool name). Its outcome is helped, no_change or not_now, and the replay engine needs the check-in state via checkinId. It therefore depends on the decided CHECK_IN schema. The merged CHECK_IN must keep the `id` that checkinId points at, and must keep the cascade.",
+   "file": "app/src/main/kotlin/com/hazia/equipoise/data/db/Entities.kt",
+   "line": 44
+  },
+  {
+   "fact": "NOT_NOW is a real stored outcome written when a pending outcome lapses; it is not a deletion. So RegulationEvent rows include system-written lapses as well as user taps.",
+   "file": "domain/src/main/kotlin/com/hazia/equipoise/domain/OutcomeAtNextOpen.kt",
+   "line": 9
+  },
+  {
+   "fact": "PendingOutcomeEntity has no time column for a future fire, only chosenAt and an `asked` flag. It is a single row with id = 1, it carries checkinId, direction and tool, and it is resolved at the next app open by the pure state machine OutcomeAtNextOpen. It is not exported; Transfer.kt only clears it on wipe. It does not overlap REMINDER.",
+   "file": "app/src/main/kotlin/com/hazia/equipoise/data/db/Entities.kt",
+   "line": 62
+  },
+  {
+   "fact": "DailyIndexEntity is a derived, stored row keyed by date: energyTrend, maskingLoad, sensoryLoad, sleepHours and index are the outputs of BurnoutIndex.compute over a 14-day window. thresholdCrossed is computed against settings.burnoutThreshold. In app/ and domain/ main source, BurnoutIndex.compute is called from no production code, only from BurnoutIndexSpikeTest. DailyIndexDao.upsert is called only from SafRoundTripTest.kt:61, and no production code writes it. The table is therefore currently an unpopulated cache and is exported verbatim. The merge must decide whether to keep it as a cache or recompute it.",
+   "file": "domain/src/main/kotlin/com/hazia/equipoise/domain/BurnoutIndex.kt",
+   "line": 40
+  },
+  {
+   "fact": "DailyIndexEntity.sleepHours has no producing entity. There is no sleep table or input in the entities or in the main code that writes DailyIndexEntity, so it is either null or a second meaning carried in a derived row. Also, DailyIndex (domain) names the field sleepDeficit while the entity and export row use sleepHours. The domain value is a 0..1 deficit, so the same-named column holds a different quantity.",
+   "file": "app/src/main/kotlin/com/hazia/equipoise/data/db/Entities.kt",
+   "line": 89
+  },
+  {
+   "fact": "CheckInEntity differs from the decided CHECK_IN: pleasantness is nullable (energy-only widget check-in), there is no mood 1-5 and no source_levels, and its shape is energy, pleasantness, stability and note. The merge must map this when regulation_event.checkinId is moved.",
+   "file": "app/src/main/kotlin/com/hazia/equipoise/data/db/Entities.kt",
+   "line": 14
+  },
+  {
+   "fact": "Transfer.kt replace-imports by REPLACE insert with original ids preserved, and its import order matters because regulation_event has an FK to checkin. The wipe at line 81 also clears pendingOutcome and wipes dailyIndex.",
+   "file": "app/src/main/kotlin/com/hazia/equipoise/data/export/Transfer.kt",
+   "line": 65
+  },
+  {
+   "fact": "SettingsEntity.burnoutThreshold drives DailyIndex.thresholdCrossed, and SettingsEntity carries greyDay, a parked never-read column kept for old exports.",
+   "file": "app/src/main/kotlin/com/hazia/equipoise/data/db/Entities.kt",
+   "line": 98
+  }
+ ],
+ "absence_probes": [
+  {
+   "pattern": "AlarmManager|WorkManager|Worker|setExact|Notification|BroadcastReceiver (*.kt, *.xml, *.kts, whole repo)",
+   "hits": 0
+  },
+  {
+   "pattern": "AlarmManager|WorkManager|setExact|PeriodicWorkRequest|OneTimeWorkRequest|NotificationManager|notify\\( (*.kt, whole repo)",
+   "hits": 0
+  },
+  {
+   "pattern": "BurnoutIndex.compute callers outside tests (app/, domain/ main)",
+   "hits": 0
+  },
+  {
+   "pattern": "db.dailyIndex().upsert callers outside tests (app/src/main)",
+   "hits": 0
+  }
+ ]
+}

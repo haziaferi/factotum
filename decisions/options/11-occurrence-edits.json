@@ -1,0 +1,65 @@
+{
+ "contest": "11-occurrence-edits",
+ "growth_note": "tables/columns each option adds to the decided schema; edit-log counts Tendril's real 8-column table, full-copy the 3 exception columns on Entry, patch-rows is a hand count of its designed columns",
+ "options": [
+  {
+   "id": "full-copy",
+   "summary": "Tendril task exceptions for every item: an override row copies the item for one occurrence",
+   "growth": {
+    "tables": 0,
+    "columns": 3
+   }
+  },
+  {
+   "id": "edit-log",
+   "summary": "Tendril HabitScheduleEdit for every item: insert-once scoped edits; a move is skip + extra",
+   "growth": {
+    "tables": 1,
+    "columns": 8
+   }
+  },
+  {
+   "id": "edit-log+move",
+   "summary": "edit-log, but a move is one Occurrence edit carrying the new date",
+   "growth": {
+    "tables": 1,
+    "columns": 8
+   }
+  },
+  {
+   "id": "as-is",
+   "summary": "full-copy for tasks/events, edit-log for habits",
+   "growth": {
+    "tables": 1,
+    "columns": 11
+   }
+  },
+  {
+   "id": "patch-rows",
+   "summary": "one row per (item, occurrence), UNIQUE, holding only changed fields, each field stamped",
+   "growth": {
+    "tables": 1,
+    "columns": 10
+   }
+  },
+  {
+   "id": "rewrite",
+   "summary": "CONTROL: every edit rewrites the whole series",
+   "growth": {
+    "tables": 0,
+    "columns": 0
+   },
+   "control": true,
+   "expect_fail": [
+    "tendril-task-move-one",
+    "tendril-habit-skip-one",
+    "tendril-habit-move-this-week",
+    "tendril-planner-week-confirm",
+    "tendril-habit-from-now-on",
+    "tendril-concurrent-field-edits",
+    "shared-concurrent-moves-once",
+    "shared-one-mechanism"
+   ]
+  }
+ ]
+}

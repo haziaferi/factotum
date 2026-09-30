@@ -1,0 +1,298 @@
+{
+ "repo": "Tendril",
+ "claims": [
+  {
+   "claim": "1. HabitBlock is a named time-of-day block used only for placing habits; it stores no recurrence and no reminder.",
+   "verdict": "partial",
+   "evidence": [
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/habit/HabitBlock.kt",
+     "line": 25,
+     "quote": "data class HabitBlock(  // columns: id Long PK, uid String, name String?, startMinute Int, endMinute Int, position Int, icon String?, hue Int?, overrides String?, updatedAt Instant, deletedAt Instant?"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/habit/HabitBlock.kt",
+     "line": 15,
+     "quote": "§6.3 (v27) — a time block of the day that calendar habits sit in: Morning, Midday, Afternoon, Evening, Night by default, each editable. Minutes from midnight"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/habit/HabitBlock.kt",
+     "line": 38,
+     "quote": "val overrides: String? = null,  // H2 — `PlanCodec.encodeOverrides`: `SAT,SUN@480-630;…`. Kept as text, like a calendar rule."
+    }
+   ]
+  },
+  {
+   "claim": "2. HabitScheduleEdit records a change to a habit's schedule; it is not a per-occurrence override (moved or skipped occurrence) of the kind a recurrence exception would hold.",
+   "verdict": "refuted",
+   "evidence": [
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/habit/HabitScheduleEdit.kt",
+     "line": 25,
+     "quote": "data class HabitScheduleEdit(  // columns: id Long PK, uid String, target String (HABIT|BLOCK), refUid String, scope String, changes String, createdAt Instant, deletedAt Instant?"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/plan/CalendarSchedule.kt",
+     "line": 97,
+     "quote": "data class Occurrence(val date: LocalDate, val key: String) : EditScope"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/plan/CalendarSchedule.kt",
+     "line": 103,
+     "quote": "/** An added occurrence of an existing habit on [date] (\"Move to\" another day). */"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/entry/EntryDao.kt",
+     "line": 69,
+     "quote": "/** §4.1's single-occurrence exceptions for one recurring base — a skip tombstone (`isExceptionSkip`) or a full per-occurrence override."
+    }
+   ]
+  },
+  {
+   "claim": "3. CalendarLink links to the Android system calendar and stores no copy of events that would duplicate ITEM EVENT rows.",
+   "verdict": "confirmed",
+   "evidence": [
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/calendar/CalendarLink.kt",
+     "line": 20,
+     "quote": "data class CalendarLink(  // columns: calendarKey String, entryUid String, occurrence String, fingerprint String; PK = (calendarKey, entryUid, occurrence)"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/calendar/CalendarLink.kt",
+     "line": 12,
+     "quote": "**Per device, never synced**, like `Entry.providerEventId`: it describes this phone's system calendar"
+    }
+   ]
+  },
+  {
+   "claim": "4. PageDatabase with syncToTasks turns member pages into Task entries; which table holds the task afterwards, and are page and task two rows for one thing?",
+   "verdict": "partial",
+   "evidence": [
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/DatabaseSyncManager.kt",
+     "line": 124,
+     "quote": "val entry = Entry(  title = row.title, kind = EntryKind.TASK, ... sourceRowId = rowId, source = EntrySource.DATABASE_SYNC,"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/DatabaseSyncManager.kt",
+     "line": 139,
+     "quote": "val entryId = entryDao.insert(entry)"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/DatabaseSyncManager.kt",
+     "line": 33,
+     "quote": "Once bound, a role's property is a *live proxy*: its display value is always read from the linked Entry (§5.2.1), never re-stored in `property_values`"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/DatabaseSyncManager.kt",
+     "line": 109,
+     "quote": "if (entryDao.getBySourceRowId(rowId) != null) continue"
+    }
+   ]
+  },
+  {
+   "claim": "5. Property and PropertyValue do not store dated, typed values that duplicate TRACKER_READING, nor a due date/status that duplicates a TASK.",
+   "verdict": "partial",
+   "evidence": [
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/pagedatabase/Property.kt",
+     "line": 38,
+     "quote": "data class Property(  // columns: id Long PK, uid String, databaseId Long, name String, type PropertyType, config String?, order Int"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/pagedatabase/Property.kt",
+     "line": 59,
+     "quote": "data class PropertyValue(  // columns: id Long PK, propertyId Long, rowPageId Long, value String?"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/pagedatabase/Property.kt",
+     "line": 31,
+     "quote": "enum class PropertyType { TEXT, NUMBER, CHECKBOX, SELECT, MULTI_SELECT, DATE, URL, EMAIL, PHONE, INTERVAL, RELATION, COMPUTED }"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/pagedatabase/Property.kt",
+     "line": 63,
+     "quote": "Raw stored value, encoded per [PropertyType]: number/checkbox/date as their string form"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/DatabaseSyncManager.kt",
+     "line": 64,
+     "quote": "for (propertyId in listOfNotNull(donePropertyId, deadlinePropertyId, recurrencePropertyId, dueDatePropertyId)) { propertyValueDao.deleteAllForProperty(propertyId)"
+    }
+   ]
+  },
+  {
+   "claim": "6. PageRevision, PageRelation, PageCanvas, CanvasNode, CanvasEdge, PageDatabaseView, Block and Page are page-only concepts that duplicate none of the decided schemas.",
+   "verdict": "confirmed",
+   "evidence": [
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/page/Page.kt",
+     "line": 22,
+     "quote": "data class Page(  // id, uid, title, icon?, kind PageKind(PAGE|DATABASE|CANVAS), parentId?, databaseId?, isTemplate, deletedAt?, createdAt, updatedAt"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/page/Block.kt",
+     "line": 60,
+     "quote": "data class Block(  // id, uid, pageId, type BlockType, order, parentBlockId?, content, formattingSpans, checked Boolean?, codeLanguage?, calloutIcon?, calloutColor?, mentionedPageId?, referencedBlockUid?, toggleExpanded, mindMap, ..."
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/page/Block.kt",
+     "line": 73,
+     "quote": "TODO only — a block-level checkbox, structurally distinct from a Property-level Done checkbox (§3.1.1): checking this never creates a Task."
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/page/PageRevision.kt",
+     "line": 35,
+     "quote": "data class PageRevision(  // id, pageId, takenAt, reason RevisionReason(EDIT|MERGE|RESTORE), title, blocksJson, blockCount"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/page/PageRelation.kt",
+     "line": 30,
+     "quote": "data class PageRelation(  // id, uid, fromPageId, toPageId, createdAt"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/canvas/PageCanvas.kt",
+     "line": 30,
+     "quote": "data class PageCanvas(  // id, uid, pageId, createdAt, updatedAt, structure String"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/canvas/PageCanvas.kt",
+     "line": 54,
+     "quote": "data class CanvasNode(  // id, uid, canvasId, type CanvasNodeType(TEXT|PAGE_EMBED|FRAME), x, y, width, height, text?, embeddedPageId?, createdAt, updatedAt, parentId?, folded, structure?, hue?"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/canvas/PageCanvas.kt",
+     "line": 98,
+     "quote": "data class CanvasEdge(  // id, uid, canvasId, fromNodeId, toNodeId, direction CanvasArrowDirection(NONE|ONE_WAY|TWO_WAY), label String?"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/pagedatabase/PageDatabaseView.kt",
+     "line": 29,
+     "quote": "data class PageDatabaseView(  // id, uid, databaseId, name, viewType ViewType(TABLE|BOARD|GALLERY|CALENDAR|TIMELINE), groupByPropertyId?, datePropertyId?, endDatePropertyId?, visiblePropertyIds, filter ViewFilter?, sortPropertyId?, sortDirection?, order"
+    }
+   ]
+  },
+  {
+   "claim": "7. Any entity above has its own tombstone/sync scheme that differs from the rest of Tendril.",
+   "verdict": "partial",
+   "evidence": [
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/habit/HabitScheduleEdit.kt",
+     "line": 19,
+     "quote": "**Inserted once and tombstoned once**, like a [HabitCompletion]: an edit is never rewritten (a further change is a further edit, applied after it), and an undo sets [deletedAt]."
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/habit/HabitBlock.kt",
+     "line": 21,
+     "quote": "Merged like a Habit (§9.4): tombstoned, and otherwise the later [updatedAt] wins."
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/calendar/CalendarLink.kt",
+     "line": 12,
+     "quote": "**Per device, never synced**, like `Entry.providerEventId`"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/page/PageRevision.kt",
+     "line": 26,
+     "quote": "**Stays home**: not in the sync folder and not in the `.tendril` archive"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/purge/PurgedRecord.kt",
+     "line": 19,
+     "quote": "enum class PurgedKind { PAGE, ENTRY, HABIT, PROPERTY }"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/sync/PagesSyncEngine.kt",
+     "line": 139,
+     "quote": "delete-and-reinsert, because [PropertyValue] cascades off a Property's *local* id"
+    }
+   ]
+  }
+ ],
+ "missed": [
+  {
+   "fact": "The merged-app schema names (ITEM, TIME_SPAN, TRACKER...) do not exist in this repo. The table is `Entry` (`entries`). Its kinds and recurrence column are `EntryKind` and `recurrenceRule: RecurrenceRule?`. Recurrence is a sealed `RecurrenceRule` (it includes `Elastic(Period)`), not confirmed to be an RRULE string.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/data/entry/Entry.kt",
+   "line": 44
+  },
+  {
+   "fact": "Recurrence exceptions already live on Entry rows (`originalEntryId` plus `isExceptionSkip`). HabitScheduleEdit therefore adds a second per-occurrence override mechanism for calendar habits, using EditScope.Occurrence/Day/Week/From/Extra. An item-level exception scheme would overlap it.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/data/entry/Entry.kt",
+   "line": 48
+  },
+  {
+   "fact": "HabitBlock carries per-weekday time overrides packed into one text column (`SAT,SUN@480-630;…`). That is a second meaning in one field. It is a schedule rule of sorts, although it has no RRULE and no reminder.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/data/habit/HabitBlock.kt",
+   "line": 38
+  },
+  {
+   "fact": "HabitBlock has seeded default rows with fixed uids (block-morning … block-night) and updatedAt = EPOCH. Merge relies on these uids being the same on every device.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/data/habit/HabitBlock.kt",
+   "line": 52
+  },
+  {
+   "fact": "HabitScheduleEdit.target is a two-case enum stored as text (HABIT|BLOCK). It covers time blocks as well as habits. Its `changes` and `scope` are opaque strings kept verbatim.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/data/habit/HabitScheduleEdit.kt",
+   "line": 28
+  },
+  {
+   "fact": "A database row is a Page, and with syncToTasks a second row is written, an Entry (kind TASK, source DATABASE_SYNC) linked by Entry.sourceRowId. The two are two rows for one thing. The bound columns (done, date, due date, recurrence) are not stored in property_values while bound. They are proxied from the Entry, and crystallized back into property_values on unbind.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/DatabaseSyncManager.kt",
+   "line": 28
+  },
+  {
+   "fact": "PageDatabase columns: id, uid, pageId, syncToTasks, donePropertyId?, deadlinePropertyId? (binds Entry.startDate), dueDatePropertyId?, recurrencePropertyId?, hue?, blockedByPropertyId?, labelId?, labelConfirmed, lastReviewedAt?, createdAt, updatedAt. `labelId` points at a Label, so page membership through a label overlaps the LABEL vocabulary. Labels are not fully merged: a page carrying the bound label becomes a member and, if syncToTasks is on, a task.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/data/pagedatabase/PageDatabase.kt",
+   "line": 52
+  },
+  {
+   "fact": "PropertyValue.value is an untyped String?. It holds NUMBER and DATE values with no timestamp of their own. It can hold the same idea as TRACKER_READING (a number in a database row) when the user builds such a database. The schema does not duplicate TRACKER_READING, and there is no logged-at column.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/data/pagedatabase/Property.kt",
+   "line": 66
+  },
+  {
+   "fact": "PropertyType.INTERVAL stores recurrence as an 'n:UNIT' string (e.g. 1:WEEK). When bound it becomes Entry.recurrenceRule (RecurrenceRule.Elastic). This is a second recurrence encoding that maps onto the item recurrence.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/data/pagedatabase/Property.kt",
+   "line": 164
+  },
+  {
+   "fact": "Tombstone schemes differ by entity. Page has deletedAt (soft delete). PageDatabase, Property, PropertyValue, PageDatabaseView, Block, PageRelation, PageCanvas, CanvasNode and CanvasEdge have no deletedAt. Pages sync through snapshot merge with delete-and-reinsert and a purge registry (PurgedKind PAGE, ENTRY, HABIT, PROPERTY). Properties are purged through that registry, so they have their own deletion path.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/data/purge/PurgedRecord.kt",
+   "line": 19
+  },
+  {
+   "fact": "PageRevision has no uid and is never synced. It keeps the body that a sync merge overwrote (RevisionReason.MERGE). It is the only local record of the losing side of last-write-wins.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/data/page/PageRevision.kt",
+   "line": 18
+  },
+  {
+   "fact": "Block.checked (TODO blocks) is a second checkbox that never creates a task. It overlaps Entry completion in concept only.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/data/page/Block.kt",
+   "line": 73
+  },
+  {
+   "fact": "CalendarLink has no uid and no id. Its key is the composite (calendarKey, entryUid, occurrence), and `occurrence` is an empty string for a series. Entry.providerEventId is a second device-local link to the system calendar that lives on the Entry row.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/data/calendar/CalendarLink.kt",
+   "line": 19
+  },
+  {
+   "fact": "PropertyValue has no uid and no timestamp. It is identified by the pair (propertyId, rowPageId), which is a local id pair. It is rebuilt from uids on merge.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/data/pagedatabase/Property.kt",
+   "line": 57
+  }
+ ],
+ "absence_probes": [
+  {
+   "pattern": "class (RecurrenceException|EntryException|EntryOccurrence\\w*|Tracker\\w*|Goal|CheckIn|TimeSpan|Reminder)\\b in shared/src/commonMain",
+   "hits": 3
+  },
+  {
+   "pattern": "class (HabitBlock|HabitScheduleEdit|CalendarLink|PageDatabase|Property|PropertyValue|PageRevision|PageRelation|PageCanvas|CanvasNode|CanvasEdge|PageDatabaseView|Block|Page)\\b in data/",
+   "hits": 14
+  },
+  {
+   "pattern": "deletedAt in PageDatabase.kt, Property.kt, PageDatabaseView.kt, PageRelation.kt, PageCanvas.kt, Block.kt (declaration lines only; I read each file in full and saw none)",
+   "hits": 0
+  }
+ ]
+}

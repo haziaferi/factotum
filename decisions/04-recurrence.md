@@ -64,13 +64,13 @@ The owner picked **rrule+ext** on 2026-09-30.
 
 ## Consequences
 
-- **Tendril's exception rows** (skip or override one occurrence) carry over unchanged, keyed on the item and the occurrence date.
+- **Per-occurrence edits** are ADR 11's `occurrence_edit` log. (Amended 2026-10-01: this line first said Tendril's exception rows carry over unchanged; ADR 11 replaced them.)
 - **Sync (ADR 01).** All recurrence columns are in the item's *schedule* group, so a concurrent change to a rule gets hybrid+'s prompt.
 
 ## Amendment: fresh-eyes audit, 2026-09-30
 
 Tendril's habit planner rules were not in the harness (ADR 06 found them). `CalendarRule.TimesPerWeek(n, days)` places n days a week, spread and load-balanced against the week's other habits, then confirmed or edited per week. `TimesPerDay` with block slots places occurrences inside time blocks (`CalendarSchedule.kt:40-50,313-333`). Neither is a fixed schedule, so no encoding here can express them. rrule+ext therefore gains a fifth kind:
 - **PLANNED** stores `n`, the allowed days, and an optional block list.
-- The planner's per-week placements are stored as per-occurrence exception rows, as Tendril already stores its edits.
+- The planner's confirmed weeks are stored as WEEK edits in ADR 11's `occurrence_edit` log, as Tendril stores them in `HabitScheduleEdit` (`HabitWeek.kt:71`). (Amended 2026-10-01: this line first said "exception rows", which is not how Tendril stores habit edits.)
 
 This is **asserted, not measured**, and it changes no ranking, because no other encoding could express these rules either.

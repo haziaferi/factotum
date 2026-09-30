@@ -1,0 +1,291 @@
+{
+ "repo": "Tendril",
+ "claims": [
+  {
+   "claim": "1. A page travels as one snapshot file holding the page row, all its blocks, property values, labels, canvas nodes/edges and relations.",
+   "verdict": "partial",
+   "evidence": [
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/sync/PageSnapshotRecords.kt",
+     "line": 7,
+     "quote": "one `pages/<uid>.json` snapshot record per [com.tendril.app.data.page.Page]"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/sync/PageSnapshotRecords.kt",
+     "line": 38,
+     "quote": "val blocks: List<BlockSnapshotRecord> = emptyList(),"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/sync/PageSnapshotRecords.kt",
+     "line": 46,
+     "quote": "val canvas: CanvasSnapshotRecord? = null,"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/sync/PageSnapshotRecords.kt",
+     "line": 207,
+     "quote": "/** §3.4 — the \"Relate to…\" manual edge set, one flat `page_relations.json` file (not"
+    }
+   ]
+  },
+  {
+   "claim": "2. Merge is whole-page LWW on Page.updatedAt: the winning snapshot replaces every block of the page (delete and reinsert); nothing merges per block.",
+   "verdict": "confirmed",
+   "evidence": [
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/sync/PagesSyncEngine.kt",
+     "line": 491,
+     "quote": "} else if (remoteUpdatedAt.isAfter(local.updatedAt)) {"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/sync/PagesSyncEngine.kt",
+     "line": 681,
+     "quote": "replaceBlocks(blockDao, pageId, page.blocks, uidToId)"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/sync/BlockSnapshots.kt",
+     "line": 85,
+     "quote": "blockDao.deleteForPage(pageId)"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/sync/PagesSyncEngine.kt",
+     "line": 134,
+     "quote": "Merge is whole-record LWW: a winning [PageSnapshotRecord] fully replaces its local"
+    }
+   ]
+  },
+  {
+   "claim": "3. The losing body is kept as a PageRevision (reason MERGE) on the device where it lost, never synced; say how many revisions are kept and whether the person is told.",
+   "verdict": "partial",
+   "evidence": [
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/history/PageHistory.kt",
+     "line": 58,
+     "quote": "store(pageId, RevisionReason.MERGE, body)"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/history/PageHistory.kt",
+     "line": 97,
+     "quote": "const val KEEP = 50"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/page/PageRevision.kt",
+     "line": 26,
+     "quote": "**Stays home**: not in the sync folder and not in the `.tendril` archive"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/ui/pages/HistorySheet.kt",
+     "line": 149,
+     "quote": "RevisionReason.MERGE -> \"replaced by a sync\""
+    },
+    {
+     "file": "shared/src/jvmCommon/kotlin/com/tendril/app/sync/SnapshotSyncOrchestrator.kt",
+     "line": 1366,
+     "quote": "val name = \"${record.uid}$LOST_MARKER${record.updatedAt}.json\""
+    }
+   ]
+  },
+  {
+   "claim": "4. Two devices editing DIFFERENT blocks of the same page: one device's edit is lost from the live page (kept only in the revision). Quote the code path that proves it, or refute.",
+   "verdict": "partial",
+   "evidence": [
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/sync/PagesSyncEngine.kt",
+     "line": 491,
+     "quote": "} else if (remoteUpdatedAt.isAfter(local.updatedAt)) {"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/sync/PagesSyncEngine.kt",
+     "line": 676,
+     "quote": "pageHistory.captureBeforeMerge(pageId)"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/sync/PagesSyncEngine.kt",
+     "line": 681,
+     "quote": "replaceBlocks(blockDao, pageId, page.blocks, uidToId)"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/sync/PageSnapshotRecords.kt",
+     "line": 14,
+     "quote": "same page before either syncs means one edit is lost\" limitation §9.4 already accepts for"
+    }
+   ]
+  },
+  {
+   "claim": "5. Block identity: blocks have a uid that travels; a block has no updatedAt or deletedAt of its own.",
+   "verdict": "partial",
+   "evidence": [
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/page/Block.kt",
+     "line": 62,
+     "quote": "val uid: String = UUID.randomUUID().toString(),"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/page/Block.kt",
+     "line": 107,
+     "quote": "val updatedAt: Instant,"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/sync/PageSnapshotRecords.kt",
+     "line": 91,
+     "quote": "val updatedAt: Long,"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/sync/BlockSnapshots.kt",
+     "line": 100,
+     "quote": "createdAt = Instant.ofEpochMilli(b.createdAt), updatedAt = Instant.ofEpochMilli(b.updatedAt),"
+    }
+   ]
+  },
+  {
+   "claim": "6. Page delete vs edit on another device: trash (deletedAt) is an ordinary field of the whole-row merge, so a later edit beats it; purge goes through PurgedRecord PAGE.",
+   "verdict": "confirmed",
+   "evidence": [
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/page/PageDao.kt",
+     "line": 108,
+     "quote": "@Query(\"UPDATE pages SET deletedAt = :deletedAt, updatedAt = :deletedAt WHERE id = :id\")"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/sync/PagesSyncEngine.kt",
+     "line": 802,
+     "quote": "isTemplate = record.isTemplate, deletedAt = record.deletedAt?.let(Instant::ofEpochMilli),"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/sync/PagesSyncEngine.kt",
+     "line": 438,
+     "quote": "isSafeUid(it.uid) && !purgeRegistry.isPurged(PurgedKind.PAGE, it.uid, Instant.ofEpochMilli(it.updatedAt), tombstones)"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/PurgeRegistry.kt",
+     "line": 94,
+     "quote": "if (recordUpdatedAt.isAfter(purgedAt)) {"
+    }
+   ]
+  },
+  {
+   "claim": "7. Canvas nodes and edges, database property values and page relations follow the same whole-page rule; say any that merge differently.",
+   "verdict": "partial",
+   "evidence": [
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/sync/PagesSyncEngine.kt",
+     "line": 633,
+     "quote": "canvasEdgeDao.deleteForCanvas(pageCanvasId)"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/sync/PagesSyncEngine.kt",
+     "line": 691,
+     "quote": "propertyValueDao.deleteAllForRow(pageId)"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/sync/PagesSyncEngine.kt",
+     "line": 562,
+     "quote": "propertyDao.update(existing.copy(name = p.name, type = type, config = p.config, order = p.order))"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/sync/PagesSyncEngine.kt",
+     "line": 559,
+     "quote": "if (p.uid in propertyTombstones) continue"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/sync/PagesSyncEngine.kt",
+     "line": 739,
+     "quote": "pageRelationDao.addRelation(fromId, toId, Instant.ofEpochMilli(r.createdAt))"
+    }
+   ]
+  }
+ ],
+ "missed": [
+  {
+   "fact": "Claim 1: relations do NOT travel in the page snapshot. PageSnapshotRecord has no relations field; relations are one flat page_relations.json, merged by mergeRelations (add-only, undirected, no LWW, no delete). Page snapshot does also carry database schema (properties, views) and a canvas structure key.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/sync/PagesSyncEngine.kt",
+   "line": 728
+  },
+  {
+   "fact": "Claim 3: the MERGE revision is unthrottled but skipped when title and blocksJson equal the newest kept revision. The body is title plus blocks only (not labels, cells, canvas). The cap is 50 revisions per page, shared with EDIT/RESTORE rows, so merge revisions are pruned by newer ones of any reason. A revision is captured for EVERY winning remote record in Pass 5, including routine catch-ups where local had no edits.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/history/PageHistory.kt",
+   "line": 55
+  },
+  {
+   "fact": "Claim 3: the person is not told at merge time. Nothing in the merge path raises a notice. The only surface is a History sheet row labelled 'replaced by a sync' that the person must open. I found no banner or notification: the UI grep for MERGE/lost hit only HistorySheet.kt:149, and I did not do an exhaustive probe of every notification path.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/ui/pages/HistorySheet.kt",
+   "line": 149
+  },
+  {
+   "fact": "Claim 3: the map omits a second loser copy. Separately from PageRevision, the sync folder gets a `<uid>.tendril-lost-<updatedAt>.json` file with the FULL losing snapshot (labels, cells, canvas too). It is written for the losing remote record when it is older than local and differs, and for the overwritten local copy when a remote wins and content differs. It is never auto-deleted and does travel through the folder, so 'never synced' holds only for PageRevision.",
+   "file": "shared/src/jvmCommon/kotlin/com/tendril/app/sync/SnapshotSyncOrchestrator.kt",
+   "line": 1366
+  },
+  {
+   "fact": "Claim 4: the loss is conditional. The edit is lost from the live page only if the other device's record has the newer updatedAt. The stale record then becomes a candidateLoser and is written as a .tendril-lost file, and the local copy is kept as a PageRevision only when it was overwritten. Whichever body loses is preserved somewhere: the local one as PageRevision plus lost file, the remote one as a lost file. Equal updatedAt is treated as the same version with no loss and no merge.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/sync/PagesSyncEngine.kt",
+   "line": 499
+  },
+  {
+   "fact": "Claim 5: Block DOES carry updatedAt and createdAt, and both travel in BlockSnapshotRecord and are restored on merge. They are never compared for merging, so they do not drive any merge. Block has no deletedAt. Deleted blocks vanish by absence from the winning snapshot. Block identity across the delete-and-reinsert is the uid, with imagePath held across by uid.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/data/page/Block.kt",
+   "line": 107
+  },
+  {
+   "fact": "Claim 6: soft delete and restore both set updatedAt, so trash competes by timestamp like any edit. softDelete sets updatedAt = deletedAt, and restore sets deletedAt NULL with updatedAt = restoredAt. Edit versus trash is decided purely by which updatedAt is later, not by edit beating trash. A trash that happens after the other device's edit wins and propagates deletedAt. Purge supersession works the same way: a record edited after purgedAt clears the tombstone and resurrects the page. PurgedKind has 4 members (PAGE, ENTRY, HABIT, PROPERTY).",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/data/page/PageDao.kt",
+   "line": 111
+  },
+  {
+   "fact": "Claim 7: Property (column schema) is upserted by uid, not replaced, and never deleted on absence. Deletion is only via a PurgedKind.PROPERTY tombstone. This happens only for winning DATABASE records. PageDatabaseView rows are delete-and-reinserted for winners. Property values are per page (any page, not only rows), deleted and reinserted for each winner, so a cell edit on a row page competes with that row's block edits on the same updatedAt.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/sync/PagesSyncEngine.kt",
+   "line": 543
+  },
+  {
+   "fact": "Claim 7: canvas edges have no uid and are identified by their endpoint node uids. Canvas nodes have per-node updatedAt that is not used for merging. Canvas is rebuilt wholesale for winners.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/sync/PageSnapshotRecords.kt",
+   "line": 199
+  },
+  {
+   "fact": "Tree position is not whole-page LWW: a winner writes parentId and databaseId outright, but a non-winner only fills nulls. Also, in Pass 1 the winner's update keeps the local parentId/databaseId until Pass 2 rewrites them.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/sync/PagesSyncEngine.kt",
+   "line": 536
+  },
+  {
+   "fact": "A record with any unreadable enum (page kind, block type, property type, view type, canvas node type, arrow direction) is quarantined whole, and so is any record that references a quarantined page that is absent locally. Quarantined records are skipped and their local copy is not exported over the peer file. This is a third outcome besides win and lose.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/sync/PagesSyncEngine.kt",
+   "line": 993
+  },
+  {
+   "fact": "Labels travel by name, not uid, and are rebuilt for winners via clearForPage and re-add.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/sync/PagesSyncEngine.kt",
+   "line": 684
+  },
+  {
+   "fact": "BLOCK_REFERENCE blocks carry referencedBlockUid verbatim, which is a second identity use of the block uid. There is no per-block merge, but another page's reference to a block uid survives the delete-and-reinsert.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/sync/PageSnapshotRecords.kt",
+   "line": 65
+  },
+  {
+   "fact": "There is no trigger that bumps pages.updatedAt automatically (from project memory, not re-verified in source this pass). Whether a block edit bumps Page.updatedAt depends on the app's edit path. I grepped PageContentRepository for updatedAt and got no matches, so I did not verify it, and this matters for claim 4.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/PageContentRepository.kt",
+   "line": 1
+  }
+ ],
+ "absence_probes": [
+  {
+   "pattern": "updatedAt|deletedAt|trash|Trash in data/page/PageRelation.kt",
+   "hits": 0
+  },
+  {
+   "pattern": "bumpPage|fun touch|updatedAt = in domain/PageContentRepository.kt",
+   "hits": 0
+  },
+  {
+   "pattern": "Block.deletedAt (no deletedAt in Block.kt lines 60-108)",
+   "hits": 0
+  },
+  {
+   "pattern": "relations field in PageSnapshotRecord (PageSnapshotRecords.kt lines 19-47)",
+   "hits": 0
+  },
+  {
+   "pattern": "MERGE|replaced by a sync|lost in shared/src/commonMain/.../ui",
+   "hits": 1
+  }
+ ]
+}

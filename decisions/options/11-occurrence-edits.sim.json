@@ -1,0 +1,68 @@
+{
+ "full-copy": {
+  "tendril-task-move-one": 1,
+  "tendril-habit-skip-one": 1,
+  "tendril-habit-move-this-week": 1,
+  "tendril-planner-week-confirm": 0,
+  "tendril-habit-from-now-on": 1,
+  "tendril-concurrent-field-edits": 0,
+  "shared-concurrent-moves-once": 0,
+  "shared-rename-reaches-moved": 0,
+  "shared-one-mechanism": 1
+ },
+ "edit-log": {
+  "tendril-task-move-one": 1,
+  "tendril-habit-skip-one": 1,
+  "tendril-habit-move-this-week": 1,
+  "tendril-planner-week-confirm": 1,
+  "tendril-habit-from-now-on": 1,
+  "tendril-concurrent-field-edits": 1,
+  "shared-concurrent-moves-once": 0,
+  "shared-rename-reaches-moved": 1,
+  "shared-one-mechanism": 1
+ },
+ "edit-log+move": {
+  "tendril-task-move-one": 1,
+  "tendril-habit-skip-one": 1,
+  "tendril-habit-move-this-week": 1,
+  "tendril-planner-week-confirm": 1,
+  "tendril-habit-from-now-on": 1,
+  "tendril-concurrent-field-edits": 1,
+  "shared-concurrent-moves-once": 1,
+  "shared-rename-reaches-moved": 1,
+  "shared-one-mechanism": 1
+ },
+ "as-is": {
+  "tendril-task-move-one": 1,
+  "tendril-habit-skip-one": 1,
+  "tendril-habit-move-this-week": 1,
+  "tendril-planner-week-confirm": 1,
+  "tendril-habit-from-now-on": 1,
+  "tendril-concurrent-field-edits": 1,
+  "shared-concurrent-moves-once": 0,
+  "shared-rename-reaches-moved": 0,
+  "shared-one-mechanism": 0
+ },
+ "patch-rows": {
+  "tendril-task-move-one": 1,
+  "tendril-habit-skip-one": 1,
+  "tendril-habit-move-this-week": 1,
+  "tendril-planner-week-confirm": 1,
+  "tendril-habit-from-now-on": 1,
+  "tendril-concurrent-field-edits": 1,
+  "shared-concurrent-moves-once": 1,
+  "shared-rename-reaches-moved": 1,
+  "shared-one-mechanism": 1
+ },
+ "rewrite": {
+  "tendril-task-move-one": 0,
+  "tendril-habit-skip-one": 0,
+  "tendril-habit-move-this-week": 0,
+  "tendril-planner-week-confirm": 0,
+  "tendril-habit-from-now-on": 0,
+  "tendril-concurrent-field-edits": 0,
+  "shared-concurrent-moves-once": 0,
+  "shared-rename-reaches-moved": 1,
+  "shared-one-mechanism": 0
+ }
+}

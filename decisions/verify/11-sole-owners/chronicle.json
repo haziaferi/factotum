@@ -1,0 +1,229 @@
+{
+ "repo": "Chronicle",
+ "claims": [
+  {
+   "claim": "1. ChecklistEntity/ChecklistItemEntity are a reusable checklist (resettable template), not a one-off to-do list. Items have a done flag and an order but no due date. Ticks are current state only, with no per-use history.",
+   "verdict": "confirmed",
+   "evidence": [
+    {
+     "file": "domain/src/main/kotlin/com/hazia/chronicle/domain/model/Checklist.kt",
+     "line": 10,
+     "quote": "a named, reusable checklist — a resettable template list (e.g. a morning"
+    },
+    {
+     "file": "data/src/main/kotlin/com/hazia/chronicle/data/room/entity/ChecklistItemEntity.kt",
+     "line": 31,
+     "quote": "val checked: Boolean,"
+    },
+    {
+     "file": "data/src/main/kotlin/com/hazia/chronicle/data/room/entity/ChecklistItemEntity.kt",
+     "line": 32,
+     "quote": "val sortOrder: Int,"
+    },
+    {
+     "file": "data/src/main/kotlin/com/hazia/chronicle/data/room/entity/ChecklistEntity.kt",
+     "line": 10,
+     "quote": "val sortOrder: Int,"
+    },
+    {
+     "file": "core/data/src/main/kotlin/com/hazia/chronicle/core/data/data/ChecklistItemRepository.kt",
+     "line": 74,
+     "quote": "/** \"Reset\" — uncheck every item in the checklist for the next run, in one transaction. */"
+    },
+    {
+     "file": "core/data/src/main/kotlin/com/hazia/chronicle/core/data/data/ChecklistItemRepository.kt",
+     "line": 79,
+     "quote": "items.forEach { dao.upsert(it.toDomain().copy(checked = false, updatedAt = now).toEntity()) }"
+    }
+   ]
+  },
+  {
+   "claim": "2. A checklist is not attached to a reminder, activity or tracker. The only id reference is checklist_item.checklistId -> checklist.id (CASCADE).",
+   "verdict": "confirmed",
+   "evidence": [
+    {
+     "file": "data/src/main/kotlin/com/hazia/chronicle/data/room/entity/ChecklistItemEntity.kt",
+     "line": 21,
+     "quote": "childColumns = [\"checklistId\"],"
+    },
+    {
+     "file": "data/src/main/kotlin/com/hazia/chronicle/data/room/entity/ChecklistItemEntity.kt",
+     "line": 22,
+     "quote": "onDelete = ForeignKey.CASCADE,"
+    },
+    {
+     "file": "data/src/main/kotlin/com/hazia/chronicle/data/room/Migrations.kt",
+     "line": 26,
+     "quote": "\"FOREIGN KEY(`checklistId`) REFERENCES `checklist`(`id`) ON DELETE CASCADE)\","
+    }
+   ]
+  },
+  {
+   "claim": "3. TrackerChoiceEntity is the option list of a CHOICE tracker and nothing else.",
+   "verdict": "confirmed",
+   "evidence": [
+    {
+     "file": "data/src/main/kotlin/com/hazia/chronicle/data/room/entity/TrackerChoiceEntity.kt",
+     "line": 29,
+     "quote": "childColumns = [\"trackerId\"],"
+    },
+    {
+     "file": "data/src/main/kotlin/com/hazia/chronicle/data/room/entity/TrackerChoiceEntity.kt",
+     "line": 38,
+     "quote": "val label: String,"
+    },
+    {
+     "file": "data/src/main/kotlin/com/hazia/chronicle/data/room/entity/TrackerChoiceEntity.kt",
+     "line": 39,
+     "quote": "val colorArgb: Int?,"
+    },
+    {
+     "file": "domain/src/main/kotlin/com/hazia/chronicle/domain/enums/Enums.kt",
+     "line": 4,
+     "quote": "enum class TrackerType { NUMBER, BOOLEAN, RATING, CHOICE }"
+    },
+    {
+     "file": "data/src/main/kotlin/com/hazia/chronicle/data/room/entity/EntryEntity.kt",
+     "line": 44,
+     "quote": "val choiceId: String?,"
+    }
+   ]
+  },
+  {
+   "claim": "4. SavedChartEntity stores only a chart definition (sources, range, goal) and no data values.",
+   "verdict": "confirmed",
+   "evidence": [
+    {
+     "file": "data/src/main/kotlin/com/hazia/chronicle/data/room/entity/GoalAndSavedChartEntities.kt",
+     "line": 41,
+     "quote": "val chartType: String, // ChartType enum name"
+    },
+    {
+     "file": "data/src/main/kotlin/com/hazia/chronicle/data/room/entity/GoalAndSavedChartEntities.kt",
+     "line": 42,
+     "quote": "val sourceIds: String,"
+    },
+    {
+     "file": "data/src/main/kotlin/com/hazia/chronicle/data/room/entity/GoalAndSavedChartEntities.kt",
+     "line": 43,
+     "quote": "val rangeDays: Int,"
+    },
+    {
+     "file": "data/src/main/kotlin/com/hazia/chronicle/data/room/entity/GoalAndSavedChartEntities.kt",
+     "line": 44,
+     "quote": "val goalId: String?,"
+    }
+   ]
+  },
+  {
+   "claim": "5. GoalEntity has no overlap with a task's done state or a habit's daily amount. completionMode is AUTO|MANUAL. MILESTONE is a one-time target over a 400-day window, and achievedAtMillis is set once.",
+   "verdict": "partial",
+   "evidence": [
+    {
+     "file": "data/src/main/kotlin/com/hazia/chronicle/data/room/entity/GoalAndSavedChartEntities.kt",
+     "line": 23,
+     "quote": "val completionMode: String, // GoalCompletionMode enum name"
+    },
+    {
+     "file": "data/src/main/kotlin/com/hazia/chronicle/data/room/entity/GoalAndSavedChartEntities.kt",
+     "line": 24,
+     "quote": "val achievedAtMillis: Long?,"
+    },
+    {
+     "file": "domain/src/main/kotlin/com/hazia/chronicle/domain/enums/Enums.kt",
+     "line": 62,
+     "quote": "enum class GoalKind { RECURRING, MILESTONE }"
+    },
+    {
+     "file": "domain/src/main/kotlin/com/hazia/chronicle/domain/enums/Enums.kt",
+     "line": 70,
+     "quote": "enum class GoalCompletionMode { AUTO, MANUAL }"
+    },
+    {
+     "file": "domain/src/main/kotlin/com/hazia/chronicle/domain/enums/Enums.kt",
+     "line": 52,
+     "quote": "const val MILESTONE_DAYS = 400L"
+    },
+    {
+     "file": "domain/src/main/kotlin/com/hazia/chronicle/domain/model/Goal.kt",
+     "line": 34,
+     "quote": "* §7.4: set the moment a MILESTONE goal is considered done — silently by AUTO when"
+    },
+    {
+     "file": "core/data/src/main/kotlin/com/hazia/chronicle/core/data/goals/GoalRepository.kt",
+     "line": 74,
+     "quote": "/** §7.4: achievedAt is set once and never unset. */"
+    }
+   ]
+  }
+ ],
+ "missed": [
+  {
+   "fact": "GoalKind has two cases (RECURRING, MILESTONE). RECURRING never completes, so achievedAt is only meaningful for MILESTONE. GoalPeriod is DAY|WEEK|MONTH. This is a second 'done' concept alongside the ITEM done status, and it stays separate.",
+   "file": "domain/src/main/kotlin/com/hazia/chronicle/domain/enums/Enums.kt",
+   "line": 62
+  },
+  {
+   "fact": "Goal progress is computed from entries and activity data over a 400-day window (MILESTONE) or the current period (RECURRING). The Goal stores no amount, so it does not duplicate a habit's daily amount. The AUTO milestone logic does read those amounts, so it couples to them.",
+   "file": "core/data/src/main/kotlin/com/hazia/chronicle/core/data/goals/GoalProgressRepository.kt",
+   "line": 73
+  },
+  {
+   "fact": "GoalEntity.targetId is polymorphic (ACTIVITY or TRACKER) with no Room FK. Integrity is enforced in the mappers and repository, so the merge must remap the ids itself (ACTIVITY ids go to ITEM kind ACTIVITY). This is also the goalId that SavedChartEntity points at.",
+   "file": "data/src/main/kotlin/com/hazia/chronicle/data/room/entity/GoalAndSavedChartEntities.kt",
+   "line": 19
+  },
+  {
+   "fact": "SavedChartEntity.sourceIds packs (kind,id) pairs into one delimited string, 'ACTIVITY:01H...,TRACKER:01H...'. It is not JSON and not a FK, so the merge must rewrite ids inside the string. SavedChartEntity.goalId is a loose id to goal with no FK declared.",
+   "file": "data/src/main/kotlin/com/hazia/chronicle/data/room/entity/GoalAndSavedChartEntities.kt",
+   "line": 42
+  },
+  {
+   "fact": "All of these entities carry sync identity and deletion columns: updatedAtMillis, updatedByDevice and deletedAtMillis (tombstone). Their purge sweeps use NOT EXISTS guards against cascade.",
+   "file": "data/src/main/kotlin/com/hazia/chronicle/data/room/dao/ChecklistDao.kt",
+   "line": 20
+  },
+  {
+   "fact": "ChecklistRepository.delete tombstones items by hand because the FK CASCADE only fires on a hard delete, so soft-deleting a checklist does not soft-delete its items on its own.",
+   "file": "core/data/src/main/kotlin/com/hazia/chronicle/core/data/track/ActivityRepository.kt",
+   "line": 104
+  },
+  {
+   "fact": "TrackerChoiceEntity has colorArgb: Int?, a per-option color. It could overlap with LABEL colors but is not a label. EntryEntity.choiceId is a loose reference to it, left dangling on deletion ('(deleted option)').",
+   "file": "data/src/main/kotlin/com/hazia/chronicle/data/room/entity/EntryEntity.kt",
+   "line": 14
+  },
+  {
+   "fact": "ChecklistItemEntity.checked is a mutable Boolean overwritten on Reset, so it keeps no completion log. This is the opposite of ITEM's done status plus completion log, and the merge has to keep the two separate.",
+   "file": "core/data/src/main/kotlin/com/hazia/chronicle/core/data/data/ChecklistItemRepository.kt",
+   "line": 78
+  },
+  {
+   "fact": "The checklist tables are the only Room migration (version 2, F5). Their item text is a plain text column with no link to ITEM subtasks, so it would be indexed separately if the FTS index is to cover it.",
+   "file": "data/src/main/kotlin/com/hazia/chronicle/data/room/Migrations.kt",
+   "line": 7
+  }
+ ],
+ "absence_probes": [
+  {
+   "pattern": "(?i)checklist in data/room/entity other than ChecklistEntity.kt and ChecklistItemEntity.kt (no reference from reminder, activity or tracker entities)",
+   "hits": 0
+  },
+  {
+   "pattern": "(?i)dueAt|dueDate|doneAt|completedAt|tick in ChecklistEntity and ChecklistItemEntity (the only entity hit is ReminderEntity.dueAtIso)",
+   "hits": 0
+  },
+  {
+   "pattern": "checklistId|ChecklistId|checklist_item in data/src/main outside checklist files, SyncCodec, mappers, bundles, Migrations, DAO and database (no reminder, activity or tracker use)",
+   "hits": 0
+  },
+  {
+   "pattern": "TrackerChoice|tracker_choice|choiceId in entity dir outside TrackerChoiceEntity.kt (only EntryEntity.choiceId and doc comments)",
+   "hits": 1
+  },
+  {
+   "pattern": "value columns (numberValue, value: Double, etc.) in SavedChartEntity",
+   "hits": 0
+  }
+ ]
+}

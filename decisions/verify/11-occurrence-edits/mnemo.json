@@ -1,0 +1,153 @@
+{
+ "repo": "Mnemo",
+ "claims": [
+  {
+   "claim": "A repeating (CRON or STOCHASTIC) reminder can skip one occurrence without changing the rule; say how it is stored.",
+   "verdict": "not_found",
+   "evidence": [
+    {
+     "file": "app/src/main/kotlin/com/hazia/mnemo/data/local/Reminder.kt",
+     "line": 33,
+     "quote": "data class Reminder("
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/mnemo/data/local/Reminder.kt",
+     "line": 55,
+     "quote": "val nextFireAtEpochMillis: Long,"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/mnemo/data/repository/ReminderRepository.kt",
+     "line": 108,
+     "quote": "if (hasNextOccurrence) existing.copy(snoozedUntilEpochMillis = null)"
+    }
+   ]
+  },
+  {
+   "claim": "One occurrence can be moved or retimed; say how.",
+   "verdict": "partial",
+   "evidence": [
+    {
+     "file": "app/src/main/kotlin/com/hazia/mnemo/data/repository/ReminderRepository.kt",
+     "line": 126,
+     "quote": "suspend fun snooze(id: String, untilEpochMillis: Long) {"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/mnemo/data/repository/ReminderRepository.kt",
+     "line": 132,
+     "quote": "nextFireAtEpochMillis = untilEpochMillis,"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/mnemo/ui/edit/EditReminderViewModel.kt",
+     "line": 333,
+     "quote": "else -> EditedSchedule(computedNextFire, null)"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/mnemo/ui/edit/EditReminderViewModel.kt",
+     "line": 321,
+     "quote": "ScheduleType.CRON -> current.cronExpr == s.cronExpr"
+    }
+   ]
+  },
+  {
+   "claim": "Snooze of one occurrence is stored on the reminder (which column) and what happens to the next occurrence.",
+   "verdict": "confirmed",
+   "evidence": [
+    {
+     "file": "app/src/main/kotlin/com/hazia/mnemo/data/local/Reminder.kt",
+     "line": 76,
+     "quote": "val snoozedUntilEpochMillis: Long? = null,"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/mnemo/data/repository/ReminderRepository.kt",
+     "line": 131,
+     "quote": "snoozedUntilEpochMillis = untilEpochMillis,"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/mnemo/data/repository/ReminderRepository.kt",
+     "line": 132,
+     "quote": "nextFireAtEpochMillis = untilEpochMillis,"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/mnemo/data/repository/ReminderRepository.kt",
+     "line": 179,
+     "quote": "snoozedUntilEpochMillis = null, // firing clears any prior snooze"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/mnemo/data/repository/ReminderRepository.kt",
+     "line": 171,
+     "quote": "ScheduleType.STOCHASTIC -> ScheduleCalculator.startOfNextDay(Instant.ofEpochMilli(now))"
+    }
+   ]
+  }
+ ],
+ "missed": [
+  {
+   "fact": "Claim 1 has no per-occurrence skip. Snooze is the only per-occurrence store, and it overwrites nextFireAtEpochMillis, the column that already holds the next armed occurrence. The recurrence rule (cronExpr, or the stochastic mask and window) is untouched. No exception-date list or skip-until column exists.",
+   "file": "app/src/main/kotlin/com/hazia/mnemo/data/repository/ReminderRepository.kt",
+   "line": 132
+  },
+  {
+   "fact": "Snooze is a fixed 10 minutes from every surface (notification action, DueNowActivity), with no custom snooze time. Retiming a single occurrence through the UI is therefore limited to 10-minute snoozes.",
+   "file": "app/src/main/kotlin/com/hazia/mnemo/data/notify/Notifier.kt",
+   "line": 274
+  },
+  {
+   "fact": "nextFireAtEpochMillis means two things. For CRON and STOCHASTIC it is the armed next occurrence, and snooze overwrites it. For ONE_SHOT it is the rule itself: nextOneShot reads it as the target. Snoozing a one-shot rewrites its only schedule datum.",
+   "file": "app/src/main/kotlin/com/hazia/mnemo/domain/schedule/ScheduleCalculator.kt",
+   "line": 57
+  },
+  {
+   "fact": "The edit screen treats snoozedUntil as an alias for the one-shot time: a one-shot counts as unchanged if the form time equals nextFireAt OR snoozedUntil.",
+   "file": "app/src/main/kotlin/com/hazia/mnemo/ui/edit/EditReminderViewModel.kt",
+   "line": 319
+  },
+  {
+   "fact": "The edit screen preserves a live snooze only while the schedule fields are unchanged. The snooze becomes both nextFire and snoozedUntil. A changed schedule, or a snooze already in the past, drops it and recomputes. A STOCHASTIC draw is also kept while unchanged and still in the future.",
+   "file": "app/src/main/kotlin/com/hazia/mnemo/ui/edit/EditReminderViewModel.kt",
+   "line": 329
+  },
+  {
+   "fact": "Merge hazard: snooze overwrites the next occurrence that recordFired had already armed. When the snooze fires, recordFired recomputes from now (CRON) or from midnight tomorrow (STOCHASTIC). A cron occurrence falling between the fire and the snooze end is silently lost. A stochastic draw for tomorrow is redrawn, not kept.",
+   "file": "app/src/main/kotlin/com/hazia/mnemo/data/repository/ReminderRepository.kt",
+   "line": 174
+  },
+  {
+   "fact": "snooze() also sets isArchived=false, because recordFired archives a fired one-shot while its notification is still showing. isArchived is deletion tombstone, done, and spent-one-shot all at once, which matters for the merged deletion column.",
+   "file": "app/src/main/kotlin/com/hazia/mnemo/data/repository/ReminderRepository.kt",
+   "line": 130
+  },
+  {
+   "fact": "Identity and deletion columns: id is a client UUID primary key. isArchived is the soft delete and the sync tombstone. updatedAtEpochMillis drives conflict detection, and ReminderSyncManager rejects non-UUID ids.",
+   "file": "app/src/main/kotlin/com/hazia/mnemo/data/local/Reminder.kt",
+   "line": 34
+  },
+  {
+   "fact": "Done on a recurring reminder (completeOccurrence) does not advance or skip anything. It only clears the snooze, leaving nextFireAt as recordFired already set it. Done on a ONE_SHOT always archives.",
+   "file": "app/src/main/kotlin/com/hazia/mnemo/data/repository/ReminderRepository.kt",
+   "line": 103
+  },
+  {
+   "fact": "Enum cases beyond the map's scope: ScheduleType has ONE_SHOT as a third case, and ReminderMode (EASE, SCHEDULE, ALERT) is a separate enum.",
+   "file": "app/src/main/kotlin/com/hazia/mnemo/data/local/Reminder.kt",
+   "line": 10
+  }
+ ],
+ "absence_probes": [
+  {
+   "pattern": "skipNext|skipOccurrence|skippedDates|excludedDates|exdate|occurrenceOverride|rescheduleOnce|skippedUntil|perOccurrence (case-insensitive, app/src/main *.kt)",
+   "hits": 0
+  },
+  {
+   "pattern": "skip (case-insensitive, app/src/main/kotlin *.kt)",
+   "hits": 11
+  },
+  {
+   "pattern": "skip, feature hits only (the 11 are comments about double-delivery, sync-file parsing, the battery prompt and icon_check; none is a skip-occurrence feature)",
+   "hits": 0
+  },
+  {
+   "pattern": "snoozedUntilEpochMillis",
+   "hits": 9
+  }
+ ]
+}
