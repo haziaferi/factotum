@@ -1,0 +1,304 @@
+{
+ "repo": "Equipoise",
+ "claims": [
+  {
+   "claim": "1. CheckInEntity(at: Long, energy: Double, pleasantness: Double?, stability: String?)",
+   "verdict": "partial",
+   "evidence": [
+    {
+     "file": "app/src/main/kotlin/com/hazia/equipoise/data/db/Entities.kt",
+     "line": 14,
+     "quote": "data class CheckInEntity("
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/equipoise/data/db/Entities.kt",
+     "line": 15,
+     "quote": "@PrimaryKey(autoGenerate = true) val id: Long = 0,"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/equipoise/data/db/Entities.kt",
+     "line": 18,
+     "quote": "val pleasantness: Double?,   // null when the widget logged energy only (F01)"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/equipoise/data/db/Entities.kt",
+     "line": 20,
+     "quote": "val note: String?,"
+    }
+   ]
+  },
+  {
+   "claim": "2a. energy and pleasantness are continuous in 0..1",
+   "verdict": "partial",
+   "evidence": [
+    {
+     "file": "domain/src/main/kotlin/com/hazia/equipoise/domain/Types.kt",
+     "line": 3,
+     "quote": "/** Arousal-axis check-in (SPEC §3.1). Both scalars in 0..1. */"
+    },
+    {
+     "file": "domain/src/main/kotlin/com/hazia/equipoise/domain/CheckInShape.kt",
+     "line": 25,
+     "quote": "return CheckIn(energy = 1.0 - (row + 0.5) / levels, pleasantness = (col + 0.5) / levels)"
+    }
+   ]
+  },
+  {
+   "claim": "2b. The UI collects them as a 2-D grid or sliders; GRID4 is one of the options",
+   "verdict": "partial",
+   "evidence": [
+    {
+     "file": "app/src/main/kotlin/com/hazia/equipoise/ui/CheckInScreen.kt",
+     "line": 34,
+     "quote": "private const val GRID = 5"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/equipoise/ui/CheckInScreen.kt",
+     "line": 37,
+     "quote": "* F02: energy × pleasantness grid (rows = energy, high at the top; columns = pleasantness, unpleasant on"
+    },
+    {
+     "file": "domain/src/main/kotlin/com/hazia/equipoise/domain/CheckInShape.kt",
+     "line": 17,
+     "quote": "GRID4(4),"
+    },
+    {
+     "file": "domain/src/main/kotlin/com/hazia/equipoise/domain/CheckInShape.kt",
+     "line": 19,
+     "quote": "PAD(0);"
+    }
+   ]
+  },
+  {
+   "claim": "3. stability has a fixed vocabulary and a meaning",
+   "verdict": "confirmed",
+   "evidence": [
+    {
+     "file": "domain/src/main/kotlin/com/hazia/equipoise/domain/Types.kt",
+     "line": 6,
+     "quote": "enum class Stability { JUMPY, STEADY, FLAT, UNSET }"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/equipoise/data/Repositories.kt",
+     "line": 46,
+     "quote": "stability = checkIn.stability.takeIf { it != Stability.UNSET }?.name, note = note))"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/equipoise/ui/CheckInScreen.kt",
+     "line": 65,
+     "quote": "listOf(Stability.JUMPY to \"Jumpy\", Stability.STEADY to \"Steady\", Stability.FLAT to \"Flat\").forEach { (s, label) ->"
+    },
+    {
+     "file": "domain/src/main/kotlin/com/hazia/equipoise/domain/StabilityTrend.kt",
+     "line": 4,
+     "quote": "* Arousal stability, measured rather than asked (SPEC §3.1, decided 2026-09-12)."
+    }
+   ]
+  },
+  {
+   "claim": "4a. The direction engine (G03) reads energy/pleasantness by quadrant thresholds",
+   "verdict": "confirmed",
+   "evidence": [
+    {
+     "file": "domain/src/main/kotlin/com/hazia/equipoise/domain/DirectionModel.kt",
+     "line": 25,
+     "quote": "private fun key(c: CheckIn, d: Direction) = Key(c.energy < 0.5, c.pleasantness < 0.5, d)"
+    },
+    {
+     "file": "domain/src/main/kotlin/com/hazia/equipoise/domain/DirectionModel.kt",
+     "line": 34,
+     "quote": "val mayHold = checkIn.energy >= 0.5"
+    },
+    {
+     "file": "domain/src/main/kotlin/com/hazia/equipoise/domain/DirectionModel.kt",
+     "line": 56,
+     "quote": "const val HOLD_BELOW = 0.55"
+    },
+    {
+     "file": "domain/src/main/kotlin/com/hazia/equipoise/domain/DirectionModel.kt",
+     "line": 57,
+     "quote": "const val ASK_WITHIN = 0.10"
+    },
+    {
+     "file": "domain/src/main/kotlin/com/hazia/equipoise/domain/DirectionModel.kt",
+     "line": 12,
+     "quote": "afford halving the sample. Immutable: every update returns a new model, so the same history always folds"
+    }
+   ]
+  },
+  {
+   "claim": "4b. The burnout index (G02) reads energy/pleasantness",
+   "verdict": "partial",
+   "evidence": [
+    {
+     "file": "domain/src/main/kotlin/com/hazia/equipoise/domain/BurnoutIndex.kt",
+     "line": 25,
+     "quote": " *   slope14 = OLS slope of energy against day × 14   (≥ 3 energy points, else 0)"
+    },
+    {
+     "file": "domain/src/main/kotlin/com/hazia/equipoise/domain/BurnoutIndex.kt",
+     "line": 47,
+     "quote": "val index = (0.35 * mask + 0.30 * trend + 0.20 * sensory + 0.15 * sleep).coerceIn(0.0, 1.0)"
+    },
+    {
+     "file": "domain/src/main/kotlin/com/hazia/equipoise/domain/BurnoutIndex.kt",
+     "line": 4,
+     "quote": "data class DayRecord("
+    },
+    {
+     "file": "domain/src/main/kotlin/com/hazia/equipoise/domain/BurnoutIndex.kt",
+     "line": 31,
+     "quote": " *   crossed = index ≥ threshold                        default 0.50, personal, adjustable"
+    }
+   ]
+  },
+  {
+   "claim": "5. 'Lower than usual' (SPEC 3.2) is computed from check-ins; rule and baseline window",
+   "verdict": "confirmed",
+   "evidence": [
+    {
+     "file": "domain/src/main/kotlin/com/hazia/equipoise/domain/LowMoment.kt",
+     "line": 47,
+     "quote": "fun score(c: CheckIn): Double = c.energy + PLEASANTNESS_WEIGHT * c.pleasantness"
+    },
+    {
+     "file": "domain/src/main/kotlin/com/hazia/equipoise/domain/LowMoment.kt",
+     "line": 29,
+     "quote": "const val FAST_WINDOW = 30"
+    },
+    {
+     "file": "domain/src/main/kotlin/com/hazia/equipoise/domain/LowMoment.kt",
+     "line": 31,
+     "quote": "const val SLOW_WINDOW = 120"
+    },
+    {
+     "file": "domain/src/main/kotlin/com/hazia/equipoise/domain/LowMoment.kt",
+     "line": 44,
+     "quote": "val low: Boolean get() = byFloor || byFast || bySlow"
+    },
+    {
+     "file": "domain/src/main/kotlin/com/hazia/equipoise/domain/LowMoment.kt",
+     "line": 70,
+     "quote": "private fun lowerQuartile(xs: List<Double>): Double = xs.sorted()[xs.size / 4]"
+    },
+    {
+     "file": "domain/src/main/kotlin/com/hazia/equipoise/domain/DirectionEngine.kt",
+     "line": 26,
+     "quote": "if (answer == OnboardingAnswer.MIXED && mixedMode == MixedMode.EVERY_TIME && LowMoment.assess(checkIn, today, checkIns).low) {"
+    }
+   ]
+  },
+  {
+   "claim": "6. Several check-ins per day are allowed; there is a note column",
+   "verdict": "confirmed",
+   "evidence": [
+    {
+     "file": "domain/src/main/kotlin/com/hazia/equipoise/domain/Types.kt",
+     "line": 8,
+     "quote": "/** A check-in with the day it was logged on (epoch day). Several per day are expected (SPEC §3.1). */"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/equipoise/data/db/Entities.kt",
+     "line": 20,
+     "quote": "val note: String?,"
+    }
+   ]
+  },
+  {
+   "claim": "7. regulation_event links to a check-in (checkinId FK CASCADE)",
+   "verdict": "confirmed",
+   "evidence": [
+    {
+     "file": "app/src/main/kotlin/com/hazia/equipoise/data/db/Entities.kt",
+     "line": 46,
+     "quote": "foreignKeys = [ForeignKey(entity = CheckInEntity::class, parentColumns = [\"id\"], childColumns = [\"checkinId\"], onDelete = ForeignKey.CASCADE)],"
+    }
+   ]
+  }
+ ],
+ "missed": [
+  {
+   "fact": "The map omits two CheckInEntity columns: the identity PK id (autoGenerate) and the note column. The table has no unique index on at or on the day, so several rows per day are allowed.",
+   "file": "app/src/main/kotlin/com/hazia/equipoise/data/db/Entities.kt",
+   "line": 15
+  },
+  {
+   "fact": "Stability has a fourth enum case, UNSET. It is never stored: the repository writes null for it and toDomain maps null back to UNSET. The UI offers only the three chips JUMPY, STEADY and FLAT, and a second tap on a chip clears it back to UNSET.",
+   "file": "domain/src/main/kotlin/com/hazia/equipoise/domain/Types.kt",
+   "line": 6
+  },
+  {
+   "fact": "pleasantness == null has a second meaning: the row came from the widget's one-tap energy-only log (F01). toDomain() maps null to 0.5 (the midline), so a merge that coalesces or drops nulls changes the engine input. The lower-than-usual baseline explicitly filters these rows out.",
+   "file": "app/src/main/kotlin/com/hazia/equipoise/data/Repositories.kt",
+   "line": 159
+  },
+  {
+   "fact": "The baseline for 'lower than usual' excludes energy-only rows (pleasantness != null) and only rows earlier than the current check-in (it.at < row.at).",
+   "file": "app/src/main/kotlin/com/hazia/equipoise/data/Repositories.kt",
+   "line": 63
+  },
+  {
+   "fact": "The UI grid does not match the spec'd shapes. CheckInScreen hard-codes GRID = 5, an ODD grid, although CheckInShape says 'Even grids only' because an odd grid puts a row and column exactly on the 0.5 midline. The Settings shape (GRID4 default, GRID6, PAD) is stored in settings.checkinShape and read by checkInShape(), but no UI in app/src/main uses it (only Repositories.kt and Entities.kt reference CheckInShape).",
+   "file": "app/src/main/kotlin/com/hazia/equipoise/ui/CheckInScreen.kt",
+   "line": 34
+  },
+  {
+   "fact": "The settings table carries a second check-in-related column: checkinShape TEXT NOT NULL DEFAULT 'GRID4', added by migration 2->3 and exported in the snapshot. A check-in row does not record which shape produced it.",
+   "file": "app/src/main/kotlin/com/hazia/equipoise/data/db/EquipoiseDatabase.kt",
+   "line": 46
+  },
+  {
+   "fact": "BurnoutIndex reads ONLY energy, as a per-day scalar in DayRecord (pleasantness is never read), with a 14-day OLS slope needing at least 3 points. It is not wired to check-in rows in app/src/main: BurnoutIndex has 0 hits there, and compute() is called only from tests. The claim 'G02 reads energy/pleasantness' is therefore half wrong (no pleasantness) and currently unwired.",
+   "file": "domain/src/main/kotlin/com/hazia/equipoise/domain/BurnoutIndex.kt",
+   "line": 52
+  },
+  {
+   "fact": "The direction engine treats 0.5 as the boundary: energy < 0.5 is low, pleasantness < 0.5 is unpleasant. Low energy can never return HOLD. The onboarding answer only seeds the low-energy/unpleasant quadrant. The Mixed ask (EVERY_TIME) uses LowMoment.assess with the conjunction MIXED && EVERY_TIME.",
+   "file": "domain/src/main/kotlin/com/hazia/equipoise/domain/DirectionModel.kt",
+   "line": 34
+  },
+  {
+   "fact": "LowMoment has three layers, any one of which is enough. Floor: score < FLOOR, the score of (0.5, 0.5), which is 1.25. Fast: lower quartile of the last 30 LOGGED days, live from 15 days. Slow: lower quartile of the 120 logged days before those, live from 15 days. The windows count logged days, not check-ins, and several check-ins on one day all count.",
+   "file": "domain/src/main/kotlin/com/hazia/equipoise/domain/LowMoment.kt",
+   "line": 34
+  },
+  {
+   "fact": "Stability is also derived from data: StabilityTrend uses the per-day spread of the weighted scores (SCALE = 2.5, single-check-in weight 0.5, 30-day window, minimum 15 days). The domain comment says the v0.3 chip was not learned from. The stored stability string is used only by the test simulator (ParamLogistic) and is not an input to DirectionModel, which says 'Stability does not split the data'.",
+   "file": "domain/src/main/kotlin/com/hazia/equipoise/domain/StabilityTrend.kt",
+   "line": 17
+  },
+  {
+   "fact": "regulation_event has more than a check-in link: columns at, direction, tool, outcome, and a separate pending_outcome table also carries checkinId but has NO foreign key. On CASCADE delete of a check-in its events vanish, which changes engine replay. RegulationRepository.toDomain skips events whose check-in is gone.",
+   "file": "app/src/main/kotlin/com/hazia/equipoise/data/db/Entities.kt",
+   "line": 65
+  },
+  {
+   "fact": "Domain Outcome enum is HELPED, NO_CHANGE, NOT_NOW, and NOT_NOW leaves the posterior unchanged. This matters when merging regulation history.",
+   "file": "domain/src/main/kotlin/com/hazia/equipoise/domain/Types.kt",
+   "line": 18
+  },
+  {
+   "fact": "The export/import path carries id, at, energy, pleasantness, stability, note and replaces all check-ins (replaceAll), so ids are identity in the snapshot. A merge must remap checkinId in regulation events.",
+   "file": "app/src/main/kotlin/com/hazia/equipoise/data/export/Transfer.kt",
+   "line": 64
+  }
+ ],
+ "absence_probes": [
+  {
+   "pattern": "BurnoutIndex (in app/src/main)",
+   "hits": 0
+  },
+  {
+   "pattern": "CheckInShape|StabilityTrend use in UI (app/src/main/**/ui)",
+   "hits": 0
+  },
+  {
+   "pattern": "TextField|OutlinedTextField in CheckInScreen.kt (note input)",
+   "hits": 0
+  },
+  {
+   "pattern": "unique index on checkin.at or day (Entities.kt CheckInEntity)",
+   "hits": 0
+  }
+ ]
+}

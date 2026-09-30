@@ -1,0 +1,56 @@
+{
+ "onto": {
+  "tendril-mood-roundtrip": 1,
+  "tendril-energy-roundtrip": 1,
+  "tendril-one-scale-per-row": 1,
+  "equipoise-continuous": 1,
+  "equipoise-widget-energy-only": 1,
+  "equipoise-no-midline": 0,
+  "shared-one-history": 1
+ },
+ "onto+levels": {
+  "tendril-mood-roundtrip": 1,
+  "tendril-energy-roundtrip": 1,
+  "tendril-one-scale-per-row": 1,
+  "equipoise-continuous": 1,
+  "equipoise-widget-energy-only": 1,
+  "equipoise-no-midline": 1,
+  "shared-one-history": 1
+ },
+ "own-axis": {
+  "tendril-mood-roundtrip": 1,
+  "tendril-energy-roundtrip": 1,
+  "tendril-one-scale-per-row": 1,
+  "equipoise-continuous": 1,
+  "equipoise-widget-energy-only": 1,
+  "equipoise-no-midline": 1,
+  "shared-one-history": 0
+ },
+ "tendril-ints": {
+  "tendril-mood-roundtrip": 1,
+  "tendril-energy-roundtrip": 1,
+  "tendril-one-scale-per-row": 1,
+  "equipoise-continuous": 0,
+  "equipoise-widget-energy-only": 1,
+  "equipoise-no-midline": 0,
+  "shared-one-history": 1
+ },
+ "two-tables": {
+  "tendril-mood-roundtrip": 1,
+  "tendril-energy-roundtrip": 1,
+  "tendril-one-scale-per-row": 1,
+  "equipoise-continuous": 1,
+  "equipoise-widget-energy-only": 1,
+  "equipoise-no-midline": 1,
+  "shared-one-history": 0
+ },
+ "coalesce": {
+  "tendril-mood-roundtrip": 1,
+  "tendril-energy-roundtrip": 1,
+  "tendril-one-scale-per-row": 0,
+  "equipoise-continuous": 1,
+  "equipoise-widget-energy-only": 0,
+  "equipoise-no-midline": 0,
+  "shared-one-history": 1
+ }
+}

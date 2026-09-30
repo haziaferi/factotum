@@ -1,0 +1,321 @@
+{
+ "repo": "Tendril",
+ "claims": [
+  {
+   "claim": "1. CheckIn(date, at, mood: Int? 1-5, energy: Int? 1-5), tied to a journal day.",
+   "verdict": "partial",
+   "evidence": [
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/checkin/CheckIn.kt",
+     "line": 30,
+     "quote": "val date: LocalDate,"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/checkin/CheckIn.kt",
+     "line": 32,
+     "quote": "val at: Instant,"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/checkin/CheckIn.kt",
+     "line": 34,
+     "quote": "val mood: Int? = null,"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/checkin/CheckIn.kt",
+     "line": 36,
+     "quote": "val energy: Int? = null,"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/checkin/CheckIn.kt",
+     "line": 29,
+     "quote": "/** The Journal day the check-in belongs to — the page it was tapped on, which may be a past day. */"
+    }
+   ]
+  },
+  {
+   "claim": "2. A row carries exactly one scale (mood or energy); several rows per day are allowed; the day's value is the latest live row of each scale.",
+   "verdict": "partial",
+   "evidence": [
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/checkin/CheckIn.kt",
+     "line": 14,
+     "quote": "person, not a habit (B§10.3): no cadence, nothing due, nothing missed. A row carries **one**"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/checkin/CheckIn.kt",
+     "line": 15,
+     "quote": "scale — [mood] or [energy], the other null — because either is a valid check-in on its own"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/Migrations.kt",
+     "line": 277,
+     "quote": "\"`date` INTEGER NOT NULL, `at` INTEGER NOT NULL, `mood` INTEGER, `energy` INTEGER, `deletedAt` INTEGER)\""
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/checkin/CheckIns.kt",
+     "line": 50,
+     "quote": "return live.lastOrNull { it.mood != null }?.mood to live.lastOrNull { it.energy != null }?.energy"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/ui/pages/PageDetailViewModel.kt",
+     "line": 170,
+     "quote": "viewModelScope.launch { checkInDao.insert(CheckIn(date = day, at = Instant.now(), mood = mood, energy = energy)) }"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/checkin/CheckIns.kt",
+     "line": 73,
+     "quote": "r.mood != null -> out[r.date] = r.mood"
+    }
+   ]
+  },
+  {
+   "claim": "3. The Mood enum has 5 levels with labels and colours; Energy likewise.",
+   "verdict": "partial",
+   "evidence": [
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/checkin/CheckIns.kt",
+     "line": 16,
+     "quote": "AWFUL(1, \"Awful\", \"#5A6E96\"),"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/checkin/CheckIns.kt",
+     "line": 17,
+     "quote": "BAD(2, \"Bad\", \"#3F7EA6\"),"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/checkin/CheckIns.kt",
+     "line": 18,
+     "quote": "OKAY(3, \"Okay\", \"#7C6BA3\"),"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/checkin/CheckIns.kt",
+     "line": 19,
+     "quote": "GOOD(4, \"Good\", \"#2E8A76\"),"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/checkin/CheckIns.kt",
+     "line": 20,
+     "quote": "GREAT(5, \"Great\", \"#6E8A2C\");"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/checkin/CheckIns.kt",
+     "line": 27,
+     "quote": "enum class Energy(val level: Int, val label: String) {"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/checkin/CheckIns.kt",
+     "line": 28,
+     "quote": "DRAINED(1, \"Drained\"),"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/checkin/CheckIns.kt",
+     "line": 29,
+     "quote": "LOW(2, \"Low\"),"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/checkin/CheckIns.kt",
+     "line": 30,
+     "quote": "STEADY(3, \"Steady\"),"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/checkin/CheckIns.kt",
+     "line": 31,
+     "quote": "HIGH(4, \"High\"),"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/checkin/CheckIns.kt",
+     "line": 32,
+     "quote": "FULL(5, \"Full\");"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/ui/pages/CheckInRow.kt",
+     "line": 108,
+     "quote": "word = e.label, selected = energy == e.level, hue = MaterialTheme.colorScheme.primary, onHue = MaterialTheme.colorScheme.onPrimary,"
+    }
+   ]
+  },
+  {
+   "claim": "4. Which screens read check-ins and what they compute (charts, averages, correlations, colours on the calendar)?",
+   "verdict": "partial",
+   "evidence": [
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/ui/pages/PageDetailViewModel.kt",
+     "line": 159,
+     "quote": "if (day == null || !checkInOffered(day, LocalDate.now())) flowOf(emptyList()) else checkInDao.observeForDay(day)"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/ui/pages/PageDetailViewModel.kt",
+     "line": 163,
+     "quote": "fun checkInsIn(month: YearMonth): Flow<List<CheckIn>> = checkInDao.observeBetween(month.atDay(1), month.atEndOfMonth())"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/ui/pages/CheckInRow.kt",
+     "line": 90,
+     "quote": "val (mood, energy) = latestOfDay(rows)"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/ui/pages/CheckInRow.kt",
+     "line": 115,
+     "quote": "val line = dayLine(rows)"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/ui/pages/CheckInRow.kt",
+     "line": 183,
+     "quote": "MonthOfMoods(monthOfMoods(rows), month, palette)"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/ui/pages/CheckInRow.kt",
+     "line": 185,
+     "quote": "val listed = rows.filter { checkInLabel(it) != null }.sortedByDescending { it.at }"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/ui/pages/PageDetailScreen.kt",
+     "line": 670,
+     "quote": "checkInItems(day, checkIns, viewModel, onOpenSheet = { checkInSheetOpen = true })"
+    },
+    {
+     "file": "shared/src/jvmCommon/kotlin/com/tendril/app/sync/SnapshotSyncOrchestrator.kt",
+     "line": 693,
+     "quote": "val allCheckIns = checkInDao.getAll()"
+    },
+    {
+     "file": "Tendril android/app/src/main/java/com/tendril/app/sync/PortableArchive.kt",
+     "line": 172,
+     "quote": "val allCheckIns = checkInDao.getAll()"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/ui/calendar/CalendarScreen.kt",
+     "line": 264,
+     "quote": "val habitCheckInsToday by viewModel.habitCheckInsToday.collectAsState()"
+    }
+   ]
+  },
+  {
+   "claim": "5. A check-in cannot be edited; a changed mind is a new row; undo sets deletedAt.",
+   "verdict": "confirmed",
+   "evidence": [
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/checkin/CheckIn.kt",
+     "line": 19,
+     "quote": "to compare (§9.4). A changed mind is a new row, never an edit."
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/checkin/CheckInDao.kt",
+     "line": 32,
+     "quote": "@Query(\"UPDATE check_ins SET deletedAt = :deletedAt WHERE id = :id\")"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/ui/pages/PageDetailViewModel.kt",
+     "line": 175,
+     "quote": "viewModelScope.launch { checkInDao.softDelete(id, Instant.now()) }"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/ui/pages/CheckInRow.kt",
+     "line": 101,
+     "quote": "onClick = { if (mood == m.level) latestMoodRow?.let { viewModel.undoCheckIn(it.id) } else viewModel.checkIn(mood = m.level) },"
+    }
+   ]
+  },
+  {
+   "claim": "6. There is no note/comment on a check-in, by design.",
+   "verdict": "confirmed",
+   "evidence": [
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/checkin/CheckIn.kt",
+     "line": 16,
+     "quote": "moment ([at]). There is no note column on purpose: the Journal page under the row is the words."
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/Migrations.kt",
+     "line": 277,
+     "quote": "\"`date` INTEGER NOT NULL, `at` INTEGER NOT NULL, `mood` INTEGER, `energy` INTEGER, `deletedAt` INTEGER)\""
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/sync/SnapshotRecords.kt",
+     "line": 200,
+     "quote": "data class CheckInSnapshotRecord("
+    }
+   ]
+  }
+ ],
+ "missed": [
+  {
+   "fact": "Claim 1 is partial: the entity also has a local autoincrement id and a stable cross-device uid (unique index) that the map omitted, plus deletedAt: Instant?. The merge key is uid, not (date, at).",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/data/checkin/CheckIn.kt",
+   "line": 28
+  },
+  {
+   "fact": "The 1-5 range is only a doc comment. There is no CHECK constraint and no validation on insert. Out-of-range values are kept, and fromLevel returns null, so such a row has no label and no disc (checkInLabel returns null).",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/checkin/CheckIns.kt",
+   "line": 23
+  },
+  {
+   "fact": "'One scale per row' is convention only. The schema allows both columns set or both null, and the merge accepts any pair. checkInLabel reads mood first if both are set, while latestOfDay and dayLine count the row for both scales.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/checkin/CheckIns.kt",
+   "line": 43
+  },
+  {
+   "fact": "A second meaning is packed into the month map: a value of 0 means 'energy only that day' and is drawn as a ring. A day is a disc only if at least one live mood row exists.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/checkin/CheckIns.kt",
+   "line": 68
+  },
+  {
+   "fact": "Only Mood has a colour (hex). Energy has none and renders in the theme primary colour. Mood hues are slate, blue, mauve, teal and green-gold, with no red by design. They are passed through labelColours() at render time.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/ui/pages/CheckInRow.kt",
+   "line": 130
+  },
+  {
+   "fact": "Check-ins are offered only on Journal days that are today or past. The viewmodel refuses future inserts and returns an empty list for a future day. The row is also not behind contentLocked.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/checkin/CheckIns.kt",
+   "line": 81
+  },
+  {
+   "fact": "The 'latest' rule is by `at` (tap time), not by id or date. The day's latest mood is the last live row by `at` (latestOfDay), but the month map iterates sorted by `at` across all rows, so the latest mood wins per r.date. Day membership comes from the `date` field, so a past-day tap stamped now still belongs to its page day.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/checkin/CheckIns.kt",
+   "line": 71
+  },
+  {
+   "fact": "Merge semantics: insert if the uid is unknown locally; if the remote is tombstoned and the local row is live, soft-delete the local row; otherwise no change. There is no updatedAt, so scale values are never merged or overwritten. Tombstone wins and is never cleared. An undecodable record is quarantined and held, not dropped.",
+   "file": "shared/src/jvmCommon/kotlin/com/tendril/app/sync/SnapshotSyncOrchestrator.kt",
+   "line": 2028
+  },
+  {
+   "fact": "Sync record CheckInSnapshotRecord has uid, date (String), at (epoch ms Long), mood, energy and deletedAt (epoch ms). It has no id, no updatedAt and no owner. toEntity throws SnapshotDecodeException on an unparseable date.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/sync/SnapshotRecords.kt",
+   "line": 200
+  },
+  {
+   "fact": "The portable archive (backup) has its own check-in path with the same tombstone rule. Restore wipes with deleteAll and then re-applies records.",
+   "file": "Tendril android/app/src/main/java/com/tendril/app/sync/PortableArchive.kt",
+   "line": 713
+  },
+  {
+   "fact": "Claim 4 gap: the calendar's check-in references are habit completions (HabitCompletion), not mood or energy check-ins. The naming collides: 'check-in' also means habit completion (CheckInHabitUseCase, habitCheckIns), and the review screen's 'check-ins' count is habit completions. These are a separate table and must not be merged with check_ins.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/ui/calendar/CalendarViewModel.kt",
+   "line": 121
+  },
+  {
+   "fact": "The design deliberately forbids scores: the doc says nothing averages, counts days or draws a curve. The code matches. The only computations are latest-of-day, the day line text, and the month map with its list.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/checkin/CheckIns.kt",
+   "line": 11
+  }
+ ],
+ "absence_probes": [
+  {
+   "pattern": "Mood|mood|checkIn|CheckIn in ui/calendar (mood-specific: mood|Mood)",
+   "hits": 0
+  },
+  {
+   "pattern": "Mood|mood in domain/review (ReviewPlanner)",
+   "hits": 0
+  },
+  {
+   "pattern": "Mood|mood|checkIn in Tendril android/app/src/main outside sync and container wiring, excluding Habit*.kt (UI readers)",
+   "hits": 0
+  },
+  {
+   "pattern": "mood|energy|note|comment in Migrations.kt for a check_ins note column (only hit in the v22 table DDL is mood/energy; the `note` hit at line 337 is habits.note)",
+   "hits": 0
+  }
+ ]
+}

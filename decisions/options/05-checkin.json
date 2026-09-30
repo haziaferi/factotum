@@ -1,0 +1,54 @@
+{
+ "contest": "05-checkin",
+ "growth_note": "columns on the merged check-in table(s), beyond id, at, day, note and sync columns (identical in every option)",
+ "options": [
+  {
+   "id": "onto",
+   "summary": "mood maps onto pleasantness at bin centres; energy and pleasantness nullable, CHECK at least one",
+   "growth": {
+    "columns": 3
+   }
+  },
+  {
+   "id": "onto+levels",
+   "summary": "onto + source_levels (5 for Tendril-origin values, NULL for continuous)",
+   "growth": {
+    "columns": 4
+   }
+  },
+  {
+   "id": "own-axis",
+   "summary": "mood INT as its own axis beside energy and pleasantness",
+   "growth": {
+    "columns": 5
+   }
+  },
+  {
+   "id": "tendril-ints",
+   "summary": "everything as 1-5 integers",
+   "growth": {
+    "columns": 2
+   }
+  },
+  {
+   "id": "two-tables",
+   "summary": "both apps' tables side by side, unmerged",
+   "growth": {
+    "tables": 1,
+    "columns": 6
+   }
+  },
+  {
+   "id": "coalesce",
+   "summary": "CONTROL: Equipoise's NOT NULL energy; a missing axis is filled with 0.5",
+   "growth": {
+    "columns": 3
+   },
+   "control": true,
+   "expect_fail": [
+    "tendril-one-scale-per-row",
+    "equipoise-widget-energy-only"
+   ]
+  }
+ ]
+}
