@@ -1,6 +1,6 @@
 # ADR 04: How recurrence is encoded
 
-Status: **recommended: rrule+ext, awaiting the owner's pick**. Date: 2026-09-30. Owners: Tendril, Chronicle, Mnemo.
+Status: **decided: rrule+ext**. Date: 2026-09-30. Owners: Tendril, Chronicle, Mnemo.
 
 This ADR builds on ADR 03: recurrence lives only on `item`, including items of kind REMINDER, so it is encoded exactly once.
 
@@ -51,7 +51,16 @@ The map listed two irreducible forms, "anchored" and "stochastic". Measured, the
 
 ## Decision
 
-_pending the owner's pick, and the missed-occurrence rule below_
+The owner picked **rrule+ext** on 2026-09-30.
+
+**Missed occurrences depend on the reminder's `alert_kind` (ADR 03).** The owner's words: "If it's an alarm, it should wake the phone if it's off and sound anyway if the app is killed, otherwise, if it's only a notification, it fires once late, then continues."
+
+- **ALARM** is scheduled with `setAlarmClock`, as Chronicle already does for ALARM (`AndroidAlarmScheduler.kt:69`). It rings through a foreground service and a full-screen activity. The OS holds the alarm, so it fires while the app process is dead and while the phone sleeps or dozes.
+- **NOTIFICATION** follows Mnemo's rule. A missed fire is delivered once, late, when the phone boots or the app next starts. Then the schedule continues from the next future occurrence. There is never a backlog of several missed occurrences.
+
+**Platform limits, recorded so they aren't mistaken for defects:**
+1. **A phone that is powered off cannot be switched on** by a third-party app. Only some manufacturers' own clock apps have a power-off alarm. What Factotum does is ring the missed ALARM as soon as the phone boots, which is the late-fire rule applied to alarms.
+2. **A *force-stopped* app** (Settings → Force stop, or some vendors' aggressive task killers) has its alarms cancelled by Android until the app is opened again. A killed process is fine; a force-stop is not. The app should detect this case on its next start and say so, rather than stay silent.
 
 ## Consequences
 
