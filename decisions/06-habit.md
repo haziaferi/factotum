@@ -1,6 +1,6 @@
 # ADR 06: Habit, stored streak or derived presence
 
-Status: **recommended: item+tracker, awaiting the owner's confirmation**. Date: 2026-09-30. Owners: Tendril and Chronicle, plus the owner's rule.
+Status: **decided: item+tracker**. Date: 2026-09-30. Owners: Tendril and Chronicle, plus the owner's rule.
 
 **Owner's rule (2026-09-30).** Constraint 0.14 applies to Habits: nothing stores or shows a streak or a missed-day count.
 
@@ -52,4 +52,6 @@ One case (`shared-one-log`) was removed before scoring because it was hand-marke
 
 ## Decision
 
-_pending_
+**item+tracker** was confirmed by the owner on 2026-09-30.
+
+Ticking a habit is called **Log** ("Log water"). "Check-in" is kept for mood, energy and pleasantness (ADR 05).
