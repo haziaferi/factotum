@@ -11,7 +11,7 @@ The facts were verified with `tools/verify.py`; the raw output is in `verify/02-
 | App | Fact | Source | Map said |
 |---|---|---|---|
 | Tendril | `EntryKind { TASK, EVENT }`, one `entries` table | `Entry.kt:12,23` | confirmed |
-| Tendril | Tasks use `startDate`/`startTime` as the *planned* When, with a separate `dueDate` deadline. The calendar draws tasks from these columns. There is no all-day column: all-day means `startTime == null`. | `Entry.kt:56-62,77` | partly stated |
+| Tendril | Tasks use `startDate`/`startTime` as the *planned* When, with a separate `dueDate` deadline. The calendar draws tasks from these columns. There is no all-day column: all-day means `startTime == null`. | `Entry.kt:34-35,56-62` | partly stated |
 | Tendril | `EntryStatus { PENDING, DONE, SKIPPED }`. A recurring task is one live row plus an append-only `EntryCompletion` log per occurrence. | `Entry.kt:15`, `EntryCompletion.kt:31` | not stated |
 | Tendril | Subtasks go one level deep through `parentEntryId`. | `Entry.kt:67`, `TaskTree.kt:7` | not stated |
 | Tendril | `originalEntryId` / `originalOccurrenceDate` / `isExceptionSkip` make an Entry row double as a per-occurrence exception. | `Entry.kt:48` | not stated (matters for contest 04) |

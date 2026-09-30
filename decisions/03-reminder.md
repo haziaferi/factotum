@@ -17,9 +17,9 @@ The facts were verified with `tools/verify.py`; the raw output is in `verify/03-
 | Tendril | `anchorTime` applies only when the item has no start time. The fire time is `start + (startTime ?: anchorTime ?: 00:00) + offset`. A reminder on an item with no start date never fires, and nothing in the UI prevents creating one. | `ReminderFirings.kt:71,105`; `ReminderSheet.kt:101` | not stated; the no-date case is a gap |
 | Tendril | Reminders fire only while a task is PENDING. Only the next occurrence of a Fixed event is armed. A task's OVERDUE firing is a separate path, not a reminder row. Habits have their own reminder mechanism. | `ReminderFirings.kt:23,62,81,104` | not stated |
 | Tendril | There is no nag, no per-reminder sound and no alarm kind: the reminder uses a shared channel with auto-cancel. | `ReminderAlarmReceiver.kt:33-38` | **refuted** |
-| Chronicle | 16 columns, standalone, linked to nothing. `kind` is NOTIFICATION or ALARM, and ALARM rings through AlarmService and a full-screen activity. The nag is `nagMaxRepeats` plus `nagMaxDurationMillis`, and the interval is derived. `repeatIntervalMillis` packs three meanings into one value. | `ReminderEntity.kt:23-33`; `Enums.kt:74`; `NagAlarms.kt:38` | partial |
+| Chronicle | 17 columns, standalone, linked to nothing. `kind` is NOTIFICATION or ALARM, and ALARM rings through AlarmService and a full-screen activity. The nag is `nagMaxRepeats` plus `nagMaxDurationMillis`, and the interval is derived. `repeatIntervalMillis` packs three meanings into one value. | `ReminderEntity.kt:23-33`; `Enums.kt:74`; `NagAlarms.kt:38` | partial |
 | Chronicle | `dueAt` is a wall-clock LocalDateTime string, resolved per time zone when the alarm is scheduled. Snooze stays on the device, is not synced, and never touches `dueAt`. | `ReminderEntity.kt:7`; `ReminderSnooze.kt:13,29` | not stated |
-| Mnemo | 22 columns, standalone. `mode` is EASE, SCHEDULE or ALERT. It also has `skinId`, a three-state `soundUri` (null = default, "" = silent) and a three-state `vibrationPattern`, and `useExactAlarm`. The nag is on/off per reminder, with a global interval. | `Reminder.kt:10,33-81`; `AppSettingsStore.kt:113` | partial |
+| Mnemo | 19 columns, standalone. `mode` is EASE, SCHEDULE or ALERT. It also has `skinId`, a three-state `soundUri` (null = default, "" = silent) and a three-state `vibrationPattern`, and `useExactAlarm`. The nag is on/off per reminder, with a global interval. | `Reminder.kt:10,33-85`; `AppSettingsStore.kt:36` | partial |
 | Mnemo | Snooze is stored in the row (`snoozedUntil` overwrites `nextFireAt`), so it syncs. Done on a recurring reminder does not advance it: `recordFired` already has. | `ReminderRepository.kt:105-131` | "done advances" (partial) |
 
 ## Scores (`03-reminder-scores.md`, run by `tools/reminder_sql.py` on SQLite)
@@ -30,7 +30,7 @@ The facts were verified with `tools/verify.py`; the raw output is in `verify/03-
 | standalone | 1.00 | 1.00 | 0.67 | 0.25 | 25 | dominated ("15 min before" stops following the item) |
 | optional-link | 1.00 | 1.00 | 0.67 | 1.00 | 31 | dominated by item-kind (same coverage, recurrence in two places) |
 | **item-kind** | 1.00 | 1.00 | 0.67 | 1.00 | 25 | **front** |
-| bare (control) | 0.67 | 1.00 | 0.33 | 0.75 | 23 | failed all 3 cases it was expected to fail |
+| bare (control) | 0.67 | 1.00 | 0.33 | 0.75 | 23 | failed all 3 cases it was expected to fail, plus shared-one-recurrence-home |
 
 The map said: "A dependent reminder can't express a standalone one without inventing an Entry to hang it on." **item-kind** makes that invented item a real one: a `REMINDER` kind of `Item`. That buys three things:
 - Every reminder row keeps Tendril's offset and FK behaviour.
