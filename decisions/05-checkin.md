@@ -1,6 +1,6 @@
 # ADR 05: Check-in, two scales for one gesture
 
-Status: **recommended: onto+levels, awaiting the owner's pick**. Date: 2026-09-30. Owners: Tendril and Equipoise.
+Status: **decided: own-axis** (the owner chose against the recommendation; recorded as given). Date: 2026-09-30. Owners: Tendril and Equipoise.
 
 ## Verified facts
 
@@ -47,4 +47,12 @@ Each owner's real check-ins are stored in each option, then read back by a port 
 
 ## Decision
 
-_pending_
+On 2026-09-30 the owner decided both open questions.
+
+1. **Mood is its own axis** (`own-axis`). Mood is not pleasantness. The table is one `check_in` table:
+   - `mood` is an INT 1-5 with a CHECK. Tendril never enforced that range; Factotum does, as a fix.
+   - `energy` and `pleasantness` are REAL in 0..1 and nullable, with a CHECK that at least one of mood, energy or pleasantness is set.
+   - `source_levels`, `stability` and `note` are all nullable.
+
+   **What the owner accepts with this.** A quick mood tap never reaches Equipoise's direction engine or its LowMoment assessment, because both need pleasantness. That is the measured loss `shared-one-history`. A quick *energy* tap still lands on the shared energy axis, stored as (k−0.5)/5 with `source_levels = 5`. It is treated like Equipoise's own widget energy-only row: BurnoutIndex, which reads energy only, may use it, and LowMoment leaves it out, as it already does with widget rows.
+2. **No numbers on the check-in screen.** Tendril's rule carries over: no averages, counts or trend curves are shown. Equipoise's engines keep computing in the background, and what they produce appears only as their own outputs, such as a suggested direction or a low-moment prompt, never as a chart of the check-ins.
