@@ -42,8 +42,8 @@ Each owner's real check-ins are stored in each option, then read back by a port 
 
 ## Open for the owner
 
-1. **Is Tendril's mood the same axis as Equipoise's pleasantness?** Recommended: yes. Awful…Great is a pleasant/unpleasant (valence) scale, the axis the circumplex calls pleasantness. The measured alternative (`own-axis`) keeps it separate, and then Tendril-origin check-ins never inform the burnout or direction engines.
-2. **Tendril's rule of no averages, counts or curves.** Should it carry over to the merged check-in screen, while Equipoise's engines still compute in the background as they do now?
+1. **Is Tendril's mood the same axis as Equipoise's pleasantness?** Recommended: yes. Awful…Great is a pleasant/unpleasant (valence) scale, the axis the circumplex calls pleasantness. The measured alternative (`own-axis`) keeps it separate, and then Tendril-origin *mood* taps never inform the burnout or direction engines. (Corrected 2026-10-01: energy taps still do; see the Decision.)
+2. **Tendril's rule of no averages, counts or curves.** Should it carry over to the merged check-in screen, while Equipoise's engines still compute? (Corrected 2026-10-01: they run on demand, not in the background, and BurnoutIndex isn't wired yet; see the Decision.)
 
 ## Decision
 
@@ -55,4 +55,4 @@ On 2026-09-30 the owner decided both open questions.
    - `source_levels`, `stability` and `note` are all nullable.
 
    **What the owner accepts with this.** A quick mood tap never reaches Equipoise's direction engine or its LowMoment assessment, because both need pleasantness. That is the measured loss `shared-one-history`. A quick *energy* tap still lands on the shared energy axis, stored as (k−0.5)/5 with `source_levels = 5`. It is treated like Equipoise's own widget energy-only row. BurnoutIndex, whose only check-in input is energy, may use it. DirectionModel reads it with pleasantness 0.5, as it already reads widget rows (`Repositories.kt:159`). LowMoment leaves it out, as it already does with widget rows (`Repositories.kt:63`).
-2. **No numbers on the check-in screen.** Tendril's rule carries over: no averages, counts or trend curves are shown. Equipoise's engines keep running on demand, as they do now (`Repositories.kt:65`; there is no background worker yet), and what they produce appears only as their own outputs, such as a suggested direction or a low-moment prompt, never as a chart of the check-ins.
+2. **No numbers on the check-in screen.** Tendril's rule carries over: no averages, counts or trend curves are shown. The Equipoise engines that run today keep running on demand (`Repositories.kt:65`; there is no background worker yet). BurnoutIndex isn't wired into the app yet (SPEC §10.5), and what they produce appears only as their own outputs, such as a suggested direction or a low-moment prompt, never as a chart of the check-ins.

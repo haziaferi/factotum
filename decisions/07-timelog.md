@@ -70,5 +70,5 @@ Each bullet names which app has the gap or the feature. All are fixed in the mer
 This question was raised by the fresh-eyes audit (`docs/fresh-eyes-2026-10-01.md`).
 
 **A span counts wholly for the day it started**, as in Tendril (`TimeLogDao.kt:31-33`, "the day the person was working"). A 23:00–01:00 span gives 2 h to Monday.
-- **Every window follows the same rule**: day, week, and a goal's period. So daily totals always add up to the weekly one. Tendril's week summary clips (`TimeLogTotals.kt:15-21`), and Chronicle's `totalIn` clips (`ActivityDetailViewModel.kt:256-259`). Neither clip is carried over.
+- **Every window follows the same rule**: day, week, and a goal's period. A day's total is the union of the spans that started that day, and a week's or a goal period's total is the sum of its days' totals, so daily totals add up to the weekly one by construction. (Corrected 2026-10-01: a union over the whole week would not add up when overlapping spans start on different days; in that rare case the overlap counts on each day.) Tendril's week summary clips (`TimeLogTotals.kt:15-21`), and Chronicle's `totalIn` clips (`ActivityDetailViewModel.kt:256-259`). Neither clip is carried over.
 - **A running span** counts up to now, for the day it started.

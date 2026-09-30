@@ -57,5 +57,5 @@ Names: `Item` for a calendar task or event, and `TrackerReading` for Chronicle's
 ## Consequences for later contests
 
 - **Contest 03 (Reminder).** A reminder can point at one `item.id` with a real FK, for tasks and events alike.
-- **Contest 04 (Recurrence).** The recurrence column lives on `item`. Tendril's per-occurrence exception columns come with it.
+- **Contest 04 (Recurrence).** The recurrence column lives on `item`. (Amended 2026-10-01: this line first said Tendril's per-occurrence exception columns come with it; ADR 11 replaced them with the `occurrence_edit` log.)
 - **Sync groups (ADR 01).** `item` has a *schedule* group (planned date and time, `due_date`, recurrence, `deletedAt`) and a *status* group (`status`, `importance`, `capacity_rank`). hybrid+ asks a person only about concurrent schedule changes.

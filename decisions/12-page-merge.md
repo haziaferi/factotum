@@ -29,13 +29,13 @@ The facts were verified with `tools/verify.py`; the raw output is in `verify/12-
 | discard (control) | 0.00 | 0.67 | 0 | failed its 5 cases, as expected |
 
 **Two notes on method:**
-- **per-row+revive was added after the first run.** It keeps Tendril's "a later edit beats a trash" rule. That rule doesn't conflict with ADR 01: under ADR 01 a whole row is one group by default, so the same rule already holds there.
+- **per-row+revive was added after the first run.** It keeps Tendril's "a later edit beats a trash" rule. **This is a deliberate exception to ADR 01**, where deletion in its own group beats a later change to another group (case `chronicle-delete-beats-status`). For pages, an edit to a *different row* (a block, cell or node) stamped later than the trash brings the page back. The owner chose this knowingly: the option read "a later edit still un-trashes a page, as now". (Corrected 2026-10-01: this note first said the rule doesn't conflict with ADR 01.)
 - **The ask/silent choice for a same-paragraph clash was put to the owner separately.** The cases can't see the difference.
 
 ## Decision
 
 The owner confirmed **per-row+revive** on 2026-10-01.
-- **Every part of a page is its own row with ADR 01 stamps and a tombstone.** That means `block`, `property_value`, `canvas_node`, `canvas_edge` and `page_database_view`.
+- **Most parts of a page are their own rows with ADR 01 stamps and a tombstone**: `block`, `property_value`, `canvas_node`, `canvas_edge` and `page_database_view`. The two exceptions keep Tendril's rules, as the last bullet says: relations are add-only, and the property schema is upsert-by-uid.
   - Edits to different paragraphs, cells or canvas nodes all survive.
   - A canvas edge takes a ULID.
 - **Block order** is a fractional sort key, so two concurrent inserts both land where they were put.
@@ -45,7 +45,7 @@ The owner confirmed **per-row+revive** on 2026-10-01.
 
 ## Consequences: fixes, not questions
 
-- **The folder's `.tendril-lost` files aren't carried over.** The revision plus the notice replace them, so the folder doesn't collect copies that are never deleted.
+- **The folder's `.tendril-lost` files aren't carried over.** Tendril's `PageRevision` holds only the title and blocks (`PageRevision.kt:40-41`), and the lost file holds the full snapshot (`SnapshotSyncOrchestrator.kt:1366-1367`). So a Factotum MERGE revision stores **every losing part**: block text, property value, canvas node. A clashing cell or canvas edit stays recoverable, and the folder still doesn't collect copies that are never deleted.
 - **Labels on pages** merge per `page_label` row (ADR 08), not by rebuilding the set from names.
 - **A block's `updatedAt`** becomes its ADR 01 stamp. Tendril carries the field but never uses it.
 - **Search** (ADR 10) indexes blocks through triggers, so a merged block is indexed on the write, with no per-page rebuild.

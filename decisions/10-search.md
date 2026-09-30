@@ -45,6 +45,6 @@ Growth counts every trigger as 1. The 18 triggers are generated from one list of
 
 - **The index is local and never syncs.** Row keys are ADR 01 ids, but the index is derived data. Each device builds its own from its synced rows, as both apps do now.
 - **A full rebuild is available** (delete everything, then re-insert from the sources). It runs after a restore and on a detected mismatch. This replaces Tendril's `healIndex`, which missed stale rows, and Chronicle's migration-only backfill.
-- **Result order is defined.** Tendril's `LIMIT` without `ORDER BY` returns an arbitrary subset. Hits are now ordered: title matches first, then by recency, as Chronicle does.
+- **Result order is defined.** Tendril's `LIMIT` without `ORDER BY` returns an arbitrary subset. Hits are now ordered: title matches first, as Tendril ranks in Kotlin, then by recency, as Chronicle sorts.
 - **Labels (ADR 08) aren't in the text index.** The label picker keeps substring `LIKE`, as Tendril's does, because a label name is short and found by part of a word.
 - **Check-ins and journal text** (ADR 05) aren't indexed in either app today. Adding them is a feature, not part of this decision.
