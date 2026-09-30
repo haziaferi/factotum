@@ -1,0 +1,237 @@
+{
+ "repo": "Chronicle",
+ "claims": [
+  {
+   "claim": "1. ReminderEntity is standalone: dueAtIso, kind, repeatRuleKind, repeatIntervalMillis, nagEnabled, soundRef.",
+   "verdict": "partial",
+   "evidence": [
+    {
+     "file": "data/src/main/kotlin/com/hazia/chronicle/data/room/entity/ReminderEntity.kt",
+     "line": 23,
+     "quote": "data class ReminderEntity("
+    },
+    {
+     "file": "data/src/main/kotlin/com/hazia/chronicle/data/room/entity/ReminderEntity.kt",
+     "line": 26,
+     "quote": "val dueAtIso: String, // DUE_AT_FORMATTER, e.g. \"2026-08-01T08:00:00\" — see the header above"
+    },
+    {
+     "file": "data/src/main/kotlin/com/hazia/chronicle/data/room/entity/ReminderEntity.kt",
+     "line": 31,
+     "quote": "val repeatIntervalMillis: Long?,"
+    },
+    {
+     "file": "data/src/main/kotlin/com/hazia/chronicle/data/room/entity/ReminderEntity.kt",
+     "line": 32,
+     "quote": "val nagEnabled: Boolean,"
+    }
+   ]
+  },
+  {
+   "claim": "2. A reminder can optionally link to something else (tracker, goal, activity, checklist).",
+   "verdict": "refuted",
+   "evidence": [
+    {
+     "file": "data/src/main/kotlin/com/hazia/chronicle/data/room/entity/ReminderEntity.kt",
+     "line": 24,
+     "quote": "@PrimaryKey val id: String,"
+    },
+    {
+     "file": "domain/src/main/kotlin/com/hazia/chronicle/domain/model/Reminder.kt",
+     "line": 28,
+     "quote": "val id: ReminderId,"
+    }
+   ]
+  },
+  {
+   "claim": "3. 'kind' distinguishes reminder types; list values and what each changes.",
+   "verdict": "confirmed",
+   "evidence": [
+    {
+     "file": "domain/src/main/kotlin/com/hazia/chronicle/domain/enums/Enums.kt",
+     "line": 74,
+     "quote": "enum class ReminderKind { NOTIFICATION, ALARM }"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/chronicle/alarm/AndroidAlarmScheduler.kt",
+     "line": 69,
+     "quote": "val useAlarmClock = reminder.kind == ReminderKind.ALARM ||"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/chronicle/alarm/AndroidAlarmScheduler.kt",
+     "line": 81,
+     "quote": "if (reminder.kind == ReminderKind.ALARM) {"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/chronicle/alarm/ReminderAlarmReceiver.kt",
+     "line": 44,
+     "quote": "if (reminder.done || reminder.isDeleted || reminder.kind != ReminderKind.ALARM) return@launch"
+    },
+    {
+     "file": "feature/remind/src/main/kotlin/com/hazia/chronicle/feature/remind/ReminderSheet.kt",
+     "line": 104,
+     "quote": "if (kind == ReminderKind.ALARM) RingtoneManager.TYPE_ALARM else RingtoneManager.TYPE_NOTIFICATION"
+    }
+   ]
+  },
+  {
+   "claim": "4. Nag repeats the alert at an interval until acknowledged; say the interval and where it is set.",
+   "verdict": "partial",
+   "evidence": [
+    {
+     "file": "app/src/main/kotlin/com/hazia/chronicle/alarm/NagAlarms.kt",
+     "line": 38,
+     "quote": "val interval = (windowMs / policy.maxRepeats.coerceAtLeast(1)).coerceAtLeast(60_000L)"
+    },
+    {
+     "file": "feature/remind/src/main/kotlin/com/hazia/chronicle/feature/remind/ReminderSheet.kt",
+     "line": 90,
+     "quote": "private val NAG_INTERVALS_MIN = listOf(5, 10, 15, 30, 60)"
+    },
+    {
+     "file": "feature/remind/src/main/kotlin/com/hazia/chronicle/feature/remind/ReminderSheet.kt",
+     "line": 100,
+     "quote": "maxDuration = Duration.ofMinutes(intervalMin.toLong() * count),"
+    },
+    {
+     "file": "domain/src/main/kotlin/com/hazia/chronicle/domain/enums/Enums.kt",
+     "line": 124,
+     "quote": "val maxRepeats: Int = 3,"
+    }
+   ]
+  },
+  {
+   "claim": "5. Status fields (done, notified, snoozed) separate from schedule; schedule and status are separate sync groups.",
+   "verdict": "partial",
+   "evidence": [
+    {
+     "file": "domain/src/main/kotlin/com/hazia/chronicle/domain/model/Reminder.kt",
+     "line": 35,
+     "quote": "val done: Boolean,"
+    },
+    {
+     "file": "domain/src/main/kotlin/com/hazia/chronicle/domain/model/Reminder.kt",
+     "line": 37,
+     "quote": "val scheduleUpdatedAt: FieldStamp,"
+    },
+    {
+     "file": "data/src/main/kotlin/com/hazia/chronicle/data/merge/ReminderMerge.kt",
+     "line": 32,
+     "quote": "done = statusWinner.done,"
+    },
+    {
+     "file": "data/src/main/kotlin/com/hazia/chronicle/data/merge/ReminderMerge.kt",
+     "line": 33,
+     "quote": "notified = statusWinner.notified,"
+    },
+    {
+     "file": "data/src/main/kotlin/com/hazia/chronicle/data/merge/ReminderMerge.kt",
+     "line": 14,
+     "quote": "deletedAt is bundled into the schedule group: \"should this fire at all\" reads as a"
+    }
+   ]
+  },
+  {
+   "claim": "6. Snooze exists and moves dueAt, or is stored separately.",
+   "verdict": "partial",
+   "evidence": [
+    {
+     "file": "app/src/main/kotlin/com/hazia/chronicle/alarm/ReminderSnooze.kt",
+     "line": 13,
+     "quote": "The stored `dueAt` is never touched."
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/chronicle/alarm/ReminderSnooze.kt",
+     "line": 32,
+     "quote": "SnoozeAlarm.schedule(context, reminderId, at)"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/chronicle/alarm/ReminderSnooze.kt",
+     "line": 33,
+     "quote": "alerts.recordSnooze(reminderId, at)"
+    }
+   ]
+  },
+  {
+   "claim": "7. A reminder's text is its own title, not borrowed from a linked item.",
+   "verdict": "confirmed",
+   "evidence": [
+    {
+     "file": "data/src/main/kotlin/com/hazia/chronicle/data/room/entity/ReminderEntity.kt",
+     "line": 25,
+     "quote": "val text: String,"
+    },
+    {
+     "file": "domain/src/main/kotlin/com/hazia/chronicle/domain/model/Reminder.kt",
+     "line": 29,
+     "quote": "val text: String,"
+    }
+   ]
+  }
+ ],
+ "missed": [
+  {
+   "fact": "Claim 1's column list is incomplete. The full entity has 16 columns: id, text, dueAtIso, kind, repeatRuleKind, repeatIntervalMillis, nagEnabled, nagMaxRepeats, nagMaxDurationMillis, soundRef, done, notified, scheduleUpdatedAtMillis, scheduleUpdatedByDevice, statusUpdatedAtMillis, statusUpdatedByDevice, deletedAtMillis. The map omitted nagMaxRepeats, nagMaxDurationMillis, done, notified, both stamp pairs and deletedAtMillis. The nag columns matter for the merge.",
+   "file": "data/src/main/kotlin/com/hazia/chronicle/data/room/entity/ReminderEntity.kt",
+   "line": 33
+  },
+  {
+   "fact": "repeatIntervalMillis packs three meanings into one nullable Long. EVERY_INTERVAL stores millis and WEEKDAYS stores a day bitmask. RANDOM_DAYS stores minDays*1000+maxDays, which the entity comment does not list. The entity comment says 'Null for every other repeat kind'.",
+   "file": "data/src/main/kotlin/com/hazia/chronicle/data/room/entity/ReminderEntity.kt",
+   "line": 31
+  },
+  {
+   "fact": "RepeatRule has 7 variants: None, EveryInterval, Daily, Weekly, Monthly, Weekdays and RandomDays. repeatRuleKind is a string name. EntityMappers decodes it and errors on an unknown name, so a merge must agree on these names.",
+   "file": "domain/src/main/kotlin/com/hazia/chronicle/domain/enums/Enums.kt",
+   "line": 83
+  },
+  {
+   "fact": "The nag interval has no column. It is derived as maxDuration / maxRepeats, with a 60 s floor in NagAlarms. The sheet stores maxDuration = intervalMin * count, so the interval is recovered by division. The sheet offers 5, 10, 15, 30 and 60 minutes and counts of 2, 3, 5 and 10. Defaults are maxRepeats 3 and maxDuration 1 h. Nag stops after maxRepeats or when maxDuration elapses, not only on acknowledgement.",
+   "file": "app/src/main/kotlin/com/hazia/chronicle/alarm/NagAlarms.kt",
+   "line": 38
+  },
+  {
+   "fact": "Snooze duration is an app-wide setting (alarmSettings.snoozeMinutes), not per reminder. Snooze state lives in device-local PendingAlerts plus a SnoozeAlarm slot, so it is not synced and there is no 'snoozed' column. Snoozing also cancels any nag chain in flight.",
+   "file": "app/src/main/kotlin/com/hazia/chronicle/alarm/ReminderSnooze.kt",
+   "line": 29
+  },
+  {
+   "fact": "deletedAt is merged with the schedule group, not the status group. The entity has a separate deletedAtMillis column with no stamp of its own.",
+   "file": "data/src/main/kotlin/com/hazia/chronicle/data/merge/ReminderMerge.kt",
+   "line": 14
+  },
+  {
+   "fact": "dueAt is wall-clock text, not an instant. It is stored as a fixed-width LocalDateTime string and resolved to an instant per zone at schedule time. A merge must compare or convert it as a string, not as millis.",
+   "file": "data/src/main/kotlin/com/hazia/chronicle/data/room/entity/ReminderEntity.kt",
+   "line": 7
+  },
+  {
+   "fact": "Reminder implements Syncable with an override deletedAt: Instant? = null. The entity's deletedAtMillis is Long?.",
+   "file": "domain/src/main/kotlin/com/hazia/chronicle/domain/model/Reminder.kt",
+   "line": 39
+  },
+  {
+   "fact": "ALARM kind effects: it always uses setAlarmClock, it schedules PreAlarmWarning, it rings via the AlarmService foreground service and AlarmActivity, and it picks TYPE_ALARM ringtones. NOTIFICATION kind uses setAlarmClock only if the useAlarmClockForNotifications setting is on.",
+   "file": "app/src/main/kotlin/com/hazia/chronicle/alarm/AndroidAlarmScheduler.kt",
+   "line": 69
+  }
+ ],
+ "absence_probes": [
+  {
+   "pattern": "trackerId|goalId|activityId|checklistId|linkedId|habitId|targetId|taskId (in ReminderEntity.kt)",
+   "hits": 0
+  },
+  {
+   "pattern": "trackerId|goalId|activityId|checklistId|linkedId|habitId (in domain Reminder.kt)",
+   "hits": 0
+  },
+  {
+   "pattern": "reminder.*(trackerId|goalId|activityId|checklistId|habitId|linked) or the reverse, case-insensitive, data/src/main",
+   "hits": 0
+  },
+  {
+   "pattern": "snooze (case-insensitive, data/src/main)",
+   "hits": 0
+  }
+ ]
+}

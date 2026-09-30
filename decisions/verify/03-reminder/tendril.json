@@ -1,0 +1,246 @@
+{
+ "repo": "Tendril",
+ "claims": [
+  {
+   "claim": "1. Reminder(entryId, offset: ReminderOffset, anchorTime: LocalTime?) hangs off an Entry; the repeat rule lives on the Entry, not on the Reminder.",
+   "verdict": "confirmed",
+   "evidence": [
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/reminder/Reminder.kt",
+     "line": 32,
+     "quote": "val entryId: Long,"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/reminder/Reminder.kt",
+     "line": 33,
+     "quote": "val offset: ReminderOffset,"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/reminder/Reminder.kt",
+     "line": 34,
+     "quote": "val anchorTime: LocalTime? = null,"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/entry/Entry.kt",
+     "line": 44,
+     "quote": "val recurrenceRule: RecurrenceRule?,"
+    }
+   ]
+  },
+  {
+   "claim": "2. A reminder cannot exist without an Entry (non-null entryId, FK CASCADE).",
+   "verdict": "confirmed",
+   "evidence": [
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/reminder/Reminder.kt",
+     "line": 20,
+     "quote": "ForeignKey(entity = Entry::class, parentColumns = [\"id\"], childColumns = [\"entryId\"], onDelete = ForeignKey.CASCADE),"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/reminder/Reminder.kt",
+     "line": 32,
+     "quote": "val entryId: Long,"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/reminder/ReminderDao.kt",
+     "line": 38,
+     "quote": "* §9.4.1 Restore's wipe-and-replace. Called explicitly rather than left to the `entries` foreign key's `CASCADE`: the cascade only fires while SQLite's `foreign_keys` pragma is on"
+    }
+   ]
+  },
+  {
+   "claim": "3. ReminderOffset expresses 'N minutes/hours/days before' the Entry's start; anchorTime is for all-day or date-only items ('the day before at 09:00').",
+   "verdict": "partial",
+   "evidence": [
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/reminder/ReminderSpec.kt",
+     "line": 9,
+     "quote": "ONE_HOUR(Duration.ofHours(1)),"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/reminder/ReminderSpec.kt",
+     "line": 19,
+     "quote": "data class Custom(val count: Int, val unit: IntervalUnit) : ReminderOffset()"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/entry/RecurrenceRule.kt",
+     "line": 39,
+     "quote": "enum class IntervalUnit { DAY, WEEK, MONTH }"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/reminder/ReminderSpec.kt",
+     "line": 27,
+     "quote": "IntervalUnit.MONTH -> Duration.ofDays(count.toLong() * 30) // approximate"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/reminders/ReminderFirings.kt",
+     "line": 71,
+     "quote": "val base = LocalDateTime.of(startDate, entry.startTime ?: reminder.anchorTime ?: LocalTime.MIDNIGHT).atZone(zone).toInstant()"
+    }
+   ]
+  },
+  {
+   "claim": "4. For a recurring Entry, each occurrence gets the reminder at the same offset.",
+   "verdict": "partial",
+   "evidence": [
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/reminders/ReminderFirings.kt",
+     "line": 106,
+     "quote": "if (entry.kind != EntryKind.EVENT || entry.recurrenceRule !is RecurrenceRule.Fixed) return anchor"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/reminders/ReminderFirings.kt",
+     "line": 101,
+     "quote": "* Only that one — the phone's request codes are per (entry, reminder), so a run of occurrences"
+    }
+   ]
+  },
+  {
+   "claim": "5. A reminder can nag (repeat until acknowledged) or carry its own sound.",
+   "verdict": "refuted",
+   "evidence": [
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/reminder/Reminder.kt",
+     "line": 24,
+     "quote": "data class Reminder("
+    },
+    {
+     "file": "Tendril android/app/src/main/java/com/tendril/app/notifications/ReminderAlarmReceiver.kt",
+     "line": 33,
+     "quote": "val notification = NotificationCompat.Builder(context, NotificationChannels.TASKS_EVENTS)"
+    },
+    {
+     "file": "Tendril android/app/src/main/java/com/tendril/app/notifications/NotificationChannels.kt",
+     "line": 18,
+     "quote": "NotificationChannel(TASKS_EVENTS, \"Tasks & Events\", NotificationManager.IMPORTANCE_DEFAULT).apply {"
+    }
+   ]
+  },
+  {
+   "claim": "6. A task with no start time (date only) can still have a reminder.",
+   "verdict": "confirmed",
+   "evidence": [
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/ui/reminders/ReminderSheet.kt",
+     "line": 101,
+     "quote": "val needsAnchor = entry.startTime == null"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/reminders/ReminderFirings.kt",
+     "line": 71,
+     "quote": "val base = LocalDateTime.of(startDate, entry.startTime ?: reminder.anchorTime ?: LocalTime.MIDNIGHT).atZone(zone).toInstant()"
+    }
+   ]
+  },
+  {
+   "claim": "7. There is no way to create a standalone reminder (a reminder with no task or event) anywhere in the UI.",
+   "verdict": "confirmed",
+   "evidence": [
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/ui/reminders/ReminderSheet.kt",
+     "line": 82,
+     "quote": "fun ReminderSheet(core: WorkbenchCore, entry: Entry, onDismiss: () -> Unit) {"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/ui/reminders/ReminderViewModel.kt",
+     "line": 40,
+     "quote": "reminderDao.insert(Reminder(entryId = entryId, offset = offset, anchorTime = anchorTime))"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/reminder/Reminder.kt",
+     "line": 32,
+     "quote": "val entryId: Long,"
+    }
+   ]
+  }
+ ],
+ "missed": [
+  {
+   "fact": "Reminder has two columns the map omits: `uid` (unique cross-device identity for the §9.4 snapshot merge, with a unique index) and `deletedAt` (soft-delete tombstone). All columns are id, uid, entryId, offset, anchorTime, deletedAt. A merge must union by uid and let a tombstone win. There is no updatedAt, because ReminderDao has no update path.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/data/reminder/Reminder.kt",
+   "line": 31
+  },
+  {
+   "fact": "ReminderOffset is a sealed class with two subclasses, FromPreset(Preset) and Custom(count, IntervalUnit). The Preset enum has 7 cases: ONE_HOUR, TWO_HOURS, FOUR_HOURS, EIGHT_HOURS, ONE_DAY, TWO_DAYS, ONE_WEEK. Custom units are only DAY, WEEK and MONTH (MONTH is approximated as 30 days), so there is no minute unit and no custom hours. Sub-hour offsets cannot be created. The offset is stored as one string in the snapshot, 'PRESET:<name>' or 'CUSTOM:<count>:<unit>', which a merge must parse.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/data/reminder/ReminderSpec.kt",
+   "line": 7
+  },
+  {
+   "fact": "The offset is packed into a single string on the wire, 'PRESET:<enum>' or 'CUSTOM:<count>:<unit>'. The decoder quarantines unknown presets, units or arity via undecodable().",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/sync/SnapshotMappers.kt",
+   "line": 301
+  },
+  {
+   "fact": "anchorTime is ignored whenever the Entry has a startTime. Firings use entry.startTime ?: reminder.anchorTime ?: MIDNIGHT. The sheet stores null when the entry has a start time. The anchor also covers a middle day of a multi-day EVENT, per the Reminder KDoc.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/reminders/ReminderFirings.kt",
+   "line": 71
+  },
+  {
+   "fact": "A reminder on an entry with no startDate never fires, because nextOccurrenceDate returns null when startDate is null. The sheet has no guard against adding one (needsAnchor only checks startTime).",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/reminders/ReminderFirings.kt",
+   "line": 105
+  },
+  {
+   "fact": "Recurrence is armed for one occurrence at a time, and only for a recurring EVENT with RecurrenceRule.Fixed, where the next future occurrence is used. A recurring TASK (Elastic) anchors to entry.startDate and its reminders use that date. The next occurrence is re-armed when this one passes (the sweep or the desktop replan).",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/reminders/ReminderFirings.kt",
+   "line": 104
+  },
+  {
+   "fact": "Reminders do not fire for a trashed entry, or for a TASK whose status is not PENDING. An EVENT has no status, so its pre-due reminders still count. Nothing at or before now is returned.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/reminders/ReminderFirings.kt",
+   "line": 62
+  },
+  {
+   "fact": "A TASK also owes a separate OVERDUE firing at start date + time (midnight if no time). It is not a Reminder row and has no entry in the reminders table. FiringKind is OVERDUE, REMINDER or HABIT.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/reminders/ReminderFirings.kt",
+   "line": 23
+  },
+  {
+   "fact": "The Android notification goes on the shared TASKS_EVENTS channel at IMPORTANCE_DEFAULT with setAutoCancel(true). There is no per-reminder sound, repeat or nag field, and no acknowledge action on reminder notifications. Only the overdue notification has Done and Skip actions.",
+   "file": "Tendril android/app/src/main/java/com/tendril/app/notifications/ReminderAlarmReceiver.kt",
+   "line": 38
+  },
+  {
+   "fact": "The only UI entry point is ReminderSheet(entry), opened from a bell on an Entry row in Calendar and Tasks. The bell is hidden when the reminderSheet slot is null. ReminderViewModel.add is the only production code that creates a Reminder, apart from sync merge and archive restore.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/ui/taskshabits/TasksHabitsScreen.kt",
+   "line": 400
+  },
+  {
+   "fact": "Habits have a separate reminder mechanism (Habit.time, habitFiring, FiringKind.HABIT, HabitReminderAlarmReceiver). It is not a Reminder row and has no entryId.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/reminders/ReminderFirings.kt",
+   "line": 81
+  },
+  {
+   "fact": "ReminderDao has no update path, only insert and softDelete. Merge rules can therefore treat reminders as immutable once created: a uid is inserted once and tombstoned once.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/data/reminder/ReminderDao.kt",
+   "line": 11
+  },
+  {
+   "fact": "Reminder.anchorTime is stored as null when the entry has a real start time, and null otherwise means midnight. So anchorTime is only non-null for reminders added to a no-start-time entry where the user picked an anchor.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/ui/reminders/ReminderSheet.kt",
+   "line": 254
+  }
+ ],
+ "absence_probes": [
+  {
+   "pattern": "(?i)\\bnag\\b|nagging|acknowledg|snooze|repeatUntil|\\bsound\\b|setSound|ringtone|RINGTONE (all *.kt under repo root; the only hits were unrelated: two code comments using 'nagging' about habits, and LabelMembership/Migrations comments about sync-label acknowledgement)",
+   "hits": 5
+  },
+  {
+   "pattern": "nag/sound/snooze/ringtone/setSound inside data/reminder, ReminderAlarmReceiver, NotificationChannels (reminder-specific hits)",
+   "hits": 0
+  },
+  {
+   "pattern": "Reminder\\( constructions in shared/src (Reminder.kt declaration excluded): ReminderViewModel.kt:40 and SnapshotMappers.kt:307 only",
+   "hits": 2
+  },
+  {
+   "pattern": "reminderDao.insert / ReminderDao insert call sites: ReminderViewModel.kt:40, SnapshotSyncOrchestrator.kt:1860, PortableArchive.kt:675",
+   "hits": 3
+  },
+  {
+   "pattern": "Reminder|ReminderDao|reminders in shared/src/commonMain/kotlin/com/tendril/app/domain/EntryEditor.kt (no reminder creation from the entry editor)",
+   "hits": 0
+  }
+ ]
+}

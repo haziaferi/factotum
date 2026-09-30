@@ -1,0 +1,67 @@
+{
+ "dependent": {
+  "tendril-follows-item": 1,
+  "tendril-anchor-date-only": 1,
+  "tendril-cascade": 1,
+  "tendril-quiet-when-done": 1,
+  "chronicle-standalone": 0,
+  "chronicle-standalone-repeats": 0,
+  "chronicle-alert-settings": 1,
+  "mnemo-standalone-done": 0,
+  "shared-no-half-link": 1,
+  "shared-one-recurrence-home": 1,
+  "shared-timeline-unchanged": 1
+ },
+ "standalone": {
+  "tendril-follows-item": 0,
+  "tendril-anchor-date-only": 1,
+  "tendril-cascade": 0,
+  "tendril-quiet-when-done": 0,
+  "chronicle-standalone": 1,
+  "chronicle-standalone-repeats": 1,
+  "chronicle-alert-settings": 1,
+  "mnemo-standalone-done": 1,
+  "shared-no-half-link": 1,
+  "shared-one-recurrence-home": 0,
+  "shared-timeline-unchanged": 1
+ },
+ "optional-link": {
+  "tendril-follows-item": 1,
+  "tendril-anchor-date-only": 1,
+  "tendril-cascade": 1,
+  "tendril-quiet-when-done": 1,
+  "chronicle-standalone": 1,
+  "chronicle-standalone-repeats": 1,
+  "chronicle-alert-settings": 1,
+  "mnemo-standalone-done": 1,
+  "shared-no-half-link": 1,
+  "shared-one-recurrence-home": 0,
+  "shared-timeline-unchanged": 1
+ },
+ "item-kind": {
+  "tendril-follows-item": 1,
+  "tendril-anchor-date-only": 1,
+  "tendril-cascade": 1,
+  "tendril-quiet-when-done": 1,
+  "chronicle-standalone": 1,
+  "chronicle-standalone-repeats": 1,
+  "chronicle-alert-settings": 1,
+  "mnemo-standalone-done": 1,
+  "shared-no-half-link": 1,
+  "shared-one-recurrence-home": 1,
+  "shared-timeline-unchanged": 0
+ },
+ "bare": {
+  "tendril-follows-item": 1,
+  "tendril-anchor-date-only": 1,
+  "tendril-cascade": 0,
+  "tendril-quiet-when-done": 1,
+  "chronicle-standalone": 1,
+  "chronicle-standalone-repeats": 1,
+  "chronicle-alert-settings": 0,
+  "mnemo-standalone-done": 1,
+  "shared-no-half-link": 0,
+  "shared-one-recurrence-home": 0,
+  "shared-timeline-unchanged": 1
+ }
+}

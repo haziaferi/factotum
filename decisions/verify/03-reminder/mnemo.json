@@ -1,0 +1,227 @@
+{
+ "repo": "Mnemo",
+ "claims": [
+  {
+   "claim": "1. Reminder is standalone, with ScheduleType ONE_SHOT | CRON | STOCHASTIC and a UUID id.",
+   "verdict": "confirmed",
+   "evidence": [
+    {
+     "file": "app/src/main/kotlin/com/hazia/mnemo/data/local/Reminder.kt",
+     "line": 13,
+     "quote": "enum class ScheduleType { ONE_SHOT, CRON, STOCHASTIC }"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/mnemo/data/local/Reminder.kt",
+     "line": 34,
+     "quote": "@PrimaryKey val id: String = UUID.randomUUID().toString(),"
+    }
+   ]
+  },
+  {
+   "claim": "2. A reminder links to nothing else (no task, event or note id).",
+   "verdict": "confirmed",
+   "evidence": [
+    {
+     "file": "app/src/main/kotlin/com/hazia/mnemo/data/local/Reminder.kt",
+     "line": 33,
+     "quote": "data class Reminder("
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/mnemo/data/local/Reminder.kt",
+     "line": 16,
+     "quote": "* Single source of truth for a reminder — §15.3."
+    }
+   ]
+  },
+  {
+   "claim": "3. Nag/escalation exists (repeat until acknowledged); say how it is configured.",
+   "verdict": "confirmed",
+   "evidence": [
+    {
+     "file": "app/src/main/kotlin/com/hazia/mnemo/data/local/Reminder.kt",
+     "line": 62,
+     "quote": "val nagEnabled: Boolean = false,"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/mnemo/data/notify/Notifier.kt",
+     "line": 97,
+     "quote": "if (reminder.nagEnabled) armNagRepeat(reminder.id)"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/mnemo/data/settings/AppSettingsStore.kt",
+     "line": 58,
+     "quote": "nagRepeatIntervalMinutes = clampNagInterval(prefs[Keys.NAG_REPEAT_INTERVAL_MINUTES] ?: 5),"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/mnemo/data/settings/AppSettingsStore.kt",
+     "line": 116,
+     "quote": "internal fun clampNagInterval(minutes: Int): Int = minutes.coerceIn(NAG_INTERVAL_MIN, NAG_INTERVAL_MAX)"
+    }
+   ]
+  },
+  {
+   "claim": "4. Snooze exists; say how it is stored.",
+   "verdict": "confirmed",
+   "evidence": [
+    {
+     "file": "app/src/main/kotlin/com/hazia/mnemo/data/local/Reminder.kt",
+     "line": 76,
+     "quote": "val snoozedUntilEpochMillis: Long? = null,"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/mnemo/data/repository/ReminderRepository.kt",
+     "line": 131,
+     "quote": "snoozedUntilEpochMillis = untilEpochMillis,"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/mnemo/data/repository/ReminderRepository.kt",
+     "line": 132,
+     "quote": "nextFireAtEpochMillis = untilEpochMillis,"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/mnemo/data/notify/Notifier.kt",
+     "line": 274,
+     "quote": "const val QUICK_SNOOZE_MINUTES = 10L"
+    }
+   ]
+  },
+  {
+   "claim": "5. 'Done' on a recurring reminder advances to the next fire; on a one-shot it archives the row.",
+   "verdict": "partial",
+   "evidence": [
+    {
+     "file": "app/src/main/kotlin/com/hazia/mnemo/data/repository/ReminderRepository.kt",
+     "line": 105,
+     "quote": "val hasNextOccurrence = existing.scheduleType != ScheduleType.ONE_SHOT &&"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/mnemo/data/repository/ReminderRepository.kt",
+     "line": 108,
+     "quote": "if (hasNextOccurrence) existing.copy(snoozedUntilEpochMillis = null)"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/mnemo/data/repository/ReminderRepository.kt",
+     "line": 109,
+     "quote": "else existing.copy(isArchived = true),"
+    }
+   ]
+  },
+  {
+   "claim": "6. nextFireAtEpochMillis is stored (precomputed), not derived at read time.",
+   "verdict": "confirmed",
+   "evidence": [
+    {
+     "file": "app/src/main/kotlin/com/hazia/mnemo/data/local/Reminder.kt",
+     "line": 55,
+     "quote": "val nextFireAtEpochMillis: Long,"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/mnemo/data/local/Reminder.kt",
+     "line": 30,
+     "quote": "indices = [Index(value = [\"nextFireAtEpochMillis\"]), Index(value = [\"updatedAtEpochMillis\"])],"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/mnemo/data/repository/ReminderRepository.kt",
+     "line": 178,
+     "quote": "nextFireAtEpochMillis = next?.toEpochMilli() ?: existing.nextFireAtEpochMillis,"
+    }
+   ]
+  },
+  {
+   "claim": "7. A reminder can have a time window (quiet hours / active hours) or per-reminder sound.",
+   "verdict": "partial",
+   "evidence": [
+    {
+     "file": "app/src/main/kotlin/com/hazia/mnemo/data/local/Reminder.kt",
+     "line": 66,
+     "quote": "val soundUri: String? = null,"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/mnemo/data/local/Reminder.kt",
+     "line": 51,
+     "quote": "val stochasticWindowStartMillisOfDay: Int? = null,"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/mnemo/data/local/Reminder.kt",
+     "line": 52,
+     "quote": "val stochasticWindowEndMillisOfDay: Int? = null,"
+    }
+   ]
+  }
+ ],
+ "missed": [
+  {
+   "fact": "Claim 5 is only partly right. Done on a recurring reminder does NOT advance nextFireAtEpochMillis. It only clears snoozedUntilEpochMillis, and the next fire was already set by recordFired when the alarm fired. If Done comes from a snoozed state, nextFireAtEpochMillis still holds the snooze time, because snooze overwrites it and nothing restores the schedule. A recurring Done with no further occurrence archives the row, as a one-shot does.",
+   "file": "app/src/main/kotlin/com/hazia/mnemo/data/repository/ReminderRepository.kt",
+   "line": 108
+  },
+  {
+   "fact": "The schema has a third enum besides ScheduleType: ReminderMode { EASE, SCHEDULE, ALERT }. It is a required field, `mode`, that the map did not list.",
+   "file": "app/src/main/kotlin/com/hazia/mnemo/data/local/Reminder.kt",
+   "line": 10
+  },
+  {
+   "fact": "Complete Reminder column list (22): id, title, notes, scheduleType, cronExpr, stochasticDaysOfWeekMask, stochasticWindowStartMillisOfDay, stochasticWindowEndMillisOfDay, nextFireAtEpochMillis, mode, skinId, nagEnabled, soundUri, vibrationPattern, useExactAlarm, snoozedUntilEpochMillis, lastFiredAtEpochMillis, updatedAtEpochMillis, isArchived. That is 19 columns; I count 19, not 22. Fields outside the map: skinId (required String), vibrationPattern, useExactAlarm (default true) and notes.",
+   "file": "app/src/main/kotlin/com/hazia/mnemo/data/local/Reminder.kt",
+   "line": 33
+  },
+  {
+   "fact": "isArchived carries three meanings in one column: soft delete (the sync tombstone), Done with nothing left, and a fired one-shot whose notification may still be showing. The class doc says never to read it as 'the episode is over'. A merge must treat it as both deletion and completion.",
+   "file": "app/src/main/kotlin/com/hazia/mnemo/data/local/Reminder.kt",
+   "line": 23
+  },
+  {
+   "fact": "The window fields apply only to STOCHASTIC reminders, as a random-draw range with a day-of-week mask. They are not quiet hours or active hours for other types. The window is not checked anywhere else in the sources I searched.",
+   "file": "app/src/main/kotlin/com/hazia/mnemo/data/local/Reminder.kt",
+   "line": 43
+  },
+  {
+   "fact": "soundUri is three-state: null = device default, empty string = explicit Silent, otherwise a content:// URI. vibrationPattern is also three-state: null = untouched, \"0\" = off, otherwise a preset pattern. A merge must not collapse null and empty.",
+   "file": "app/src/main/kotlin/com/hazia/mnemo/data/local/Reminder.kt",
+   "line": 63
+  },
+  {
+   "fact": "The nag interval is global (an AppSettings DataStore key, default 5 min, clamped to 1..30), not a per-reminder column. Only the on/off flag is per reminder. Snooze length is a fixed 10 minutes and is not configurable.",
+   "file": "app/src/main/kotlin/com/hazia/mnemo/data/settings/AppSettingsStore.kt",
+   "line": 113
+  },
+  {
+   "fact": "Snooze overwrites nextFireAtEpochMillis and un-archives the row, so there is one field for both the scheduled fire and the snoozed fire. The original schedule time is lost for ONE_SHOT, and for recurring reminders until the next recordFired.",
+   "file": "app/src/main/kotlin/com/hazia/mnemo/data/repository/ReminderRepository.kt",
+   "line": 126
+  },
+  {
+   "fact": "A second Room entity, SyncFileState, sits in the same database (version 1, exportSchema = true). Sync state per file is outside the Reminder row.",
+   "file": "app/src/main/kotlin/com/hazia/mnemo/data/local/MnemoDatabase.kt",
+   "line": 10
+  },
+  {
+   "fact": "Hard delete exists, via ReminderDao.deleteById. It is used only by FullBackupManager.restore to replace the set. Every other deletion is an isArchived tombstone, so rows absent from a backup vanish without a tombstone.",
+   "file": "app/src/main/kotlin/com/hazia/mnemo/data/local/ReminderDao.kt",
+   "line": 39
+  },
+  {
+   "fact": "updatedAtEpochMillis is overwritten with the current time on every repository create and update. Sync conflict detection compares this field. There is no version counter or per-field clock.",
+   "file": "app/src/main/kotlin/com/hazia/mnemo/data/repository/ReminderRepository.kt",
+   "line": 59
+  }
+ ],
+ "absence_probes": [
+  {
+   "pattern": "taskId|eventId|noteId|linkedTo|parentId (app/src/main, *.kt)",
+   "hits": 0
+  },
+  {
+   "pattern": "quiet|Quiet|activeHours (app/src/main, *.kt), counting only scheduling meaning; the 4 hits are English comment prose",
+   "hits": 0
+  },
+  {
+   "pattern": "nagEnabled (app/src/main, *.kt)",
+   "hits": 11
+  },
+  {
+   "pattern": "per-reminder nag interval column (nagInterval)",
+   "hits": 0
+  }
+ ]
+}

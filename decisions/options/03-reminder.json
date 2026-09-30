@@ -1,0 +1,17 @@
+{
+ "contest": "03-reminder",
+ "growth_note": "tables + columns + CHECK constraints, all counted from the built SQLite schema by tools/reminder_sql.py (CHECKs are in the enum_cases slot). Sync columns excluded: identical in every option.",
+ "options": [
+  {"id": "dependent", "summary": "Tendril: every reminder hangs off an item; no standalone reminders",
+   "growth": {"tables": 2, "columns": 17, "enum_cases": 5}},
+  {"id": "standalone", "summary": "Chronicle/Mnemo: every reminder carries its own text, time and repeat; no link to items",
+   "growth": {"tables": 2, "columns": 18, "enum_cases": 5}},
+  {"id": "optional-link", "summary": "a reminder either hangs off an item (offset/anchor) or carries its own time and repeat (CHECK exactly one)",
+   "growth": {"tables": 2, "columns": 21, "enum_cases": 8}},
+  {"id": "item-kind", "summary": "a standalone reminder is an item of kind REMINDER; every reminder row hangs off an item; recurrence lives only on items",
+   "growth": {"tables": 2, "columns": 17, "enum_cases": 6}},
+  {"id": "bare", "summary": "CONTROL: no FK, no CHECKs",
+   "growth": {"tables": 2, "columns": 21, "enum_cases": 0}, "control": true,
+   "expect_fail": ["tendril-cascade", "chronicle-alert-settings", "shared-no-half-link"]}
+ ]
+}
