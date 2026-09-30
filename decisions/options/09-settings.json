@@ -1,0 +1,48 @@
+{
+ "contest": "09-settings",
+ "growth_note": "storage places a setting can live in (stores, secret stores, backup sections, synced tables), counted by hand from the verification; tie-break only",
+ "options": [
+  {
+   "id": "as-is",
+   "summary": "each app's store unchanged (7 storage places)",
+   "growth": {
+    "tables": 7
+   }
+  },
+  {
+   "id": "all-local",
+   "summary": "one local store + a secret store; nothing leaves a device",
+   "growth": {
+    "tables": 2
+   }
+  },
+  {
+   "id": "local+backup",
+   "summary": "one local store with a declared scope per key + a secret store; PERSONAL and DEVICE_PREF ride in backup/export",
+   "growth": {
+    "tables": 3
+   }
+  },
+  {
+   "id": "scoped-live",
+   "summary": "local+backup, and PERSONAL keys also sync live through a synced settings table",
+   "growth": {
+    "tables": 4
+   }
+  },
+  {
+   "id": "synced-table",
+   "summary": "CONTROL: every key in one synced table that also rides in the backup",
+   "growth": {
+    "tables": 1
+   },
+   "control": true,
+   "expect_fail": [
+    "tendril-secret-never-leaves",
+    "chronicle-device-id-own",
+    "mnemo-mode-per-device",
+    "equipoise-llm-stays"
+   ]
+  }
+ ]
+}

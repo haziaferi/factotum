@@ -1,0 +1,57 @@
+{
+ "as-is": {
+  "tendril-secret-never-leaves": 1,
+  "tendril-layout-per-device": 1,
+  "chronicle-device-id-own": 1,
+  "mnemo-mode-per-device": 1,
+  "mnemo-backup-restores-prefs": 1,
+  "mnemo-folder-not-restored": 1,
+  "equipoise-personal-travels": 1,
+  "equipoise-llm-stays": 1,
+  "shared-first-run-not-restored": 0
+ },
+ "all-local": {
+  "tendril-secret-never-leaves": 1,
+  "tendril-layout-per-device": 1,
+  "chronicle-device-id-own": 1,
+  "mnemo-mode-per-device": 1,
+  "mnemo-backup-restores-prefs": 0,
+  "mnemo-folder-not-restored": 1,
+  "equipoise-personal-travels": 0,
+  "equipoise-llm-stays": 1,
+  "shared-first-run-not-restored": 1
+ },
+ "local+backup": {
+  "tendril-secret-never-leaves": 1,
+  "tendril-layout-per-device": 1,
+  "chronicle-device-id-own": 1,
+  "mnemo-mode-per-device": 1,
+  "mnemo-backup-restores-prefs": 1,
+  "mnemo-folder-not-restored": 1,
+  "equipoise-personal-travels": 1,
+  "equipoise-llm-stays": 1,
+  "shared-first-run-not-restored": 1
+ },
+ "scoped-live": {
+  "tendril-secret-never-leaves": 1,
+  "tendril-layout-per-device": 1,
+  "chronicle-device-id-own": 1,
+  "mnemo-mode-per-device": 1,
+  "mnemo-backup-restores-prefs": 1,
+  "mnemo-folder-not-restored": 1,
+  "equipoise-personal-travels": 1,
+  "equipoise-llm-stays": 1,
+  "shared-first-run-not-restored": 1
+ },
+ "synced-table": {
+  "tendril-secret-never-leaves": 0,
+  "tendril-layout-per-device": 0,
+  "chronicle-device-id-own": 0,
+  "mnemo-mode-per-device": 0,
+  "mnemo-backup-restores-prefs": 0,
+  "mnemo-folder-not-restored": 0,
+  "equipoise-personal-travels": 1,
+  "equipoise-llm-stays": 0,
+  "shared-first-run-not-restored": 0
+ }
+}
