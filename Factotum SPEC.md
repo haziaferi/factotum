@@ -1,6 +1,6 @@
 # Factotum — Product & Technical Spec
 
-**Status:** draft v0.1, seeded from the decision register · **Scope:** the merged data model, sync and behaviour rules of Factotum. Screens are not decided and are marked open (§10.1).
+**Status:** draft v0.2, seeded from the decision register · **Scope:** the merged data model, sync and behaviour rules of Factotum. Screens are not decided and are marked open (§10.1).
 **Related documents:** `decisions/`, the evidence behind §3: one ADR per decision with verified `file:line` facts, the scored options, the behaviour cases and the harness that measured them (`decisions/register.md` is the index). This spec states each decision once and points to its ADR for the evidence. It never restates the evidence.
 
 ---
@@ -9,6 +9,7 @@
 
 | Version | Summary | Sections touched |
 |---|---|---|
+| v0.2 | Spikes 9.2, 9.4 and 9.6 run: DTSTART aligned, RULE_SET for set times, HABIT gains block_id and duration_min, seed and generator fixed, llama.cpp MIT | §3.4, §3.6, §6, §9 |
 | v0.1 | Seeded from ADRs 01–12, the sole-owner probe and the owner's standing answers, after the 11–12 audit | all |
 
 ---
@@ -120,13 +121,16 @@ Every decision here was scored against its owners' behaviour cases, with a contr
 
 **Decided:** **rrule+ext** on `item`. `recurrence_kind` is RRULE, RULE_SET, RANDOM_DAYS, RANDOM_WINDOW or PLANNED.
 - Month ends anchor to the original date.
-- Random draws are seeded from the item id and the occurrence date, so every device computes the same time.
+- DTSTART is the first date the rule's own anchor allows, on or after the active start (**[Verified]** §9.2).
+- Several set times a day are a RULE_SET.
+- Random draws are seeded with FNV-1a 64 of `itemId|occurrenceDate|kind` and drawn with SplitMix64, so every device computes the same time. **[Verified]** §9.4.
+- A drawn time in a DST gap moves forward by the gap.
 - Raw cron is accepted as input, converted, and never stored.
 - **Missed occurrences:**
   - An **ALARM** is held by the OS through `setAlarmClock` and rings even while the app is dead.
   - A **NOTIFICATION** fires once, late, then continues.
 
-**[Assumed]** The PLANNED kind (Tendril's `TimesPerWeek` and block-slot planner) was not measured. See §9.2.
+**[Verified]** The PLANNED kind round-trips to Tendril's plans on 500/500 random weeks (§9.2).
 
 **Platform limits, not defects:**
 - A powered-off phone can't be woken.
@@ -150,6 +154,7 @@ Every decision here was scored against its owners' behaviour cases, with a contr
 - Logging it is a reading on that tracker.
 - Presence is derived as in `HabitPresence`: days this month, the last date, and the usual time (withheld below 3). There is no streak (§0.1.3).
 - Pause is `pause_from` and `pause_until`.
+- **[Amended]** A HABIT also carries `block_id` (its default time block) and `duration_min`. The planner needs both (§9.2).
 - **The verb is "Log".** "Check-in" is kept for §3.5.
 
 **Acceptance:** `cases/06-habit.jsonl`, 7 cases.
@@ -274,7 +279,7 @@ The module layout for Factotum hasn't been decided. See §10.2.
 
 ## 6. Licensing
 
-The four source apps are the owner's own. The only third-party code found so far is Equipoise's vendored `third_party/llama.cpp`. **[Assumed]** It is MIT-licensed, which hasn't been checked in the vendored copy. See §9.6.
+The four source apps are the owner's own. The only third-party code found so far is Equipoise's vendored `third_party/llama.cpp`. **[Verified]** Only the MIT-licensed `llama` and `ggml` are built. The vendored extras aren't linked, because `common` and `tools` are off. Factotum must show llama.cpp's MIT notice in the app, and the Windows build must keep the same build switches (§9.6).
 
 ---
 
@@ -295,12 +300,14 @@ Not yet phased. See §10.3.
 
 ## 9. Pre-Implementation Validation / Spikes
 
+Status: 2, 4 and 6 are done (`docs/spikes-2026-10-01.md`). 1, 3 and 5 wait for §10.2.
+
 1. **FTS5 on target devices.** It could replace FTS4 (§3.10) if every target SQLite build has it. Room's annotations don't generate it.
-2. **PLANNED recurrence.** Measure Tendril's planner rules (`CalendarSchedule.kt:40-50,313-333`) round-tripping through §3.4 and §3.11, as the other rules were.
+2. **PLANNED recurrence. Done.** All 8 RRULE-form rules match once DTSTART is aligned and set times use a RULE_SET. PLANNED matches on 500/500 random weeks once HABIT has `block_id` and `duration_min`.
 3. **Triggers on both drivers.** §3.10's search triggers and §3.7's spans trigger install and fire on Android and on Windows.
-4. **Seeded random draws.** Two devices compute the same RANDOM_DAYS and RANDOM_WINDOW times for 1,000 occurrences (§3.4).
+4. **Seeded random draws. Done.** The draws are identical across 18 Kotlin versions and 4 time zones. Chronicle's current seed made two items draw in lockstep 1000/1000 times; the item-keyed seed doesn't. Both generators pass a uniformity test.
 5. **Force-stop detection.** On the next start, the app detects that the OS cancelled its alarms and says so (§3.4).
-6. **llama.cpp licence** in the vendored copy (§6).
+6. **llama.cpp licence. Done:** MIT only (§6).
 
 ---
 

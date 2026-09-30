@@ -73,4 +73,4 @@ Tendril's habit planner rules were not in the harness (ADR 06 found them). `Cale
 - **PLANNED** stores `n`, the allowed days, and an optional block list.
 - The planner's confirmed weeks are stored as WEEK edits in ADR 11's `occurrence_edit` log, as Tendril stores them in `HabitScheduleEdit` (`HabitWeek.kt:71`). (Amended 2026-10-01: this line first said "exception rows", which is not how Tendril stores habit edits.)
 
-This is **asserted, not measured**, and it changes no ranking, because no other encoding could express these rules either.
+This was **asserted, not measured**, and it changes no ranking, because no other encoding could express these rules either. **Measured 2026-10-01** (`docs/spikes-2026-10-01.md` §9.2): 500 random weeks round-trip through PLANNED plus WEEK edits to identical plans, once a HABIT item carries `block_id` and `duration_min` (ADR 06). Random draws use FNV-1a 64 of `itemId|occurrenceDate|kind` and SplitMix64 (§9.4 of the same file).

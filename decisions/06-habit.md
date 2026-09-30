@@ -40,9 +40,10 @@ One case (`shared-one-log`) was removed before scoring because it was hand-marke
 
 **item+tracker**: a habit is an `item` of kind HABIT.
 - **Cadence** is ADR 04's recurrence. Measured: one INTERVAL case (every 2 days at 08:00).
-  - **Asserted but not measured:** CalendarRule's Daily, Once, Weekdays, EveryNDays, EveryNWeeks and EveryNHours map to RRULE, and TimesPerDay with fixed times maps to BYHOUR/BYMINUTE.
+  - **Measured 2026-10-01** (`docs/spikes-2026-10-01.md` §9.2): Daily, Once, Weekdays, EveryNDays, EveryNWeeks and EveryNHours map to RRULE, and all 8 test rules match. TimesPerDay with fixed times is a **RULE_SET**, one RRULE per time: a single BYHOUR/BYMINUTE rule gave 336 extra occurrences when the minutes differ. (Amended: this line first said BYHOUR/BYMINUTE and was unmeasured.)
   - **Not expressible in RRULE:** Tendril's **planner** rules. `TimesPerWeek(n, days)` places n days per week, load-balanced and confirmed per week, and `TimesPerDay` can place slots in time blocks (`CalendarSchedule.kt:40-50,313-333`). ADR 04 gains a PLANNED kind for these (see its amendment).
-  - **Active window:** Tendril's `activeFrom`/`activeUntil` (`Habit.kt:94-95`) become the rule's DTSTART and UNTIL.
+  - **Active window:** `activeUntil` becomes UNTIL. DTSTART is the **first date on or after `activeFrom` (or the day the habit was created) that the rule's own anchor allows**; for EveryNWeeks, the Monday of an aligned week. (Amended 2026-10-01: this line first said activeFrom *becomes* DTSTART. Measured, that shifts an off-grid every-3-days habit onto different days, 14/14 wrong.)
+  - **Two more columns on HABIT** (measured 2026-10-01, PLANNED round trip 0/500 without them and 500/500 with them): `block_id`, the default time block (Tendril's `blockUid`), and `duration_min` (Tendril's `duration`). The planner places a habit by the first and balances the week by the second.
 - **Reminders** are ADR 03 reminder rows. This also fixes calendar-rule habits, which get no reminder today.
 - **Pause** is a `pause_from`/`pause_until` pair, allowed on HABIT only.
 - **The tracker link.** `tracker_id` is required on a HABIT. "Did it" is a BOOLEAN tracker, "8 glasses" a NUMBER tracker with a daily goal of 8. A check-in is a reading on that tracker, so logging it on the Trackers screen or on the habit is the same row.
