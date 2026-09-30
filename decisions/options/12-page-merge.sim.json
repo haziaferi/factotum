@@ -1,0 +1,56 @@
+{
+ "whole-page": {
+  "tendril-loser-recoverable": 1,
+  "tendril-later-edit-beats-trash": 1,
+  "tendril-block-uid-stable": 1,
+  "shared-different-blocks-both-live": 0,
+  "shared-concurrent-inserts": 0,
+  "shared-cell-and-body": 0,
+  "shared-canvas-nodes": 0
+ },
+ "whole-page+ask": {
+  "tendril-loser-recoverable": 1,
+  "tendril-later-edit-beats-trash": 0,
+  "tendril-block-uid-stable": 1,
+  "shared-different-blocks-both-live": 0,
+  "shared-concurrent-inserts": 0,
+  "shared-cell-and-body": 0,
+  "shared-canvas-nodes": 0
+ },
+ "per-row": {
+  "tendril-loser-recoverable": 1,
+  "tendril-later-edit-beats-trash": 0,
+  "tendril-block-uid-stable": 1,
+  "shared-different-blocks-both-live": 1,
+  "shared-concurrent-inserts": 1,
+  "shared-cell-and-body": 1,
+  "shared-canvas-nodes": 1
+ },
+ "per-row+ask": {
+  "tendril-loser-recoverable": 1,
+  "tendril-later-edit-beats-trash": 0,
+  "tendril-block-uid-stable": 1,
+  "shared-different-blocks-both-live": 1,
+  "shared-concurrent-inserts": 1,
+  "shared-cell-and-body": 1,
+  "shared-canvas-nodes": 1
+ },
+ "per-row+revive": {
+  "tendril-loser-recoverable": 1,
+  "tendril-later-edit-beats-trash": 1,
+  "tendril-block-uid-stable": 1,
+  "shared-different-blocks-both-live": 1,
+  "shared-concurrent-inserts": 1,
+  "shared-cell-and-body": 1,
+  "shared-canvas-nodes": 1
+ },
+ "discard": {
+  "tendril-loser-recoverable": 0,
+  "tendril-later-edit-beats-trash": 1,
+  "tendril-block-uid-stable": 1,
+  "shared-different-blocks-both-live": 0,
+  "shared-concurrent-inserts": 0,
+  "shared-cell-and-body": 0,
+  "shared-canvas-nodes": 0
+ }
+}

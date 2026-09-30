@@ -1,0 +1,56 @@
+{
+ "contest": "12-page-merge",
+ "growth_note": "columns added to Tendril's page tables (hand count: 3 stamp/tombstone columns on each of 5 part tables; +2 base stamp for ask)",
+ "options": [
+  {
+   "id": "whole-page",
+   "summary": "Tendril: the later page snapshot replaces the other; loser kept as revision and lost file",
+   "growth": {
+    "columns": 0
+   }
+  },
+  {
+   "id": "whole-page+ask",
+   "summary": "whole-page, but a page changed on both sides asks the person",
+   "growth": {
+    "columns": 2
+   }
+  },
+  {
+   "id": "per-row",
+   "summary": "ADR 01 applied to blocks, cells and canvas nodes; existence is the page's own group",
+   "growth": {
+    "columns": 15
+   }
+  },
+  {
+   "id": "per-row+ask",
+   "summary": "per-row, and a block changed on both sides asks the person",
+   "growth": {
+    "columns": 17
+   }
+  },
+  {
+   "id": "per-row+revive",
+   "summary": "per-row, and an edit to any part later than the trash restores the page (Tendril's rule)",
+   "growth": {
+    "columns": 15
+   }
+  },
+  {
+   "id": "discard",
+   "summary": "CONTROL: whole-page, loser thrown away",
+   "growth": {
+    "columns": 0
+   },
+   "control": true,
+   "expect_fail": [
+    "tendril-loser-recoverable",
+    "shared-different-blocks-both-live",
+    "shared-concurrent-inserts",
+    "shared-cell-and-body",
+    "shared-canvas-nodes"
+   ]
+  }
+ ]
+}

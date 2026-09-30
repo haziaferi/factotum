@@ -15,7 +15,7 @@ The contests are taken in dependency order. There is one row per contest.
 | 09 | Settings store (map: duplicated; verification: contested) | decided | scoped-live (owner, against the recommendation) | 9 | [09-settings.md](09-settings.md) |
 | 10 | Full-text search (map: duplicated; verification: contested) | decided | chronicle-all (one FTS4 index, unicode61, triggers) | 7 | [10-search.md](10-search.md) |
 | 11 | Occurrence edits (sole-owner probe) | decided | edit-log+move; ADR 04 amended | 9 | [11-occurrence-edits.md](11-occurrence-edits.md) |
-| 12 | Page merge granularity (sole-owner probe) | open | | | |
+| 12 | Page merge granularity (sole-owner probe) | decided | per-row+revive; same-paragraph clash: later wins, with a notice | 7 | [12-page-merge.md](12-page-merge.md) |
 
 Standing owner answers (2026-09-30):
 - Fresh start.
