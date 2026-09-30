@@ -1,0 +1,77 @@
+{
+ "contest": "08-tagging",
+ "growth_note": "tables/columns from the built schema including item, tracker, page and page_database; the enum_cases slot carries extra index count",
+ "options": [
+  {
+   "id": "two-vocabs",
+   "summary": "keep both: Tendril labels and Chronicle categories as separate tables",
+   "growth": {
+    "tables": 7,
+    "columns": 25,
+    "enum_cases": 0
+   }
+  },
+  {
+   "id": "labels-only",
+   "summary": "Tendril's label everywhere (name + colour); pages many, others one",
+   "growth": {
+    "tables": 6,
+    "columns": 19,
+    "enum_cases": 0
+   }
+  },
+  {
+   "id": "categories-only",
+   "summary": "Chronicle's category everywhere, one per row, pages included",
+   "growth": {
+    "tables": 5,
+    "columns": 20,
+    "enum_cases": 0
+   }
+  },
+  {
+   "id": "one-vocab",
+   "summary": "one vocabulary table (name, colour, scope, order); pages many via a join; items, trackers, databases one via a column",
+   "growth": {
+    "tables": 6,
+    "columns": 21,
+    "enum_cases": 0
+   }
+  },
+  {
+   "id": "many-everywhere",
+   "summary": "one vocabulary; every owner carries many through its own join table",
+   "growth": {
+    "tables": 9,
+    "columns": 24,
+    "enum_cases": 0
+   }
+  },
+  {
+   "id": "polymorphic",
+   "summary": "one vocabulary; one tagging(tag, target_type, target_id) join; partial unique index for one-per-row; no FK to target",
+   "growth": {
+    "tables": 6,
+    "columns": 19,
+    "enum_cases": 1
+   }
+  },
+  {
+   "id": "inline",
+   "summary": "CONTROL: names written into the rows; no vocabulary table",
+   "growth": {
+    "tables": 4,
+    "columns": 15,
+    "enum_cases": 0
+   },
+   "control": true,
+   "expect_fail": [
+    "chronicle-rename-recolour-once",
+    "chronicle-delete-keeps-members",
+    "chronicle-category-order",
+    "chronicle-applies-to-scope",
+    "shared-one-vocabulary"
+   ]
+  }
+ ]
+}

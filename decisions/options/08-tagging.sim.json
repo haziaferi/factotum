@@ -1,0 +1,86 @@
+{
+ "two-vocabs": {
+  "tendril-page-many-labels": 1,
+  "tendril-habit-area": 1,
+  "tendril-database-doorway": 1,
+  "tendril-page-delete-no-orphans": 1,
+  "chronicle-one-category-per-row": 1,
+  "chronicle-rename-recolour-once": 1,
+  "chronicle-delete-keeps-members": 1,
+  "chronicle-category-order": 1,
+  "chronicle-applies-to-scope": 1,
+  "shared-one-vocabulary": 0
+ },
+ "labels-only": {
+  "tendril-page-many-labels": 1,
+  "tendril-habit-area": 1,
+  "tendril-database-doorway": 1,
+  "tendril-page-delete-no-orphans": 1,
+  "chronicle-one-category-per-row": 1,
+  "chronicle-rename-recolour-once": 1,
+  "chronicle-delete-keeps-members": 1,
+  "chronicle-category-order": 0,
+  "chronicle-applies-to-scope": 0,
+  "shared-one-vocabulary": 1
+ },
+ "categories-only": {
+  "tendril-page-many-labels": 0,
+  "tendril-habit-area": 1,
+  "tendril-database-doorway": 1,
+  "tendril-page-delete-no-orphans": 1,
+  "chronicle-one-category-per-row": 1,
+  "chronicle-rename-recolour-once": 1,
+  "chronicle-delete-keeps-members": 1,
+  "chronicle-category-order": 1,
+  "chronicle-applies-to-scope": 1,
+  "shared-one-vocabulary": 1
+ },
+ "one-vocab": {
+  "tendril-page-many-labels": 1,
+  "tendril-habit-area": 1,
+  "tendril-database-doorway": 1,
+  "tendril-page-delete-no-orphans": 1,
+  "chronicle-one-category-per-row": 1,
+  "chronicle-rename-recolour-once": 1,
+  "chronicle-delete-keeps-members": 1,
+  "chronicle-category-order": 1,
+  "chronicle-applies-to-scope": 1,
+  "shared-one-vocabulary": 1
+ },
+ "many-everywhere": {
+  "tendril-page-many-labels": 1,
+  "tendril-habit-area": 1,
+  "tendril-database-doorway": 1,
+  "tendril-page-delete-no-orphans": 1,
+  "chronicle-one-category-per-row": 0,
+  "chronicle-rename-recolour-once": 1,
+  "chronicle-delete-keeps-members": 1,
+  "chronicle-category-order": 1,
+  "chronicle-applies-to-scope": 1,
+  "shared-one-vocabulary": 1
+ },
+ "polymorphic": {
+  "tendril-page-many-labels": 1,
+  "tendril-habit-area": 1,
+  "tendril-database-doorway": 1,
+  "tendril-page-delete-no-orphans": 0,
+  "chronicle-one-category-per-row": 1,
+  "chronicle-rename-recolour-once": 1,
+  "chronicle-delete-keeps-members": 1,
+  "chronicle-category-order": 1,
+  "chronicle-applies-to-scope": 1,
+  "shared-one-vocabulary": 1
+ },
+ "inline": {
+  "tendril-page-many-labels": 1,
+  "tendril-habit-area": 1,
+  "tendril-database-doorway": 1,
+  "tendril-page-delete-no-orphans": 1,
+  "chronicle-one-category-per-row": 1,
+  "chronicle-rename-recolour-once": 0,
+  "chronicle-delete-keeps-members": 0,
+  "chronicle-category-order": 0,
+  "chronicle-applies-to-scope": 0,
+  "shared-one-vocabulary": 0
+ }
+}

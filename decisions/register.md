@@ -11,7 +11,7 @@ The contests are taken in dependency order. There is one row per contest.
 | 05 | Check-in | decided | own-axis (mood separate); no numbers on screen | 7 | [05-checkin.md](05-checkin.md) |
 | 06 | Habit | decided | item+tracker; the verb is "Log" | 7 | [06-habit.md](06-habit.md) |
 | 07 | Timed interval (map: duplicated; verification: contested) | decided | activity-item; several timers at once | 9 | [07-timelog.md](07-timelog.md) |
-| 08 | Tagging (map: duplicated) | open | | | |
+| 08 | Tagging (map: duplicated; verification: contested) | decided | one-vocab; the word is "Label" | 10 | [08-tagging.md](08-tagging.md) |
 | 09 | Settings store (map: duplicated) | open | | | |
 | 10 | Full-text search (map: duplicated) | open | | | |
 
