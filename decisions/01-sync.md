@@ -1,6 +1,6 @@
 # ADR 01: Sync identity and conflict
 
-Status: **awaiting the owner's pick**. Date: 2026-09-30. Owners: Tendril, Chronicle, Mnemo, and Equipoise (import only; the map missed this).
+Status: **decided: hybrid+**. Date: 2026-09-30. Owners: Tendril, Chronicle, Mnemo, and Equipoise (import only; the map missed this).
 
 ## Constraints from the owner
 
@@ -50,7 +50,16 @@ The control fails every case it was expected to fail, so the scorer can tell a l
 
 ## Decision
 
-_pending_
+**hybrid+** was picked by the owner on 2026-09-30, after a walk-through of both hybrids.
+
+The model:
+- **Identity.** Every row has a ULID primary key.
+- **Stamps.** Each field group carries an `(hlc, deviceId)` stamp. The whole row is one group by default.
+- **Deletion.** `deletedAt` lives in the group that decides "does this exist".
+- **Permanent delete.** A purge registry records purged rows. It never expires, and only a newer edit supersedes it.
+- **When a person is asked.** The *schedule* group also keeps a per-row base stamp. If both sides changed it since that base, a person is asked: keep mine / take theirs / keep both. Everything else merges silently.
+
+**Why:** hybrid+ is the only option that loses no owner's guarantee silently. Its cost is an occasional prompt when the same reminder's schedule really was changed on two devices between syncs. It also fixes Mnemo's current defect, which is asking about changes made on one side only.
 
 ## Consequences for later contests
 
