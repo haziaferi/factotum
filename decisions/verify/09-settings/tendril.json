@@ -1,0 +1,266 @@
+{
+ "repo": "Tendril",
+ "claims": [
+  {
+   "claim": "1. Settings live in a KeyValueStore, not in Room. Android is backed by SharedPreferences (file `tendril_kv`). Desktop is backed by a java.util.Properties file.",
+   "verdict": "confirmed",
+   "evidence": [
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/prefs/KeyValueStore.kt",
+     "line": 19,
+     "quote": " * The platform stores: Android — `SharedPreferences` (`tendril_kv`); desktop — a"
+    },
+    {
+     "file": "shared/src/androidMain/kotlin/com/tendril/app/data/prefs/AndroidKeyValueStore.kt",
+     "line": 17,
+     "quote": "        const val PREFS_NAME = \"tendril_kv\""
+    },
+    {
+     "file": "shared/src/desktopMain/kotlin/com/tendril/app/data/prefs/PropertiesKeyValueStore.kt",
+     "line": 8,
+     "quote": "class PropertiesKeyValueStore(private val file: File) : MapKeyValueStore(load(file)) {"
+    },
+    {
+     "file": "Tendril windows/src/main/kotlin/com/tendril/desktopapp/DesktopAppContainer.kt",
+     "line": 44,
+     "quote": "PropertiesKeyValueStore(java.io.File(System.getProperty(\"user.home\"), \".tendril-desktop-dev/prefs.properties\")),"
+    }
+   ]
+  },
+  {
+   "claim": "2. Every settings key with its type and default. The store is string-only and each consumer encodes its own value. There are 26 key constants in shared/ and 1 in the desktop module (sync_folder_path, which lives in java.util.prefs and is not in the KeyValueStore). Defaults sit at the call sites, not in the store. Defaults I confirmed: show_urgency true, show_habit_streaks false, theme_oled false, close_to_tray true, calendar_tray_collapsed false, calendar_tray_width 280 (min 240, max 360), tasks_list_width 420 (min 300, max 600), pages_tree_width 280, pages_shelf_width 380, review_cadence_days = REVIEW_CADENCE in days (min 1), theme_mode SYSTEM, theme_typeface INTER, theme_register INK, density_profile COMPACT, quick_add_chord DEFAULT, app_language ENGLISH. Keys with no scalar default, only a decode fallback or an absent-value check: ai_model (first of AiModels), calendar_layers, roadmap_filter, window_frame, popout_pages, popout frame keys (frameKeyFor), pages_shelf, pages_shelf_last, pages_tree_collapsed, calendar_default_view (null means width-based choice). Android also keeps separate SharedPreferences classes outside the KeyValueStore: AppLock (enabled, lock_on_launch, lock_on_background), CalendarProvider calendar_id, SystemCalendar (ticked, last_chosen), SyncStatus last_synced_at, SyncFolder sync_folder_uri.",
+   "verdict": "partial",
+   "evidence": [
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/ui/settings/TaskSettings.kt",
+     "line": 34,
+     "quote": "fun showUrgency(): Boolean = store.getBoolean(SHOW_URGENCY_KEY, true)"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/ui/settings/TaskSettings.kt",
+     "line": 35,
+     "quote": "fun showHabitStreaks(): Boolean = store.getBoolean(SHOW_HABIT_STREAKS_KEY, false)"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/ui/theme/ThemeSettings.kt",
+     "line": 38,
+     "quote": "oled = store.getBoolean(THEME_OLED_KEY, false),"
+    },
+    {
+     "file": "Tendril windows/src/main/kotlin/com/tendril/desktopapp/Main.kt",
+     "line": 211,
+     "quote": "if (core.keyValueStore.getBoolean(CLOSE_TO_TRAY_KEY, true) && isTraySupported) mainVisible.value = false else exitApplication()"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/review/Review.kt",
+     "line": 40,
+     "quote": "val cadence: Duration get() = Duration.ofDays(keyValueStore.getInt(CADENCE_DAYS_KEY, REVIEW_CADENCE.toDays().toInt()).coerceAtLeast(1).toLong())"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/ui/calendar/CalendarScreen.kt",
+     "line": 293,
+     "quote": "val trayWidth = remember { PaneWidthState(core.keyValueStore, CALENDAR_TRAY_WIDTH_KEY, 280, 240, 360) }"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/ui/taskshabits/TasksHabitsScreen.kt",
+     "line": 251,
+     "quote": "val listWidth = remember { PaneWidthState(core.keyValueStore, TASKS_LIST_WIDTH_KEY, 420, 300, 600) }"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/ui/nav/ShellScale.kt",
+     "line": 43,
+     "quote": "fun fromKey(key: String?): DensityProfile = entries.firstOrNull { it.key == key } ?: COMPACT"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/ui/theme/Palette.kt",
+     "line": 69,
+     "quote": "fun fromKey(key: String?): TendrilMode = entries.firstOrNull { it.key == key?.lowercase() } ?: SYSTEM"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/ui/pages/PageDetailViewModel.kt",
+     "line": 365,
+     "quote": "val model = keyValueStore.get(AI_MODEL_KEY)?.takeIf { it in AiModels } ?: AiModels.first()"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/ai/AiVerbs.kt",
+     "line": 45,
+     "quote": "const val AI_MODEL_KEY = \"ai_model\""
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/ui/calendar/CalendarViewModel.kt",
+     "line": 56,
+     "quote": "const val KEY = \"calendar_layers\""
+    },
+    {
+     "file": "Tendril windows/src/main/kotlin/com/tendril/desktopapp/sync/DesktopSyncFolderManager.kt",
+     "line": 11,
+     "quote": "private const val KEY_FOLDER = \"sync_folder_path\""
+    }
+   ]
+  },
+  {
+   "claim": "3. No setting syncs between devices. The sync code contains no reference to KeyValueStore, SharedPreferences or settings storage. Every hit is a comment or string mentioning the Settings screen, or SyncStatusPreferences (a local last-synced timestamp).",
+   "verdict": "confirmed",
+   "evidence": [
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/sync/PagesSyncEngine.kt",
+     "line": 89,
+     "quote": " * so it can be told apart from the prose around it in Settings' error line."
+    },
+    {
+     "file": "Tendril android/app/src/main/java/com/tendril/app/sync/SyncCoordinator.kt",
+     "line": 8,
+     "quote": "import com.tendril.app.storage.SyncStatusPreferences"
+    },
+    {
+     "file": "Tendril android/app/src/main/java/com/tendril/app/sync/PortableArchive.kt",
+     "line": 149,
+     "quote": "     * `SettingsScreen`'s `PortableBackupSection` and its Notion sibling (both reading that same"
+    }
+   ]
+  },
+  {
+   "claim": "4. Secrets (AI API key) are stored apart from other settings. Android uses the Keystore-backed SecretStore and desktop uses a separate file wrapped by DPAPI on Windows, with an owner-only permissions fence. The KeyValueStore is stated not to be for secrets.",
+   "verdict": "confirmed",
+   "evidence": [
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/prefs/AiKeyStore.kt",
+     "line": 7,
+     "quote": " * §0.6.15 — where the person's Anthropic API key lives. A secret, so **never** the"
+    },
+    {
+     "file": "Tendril android/app/src/main/java/com/tendril/app/storage/AndroidAiKeyStore.kt",
+     "line": 10,
+     "quote": "override val key: StateFlow<String?> get() = secretStore.anthropicApiKey"
+    },
+    {
+     "file": "shared/src/desktopMain/kotlin/com/tendril/app/data/prefs/FileAiKeyStore.kt",
+     "line": 36,
+     "quote": "file.writeText(SecretFileFormat.encode(key, wrap))"
+    },
+    {
+     "file": "Tendril windows/src/main/kotlin/com/tendril/desktopapp/DesktopAppContainer.kt",
+     "line": 46,
+     "quote": "FileAiKeyStore(java.io.File(System.getProperty(\"user.home\"), \".tendril-desktop-dev/anthropic.key\"), DpapiWrap.forThisPlatform()),"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/prefs/KeyValueStore.kt",
+     "line": 16,
+     "quote": " * for secrets** — Android keeps those in `SecretStore` (Keystore), and the desktop's key file"
+    }
+   ]
+  },
+  {
+   "claim": "5. Settings are included in export or backup. They are not. PortableArchive has no reference to KeyValueStore or SharedPreferences, only comments and strings mentioning the Settings screen. Android also excludes sharedpref from cloud backup and device transfer, and sets allowBackup=false. The desktop Settings screen says backups are Android-only.",
+   "verdict": "refuted",
+   "evidence": [
+    {
+     "file": "Tendril android/app/src/main/res/xml/data_extraction_rules.xml",
+     "line": 4,
+     "quote": "        <exclude domain=\"sharedpref\" />"
+    },
+    {
+     "file": "Tendril android/app/src/main/res/xml/data_extraction_rules.xml",
+     "line": 7,
+     "quote": "        <exclude domain=\"sharedpref\" />"
+    },
+    {
+     "file": "Tendril android/app/src/main/AndroidManifest.xml",
+     "line": 41,
+     "quote": "android:allowBackup=\"false\""
+    },
+    {
+     "file": "Tendril windows/src/main/kotlin/com/tendril/desktopapp/DesktopSettingsScreen.kt",
+     "line": 91,
+     "quote": "\"Backups are Android-only for now.\","
+    }
+   ]
+  },
+  {
+   "claim": "6. A setting change is observed reactively (Flow). The interface has a Flow-returning observe(key), and MapKeyValueStore implements it with one MutableStateFlow per key that put() updates. UI code collects it with collectAsState. Some call sites read once with get(), for example Main.kt window frame, CalendarScreen default view, the ViewModel initial reads of calendar_layers and roadmap_filter, and PageDetailViewModel's ai_model.",
+   "verdict": "confirmed",
+   "evidence": [
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/prefs/KeyValueStore.kt",
+     "line": 27,
+     "quote": "fun observe(key: String): Flow<String?>"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/prefs/KeyValueStore.kt",
+     "line": 51,
+     "quote": "flows[key]?.value = value"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/ui/settings/TaskSettings.kt",
+     "line": 41,
+     "quote": "val v by store.observe(SHOW_URGENCY_KEY).collectAsState(initial = store.get(SHOW_URGENCY_KEY))"
+    },
+    {
+     "file": "Tendril windows/src/main/kotlin/com/tendril/desktopapp/Main.kt",
+     "line": 202,
+     "quote": "val frame = remember { WindowFrame.decode(core.keyValueStore.get(WINDOW_FRAME_KEY)) ?: DEFAULT_WINDOW }"
+    }
+   ]
+  }
+ ],
+ "missed": [
+  {
+   "fact": "The store is String-only. Booleans are encoded as \"true\"/\"false\" and ints as digits. A malformed value silently falls back to the caller's default because getBoolean uses toBooleanStrictOrNull and getInt uses toIntOrNull.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/data/prefs/KeyValueStore.kt",
+   "line": 29
+  },
+  {
+   "fact": "AndroidKeyValueStore.persist calls prefs.edit().clear() and then rewrites every key on each put. The Android constructor copies only String-typed values from tendril_kv, so non-String entries in that file are dropped on the next write.",
+   "file": "shared/src/androidMain/kotlin/com/tendril/app/data/prefs/AndroidKeyValueStore.kt",
+   "line": 13
+  },
+  {
+   "fact": "Only observe() emits changes, and only for keys already observed. put() updates the flow of an existing key but creates none. put(key, null) removes the key and emits null.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/data/prefs/KeyValueStore.kt",
+   "line": 46
+  },
+  {
+   "fact": "Desktop has a second settings store outside the KeyValueStore: java.util.prefs.Preferences holds sync_folder_path, per-user registry-backed on Windows, separate from prefs.properties.",
+   "file": "Tendril windows/src/main/kotlin/com/tendril/desktopapp/sync/DesktopSyncFolderManager.kt",
+   "line": 21
+  },
+  {
+   "fact": "Android keeps several settings in separate SharedPreferences classes outside the KeyValueStore (AppLock, CalendarProvider, SystemCalendar, SyncStatus, SyncFolder). A merge of settings must handle these too.",
+   "file": "Tendril android/app/src/main/java/com/tendril/app/storage/AppLockPreferences.kt",
+   "line": 10
+  },
+  {
+   "fact": "The KeyValueStore is also used for non-preference UI state, not only user settings: window_frame, popout_pages and per-page popout frames, pane widths, pages_shelf and pages_tree_collapsed. These are per-device layout state, so they would not want to sync.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/ui/nav/PopOuts.kt",
+   "line": 58
+  },
+  {
+   "fact": "Legacy Android SharedPreferences values (theme, task prefs) are migrated into the KeyValueStore at startup by migrateLegacyThemePreferences and migrateLegacyTaskPreferences.",
+   "file": "Tendril android/app/src/main/java/com/tendril/app/AppContainer.kt",
+   "line": 175
+  },
+  {
+   "fact": "The desktop AI key file is DPAPI-wrapped, with a legacy bare-line format that is rewritten wrapped on first load. Clearing the key deletes the file.",
+   "file": "shared/src/desktopMain/kotlin/com/tendril/app/data/prefs/FileAiKeyStore.kt",
+   "line": 52
+  }
+ ],
+ "absence_probes": [
+  {
+   "pattern": "@Entity / Room entity or tableName matching setting|pref|keyvalue|kv",
+   "hits": 0
+  },
+  {
+   "pattern": "KeyValueStore|SharedPreferences|tendril_kv in sync/*.kt (non-comment code references)",
+   "hits": 0
+  },
+  {
+   "pattern": "KeyValueStore|SharedPreferences|prefs in PortableArchive.kt (non-comment code references)",
+   "hits": 0
+  },
+  {
+   "pattern": "(?i)settings|KeyValueStore|AiKeyStore in shared/.../sync/ (all hits were comments)",
+   "hits": 2
+  }
+ ]
+}

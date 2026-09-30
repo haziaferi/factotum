@@ -1,0 +1,221 @@
+{
+ "repo": "Chronicle",
+ "claims": [
+  {
+   "claim": "1. SessionEntity stores activity sessions. Columns: id String, activityId String, startedAtMillis Long, endedAtMillis Long?, comment String?, updatedAtMillis Long, updatedByDevice String, deletedAtMillis Long?, plannedRun String? (default null). ActivityEntity columns: id String, name String, colorArgb Int, iconKey String, archived Boolean, categoryId String?, sortOrder Int, updatedAtMillis Long, updatedByDevice String, createdAtMillis Long, deletedAtMillis Long?.",
+   "verdict": "partial",
+   "evidence": [
+    {
+     "file": "data/src/main/kotlin/com/hazia/chronicle/data/room/entity/SessionEntity.kt",
+     "line": 38,
+     "quote": "val endedAtMillis: Long?,"
+    },
+    {
+     "file": "data/src/main/kotlin/com/hazia/chronicle/data/room/entity/SessionEntity.kt",
+     "line": 48,
+     "quote": "val plannedRun: String? = null,"
+    },
+    {
+     "file": "data/src/main/kotlin/com/hazia/chronicle/data/room/entity/ActivityEntity.kt",
+     "line": 32,
+     "quote": "val categoryId: String?,"
+    },
+    {
+     "file": "data/src/main/kotlin/com/hazia/chronicle/data/room/entity/ActivityEntity.kt",
+     "line": 37,
+     "quote": "val deletedAtMillis: Long?,"
+    }
+   ]
+  },
+  {
+   "claim": "2. A running session has no end. Any number may run at once; starting a second does not stop or block the first.",
+   "verdict": "confirmed",
+   "evidence": [
+    {
+     "file": "core/data/src/main/kotlin/com/hazia/chronicle/core/data/track/SessionRepository.kt",
+     "line": 42,
+     "quote": "* 1-tap start: multi-timer model — no check for an already-running session (spec §2.1)."
+    },
+    {
+     "file": "data/src/main/kotlin/com/hazia/chronicle/data/room/dao/CoreDao.kt",
+     "line": 54,
+     "quote": "@Query(\"SELECT * FROM session WHERE endedAtMillis IS NULL AND deletedAtMillis IS NULL\")"
+    },
+    {
+     "file": "domain/src/main/kotlin/com/hazia/chronicle/domain/model/Session.kt",
+     "line": 41,
+     "quote": "val isRunning: Boolean get() = endedAt == null"
+    }
+   ]
+  },
+  {
+   "claim": "3. A session must belong to an Activity. Activity links to a category (nullable, ON DELETE SET_NULL) and nothing else. It has no tracker link. Tracker and Activity are separate tables, and TrackerEntity has no activityId.",
+   "verdict": "partial",
+   "evidence": [
+    {
+     "file": "data/src/main/kotlin/com/hazia/chronicle/data/room/entity/SessionEntity.kt",
+     "line": 36,
+     "quote": "val activityId: String,"
+    },
+    {
+     "file": "data/src/main/kotlin/com/hazia/chronicle/data/room/entity/ActivityEntity.kt",
+     "line": 21,
+     "quote": "onDelete = ForeignKey.SET_NULL,"
+    },
+    {
+     "file": "data/src/main/kotlin/com/hazia/chronicle/data/room/entity/TrackerEntity.kt",
+     "line": 44,
+     "quote": "val categoryId: String?,"
+    }
+   ]
+  },
+  {
+   "claim": "4. Deleting an Activity tombstones its live sessions in one transaction. They are neither hard-deleted nor orphaned. The session FK is NO_ACTION, so a hard DELETE of an activity with sessions fails. Goals targeting the activity are tombstoned too.",
+   "verdict": "confirmed",
+   "evidence": [
+    {
+     "file": "core/data/src/main/kotlin/com/hazia/chronicle/core/data/track/ActivityRepository.kt",
+     "line": 124,
+     "quote": "sessionDao.getLiveForActivity(id.value).forEach {"
+    },
+    {
+     "file": "core/data/src/main/kotlin/com/hazia/chronicle/core/data/track/ActivityRepository.kt",
+     "line": 101,
+     "quote": "* Nothing cascades on its own here. session's FK to activity is NO_ACTION on purpose"
+    },
+    {
+     "file": "data/src/main/kotlin/com/hazia/chronicle/data/room/entity/SessionEntity.kt",
+     "line": 11,
+     "quote": "* here by leaving onDelete at Room's default (NO_ACTION), so SQLite itself refuses a"
+    }
+   ]
+  },
+  {
+   "claim": "5. Chart buckets and totals over sessions are computed in ActivityDetailViewModel.totalIn (Kotlin). It sums each session's clipped duration with no de-duplication, so overlapping sessions are counted twice. Sessions are fetched by a SQL window on startedAtMillis. A running session is clipped at Instant.now().",
+   "verdict": "confirmed",
+   "evidence": [
+    {
+     "file": "feature/track/src/main/kotlin/com/hazia/chronicle/feature/track/detail/ActivityDetailViewModel.kt",
+     "line": 256,
+     "quote": "private fun totalIn(sessions: List<Session>, from: Instant, to: Instant): Duration ="
+    },
+    {
+     "file": "feature/track/src/main/kotlin/com/hazia/chronicle/feature/track/detail/ActivityDetailViewModel.kt",
+     "line": 259,
+     "quote": "val b = minOf(s.endedAt ?: Instant.now(), to)"
+    },
+    {
+     "file": "data/src/main/kotlin/com/hazia/chronicle/data/room/dao/CoreDao.kt",
+     "line": 72,
+     "quote": "\"SELECT * FROM session WHERE deletedAtMillis IS NULL \" +"
+    }
+   ]
+  },
+  {
+   "claim": "6. Manual entry and editing of a past session exist, and a session carries a nullable comment (the note).",
+   "verdict": "confirmed",
+   "evidence": [
+    {
+     "file": "core/data/src/main/kotlin/com/hazia/chronicle/core/data/track/SessionRepository.kt",
+     "line": 74,
+     "quote": "suspend fun logManualSession("
+    },
+    {
+     "file": "core/data/src/main/kotlin/com/hazia/chronicle/core/data/track/SessionRepository.kt",
+     "line": 96,
+     "quote": "suspend fun updateSession(session: Session) {"
+    },
+    {
+     "file": "data/src/main/kotlin/com/hazia/chronicle/data/room/entity/SessionEntity.kt",
+     "line": 39,
+     "quote": "val comment: String?,"
+    }
+   ]
+  },
+  {
+   "claim": "7. Sync of SessionEntity: a single row-level stamp (updatedAtMillis + updatedByDevice), not per-field stamps. Deletion is a tombstone (deletedAtMillis). The GC hard-deletes tombstones after 90 days. Session is purged before activity.",
+   "verdict": "partial",
+   "evidence": [
+    {
+     "file": "data/src/main/kotlin/com/hazia/chronicle/data/room/entity/SessionEntity.kt",
+     "line": 40,
+     "quote": "val updatedAtMillis: Long,"
+    },
+    {
+     "file": "domain/src/main/kotlin/com/hazia/chronicle/domain/model/Session.kt",
+     "line": 28,
+     "quote": "val updatedAt: FieldStamp,"
+    },
+    {
+     "file": "domain/src/main/kotlin/com/hazia/chronicle/domain/sync/Syncable.kt",
+     "line": 22,
+     "quote": "val PURGE_AFTER: java.time.Duration = java.time.Duration.ofDays(90)"
+    },
+    {
+     "file": "data/src/main/kotlin/com/hazia/chronicle/data/room/RoomRepositoryBundle.kt",
+     "line": 140,
+     "quote": "// Order matters here: RoomSyncImporter.purgeAllTombstones() walks this list in order,"
+    }
+   ]
+  }
+ ],
+ "missed": [
+  {
+   "fact": "SessionEntity has a ninth column, plannedRun String? (a RunStamp encoding for timed runs, separate from comment). It was added in migration 3 -> 4, and a merge must carry it.",
+   "file": "data/src/main/kotlin/com/hazia/chronicle/data/room/entity/SessionEntity.kt",
+   "line": 48
+  },
+  {
+   "fact": "updateSession clears deletedAt and only rewrites a row that is live at write time. A row that is missing or already tombstoned is skipped, so an edit cannot resurrect a deleted session.",
+   "file": "core/data/src/main/kotlin/com/hazia/chronicle/core/data/track/SessionRepository.kt",
+   "line": 102
+  },
+  {
+   "fact": "stopSession does nothing if the session already has an end. Editing a running session to give it an end time also ends the run.",
+   "file": "core/data/src/main/kotlin/com/hazia/chronicle/core/data/track/SessionRepository.kt",
+   "line": 67
+  },
+  {
+   "fact": "The purge query is a strict less-than on the cutoff (deletedAtMillis < :cutoffMillis). The domain predicate uses strict > on the Duration, yet RoomPurgeOrderingTest describes >= semantics. The boundary at exactly 90 days is inconsistent and should be checked.",
+   "file": "data/src/main/kotlin/com/hazia/chronicle/data/room/dao/CoreDao.kt",
+   "line": 88
+  },
+  {
+   "fact": "The Activity tombstone also tombstones live goals whose targetId points at the activity. There is no FK on goals, so this is done by hand.",
+   "file": "core/data/src/main/kotlin/com/hazia/chronicle/core/data/track/ActivityRepository.kt",
+   "line": 133
+  },
+  {
+   "fact": "ActivityEntity has a single updatedAtMillis stamp for all metadata (name, color, icon, category, archived). archived is an extra state alongside deletedAtMillis. Archived activities are hidden from lists but not tombstoned.",
+   "file": "data/src/main/kotlin/com/hazia/chronicle/data/room/entity/ActivityEntity.kt",
+   "line": 31
+  },
+  {
+   "fact": "Session time-window queries filter on startedAtMillis only (BETWEEN). A session that started before the window but overlaps it is not returned, so totalIn's clipping only applies to sessions that start inside the window.",
+   "file": "data/src/main/kotlin/com/hazia/chronicle/data/room/dao/CoreDao.kt",
+   "line": 73
+  }
+ ],
+ "absence_probes": [
+  {
+   "pattern": "overlap|merge|union|coalesce in core/ (session totals de-duplication)",
+   "hits": 0
+  },
+  {
+   "pattern": "SessionMerge / fun merge.*Session",
+   "hits": 0
+  },
+  {
+   "pattern": "Session in domain/sync (per-field merge code for sessions)",
+   "hits": 0
+  },
+  {
+   "pattern": "activityId in TrackerEntity.kt",
+   "hits": 0
+  },
+  {
+   "pattern": "endedAtMillis IS NULL uniqueness / single-running-session guard",
+   "hits": 0
+  }
+ ]
+}

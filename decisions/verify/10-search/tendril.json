@@ -1,0 +1,268 @@
+{
+ "repo": "Tendril",
+ "claims": [
+  {
+   "claim": "1. BlockFtsEntry and PageFtsEntry are full-text tables: FTS4, standalone (no contentEntity), simple tokenizer, columns pageId/plainText and pageId/blockId/plainText",
+   "verdict": "confirmed",
+   "evidence": [
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/page/PageFts.kt",
+     "line": 15,
+     "quote": "@Fts4"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/page/PageFts.kt",
+     "line": 17,
+     "quote": "data class PageFtsEntry("
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/page/PageFts.kt",
+     "line": 38,
+     "quote": "`page_fts` is a standalone"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/page/BlockFts.kt",
+     "line": 16,
+     "quote": "@Fts4"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/page/BlockFts.kt",
+     "line": 18,
+     "quote": "data class BlockFtsEntry("
+    },
+    {
+     "file": "shared/schemas/com.tendril.app.data.TendrilDatabase/27.json",
+     "line": 1027,
+     "quote": "\"createSql\": \"CREATE VIRTUAL TABLE IF NOT EXISTS `${TABLE_NAME}` USING FTS4(`pageId` INTEGER NOT NULL, `plainText` TEXT NOT NULL)\","
+    },
+    {
+     "file": "shared/schemas/com.tendril.app.data.TendrilDatabase/27.json",
+     "line": 1061,
+     "quote": "\"createSql\": \"CREATE VIRTUAL TABLE IF NOT EXISTS `${TABLE_NAME}` USING FTS4(`pageId` INTEGER NOT NULL, `blockId` INTEGER NOT NULL, `plainText` TEXT NOT NULL)\","
+    },
+    {
+     "file": "shared/schemas/com.tendril.app.data.TendrilDatabase/27.json",
+     "line": 1048,
+     "quote": "\"tokenizer\": \"simple\","
+    },
+    {
+     "file": "shared/schemas/com.tendril.app.data.TendrilDatabase/27.json",
+     "line": 1050,
+     "quote": "\"contentTable\": \"\","
+    }
+   ]
+  },
+  {
+   "claim": "2. Index maintained by application code, not triggers (neither Room-generated nor hand-written)",
+   "verdict": "confirmed",
+   "evidence": [
+    {
+     "file": "shared/schemas/com.tendril.app.data.TendrilDatabase/27.json",
+     "line": 1057,
+     "quote": "\"contentSyncTriggers\": []"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/PageContentRepository.kt",
+     "line": 34,
+     "quote": "suspend fun rebuildFtsForPage(pageId: Long) {"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/PageContentRepository.kt",
+     "line": 38,
+     "quote": "pageFtsDao.deleteForPage(pageId)"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/PageContentRepository.kt",
+     "line": 43,
+     "quote": "blockFtsDao.deleteForPage(pageId)"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/PageContentRepository.kt",
+     "line": 55,
+     "quote": "suspend fun healIndex(): Int {"
+    }
+   ]
+  },
+  {
+   "claim": "3. Searchable via FTS: pages (title + concatenated block text) and blocks only. No entries, tasks, habits, labels, or journal/check-ins in any FTS table",
+   "verdict": "confirmed",
+   "evidence": [
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/TendrilDatabase.kt",
+     "line": 88,
+     "quote": "Page::class, Label::class, PageLabel::class, Block::class, PageFtsEntry::class, BlockFtsEntry::class,"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/PageContentRepository.kt",
+     "line": 37,
+     "quote": "val plainText = (listOf(title) + blocks.map { it.content }).filter { it.isNotBlank() }.joinToString(\" \")"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/PageContentRepository.kt",
+     "line": 44,
+     "quote": "blocks.filter { it.content.isNotBlank() }.forEach { b ->"
+    }
+   ]
+  },
+  {
+   "claim": "4. Query: MATCH with a * prefix on each alphanumeric token, ANDed. Input is sanitised by keeping only letter/digit runs. There is no ORDER BY and no bm25/matchinfo ranking. snippet() gives the highlight, and ranking happens in Kotlin (title prefix first, then block hits in index order, at most 3 per page)",
+   "verdict": "confirmed",
+   "evidence": [
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/page/PageFts.kt",
+     "line": 78,
+     "quote": "private val SEARCH_TOKEN = Regex(\"[\\\\p{L}\\\\p{N}]+\")"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/page/PageFts.kt",
+     "line": 102,
+     "quote": "fun ftsPrefixExpression(raw: String): String = SEARCH_TOKEN.findAll(raw).joinToString(\" \") { \"${it.value}*\" }"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/page/BlockFts.kt",
+     "line": 43,
+     "quote": "\"snippet(block_fts, '\\u0002', '\\u0003', '…', 2, 12) AS snippet \" +"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/page/BlockFts.kt",
+     "line": 45,
+     "quote": "\"WHERE block_fts MATCH :query AND pages.deletedAt IS NULL LIMIT 60\""
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/page/BlockFts.kt",
+     "line": 62,
+     "quote": "return runCatching { search(match) }.getOrDefault(emptyList())"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/SwitcherQuery.kt",
+     "line": 41,
+     "quote": ".filter { it.deletedAt == null && it.title.lowercase().startsWith(q) }"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/ui/switcher/QuickSwitcher.kt",
+     "line": 144,
+     "quote": "hits = rankPageHits(m.query, live, core.database.blockFtsDao().searchPrefix(m.query))"
+    }
+   ]
+  },
+  {
+   "claim": "5. Search over non-indexed tables uses LIKE: block-reference picker and unlinked-mentions use a substring scan over blocks.content, and label search uses a substring scan over tags.name",
+   "verdict": "confirmed",
+   "evidence": [
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/page/BlockDao.kt",
+     "line": 51,
+     "quote": "\"AND blocks.content LIKE '%' || :query || '%' ORDER BY blocks.updatedAt DESC LIMIT 30\""
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/page/LabelDao.kt",
+     "line": 23,
+     "quote": "@Query(\"SELECT * FROM tags WHERE name LIKE '%' || :query || '%' ORDER BY name\")"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/ui/pages/PageDetailViewModel.kt",
+     "line": 321,
+     "quote": "val candidates = blockDao.searchContent(title)"
+    }
+   ]
+  },
+  {
+   "claim": "6. Index is rebuilt after sync merge and Notion import, and rebuilt at startup by healIndex. The FTS tables are not part of the sync payload, since nothing in sync/ references them except the per-page rebuild",
+   "verdict": "confirmed",
+   "evidence": [
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/sync/PagesSyncEngine.kt",
+     "line": 681,
+     "quote": "replaceBlocks(blockDao, pageId, page.blocks, uidToId)"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/sync/PagesSyncEngine.kt",
+     "line": 682,
+     "quote": "pageContentRepository.rebuildFtsForPage(pageId)"
+    },
+    {
+     "file": "Tendril android/app/src/main/java/com/tendril/app/notionimport/NotionImporter.kt",
+     "line": 237,
+     "quote": "pageContentRepository.rebuildFtsForPage(meta.roomId)"
+    },
+    {
+     "file": "Tendril android/app/src/main/java/com/tendril/app/TendrilApp.kt",
+     "line": 23,
+     "quote": "CoroutineScope(Dispatchers.IO).launch { container.pageContentRepository.healIndex() }"
+    },
+    {
+     "file": "Tendril windows/src/main/kotlin/com/tendril/desktopapp/Main.kt",
+     "line": 151,
+     "quote": "kotlinx.coroutines.runBlocking(Dispatchers.IO) { core.pageContentRepository.healIndex() }"
+    }
+   ]
+  }
+ ],
+ "missed": [
+  {
+   "fact": "The switcher's body search reads only block_fts (QuickSwitcher.kt:144). page_fts is still written on every rebuild, but the switcher does not use its MATCH query. PagesViewModel and PagesScreen take a PageFtsDao.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/ui/switcher/QuickSwitcher.kt",
+   "line": 144
+  },
+  {
+   "fact": "page_fts stores the page title as the first token run of plainText (title + block contents joined by a space). One column carries both meanings, and block_fts holds block content only, with no title.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/PageContentRepository.kt",
+   "line": 37
+  },
+  {
+   "fact": "The FTS tables carry no deletedAt of their own. Trashed pages are hidden only by the JOIN pages ... pages.deletedAt IS NULL in each search query. A page's rows are not removed on soft delete.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/data/page/BlockFts.kt",
+   "line": 45
+  },
+  {
+   "fact": "Identity columns: pageId is a plain indexed column in both tables (not UNIQUE). blockId in block_fts is the local Room blocks.id, not the cross-device uid, so the index cannot be merged between devices and has to be rebuilt locally. Sync does that per merged page.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/data/page/BlockFts.kt",
+   "line": 20
+  },
+  {
+   "fact": "block_fts was added in schema v25 with a virtual-table-only migration. The first-launch healIndex fills it. MIGRATION_15_16 also empties page_fts so the titles get indexed, and a later healIndex run re-indexes everything. healIndex only re-indexes pages with no row in an index, so an existing stale row is never repaired.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/data/Migrations.kt",
+   "line": 304
+  },
+  {
+   "fact": "Both search() queries have hard LIMITs (50 for pages, 60 for blocks) applied before the Kotlin ranking and per-page cap of 3. There is no ORDER BY, so which rows survive the LIMIT is unspecified.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/data/page/PageFts.kt",
+   "line": 58
+  },
+  {
+   "fact": "The block-reference picker and unlinked-mentions search (BlockDao.searchContent) excludes templates and the types BLOCK_REFERENCE, DIVIDER, IMAGE, CANVAS and PAGE_MENTION. This differs from the FTS indexes, which index every block with non-blank content.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/data/page/BlockDao.kt",
+   "line": 50
+  }
+ ],
+ "absence_probes": [
+  {
+   "pattern": "bm25|bm4|matchinfo|offsets\\( (kt/kts, whole repo)",
+   "hits": 0
+  },
+  {
+   "pattern": "tokenize in FTS context / tokenizer args (only the schema JSON default 'simple'; kt hits are unrelated formula/highlight lexers)",
+   "hits": 0
+  },
+  {
+   "pattern": "CREATE TRIGGER (kt/kts, whole repo)",
+   "hits": 0
+  },
+  {
+   "pattern": "ORDER BY rank (kt/kts, whole repo)",
+   "hits": 0
+  },
+  {
+   "pattern": "contentEntity|contentTable in schema 27.json (non-empty; contentTable is \"\")",
+   "hits": 0
+  },
+  {
+   "pattern": "@Fts4/@Fts5 entities for entries, tasks, habits, labels, journal/check-ins (only PageFtsEntry and BlockFtsEntry exist in TendrilDatabase entities)",
+   "hits": 0
+  },
+  {
+   "pattern": "TRIGGER|trigger in shared/src/commonMain/kotlin/com/tendril/app/data",
+   "hits": 0
+  }
+ ]
+}

@@ -1,0 +1,273 @@
+{
+ "repo": "Equipoise",
+ "claims": [
+  {
+   "claim": "1. SettingsEntity and LlmSettingsEntity are Room entities; Equipoise is the only app keeping settings in Room. Columns listed below. The 'only app' part cannot be checked from this repo.",
+   "verdict": "partial",
+   "evidence": [
+    {
+     "file": "app/src/main/kotlin/com/hazia/equipoise/data/db/Entities.kt",
+     "line": 95,
+     "quote": "@Entity(tableName = \"settings\")"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/equipoise/data/db/Entities.kt",
+     "line": 97,
+     "quote": "@PrimaryKey val id: Int = 1,"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/equipoise/data/db/Entities.kt",
+     "line": 98,
+     "quote": "val burnoutThreshold: Double = 0.5,"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/equipoise/data/db/Entities.kt",
+     "line": 99,
+     "quote": "val greyDay: Boolean = false,          // parked since v0.7 (§3.5): never read, kept so the schema and old exports stay valid"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/equipoise/data/db/Entities.kt",
+     "line": 100,
+     "quote": "val crisisContacts: String = \"\","
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/equipoise/data/db/Entities.kt",
+     "line": 101,
+     "quote": "val onboardingAnswer: String? = null,   // null = not asked yet → first-run question"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/equipoise/data/db/Entities.kt",
+     "line": 102,
+     "quote": "val mixedMode: String = \"EVERY_TIME\",   // MixedMode.name; only meaningful when onboardingAnswer is MIXED"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/equipoise/data/db/Entities.kt",
+     "line": 103,
+     "quote": "val checkinShape: String = \"GRID4\",     // CheckInShape.name (§3.1)"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/equipoise/data/db/Entities.kt",
+     "line": 107,
+     "quote": "@Entity(tableName = \"llm_settings\")"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/equipoise/data/db/Entities.kt",
+     "line": 109,
+     "quote": "@PrimaryKey val id: Int = 1,"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/equipoise/data/db/Entities.kt",
+     "line": 110,
+     "quote": "val modelUri: String? = null,"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/equipoise/data/db/Entities.kt",
+     "line": 111,
+     "quote": "val modelName: String? = null,"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/equipoise/data/db/Entities.kt",
+     "line": 112,
+     "quote": "val endpointUrl: String? = null,"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/equipoise/data/db/Entities.kt",
+     "line": 113,
+     "quote": "val endpointModel: String? = null,"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/equipoise/data/db/Entities.kt",
+     "line": 114,
+     "quote": "val endpointKeyCiphertext: String? = null,"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/equipoise/data/db/Entities.kt",
+     "line": 115,
+     "quote": "val allowEndpointBreakdown: Boolean = false,"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/equipoise/data/db/Entities.kt",
+     "line": 116,
+     "quote": "val allowEndpointConversation: Boolean = false,"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/equipoise/data/db/EquipoiseDatabase.kt",
+     "line": 13,
+     "quote": "TaskEntity::class, DailyIndexEntity::class, SettingsEntity::class, LlmSettingsEntity::class,"
+    }
+   ]
+  },
+  {
+   "claim": "2. Each is a single-row table (fixed id) or keyed rows. Both are single-row with id = 1.",
+   "verdict": "confirmed",
+   "evidence": [
+    {
+     "file": "app/src/main/kotlin/com/hazia/equipoise/data/db/Entities.kt",
+     "line": 94,
+     "quote": "/** Single row, id = 1. */"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/equipoise/data/db/Entities.kt",
+     "line": 106,
+     "quote": "/** Single row, id = 1. Local only; excluded from export (§5.2). The key is stored as Keystore ciphertext, never plain. */"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/equipoise/data/db/Daos.kt",
+     "line": 76,
+     "quote": "@Query(\"SELECT * FROM settings WHERE id = 1\") suspend fun get(): SettingsEntity?"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/equipoise/data/db/Daos.kt",
+     "line": 84,
+     "quote": "@Query(\"SELECT * FROM llm_settings WHERE id = 1\") suspend fun get(): LlmSettingsEntity?"
+    }
+   ]
+  },
+  {
+   "claim": "3. DataStore or SharedPreferences also exists in the app (report zero hits if none). None exists.",
+   "verdict": "refuted",
+   "evidence": [
+    {
+     "file": "(all *.kt, *.kts, *.toml, *.gradle)",
+     "line": 0,
+     "quote": "hits: 0 for DataStore|SharedPreferences|getSharedPreferences|preferencesDataStore|EncryptedSharedPreferences"
+    }
+   ]
+  },
+  {
+   "claim": "4. LlmSettingsEntity holds a model file path, a URI or an API key. It holds a model URI (modelUri, plus modelName), an endpoint URL and model name, and an encrypted API key (endpointKeyCiphertext). It is device-specific: Snapshot.kt says it never leaves the device, and the wipe skips it. The DAO exists, but no non-test code in app/src/main calls llmSettings(). No Keystore encrypt/decrypt code was found in main either; only the comment mentions it.",
+   "verdict": "partial",
+   "evidence": [
+    {
+     "file": "app/src/main/kotlin/com/hazia/equipoise/data/db/Entities.kt",
+     "line": 110,
+     "quote": "val modelUri: String? = null,"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/equipoise/data/db/Entities.kt",
+     "line": 114,
+     "quote": "val endpointKeyCiphertext: String? = null,"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/equipoise/data/export/Snapshot.kt",
+     "line": 9,
+     "quote": "`llm_settings` has no row type on purpose: the"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/equipoise/data/export/Snapshot.kt",
+     "line": 10,
+     "quote": "model path, endpoint and key never leave the device inside an export."
+    },
+    {
+     "file": "app/src/androidTest/kotlin/com/hazia/equipoise/SafRoundTripTest.kt",
+     "line": 63,
+     "quote": "db.llmSettings().upsert(LlmSettingsEntity(1, modelUri = \"content://docs/model\", modelName = \"q.gguf\", endpointUrl = \"https://example.invalid\", endpointModel = \"m\", endpointKeyCiphertext = \"SECRET-CIPHERTEXT\"))"
+    }
+   ]
+  },
+  {
+   "claim": "5. Settings travel in export/import (Transfer.kt Importer.merge / Exporter). SettingsEntity travels, through SettingsRow. LlmSettingsEntity does not, because it has no row type.",
+   "verdict": "partial",
+   "evidence": [
+    {
+     "file": "app/src/main/kotlin/com/hazia/equipoise/data/export/Transfer.kt",
+     "line": 34,
+     "quote": "settings = db.settings().get()?.let { SettingsRow(it.burnoutThreshold, it.greyDay, it.crisisContacts, it.onboardingAnswer, it.mixedMode, it.checkinShape) },"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/equipoise/data/export/Transfer.kt",
+     "line": 70,
+     "quote": "s.settings?.let { db.settings().upsert(SettingsEntity(1, it.burnoutThreshold, it.greyDay, it.crisisContacts, it.onboardingAnswer, it.mixedMode ?: \"EVERY_TIME\", it.checkinShape ?: \"GRID4\")) }"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/equipoise/data/export/Transfer.kt",
+     "line": 78,
+     "quote": "/** Wipes every exported table (not `llm_settings`); used by the round-trip spike and by a future \"start over\". */"
+    }
+   ]
+  },
+  {
+   "claim": "6. A setting change is observed reactively (Flow) or read once. SettingsEntity is observed reactively: SettingsRepository.settings is a Flow and the UI collects it. Writes are read-modify-write through a one-shot get() plus upsert. LlmSettingsDao.observe() exists, but nothing in main uses it.",
+   "verdict": "confirmed",
+   "evidence": [
+    {
+     "file": "app/src/main/kotlin/com/hazia/equipoise/data/Repositories.kt",
+     "line": 137,
+     "quote": "val settings: Flow<SettingsEntity> get() = db.settings().observe().map { it ?: SettingsEntity() }"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/equipoise/data/Repositories.kt",
+     "line": 144,
+     "quote": "db.settings().upsert(f(db.settings().get() ?: SettingsEntity()))"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/equipoise/ui/SettingsScreen.kt",
+     "line": 39,
+     "quote": "val settings by graph.settings.settings.collectAsState(initial = null)"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/equipoise/ui/EquipoiseNav.kt",
+     "line": 32,
+     "quote": "val settings by graph.settings.settings.collectAsState(initial = null)"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/equipoise/data/db/Daos.kt",
+     "line": 85,
+     "quote": "@Query(\"SELECT * FROM llm_settings WHERE id = 1\") fun observe(): Flow<LlmSettingsEntity?>"
+    }
+   ]
+  }
+ ],
+ "missed": [
+  {
+   "fact": "SettingsEntity packs a second meaning into onboardingAnswer: null means 'not asked yet', which triggers the first-run question. The answer() extension then maps a null or unparseable value to OnboardingAnswer.MIXED, so null and MIXED look the same to readers that go through answer().",
+   "file": "app/src/main/kotlin/com/hazia/equipoise/data/Repositories.kt",
+   "line": 148
+  },
+  {
+   "fact": "mixedMode and checkinShape are enum names stored as String. Reads fall back on a bad value: EVERY_TIME for mixedMode, CheckInShape.DEFAULT for checkinShape. The entity default 'GRID4' and CheckInShape.DEFAULT are two separate constants that could drift apart.",
+   "file": "app/src/main/kotlin/com/hazia/equipoise/data/Repositories.kt",
+   "line": 151
+  },
+  {
+   "fact": "greyDay is a parked column: it is never read, but is kept so old exports stay valid, and it is still exported and imported.",
+   "file": "app/src/main/kotlin/com/hazia/equipoise/data/db/Entities.kt",
+   "line": 99
+  },
+  {
+   "fact": "Import replaces the settings row with upsert (last-writer-wins). It is not a per-field merge, and there is no timestamp or deletion column.",
+   "file": "app/src/main/kotlin/com/hazia/equipoise/data/export/Transfer.kt",
+   "line": 70
+  },
+  {
+   "fact": "SettingsRow.mixedMode and checkinShape are nullable in the export format, so older exports without them fall back to defaults on import. Snapshot.VERSION is 1.",
+   "file": "app/src/main/kotlin/com/hazia/equipoise/data/export/Snapshot.kt",
+   "line": 34
+  },
+  {
+   "fact": "wipeUserData() calls settings().wipe() but leaves llm_settings alone, so a 'start over' keeps the model URI, endpoint and key ciphertext.",
+   "file": "app/src/main/kotlin/com/hazia/equipoise/data/export/Transfer.kt",
+   "line": 87
+  },
+  {
+   "fact": "crisisContacts is a free-text String that holds personal data, and it is exported in the JSON. The test value is 'mum: 555'.",
+   "file": "app/src/main/kotlin/com/hazia/equipoise/data/db/Entities.kt",
+   "line": 100
+  },
+  {
+   "fact": "Settings has no column for a per-device setting other than the llm_settings table. burnoutThreshold is exported and so travels between devices.",
+   "file": "app/src/main/kotlin/com/hazia/equipoise/data/db/Entities.kt",
+   "line": 98
+  }
+ ],
+ "absence_probes": [
+  {
+   "pattern": "DataStore|SharedPreferences|getSharedPreferences|preferencesDataStore|EncryptedSharedPreferences (*.kt, *.kts, *.toml, *.gradle)",
+   "hits": 0
+  },
+  {
+   "pattern": "llmSettings\\(\\)|LlmSettingsDao|llm_settings in app/src/main, outside the DAO, entity and database declaration",
+   "hits": 0
+  }
+ ]
+}

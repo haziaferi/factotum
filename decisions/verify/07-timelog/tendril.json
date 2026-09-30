@@ -1,0 +1,282 @@
+{
+ "repo": "Tendril",
+ "claims": [
+  {
+   "claim": "1. TimeLog stores startedAt, endedAt and either an entryId or a habitId; list every column with type and nullability.",
+   "verdict": "partial",
+   "evidence": [
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/track/TimeLog.kt",
+     "line": 42,
+     "quote": "@PrimaryKey(autoGenerate = true) val id: Long = 0,"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/track/TimeLog.kt",
+     "line": 44,
+     "quote": "val uid: String = UUID.randomUUID().toString(),"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/track/TimeLog.kt",
+     "line": 45,
+     "quote": "val entryId: Long? = null,"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/track/TimeLog.kt",
+     "line": 46,
+     "quote": "val habitId: Long? = null,"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/track/TimeLog.kt",
+     "line": 47,
+     "quote": "val startedAt: Instant,"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/track/TimeLog.kt",
+     "line": 49,
+     "quote": "val endedAt: Instant? = null,"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/track/TimeLog.kt",
+     "line": 51,
+     "quote": "val deletedAt: Instant? = null,"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/track/TimeLog.kt",
+     "line": 53,
+     "quote": "val updatedAt: Instant,"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/Migrations.kt",
+     "line": 165,
+     "quote": "\"`startedAt` INTEGER NOT NULL, \" +"
+    }
+   ]
+  },
+  {
+   "claim": "2. A running timer is a TimeLog with endedAt null; how many may run at once and what a second start does.",
+   "verdict": "confirmed",
+   "evidence": [
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/track/TimeTracker.kt",
+     "line": 36,
+     "quote": "Llama Life's shape: *one* thing runs at a time, so starting another stops the first."
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/track/TimeTracker.kt",
+     "line": 61,
+     "quote": "val now = clock()"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/track/TimeTracker.kt",
+     "line": 62,
+     "quote": "stop(now)"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/track/TimeLogDao.kt",
+     "line": 18,
+     "quote": "/** The open logs, newest first. Normally one; after a merge, one per device that had a"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/track/TimeTracker.kt",
+     "line": 45,
+     "quote": "/** The running timer, or null. After a §9.4 merge two devices may each have left one"
+    }
+   ]
+  },
+  {
+   "claim": "3. A TimeLog may reference neither an entry nor a habit (free-standing interval); whether it carries its own label or note.",
+   "verdict": "refuted",
+   "evidence": [
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/track/TimeLog.kt",
+     "line": 30,
+     "quote": "Exactly one of [entryId] and [habitId] is set. Room cannot express that as a CHECK, so"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/track/TimeTracker.kt",
+     "line": 32,
+     "quote": "else -> error(\"time log ${uid} has no owner\")"
+    },
+    {
+     "file": "shared/src/jvmCommon/kotlin/com/tendril/app/sync/SnapshotSyncOrchestrator.kt",
+     "line": 2071,
+     "quote": "if (entryId == null && habitId == null) {"
+    }
+   ]
+  },
+  {
+   "claim": "4. Deleting the entry or habit deletes, orphans or keeps its time logs.",
+   "verdict": "confirmed",
+   "evidence": [
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/track/TimeLog.kt",
+     "line": 36,
+     "quote": "ForeignKey(entity = Entry::class, parentColumns = [\"id\"], childColumns = [\"entryId\"], onDelete = ForeignKey.CASCADE),"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/track/TimeLog.kt",
+     "line": 37,
+     "quote": "ForeignKey(entity = Habit::class, parentColumns = [\"id\"], childColumns = [\"habitId\"], onDelete = ForeignKey.CASCADE),"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/entry/EntryDao.kt",
+     "line": 125,
+     "quote": "@Query(\"UPDATE entries SET deletedAt = :deletedAt, updatedAt = :deletedAt WHERE id = :id\")"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/entry/EntryDao.kt",
+     "line": 131,
+     "quote": "@Query(\"DELETE FROM entries WHERE id = :id\")"
+    }
+   ]
+  },
+  {
+   "claim": "5. Where totals are computed (per entry, per day, per review) and whether overlapping intervals are counted twice.",
+   "verdict": "confirmed",
+   "evidence": [
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/track/TimeLogTotals.kt",
+     "line": 15,
+     "quote": "fun loggedMinutes(logs: List<TimeLog>, from: Instant, to: Instant, now: Instant): Int {"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/track/TimeLogTotals.kt",
+     "line": 21,
+     "quote": "if (end > start) total += Duration.between(start, end)"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/plan/DayTotals.kt",
+     "line": 34,
+     "quote": "fun loggedByEntry(logs: List<TimeLog>, now: Instant): Map<Long, Int> ="
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/plan/DayTotals.kt",
+     "line": 40,
+     "quote": "fun loggedByHabit(logs: List<TimeLog>, now: Instant): Map<Long, Int> ="
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/track/TimeLogTotals.kt",
+     "line": 27,
+     "quote": "fun loggedInMonth(logs: List<TimeLog>, month: YearMonth, now: Instant, zone: ZoneId = ZoneId.systemDefault()): Int ="
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/review/ReviewPlanner.kt",
+     "line": 101,
+     "quote": "loggedMinutes = loggedMinutes(logs, fromInstant, toInstant, now),"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/track/TimeLogDao.kt",
+     "line": 35,
+     "quote": "@Query(\"SELECT * FROM time_logs WHERE deletedAt IS NULL AND startedAt >= :from AND startedAt < :to ORDER BY startedAt\")"
+    }
+   ]
+  },
+  {
+   "claim": "6. Manual entry or editing of a past interval exists.",
+   "verdict": "not_found",
+   "evidence": [
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/track/TimeTracker.kt",
+     "line": 73,
+     "quote": "suspend fun stop(now: Instant = clock()) {"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/track/TimeLog.kt",
+     "line": 13,
+     "quote": " * of \"estimate → plan → track → compare\". Written by [com.tendril.app.domain.track.TimeTracker],"
+    }
+   ]
+  },
+  {
+   "claim": "7. How TimeLog rows sync (tombstoned, delete-wins, last-writer-wins).",
+   "verdict": "confirmed",
+   "evidence": [
+    {
+     "file": "shared/src/jvmCommon/kotlin/com/tendril/app/sync/SnapshotSyncOrchestrator.kt",
+     "line": 2079,
+     "quote": "local == null -> timeLogDao.insert(entity)"
+    },
+    {
+     "file": "shared/src/jvmCommon/kotlin/com/tendril/app/sync/SnapshotSyncOrchestrator.kt",
+     "line": 2080,
+     "quote": "local.deletedAt == null && entity.deletedAt != null -> timeLogDao.softDelete(local.id, entity.deletedAt)"
+    },
+    {
+     "file": "shared/src/jvmCommon/kotlin/com/tendril/app/sync/SnapshotSyncOrchestrator.kt",
+     "line": 2081,
+     "quote": "local.deletedAt != null -> Unit"
+    },
+    {
+     "file": "shared/src/jvmCommon/kotlin/com/tendril/app/sync/SnapshotSyncOrchestrator.kt",
+     "line": 2082,
+     "quote": "entity.updatedAt.isAfter(local.updatedAt) -> timeLogDao.update(entity.copy(id = local.id))"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/sync/SnapshotRecords.kt",
+     "line": 216,
+     "quote": "data class TimeLogSnapshotRecord("
+    }
+   ]
+  }
+ ],
+ "missed": [
+  {
+   "fact": "The map omitted four columns: id (Long autoincrement PK, local only, not synced), uid (String NOT NULL, unique index, the cross-device identity), deletedAt (Instant? soft-delete tombstone) and updatedAt (Instant NOT NULL, bumped on every write). Sync keys on uid, and the owner travels as entryUid/habitUid, never as the local Long id.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/data/track/TimeLog.kt",
+   "line": 42
+  },
+  {
+   "fact": "The exactly-one-owner rule is not a DB constraint. It is enforced only by the TrackTarget sealed interface, and TimeLog.target() throws on an ownerless row. A sync record with neither owner uid resolved is held back and not inserted, so a free-standing interval cannot merge in.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/track/TimeTracker.kt",
+   "line": 29
+  },
+  {
+   "fact": "Two ordinary soft-delete paths exist for entries and habits (EntryDao.softDelete, HabitDao.softDelete). They only set deletedAt on the parent and do not touch time_logs. The CASCADE fires only on the hard deleteForever/deleteAll path, so a time log survives a soft-deleted parent and is still counted. Whether the UI path goes through soft or hard delete was not traced.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/data/entry/EntryDao.kt",
+   "line": 131
+  },
+  {
+   "fact": "TimeLogDao.softDelete exists and sync calls it, but the only timeTracker calls in shared/src are start, stop, toggle, running, logsOn and logsForHabit. No UI path deletes or edits a log, so tombstones originate only from a remote device's snapshot.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/data/track/TimeLogDao.kt",
+   "line": 47
+  },
+  {
+   "fact": "loggedMinutes sums each log's clipped duration independently, so overlapping logs are counted twice. Overlap is unlikely locally because start() closes any open log, but after a merge two devices' open logs can both run until the next start or stop, and then overlap.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/track/TimeLogTotals.kt",
+   "line": 21
+  },
+  {
+   "fact": "Day totals select logs by start time, not by overlap. A log that crosses midnight counts wholly to its start day in the DAO query (observeBetween), but loggedSpans clips it at 24:00. Week summaries use loggedMinutes clipped to the window, so the two rules differ.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/data/track/TimeLogDao.kt",
+   "line": 32
+  },
+  {
+   "fact": "The per-entry and per-habit totals on the Tasks/Habits list come from loggedByEntry/loggedByHabit over only today's logs (logsOn(LocalDate.now())), not all-time.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/ui/taskshabits/TasksHabitsViewModel.kt",
+   "line": 342
+  },
+  {
+   "fact": "A stale remote update to a locally tombstoned log is ignored (delete wins). When both sides are live, the later updatedAt wins, which is how an open log and its later close merge.",
+   "file": "shared/src/jvmCommon/kotlin/com/tendril/app/sync/SnapshotSyncOrchestrator.kt",
+   "line": 2081
+  }
+ ],
+ "absence_probes": [
+  {
+   "pattern": "val (label|note|title|name)\\b in TimeLog.kt",
+   "hits": 0
+  },
+  {
+   "pattern": "timeLogDao.softDelete( outside sync code",
+   "hits": 0
+  },
+  {
+   "pattern": "timeTracker.(add|edit|update|insert|setEnd|backfill) in shared/src",
+   "hits": 0
+  },
+  {
+   "pattern": "time.?log in EntryDao.kt",
+   "hits": 0
+  }
+ ]
+}

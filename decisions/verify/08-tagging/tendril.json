@@ -1,0 +1,255 @@
+{
+ "repo": "Tendril",
+ "claims": [
+  {
+   "claim": "1. Label stores a name and a colour, and PageLabel joins labels to pages. Columns of both.",
+   "verdict": "partial",
+   "evidence": [
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/page/Label.kt",
+     "line": 18,
+     "quote": "@Entity(tableName = \"tags\", indices = [Index(\"uid\", unique = true)])"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/page/Label.kt",
+     "line": 20,
+     "quote": "@PrimaryKey(autoGenerate = true) val id: Long = 0,"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/page/Label.kt",
+     "line": 21,
+     "quote": "val uid: String = UUID.randomUUID().toString(),"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/page/Label.kt",
+     "line": 22,
+     "quote": "val name: String,"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/page/Label.kt",
+     "line": 23,
+     "quote": "val color: String = LabelColors.forName(name),"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/page/Label.kt",
+     "line": 47,
+     "quote": "tableName = \"page_tags\","
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/page/Label.kt",
+     "line": 55,
+     "quote": "data class PageLabel(val pageId: Long, val tagId: Long)"
+    }
+   ]
+  },
+  {
+   "claim": "2. Labels can be applied to things other than pages (entries, tasks, habits, blocks).",
+   "verdict": "partial",
+   "evidence": [
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/habit/Habit.kt",
+     "line": 89,
+     "quote": "val labelId: Long? = null,"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/pagedatabase/PageDatabase.kt",
+     "line": 52,
+     "quote": "val labelId: Long? = null,"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/page/Label.kt",
+     "line": 51,
+     "quote": "ForeignKey(entity = Label::class, parentColumns = [\"id\"], childColumns = [\"tagId\"], onDelete = ForeignKey.CASCADE),"
+    }
+   ]
+  },
+  {
+   "claim": "3. Label names are unique (constraint or code), case-sensitive or not.",
+   "verdict": "partial",
+   "evidence": [
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/page/Label.kt",
+     "line": 18,
+     "quote": "@Entity(tableName = \"tags\", indices = [Index(\"uid\", unique = true)])"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/page/LabelDao.kt",
+     "line": 16,
+     "quote": "@Query(\"SELECT * FROM tags WHERE name = :name LIMIT 1\")"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/ui/pages/PageDetailViewModel.kt",
+     "line": 685,
+     "quote": "val label = labelDao.findByName(trimmed) ?: run {"
+    }
+   ]
+  },
+  {
+   "claim": "4. A label can be renamed, recoloured and deleted; deleting it removes it from pages or is blocked.",
+   "verdict": "not_found",
+   "evidence": [
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/page/LabelDao.kt",
+     "line": 9,
+     "quote": "interface LabelDao {"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/page/Label.kt",
+     "line": 51,
+     "quote": "ForeignKey(entity = Label::class, parentColumns = [\"id\"], childColumns = [\"tagId\"], onDelete = ForeignKey.CASCADE),"
+    }
+   ]
+  },
+  {
+   "claim": "5. Labels nest (a parent id) or not.",
+   "verdict": "refuted",
+   "evidence": [
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/page/Label.kt",
+     "line": 9,
+     "quote": "* §3.1.6 — global, freeform, reusable, flat (no nesting). Resolves the removed `category` field."
+    }
+   ]
+  },
+  {
+   "claim": "6. Where labels are used to filter or group (screens, search, calendar).",
+   "verdict": "partial",
+   "evidence": [
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/page/LabelDao.kt",
+     "line": 46,
+     "quote": "@Query(\"SELECT DISTINCT pageId FROM page_tags WHERE tagId IN (:tagIds)\")"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/ui/pages/PagesViewModel.kt",
+     "line": 98,
+     "quote": "_selectedTagIds.flatMapLatest { ids -> if (ids.isEmpty()) flowOf(null) else labelDao.observePageIdsForTags(ids.toList()) },"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/ui/roadmap/RoadMapViewModel.kt",
+     "line": 101,
+     "quote": "if (id == null) flowOf(null) else labelDao.observePageIdsForTags(listOf(id)).map { it.toSet() }"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/page/PageDao.kt",
+     "line": 74,
+     "quote": "\"OR (:labelId IS NOT NULL AND id IN (SELECT pageId FROM page_tags WHERE tagId = :labelId))) ORDER BY id\""
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/plan/HabitWeek.kt",
+     "line": 94,
+     "quote": "val groups = perHabit.groupBy { it.habit.labelId }.map { (id, rows) -> AreaGroup(id, rows.sortedWith(order)) }"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/ui/calendar/CalendarScreen.kt",
+     "line": 331,
+     "quote": "val labels by remember(core) { core.database.labelDao().observeAll() }.collectAsState(initial = emptyList())"
+    }
+   ]
+  },
+  {
+   "claim": "7. How Label and PageLabel rows sync (tombstoned, delete-wins, last-writer-wins).",
+   "verdict": "refuted",
+   "evidence": [
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/sync/PageSnapshotRecords.kt",
+     "line": 37,
+     "quote": "@SerialName(\"tags\") val labels: List<String> = emptyList(),"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/sync/PagesSyncEngine.kt",
+     "line": 684,
+     "quote": "labelDao.clearForPage(pageId)"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/sync/PagesSyncEngine.kt",
+     "line": 686,
+     "quote": "val tagId = labelDao.findByName(labelName)?.id ?: labelDao.insert(Label(name = labelName))"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/page/LabelDao.kt",
+     "line": 39,
+     "quote": "/** §9.4 snapshot merge — a winning page record's label set fully replaces the local one. */"
+    }
+   ]
+  }
+ ],
+ "missed": [
+  {
+   "fact": "Label has a uid (unique index) but the uid never travels: labels sync by NAME only, inside the page record as a list of names. A label found by name locally, else created fresh with a new local uid and a colour derived from the name, so colour is not synced and the uid differs per device.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/sync/PagesSyncEngine.kt",
+   "line": 686
+  },
+  {
+   "fact": "Label.color is derived from the name hash modulo an 8-colour palette (LabelColors.forName), and is never synced. Changing the palette size would recolour every label.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/data/page/Label.kt",
+   "line": 42
+  },
+  {
+   "fact": "Label has no updatedAt or deletedAt, and no row-level sync record. It is the only identity in the page snapshot carried as a bare string. Two devices that create the same name concurrently converge through name lookup, but a name collision merges them.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/data/page/Label.kt",
+   "line": 19
+  },
+  {
+   "fact": "The page's label set is whole-set replacement: a winning page record clears page_tags for the page and re-adds from names. Per-page last-writer-wins by page updatedAt, with no per-PageLabel merge and no PageLabel tombstone. A label removed on the losing side is lost.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/sync/PagesSyncEngine.kt",
+   "line": 684
+  },
+  {
+   "fact": "Labels also bind to a PageDatabase (labelId, nullable) as its 'doorway': a page carrying the label becomes a database member, and with syncToTasks becomes a task. So a label applied to a page can create or trash a Task Entry (LabelMembership.applyLabel/removeLabel). The database's labelId has no FK, and its bound label travels by name as labelName.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/LabelMembership.kt",
+   "line": 65
+  },
+  {
+   "fact": "Habit carries an optional single Label (labelId: Long?, no foreign key, used as the planner 'area'), which travels by name via labelNameOf/labelIdFor and groups habits by area. Because it has no FK, nothing blocks or cleans it.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/data/habit/Habit.kt",
+   "line": 89
+  },
+  {
+   "fact": "Naming: entity Label maps to table 'tags', join PageLabel to 'page_tags' with column tagId, and the snapshot key is 'tags'. Renamed in name only (§0.6.9), so a grep for 'label' in SQL misses everything.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/data/page/Label.kt",
+   "line": 12
+  },
+  {
+   "fact": "Label lookup is exact-match `name = :name` (SQLite default, case-sensitive for non-ASCII, case-sensitive for '=' on ASCII). Search uses LIKE, which is case-insensitive for ASCII. There is no unique index on name, so duplicates are possible at the DB level and only the create-on-type path in code prevents them.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/data/page/LabelDao.kt",
+   "line": 23
+  },
+  {
+   "fact": "The page filter uses OR semantics (any selected label), not AND.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/data/page/LabelDao.kt",
+   "line": 43
+  },
+  {
+   "fact": "Only PageLabel has a cascading FK to Label (onDelete CASCADE), but no code path deletes a Label, so the cascade is currently unreachable.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/data/page/Label.kt",
+   "line": 51
+  }
+ ],
+ "absence_probes": [
+  {
+   "pattern": "fun (rename|delete|remove|update|recolour|setColor)\\w*Label | labelDao\\.(update|delete) | @Update | @Delete | DELETE FROM tags | UPDATE tags (ui, domain, data/page, sync; counts only the two remove-from-page hits, LabelMembership.removeLabel and PageDetailViewModel.removeLabel, which remove a page-label join, not a Label)",
+   "hits": 2
+  },
+  {
+   "pattern": "parentLabel|parentTag|parentId in data/page/Label.kt",
+   "hits": 0
+  },
+  {
+   "pattern": "labelDao\\.(update|delete|rename)|DELETE FROM tags|UPDATE tags in shared/src (LabelDao has only insert, observeAll, findByName, getById, search, observeForPage, getForPage, addToPage, removeFromPage, clearForPage, observePageIdsForTags)",
+   "hits": 0
+  },
+  {
+   "pattern": "labelId|tagId|Label::class in shared/src/commonMain/.../data outside Migrations.kt, tables other than page_tags, page_databases and habits",
+   "hits": 0
+  },
+  {
+   "pattern": "label|tags in SnapshotMappers.kt mapping a Label or PageLabel entity to a snapshot record (only Habit.toSnapshot(labelName) matched)",
+   "hits": 0
+  },
+  {
+   "pattern": "tags in data/Migrations.kt",
+   "hits": 1
+  }
+ ]
+}

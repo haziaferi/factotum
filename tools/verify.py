@@ -36,13 +36,19 @@ def parse(text):
         pass
     # A prose preface despite "JSON only" (seen once in 7 runs, 2026-09-30): take the
     # outermost object rather than lose the run.
-    start, end = text.find("{"), text.rfind("}")
-    if start < 0 or end <= start:
-        return None
-    try:
-        return json.loads(text[start:end + 1])
-    except ValueError:
-        return None
+    # Two objects with an apology between them (a first one stopped after claim 1, 2026-09-30):
+    # decode every top-level object and keep the one with the most claims.
+    dec, found, i = json.JSONDecoder(), [], text.find("{")
+    while i >= 0:
+        try:
+            obj, end = dec.raw_decode(text, i)
+            if isinstance(obj, dict):
+                found.append(obj)
+            i = text.find("{", end)
+        except ValueError:
+            i = text.find("{", i + 1)
+    found = [o for o in found if "claims" in o]
+    return max(found, key=lambda o: len(o["claims"])) if found else None
 
 
 def main():

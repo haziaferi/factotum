@@ -1,0 +1,240 @@
+{
+ "repo": "Chronicle",
+ "claims": [
+  {
+   "claim": "1. SearchFtsEntity is an FTS4 table kept current by triggers (content vs external-content, tokenizer, indexed columns)",
+   "verdict": "partial",
+   "evidence": [
+    {
+     "file": "data/src/main/kotlin/com/hazia/chronicle/data/room/SearchFts.kt",
+     "line": 31,
+     "quote": "@Fts4(tokenizer = FtsOptions.TOKENIZER_UNICODE61, notIndexed = [\"kind\", \"targetId\", \"rowKey\"])"
+    },
+    {
+     "file": "data/src/main/kotlin/com/hazia/chronicle/data/room/SearchFts.kt",
+     "line": 32,
+     "quote": "@Entity(tableName = \"search_fts\")"
+    },
+    {
+     "file": "data/src/main/kotlin/com/hazia/chronicle/data/room/SearchFts.kt",
+     "line": 41,
+     "quote": "val text: String,"
+    },
+    {
+     "file": "data/src/main/kotlin/com/hazia/chronicle/data/room/Migrations.kt",
+     "line": 42,
+     "quote": "tokenize=unicode61, notindexed=`kind`, notindexed=`targetId`, notindexed=`rowKey`)"
+    }
+   ]
+  },
+  {
+   "claim": "2. Triggers fire on entries, notes, trackers, reminders, sessions, categories; insert/update/delete each",
+   "verdict": "partial",
+   "evidence": [
+    {
+     "file": "data/src/main/kotlin/com/hazia/chronicle/data/room/SearchFts.kt",
+     "line": 63,
+     "quote": "Src(\"activity\", \"ACTIVITY\", \"id\", \"NEW.name\", \"NEW.deletedAtMillis IS NULL AND NEW.archived = 0\"),"
+    },
+    {
+     "file": "data/src/main/kotlin/com/hazia/chronicle/data/room/SearchFts.kt",
+     "line": 64,
+     "quote": "Src(\"tracker\", \"TRACKER\", \"id\", \"NEW.name\", \"NEW.deletedAtMillis IS NULL AND NEW.archived = 0\"),"
+    },
+    {
+     "file": "data/src/main/kotlin/com/hazia/chronicle/data/room/SearchFts.kt",
+     "line": 74,
+     "quote": "Src(\"reminder\", \"REMINDER\", \"id\", \"NEW.text\", \"NEW.deletedAtMillis IS NULL\"),"
+    },
+    {
+     "file": "data/src/main/kotlin/com/hazia/chronicle/data/room/SearchFts.kt",
+     "line": 80,
+     "quote": "add(\"CREATE TRIGGER IF NOT EXISTS fts_${s.table}_ai AFTER INSERT ON ${s.table} BEGIN $insert END\")"
+    },
+    {
+     "file": "data/src/main/kotlin/com/hazia/chronicle/data/room/SearchFts.kt",
+     "line": 81,
+     "quote": "add(\"CREATE TRIGGER IF NOT EXISTS fts_${s.table}_au AFTER UPDATE ON ${s.table} BEGIN ${delete}NEW.id; $insert END\")"
+    },
+    {
+     "file": "data/src/main/kotlin/com/hazia/chronicle/data/room/SearchFts.kt",
+     "line": 82,
+     "quote": "add(\"CREATE TRIGGER IF NOT EXISTS fts_${s.table}_ad AFTER DELETE ON ${s.table} BEGIN ${delete}OLD.id; END\")"
+    }
+   ]
+  },
+  {
+   "claim": "3. What is searchable and what is not",
+   "verdict": "partial",
+   "evidence": [
+    {
+     "file": "core/data/src/main/kotlin/com/hazia/chronicle/core/data/search/SearchRepository.kt",
+     "line": 21,
+     "quote": "enum class SearchKind { ACTIVITY, TRACKER, ENTRY, SESSION, REMINDER }"
+    },
+    {
+     "file": "data/src/main/kotlin/com/hazia/chronicle/data/room/SearchFts.kt",
+     "line": 67,
+     "quote": "\"TRIM(COALESCE(NEW.label, '') || ' ' || COALESCE(NEW.note, ''))\","
+    },
+    {
+     "file": "data/src/main/kotlin/com/hazia/chronicle/data/room/SearchFts.kt",
+     "line": 71,
+     "quote": "\"session\", \"SESSION\", \"activityId\", \"NEW.comment\","
+    }
+   ]
+  },
+  {
+   "claim": "4. Query built with MATCH and prefix *, escaping, ranking, snippet/highlight",
+   "verdict": "partial",
+   "evidence": [
+    {
+     "file": "data/src/main/kotlin/com/hazia/chronicle/data/room/SearchFts.kt",
+     "line": 53,
+     "quote": "@Query(\"SELECT kind, targetId, rowKey FROM search_fts WHERE search_fts MATCH :match\")"
+    },
+    {
+     "file": "data/src/main/kotlin/com/hazia/chronicle/data/room/SearchFts.kt",
+     "line": 118,
+     "quote": "val words = query.split(SEPARATORS).filter { it.isNotEmpty() }"
+    },
+    {
+     "file": "data/src/main/kotlin/com/hazia/chronicle/data/room/SearchFts.kt",
+     "line": 120,
+     "quote": "return words.joinToString(\" \") { \"$it*\" }"
+    },
+    {
+     "file": "data/src/main/kotlin/com/hazia/chronicle/data/room/SearchFts.kt",
+     "line": 123,
+     "quote": "private val SEPARATORS = Regex(\"[^\\\\p{L}\\\\p{N}]+\")"
+    },
+    {
+     "file": "core/data/src/main/kotlin/com/hazia/chronicle/core/data/search/SearchRepository.kt",
+     "line": 63,
+     "quote": "if (query.trim().length < 2) return flowOf(emptyList())"
+    },
+    {
+     "file": "core/data/src/main/kotlin/com/hazia/chronicle/core/data/search/SearchRepository.kt",
+     "line": 131,
+     "quote": "}.sortedWith(compareByDescending { it.at ?: Instant.MAX })"
+    }
+   ]
+  },
+  {
+   "claim": "5. Search over non-indexed tables uses LIKE",
+   "verdict": "refuted",
+   "evidence": [
+    {
+     "file": "core/data/src/main/kotlin/com/hazia/chronicle/core/data/search/SearchRepository.kt",
+     "line": 48,
+     "quote": "scanned every table on each keystroke. Date-range queries are not parsed yet."
+    }
+   ]
+  },
+  {
+   "claim": "6. The index is rebuilt after sync, import or restore",
+   "verdict": "refuted",
+   "evidence": [
+    {
+     "file": "data/src/main/kotlin/com/hazia/chronicle/data/room/Migrations.kt",
+     "line": 44,
+     "quote": "SearchFts.BACKFILL.forEach(db::execSQL)"
+    },
+    {
+     "file": "data/src/main/kotlin/com/hazia/chronicle/data/room/SearchFts.kt",
+     "line": 21,
+     "quote": "* The index is kept by **SQLite triggers**, not by the repositories: every write path — the"
+    },
+    {
+     "file": "data/src/main/kotlin/com/hazia/chronicle/data/room/SearchFts.kt",
+     "line": 106,
+     "quote": "override fun onOpen(db: SupportSQLiteDatabase) = installTriggers(db)"
+    }
+   ]
+  }
+ ],
+ "missed": [
+  {
+   "fact": "The FTS table is a plain FTS4 content table, not external-content: no contentEntity. Its own PK is an Int rowid with no relation to the source rows' TEXT ids. Identity is the (kind, rowKey) pair, and both are notindexed columns. A merge cannot key on rowid.",
+   "file": "data/src/main/kotlin/com/hazia/chronicle/data/room/SearchFts.kt",
+   "line": 34
+  },
+  {
+   "fact": "Only `text` is tokenized. kind, targetId and rowKey are stored but not searchable. The text column is packed: entry text is label + ' ' + note concatenated into one field, losing which column matched.",
+   "file": "data/src/main/kotlin/com/hazia/chronicle/data/room/SearchFts.kt",
+   "line": 67
+  },
+  {
+   "fact": "Indexed tables are activity, tracker, entry, session and reminder, with 3 triggers each (15 total). There is no category, checklist, checklist_item, goal, saved_chart or tracker_choice trigger. A category entity and table exist but are not indexed.",
+   "file": "data/src/main/kotlin/com/hazia/chronicle/data/room/SearchFts.kt",
+   "line": 62
+  },
+  {
+   "fact": "Liveness is a second meaning on every row: tombstoned rows (deletedAtMillis not null) leave the index on UPDATE. Archived activities and trackers also leave the index, and blank or whitespace-only text is dropped. Soft-delete and archive are therefore index-removal events, not just flags. Sync import tombstones and hard-delete purges both flow through the triggers.",
+   "file": "data/src/main/kotlin/com/hazia/chronicle/data/room/SearchFts.kt",
+   "line": 68
+  },
+  {
+   "fact": "The UPDATE trigger deletes then re-inserts by (kind, rowKey) and fires on any column update. Only rows whose trigger WHERE passes are re-added.",
+   "file": "data/src/main/kotlin/com/hazia/chronicle/data/room/SearchFts.kt",
+   "line": 81
+  },
+  {
+   "fact": "targetId differs by kind: the row id for ACTIVITY, TRACKER and REMINDER, but trackerId for ENTRY and activityId for SESSION. rowKey is always the row's own id.",
+   "file": "data/src/main/kotlin/com/hazia/chronicle/data/room/SearchFts.kt",
+   "line": 66
+  },
+  {
+   "fact": "Triggers are not part of the Room schema. They are created on every open via SearchFts.callback (IF NOT EXISTS) and in MIGRATION_2_3, so every database builder must add the callback.",
+   "file": "data/src/main/kotlin/com/hazia/chronicle/data/room/SearchFts.kt",
+   "line": 105
+  },
+  {
+   "fact": "The BACKFILL list (DELETE FROM search_fts, then a full re-insert) is called only from MIGRATION_2_3. It is not wired to sync, import or restore. The index depends entirely on triggers for those paths.",
+   "file": "data/src/main/kotlin/com/hazia/chronicle/data/room/Migrations.kt",
+   "line": 44
+  },
+  {
+   "fact": "The DAO returns only (kind, targetId, rowKey). SearchRepository then resolves hits against the full observed lists of activities, trackers, entries, sessions and reminders, and filters in memory by rowKey membership. Results are sorted by `at` descending, with name matches (at = null) first. There is no rank, bm25, snippet or highlight.",
+   "file": "core/data/src/main/kotlin/com/hazia/chronicle/core/data/search/SearchRepository.kt",
+   "line": 85
+  },
+  {
+   "fact": "MATCH input is sanitized by splitting on non-letter/digit characters, not by escaping quotes. A query of 2+ characters that reduces to no words returns null and gives an empty result. Each word becomes a prefix term, all required (implicit AND).",
+   "file": "data/src/main/kotlin/com/hazia/chronicle/data/room/SearchFts.kt",
+   "line": 114
+  },
+  {
+   "fact": "Reminder hits are resolved from the union of the upcoming, past and done observers, deduplicated by id. Entries and sessions are observed from Instant.EPOCH to a FAR_FUTURE computed at class load (now + 3650 days). That window is a second filter on top of the index.",
+   "file": "core/data/src/main/kotlin/com/hazia/chronicle/core/data/search/SearchRepository.kt",
+   "line": 141
+  },
+  {
+   "fact": "MIGRATION_3_4 leaves search_fts untouched on purpose: session.plannedRun (the RunStamp) is not indexed, only the comment is.",
+   "file": "data/src/main/kotlin/com/hazia/chronicle/data/room/Migrations.kt",
+   "line": 60
+  }
+ ],
+ "absence_probes": [
+  {
+   "pattern": "\\bLIKE\\b in *.kt, whole repo",
+   "hits": 0
+  },
+  {
+   "pattern": "snippet\\(|bm25|matchinfo|offsets\\(|ORDER BY rank|highlight in *.kt (search code; the 4 hits are UI files, unrelated to search ranking)",
+   "hits": 0
+  },
+  {
+   "pattern": "search_fts|SearchFts|SearchRepository|searchDao in app, feature, sync and merge code (other than the SearchViewModel import)",
+   "hits": 1
+  },
+  {
+   "pattern": "BACKFILL|installTriggers callers outside Migrations.kt and SearchFts.kt",
+   "hits": 0
+  },
+  {
+   "pattern": "trigger or SearchKind for category / checklist / goal / saved_chart / tracker_choice",
+   "hits": 0
+  }
+ ]
+}

@@ -1,0 +1,68 @@
+{
+ "two-tables": {
+  "tendril-time-on-task": 1,
+  "tendril-time-on-habit": 1,
+  "tendril-exactly-one-owner": 1,
+  "tendril-task-delete-cascades": 1,
+  "chronicle-activity-and-category-totals": 1,
+  "chronicle-comment-and-planned-run": 1,
+  "chronicle-activity-delete-refused": 1,
+  "chronicle-activity-goal": 1,
+  "shared-one-time-home": 0
+ },
+ "timelog-only": {
+  "tendril-time-on-task": 1,
+  "tendril-time-on-habit": 1,
+  "tendril-exactly-one-owner": 1,
+  "tendril-task-delete-cascades": 1,
+  "chronicle-activity-and-category-totals": 0,
+  "chronicle-comment-and-planned-run": 0,
+  "chronicle-activity-delete-refused": 0,
+  "chronicle-activity-goal": 0,
+  "shared-one-time-home": 0
+ },
+ "session-only": {
+  "tendril-time-on-task": 0,
+  "tendril-time-on-habit": 0,
+  "tendril-exactly-one-owner": 1,
+  "tendril-task-delete-cascades": 0,
+  "chronicle-activity-and-category-totals": 1,
+  "chronicle-comment-and-planned-run": 1,
+  "chronicle-activity-delete-refused": 1,
+  "chronicle-activity-goal": 1,
+  "shared-one-time-home": 0
+ },
+ "one-span": {
+  "tendril-time-on-task": 1,
+  "tendril-time-on-habit": 1,
+  "tendril-exactly-one-owner": 1,
+  "tendril-task-delete-cascades": 1,
+  "chronicle-activity-and-category-totals": 1,
+  "chronicle-comment-and-planned-run": 1,
+  "chronicle-activity-delete-refused": 1,
+  "chronicle-activity-goal": 1,
+  "shared-one-time-home": 1
+ },
+ "activity-item": {
+  "tendril-time-on-task": 1,
+  "tendril-time-on-habit": 1,
+  "tendril-exactly-one-owner": 1,
+  "tendril-task-delete-cascades": 1,
+  "chronicle-activity-and-category-totals": 1,
+  "chronicle-comment-and-planned-run": 1,
+  "chronicle-activity-delete-refused": 1,
+  "chronicle-activity-goal": 1,
+  "shared-one-time-home": 1
+ },
+ "bare": {
+  "tendril-time-on-task": 0,
+  "tendril-time-on-habit": 0,
+  "tendril-exactly-one-owner": 0,
+  "tendril-task-delete-cascades": 0,
+  "chronicle-activity-and-category-totals": 0,
+  "chronicle-comment-and-planned-run": 0,
+  "chronicle-activity-delete-refused": 0,
+  "chronicle-activity-goal": 0,
+  "shared-one-time-home": 1
+ }
+}

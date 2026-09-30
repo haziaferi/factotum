@@ -1,0 +1,207 @@
+{
+ "repo": "Mnemo",
+ "claims": [
+  {
+   "claim": "1. Settings live in Jetpack DataStore (Preferences or Proto, and the file name).",
+   "verdict": "partial",
+   "evidence": [
+    {
+     "file": "app/src/main/kotlin/com/hazia/mnemo/data/settings/AppSettingsStore.kt",
+     "line": 18,
+     "quote": "private val Context.dataStore by preferencesDataStore(name = \"app_settings\")"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/mnemo/data/sync/SyncRootStore.kt",
+     "line": 28,
+     "quote": "private val prefs by lazy { context.getSharedPreferences(PREFS, Context.MODE_PRIVATE) }"
+    }
+   ]
+  },
+  {
+   "claim": "2. Every settings key with its type and default.",
+   "verdict": "confirmed",
+   "evidence": [
+    {
+     "file": "app/src/main/kotlin/com/hazia/mnemo/data/settings/AppSettingsStore.kt",
+     "line": 42,
+     "quote": "val DEFAULT_MODE = stringPreferencesKey(\"default_mode\")"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/mnemo/data/settings/AppSettingsStore.kt",
+     "line": 28,
+     "quote": "val defaultMode: String = \"EASE\","
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/mnemo/data/settings/AppSettingsStore.kt",
+     "line": 43,
+     "quote": "val DEFAULT_SKIN_ID = stringPreferencesKey(\"default_skin_id\")"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/mnemo/data/settings/AppSettingsStore.kt",
+     "line": 29,
+     "quote": "val defaultSkinId: String = \"default\","
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/mnemo/data/settings/AppSettingsStore.kt",
+     "line": 44,
+     "quote": "val BATTERY_OPT_REQUESTED = booleanPreferencesKey(\"battery_opt_requested\")"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/mnemo/data/settings/AppSettingsStore.kt",
+     "line": 30,
+     "quote": "val hasRequestedBatteryOptExemption: Boolean = false,"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/mnemo/data/settings/AppSettingsStore.kt",
+     "line": 45,
+     "quote": "val APP_THEME_SKIN_ID = stringPreferencesKey(\"app_theme_skin_id\")"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/mnemo/data/settings/AppSettingsStore.kt",
+     "line": 34,
+     "quote": "val appThemeSkinId: String = \"sun_bleached_bark\","
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/mnemo/data/settings/AppSettingsStore.kt",
+     "line": 46,
+     "quote": "val NAG_REPEAT_INTERVAL_MINUTES = intPreferencesKey(\"nag_repeat_interval_minutes\")"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/mnemo/data/settings/AppSettingsStore.kt",
+     "line": 36,
+     "quote": "val nagRepeatIntervalMinutes: Int = 5,"
+    }
+   ]
+  },
+  {
+   "claim": "3. Any setting syncs between devices (report zero hits if none).",
+   "verdict": "refuted",
+   "evidence": [
+    {
+     "file": "app/src/main/kotlin/com/hazia/mnemo/data/settings/AppSettingsStore.kt",
+     "line": 22,
+     "quote": "Deliberately not part of the sync path (§15.2): a phone and a tablet can legitimately want"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/mnemo/data/settings/AppSettingsStore.kt",
+     "line": 107,
+     "quote": "/** Used only by FullBackupManager — settings are never part of routine sync. */"
+    }
+   ]
+  },
+  {
+   "claim": "4. The sync folder location is a setting; how it is stored (SAF tree URI or path).",
+   "verdict": "partial",
+   "evidence": [
+    {
+     "file": "app/src/main/kotlin/com/hazia/mnemo/data/sync/SyncRootStore.kt",
+     "line": 10,
+     "quote": "Read-side access to the persisted SAF tree URI — the one folder the person picked to hold both"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/mnemo/data/sync/SyncRootStore.kt",
+     "line": 59,
+     "quote": "prefs.edit().putString(KEY_TREE_URI, uriString).apply()"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/mnemo/data/sync/SyncRootStore.kt",
+     "line": 63,
+     "quote": "internal const val PREFS = \"sync_export\""
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/mnemo/data/sync/SyncRootStore.kt",
+     "line": 64,
+     "quote": "internal const val KEY_TREE_URI = \"tree_uri\""
+    }
+   ]
+  },
+  {
+   "claim": "5. Settings are included in export or backup.",
+   "verdict": "partial",
+   "evidence": [
+    {
+     "file": "app/src/main/kotlin/com/hazia/mnemo/data/backup/FullBackupManager.kt",
+     "line": 32,
+     "quote": "val settings: AppSettingsSnapshot,"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/mnemo/data/backup/FullBackupManager.kt",
+     "line": 58,
+     "quote": "settings = settingsStore.snapshot.first(),"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/mnemo/data/backup/FullBackupManager.kt",
+     "line": 184,
+     "quote": "settingsStore.restoreFrom(envelope.settings)"
+    },
+    {
+     "file": "app/src/main/AndroidManifest.xml",
+     "line": 66,
+     "quote": "android:allowBackup=\"false\""
+    }
+   ]
+  }
+ ],
+ "missed": [
+  {
+   "fact": "Settings are split across two stores: Preferences DataStore 'app_settings' (5 keys) and a separate SharedPreferences file 'sync_export' holding the sync-root SAF tree URI under 'tree_uri'. The map's 'one DataStore' claim misses the second store; it is a merge-relevant identity/location store.",
+   "file": "app/src/main/kotlin/com/hazia/mnemo/data/sync/SyncRootStore.kt",
+   "line": 28
+  },
+  {
+   "fact": "The sync-root tree URI is NOT in the backup envelope (FullBackupEnvelope has only schemaVersion, exportedAtEpochMillis, reminders, settings), so a restore never carries the folder. It is device-local, tied to a persisted SAF permission grant, and re-verified on every call; a stored URI without a live write grant returns null.",
+   "file": "app/src/main/kotlin/com/hazia/mnemo/data/sync/SyncRootStore.kt",
+   "line": 49
+  },
+  {
+   "fact": "The one sync folder is shared by per-reminder sync files (reminders/) and the manual full backups written at its root, so it is a single grant serving both.",
+   "file": "app/src/main/kotlin/com/hazia/mnemo/data/sync/SyncRootStore.kt",
+   "line": 10
+  },
+  {
+   "fact": "nagRepeatIntervalMinutes is clamped to 1..30 on READ, so a restored backup value outside that range is pulled to the nearest end. A merge must keep the clamp.",
+   "file": "app/src/main/kotlin/com/hazia/mnemo/data/settings/AppSettingsStore.kt",
+   "line": 58
+  },
+  {
+   "fact": "Restore is a full overwrite: restoreFrom calls update { restored }, which writes every field, including hasRequestedBatteryOptExemption, which is a per-device first-run flag and not a preference.",
+   "file": "app/src/main/kotlin/com/hazia/mnemo/data/settings/AppSettingsStore.kt",
+   "line": 108
+  },
+  {
+   "fact": "defaultMode and defaultSkinId are plain Strings with no enum. appThemeSkinId is parsed elsewhere by AppTheme.fromStorageKey with a Bark fallback, and the legacy key 'neutral_shell' (written by v1.11–v1.15) is tolerated.",
+   "file": "app/src/main/kotlin/com/hazia/mnemo/data/settings/AppSettingsStore.kt",
+   "line": 30
+  },
+  {
+   "fact": "Writing a changed appThemeSkinId triggers WidgetRefresher.refreshAll, so the settings write path has a side effect outside the store. Only a theme change triggers it.",
+   "file": "app/src/main/kotlin/com/hazia/mnemo/data/settings/AppSettingsStore.kt",
+   "line": 104
+  },
+  {
+   "fact": "A DataStore IOException is swallowed into emptyPreferences (defaults), so a corrupt file reads as defaults.",
+   "file": "app/src/main/kotlin/com/hazia/mnemo/data/settings/AppSettingsStore.kt",
+   "line": 72
+  },
+  {
+   "fact": "The platform backup is disabled: android:allowBackup is false, and a dataExtractionRules XML exists for device-to-device transfer. The only backup route is the app's own manual JSON export.",
+   "file": "app/src/main/AndroidManifest.xml",
+   "line": 66
+  },
+  {
+   "fact": "Stale *.bak-20260926 copies of SyncRootStore, SyncCoordinator and the manifest exist under the source tree. They were ignored.",
+   "file": "app/src/main/kotlin/com/hazia/mnemo/data/sync/SyncRootStore.kt.bak-20260926",
+   "line": 22
+  }
+ ],
+ "absence_probes": [
+  {
+   "pattern": "AppSettings|appSettings|settingsStore|dataStore in app/src/main/kotlin/com/hazia/mnemo/data/sync/*.kt",
+   "hits": 0
+  },
+  {
+   "pattern": "DataStore|getSharedPreferences in *.kt/*.kts/*.toml (excluding tests and comments): Proto DataStore (protoDataStore/dataStore(fileName, serializer))",
+   "hits": 0
+  }
+ ]
+}

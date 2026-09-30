@@ -1,0 +1,71 @@
+{
+ "contest": "07-timelog",
+ "growth_note": "tables/columns counted from the built schema including the decided item table and Chronicle's category/activity/goal module; the enum_cases slot carries trigger count",
+ "options": [
+  {
+   "id": "two-tables",
+   "summary": "keep both: time_log(item_id) as Tendril and session(activity_id) as Chronicle",
+   "growth": {
+    "tables": 6,
+    "columns": 40,
+    "enum_cases": 0
+   }
+  },
+  {
+   "id": "timelog-only",
+   "summary": "Tendril: time_log on an item; activities cannot be timed",
+   "growth": {
+    "tables": 5,
+    "columns": 33,
+    "enum_cases": 0
+   }
+  },
+  {
+   "id": "session-only",
+   "summary": "Chronicle: session on an activity; tasks and habits cannot be timed",
+   "growth": {
+    "tables": 5,
+    "columns": 35,
+    "enum_cases": 0
+   }
+  },
+  {
+   "id": "one-span",
+   "summary": "one time_span table; owner = item_id XOR activity_id; item FK cascades, activity FK refuses",
+   "growth": {
+    "tables": 5,
+    "columns": 36,
+    "enum_cases": 0
+   }
+  },
+  {
+   "id": "activity-item",
+   "summary": "activity becomes item kind ACTIVITY; time_span(item_id); a trigger refuses deleting a timed activity",
+   "growth": {
+    "tables": 4,
+    "columns": 32,
+    "enum_cases": 1
+   }
+  },
+  {
+   "id": "bare",
+   "summary": "CONTROL: time_span(start, end) with no owner",
+   "growth": {
+    "tables": 5,
+    "columns": 32,
+    "enum_cases": 0
+   },
+   "control": true,
+   "expect_fail": [
+    "tendril-time-on-task",
+    "tendril-time-on-habit",
+    "tendril-exactly-one-owner",
+    "tendril-task-delete-cascades",
+    "chronicle-activity-and-category-totals",
+    "chronicle-comment-and-planned-run",
+    "chronicle-activity-delete-refused",
+    "chronicle-activity-goal"
+   ]
+  }
+ ]
+}

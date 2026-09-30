@@ -1,0 +1,230 @@
+{
+ "repo": "Chronicle",
+ "claims": [
+  {
+   "claim": "1. CategoryEntity stores a name and a colour; can be renamed, recoloured, deleted. Columns: id String (PK, non-null), name String, colorArgb Int, appliesTo String, sortOrder Int, updatedAtMillis Long, updatedByDevice String, deletedAtMillis Long? (the only nullable column).",
+   "verdict": "partial",
+   "evidence": [
+    {
+     "file": "data/src/main/kotlin/com/hazia/chronicle/data/room/entity/CategoryEntity.kt",
+     "line": 15,
+     "quote": "@PrimaryKey val id: String,"
+    },
+    {
+     "file": "data/src/main/kotlin/com/hazia/chronicle/data/room/entity/CategoryEntity.kt",
+     "line": 17,
+     "quote": "val colorArgb: Int,"
+    },
+    {
+     "file": "data/src/main/kotlin/com/hazia/chronicle/data/room/entity/CategoryEntity.kt",
+     "line": 18,
+     "quote": "val appliesTo: String, // CategoryAppliesTo enum name"
+    },
+    {
+     "file": "data/src/main/kotlin/com/hazia/chronicle/data/room/entity/CategoryEntity.kt",
+     "line": 19,
+     "quote": "val sortOrder: Int,"
+    },
+    {
+     "file": "data/src/main/kotlin/com/hazia/chronicle/data/room/entity/CategoryEntity.kt",
+     "line": 22,
+     "quote": "val deletedAtMillis: Long?,"
+    },
+    {
+     "file": "core/data/src/main/kotlin/com/hazia/chronicle/core/data/track/CategoryRepository.kt",
+     "line": 44,
+     "quote": "suspend fun update(id: CategoryId, name: String, colorArgb: Int) {"
+    },
+    {
+     "file": "core/data/src/main/kotlin/com/hazia/chronicle/core/data/track/CategoryRepository.kt",
+     "line": 56,
+     "quote": "suspend fun delete(id: CategoryId) {"
+    }
+   ]
+  },
+  {
+   "claim": "2. What a category is applied to: only activity and tracker rows each carry a nullable categoryId. That is one category per row, not many. No categoryId on reminders, entries, sessions, goals or saved charts. The category also has an appliesTo scope of ACTIVITY, TRACKER or BOTH.",
+   "verdict": "confirmed",
+   "evidence": [
+    {
+     "file": "data/src/main/kotlin/com/hazia/chronicle/data/room/entity/ActivityEntity.kt",
+     "line": 32,
+     "quote": "val categoryId: String?,"
+    },
+    {
+     "file": "data/src/main/kotlin/com/hazia/chronicle/data/room/entity/TrackerEntity.kt",
+     "line": 44,
+     "quote": "val categoryId: String?,"
+    },
+    {
+     "file": "domain/src/main/kotlin/com/hazia/chronicle/domain/enums/Enums.kt",
+     "line": 76,
+     "quote": "enum class CategoryAppliesTo { ACTIVITY, TRACKER, BOTH }"
+    }
+   ]
+  },
+  {
+   "claim": "3. Category names are unique (case-sensitive or not).",
+   "verdict": "refuted",
+   "evidence": [
+    {
+     "file": "data/src/main/kotlin/com/hazia/chronicle/data/room/entity/CategoryEntity.kt",
+     "line": 13,
+     "quote": "@Entity(tableName = \"category\")"
+    },
+    {
+     "file": "core/data/src/main/kotlin/com/hazia/chronicle/core/data/track/CategoryRepository.kt",
+     "line": 36,
+     "quote": "id = CategoryId.new(), name = name.trim(), colorArgb = colorArgb, appliesTo = appliesTo,"
+    },
+    {
+     "file": "core/ui/src/main/kotlin/com/hazia/chronicle/core/ui/CollapsedGroups.kt",
+     "line": 16,
+     "quote": "never by the displayed title: two categories called \"Health\" would otherwise"
+    }
+   ]
+  },
+  {
+   "claim": "4. Deleting a category: it is a soft delete (tombstone). Live activities and trackers are set to categoryId = null by hand in the same transaction, each with a fresh stamp. The FK is also ON DELETE SET_NULL, but that only fires on a hard purge.",
+   "verdict": "confirmed",
+   "evidence": [
+    {
+     "file": "core/data/src/main/kotlin/com/hazia/chronicle/core/data/track/CategoryRepository.kt",
+     "line": 50,
+     "quote": "* Soft-delete (tombstone, §9.2). The FKs on activity.categoryId and tracker.categoryId are"
+    },
+    {
+     "file": "core/data/src/main/kotlin/com/hazia/chronicle/core/data/track/CategoryRepository.kt",
+     "line": 62,
+     "quote": "activityDao.upsert(it.toDomain().copy(categoryId = null, updatedAt = stamps.now()).toEntity())"
+    },
+    {
+     "file": "core/data/src/main/kotlin/com/hazia/chronicle/core/data/track/CategoryRepository.kt",
+     "line": 65,
+     "quote": "trackerDao.upsert(it.toDomain().copy(categoryId = null, updatedAt = stamps.now()).toEntity())"
+    },
+    {
+     "file": "data/src/main/kotlin/com/hazia/chronicle/data/room/entity/ActivityEntity.kt",
+     "line": 21,
+     "quote": "onDelete = ForeignKey.SET_NULL,"
+    },
+    {
+     "file": "data/src/main/kotlin/com/hazia/chronicle/data/room/entity/TrackerEntity.kt",
+     "line": 28,
+     "quote": "onDelete = ForeignKey.SET_NULL,"
+    }
+   ]
+  },
+  {
+   "claim": "5. Categories nest (a parent id) or have an order. They have an order (sortOrder) but do not nest: the grouping is flat.",
+   "verdict": "partial",
+   "evidence": [
+    {
+     "file": "data/src/main/kotlin/com/hazia/chronicle/data/room/entity/CategoryEntity.kt",
+     "line": 19,
+     "quote": "val sortOrder: Int,"
+    },
+    {
+     "file": "core/data/src/main/kotlin/com/hazia/chronicle/core/data/track/CategoryRepository.kt",
+     "line": 18,
+     "quote": "* Categories: the flat grouping both lists fold by (spec §7)."
+    },
+    {
+     "file": "data/src/main/kotlin/com/hazia/chronicle/data/room/dao/CoreDao.kt",
+     "line": 15,
+     "quote": "@Query(\"SELECT * FROM category WHERE deletedAtMillis IS NULL ORDER BY sortOrder\")"
+    }
+   ]
+  },
+  {
+   "claim": "6. Where categories are used to filter, group or colour: Track list groups activities by category (with an Uncategorized group). Data list groups trackers by category. The pie chart groups by category and unit and colours each wedge with the category colour. Settings > Categories edits and deletes. The two Add sheets create categories (always created with BOTH) and pick one.",
+   "verdict": "confirmed",
+   "evidence": [
+    {
+     "file": "feature/track/src/main/kotlin/com/hazia/chronicle/feature/track/list/TrackListViewModel.kt",
+     "line": 135,
+     "quote": "val grouped = activities.groupBy { it.categoryId }"
+    },
+    {
+     "file": "feature/data/src/main/kotlin/com/hazia/chronicle/feature/data/list/DataListViewModel.kt",
+     "line": 128,
+     "quote": "val grouped = trackers.groupBy { it.categoryId }"
+    },
+    {
+     "file": "core/data/src/main/kotlin/com/hazia/chronicle/core/data/charts/ChartDataRepository.kt",
+     "line": 184,
+     "quote": "colorArgb = category?.colorArgb,"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/chronicle/ui/settings/CategoriesSettingsScreen.kt",
+     "line": 38,
+     "quote": "/** Settings › Categories (K29): rename or remove; creation stays in the two Add sheets. */"
+    },
+    {
+     "file": "feature/data/src/main/kotlin/com/hazia/chronicle/feature/data/list/DataListViewModel.kt",
+     "line": 178,
+     "quote": "viewModelScope.launch { categoryRepo.create(name, colorArgb, CategoryAppliesTo.BOTH) }"
+    }
+   ]
+  },
+  {
+   "claim": "7. How CategoryEntity rows sync: a single whole-record stamp (updatedAtMillis plus updatedByDevice), not per-field stamps. deletedAtMillis is a tombstone that travels with the winning copy. Tombstones are purged by age.",
+   "verdict": "partial",
+   "evidence": [
+    {
+     "file": "data/src/main/kotlin/com/hazia/chronicle/data/merge/EntityMerge.kt",
+     "line": 25,
+     "quote": "* Covers every entity with exactly one field-group timestamp (Category, Activity,"
+    },
+    {
+     "file": "data/src/main/kotlin/com/hazia/chronicle/data/merge/EntityMerge.kt",
+     "line": 27,
+     "quote": "\"the whole record\" IS the merge unit: deletedAt travels with whichever copy wins,"
+    },
+    {
+     "file": "data/src/main/kotlin/com/hazia/chronicle/data/room/dao/CoreDao.kt",
+     "line": 19,
+     "quote": "@Query(\"DELETE FROM category WHERE deletedAtMillis IS NOT NULL AND deletedAtMillis < :cutoffMillis\")"
+    }
+   ]
+  }
+ ],
+ "missed": [
+  {
+   "fact": "A second meaning is packed into appliesTo: an enum scope of ACTIVITY, TRACKER or BOTH. It is stored as a String and parsed with valueOf, so a renamed enum case breaks existing rows (see proguard-rules.pro:19). The pickers filter on it. A category can be scoped to activities only, but every UI-created category is BOTH.",
+   "file": "domain/src/main/kotlin/com/hazia/chronicle/domain/enums/Enums.kt",
+   "line": 76
+  },
+  {
+   "fact": "Identity and deletion columns the map left out: updatedByDevice (the device that made the last edit) and deletedAtMillis (the tombstone). Reads use observeAll, which filters out tombstones. getAllRaw includes them.",
+   "file": "data/src/main/kotlin/com/hazia/chronicle/data/room/entity/CategoryEntity.kt",
+   "line": 21
+  },
+  {
+   "fact": "On delete, the members are set to categoryId = null with fresh stamps so the change syncs. The category tombstone and the member clears are separate rows merged independently.",
+   "file": "core/data/src/main/kotlin/com/hazia/chronicle/core/data/track/CategoryRepository.kt",
+   "line": 61
+  },
+  {
+   "fact": "There is no name uniqueness, so a category is identified by its ULID id only. The Tracker creation sheet picks up a newly created category by name match (firstOrNull { it.name == n }), so a duplicate name can select the wrong category.",
+   "file": "feature/data/src/main/kotlin/com/hazia/chronicle/feature/data/list/TrackerCreationSheet.kt",
+   "line": 107
+  },
+  {
+   "fact": "New categories get sortOrder = max live sortOrder + 1, computed from getAllRaw (filtered to live rows). Two devices creating categories at once can end up with the same sortOrder, because the order is not unique.",
+   "file": "core/data/src/main/kotlin/com/hazia/chronicle/core/data/track/CategoryRepository.kt",
+   "line": 34
+  },
+  {
+   "fact": "The pie chart groups by category and unit. Uncategorised sources of one unit share a wedge, and the uncategorised wedge has no colour.",
+   "file": "core/data/src/main/kotlin/com/hazia/chronicle/core/data/charts/ChartDataRepository.kt",
+   "line": 162
+  }
+ ],
+ "absence_probes": [
+  {
+   "pattern": "unique|equals(..ignoreCase|parentId|parent_id in *ateg*.kt under src/main",
+   "hits": 0
+  }
+ ]
+}

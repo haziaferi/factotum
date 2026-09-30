@@ -1,0 +1,366 @@
+{
+ "repo": "Chronicle",
+ "claims": [
+  {
+   "claim": "1. Settings live in Jetpack DataStore: Preferences (not Proto), a single store named chronicle_settings, and no setting is in Room.",
+   "verdict": "confirmed",
+   "evidence": [
+    {
+     "file": "core/data/src/main/kotlin/com/hazia/chronicle/core/data/di/CoreDataModule.kt",
+     "line": 43,
+     "quote": "private val Context.settingsDataStore: DataStore<Preferences> by preferencesDataStore("
+    },
+    {
+     "file": "core/data/src/main/kotlin/com/hazia/chronicle/core/data/di/CoreDataModule.kt",
+     "line": 44,
+     "quote": "name = \"chronicle_settings\","
+    },
+    {
+     "file": "core/data/src/main/kotlin/com/hazia/chronicle/core/data/di/CoreDataModule.kt",
+     "line": 69,
+     "quote": "fun provideDataStore(@ApplicationContext context: Context): DataStore<Preferences> ="
+    },
+    {
+     "file": "core/data/src/main/kotlin/com/hazia/chronicle/core/data/widget/WidgetPinsRepository.kt",
+     "line": 39,
+     "quote": "* already writes to (same injected `DataStore<Preferences>` singleton, different key —"
+    },
+    {
+     "file": "data/src/main/kotlin/com/hazia/chronicle/data/room/entity/ActivityEntity.kt",
+     "line": 14,
+     "quote": "@Entity("
+    }
+   ]
+  },
+  {
+   "claim": "2. Settings keys with type and default. Keys are spread across many files, all in the one Preferences store. SettingsRepository.Keys holds 22, and 11 other keys or key families live in other files (33 in all).",
+   "verdict": "partial",
+   "evidence": [
+    {
+     "file": "app/src/main/kotlin/com/hazia/chronicle/settings/SettingsRepository.kt",
+     "line": 117,
+     "quote": "val PALETTE = stringPreferencesKey(\"theme_palette\")  // default ChroniclePalette.Default"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/chronicle/settings/SettingsRepository.kt",
+     "line": 118,
+     "quote": "val DARK_CONFIG = stringPreferencesKey(\"theme_dark_config\")  // default FOLLOW_SYSTEM"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/chronicle/settings/SettingsRepository.kt",
+     "line": 119,
+     "quote": "val BACKUP_INTERVAL = intPreferencesKey(\"auto_backup_interval_days\")  // default 0"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/chronicle/settings/SettingsRepository.kt",
+     "line": 120,
+     "quote": "val BACKUP_TREE = stringPreferencesKey(\"auto_backup_tree_uri\")  // default null"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/chronicle/settings/SettingsRepository.kt",
+     "line": 121,
+     "quote": "val BACKUP_LAST_AT = longPreferencesKey(\"auto_backup_last_at_millis\")  // default null"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/chronicle/settings/SettingsRepository.kt",
+     "line": 122,
+     "quote": "val BACKUP_LAST_FAILED_AT = longPreferencesKey(\"auto_backup_last_failed_at_millis\")  // default null"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/chronicle/settings/SettingsRepository.kt",
+     "line": 123,
+     "quote": "val FOLDER_SYNC_ENABLED = booleanPreferencesKey(\"folder_sync_enabled\")  // default false"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/chronicle/settings/SettingsRepository.kt",
+     "line": 124,
+     "quote": "val FOLDER_SYNC_LAST_AT = longPreferencesKey(\"folder_sync_last_at_millis\")  // default null"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/chronicle/settings/SettingsRepository.kt",
+     "line": 125,
+     "quote": "val LOCK_ENABLED = booleanPreferencesKey(\"app_lock_enabled\")  // default false"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/chronicle/settings/SettingsRepository.kt",
+     "line": 126,
+     "quote": "val LOCK_GRACE = intPreferencesKey(\"app_lock_grace_seconds\")  // default 0"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/chronicle/settings/SettingsRepository.kt",
+     "line": 127,
+     "quote": "val LOCK_PIN_SALT = stringPreferencesKey(\"app_lock_pin_salt\")  // default null"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/chronicle/settings/SettingsRepository.kt",
+     "line": 128,
+     "quote": "val LOCK_PIN_HASH = stringPreferencesKey(\"app_lock_pin_hash\")  // default null, pinSet = hash != null"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/chronicle/settings/SettingsRepository.kt",
+     "line": 129,
+     "quote": "val ALARM_SNOOZE_MIN = intPreferencesKey(\"alarm_snooze_minutes\")  // default 10 (line 238)"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/chronicle/settings/SettingsRepository.kt",
+     "line": 130,
+     "quote": "val ALARM_AUTO_SILENCE_MIN = intPreferencesKey(\"alarm_auto_silence_minutes\")  // default 10"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/chronicle/settings/SettingsRepository.kt",
+     "line": 131,
+     "quote": "val ALARM_RINGTONE_URI = stringPreferencesKey(\"alarm_ringtone_uri\")  // default null"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/chronicle/settings/SettingsRepository.kt",
+     "line": 132,
+     "quote": "val ALARM_VOLUME_PERCENT = intPreferencesKey(\"alarm_volume_percent\")  // default 70"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/chronicle/settings/SettingsRepository.kt",
+     "line": 133,
+     "quote": "val ALARM_VOLUME_RAMP = booleanPreferencesKey(\"alarm_volume_ramp_enabled\")  // default true"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/chronicle/settings/SettingsRepository.kt",
+     "line": 134,
+     "quote": "val ALARM_PRE_WARNING_MIN = intPreferencesKey(\"alarm_pre_warning_minutes\")  // default 0"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/chronicle/settings/SettingsRepository.kt",
+     "line": 135,
+     "quote": "val TIMER_NOTIFICATION_ENABLED = booleanPreferencesKey(\"timer_notification_enabled\")  // default true"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/chronicle/settings/SettingsRepository.kt",
+     "line": 136,
+     "quote": "val GOAL_NUDGE_ENABLED = booleanPreferencesKey(\"goal_nudge_enabled\")  // default false"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/chronicle/settings/SettingsRepository.kt",
+     "line": 137,
+     "quote": "val NOTIFICATIONS_PAUSED = booleanPreferencesKey(\"notifications_paused\")  // default false"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/chronicle/settings/SettingsRepository.kt",
+     "line": 138,
+     "quote": "val NOTIF_USE_ALARM_CLOCK = booleanPreferencesKey(\"notification_reminders_use_alarm_clock\")  // default false"
+    },
+    {
+     "file": "core/data/src/main/kotlin/com/hazia/chronicle/core/data/di/CoreDataModule.kt",
+     "line": 52,
+     "quote": "val DB_RECOVERED_AT_KEY = longPreferencesKey(\"db_recovered_at_millis\")"
+    },
+    {
+     "file": "core/data/src/main/kotlin/com/hazia/chronicle/core/data/di/CoreDataModule.kt",
+     "line": 59,
+     "quote": "val DAY_START_MINUTES_KEY = intPreferencesKey(\"day_start_minutes\")"
+    },
+    {
+     "file": "core/data/src/main/kotlin/com/hazia/chronicle/core/data/DeviceIdRepository.kt",
+     "line": 24,
+     "quote": "private val key = stringPreferencesKey(\"device_id\")"
+    },
+    {
+     "file": "core/data/src/main/kotlin/com/hazia/chronicle/core/data/remind/ReminderPrompts.kt",
+     "line": 33,
+     "quote": "val BATTERY_ANSWERED = booleanPreferencesKey(\"battery_exemption_answered\")"
+    },
+    {
+     "file": "core/data/src/main/kotlin/com/hazia/chronicle/core/data/quickadd/QuickLinePrefs.kt",
+     "line": 27,
+     "quote": "private fun key(tab: String) = booleanPreferencesKey(\"quick_line_open_$tab\")"
+    },
+    {
+     "file": "core/data/src/main/kotlin/com/hazia/chronicle/core/data/widget/WidgetPinsRepository.kt",
+     "line": 48,
+     "quote": "private val KEY = stringSetPreferencesKey(\"widget_quicktrack_pins\")"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/chronicle/backup/FolderSync.kt",
+     "line": 113,
+     "quote": "internal fun seenKey(name: String) = longPreferencesKey(SEEN_PREFIX + name)"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/chronicle/alarm/PendingAlerts.kt",
+     "line": 99,
+     "quote": "private fun snoozeKey(id: String) = longPreferencesKey(SNOOZE_PREFIX + id)"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/chronicle/alarm/PendingAlerts.kt",
+     "line": 100,
+     "quote": "private fun nagKey(id: String) = stringPreferencesKey(NAG_PREFIX + id)"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/chronicle/alarm/PendingAlerts.kt",
+     "line": 101,
+     "quote": "private fun repostKey(id: String) = longPreferencesKey(REPOST_PREFIX + id)"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/chronicle/alarm/AlarmCodes.kt",
+     "line": 70,
+     "quote": "private fun key(slot: Slot, reminderId: String) = intPreferencesKey(\"$PREFIX${slot.name}:$reminderId\")"
+    }
+   ]
+  },
+  {
+   "claim": "3. Any setting syncs between devices through FolderSync. No setting syncs. FolderSync exchanges only the Room-entity export (SyncPayload), merged with the field-stamp (updatedAt, deviceId) comparator. Deletions travel as tombstones. FolderSync's own state (the folder_sync_seen:<file> marks, folder_sync_enabled) is device-local.",
+   "verdict": "refuted",
+   "evidence": [
+    {
+     "file": "app/src/main/kotlin/com/hazia/chronicle/backup/FolderSync.kt",
+     "line": 24,
+     "quote": "full export, replaced in place on every run; every other device's file in the folder is"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/chronicle/backup/FolderSync.kt",
+     "line": 26,
+     "quote": "Settings runs, so newer edits win and deletions travel as tombstones. A file is only read"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/chronicle/backup/FolderSync.kt",
+     "line": 28,
+     "quote": "beside the folder grant, device-local like `PendingAlerts`."
+    },
+    {
+     "file": "data/src/main/kotlin/com/hazia/chronicle/data/sync/SyncPayload.kt",
+     "line": 17,
+     "quote": "data class SyncPayload(  // fields: categories, activities, sessions, trackers, trackerChoices, entries, reminders, goals, savedCharts, checklists, checklistItems; no settings field"
+    }
+   ]
+  },
+  {
+   "claim": "4. The device id is a setting: it is stored in the same chronicle_settings Preferences DataStore under key device_id, generated on first launch, and kept local. It is not in the sync payload and not in Room. It does not survive a restore, because allowBackup=false, the extraction rules exclude sharedpref/file/database/root, and a corrupt settings file is replaced with empty prefs (new sync identity). Import and sync do not carry it either.",
+   "verdict": "confirmed",
+   "evidence": [
+    {
+     "file": "core/data/src/main/kotlin/com/hazia/chronicle/core/data/DeviceIdRepository.kt",
+     "line": 24,
+     "quote": "private val key = stringPreferencesKey(\"device_id\")"
+    },
+    {
+     "file": "core/data/src/main/kotlin/com/hazia/chronicle/core/data/DeviceIdRepository.kt",
+     "line": 16,
+     "quote": "needs. Generated once at first launch and kept local — it's metadata *about* syncing,"
+    },
+    {
+     "file": "core/data/src/main/kotlin/com/hazia/chronicle/core/data/DeviceIdRepository.kt",
+     "line": 17,
+     "quote": "never synced as app data itself (see domain/id/Ids.kt). Every write path stamps its"
+    },
+    {
+     "file": "app/src/main/AndroidManifest.xml",
+     "line": 47,
+     "quote": "android:allowBackup=\"false\""
+    },
+    {
+     "file": "app/src/main/res/xml/data_extraction_rules.xml",
+     "line": 12,
+     "quote": "<exclude domain=\"sharedpref\" />"
+    },
+    {
+     "file": "core/data/src/main/kotlin/com/hazia/chronicle/core/data/di/CoreDataModule.kt",
+     "line": 38,
+     "quote": "settings return to their defaults (the app lock with them), the device takes a new sync"
+    }
+   ]
+  },
+  {
+   "claim": "5. Settings are included in export or backup. They are not: the export and backup payload is entities only. OS cloud backup and device transfer are disabled for the whole app, settings file included.",
+   "verdict": "refuted",
+   "evidence": [
+    {
+     "file": "data/src/main/kotlin/com/hazia/chronicle/data/sync/SyncPayload.kt",
+     "line": 17,
+     "quote": "data class SyncPayload(  // no settings field; ends at checklistItems and undecodable"
+    },
+    {
+     "file": "app/src/main/res/xml/data_extraction_rules.xml",
+     "line": 4,
+     "quote": "Hardened default: nothing this app stores is eligible for cloud backup or device-to-"
+    },
+    {
+     "file": "app/src/main/AndroidManifest.xml",
+     "line": 47,
+     "quote": "android:allowBackup=\"false\""
+    }
+   ]
+  },
+  {
+   "claim": "6. A PIN or lock secret is stored apart from other settings, encrypted or not. It is stored in the same DataStore as two ordinary string keys (salt and PBKDF2 hash). It is hashed, not encrypted, and not in a separate store or keystore.",
+   "verdict": "refuted",
+   "evidence": [
+    {
+     "file": "app/src/main/kotlin/com/hazia/chronicle/settings/SettingsRepository.kt",
+     "line": 127,
+     "quote": "val LOCK_PIN_SALT = stringPreferencesKey(\"app_lock_pin_salt\")"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/chronicle/settings/SettingsRepository.kt",
+     "line": 128,
+     "quote": "val LOCK_PIN_HASH = stringPreferencesKey(\"app_lock_pin_hash\")"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/chronicle/settings/SettingsRepository.kt",
+     "line": 207,
+     "quote": "/** Store the app PIN as salt + PBKDF2 hash (G7); the PIN itself is never written. */"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/chronicle/lock/PinHasher.kt",
+     "line": 9,
+     "quote": "The app PIN at rest (register G7): PBKDF2-HMAC-SHA256 over a per-PIN random salt, so"
+    }
+   ]
+  }
+ ],
+ "missed": [
+  {
+   "fact": "The one DataStore also holds non-settings state that shares the file and is wiped with it on corruption: per-reminder alarm slot codes (AlarmCodes), snooze/nag/repost marks (PendingAlerts), folder_sync_seen:<file> marks, widget pins, db_recovered_at_millis and the device_id. Some key families are dynamic, so a flat key count is not possible.",
+   "file": "app/src/main/kotlin/com/hazia/chronicle/alarm/PendingAlerts.kt",
+   "line": 99
+  },
+  {
+   "fact": "A corrupt settings file is replaced with empty preferences, so the PIN and lock are lost, the device_id is regenerated (new sync identity), and every peer file is re-read once.",
+   "file": "core/data/src/main/kotlin/com/hazia/chronicle/core/data/di/CoreDataModule.kt",
+   "line": 41
+  },
+  {
+   "fact": "DAY_START_MINUTES_KEY is declared in CoreDataModule. The KDoc says it is written by SettingsRepository, but the writer is DayBoundaryRepository (line 41). It is unset by default (midnight) and is not in SettingsRepository.Keys.",
+   "file": "core/data/src/main/kotlin/com/hazia/chronicle/core/data/time/DayBoundaryRepository.kt",
+   "line": 41
+  },
+  {
+   "fact": "Two meanings packed into one field: the app-lock state is three keys (enabled, grace, and pin hash presence as pinSet). Clearing the PIN with no device credential also forces app_lock_enabled=false.",
+   "file": "app/src/main/kotlin/com/hazia/chronicle/settings/SettingsRepository.kt",
+   "line": 217
+  },
+  {
+   "fact": "The folder-sync enabled flag, last-sync time and backup folder URI are device-local settings. Only the Room entities cross devices, and the file name embeds the device id (chronicle-sync-<deviceId>.json), so a regenerated device_id leaves the old device's file in the folder as a stale peer.",
+   "file": "app/src/main/kotlin/com/hazia/chronicle/backup/FolderSync.kt",
+   "line": 115
+  },
+  {
+   "fact": "The settings store has no sync merge stamps. Conflict resolution (updatedAt, deviceId field stamps, tombstones) applies only to entities, so a settings conflict cannot occur.",
+   "file": "core/data/src/main/kotlin/com/hazia/chronicle/core/data/DeviceIdRepository.kt",
+   "line": 15
+  }
+ ],
+ "absence_probes": [
+  {
+   "pattern": "Proto DataStore (dataStore(...) with Serializer / protobuf)",
+   "hits": 0
+  },
+  {
+   "pattern": "EncryptedSharedPreferences|SharedPreferences|Keystore in main sources",
+   "hits": 0
+  },
+  {
+   "pattern": "settings field in SyncPayload",
+   "hits": 0
+  },
+  {
+   "pattern": "settings @Entity in Room",
+   "hits": 0
+  }
+ ]
+}
