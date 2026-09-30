@@ -1,0 +1,266 @@
+{
+ "repo": "Chronicle",
+ "claims": [
+  {
+   "claim": "Chronicle stores no habit; HabitPresence is derived from boolean and rating trackers, never stored.",
+   "verdict": "confirmed",
+   "evidence": [
+    {
+     "file": "domain/src/main/kotlin/com/hazia/chronicle/domain/stats/HabitPresence.kt",
+     "line": 57,
+     "quote": "fun habitPresenceOf("
+    },
+    {
+     "file": "domain/src/main/kotlin/com/hazia/chronicle/domain/stats/HabitPresence.kt",
+     "line": 20,
+     "quote": "data class HabitPresence("
+    },
+    {
+     "file": "feature/data/src/main/kotlin/com/hazia/chronicle/feature/data/detail/TrackerDetailViewModel.kt",
+     "line": 141,
+     "quote": "TrackerType.BOOLEAN, TrackerType.RATING -> habitPresenceOf(wideEntries, LocalDate.now(zone), zone)"
+    },
+    {
+     "file": "domain/src/main/kotlin/com/hazia/chronicle/domain/model/Tracker.kt",
+     "line": 21,
+     "quote": "data class Tracker("
+    }
+   ]
+  },
+  {
+   "claim": "The reading is withheld until three presences exist.",
+   "verdict": "partial",
+   "evidence": [
+    {
+     "file": "domain/src/main/kotlin/com/hazia/chronicle/domain/stats/HabitPresence.kt",
+     "line": 74,
+     "quote": "?.takeIf { live.size >= 3 && it.value * 2 > live.size }"
+    },
+    {
+     "file": "feature/data/src/main/kotlin/com/hazia/chronicle/feature/data/detail/TrackerDetailScreen.kt",
+     "line": 328,
+     "quote": "?: stringResource(R.string.tracker_stat_none)"
+    }
+   ]
+  },
+  {
+   "claim": "It shows presence and never absence (no missed days, no streaks).",
+   "verdict": "confirmed",
+   "evidence": [
+    {
+     "file": "domain/src/main/kotlin/com/hazia/chronicle/domain/stats/HabitPresence.kt",
+     "line": 12,
+     "quote": "Presence, never absence: there is no count of misses here, no gap, no ratio, and no field"
+    },
+    {
+     "file": "domain/src/main/kotlin/com/hazia/chronicle/domain/stats/HabitPresence.kt",
+     "line": 20,
+     "quote": "data class HabitPresence( daysThisMonth: Int, lastDate: LocalDate?, usualTime: TimeOfDay?, month: YearMonth"
+    }
+   ]
+  },
+  {
+   "claim": "Which tracker types count as a presence: boolean yes, any rating (no threshold); a 'no' does not count.",
+   "verdict": "confirmed",
+   "evidence": [
+    {
+     "file": "domain/src/main/kotlin/com/hazia/chronicle/domain/stats/HabitPresence.kt",
+     "line": 46,
+     "quote": "is EntryValue.Bool -> v.value"
+    },
+    {
+     "file": "domain/src/main/kotlin/com/hazia/chronicle/domain/stats/HabitPresence.kt",
+     "line": 47,
+     "quote": "is EntryValue.Rating -> true"
+    },
+    {
+     "file": "domain/src/main/kotlin/com/hazia/chronicle/domain/stats/HabitPresence.kt",
+     "line": 48,
+     "quote": "is EntryValue.Number, is EntryValue.Choice -> false"
+    },
+    {
+     "file": "domain/src/main/kotlin/com/hazia/chronicle/domain/stats/HabitPresence.kt",
+     "line": 41,
+     "quote": "A \"yes\" or any rating is a presence; a \"no\" is a person saying it did not happen, which is"
+    }
+   ]
+  },
+  {
+   "claim": "Goals (Goal entity) express a target frequency for a tracker; what a goal stores and whether it shows progress toward a count.",
+   "verdict": "partial",
+   "evidence": [
+    {
+     "file": "domain/src/main/kotlin/com/hazia/chronicle/domain/model/Goal.kt",
+     "line": 24,
+     "quote": "data class Goal("
+    },
+    {
+     "file": "domain/src/main/kotlin/com/hazia/chronicle/domain/model/Goal.kt",
+     "line": 26,
+     "quote": "val target: GoalTarget,"
+    },
+    {
+     "file": "domain/src/main/kotlin/com/hazia/chronicle/domain/model/Goal.kt",
+     "line": 27,
+     "quote": "val period: GoalPeriod,"
+    },
+    {
+     "file": "domain/src/main/kotlin/com/hazia/chronicle/domain/model/Goal.kt",
+     "line": 28,
+     "quote": "val value: Double,"
+    },
+    {
+     "file": "domain/src/main/kotlin/com/hazia/chronicle/domain/enums/Enums.kt",
+     "line": 42,
+     "quote": "enum class GoalPeriod { DAY, WEEK, MONTH }"
+    },
+    {
+     "file": "core/data/src/main/kotlin/com/hazia/chronicle/core/data/goals/GoalProgressRepository.kt",
+     "line": 238,
+     "quote": "is EntryValue.Bool -> if (v.value) 1.0 else 0.0"
+    },
+    {
+     "file": "core/data/src/main/kotlin/com/hazia/chronicle/core/data/goals/GoalProgressRepository.kt",
+     "line": 237,
+     "quote": "is EntryValue.Rating -> v.stars.toDouble()"
+    },
+    {
+     "file": "core/data/src/main/kotlin/com/hazia/chronicle/core/data/goals/GoalProgressRepository.kt",
+     "line": 51,
+     "quote": "val fraction: Float"
+    }
+   ]
+  },
+  {
+   "claim": "Where HabitPresence is displayed and in what words.",
+   "verdict": "confirmed",
+   "evidence": [
+    {
+     "file": "feature/data/src/main/kotlin/com/hazia/chronicle/feature/data/detail/TrackerDetailScreen.kt",
+     "line": 321,
+     "quote": "state.presence?.let { p ->"
+    },
+    {
+     "file": "feature/data/src/main/res/values/strings.xml",
+     "line": 81,
+     "quote": "<string name=\"tracker_stat_this_month\">This month</string>"
+    },
+    {
+     "file": "feature/data/src/main/res/values/strings.xml",
+     "line": 82,
+     "quote": "<string name=\"tracker_stat_usually\">Usually</string>"
+    },
+    {
+     "file": "feature/data/src/main/res/values/strings.xml",
+     "line": 85,
+     "quote": "<item quantity=\"other\">%1$d days</item>"
+    },
+    {
+     "file": "feature/data/src/main/res/values/strings.xml",
+     "line": 87,
+     "quote": "<string name=\"time_of_day_mornings\">mornings</string>"
+    },
+    {
+     "file": "feature/data/src/main/res/values/strings.xml",
+     "line": 79,
+     "quote": "<string name=\"tracker_stat_none\">—</string>"
+    }
+   ]
+  },
+  {
+   "claim": "A tracker has a cadence or reminder of its own.",
+   "verdict": "refuted",
+   "evidence": [
+    {
+     "file": "domain/src/main/kotlin/com/hazia/chronicle/domain/model/Tracker.kt",
+     "line": 21,
+     "quote": "data class Tracker( id, name, type, unit, defaultValue, polarity, archived, categoryId, sortOrder, updatedAt, createdAt, deletedAt )"
+    },
+    {
+     "file": "domain/src/main/kotlin/com/hazia/chronicle/domain/model/Reminder.kt",
+     "line": 27,
+     "quote": "data class Reminder( id, text, dueAt, kind, repeatRule, nagPolicy, soundRef, done, notified, ... )"
+    }
+   ]
+  }
+ ],
+ "missed": [
+  {
+   "fact": "Claim 2 is imprecise. Only the 'Usually' (usualTime) reading is withheld: it needs at least 3 presences AND one time-of-day bucket holding more than half of them. The 'This month' day count and lastDate are always computed and shown, even at 0 or 1 presence. Below the threshold the screen shows '—' (tracker_stat_none) in the Usually slot.",
+   "file": "domain/src/main/kotlin/com/hazia/chronicle/domain/stats/HabitPresence.kt",
+   "line": 74
+  },
+  {
+   "fact": "The three-presence count is over presences (entries), not distinct days, so three entries on one day unlock it. The this-month count is distinct days, via a set.",
+   "file": "domain/src/main/kotlin/com/hazia/chronicle/domain/stats/HabitPresence.kt",
+   "line": 71
+  },
+  {
+   "fact": "Entry has a deletedAt tombstone column. habitPresenceOf drops tombstoned entries itself (deletedAt == null), not at the DAO. The Tracker, Goal and Reminder entities also carry deletedAt via Syncable.",
+   "file": "domain/src/main/kotlin/com/hazia/chronicle/domain/model/Entry.kt",
+   "line": 43
+  },
+  {
+   "fact": "Rating entries are 1..5 stars and every one counts as a presence; there is no threshold. A 1-star rating is a presence.",
+   "file": "domain/src/main/kotlin/com/hazia/chronicle/domain/model/Entry.kt",
+   "line": 22
+  },
+  {
+   "fact": "HabitPresence takes a DayBoundary parameter (default Midnight), so the 'day' a presence counts toward can be shifted by a setting. But the only production call site, TrackerDetailViewModel, does not pass it, so the detail screen always uses midnight, unlike GoalProgressRepository, which honours the user's boundary.",
+   "file": "feature/data/src/main/kotlin/com/hazia/chronicle/feature/data/detail/TrackerDetailViewModel.kt",
+   "line": 141
+  },
+  {
+   "fact": "Goals do not store a frequency or a count. Goal holds period (DAY, WEEK or MONTH) and a Double value, with no 'times per period' field. Goals can target an Activity or a Tracker (GoalTarget sealed class). For a tracker, progress is the SUM of numeric values in the window: Bool true counts 1.0, Bool false 0.0, Rating counts its stars, Choice 0.0. So a BOOLEAN goal of value 3 per WEEK works as a count of yeses. A RATING goal sums stars, not occurrences, which is a second meaning packed into the same value field.",
+   "file": "core/data/src/main/kotlin/com/hazia/chronicle/core/data/goals/GoalProgressRepository.kt",
+   "line": 235
+  },
+  {
+   "fact": "Goals have a kind (RECURRING or MILESTONE) and a completionMode (AUTO or MANUAL), plus achievedAt. MILESTONE progress uses a 400-day window (MILESTONE_DAYS), not all time. There is also a direction (AT_LEAST or AT_MOST) derived from the tracker's polarity (LOWER_IS_BETTER gives AT_MOST, which inverts the bar).",
+   "file": "domain/src/main/kotlin/com/hazia/chronicle/domain/enums/Enums.kt",
+   "line": 52
+  },
+  {
+   "fact": "Reminders are a separate entity that is not linked to a tracker. Reminder has text, dueAt, kind, repeatRule and nagPolicy, but no trackerId. RepeatRule has None, EveryInterval, Daily, Weekly, Monthly, Weekdays and RandomDays cases, so the map's repeat vocabulary is larger than daily/weekly. A separate app-level goal nudge fires daily at 20:00 when enabled. It is not per tracker.",
+   "file": "app/src/main/kotlin/com/hazia/chronicle/goalnudge/GoalNudgeScheduler.kt",
+   "line": 28
+  },
+  {
+   "fact": "NUMBER trackers get no HabitPresence (the view model passes it only for BOOLEAN and RATING). They get a separate 'Last' and 'Typically N apart' strip instead. CHOICE trackers are never a presence.",
+   "file": "feature/data/src/main/kotlin/com/hazia/chronicle/feature/data/detail/TrackerDetailScreen.kt",
+   "line": 310
+  },
+  {
+   "fact": "The usual time of day is bucketed in the zone's local hour (MORNING 5-11, AFTERNOON 12-16, EVENING 17-21, else NIGHT) and shown as 'mornings', 'afternoons', 'evenings' or 'nights'. The bucketing uses the raw local hour, not the day boundary.",
+   "file": "domain/src/main/kotlin/com/hazia/chronicle/domain/stats/HabitPresence.kt",
+   "line": 33
+  },
+  {
+   "fact": "TrackerType has four cases (NUMBER, BOOLEAN, RATING, CHOICE). The map mentions only two as habit-relevant.",
+   "file": "domain/src/main/kotlin/com/hazia/chronicle/domain/enums/Enums.kt",
+   "line": 4
+  }
+ ],
+ "absence_probes": [
+  {
+   "pattern": "trackerId in Reminder model (Reminder.kt: trackerId|tracker)",
+   "hits": 0
+  },
+  {
+   "pattern": "Reminder.*(tracker|Tracker)|tracker.*(remind|Remind) across src/main kotlin files (only search, FTS, bundle, SwitchRow; none link a reminder to a tracker)",
+   "hits": 6
+  },
+  {
+   "pattern": "streak|missed|miss in HabitPresence.kt (only the doc comment 'no count of misses')",
+   "hits": 1
+  },
+  {
+   "pattern": "val (cadence|reminderId|remindAt|nudge) in src/main kotlin",
+   "hits": 0
+  },
+  {
+   "pattern": "HabitPresence/habitPresenceOf production callers outside the domain (only TrackerDetailViewModel)",
+   "hits": 1
+  }
+ ]
+}

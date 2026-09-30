@@ -1,0 +1,307 @@
+{
+ "repo": "Tendril",
+ "claims": [
+  {
+   "claim": "1. Habit persists streak: Int and lastCompletedDate on the habit row; HabitCompletion logs completions.",
+   "verdict": "confirmed",
+   "evidence": [
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/habit/Habit.kt",
+     "line": 57,
+     "quote": "val streak: Int = 0,"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/habit/Habit.kt",
+     "line": 61,
+     "quote": "val lastCompletedDate: LocalDate? = null,"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/habit/HabitCompletion.kt",
+     "line": 12,
+     "quote": "* §0.6.6 — one row per habit check-in, the memory a [Habit] never had."
+    }
+   ]
+  },
+  {
+   "claim": "2. streak is shown in the UI; quote every place that reads streak or lastCompletedDate.",
+   "verdict": "partial",
+   "evidence": [
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/ui/taskshabits/TasksHabitsScreen.kt",
+     "line": 843,
+     "quote": "if (showStreaks && habit.streak > 0) \"streak ${habit.streak}\" else null,"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/ui/taskshabits/TaskSheets.kt",
+     "line": 218,
+     "quote": "if (showStreak && habit.streak > 0) add(\"Streak: ${habit.streak}\")"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/ui/taskshabits/TaskDetailPane.kt",
+     "line": 179,
+     "quote": "if (showStreak) DetailRow(\"Streak\", if (habit.streak > 0) plural(habit.streak, \"day\") else null)"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/ui/trash/HabitTrashSheet.kt",
+     "line": 169,
+     "quote": "frequency.label() + \" · streak $streak\""
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/ui/settings/TaskSettings.kt",
+     "line": 26,
+     "quote": "const val SHOW_HABIT_STREAKS_KEY = \"show_habit_streaks\""
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/ui/settings/TaskSettings.kt",
+     "line": 35,
+     "quote": "fun showHabitStreaks(): Boolean = store.getBoolean(SHOW_HABIT_STREAKS_KEY, false)"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/ui/taskshabits/TasksHabitsScreen.kt",
+     "line": 829,
+     "quote": "val checkedToday = habit.lastCompletedDate == LocalDate.now()"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/ui/taskshabits/TaskSheets.kt",
+     "line": 246,
+     "quote": "val doneToday = habit.lastCompletedDate == LocalDate.now()"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/ui/taskshabits/TaskDetailPane.kt",
+     "line": 167,
+     "quote": "val doneToday = habit.lastCompletedDate == LocalDate.now()"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/HabitSchedule.kt",
+     "line": 37,
+     "quote": "val last = habit.lastCompletedDate ?: return from"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/HabitSchedule.kt",
+     "line": 53,
+     "quote": "val last = habit.lastCompletedDate ?: return true"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/plan/HabitCalendar.kt",
+     "line": 90,
+     "quote": "if (habit.scheduleKind != HabitScheduleKind.CALENDAR) return habit.lastCompletedDate == date"
+    }
+   ]
+  },
+  {
+   "claim": "3. Anything counts or shows missed days (a gap, a broken chain, 'X days missed', a red day).",
+   "verdict": "refuted",
+   "evidence": [
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/HabitPresence.kt",
+     "line": 10,
+     "quote": "* count of misses here, no gap, no ratio, and no field a screen could draw a chain from. A"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/HabitPresence.kt",
+     "line": 22,
+     "quote": "* leave it *empty*, never mark it missed. */"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/habit/Habit.kt",
+     "line": 46,
+     "quote": "/** §6.1 — streak-based, missing an instance does not create backlog (the defining test that"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/CheckInHabitUseCase.kt",
+     "line": 57,
+     "quote": "val newStreak = if (withinGrace) habit.streak + 1 else 1"
+    }
+   ]
+  },
+  {
+   "claim": "4. A habit has a cadence (RepeatKind: DAILY, WEEKDAYS, EVERY_N_DAYS, EVERY_N_WEEKS, TIMES_PER_DAY, TIMES_PER_WEEK, EVERY_N_HOURS, ONCE) and a reminder time; say where the cadence lives.",
+   "verdict": "partial",
+   "evidence": [
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/plan/ScheduleDraft.kt",
+     "line": 14,
+     "quote": "enum class RepeatKind { DAILY, WEEKDAYS, EVERY_N_DAYS, EVERY_N_WEEKS, TIMES_PER_DAY, TIMES_PER_WEEK, EVERY_N_HOURS, ONCE }"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/habit/Habit.kt",
+     "line": 56,
+     "quote": "val frequency: HabitFrequency,"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/habit/Habit.kt",
+     "line": 83,
+     "quote": "val calendarRule: String? = null,"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/habit/Habit.kt",
+     "line": 54,
+     "quote": "val time: LocalTime? = null,"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/plan/CalendarSchedule.kt",
+     "line": 40,
+     "quote": "sealed interface CalendarRule {"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/HabitSchedule.kt",
+     "line": 74,
+     "quote": "if (habit.scheduleKind != HabitScheduleKind.INTERVAL) return null"
+    }
+   ]
+  },
+  {
+   "claim": "5. A completion can be undone; several completions per day are allowed for TIMES_PER_DAY.",
+   "verdict": "partial",
+   "evidence": [
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/CheckInHabitUseCase.kt",
+     "line": 74,
+     "quote": "suspend fun undoCheckIn(habitId: Long, today: LocalDate = LocalDate.now(), occurrenceKey: String? = null) {"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/habit/HabitCompletion.kt",
+     "line": 55,
+     "quote": "val deletedAt: Instant? = null,"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/CheckInHabitUseCase.kt",
+     "line": 113,
+     "quote": "habitCompletionDao.insert("
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/CheckInHabitUseCase.kt",
+     "line": 41,
+     "quote": "habitCompletionDao.insert(HabitCompletion(habitId = habitId, date = today, checkedAt = Instant.now(), value = value ?: habit.amountPerCheckIn))"
+    }
+   ]
+  },
+  {
+   "claim": "6. Habits show on the calendar through a setting (the owner remembers 'an option to show them'); quote it.",
+   "verdict": "confirmed",
+   "evidence": [
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/ui/calendar/CalendarScreen.kt",
+     "line": 1138,
+     "quote": "TendrilMenuItem(text = { Text(\"Habits\") }, leadingIcon = { dot(DotKind.HABIT) }, trailingIcon = { MenuCheck(layers.habits) }, onClick = { onLayers(layers.copy(habits = !layers.habits)) })"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/ui/calendar/CalendarViewModel.kt",
+     "line": 50,
+     "quote": "val habits: Boolean = false,"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/ui/calendar/CalendarScreen.kt",
+     "line": 457,
+     "quote": "{ day -> if (layers.habits) habitStrokes(timedHabits, day, today, habitCalendar, habitCheckInsToday) else emptyList() }"
+    }
+   ]
+  },
+  {
+   "claim": "7. HabitCompletion rows sync as an append-only union.",
+   "verdict": "refuted",
+   "evidence": [
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/habit/HabitCompletion.kt",
+     "line": 18,
+     "quote": "* **Tombstoned, not append-only — the opposite of [com.tendril.app.data.completion.EntryCompletion].**"
+    },
+    {
+     "file": "shared/src/jvmCommon/kotlin/com/tendril/app/sync/SnapshotSyncOrchestrator.kt",
+     "line": 1945,
+     "quote": "* a check-in can be undone, so a uid is inserted once and tombstoned once, and \"deleted on any"
+    },
+    {
+     "file": "shared/src/jvmCommon/kotlin/com/tendril/app/sync/SnapshotSyncOrchestrator.kt",
+     "line": 1988,
+     "quote": "local.deletedAt == null && remoteDeletedAt != null ->"
+    },
+    {
+     "file": "shared/src/jvmCommon/kotlin/com/tendril/app/sync/SnapshotSyncOrchestrator.kt",
+     "line": 1989,
+     "quote": "habitCompletionDao.softDelete(local.id, remoteDeletedAt)"
+    }
+   ]
+  }
+ ],
+ "missed": [
+  {
+   "fact": "Habit columns, in full: id, uid (unique index), title, time, duration, frequency (count+IntervalUnit DAY/WEEK/MONTH), streak, lastCompletedDate, previousStreak, previousCompletedDate (undo snapshot), unit, amountPerCheckIn, dailyAmount (counting habits), deletedAt (tombstone), createdAt, updatedAt, scheduleKind, calendarRule, blockUid, sortOrder, labelId, pauseFrom, pauseUntil, activeFrom, activeUntil, note.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/data/habit/Habit.kt",
+   "line": 49
+  },
+  {
+   "fact": "HabitCompletion columns, in full: id, uid (unique), habitId (FK to habits, CASCADE), date, checkedAt, value (amount for counting habits), occurrenceKey (which calendar occurrence), deletedAt (soft-delete tombstone). Indices: uid, habitId, (habitId, date).",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/data/habit/HabitCompletion.kt",
+   "line": 38
+  },
+  {
+   "fact": "Habit has two schedule kinds. INTERVAL uses frequency (count + DAY/WEEK/MONTH) and is the default. CALENDAR uses calendarRule, stored as text. RepeatKind is only the UI draft enum. It maps onto the sealed interface CalendarRule (Daily, Once, Weekdays, EveryNDays, EveryNWeeks, TimesPerDay, TimesPerWeek, EveryNHours), and no RepeatKind is stored on the Habit row. The enum is IntervalUnit { DAY, WEEK, MONTH }, which has no month repeat in RepeatKind.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/data/entry/RecurrenceRule.kt",
+   "line": 39
+  },
+  {
+   "fact": "The reminder is nextHabitReminderAt, which reads Habit.time and arms only for INTERVAL habits. It returns null for CALENDAR habits, which get no reminder (Q5). It also returns null when time is null or the habit is trashed, and it respects pauses.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/HabitSchedule.kt",
+   "line": 71
+  },
+  {
+   "fact": "Calendar habits keep streak at 0 (Q4), so the streak UI shows nothing for them. They record only lastCompletedDate, with previousCompletedDate kept for undo.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/CheckInHabitUseCase.kt",
+   "line": 105
+  },
+  {
+   "fact": "Several completions per day are allowed in two cases. A counting habit (amountPerCheckIn set) inserts a row on every tap. A CALENDAR habit gets one row per occurrence, keyed by occurrenceKey. This is not limited to TIMES_PER_DAY. A plain interval habit gets one live row per day.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/CheckInHabitUseCase.kt",
+   "line": 40
+  },
+  {
+   "fact": "Undoing a completion sets deletedAt. A redo the same day inserts a new row with a new uid, so the tombstone is never revived. Two devices checking in offline on the same day can leave two live rows for one date, and reads tolerate that.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/data/habit/HabitCompletion.kt",
+   "line": 53
+  },
+  {
+   "fact": "The merge rule is: insert the row if its uid is unknown, and tombstone it if the remote copy is deleted. 'Deleted on any device wins', with no updatedAt on HabitCompletionSnapshotRecord. Completions whose habitUid can't be resolved are held back, not dropped.",
+   "file": "shared/src/jvmCommon/kotlin/com/tendril/app/sync/SnapshotSyncOrchestrator.kt",
+   "line": 1984
+  },
+  {
+   "fact": "The streak display is gated by the setting show_habit_streaks, which defaults to false. The trash sheet shows the streak unconditionally.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/ui/settings/TaskSettings.kt",
+   "line": 35
+  },
+  {
+   "fact": "The Habits calendar layer is a CalendarLayers flag inside a menu, not a settings-screen key. It defaults to false and is encoded as 'h' in a persisted string. It draws only habits with a time or scheduleKind CALENDAR.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/ui/calendar/CalendarViewModel.kt",
+   "line": 53
+  },
+  {
+   "fact": "The check-in streak has a grace window: the streak continues if the gap is at most habitPeriodDays+1, and otherwise it silently resets to 1. There is no stored missed-days count.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/CheckInHabitUseCase.kt",
+   "line": 55
+  },
+  {
+   "fact": "Habits have a soft delete (deletedAt) and pause/active date windows (pauseFrom, pauseUntil, activeFrom, activeUntil). Habit merge uses HabitSnapshotRecord, which carries a scheduleKind string and calendarRule (SnapshotRecords.kt:83-84).",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/data/habit/Habit.kt",
+   "line": 75
+  }
+ ],
+ "absence_probes": [
+  {
+   "pattern": "missed|miss|broken chain|overdue|backlog (case-insensitive, shared/src/commonMain, habit-related hits only)",
+   "hits": 0
+  },
+  {
+   "pattern": "show_habits|showHabits|ShowHabits|SHOW_HABIT (settings-store key for calendar habits, *.kt)",
+   "hits": 0
+  },
+  {
+   "pattern": "habit.*(calendar|strokes?|layer) in ui/settings",
+   "hits": 0
+  },
+  {
+   "pattern": "mergeHabitCompletions|fun mergeHabit (append-only union merge)",
+   "hits": 0
+  }
+ ]
+}

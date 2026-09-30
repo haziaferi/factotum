@@ -1,0 +1,50 @@
+{
+ "contest": "06-habit",
+ "growth_note": "tables/columns counted from the built schema, including the decided item/completion/reminder tables and Chronicle's tracker module, which every option carries",
+ "options": [
+  {
+   "id": "habit-table",
+   "summary": "Tendril minus streak columns: own habit table (cadence, time, amounts, pause) + habit_completion",
+   "growth": {
+    "tables": 8,
+    "columns": 48
+   }
+  },
+  {
+   "id": "trackers-only",
+   "summary": "Chronicle: no habit; a habit is a BOOLEAN/NUMBER tracker (+ goal for a daily amount)",
+   "growth": {
+    "tables": 6,
+    "columns": 32
+   }
+  },
+  {
+   "id": "item-kind",
+   "summary": "habit = item kind HABIT (ADR 04 recurrence, ADR 03 reminders); completions with a value in the item completion log",
+   "growth": {
+    "tables": 6,
+    "columns": 36
+   }
+  },
+  {
+   "id": "item+tracker",
+   "summary": "item-kind, and the habit item links a tracker: check-ins ARE its readings; daily amount = a goal on the tracker",
+   "growth": {
+    "tables": 6,
+    "columns": 35
+   }
+  },
+  {
+   "id": "with-streak",
+   "summary": "CONTROL: habit-table plus streak and last_completed_date",
+   "growth": {
+    "tables": 8,
+    "columns": 50
+   },
+   "control": true,
+   "expect_fail": [
+    "owner-no-streak"
+   ]
+  }
+ ]
+}

@@ -1,0 +1,47 @@
+{
+ "habit-table": {
+  "tendril-cadence-and-time": 1,
+  "tendril-counting-and-undo": 1,
+  "tendril-pause-window": 1,
+  "chronicle-tracker-presence": 0,
+  "owner-no-streak": 1,
+  "shared-one-reminder-path": 0,
+  "shared-one-recurrence-home": 0
+ },
+ "trackers-only": {
+  "tendril-cadence-and-time": 0,
+  "tendril-counting-and-undo": 1,
+  "tendril-pause-window": 0,
+  "chronicle-tracker-presence": 1,
+  "owner-no-streak": 1,
+  "shared-one-reminder-path": 0,
+  "shared-one-recurrence-home": 1
+ },
+ "item-kind": {
+  "tendril-cadence-and-time": 1,
+  "tendril-counting-and-undo": 1,
+  "tendril-pause-window": 1,
+  "chronicle-tracker-presence": 0,
+  "owner-no-streak": 1,
+  "shared-one-reminder-path": 1,
+  "shared-one-recurrence-home": 1
+ },
+ "item+tracker": {
+  "tendril-cadence-and-time": 1,
+  "tendril-counting-and-undo": 1,
+  "tendril-pause-window": 1,
+  "chronicle-tracker-presence": 1,
+  "owner-no-streak": 1,
+  "shared-one-reminder-path": 1,
+  "shared-one-recurrence-home": 1
+ },
+ "with-streak": {
+  "tendril-cadence-and-time": 1,
+  "tendril-counting-and-undo": 1,
+  "tendril-pause-window": 1,
+  "chronicle-tracker-presence": 0,
+  "owner-no-streak": 0,
+  "shared-one-reminder-path": 0,
+  "shared-one-recurrence-home": 0
+ }
+}
