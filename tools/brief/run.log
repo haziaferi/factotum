@@ -1,0 +1,13 @@
+A-minimal              chron-rr             28s 2352 chars
+A-minimal              mnemo-sync           24s 3786 chars
+A-minimal              tendril-checkin      22s 1942 chars
+A-minimal              equipoise-absent     23s 1871 chars
+B-structured           chron-rr             26s 3737 chars
+B-structured           mnemo-sync           31s 4469 chars
+B-structured           tendril-checkin      23s 3497 chars
+B-structured           equipoise-absent     31s 3665 chars
+C-structured-example   chron-rr             24s 4348 chars
+C-structured-example   mnemo-sync           21s 3708 chars
+C-structured-example   tendril-checkin      20s 3393 chars
+C-structured-example   equipoise-absent     29s 4129 chars
+wrote C:\Users\User\Downloads\Builds\Schema overlap\Factotum - merged app\tools\brief\results.json

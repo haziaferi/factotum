@@ -1,0 +1,43 @@
+[
+  {"id": "chron-rr",
+   "cwd": "C:/Users/User/Downloads/Builds/chronicle-native-pending/chronicle-native",
+   "input": "Repo: Chronicle (current directory). Contest: how recurrence is encoded.\nClaims from the map:\n1. RepeatRule is a sealed type with 7 cases, including Daily, Weekly, Monthly, Weekdays(Set<DayOfWeek>) and RandomDays(min, max).\n2. ReminderEntity stores the rule as repeatRuleKind plus repeatIntervalMillis.",
+   "checks": {
+     "keys": {"type": "json_keys", "value": ["repo", "claims", "missed", "absence_probes"]},
+     "cites": {"type": "regex", "value": "\\.kt\"\\s*,\\s*\"line\"\\s*:\\s*\\d+"},
+     "every-interval": {"type": "contains", "value": "EveryInterval"},
+     "none-case": {"type": "regex", "value": "\\bNone\\b"},
+     "vocab": {"type": "regex", "value": "^(?!.*\"verdict\"\\s*:\\s*\"(?!confirmed\"|refuted\"|partial\"|not_found\")).*$"}
+   }},
+  {"id": "mnemo-sync",
+   "cwd": "C:/Users/User/Downloads/Builds/mnemo_pass4/mnemo",
+   "input": "Repo: Mnemo (current directory). Contest: sync identity and conflict.\nClaims from the map:\n1. Every Reminder has a client-generated UUID id and updatedAtEpochMillis.\n2. SyncFileState is a Room entity tracking sync files.\n3. Mnemo has no tombstone: a deleted reminder simply disappears from the table.",
+   "checks": {
+     "keys": {"type": "json_keys", "value": ["repo", "claims", "missed", "absence_probes"]},
+     "cites": {"type": "regex", "value": "\\.kt\"\\s*,\\s*\"line\"\\s*:\\s*\\d+"},
+     "archived": {"type": "contains", "value": "isArchived"},
+     "refutes-3": {"type": "regex", "value": "tombstone[^}]*\"verdict\"\\s*:\\s*\"(refuted|partial)\""},
+     "vocab": {"type": "regex", "value": "^(?!.*\"verdict\"\\s*:\\s*\"(?!confirmed\"|refuted\"|partial\"|not_found\")).*$"}
+   }},
+  {"id": "tendril-checkin",
+   "cwd": "C:/Users/User/Downloads/Builds/Tendril",
+   "input": "Repo: Tendril (current directory). Contest: check-in.\nClaims from the map:\n1. CheckIn stores mood as a Double between 0 and 1.\n2. CheckIn is tied to a journal day through a date: LocalDate column.",
+   "checks": {
+     "keys": {"type": "json_keys", "value": ["repo", "claims", "missed", "absence_probes"]},
+     "refutes-1": {"type": "regex", "value": "Double[^}]*\"verdict\"\\s*:\\s*\"refuted\""},
+     "deletedAt": {"type": "contains", "value": "deletedAt"},
+     "cites": {"type": "regex", "value": "CheckIn\\.kt\"\\s*,\\s*\"line\"\\s*:\\s*\\d+"},
+     "vocab": {"type": "regex", "value": "^(?!.*\"verdict\"\\s*:\\s*\"(?!confirmed\"|refuted\"|partial\"|not_found\")).*$"}
+   }},
+  {"id": "equipoise-absent",
+   "cwd": "C:/Users/User/Downloads/Builds/Personal assistant project",
+   "input": "Repo: Equipoise (current directory). Contest: sync identity and conflict.\nClaims from the map:\n1. Equipoise does not sync: no entity carries a UUID, an updatedAt stamp or a deletion tombstone.",
+   "checks": {
+     "keys": {"type": "json_keys", "value": ["repo", "claims", "missed", "absence_probes"]},
+     "zero-hits": {"type": "regex", "value": "\"hits\"\\s*:\\s*0"},
+     "not-confirmed": {"type": "regex", "value": "\"verdict\"\\s*:\\s*\"(partial|refuted)\""},
+     "finds-import-merge": {"type": "regex", "value": "Importer|Transfer\\.kt"},
+     "no-third-party": {"type": "not_contains", "value": "third_party/llama"},
+     "vocab": {"type": "regex", "value": "^(?!.*\"verdict\"\\s*:\\s*\"(?!confirmed\"|refuted\"|partial\"|not_found\")).*$"}
+   }}
+]
