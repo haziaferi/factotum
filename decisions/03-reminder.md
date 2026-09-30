@@ -1,6 +1,6 @@
 # ADR 03: Where a reminder lives
 
-Status: **recommended: item-kind, awaiting the owner's pick**. Date: 2026-09-30. Owners: Tendril, Chronicle, Mnemo.
+Status: **decided: item-kind**. Date: 2026-09-30. Owners: Tendril, Chronicle, Mnemo.
 
 This ADR builds on the two earlier ones:
 - **ADR 01 (hybrid+).** Every row carries a ULID and group stamps, and a concurrent change to the schedule group is shown to a person.
@@ -53,7 +53,10 @@ Its one lost case is `shared-timeline-unchanged`: ADR 02's day-timeline query, l
 
 ## Decision
 
-_pending the owner's pick_
+**item-kind** was picked by the owner on 2026-09-30, with two behaviour answers:
+
+1. **Day view.** Whether standalone reminders appear on the day timeline is a user setting, "Like Habits, there should be an option to show them, to avoid crowding the calendar". The setting is off by default. ADR 02's timeline query gains `AND (kind <> 'REMINDER' OR :showReminders)`, which settles the one case this option lost. The default is off because the owner's stated reason is to avoid crowding.
+2. **Snooze syncs** (Mnemo's behaviour). `snoozed_until` goes on the reminder row, in a *status* group of its own: a concurrent snooze merges silently and never raises hybrid+'s prompt. Mnemo overwrites `nextFireAt` when snoozing, which loses the original time. Factotum keeps the two separate, and that is a fix, not a decision.
 
 ## Consequences
 

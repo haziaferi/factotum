@@ -6,7 +6,7 @@ The contests are taken in dependency order. There is one row per contest.
 |---|---|---|---|---|---|
 | 01 | Sync identity and conflict | decided | hybrid+ | 10 | [01-sync.md](01-sync.md) |
 | 02 | Task: Entry kind or own table | decided | shared (Item / TrackerReading) | 9 | [02-task.md](02-task.md) |
-| 03 | Reminder location | awaiting pick | (item-kind recommended) | 11 | [03-reminder.md](03-reminder.md) |
+| 03 | Reminder location | decided | item-kind; timeline toggle (off); snooze syncs | 11 | [03-reminder.md](03-reminder.md) |
 | 04 | Recurrence encoding | open | - | - | - |
 | 05 | Check-in | open | - | - | - |
 | 06 | Habit | open | - | - | - |
