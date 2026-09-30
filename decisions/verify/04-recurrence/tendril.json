@@ -1,0 +1,252 @@
+{
+ "repo": "Tendril",
+ "claims": [
+  {
+   "claim": "1. RecurrenceRule is Fixed(rrule: String) or Elastic(period: Period).",
+   "verdict": "confirmed",
+   "evidence": [
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/entry/RecurrenceRule.kt",
+     "line": 21,
+     "quote": "sealed class RecurrenceRule {"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/entry/RecurrenceRule.kt",
+     "line": 24,
+     "quote": "data class Fixed(val rrule: String) : RecurrenceRule()"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/entry/RecurrenceRule.kt",
+     "line": 36,
+     "quote": "data class Elastic(val period: Period) : RecurrenceRule()"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/Converters.kt",
+     "line": 145,
+     "quote": "is RecurrenceRule.Fixed -> \"FIXED:${value.rrule}\""
+    }
+   ]
+  },
+  {
+   "claim": "2. Fixed stores a full RFC 5545 RRULE string verbatim. Tendril's own expander supports FREQ, INTERVAL, BYDAY, BYMONTHDAY, COUNT and UNTIL, and more. The stored string is never validated on write.",
+   "verdict": "partial",
+   "evidence": [
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/recurrence/RecurrenceSpec.kt",
+     "line": 8,
+     "quote": "enum class Frequency { DAILY, WEEKLY, MONTHLY, YEARLY }"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/recurrence/RecurrenceSpec.kt",
+     "line": 48,
+     "quote": "private val UNSUPPORTED = setOf(\"BYSETPOS\", \"BYWEEKNO\", \"BYYEARDAY\", \"BYHOUR\", \"BYMINUTE\", \"BYSECOND\")"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/recurrence/RecurrenceSpec.kt",
+     "line": 72,
+     "quote": "if (name in UNSUPPORTED) return null"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/recurrence/RecurrenceSpec.kt",
+     "line": 73,
+     "quote": "parts[name] = chunk.substring(eq + 1).trim()"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/recurrence/RecurrenceSpec.kt",
+     "line": 90,
+     "quote": "if (count != null && until != null) return null"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/recurrence/RecurrenceSpec.kt",
+     "line": 116,
+     "quote": "if (byDay.any { it.ordinal != null } &&"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/recurrence/RecurrenceSpec.kt",
+     "line": 28,
+     "quote": "caller falls back to showing the series' first occurrence only — today's behaviour"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/recurrence/EntryOccurrences.kt",
+     "line": 212,
+     "quote": "val spec = RecurrenceSpec.parse(rule.rrule)"
+    }
+   ]
+  },
+  {
+   "claim": "3. Elastic advances by whole periods from the ORIGINAL schedule until the date is in the future; missed occurrences are skipped, not shown as overdue.",
+   "verdict": "confirmed",
+   "evidence": [
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/ResolveEntryUseCase.kt",
+     "line": 117,
+     "quote": "var next = resolved.plus(period)"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/ResolveEntryUseCase.kt",
+     "line": 118,
+     "quote": "while (!next.isAfter(today)) next = next.plus(period)"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/ResolveEntryUseCase.kt",
+     "line": 75,
+     "quote": "startDate = nextOccurrenceAfter(occurrenceDate, recurrence.period, today),"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/ResolveEntryUseCase.kt",
+     "line": 116,
+     "quote": "if (period.isZero || period.isNegative) return resolved"
+    }
+   ]
+  },
+  {
+   "claim": "4. Per-occurrence exceptions (moved or skipped single occurrences) are stored as separate Entry rows via originalEntryId/originalOccurrenceDate/isExceptionSkip.",
+   "verdict": "confirmed",
+   "evidence": [
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/entry/Entry.kt",
+     "line": 48,
+     "quote": "val originalEntryId: Long? = null,"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/entry/Entry.kt",
+     "line": 49,
+     "quote": "val originalOccurrenceDate: LocalDate? = null,"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/entry/Entry.kt",
+     "line": 50,
+     "quote": "val isExceptionSkip: Boolean? = null,"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/ics/IcsImporter.kt",
+     "line": 78,
+     "quote": "recurrenceRule = null, originalEntryId = base.id, originalOccurrenceDate = c.recurrenceId, isExceptionSkip = false,"
+    }
+   ]
+  },
+  {
+   "claim": "5. Elastic's period units are DAY, WEEK and MONTH only; no hours or minutes.",
+   "verdict": "partial",
+   "evidence": [
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/entry/RecurrenceRule.kt",
+     "line": 39,
+     "quote": "enum class IntervalUnit { DAY, WEEK, MONTH }"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/entry/RecurrenceRule.kt",
+     "line": 43,
+     "quote": "fun intervalToPeriod(count: Int, unit: IntervalUnit): Period = when (unit) {"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/data/Converters.kt",
+     "line": 157,
+     "quote": "\"ELASTIC\" -> runCatching { RecurrenceRule.Elastic(Period.parse(rest)) }.getOrNull()"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/ui/taskshabits/HabitPlanSheets.kt",
+     "line": 149,
+     "quote": "RepeatKind.EVERY_N_HOURS -> Res.string.plan_rule_every_n_hours"
+    }
+   ]
+  },
+  {
+   "claim": "6. The UI offers four recurrence choices for both events and tasks: None, Daily, Weekly, Monthly. Tasks get Elastic periods of 1 day, 1 week or 1 month, and events get Fixed rules FREQ=DAILY, FREQ=WEEKLY or FREQ=MONTHLY. No custom interval or BYDAY picker was found.",
+   "verdict": "confirmed",
+   "evidence": [
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/ui/entries/EntryEditSheet.kt",
+     "line": 257,
+     "quote": "NONE(\"None\"), DAILY(\"Daily\"), WEEKLY(\"Weekly\"), MONTHLY(\"Monthly\");"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/ui/entries/EntryEditSheet.kt",
+     "line": 261,
+     "quote": "DAILY -> if (kind == EntryKind.TASK) RecurrenceRule.Elastic(intervalToPeriod(1, IntervalUnit.DAY)) else RecurrenceRule.Fixed(\"FREQ=DAILY\")"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/ui/taskshabits/AddDialogs.kt",
+     "line": 78,
+     "quote": "NONE(\"None\"), DAILY(\"Daily\"), WEEKLY(\"Weekly\"), MONTHLY(\"Monthly\")"
+    },
+    {
+     "file": "shared/src/commonMain/kotlin/com/tendril/app/ui/entries/EntryEditSheet.kt",
+     "line": 277,
+     "quote": "\"FREQ=MONTHLY\" in rule.rrule -> MONTHLY"
+    }
+   ]
+  }
+ ],
+ "missed": [
+  {
+   "fact": "The expander also supports FREQ=YEARLY, BYMONTH and WKST, plus ordinal BYDAY terms (2TU, -1FR) and negative BYMONTHDAY. The claim listed only six parts, and UNTIL is truncated to its date part.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/recurrence/RecurrenceSpec.kt",
+   "line": 33
+  },
+  {
+   "fact": "parse() returns null, so the series shows only its first occurrence, for these: any of BYSETPOS, BYWEEKNO, BYYEARDAY, BYHOUR, BYMINUTE, BYSECOND; FREQ other than DAILY, WEEKLY, MONTHLY or YEARLY (including a missing FREQ); COUNT together with UNTIL; a non-positive INTERVAL or COUNT; a malformed BYDAY, BYMONTHDAY, BYMONTH, WKST or UNTIL value; an ordinal BYDAY combined with BYMONTHDAY, DAILY or WEEKLY.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/recurrence/RecurrenceSpec.kt",
+   "line": 116
+  },
+  {
+   "fact": "Unknown part names outside the UNSUPPORTED set, such as RSCALE, BYEASTER or X-…, are stored in the parts map and never read. They are silently ignored, not rejected.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/recurrence/RecurrenceSpec.kt",
+   "line": 73
+  },
+  {
+   "fact": "The Fixed rule is persisted as the string \"FIXED:<rrule>\" and Elastic as \"ELASTIC:<ISO period>\". An unparseable Elastic period reads back as null, which means not recurring. An unknown tag also reads back as null.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/data/Converters.kt",
+   "line": 141
+  },
+  {
+   "fact": "The kind/rule pairing (Fixed for EVENT, Elastic for TASK) is not enforced anywhere. A TASK carrying Fixed resolves as a one-off with its recurrence ignored, and the snapshot restore path bypasses the pairing.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/data/entry/RecurrenceRule.kt",
+   "line": 11
+  },
+  {
+   "fact": "An Elastic task has a single live Entry row that advances in place, and each resolution writes an EntryCompletion row. SKIPPED also advances it, because any Elastic rule sets status back to PENDING.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/ResolveEntryUseCase.kt",
+   "line": 73
+  },
+  {
+   "fact": "The ICS importer keeps the RRULE string verbatim for events. For tasks it reduces the rule to an Elastic Period from FREQ and INTERVAL only, so YEARLY or any other FREQ gives null and the recurrence is dropped. BYDAY, COUNT and UNTIL are also discarded for tasks. The importer does not check the RRULE against RecurrenceSpec.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/ics/IcsImporter.kt",
+   "line": 125
+  },
+  {
+   "fact": "There are two kinds of exception row. A skip tombstone has isExceptionSkip = true, and an override has isExceptionSkip = false and recurrenceRule = null. Both carry originalEntryId and originalOccurrenceDate. The column is a nullable Boolean, so null and false both mean not a skip. Importing an ICS EXDATE creates the tombstone rows.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/ics/IcsImporter.kt",
+   "line": 57
+  },
+  {
+   "fact": "Trashing a series soft-deletes its exception rows with the same deletedAt instant, and restore brings back only those rows. Exception rows therefore carry a deletion column too.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/domain/ResolveEntryUseCase.kt",
+   "line": 156
+  },
+  {
+   "fact": "The UI maps a stored rule back to the nearest of the four presets. A custom RRULE reads as its FREQ substring, or as None if the FREQ is YEARLY. Saving without touching the repeat chips keeps the original rule.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/ui/entries/EntryEditSheet.kt",
+   "line": 276
+  },
+  {
+   "fact": "The calendar habit planner has its own separate repeat model (RepeatKind: DAILY, WEEKDAYS, EVERY_N_DAYS, EVERY_N_WEEKS, TIMES_PER_DAY, TIMES_PER_WEEK, EVERY_N_HOURS, ONCE). It is a different type and does not use RecurrenceRule.",
+   "file": "shared/src/commonMain/kotlin/com/tendril/app/ui/taskshabits/HabitPlanSheets.kt",
+   "line": 141
+  }
+ ],
+ "absence_probes": [
+  {
+   "pattern": "RecurrenceRule subclasses other than Fixed and Elastic (declaration sites in RecurrenceRule.kt)",
+   "hits": 0
+  },
+  {
+   "pattern": "IntervalUnit members HOUR or MINUTE (enum at RecurrenceRule.kt:39)",
+   "hits": 0
+  },
+  {
+   "pattern": "custom-interval or BYDAY picker in EntryEditSheet.kt and AddDialogs.kt (RepeatChoice and RepeatOption have only NONE, DAILY, WEEKLY, MONTHLY)",
+   "hits": 0
+  }
+ ]
+}

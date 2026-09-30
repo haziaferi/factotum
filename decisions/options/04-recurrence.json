@@ -1,0 +1,58 @@
+{
+ "contest": "04-recurrence",
+ "growth_note": "columns on item needed to hold recurrence (DTSTART is item.start_date/start_time, already there). Random cases measure expressibility: the extension IS the app's algorithm; the property checker (gap bounds, one draw per allowed day inside the window) runs on its output.",
+ "options": [
+  {
+   "id": "rrule",
+   "summary": "RFC 5545 RRULE text only",
+   "growth": {
+    "columns": 1
+   }
+  },
+  {
+   "id": "rrule+ext",
+   "summary": "recurrence_kind RRULE|RULE_SET|RANDOM_DAYS|RANDOM_WINDOW + rrule text (RULE_SET: several RRULEs, one per line) + rand_min_days, rand_max_days, window_days_mask, window_start, window_end; CHECKs tie each kind to its columns",
+   "growth": {
+    "columns": 7,
+    "enum_cases": 4
+   }
+  },
+  {
+   "id": "cron+ext",
+   "summary": "Mnemo's 5-field cron + the two random extensions",
+   "growth": {
+    "columns": 7,
+    "enum_cases": 3
+   }
+  },
+  {
+   "id": "chronicle-enum",
+   "summary": "Chronicle's 7-case RepeatRule, kind + one packed value",
+   "growth": {
+    "columns": 2,
+    "enum_cases": 7
+   }
+  },
+  {
+   "id": "one-shot",
+   "summary": "CONTROL: no recurrence",
+   "growth": {
+    "columns": 0
+   },
+   "control": true,
+   "expect_fail": [
+    "tendril-elastic-3d",
+    "tendril-monthly-31st",
+    "tendril-second-tuesday",
+    "tendril-until",
+    "chronicle-every-90min",
+    "chronicle-weekdays",
+    "chronicle-random-days",
+    "mnemo-cron-every-15",
+    "mnemo-cron-twice-daily",
+    "mnemo-cron-dom-or-dow",
+    "mnemo-stochastic-window"
+   ]
+  }
+ ]
+}

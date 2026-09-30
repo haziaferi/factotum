@@ -1,0 +1,204 @@
+{
+ "repo": "Chronicle",
+ "claims": [
+  {
+   "claim": "1. RepeatRule has 7 cases: None, EveryInterval(Duration), Daily, Weekly, Monthly, Weekdays(Set<DayOfWeek>), RandomDays(minDays, maxDays).",
+   "verdict": "confirmed",
+   "evidence": [
+    {
+     "file": "domain/src/main/kotlin/com/hazia/chronicle/domain/enums/Enums.kt",
+     "line": 83,
+     "quote": "sealed class RepeatRule {"
+    },
+    {
+     "file": "domain/src/main/kotlin/com/hazia/chronicle/domain/enums/Enums.kt",
+     "line": 85,
+     "quote": "data class EveryInterval(val interval: java.time.Duration) : RepeatRule()"
+    },
+    {
+     "file": "domain/src/main/kotlin/com/hazia/chronicle/domain/enums/Enums.kt",
+     "line": 91,
+     "quote": "data class Weekdays(val days: Set<java.time.DayOfWeek>) : RepeatRule() {"
+    },
+    {
+     "file": "domain/src/main/kotlin/com/hazia/chronicle/domain/enums/Enums.kt",
+     "line": 103,
+     "quote": "data class RandomDays(val minDays: Int, val maxDays: Int) : RepeatRule() {"
+    }
+   ]
+  },
+  {
+   "claim": "2. The next due time is computed from the previous DUE time (anchored), not from when the reminder was acknowledged.",
+   "verdict": "partial",
+   "evidence": [
+    {
+     "file": "app/src/main/kotlin/com/hazia/chronicle/alarm/ReminderAlarmReceiver.kt",
+     "line": 122,
+     "quote": "val next = nextOccurrenceAfter(reminder.dueAt, reminder.repeatRule, LocalDateTime.now()) ?: return"
+    },
+    {
+     "file": "domain/src/main/kotlin/com/hazia/chronicle/domain/remind/RepeatSchedule.kt",
+     "line": 82,
+     "quote": "return from.plus(rule.interval.multipliedBy(steps))"
+    },
+    {
+     "file": "core/data/src/main/kotlin/com/hazia/chronicle/core/data/remind/ReminderRepository.kt",
+     "line": 118,
+     "quote": "else nextOccurrenceAfter(current.dueAt, current.repeatRule, now) ?: current.dueAt"
+    }
+   ]
+  },
+  {
+   "claim": "3. If the device was off and several occurrences passed, they are skipped and the next future one is used (no backlog).",
+   "verdict": "confirmed",
+   "evidence": [
+    {
+     "file": "domain/src/main/kotlin/com/hazia/chronicle/domain/remind/RepeatSchedule.kt",
+     "line": 87,
+     "quote": "while (!next.isAfter(after)) {"
+    },
+    {
+     "file": "domain/src/main/kotlin/com/hazia/chronicle/domain/remind/RepeatSchedule.kt",
+     "line": 95,
+     "quote": "private const val MAX_CATCH_UP_STEPS = 20_000"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/chronicle/alarm/ReminderAlarmReceiver.kt",
+     "line": 86,
+     "quote": "val missed = if (firedCount == 0 && !isSnooze) skippedOccurrences(reminder.dueAt, reminder.repeatRule, LocalDateTime.now()) else 0"
+    }
+   ]
+  },
+  {
+   "claim": "4. EveryInterval accepts sub-day durations (minutes/hours); give its minimum.",
+   "verdict": "partial",
+   "evidence": [
+    {
+     "file": "domain/src/main/kotlin/com/hazia/chronicle/domain/quickadd/RepeatWords.kt",
+     "line": 22,
+     "quote": "val INTERVAL_MIN: Duration = Duration.ofMinutes(5)"
+    },
+    {
+     "file": "feature/remind/src/main/res/values/strings.xml",
+     "line": 99,
+     "quote": "<string name=\"reminder_interval_invalid\">From 5 minutes to 365 days.</string>"
+    },
+    {
+     "file": "domain/src/main/kotlin/com/hazia/chronicle/domain/remind/RepeatSchedule.kt",
+     "line": 79,
+     "quote": "if (intervalMs <= 0L) return null"
+    }
+   ]
+  },
+  {
+   "claim": "5. RandomDays picks a whole-day gap uniformly in [minDays, maxDays] after each firing and keeps the same time of day; the draw is stored, not recomputed.",
+   "verdict": "partial",
+   "evidence": [
+    {
+     "file": "domain/src/main/kotlin/com/hazia/chronicle/domain/remind/RepeatSchedule.kt",
+     "line": 40,
+     "quote": "from.plusDays(kotlin.random.Random(seed).nextInt(rule.minDays, rule.maxDays + 1).toLong())"
+    },
+    {
+     "file": "domain/src/main/kotlin/com/hazia/chronicle/domain/remind/RepeatSchedule.kt",
+     "line": 39,
+     "quote": "val seed = from.toEpochSecond(java.time.ZoneOffset.UTC) * 31L + rule.minDays * 7L + rule.maxDays"
+    },
+    {
+     "file": "domain/src/main/kotlin/com/hazia/chronicle/domain/enums/Enums.kt",
+     "line": 98,
+     "quote": "deterministic in the occurrence it follows (`RepeatSchedule.stepOnce`), so re-arming"
+    }
+   ]
+  },
+  {
+   "claim": "6. Monthly on the 31st clamps to the month's last day.",
+   "verdict": "partial",
+   "evidence": [
+    {
+     "file": "domain/src/main/kotlin/com/hazia/chronicle/domain/remind/RepeatSchedule.kt",
+     "line": 30,
+     "quote": "RepeatRule.Monthly -> from.plusMonths(1)"
+    }
+   ]
+  },
+  {
+   "claim": "7. Weekdays(set) fires at the same time on each listed day.",
+   "verdict": "confirmed",
+   "evidence": [
+    {
+     "file": "domain/src/main/kotlin/com/hazia/chronicle/domain/remind/RepeatSchedule.kt",
+     "line": 44,
+     "quote": "var next = from.plusDays(1)"
+    },
+    {
+     "file": "domain/src/main/kotlin/com/hazia/chronicle/domain/remind/RepeatSchedule.kt",
+     "line": 45,
+     "quote": "while (next.dayOfWeek !in rule.days) next = next.plusDays(1)"
+    }
+   ]
+  }
+ ],
+ "missed": [
+  {
+   "fact": "Claim 2 nuance: the receiver anchors on stored dueAt, but the result is the first occurrence strictly after NOW, not one step on. For EveryInterval the grid stays anchored to dueAt (from + k*interval). For Daily/Weekly/Monthly/Weekdays/RandomDays it steps from the previous due and loops until after now. Acknowledging (setDone) does not re-anchor to the ack time. It calls the same nextOccurrenceAfter(current.dueAt, ...) and only when dueAt is already past now. A reminder acknowledged early keeps its dueAt.",
+   "file": "core/data/src/main/kotlin/com/hazia/chronicle/core/data/remind/ReminderRepository.kt",
+   "line": 117
+  },
+  {
+   "fact": "Claim 4: the domain type has no minimum. EveryInterval(Duration) is unvalidated at construction, and a zero or negative interval returns null (never repeats). Sub-millisecond intervals also return null. The 5-minute minimum and the 365-day maximum are only UI/quick-add policy (INTERVAL_MIN/INTERVAL_MAX), so synced or stored data below 5 minutes would still schedule.",
+   "file": "domain/src/main/kotlin/com/hazia/chronicle/domain/remind/RepeatSchedule.kt",
+   "line": 34
+  },
+  {
+   "fact": "Claim 5 correction: the gap is NOT stored. It is recomputed on every call from a deterministic seed (occurrence epoch-second, minDays, maxDays), so the same occurrence always yields the same gap. Only the range is persisted, packed as minDays*1000+maxDays. RandomDays requires minDays>=1, maxDays>=minDays and maxDays<=365. The draw is uniform over nextInt(min, max+1), and Random(seed) is fixed by Kotlin's algorithm, so a merge on another platform must reproduce the seed formula exactly to agree.",
+   "file": "domain/src/main/kotlin/com/hazia/chronicle/domain/enums/Enums.kt",
+   "line": 110
+  },
+  {
+   "fact": "Claim 6: there is no explicit clamp code. Clamping comes from java.time LocalDateTime.plusMonths, which clamps to the last valid day. Because each step is from the previous occurrence, the day drifts. A reminder on Jan 31 goes to Feb 28, then Mar 28, and does not return to the 31st. The drift is untested by the map.",
+   "file": "domain/src/main/kotlin/com/hazia/chronicle/domain/remind/RepeatSchedule.kt",
+   "line": 30
+  },
+  {
+   "fact": "One column (repeatIntervalMillis) carries three meanings: EVERY_INTERVAL millis, WEEKDAYS bitmask, RANDOM_DAYS packed minDays*1000+maxDays. It is nullable for None/Daily/Weekly/Monthly. The repeatRuleKind column stores string tags (EVERY_INTERVAL, WEEKDAYS, RANDOM_DAYS and the others). The same encoding is duplicated in SyncCodec, so a merge must decode by kind.",
+   "file": "data/src/main/kotlin/com/hazia/chronicle/data/room/entity/ReminderEntity.kt",
+   "line": 31
+  },
+  {
+   "fact": "The Room mapper errors (error(...)) on a null interval for EVERY_INTERVAL/WEEKDAYS/RANDOM_DAYS, so a merge producing kind without value would crash on read.",
+   "file": "data/src/main/kotlin/com/hazia/chronicle/data/room/EntityMappers.kt",
+   "line": 213
+  },
+  {
+   "fact": "Identity and deletion columns on the reminder: primary key id; soft delete via deletedAtMillis; two independent LWW groups (scheduleUpdatedAtMillis/ByDevice covering dueAt and repeat fields, statusUpdatedAtMillis/ByDevice covering done/notified). The repeat rule belongs to the schedule group, and the receiver's roll-forward rewrites dueAt and bumps scheduleUpdatedAt, so a device firing an alarm can win the merge against an edit.",
+   "file": "data/src/main/kotlin/com/hazia/chronicle/data/room/entity/ReminderEntity.kt",
+   "line": 42
+  },
+  {
+   "fact": "Other repeat-adjacent fields in the same entity: kind (NOTIFICATION/ALARM), nagEnabled/nagMaxRepeats/nagMaxDurationMillis (NagPolicy defaults 3 repeats, 1h), soundRef, done, notified. dueAt is wall-clock LocalDateTime text (dueAtIso), not an instant.",
+   "file": "data/src/main/kotlin/com/hazia/chronicle/data/room/entity/ReminderEntity.kt",
+   "line": 26
+  },
+  {
+   "fact": "Weekdays alignment: alignToRule moves a dueAt that is not on a selected day forward to the first selected day at the same time, so the stored first occurrence can differ from the chosen date. Only Weekdays does this.",
+   "file": "domain/src/main/kotlin/com/hazia/chronicle/domain/remind/RepeatSchedule.kt",
+   "line": 161
+  },
+  {
+   "fact": "DST handling: nextFireInstant resolves wall-clock to an instant, trying both offsets in a fall-back overlap, and gives a 60-second grace for just-past alarms before rolling forward. Catch-up is capped at 20,000 steps (returns null, i.e. no alarm, beyond that).",
+   "file": "domain/src/main/kotlin/com/hazia/chronicle/domain/remind/RepeatSchedule.kt",
+   "line": 137
+  }
+ ],
+ "absence_probes": [
+  {
+   "pattern": "explicit month-end clamp code (coerceAtMost|lengthOfMonth|withDayOfMonth) in RepeatSchedule.kt (not run; clamping read from plusMonths usage)",
+   "hits": 0
+  },
+  {
+   "pattern": "stored random draw column (separate field for next random gap)",
+   "hits": 0
+  }
+ ]
+}

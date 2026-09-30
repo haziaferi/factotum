@@ -1,0 +1,67 @@
+{
+ "rrule": {
+  "tendril-elastic-3d": 1,
+  "tendril-monthly-31st": 1,
+  "tendril-second-tuesday": 1,
+  "tendril-until": 1,
+  "chronicle-every-90min": 1,
+  "chronicle-weekdays": 1,
+  "chronicle-random-days": 0,
+  "mnemo-cron-every-15": 1,
+  "mnemo-cron-twice-daily": 1,
+  "mnemo-cron-dom-or-dow": 0,
+  "mnemo-stochastic-window": 0
+ },
+ "rrule+ext": {
+  "tendril-elastic-3d": 1,
+  "tendril-monthly-31st": 1,
+  "tendril-second-tuesday": 1,
+  "tendril-until": 1,
+  "chronicle-every-90min": 1,
+  "chronicle-weekdays": 1,
+  "chronicle-random-days": 1,
+  "mnemo-cron-every-15": 1,
+  "mnemo-cron-twice-daily": 1,
+  "mnemo-cron-dom-or-dow": 1,
+  "mnemo-stochastic-window": 1
+ },
+ "cron+ext": {
+  "tendril-elastic-3d": 0,
+  "tendril-monthly-31st": 0,
+  "tendril-second-tuesday": 0,
+  "tendril-until": 0,
+  "chronicle-every-90min": 0,
+  "chronicle-weekdays": 1,
+  "chronicle-random-days": 1,
+  "mnemo-cron-every-15": 1,
+  "mnemo-cron-twice-daily": 1,
+  "mnemo-cron-dom-or-dow": 1,
+  "mnemo-stochastic-window": 1
+ },
+ "chronicle-enum": {
+  "tendril-elastic-3d": 1,
+  "tendril-monthly-31st": 0,
+  "tendril-second-tuesday": 0,
+  "tendril-until": 0,
+  "chronicle-every-90min": 1,
+  "chronicle-weekdays": 1,
+  "chronicle-random-days": 1,
+  "mnemo-cron-every-15": 0,
+  "mnemo-cron-twice-daily": 0,
+  "mnemo-cron-dom-or-dow": 0,
+  "mnemo-stochastic-window": 0
+ },
+ "one-shot": {
+  "tendril-elastic-3d": 0,
+  "tendril-monthly-31st": 0,
+  "tendril-second-tuesday": 0,
+  "tendril-until": 0,
+  "chronicle-every-90min": 0,
+  "chronicle-weekdays": 0,
+  "chronicle-random-days": 0,
+  "mnemo-cron-every-15": 0,
+  "mnemo-cron-twice-daily": 0,
+  "mnemo-cron-dom-or-dow": 0,
+  "mnemo-stochastic-window": 0
+ }
+}

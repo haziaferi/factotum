@@ -1,0 +1,240 @@
+{
+ "repo": "Mnemo",
+ "claims": [
+  {
+   "claim": "ScheduleType is ONE_SHOT, CRON or STOCHASTIC.",
+   "verdict": "confirmed",
+   "evidence": [
+    {
+     "file": "app/src/main/kotlin/com/hazia/mnemo/data/local/Reminder.kt",
+     "line": 13,
+     "quote": "enum class ScheduleType { ONE_SHOT, CRON, STOCHASTIC }"
+    }
+   ]
+  },
+  {
+   "claim": "The cron parser accepts standard 5-field cron; which syntax (ranges, steps, lists, names, L, W, #, ?), and is there a seconds field?",
+   "verdict": "partial",
+   "evidence": [
+    {
+     "file": "app/src/main/kotlin/com/hazia/mnemo/domain/schedule/ScheduleCalculator.kt",
+     "line": 76,
+     "quote": "if (fields.size != 5) return null"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/mnemo/domain/schedule/ScheduleCalculator.kt",
+     "line": 119,
+     "quote": "for (part in field.split(\",\")) {"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/mnemo/domain/schedule/ScheduleCalculator.kt",
+     "line": 122,
+     "quote": "val step = if (hasStep) part.substringAfter(\"/\").toIntOrNull()?.takeIf { it > 0 } ?: return null else 1"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/mnemo/domain/schedule/ScheduleCalculator.kt",
+     "line": 126,
+     "quote": "\"-\" in range -> range.substringBefore(\"-\") to range.substringAfter(\"-\")"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/mnemo/domain/schedule/ScheduleCalculator.kt",
+     "line": 129,
+     "quote": "val start = startStr.toIntOrNull() ?: return null"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/mnemo/domain/schedule/ScheduleCalculator.kt",
+     "line": 84,
+     "quote": "val daysOfWeek = expandField(fields[4], 0, 7)?.map { it % 7 }?.toSet() ?: return null"
+    }
+   ]
+  },
+  {
+   "claim": "Every accepted cron expression can be written as an RFC 5545 RRULE (minute steps, dom AND dow with OR semantics).",
+   "verdict": "refuted",
+   "evidence": [
+    {
+     "file": "app/src/main/kotlin/com/hazia/mnemo/domain/schedule/ScheduleCalculator.kt",
+     "line": 99,
+     "quote": "// Crontab's quirk: with both day fields restricted they are OR'd, not AND'd."
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/mnemo/domain/schedule/ScheduleCalculator.kt",
+     "line": 100,
+     "quote": "val dayMatches = if (domRestricted && dowRestricted) domMatches || dowMatches else domMatches && dowMatches"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/mnemo/domain/schedule/ScheduleCalculator.kt",
+     "line": 86,
+     "quote": "val domRestricted = fields[2] != \"*\""
+    }
+   ]
+  },
+  {
+   "claim": "STOCHASTIC fires once per allowed day (day-of-week mask) at a uniformly random time inside [windowStart, windowEnd]; the draw is stored in nextFireAtEpochMillis.",
+   "verdict": "partial",
+   "evidence": [
+    {
+     "file": "app/src/main/kotlin/com/hazia/mnemo/data/local/Reminder.kt",
+     "line": 47,
+     "quote": "val stochasticDaysOfWeekMask: Int? = null,"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/mnemo/domain/schedule/ScheduleCalculator.kt",
+     "line": 178,
+     "quote": "val drawn = effectiveStart.toInstant().toEpochMilli() +"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/mnemo/domain/schedule/ScheduleCalculator.kt",
+     "line": 179,
+     "quote": "if (rangeMillis > 0) Random.nextLong(0, rangeMillis) else 0"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/mnemo/domain/schedule/ScheduleCalculator.kt",
+     "line": 174,
+     "quote": "val effectiveStart = if (windowStart.toInstant().isBefore(from)) fromZoned else windowStart"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/mnemo/data/repository/ReminderRepository.kt",
+     "line": 171,
+     "quote": "ScheduleType.STOCHASTIC -> ScheduleCalculator.startOfNextDay(Instant.ofEpochMilli(now))"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/mnemo/data/repository/ReminderRepository.kt",
+     "line": 178,
+     "quote": "nextFireAtEpochMillis = next?.toEpochMilli() ?: existing.nextFireAtEpochMillis,"
+    }
+   ]
+  },
+  {
+   "claim": "After a missed fire (device off), the next fire is the next future occurrence; no backlog.",
+   "verdict": "refuted",
+   "evidence": [
+    {
+     "file": "app/src/main/kotlin/com/hazia/mnemo/data/alarm/BootReceiver.kt",
+     "line": 35,
+     "quote": " * Re-arms every active reminder's alarm after a reboot, using whatever `nextFireAtEpochMillis` is"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/mnemo/data/alarm/BootReceiver.kt",
+     "line": 47,
+     "quote": " * `AlarmManager` fires a past trigger time immediately, so a reminder missed during downtime"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/mnemo/data/alarm/BootReceiver.kt",
+     "line": 49,
+     "quote": " * and is corrected in v1.15 rather than the behaviour changed; the policy question (fire once,"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/mnemo/data/alarm/BootReceiver.kt",
+     "line": 60,
+     "quote": "dao.getAllActive().forEach { scheduler.arm(it) }"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/mnemo/data/repository/ReminderRepository.kt",
+     "line": 174,
+     "quote": "val next = ScheduleCalculator.nextFireAfter(existing, searchFrom)"
+    }
+   ]
+  },
+  {
+   "claim": "The UI offers which schedule choices, and whether users type raw cron.",
+   "verdict": "confirmed",
+   "evidence": [
+    {
+     "file": "app/src/main/kotlin/com/hazia/mnemo/ui/edit/EditReminderScreen.kt",
+     "line": 209,
+     "quote": "label = { Text(\"One-off\") },"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/mnemo/ui/edit/EditReminderScreen.kt",
+     "line": 214,
+     "quote": "label = { Text(\"Recurring\") },"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/mnemo/ui/edit/EditReminderScreen.kt",
+     "line": 219,
+     "quote": "label = { Text(\"Random\") },"
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/mnemo/ui/edit/EditReminderScreen.kt",
+     "line": 228,
+     "quote": "ScheduleType.CRON -> OutlinedTextField("
+    },
+    {
+     "file": "app/src/main/kotlin/com/hazia/mnemo/ui/edit/EditReminderScreen.kt",
+     "line": 231,
+     "quote": "label = { Text(\"Cron expression (min hour dom month dow)\") },"
+    }
+   ]
+  }
+ ],
+ "missed": [
+  {
+   "fact": "Claim 2 detail: parser accepts only numeric values, comma lists, a-b ranges, '*' and '/step' (including a-b/n). No month/day names, no L, W, #, ?, and no seconds field (exactly 5 fields). Sunday may be 0 or 7. Zero hits for names/L/? tokens in the parser.",
+   "file": "app/src/main/kotlin/com/hazia/mnemo/domain/schedule/ScheduleCalculator.kt",
+   "line": 117
+  },
+  {
+   "fact": "Claim 3 detail: the only accepted form with no RRULE equivalent is dom+dow OR semantics (RRULE BYDAY and BYMONTHDAY are AND-ed). Minute steps like */15 map to BYMINUTE=0,15,30,45. Also, 'restricted' is tested as field != \"*\", so '*/2' in dom or dow counts as restricted and triggers OR, unlike Vixie cron, which treats a leading star as unrestricted.",
+   "file": "app/src/main/kotlin/com/hazia/mnemo/domain/schedule/ScheduleCalculator.kt",
+   "line": 86
+  },
+  {
+   "fact": "Claim 4 detail: the draw is uniform over [effectiveStart, windowEnd) (end exclusive), and on the creation day the window start is clamped to 'from'. After a fire the search starts at midnight tomorrow, so there is one draw per eligible day. The mask is 7-bit (bit 0 = Monday). Window times are stored as ms-of-day Ints, start <= end required, so there is no overnight window.",
+   "file": "app/src/main/kotlin/com/hazia/mnemo/domain/schedule/ScheduleCalculator.kt",
+   "line": 153
+  },
+  {
+   "fact": "Claim 5 detail: a missed occurrence is not skipped. The boot and launch re-arm keeps the stored past nextFireAtEpochMillis, and AlarmManager fires it immediately. Only after that fire does recordFired compute the next future occurrence. So one late fire, then forward. There is no backlog of multiple missed occurrences, but the missed one is delivered late. The spec records the policy as open.",
+   "file": "app/src/main/kotlin/com/hazia/mnemo/data/alarm/BootReceiver.kt",
+   "line": 46
+  },
+  {
+   "fact": "Identity and deletion columns the map omits: id is a client UUID primary key; isArchived is overloaded as soft delete, sync tombstone, done, and a spent one-shot; updatedAtEpochMillis drives sync conflict detection.",
+   "file": "app/src/main/kotlin/com/hazia/mnemo/data/local/Reminder.kt",
+   "line": 23
+  },
+  {
+   "fact": "nextFireAtEpochMillis carries several meanings: the armed alarm, the ONE_SHOT target (the only place a one-shot's time is stored, since there is no separate column), the stochastic draw, and the snooze time (snooze overwrites it with untilEpochMillis). snoozedUntilEpochMillis duplicates the snooze but is separate.",
+   "file": "app/src/main/kotlin/com/hazia/mnemo/data/repository/ReminderRepository.kt",
+   "line": 132
+  },
+  {
+   "fact": "The UI labels the types 'One-off', 'Recurring' and 'Random', and Recurring is raw cron text entry with no builder. Validation runs on every keystroke against ScheduleCalculator.",
+   "file": "app/src/main/kotlin/com/hazia/mnemo/ui/edit/EditReminderScreen.kt",
+   "line": 235
+  },
+  {
+   "fact": "Cron search is bounded to four years, and an unsatisfiable expression returns null. recordFired then archives the reminder. Cron is evaluated in the device zone, and there is no stored timezone on the Reminder.",
+   "file": "app/src/main/kotlin/com/hazia/mnemo/domain/schedule/ScheduleCalculator.kt",
+   "line": 93
+  },
+  {
+   "fact": "Two other columns outside the recurrence fields affect a merge: mode (EASE/SCHEDULE/ALERT) and nagEnabled (repeat until dismissed).",
+   "file": "app/src/main/kotlin/com/hazia/mnemo/data/local/Reminder.kt",
+   "line": 57
+  }
+ ],
+ "absence_probes": [
+  {
+   "pattern": "rrule (case-insensitive, *.kt and *.md, excluding .bak)",
+   "hits": 0
+  },
+  {
+   "pattern": "5545",
+   "hits": 0
+  },
+  {
+   "pattern": "\\bical(endar)?\\b",
+   "hits": 0
+  },
+  {
+   "pattern": "JAN|MON|SUN|\"L\"|'L'|'?' in ScheduleCalculator.kt",
+   "hits": 0
+  },
+  {
+   "pattern": "a seconds field (parser requires fields.size == 5)",
+   "hits": 0
+  }
+ ]
+}
