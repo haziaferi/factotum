@@ -1,0 +1,66 @@
+{
+ "contest": "10-search",
+ "growth_note": "FTS virtual tables + their columns; the enum_cases slot carries trigger count",
+ "options": [
+  {
+   "id": "two-indexes",
+   "summary": "as-is: Tendril's page_fts + block_fts (simple, app code) beside Chronicle's search_fts (unicode61, triggers)",
+   "growth": {
+    "tables": 3,
+    "columns": 7,
+    "enum_cases": 12
+   }
+  },
+  {
+   "id": "tendril-all",
+   "summary": "a table per kind, simple tokenizer, app code",
+   "growth": {
+    "tables": 6,
+    "columns": 12,
+    "enum_cases": 0
+   }
+  },
+  {
+   "id": "chronicle-all",
+   "summary": "one search_fts(text, kind, row_key), unicode61, triggers on every source",
+   "growth": {
+    "tables": 1,
+    "columns": 3,
+    "enum_cases": 18
+   }
+  },
+  {
+   "id": "one-index-app",
+   "summary": "one search_fts, unicode61, maintained by app code",
+   "growth": {
+    "tables": 1,
+    "columns": 3,
+    "enum_cases": 0
+   }
+  },
+  {
+   "id": "per-kind-triggers",
+   "summary": "a table per kind, unicode61, triggers",
+   "growth": {
+    "tables": 6,
+    "columns": 12,
+    "enum_cases": 18
+   }
+  },
+  {
+   "id": "like-only",
+   "summary": "CONTROL: no index; LIKE over every source",
+   "growth": {
+    "tables": 0,
+    "columns": 0,
+    "enum_cases": 0
+   },
+   "control": true,
+   "expect_fail": [
+    "tendril-block-snippet",
+    "chronicle-accents-folded",
+    "shared-one-search"
+   ]
+  }
+ ]
+}

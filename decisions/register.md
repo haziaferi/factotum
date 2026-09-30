@@ -13,7 +13,7 @@ The contests are taken in dependency order. There is one row per contest.
 | 07 | Timed interval (map: duplicated; verification: contested) | decided | activity-item; several timers at once | 9 | [07-timelog.md](07-timelog.md) |
 | 08 | Tagging (map: duplicated; verification: contested) | decided | one-vocab; the word is "Label" | 10 | [08-tagging.md](08-tagging.md) |
 | 09 | Settings store (map: duplicated; verification: contested) | decided | scoped-live (owner, against the recommendation) | 9 | [09-settings.md](09-settings.md) |
-| 10 | Full-text search (map: duplicated) | open | | | |
+| 10 | Full-text search (map: duplicated; verification: contested) | decided | chronicle-all (one FTS4 index, unicode61, triggers) | 7 | [10-search.md](10-search.md) |
 
 Standing owner answers (2026-09-30):
 - Fresh start.

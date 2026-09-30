@@ -1,0 +1,7 @@
+{"id": "tendril-block-snippet", "owner": "tendril", "given": "'quantum' finds block B1 of 'Dune' with a highlighted snippet", "when": "run on real SQLite FTS4 tables", "then": "holds", "source": "BlockFts.kt:43-45"}
+{"id": "tendril-title-and-body", "owner": "tendril", "given": "a page is found by a title word and by a body word", "when": "run on real SQLite FTS4 tables", "then": "holds", "source": "PageContentRepository.kt:37-44"}
+{"id": "chronicle-any-write-path", "owner": "chronicle", "given": "a row written by any path (a sync import) is found at once", "when": "run on real SQLite FTS4 tables", "then": "holds", "source": "SearchFts.kt:21,80"}
+{"id": "chronicle-accents-folded", "owner": "chronicle", "given": "'perche' finds 'perch\u00e9' in a page (unicode61)", "when": "run on real SQLite FTS4 tables", "then": "holds", "source": "SearchFts.kt:31; Migrations.kt:42"}
+{"id": "chronicle-all-kinds", "owner": "chronicle", "given": "'yoga' finds the activity, reminder, tracker, reading note and session comment", "when": "run on real SQLite FTS4 tables", "then": "holds", "source": "SearchRepository.kt:21; SearchFts.kt:62-74"}
+{"id": "chronicle-tombstone-leaves", "owner": "chronicle", "given": "a tombstoned reminder leaves the results", "when": "run on real SQLite FTS4 tables", "then": "holds", "source": "SearchFts.kt:68"}
+{"id": "shared-one-search", "owner": "shared", "given": "one query over one index returns the block, the items, the reading and the span", "when": "run on real SQLite FTS4 tables", "then": "holds", "source": "one-home rule"}

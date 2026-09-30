@@ -1,0 +1,56 @@
+{
+ "two-indexes": {
+  "tendril-block-snippet": 1,
+  "tendril-title-and-body": 1,
+  "chronicle-any-write-path": 0,
+  "chronicle-accents-folded": 0,
+  "chronicle-all-kinds": 1,
+  "chronicle-tombstone-leaves": 1,
+  "shared-one-search": 0
+ },
+ "tendril-all": {
+  "tendril-block-snippet": 1,
+  "tendril-title-and-body": 1,
+  "chronicle-any-write-path": 0,
+  "chronicle-accents-folded": 0,
+  "chronicle-all-kinds": 1,
+  "chronicle-tombstone-leaves": 1,
+  "shared-one-search": 0
+ },
+ "chronicle-all": {
+  "tendril-block-snippet": 1,
+  "tendril-title-and-body": 1,
+  "chronicle-any-write-path": 1,
+  "chronicle-accents-folded": 1,
+  "chronicle-all-kinds": 1,
+  "chronicle-tombstone-leaves": 1,
+  "shared-one-search": 1
+ },
+ "one-index-app": {
+  "tendril-block-snippet": 1,
+  "tendril-title-and-body": 1,
+  "chronicle-any-write-path": 0,
+  "chronicle-accents-folded": 1,
+  "chronicle-all-kinds": 1,
+  "chronicle-tombstone-leaves": 1,
+  "shared-one-search": 1
+ },
+ "per-kind-triggers": {
+  "tendril-block-snippet": 1,
+  "tendril-title-and-body": 1,
+  "chronicle-any-write-path": 1,
+  "chronicle-accents-folded": 1,
+  "chronicle-all-kinds": 1,
+  "chronicle-tombstone-leaves": 1,
+  "shared-one-search": 0
+ },
+ "like-only": {
+  "tendril-block-snippet": 0,
+  "tendril-title-and-body": 1,
+  "chronicle-any-write-path": 1,
+  "chronicle-accents-folded": 0,
+  "chronicle-all-kinds": 1,
+  "chronicle-tombstone-leaves": 1,
+  "shared-one-search": 0
+ }
+}
