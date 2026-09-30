@@ -39,9 +39,13 @@
    "control": true,
    "expect_fail": [
     "tendril-secret-never-leaves",
+    "tendril-layout-per-device",
     "chronicle-device-id-own",
     "mnemo-mode-per-device",
-    "equipoise-llm-stays"
+    "mnemo-backup-restores-prefs",
+    "mnemo-folder-not-restored",
+    "equipoise-llm-stays",
+    "shared-first-run-not-restored"
    ]
   }
  ]

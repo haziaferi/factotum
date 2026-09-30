@@ -1,6 +1,6 @@
 # ADR 10: Full-text search, one index kept by triggers
 
-Status: **decided: chronicle-all**. Date: 2026-10-01. Owners: Tendril and Chronicle. Mnemo and Equipoise have no search index: a grep for `@Fts`, `USING fts` and `MATCH` found 0 files in either repo.
+Status: **decided: chronicle-all**. Date: 2026-10-01. Owners: Tendril and Chronicle. Mnemo and Equipoise have no search index: a grep of their Kotlin sources (`*.kt`) for `@Fts`, `USING fts`, `MATCH :` and `fts` found 0 files. A grep over all files hits only tests, tooling scripts and Equipoise's vendored `third_party/llama.cpp`.
 
 The map listed this row as *duplicated*. Verification found the two indexes differ on three axes: tokenizer, how the index is kept current, and layout. Neither holds the other: Tendril's tokenizer misses accented words, and Chronicle doesn't index pages. The index also has to cover what ADRs 02–08 made searchable.
 
@@ -22,7 +22,7 @@ The facts were verified with `tools/verify.py`; the raw output is in `verify/10-
 | Option | Chronicle | Shared | Tendril | Growth | Status |
 |---|---|---|---|---|---|
 | two-indexes (as-is) | 0.50 | 0.00 | 1.00 | 22 | dominated |
-| tendril-all | 0.50 | 0.00 | 1.00 | 18 | dominated (`simple` doesn't fold "perché"; a sync import isn't indexed) |
+| tendril-all | 0.50 | 0.00 | 1.00 | 18 | dominated (`simple` doesn't fold "perché"; a raw write that skips the rebuild call isn't indexed. Tendril's sync merge does make that call, `PagesSyncEngine.kt:682`) |
 | **chronicle-all** | 1.00 | 1.00 | 1.00 | 22 | **front, the only full coverage** |
 | one-index-app | 0.75 | 1.00 | 1.00 | 4 | front (a row written outside the repository isn't searchable) |
 | per-kind-triggers | 1.00 | 0.00 | 1.00 | 36 | dominated (six queries) |

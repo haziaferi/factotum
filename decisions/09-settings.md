@@ -18,7 +18,7 @@ The facts were verified with `tools/verify.py`; the raw output is in `verify/09-
 | Tendril | A string-only `KeyValueStore`: SharedPreferences `tendril_kv` on Android, a Properties file on desktop. It has 26 key constants in shared code, and the desktop sync folder is kept separately in `java.util.prefs`. Several Android preference classes sit outside it (app lock, calendar, sync folder). | `KeyValueStore.kt:19`; `AndroidKeyValueStore.kt:17`; `DesktopSyncFolderManager.kt:21`; `AppLockPreferences.kt:10` | "KeyValueStore" (partial) |
 | Tendril | The AI key is a secret kept apart from settings: Keystore on Android, a DPAPI-wrapped file on desktop. | `AiKeyStore.kt:7`; `FileAiKeyStore.kt:36` | not stated |
 | Tendril | No setting syncs, and none is in the backup (0 hits in sync code and in `PortableArchive`). The store also holds per-device layout: window frame, pane widths, pop-outs. | `data_extraction_rules.xml:4,7`; `PopOuts.kt:58` | not stated |
-| Chronicle | **The map didn't open this.** Settings are one Preferences DataStore, `chronicle_settings`, with 33 keys across files. It also holds non-settings state: alarm codes, pending alerts, the folder-sync seen marks and **`device_id`**. | `CoreDataModule.kt:43-44`; `SettingsRepository.kt:117-128`; `PendingAlerts.kt:99` | "DataStore" (unverified before) |
+| Chronicle | **The map didn't open this.** Settings are one Preferences DataStore, `chronicle_settings`, with 33 keys across files. It also holds non-settings state: alarm codes, pending alerts, the folder-sync seen marks and **`device_id`**. | `CoreDataModule.kt:43-44`; `SettingsRepository.kt:117-128` (the settings keys); `AlarmCodes.kt:70`; `PendingAlerts.kt:100`; `DeviceIdRepository.kt:24` | "DataStore" (unverified before) |
 | Chronicle | No setting syncs or travels in the backup. A corrupt file resets to empty, which **regenerates `device_id`**, and the old identity's file stays in the folder as a stale peer. The PIN is a salted PBKDF2 hash in the same store. | `FolderSync.kt:24-28`; `SyncPayload.kt:17`; `CoreDataModule.kt:41`; `SettingsRepository.kt:127-128,207` | not stated |
 | Mnemo | Preferences DataStore `app_settings` (5 keys), plus a **second store**: SharedPreferences `sync_export`, holding the folder's SAF tree URI. | `AppSettingsStore.kt:18`; `SyncRootStore.kt:28,63-64` | "DataStore" (partial) |
 | Mnemo | Settings are "deliberately not part of the sync path", because a phone and a tablet may want different defaults. The manual full backup carries them, and restoring **overwrites everything**, including a per-device first-run flag. The folder URI isn't in the backup. | `AppSettingsStore.kt:22,107-108`; `FullBackupManager.kt:32,58,184`; `SyncRootStore.kt:49` | not stated |
@@ -35,7 +35,7 @@ The simulator models phone A and tablet B sharing a folder, and phone C restored
 | all-local | 1.00 | 0.50 | 0.67 | 1.00 | 1.00 | 2 | front (nothing restores) |
 | local+backup | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 | 3 | **front, the recommendation** |
 | scoped-live | 1.00 | 1.00 | 1.00 | 1.00 | 1.00 | 4 | dominated by the metric; **the owner's pick** |
-| synced-table (control) | 0.00 | 0.50 | 0.00 | 0.00 | 0.00 | 1 | failed 8 of 9, as expected (tablet B takes phone A's sync identity) |
+| synced-table (control) | 0.00 | 0.50 | 0.00 | 0.00 | 0.00 | 1 | failed 8 of 9, all expected (tablet B takes phone A's sync identity) |
 
 Growth here is a hand count of storage places, taken from the verification. It isn't measured from a schema, and it only breaks ties.
 

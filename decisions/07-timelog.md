@@ -48,7 +48,7 @@ The growth metric can't see one cost, the same one ADR 03 and ADR 06 accepted: e
 ## Decision
 
 **activity-item** was confirmed by the owner on 2026-09-30.
-- **An activity is an `item` of kind ACTIVITY.** `icon`, `color`, `category_id` (SET NULL), `archived` and `sort_order` are allowed on ACTIVITY only (CHECK).
+- **An activity is an `item` of kind ACTIVITY.** `icon`, `color` and `archived` are allowed on ACTIVITY only (CHECK). `sort_order` is allowed on ACTIVITY and HABIT, because Tendril habits keep a manual order inside a time block (`Habit.kt:86-87`). The activity's category is ADR 08's `label_id`, which is allowed on ACTIVITY and HABIT (amended 2026-10-01; this line first said `category_id`, on ACTIVITY only).
   - Activities never appear on the calendar, the task list or the day view; those readers filter by kind.
   - Goals with `target_type` ACTIVITY now point at the item id.
 - **One `time_span` table**: `item_id` (required; CASCADE for tasks and habits), `started_at`, `ended_at` (null while running), `comment`, `planned_run`, plus ADR 01's identity and stamps.
@@ -58,9 +58,17 @@ The growth metric can't see one cost, the same one ADR 03 and ADR 06 accepted: e
 
 ## Consequences: fixes, not questions
 
-Both apps have these gaps. They are fixed in the merge.
+Each bullet names which app has the gap or the feature. All are fixed in the merge.
 - **Overlaps are merged in every total.** Both apps count overlapping time twice (`TimeLogTotals.kt:21`; `ActivityDetailViewModel.kt:256`). With several timers allowed, overlap is normal, so totals such as "time tracked today" take the union of intervals. A total for one owner still counts that owner's own spans.
-- **Windows select spans by overlap and clip at the window's edges.** Selecting by start time (`TimeLogDao.kt:32`, `CoreDao.kt:73`) loses a span that crosses midnight.
-- **Spans whose owner is tombstoned drop out of totals.** Tendril's soft-delete leaves them counted.
-- **Manual entry and editing** (Chronicle) apply to every owner, tasks and habits included.
-- **Running spans after a sync merge**: ADR 01's merge can leave one open span per device. That is now allowed rather than a conflict, because several timers may run.
+- **Midnight-crossing spans** were an owner question, not a gap. Tendril counts a span for the day it began, on purpose (`TimeLogDao.kt:31-33`). Chronicle selects by start but clips to the window (`CoreDao.kt:73`; `ActivityDetailViewModel.kt:256-259`). See *Owner answer, 2026-10-01* below.
+- **Spans whose owner is tombstoned drop out of totals** (Tendril's gap). Tendril's soft-delete leaves them counted, whereas Chronicle already tombstones them (`ActivityRepository.kt:118-132`).
+- **Manual entry and editing** are a Chronicle feature that Tendril lacks. They apply to every owner, tasks and habits included.
+- **Running spans after a sync merge** (Tendril's case, `TimeTracker.kt:45-46`): ADR 01's merge can leave one open span per device. That is now allowed rather than a conflict, because several timers may run.
+
+## Owner answer, 2026-10-01
+
+This question was raised by the fresh-eyes audit (`docs/fresh-eyes-2026-10-01.md`).
+
+**A span counts wholly for the day it started**, as in Tendril (`TimeLogDao.kt:31-33`, "the day the person was working"). A 23:00–01:00 span gives 2 h to Monday.
+- **Every window follows the same rule**: day, week, and a goal's period. So daily totals always add up to the weekly one. Tendril's week summary clips (`TimeLogTotals.kt:15-21`), and Chronicle's `totalIn` clips (`ActivityDetailViewModel.kt:256-259`). Neither clip is carried over.
+- **A running span** counts up to now, for the day it started.
