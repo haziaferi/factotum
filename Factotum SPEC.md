@@ -1,6 +1,6 @@
 # Factotum — Product & Technical Spec
 
-**Status:** draft v0.6, seeded from the decision register · **Scope:** the merged data model, sync and behaviour rules of Factotum. Screens are not decided and are marked open (§10.1).
+**Status:** draft v0.7, seeded from the decision register · **Scope:** the merged data model, sync and behaviour rules of Factotum. Screens are not decided and are marked open (§10.1).
 **Related documents:** `decisions/`, the evidence behind §3: one ADR per decision with verified `file:line` facts, the scored options, the behaviour cases and the harness that measured them (`decisions/register.md` is the index). This spec states each decision once and points to its ADR for the evidence. It never restates the evidence.
 
 ---
@@ -9,6 +9,7 @@
 
 | Version | Summary | Sections touched |
 |---|---|---|
+| v0.7 | Slice 01's folder importer and exporter built (ADR 13): its 4 cases pass through them under a Syncthing double. Rows carry their table; group doubles must be finite; database version 2 | §3.1, §3.13, §7 |
 | v0.6 | §10.9 decided as ADR 13: device-log+copies. Five folder requirements added (§3.13) | §3.1, §3.13, §7, §10 |
 | v0.5 | Slice 01 built: the sync merge engine (§3.1), the database with its real open path and corruption guard, the purge registry, the clock and the device id. §10.9 opened: the sync folder's layout | §3.1, §7, §10 |
 | v0.4 | §10.2 and §10.3 decided: KMP split by layer (`:core`, `:data`, `:llm`, `:ui` later, `:android`, `:windows`); the data layer goes first, in ADR order, with no screens. Imports are hybrid and pass a review gate | §5.1, §7, §9, §10 |
@@ -109,7 +110,7 @@ Every decision here was scored against its owners' behaviour cases, with a contr
 - **The device id lives in its own file** (ADR 09), written atomically. An unreadable file is set aside and a new id made.
 - **Purges:** an import re-checks only the registry entries it added or lowered.
 
-**Next (unblocked by §3.13):** the importer that reads the folder, with its local `base`, pending-question and read-position tables.
+**Importer built (2026-10-01):** see §3.13. Two changes to the rules above came with it: a `Row` names its table (ids stay unique across tables), and a Double value must be finite, since NaN never equals itself and JSON cannot carry it.
 
 ### 3.2 Items: tasks and events — ADR 02
 
@@ -264,6 +265,22 @@ The device id is not a setting.
 
 **Acceptance:** the 4 cases in `cases/13-folder.jsonl` pass through the real importer and exporter, under a Syncthing double in the tests.
 
+**Built (2026-10-01):** `FolderSync` in `:data` (`com.factotum.data.sync`). The 4 cases pass as tests (`FolderSyncTest`), with a Syncthing double that follows the simulator's rules. Nine more folder tests, and tests of the line format and the export timing, cover what the cases do not reach. `tools/mutants.py 13` shows that each rule is needed: without it, named tests fail. What the build settled, none of which changes the decision:
+- **Snapshots are `snapshot-<seq>.jsonl`**, one record per line like the segments, where the ADR said `snapshot.json`. The sequence number in the name tells a reader a snapshot is new without opening it.
+- **A local outbox decides what to export.** Every local write and every import that changes a row queues it. A stamp cursor would not work: a version imported from a peer can carry an older stamp than anything this device has exported.
+- **An import commits in chunks of at most 2,000 lines.** Each chunk is one transaction, holding the merge, the read position it reached and the clock. A peer's 16 MB snapshot therefore neither fills memory nor holds the write lock for long, and a crash only means the rest is read again. The merge in `:core` stays synchronous: what a chunk can touch is loaded first, merged in memory, and written back.
+- **The purge registry is looked up by id** (`SyncStore.purge(id)`), never loaded whole, because it never shrinks. Only a snapshot reads all of it.
+- **Read positions are per file, in bytes.** A peer file is read only once it has grown. A last line with no newline is left for a later read, and a file that shrank (a torn SAF write) is read again from the start.
+- **Lines this version cannot read are skipped.** When the set of synced tables changes (an upgrade), the read positions are dropped and every peer file is read once more, so a record for a table this version lacked is applied after the upgrade. Peers' snapshots and segments hold their whole state, so nothing skipped is lost.
+- **A cloned device id:** copies are merged, then deleted. A conflict copy in a device's own folder also makes it re-read its own files, because the side that won the clash is not its own writing. Only a new id for one of the two devices ends the clashes; requirement 5 keeps that from arising. Owed: on finding such a copy, the device also takes a new id (ADR 09's file), which needs the app's identity wiring.
+- **Tables reach the importer through `RowTable`**, one per synced table. Slice 02 brings the first real one; the tests use tables held in memory.
+- **The folder** is `DirectorySyncFolder` on Windows and in app storage. A SAF folder on Android's shared storage comes with the Android shell.
+- **Owed by slice 02**, with the first synced tables:
+  - queueing exports by SQL triggers on each synced table, as §3.10 does for search, so that no write path can forget the outbox;
+  - starting the export from those queue writes, through `exportAfterQuiet`;
+  - answering a pending question from the app (`Merger.keepMine`, `takeTheirs`, `keepBoth`), through the same staged load as an import;
+  - paging `RowTable.all()`, so a snapshot is written without holding every row at once.
+
 ---
 
 ## 4. Explicitly Out of Scope
@@ -345,7 +362,7 @@ The four source apps are the owner's own. The only third-party code found so far
    - The guard recovers only from SQLITE_CORRUPT and SQLITE_NOTADB. A locked or full database is rethrown, and its file is left in place.
    - It moves the `-journal`, `-wal` and `-shm` files with the database.
    - Tests cover both drivers, with a control showing that the stock Android driver deletes a corrupt file. Wiring the guard into the Room open path comes with slice 01.
-2. **Schema slices in ADR dependency order:** 01 → 02 → 03 → 04 → 11 → 06 → 07 → 08 → 09 → 10 → 05 → 12. Each slice is done when its ADR cases pass as tests against the real implementation (§3). Spikes 1 and 3 run with slice 10, and spike 5 runs with slice 04. **Slice 01: done 2026-10-01** (§3.1). Its importer follows §3.13.
+2. **Schema slices in ADR dependency order:** 01 → 02 → 03 → 04 → 11 → 06 → 07 → 08 → 09 → 10 → 05 → 12. Each slice is done when its ADR cases pass as tests against the real implementation (§3). Spikes 1 and 3 run with slice 10, and spike 5 runs with slice 04. **Slice 01: done 2026-10-01** (§3.1), with its folder importer and exporter (§3.13).
 3. **The sole-owner modules of §2.**
 4. **Screens**, after §10.1.
 

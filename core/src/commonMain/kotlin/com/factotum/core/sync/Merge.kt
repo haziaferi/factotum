@@ -1,13 +1,13 @@
 package com.factotum.core.sync
 
-/** What the merge reads and writes on this device; the importer in `:data` will implement it over the database. */
+/** What the merge reads and writes on this device; the importer in `:data` stages it over the database. */
 interface SyncStore {
     fun row(id: String): Row?
     fun put(row: Row)
     fun remove(id: String)
 
-    /** The permanent purge registry (ADR 01): row id to the stamp of its purge. Never expires. */
-    fun purges(): Map<String, Stamp>
+    /** The permanent purge registry (ADR 01): the stamp of [id]'s purge, if it was purged. Never expires. */
+    fun purge(id: String): Stamp?
     fun putPurge(id: String, stamp: Stamp)
     fun removePurge(id: String)
 
@@ -44,27 +44,19 @@ class Merger(private val clock: HybridClock, private val askGroups: Set<String>)
 
     fun import(store: SyncStore, rows: Iterable<Row>, purges: Map<String, Stamp>) {
         purges.values.forEach(clock::observe)
-        val registry = store.purges().toMutableMap()
         // Entries already held were applied when they arrived; only new or earlier ones need a sweep.
         for ((id, stamp) in purges) {
-            val known = registry[id]
+            val known = store.purge(id)
             if (known != null && stamp >= known) continue
-            registry[id] = stamp
             store.putPurge(id, stamp)
             val local = store.row(id) ?: continue
-            if (local.newest > stamp) {
-                registry.remove(id)
-                store.removePurge(id)
-            } else {
-                store.remove(id)
-            }
+            if (local.newest > stamp) store.removePurge(id) else store.remove(id)
         }
         for (incoming in rows) {
             incoming.groups.values.forEach { clock.observe(it.stamp) }
-            val purge = registry[incoming.id]
+            val purge = store.purge(incoming.id)
             if (purge != null) {
                 if (incoming.newest <= purge) continue
-                registry.remove(incoming.id)
                 store.removePurge(incoming.id)
             }
             val local = store.row(incoming.id)
@@ -128,7 +120,7 @@ class Merger(private val clock: HybridClock, private val askGroups: Set<String>)
         val (local, theirs) = pending(store, id, group)
         keepMine(store, id, group)
         val stamp = clock.tick()
-        val copy = Row(newId, (local.groups + (group to theirs)).mapValues { (_, g) -> Group(stamp, g.values) })
+        val copy = Row(local.table, newId, (local.groups + (group to theirs)).mapValues { (_, g) -> Group(stamp, g.values) })
         created(store, copy)
         return copy
     }

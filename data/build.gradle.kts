@@ -33,6 +33,8 @@ kotlin {
             api(libs.androidx.room.runtime)
             api(libs.androidx.sqlite)
             implementation(libs.kotlinx.coroutines.core)
+            // The element API only, so no serialization compiler plugin.
+            implementation(libs.kotlinx.serialization.json)
         }
         androidMain.dependencies {
             implementation(libs.androidx.sqlite.framework)
@@ -42,6 +44,7 @@ kotlin {
         }
         commonTest.dependencies {
             implementation(kotlin("test"))
+            implementation(libs.kotlinx.coroutines.test)
         }
         getByName("androidHostTest").dependencies {
             implementation(libs.junit)

@@ -7,14 +7,14 @@ const val DAY = 86_400_000L
 /** An in-memory [SyncStore]. */
 class MemoryStore : SyncStore {
     val rows = mutableMapOf<String, Row>()
-    private val purges = mutableMapOf<String, Stamp>()
+    val purges = mutableMapOf<String, Stamp>()
     private val bases = mutableMapOf<Pair<String, String>, Stamp>()
     private val asks = mutableMapOf<Pair<String, String>, Group>()
 
     override fun row(id: String) = rows[id]
     override fun put(row: Row) { rows[row.id] = row }
     override fun remove(id: String) { rows.remove(id) }
-    override fun purges(): Map<String, Stamp> = purges
+    override fun purge(id: String) = purges[id]
     override fun putPurge(id: String, stamp: Stamp) { purges[id] = stamp }
     override fun removePurge(id: String) { purges.remove(id) }
     override fun base(id: String, group: String) = bases[id to group]
@@ -44,7 +44,7 @@ class Device(name: String, private val skew: Long = 0) {
 
     fun create(id: String, time: Long, due: String = "d0") {
         val s = at(time)
-        merger.created(store, Row(id, mapOf(
+        merger.created(store, Row("reminder", id, mapOf(
             SCHEDULE to Group(s, mapOf("due" to due, "deleted" to null)),
             STATUS to Group(s, mapOf("done" to false)),
         )))
@@ -63,7 +63,7 @@ class Device(name: String, private val skew: Long = 0) {
 
     fun importFrom(peer: Device, time: Long) {
         now = time
-        merger.import(store, peer.store.rows.values.toList(), peer.store.purges().toMap())
+        merger.import(store, peer.store.rows.values.toList(), peer.store.purges.toMap())
     }
 
     /** Null when the row is gone. */

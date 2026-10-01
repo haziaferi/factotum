@@ -97,4 +97,5 @@ An edit reaches the other online device within about 12–14 minutes (p95) in ev
 
 - The importer of SPEC §3.1 can now be built. It reads segments and snapshots into ADR 01's `Merger`, keeps the per-row base and the pending-question tables locally, and keeps per-file read positions.
 - Folder legibility: a person sees one folder per device, each with about 50 small log files and a snapshot. Rows are not human-readable one per file.
+- **Built 2026-10-01** (SPEC §3.13). Snapshots are named `snapshot-<seq>.jsonl` rather than `snapshot.json`, so a reader can tell a new one from its name.
 - The settings in use are those of the tuning run, chosen on two or more compaction cycles. They can be retuned with `tools/folder_tune.py` if the real workload differs.

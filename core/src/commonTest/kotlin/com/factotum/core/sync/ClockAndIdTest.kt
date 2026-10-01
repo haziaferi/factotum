@@ -62,6 +62,13 @@ class ClockAndIdTest {
     }
 
     @Test
+    fun aGroupRefusesADoubleThatNeverEqualsItself() {
+        assertFailsWith<IllegalArgumentException> { Group(Stamp(1, "A"), mapOf("hours" to Double.NaN)) }
+        assertFailsWith<IllegalArgumentException> { Group(Stamp(1, "A"), mapOf("hours" to Double.POSITIVE_INFINITY)) }
+        Group(Stamp(1, "A"), mapOf("hours" to 1.5))
+    }
+
+    @Test
     fun stampsOrderByClockThenDevice() {
         assertTrue(Stamp(1, "B") > Stamp(1, "A"))
         assertTrue(Stamp(2, "A") > Stamp(1, "B"))

@@ -14,6 +14,9 @@ import sys
 GRADLEW = os.path.abspath("gradlew.bat" if os.name == "nt" else "gradlew")
 MERGE = "core/src/commonMain/kotlin/com/factotum/core/sync/Merge.kt"
 OPEN = "data/src/jvmCommon/kotlin/com/factotum/data/OpenDatabase.kt"
+FOLDER = "data/src/commonMain/kotlin/com/factotum/data/sync/FolderSync.kt"
+STAGED = "data/src/commonMain/kotlin/com/factotum/data/sync/StagedStore.kt"
+CODEC = "data/src/commonMain/kotlin/com/factotum/data/sync/Records.kt"
 
 # slice -> [(name, file, old, new, test task, tests that must fail)]
 SLICES = {
@@ -26,6 +29,28 @@ SLICES = {
          ":core:desktopTest", {"keepMineWinsEverywhere"}),
         ("Room's leaked connection kept open", OPEN, "            tracked.closeAll()\n", "",
          ":data:desktopTest", {"aDatabaseCorruptPastItsSchemaPageIsSetAsideToo"}),
+    ],
+    "13": [
+        ("conflict copies not read", FOLDER, "val copy = FolderLayout.isConflictCopy(name)", "val copy = false",
+         ":data:desktopTest", {"aClonedDeviceIdsClashIsMergedAndTheCopyRemoved"}),
+        ("own clash not re-read", FOLDER, "val shared = owner == device && names.any(FolderLayout::isConflictCopy)",
+         "val shared = false", ":data:desktopTest", {"aClonedDeviceIdsClashIsMergedAndTheCopyRemoved"}),
+        ("imported versions not re-exported", STAGED, "dao.putOutbox(changed.map { OutboxEntity(id = it, table = tableOf[it]) })",
+         "", ":data:desktopTest", {"aVersionOutlivesTheLossOfItsAuthorsFiles"}),
+        ("log never compacted", FOLDER, "if (held.size >= snapshotEvery) {", "if (false) {",
+         ":data:desktopTest", {"androidFiles1y_aYearKeepsEachDeviceToItsSegmentsAndOneSnapshot", "aPurgeReachesAPeerAndOutlivesCompaction"}),
+        ("unfinished last line read", FOLDER, "    return lines\n}", "    if (start < bytes.size) lines += Line(bytes.decodeToString(start, bytes.size), bytes.size)\n    return lines\n}",
+         ":data:desktopTest", {"aLineStillBeingWrittenWaitsForItsNewline", "onlyNewlineTerminatedLinesAreRead"}),
+        ("positions kept when the tables change", FOLDER, "        dao.clearReads()\n", "",
+         ":data:desktopTest", {"aLineForATableThisVersionLacksIsReadAgainOnceItHasIt"}),
+        ("one transaction per file, not per chunk", FOLDER, "lines.chunked(MERGE_LINES)", "listOf(lines).filter { it.isNotEmpty() }",
+         ":data:desktopTest", {"aBigFileIsMergedInChunksEachWithItsReadPosition"}),
+        ("purges not exported", FOLDER, " ?: purges[id]?.let { PurgeRecord(id, it) }", "",
+         ":data:desktopTest", {"aPurgeReachesAPeerThroughTheLog"}),
+        ("unchanged files read again", FOLDER, "if (folder.size(path) == from) continue", "if (false) continue",
+         ":data:desktopTest", {"aPeerFileIsReadOnlyWhenItHasGrown"}),
+        ("Long and Double read alike", CODEC, "p.booleanOrNull ?: p.longOrNull ?: p.double", "p.booleanOrNull ?: p.double",
+         ":data:desktopTest", {"aRowReadsBackWithEveryValueItsOwnType"}),
     ],
 }
 
@@ -43,12 +68,15 @@ def run(task):
 
 
 def main(slices):
+    # Every pattern first: a stale one should stop the run before any build, not halfway through.
+    for key in slices:
+        for name, path, old, *_ in SLICES[key]:
+            assert open(path, encoding="utf-8").read().count(old) == 1, "%s: pattern not found once in %s" % (name, path)
     survivors = []
     for key in slices:
         for name, path, old, new, task, expected in SLICES[key]:
             original = open(path, "rb").read()
             text = original.decode("utf-8")
-            assert text.count(old) == 1, "%s: pattern not found once in %s" % (name, path)
             try:
                 open(path, "wb").write(text.replace(old, new).encode("utf-8"))
                 code, failed = run(task)

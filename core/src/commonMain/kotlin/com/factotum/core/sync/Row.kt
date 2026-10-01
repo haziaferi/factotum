@@ -13,14 +13,15 @@ data class Group(
 ) {
     init {
         // Clashes compare values with ==, so 5 and 5L would differ: one type per kind of value.
-        require(values.values.all { it == null || it is String || it is Long || it is Boolean || it is Double }) {
-            "values must be String, Long, Boolean, Double or null: $values"
+        // NaN never equals itself and JSON cannot carry it, so doubles must be finite.
+        require(values.values.all { it == null || it is String || it is Long || it is Boolean || (it is Double && it.isFinite()) }) {
+            "values must be String, Long, Boolean, finite Double or null: $values"
         }
     }
 }
 
-/** A synced row as the merge sees it. A table's columns map onto its groups (ADR 01). */
-data class Row(val id: String, val groups: Map<String, Group>) {
+/** A synced row as the merge sees it. A [table]'s columns map onto its groups (ADR 01). Ids are unique across tables. */
+data class Row(val table: String, val id: String, val groups: Map<String, Group>) {
 
     val newest: Stamp get() = groups.values.maxOf { it.stamp }
 
