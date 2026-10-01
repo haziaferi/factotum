@@ -1,6 +1,6 @@
 # Factotum — Product & Technical Spec
 
-**Status:** draft v0.3, seeded from the decision register · **Scope:** the merged data model, sync and behaviour rules of Factotum. Screens are not decided and are marked open (§10.1).
+**Status:** draft v0.4, seeded from the decision register · **Scope:** the merged data model, sync and behaviour rules of Factotum. Screens are not decided and are marked open (§10.1).
 **Related documents:** `decisions/`, the evidence behind §3: one ADR per decision with verified `file:line` facts, the scored options, the behaviour cases and the harness that measured them (`decisions/register.md` is the index). This spec states each decision once and points to its ADR for the evidence. It never restates the evidence.
 
 ---
@@ -9,6 +9,7 @@
 
 | Version | Summary | Sections touched |
 |---|---|---|
+| v0.4 | §10.2 and §10.3 decided: KMP split by layer (`:core`, `:data`, `:llm`, `:ui` later, `:android`, `:windows`); the data layer goes first, in ADR order, with no screens. Imports are hybrid and pass a review gate | §5.1, §7, §9, §10 |
 | v0.3 | The post-scoring fixes in ADRs 06, 11 and 12 were re-scored and a growth sensitivity pass run: no decision changed | §3.6, §3.11, §3.12 |
 | v0.2 | Spikes 9.2, 9.4 and 9.6 run: DTSTART aligned, RULE_SET for set times, HABIT gains block_id and duration_min, seed and generator fixed, llama.cpp MIT | §3.4, §3.6, §6, §9 |
 | v0.1 | Seeded from ADRs 01–12, the sole-owner probe and the owner's standing answers, after the 11–12 audit | all |
@@ -247,7 +248,22 @@ The device id is not a setting.
 
 **Finding [Verified]:** Tendril is the only source app on both. It ships them from a Kotlin Multiplatform `shared/` module with Room declared in common code (`shared/src/commonMain/kotlin/com/tendril/app/data/TendrilDatabase.kt`), plus `Tendril android/` and `Tendril windows/`. The other three apps are Android-only Kotlin.
 
-The module layout for Factotum hasn't been decided. See §10.2.
+**Decided (2026-10-01, owner): KMP split by layer.** The owner asked which option scored best for the app's size and data, and picked from the front.
+
+| Module | Holds | Depends on |
+|---|---|---|
+| `:core` | Pure Kotlin common code with no Room: ULID, HLC, field-group merge (§3.1), the recurrence expander and the seeded draw (§3.4), occurrence-edit application (§3.11), presence (§3.6), the page-part merge (§3.12) | nothing |
+| `:data` | The one Room database with every entity and DAO, the triggers (§3.7, §3.10), the corruption guard on both drivers (§8), the repository and the sync importer. DAOs are `internal`, so only this module writes rows (§5.3) | `:core` |
+| `:llm` | llama.cpp with the build switches of §6 | nothing |
+| `:ui` | shared Compose, once §10.1 is settled | `:data`, `:core` |
+| `:android`, `:windows` | the app shells | all of the above |
+
+**Measured** (2026-10-01): the source apps hold 40.7k data and logic lines, 51.0k UI lines and 51 Room entities; Tendril's single `shared` module alone has 55.4k main lines. Four options were scored:
+
+- **A. One `shared` module, as Tendril has.** On the Pareto front with C: the fewest modules, but every engine edit recompiles everything and reruns Room's code generation.
+- **B. Split by feature. Dominated by C.** §5.2's hub tables (sync stamps, search triggers, labels, habit→tracker) would all cross module lines.
+- **C. Split by layer.** On the front with A, and the owner's pick.
+- **D. Android first. Fails §0.1.4.**
 
 ### 5.2 Data model
 
@@ -286,7 +302,17 @@ The four source apps are the owner's own. The only third-party code found so far
 
 ## 7. Phasing
 
-Not yet phased. See §10.3.
+**Decided (2026-10-01, owner): the data layer goes first. No screens are built in this phase.**
+
+1. **Skeleton.** The modules of §5.1, building on Android and Windows, and the corruption guard (§8).
+2. **Schema slices in ADR dependency order:** 01 → 02 → 03 → 04 → 11 → 06 → 07 → 08 → 09 → 10 → 05 → 12. Each slice is done when its ADR cases pass as tests against the real implementation (§3). Spikes 1 and 3 run with slice 10, and spike 5 runs with slice 04.
+3. **The sole-owner modules of §2.**
+4. **Screens**, after §10.1.
+
+**Imports from the source apps are hybrid.**
+- Self-contained units are ported, then cleaned. Examples: `KeepFileOnCorruptionDriver`, `HabitPresence`, the seeded draw, the RRULE expander.
+- Code that is bound to the old schemas is rewritten against this spec, and the source is read only for behaviour.
+- Every import passes a review gate before it is committed: `code-verification-core`, then `/code-review`, then `/simplify`, plus a check that removes AI slop (comments that restate the code, dead branches, speculative generality, invented APIs).
 
 ---
 
@@ -301,7 +327,7 @@ Not yet phased. See §10.3.
 
 ## 9. Pre-Implementation Validation / Spikes
 
-Status: 2, 4 and 6 are done (`docs/spikes-2026-10-01.md`). 1, 3 and 5 wait for §10.2.
+Status: 2, 4 and 6 are done (`docs/spikes-2026-10-01.md`). With §10.2 decided, 1 and 3 run with schema slice 10, and 5 runs with slice 04 (§7).
 
 1. **FTS5 on target devices.** It could replace FTS4 (§3.10) if every target SQLite build has it. Room's annotations don't generate it.
 2. **PLANNED recurrence. Done.** All 8 RRULE-form rules match once DTSTART is aligned and set times use a RULE_SET. PLANNED matches on 500/500 random weeks once HABIT has `block_id` and `duration_min`.
@@ -315,8 +341,8 @@ Status: 2, 4 and 6 are done (`docs/spikes-2026-10-01.md`). 1, 3 and 5 wait for �
 ## 10. Open Items
 
 1. **Screens, navigation and wording.** None are decided (§0.1.6). The only fixed words are "Label" (§3.8), "Log" for a habit (§3.6) and "check-in" for mood, energy and pleasantness (§3.5). The settings screen's marker for "follows you across devices" is also open (§3.9).
-2. **Module layout.** Whether Factotum follows Tendril's `shared/` + `android` + `windows` layout (§5.1).
-3. **Phasing.** Which modules ship first (§7).
+2. **Module layout. Decided 2026-10-01:** KMP split by layer (§5.1).
+3. **Phasing. Decided 2026-10-01:** the data layer first, with no screens (§7).
 4. **What an ALARM does on Windows** (§8).
 5. **Equipoise's burnout index isn't computed in production.** `BurnoutIndex.compute` is called only from a test, and `sleepHours` has no source table. The work is to decide where the score is computed and where sleep comes from; a tracker is the obvious source.
 6. **Occurrence-edit log growth.** A storage policy for edits on occurrences more than a year in the past (§3.11).
