@@ -216,7 +216,39 @@ def sync(a, b):
                     if k not in x["fields"] or t > x["fields"][k][1]:
                         x["fields"][k] = (v, t)
     m.rows = rows
+    m.asked = clashes(a, b)
     return m
+
+
+SCHEDULE = {"moved_to", "time", "duration", "rule", "week_days", "date"}
+
+
+def clashes(a, b):
+    """ADR 11 (owner, 2026-10-01): two devices that changed the same schedule field of one occurrence since
+    the last sync raise ADR 01's prompt. Each mechanism detects it from what it stores (a base stamp per
+    edit row, counted in GROWTH): copy rows of one occurrence whose schedule differs; log rows of one
+    occurrence setting the same schedule field; patch fields set on both sides; a series rewritten on both."""
+    out = []
+    if a.opt == "rewrite":
+        base = base_items()
+        for k in base:
+            if a.items[k] != base[k] and b.items[k] != base[k] and a.items[k] != b.items[k]:
+                out.append(("series", k))
+        return out
+    for ra in a.rows:
+        for rb in b.rows:
+            if ra["item"] != rb["item"] or ra["mech"] != rb["mech"]:
+                continue
+            if ra["mech"] == "copy":
+                if ra["occ"] == rb["occ"] and (ra["date"], ra["time"]) != (rb["date"], rb["time"]):
+                    out.append((ra["item"], ra["occ"]))
+            elif ra["mech"] == "log":
+                same_place = ra["scope"] == rb["scope"] and ra["scope"][0] in ("occ", "from")
+                if same_place and SCHEDULE & set(ra["changes"]) & set(rb["changes"]):
+                    out.append((ra["item"], ra["scope"]))
+            elif ra["occ"] == rb["occ"] and SCHEDULE & set(ra["fields"]) & set(rb["fields"]):
+                out.append((ra["item"], ra["occ"]))
+    return out
 
 
 def dates(dev, item):
@@ -296,6 +328,20 @@ def case_one_mechanism(opt):
     return 1 if len({a.mech("T"), a.mech("H")}) == 1 and a.mech("T") != "rewrite" else 0
 
 
+def case_clash_asks(opt):
+    """owner (2026-10-01, ADR 11): A retimes Fri 9 Oct to 07:30 and B to 06:45 -> the person is asked;
+    A retimes it while B only re-blocks it -> nobody is asked (a block is not a schedule field)."""
+    a, b = Device(opt), Device(opt)
+    a.edit("H", D("2026-10-09"), {"time": "07:30"}, "A")
+    b.edit("H", D("2026-10-09"), {"time": "06:45"}, "B")
+    asked = sync(a, b).asked
+    a2, b2 = Device(opt), Device(opt)
+    a2.edit("H", D("2026-10-09"), {"time": "07:30"}, "A")
+    b2.edit("H", D("2026-10-09"), {"block": "Evening"}, "B")
+    quiet = sync(a2, b2).asked
+    return 1 if asked and not quiet else 0
+
+
 CASES = {
     "tendril-task-move-one": ("tendril", case_task_move),
     "tendril-habit-skip-one": ("tendril", case_habit_skip),
@@ -306,15 +352,20 @@ CASES = {
     "shared-concurrent-moves-once": ("shared", case_concurrent_moves),
     "shared-rename-reaches-moved": ("shared", case_rename_reaches_moved),
     "shared-one-mechanism": ("shared", case_one_mechanism),
+    "owner-occurrence-clash-asks": ("owner", case_clash_asks),
 }
 # columns each option adds to the decided schema (from the verified entities; see the ADR)
-GROWTH = {
-    "full-copy": {"tables": 0, "columns": 3},          # item.original_item_id, original_occurrence, is_exception_skip
-    "edit-log": {"tables": 1, "columns": 8},           # HabitScheduleEdit's 8 columns
-    "edit-log+move": {"tables": 1, "columns": 8},       # same table; the move is a field of an Occurrence edit
-    "as-is": {"tables": 1, "columns": 11},
-    "patch-rows": {"tables": 1, "columns": 10},        # id, item_id, occurrence, skip, moved_to, time, block, title, extra_date, deleted_at (+ ADR 01 stamps)
-    "rewrite": {"tables": 0, "columns": 0},
+GROWTH = {  # +1 base-stamp column per edit table so a clash can be detected (owner answer, 2026-10-01).
+    # ADR 01 stamps counted (sensitivity pass, 2026-10-01): an insert-once log row needs one (hlc, device) pair, and
+    # its created_at already is the hlc, so +1 device column; patch-rows merges field by field, so each of its six data
+    # fields (skip, moved_to, time, block, title, extra_date) carries its own (hlc, device): +12. Copy rows are item rows,
+    # which already carry the item's stamps.
+    "full-copy": {"tables": 0, "columns": 4},          # original_item_id, original_occurrence, is_exception_skip, base stamp
+    "edit-log": {"tables": 1, "columns": 10},          # HabitScheduleEdit's 8 + base stamp + device
+    "edit-log+move": {"tables": 1, "columns": 10},
+    "as-is": {"tables": 1, "columns": 14},             # copy columns (4) + log columns (10)
+    "patch-rows": {"tables": 1, "columns": 23},        # 10 designed + base stamp + 12 per-field stamp columns
+    "rewrite": {"tables": 0, "columns": 0},            # the series prompt is ADR 01's schedule group, already there
 }
 OPTIONS = list(GROWTH)
 

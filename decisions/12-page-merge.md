@@ -17,7 +17,28 @@ The facts were verified with `tools/verify.py`; the raw output is in `verify/12-
 | Trash and restore both set `updatedAt`, so **a later edit beats an earlier trash**, and a later trash beats an earlier edit. | `PageDao.kt:108-111`; `PagesSyncEngine.kt:802` |
 | Properties (the column schema) are upserted by uid and deleted only through a purge record. Views are replaced with the winner. Canvas edges have no uid. | `PagesSyncEngine.kt:543-562`; `PageSnapshotRecords.kt:199` |
 
-## Scores (`12-page-merge-scores.md`, run by `tools/page_merge_sim.py`, two devices that sync)
+## Re-scored 2026-10-01
+
+**Why:** the fresh-eyes audit's fix (finding 4) says a MERGE revision keeps every losing part, not just paragraphs. That became a case, `shared-cell-loser-recoverable`, which Tendril meets today through its full `.tendril-lost` copy.
+- Every per-row option now keeps losing cells and canvas nodes, at +2 history columns (`cells_json`, `canvas_json`).
+- The design as first decided is scored separately as **per-row+revive-blocks**.
+- The whole-page prompt shows both full pages.
+
+The current scores are in `12-page-merge-scores.md`.
+
+| Option | Shared | Tendril | Growth | Status |
+|---|---|---|---|---|
+| whole-page | 0.20 | 1.00 | 0 | front |
+| whole-page+ask | 0.20 | 0.67 | 2 | dominated |
+| per-row | 1.00 | 0.67 | 17 | dominated |
+| per-row+ask | 1.00 | 0.67 | 19 | dominated |
+| **per-row+revive** | 1.00 | 1.00 | 17 | **front, the only full coverage** |
+| per-row+revive-blocks | 0.80 | 1.00 | 15 | front: 2 columns cheaper, but it drops a behaviour Tendril has today (a losing cell is recoverable), which the "every sole-owner module moves" rule excludes |
+| discard (control) | 0.00 | 0.67 | 0 | failed its 6 cases, as expected |
+
+**Sensitivity:** every option's growth was varied over ×0.5 to ×2, giving 46,656 combinations. The pick is the only full-coverage option on the front in all of them. The decision is unchanged.
+
+## Scores as first scored (2026-10-01, before the audit fix)
 
 | Option | Shared | Tendril | Growth | Status |
 |---|---|---|---|---|

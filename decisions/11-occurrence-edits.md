@@ -29,7 +29,26 @@ The facts were verified with `tools/verify.py`; the raw output is in `verify/11-
 | Chronicle | No per-occurrence edits: a reminder holds one `dueAt`, rolled forward in place, and editing rewrites the whole rule. Snooze is device-local in DataStore. | `ReminderEntity.kt:24`; `ReminderSheet.kt:70`; `PendingAlerts.kt:22,99` |
 | Mnemo | No per-occurrence edits. Snooze overwrites `nextFireAtEpochMillis`, so a cron occurrence between the fire and the snooze's end is lost. | `ReminderRepository.kt:126-132,174` |
 
-## Scores (`11-occurrence-edits-scores.md`, run by `tools/occurrence_sim.py`, two devices that sync)
+## Re-scored 2026-10-01
+
+**Why:** the owner's later answer, that a clash on one occurrence asks, became a case (`owner-occurrence-clash-asks`):
+- two retimes of the same occurrence must ask;
+- a retime against a re-block must not.
+
+Detecting a clash needs a base stamp per edit row, so every option that asks gains one column. A sensitivity pass (`tools/sensitivity.py`) then found the patch-rows count had left out its ADR 01 stamps. It merges field by field, so each of its six data fields carries an `(hlc, device)` pair: +12 columns. The edit log needs only one device column. The current scores are in `11-occurrence-edits-scores.md`.
+
+| Option | Owner | Shared | Tendril | Growth | Status |
+|---|---|---|---|---|---|
+| full-copy | 0.00 | 0.33 | 0.67 | 4 | front (a copy row can't tell a re-block from a retime, so it asks wrongly) |
+| edit-log | 1.00 | 0.67 | 1.00 | 11 | dominated |
+| **edit-log+move** | 1.00 | 1.00 | 1.00 | 11 | **front, the only full coverage on the front** |
+| as-is | 1.00 | 0.00 | 1.00 | 15 | dominated |
+| patch-rows | 1.00 | 1.00 | 1.00 | 24 | dominated (+12 per-field stamp columns) |
+| rewrite (control) | 0.00 | 0.33 | 0.00 | 0 | failed its 9 cases, as expected |
+
+**Sensitivity:** every option's growth was varied independently over ×0.5 to ×2, giving 7,776 combinations. The pick stays the only full-coverage option on the front in 88.9% of them. Displacing it would need its own count roughly doubled and patch-rows' roughly halved at the same time. The decision is unchanged.
+
+## Scores as first scored (2026-10-01, before the clash answer)
 
 | Option | Shared | Tendril | Growth | Status |
 |---|---|---|---|---|

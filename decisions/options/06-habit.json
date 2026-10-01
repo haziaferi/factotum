@@ -7,7 +7,7 @@
    "summary": "Tendril minus streak columns: own habit table (cadence, time, amounts, pause) + habit_completion",
    "growth": {
     "tables": 8,
-    "columns": 48
+    "columns": 50
    }
   },
   {
@@ -23,7 +23,7 @@
    "summary": "habit = item kind HABIT (ADR 04 recurrence, ADR 03 reminders); completions with a value in the item completion log",
    "growth": {
     "tables": 6,
-    "columns": 36
+    "columns": 38
    }
   },
   {
@@ -31,7 +31,7 @@
    "summary": "item-kind, and the habit item links a tracker: check-ins ARE its readings; daily amount = a goal on the tracker",
    "growth": {
     "tables": 6,
-    "columns": 35
+    "columns": 37
    }
   },
   {
@@ -39,7 +39,7 @@
    "summary": "CONTROL: habit-table plus streak and last_completed_date",
    "growth": {
     "tables": 8,
-    "columns": 50
+    "columns": 52
    },
    "control": true,
    "expect_fail": [

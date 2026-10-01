@@ -71,11 +71,13 @@ def merge(opt, a, b):
     if opt.startswith("whole-page") or opt == "discard":
         a_changed, b_changed = a.changed_at > 0, b.changed_at > 0
         if opt == "whole-page+ask" and a_changed and b_changed:
-            asked.append(("page", body(a.page), body(b.page)))
+            full = lambda pg: body(pg) + [v[0] for v in pg["cells"].values()] + [v[0] for v in pg["nodes"].values()]
+            asked.append(("page", full(a.page), full(b.page)))
             return a.page, kept, asked  # shown with both versions; mine stays live until answered
         win, lose = (a, b) if a.changed_at >= b.changed_at else (b, a)
         if opt != "discard" and lose.changed_at > 0:
-            kept.append(body(lose.page))
+            # PageRevision keeps the body; the .tendril-lost file keeps the full snapshot (cells, canvas too)
+            kept.append(body(lose.page) + [v[0] for v in lose.page["cells"].values()] + [v[0] for v in lose.page["nodes"].values()])
         return win.page, kept, asked
     # per-row: every part merges by its own stamp
     m = base_page()
@@ -88,16 +90,18 @@ def merge(opt, a, b):
                 continue
             ta, tb = va[-1], vb[-1]
             bt = base[part].get(k, (None,) * 3)[-1] if k in base[part] else 0
-            if part == "blocks" and ta > bt and tb > bt and va[0] != vb[0]:
-                if opt == "per-row+ask":
+            if ta > bt and tb > bt and va[0] != vb[0]:
+                if opt == "per-row+ask" and part == "blocks":
                     asked.append((k, va[0], vb[0]))
                     m[part][k] = va
                     continue
-                kept.append([(vb if ta >= tb else va)[0]])
+                # ADR 12 amendment: a MERGE revision keeps every losing part; the pre-amendment design kept blocks only
+                if part == "blocks" or opt != "per-row+revive-blocks":
+                    kept.append([(vb if ta >= tb else va)[0]])
             m[part][k] = va if ta >= tb else vb
     # existence is its own group: only a trash or restore stamp moves it
     m["trashed"] = max(a.page["trashed"], b.page["trashed"], key=lambda x: x[1])
-    if opt == "per-row+revive" and m["trashed"][0] and max(a.changed_at, b.changed_at) > m["trashed"][1]:
+    if opt.startswith("per-row+revive") and m["trashed"][0] and max(a.changed_at, b.changed_at) > m["trashed"][1]:
         m["trashed"] = (False, max(a.changed_at, b.changed_at))
     return m, kept, asked
 
@@ -161,6 +165,15 @@ def case_canvas_nodes(opt):
     return 1 if m["nodes"]["n1"][0] == "1,1" and m["nodes"]["n2"][0] == "6,2" and not asked else 0
 
 
+def case_cell_loser(opt):
+    """shared (re-scored 2026-10-01, ADR 12 amendment): A sets Status to 'Booked' while B sets it to
+    'Cancelled'; the losing value stays recoverable, as Tendril's .tendril-lost file keeps it today
+    (SnapshotSyncOrchestrator.kt:1366-1367)."""
+    m, kept, asked = run(opt, [lambda d: d.set_cell("status", "Booked", 5)], [lambda d: d.set_cell("status", "Cancelled", 6)])
+    seen = {m["cells"]["status"][0]} | {t for k in kept for t in k} | {t for q in asked for side in q[1:] for t in (side if isinstance(side, list) else [side])}
+    return 1 if {"Booked", "Cancelled"} <= seen else 0
+
+
 CASES = {
     "tendril-loser-recoverable": ("tendril", case_loser_recoverable),
     "tendril-later-edit-beats-trash": ("tendril", case_later_edit_beats_trash),
@@ -169,11 +182,14 @@ CASES = {
     "shared-concurrent-inserts": ("shared", case_concurrent_inserts),
     "shared-cell-and-body": ("shared", case_cell_vs_body),
     "shared-canvas-nodes": ("shared", case_canvas_nodes),
+    "shared-cell-loser-recoverable": ("shared", case_cell_loser),
 }
 # columns added to Tendril's page tables: per-row adds (hlc, device, deleted_at) to block, property_value,
-# canvas_node, canvas_edge and page_database_view (5 x 3); +ask adds a base stamp pair to block
-GROWTH = {"whole-page": {"columns": 0}, "whole-page+ask": {"columns": 2}, "per-row": {"columns": 15},
-          "per-row+ask": {"columns": 17}, "per-row+revive": {"columns": 15}, "discard": {"columns": 0}}
+# canvas_node, canvas_edge and page_database_view (5 x 3); +ask adds a base stamp pair to block; a full MERGE
+# revision adds cells_json and canvas_json to page_revision (+2; whole-page keeps Tendril's lost file instead)
+GROWTH = {"whole-page": {"columns": 0}, "whole-page+ask": {"columns": 2}, "per-row": {"columns": 17},
+          "per-row+ask": {"columns": 19}, "per-row+revive": {"columns": 17}, "per-row+revive-blocks": {"columns": 15},
+          "discard": {"columns": 0}}
 OPTIONS = list(GROWTH)
 
 

@@ -1,6 +1,6 @@
 # Factotum — Product & Technical Spec
 
-**Status:** draft v0.2, seeded from the decision register · **Scope:** the merged data model, sync and behaviour rules of Factotum. Screens are not decided and are marked open (§10.1).
+**Status:** draft v0.3, seeded from the decision register · **Scope:** the merged data model, sync and behaviour rules of Factotum. Screens are not decided and are marked open (§10.1).
 **Related documents:** `decisions/`, the evidence behind §3: one ADR per decision with verified `file:line` facts, the scored options, the behaviour cases and the harness that measured them (`decisions/register.md` is the index). This spec states each decision once and points to its ADR for the evidence. It never restates the evidence.
 
 ---
@@ -9,6 +9,7 @@
 
 | Version | Summary | Sections touched |
 |---|---|---|
+| v0.3 | The post-scoring fixes in ADRs 06, 11 and 12 were re-scored and a growth sensitivity pass run: no decision changed | §3.6, §3.11, §3.12 |
 | v0.2 | Spikes 9.2, 9.4 and 9.6 run: DTSTART aligned, RULE_SET for set times, HABIT gains block_id and duration_min, seed and generator fixed, llama.cpp MIT | §3.4, §3.6, §6, §9 |
 | v0.1 | Seeded from ADRs 01–12, the sole-owner probe and the owner's standing answers, after the 11–12 audit | all |
 
@@ -157,7 +158,7 @@ Every decision here was scored against its owners' behaviour cases, with a contr
 - **[Amended]** A HABIT also carries `block_id` (its default time block) and `duration_min`. The planner needs both (§9.2).
 - **The verb is "Log".** "Check-in" is kept for §3.5.
 
-**Acceptance:** `cases/06-habit.jsonl`, 7 cases.
+**Acceptance:** `cases/06-habit.jsonl`, 8 cases.
 
 ### 3.7 Timed intervals — ADR 07
 
@@ -214,7 +215,7 @@ The device id is not a setting.
 - Renaming a series renames its moved occurrences.
 - Tasks gain "this week" and "from now on".
 
-**Acceptance:** `cases/11-occurrence-edits.jsonl`, 9 cases.
+**Acceptance:** `cases/11-occurrence-edits.jsonl`, 10 cases.
 
 ### 3.12 Page merge — ADR 12
 
@@ -224,7 +225,7 @@ The device id is not a setting.
 - A later edit to any part restores a trashed page. **[Amended]** This is a deliberate exception to §3.1's group rule, and it applies to pages only.
 - On a clash within the same paragraph, the later text wins. The losing part (block, cell or canvas node) goes to History, and a "replaced by a sync" notice appears.
 
-**Acceptance:** `cases/12-page-merge.jsonl`, 7 cases.
+**Acceptance:** `cases/12-page-merge.jsonl`, 8 cases.
 
 ---
 

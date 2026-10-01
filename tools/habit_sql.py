@@ -47,15 +47,19 @@ def item(kinds, extra=""):
 
 HABIT_TABLE = """
   CREATE TABLE habit(id TEXT PRIMARY KEY, title TEXT NOT NULL, rrule TEXT, time TEXT,
-    amount_per_checkin REAL, daily_amount REAL, pause_from TEXT, pause_until TEXT, deleted_at TEXT%s);
+    amount_per_checkin REAL, daily_amount REAL, pause_from TEXT, pause_until TEXT,
+    block_id TEXT, duration_min INT, deleted_at TEXT%s);
   CREATE TABLE habit_completion(id TEXT PRIMARY KEY, habit_id TEXT NOT NULL REFERENCES habit(id) ON DELETE CASCADE,
     date TEXT NOT NULL, checked_at TEXT NOT NULL, value REAL, occurrence_key TEXT, deleted_at TEXT);
 """
 HABIT_ITEM_COLS = """, amount_per_checkin REAL, daily_amount REAL, pause_from TEXT, pause_until TEXT,
-    CHECK(kind='HABIT' OR (amount_per_checkin IS NULL AND daily_amount IS NULL AND pause_from IS NULL AND pause_until IS NULL))"""
+    block_id TEXT, duration_min INT,
+    CHECK(kind='HABIT' OR (amount_per_checkin IS NULL AND daily_amount IS NULL AND pause_from IS NULL AND pause_until IS NULL
+      AND block_id IS NULL AND duration_min IS NULL))"""
 HABIT_TRACKER_COLS = """, tracker_id TEXT REFERENCES tracker(id), pause_from TEXT, pause_until TEXT,
+    block_id TEXT, duration_min INT,
     CHECK((kind='HABIT') = (tracker_id IS NOT NULL)),
-    CHECK(kind='HABIT' OR (pause_from IS NULL AND pause_until IS NULL))"""
+    CHECK(kind='HABIT' OR (pause_from IS NULL AND pause_until IS NULL AND block_id IS NULL AND duration_min IS NULL))"""
 
 DDL = {
  "habit-table": item(ITEM_KINDS) + TRACKERS + HABIT_TABLE % "",
@@ -186,6 +190,39 @@ def case_presence(opt):
     return 1 if c.execute(PRESENCE[opt]).fetchone()[0] == 3 else 0
 
 
+PLANNER_FIELDS = {
+ "habit-table": "UPDATE habit SET block_id='morning', duration_min=15 WHERE id='H2'",
+ "with-streak": "UPDATE habit SET block_id='morning', duration_min=15 WHERE id='H2'",
+ "item-kind": "UPDATE item SET block_id='morning', duration_min=15 WHERE id='H2'",
+ "item+tracker": "UPDATE item SET block_id='morning', duration_min=15 WHERE id='H2'",
+}
+PLANNER_READ = {
+ "habit-table": "SELECT block_id, duration_min FROM habit WHERE id='H2'",
+ "with-streak": "SELECT block_id, duration_min FROM habit WHERE id='H2'",
+ "item-kind": "SELECT block_id, duration_min FROM item WHERE id='H2'",
+ "item+tracker": "SELECT block_id, duration_min FROM item WHERE id='H2'",
+}
+
+
+def case_planner_fields(opt):
+    """tendril (re-scored 2026-10-01, docs/spikes-2026-10-01.md 9.2): a habit keeps its default time block
+    and its duration, which the week planner places and balances by (Habit.kt blockUid, duration);
+    a task row may not carry them."""
+    c = db(opt)
+    if opt not in PLANNER_FIELDS:
+        return 0
+    c.execute(PLANNER_FIELDS[opt])
+    if c.execute(PLANNER_READ[opt]).fetchone() != ("morning", 15):
+        return 0
+    if opt in ("item-kind", "item+tracker"):
+        try:
+            c.execute("INSERT INTO item(id,kind,title,block_id) VALUES('XT','TASK','x','morning')")
+            return 0
+        except sqlite3.IntegrityError:
+            pass
+    return 1
+
+
 def case_no_streak(opt):
     """owner rule 0.14 in Habits: no streak, last-completed or missed column anywhere."""
     c = db(opt)
@@ -204,6 +241,7 @@ CASES = {
     "tendril-cadence-and-time": ("tendril", case_cadence),
     "tendril-counting-and-undo": ("tendril", case_counting),
     "tendril-pause-window": ("tendril", case_pause),
+    "tendril-planner-fields": ("tendril", case_planner_fields),
     "chronicle-tracker-presence": ("chronicle", case_presence),
     "owner-no-streak": ("owner", case_no_streak),
     "shared-one-reminder-path": ("shared", case_one_reminder_path),

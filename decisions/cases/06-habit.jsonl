@@ -5,3 +5,4 @@
 {"id": "owner-no-streak", "owner": "owner", "given": "no streak, last-completed or missed column anywhere", "when": "run on the built SQLite schema", "then": "holds", "source": "owner, 2026-09-30: 0.14 applies to Habits"}
 {"id": "shared-one-reminder-path", "owner": "shared", "given": "the habit's 08:00 reminder is a row in ADR 03's reminder table", "when": "run on the built SQLite schema", "then": "holds", "source": "ADR 03; Tendril has a second mechanism (HabitSchedule.kt:71)"}
 {"id": "shared-one-recurrence-home", "owner": "shared", "given": "recurrence stored in exactly one table", "when": "run on the built SQLite schema", "then": "holds", "source": "ADR 03/04"}
+{"id": "tendril-planner-fields", "owner": "tendril", "given": "a habit keeps its default time block and duration; a task may not carry them (re-scored 2026-10-01)", "when": "run on the built SQLite schema", "then": "holds", "source": "Habit.kt blockUid, duration; docs/spikes-2026-10-01.md 9.2"}

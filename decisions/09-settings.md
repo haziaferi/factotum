@@ -41,6 +41,8 @@ Growth here is a hand count of storage places, taken from the verification. It i
 
 scoped-live is "dominated" only because no owner app syncs settings live today, so no case can ask for it. That makes it a feature choice, which the owner made.
 
+**Sensitivity (2026-10-01, `tools/sensitivity.py`):** local+backup and scoped-live both cover every case, and only the hand-counted growth separates them (3 against 4 storage places). Varied over ×0.5 to ×2, scoped-live is on the front in 36% of 1,296 combinations. The owner's pick rests on wanting live sync, not on growth, so this changes nothing.
+
 ## Decision
 
 **scoped-live** was chosen by the owner on 2026-09-30, against the recommendation. Every setting key is declared once, in a registry in code, with one of four scopes:

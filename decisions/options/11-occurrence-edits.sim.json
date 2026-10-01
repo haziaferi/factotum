@@ -8,7 +8,8 @@
   "tendril-concurrent-field-edits": 0,
   "shared-concurrent-moves-once": 0,
   "shared-rename-reaches-moved": 0,
-  "shared-one-mechanism": 1
+  "shared-one-mechanism": 1,
+  "owner-occurrence-clash-asks": 0
  },
  "edit-log": {
   "tendril-task-move-one": 1,
@@ -19,7 +20,8 @@
   "tendril-concurrent-field-edits": 1,
   "shared-concurrent-moves-once": 0,
   "shared-rename-reaches-moved": 1,
-  "shared-one-mechanism": 1
+  "shared-one-mechanism": 1,
+  "owner-occurrence-clash-asks": 1
  },
  "edit-log+move": {
   "tendril-task-move-one": 1,
@@ -30,7 +32,8 @@
   "tendril-concurrent-field-edits": 1,
   "shared-concurrent-moves-once": 1,
   "shared-rename-reaches-moved": 1,
-  "shared-one-mechanism": 1
+  "shared-one-mechanism": 1,
+  "owner-occurrence-clash-asks": 1
  },
  "as-is": {
   "tendril-task-move-one": 1,
@@ -41,7 +44,8 @@
   "tendril-concurrent-field-edits": 1,
   "shared-concurrent-moves-once": 0,
   "shared-rename-reaches-moved": 0,
-  "shared-one-mechanism": 0
+  "shared-one-mechanism": 0,
+  "owner-occurrence-clash-asks": 1
  },
  "patch-rows": {
   "tendril-task-move-one": 1,
@@ -52,7 +56,8 @@
   "tendril-concurrent-field-edits": 1,
   "shared-concurrent-moves-once": 1,
   "shared-rename-reaches-moved": 1,
-  "shared-one-mechanism": 1
+  "shared-one-mechanism": 1,
+  "owner-occurrence-clash-asks": 1
  },
  "rewrite": {
   "tendril-task-move-one": 0,
@@ -63,6 +68,7 @@
   "tendril-concurrent-field-edits": 0,
   "shared-concurrent-moves-once": 0,
   "shared-rename-reaches-moved": 1,
-  "shared-one-mechanism": 0
+  "shared-one-mechanism": 0,
+  "owner-occurrence-clash-asks": 0
  }
 }

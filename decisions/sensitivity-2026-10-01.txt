@@ -1,0 +1,20 @@
+09-settings  pick=scoped-live  full-coverage options=['local+backup', 'scoped-live']
+  combinations 1296: pick on front 468 (36.1%), pick the only full-coverage front member 396 (30.6%)
+  rival local+backup (growth 3) vs pick (growth 4): the pick stays on the front while its growth <= the rival's
+  front all-local, local+backup                                       33.6%
+  front local+backup                                                  26.1%
+  front all-local, scoped-live                                        16.4%
+  front scoped-live                                                   12.8%
+11-occurrence-edits  pick=edit-log+move  full-coverage options=['edit-log+move', 'patch-rows']
+  combinations 7776: pick on front 6912 (88.9%), pick the only full-coverage front member 6912 (88.9%)
+  rival patch-rows (growth 24) vs pick (growth 11): the pick stays on the front while its growth <= the rival's
+  front edit-log+move, full-copy                                      39.5%
+  front edit-log, edit-log+move, full-copy                            24.8%
+  front as-is, edit-log+move, full-copy                               10.0%
+  front edit-log+move                                                  5.6%
+12-page-merge  pick=per-row+revive  full-coverage options=['per-row+revive']
+  combinations 46656: pick on front 46656 (100.0%), pick the only full-coverage front member 46656 (100.0%)
+  front per-row+revive, whole-page                                    27.0%
+  front per-row, per-row+revive, per-row+revive-blocks, whole-page    24.3%
+  front per-row+ask, per-row+revive, per-row+revive-blocks, whole-page  18.9%
+  front per-row+revive, per-row+revive-blocks, whole-page             15.1%

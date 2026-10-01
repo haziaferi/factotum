@@ -1,13 +1,13 @@
 {
  "contest": "11-occurrence-edits",
- "growth_note": "tables/columns each option adds to the decided schema; edit-log counts Tendril's real 8-column table, full-copy the 3 exception columns on Entry, patch-rows is a hand count of its designed columns",
+ "growth_note": "tables/columns each option adds to the decided schema; edit-log counts Tendril's real 8-column table, full-copy the 3 exception columns on Entry, patch-rows is a hand count of its designed columns; +1 base-stamp column per edit table for the clash prompt (2026-10-01); ADR 01 stamp columns counted after the sensitivity pass: +1 device per log, +12 per-field stamps for patch-rows (2026-10-01)",
  "options": [
   {
    "id": "full-copy",
    "summary": "Tendril task exceptions for every item: an override row copies the item for one occurrence",
    "growth": {
     "tables": 0,
-    "columns": 3
+    "columns": 4
    }
   },
   {
@@ -15,7 +15,7 @@
    "summary": "Tendril HabitScheduleEdit for every item: insert-once scoped edits; a move is skip + extra",
    "growth": {
     "tables": 1,
-    "columns": 8
+    "columns": 10
    }
   },
   {
@@ -23,7 +23,7 @@
    "summary": "edit-log, but a move is one Occurrence edit carrying the new date",
    "growth": {
     "tables": 1,
-    "columns": 8
+    "columns": 10
    }
   },
   {
@@ -31,7 +31,7 @@
    "summary": "full-copy for tasks/events, edit-log for habits",
    "growth": {
     "tables": 1,
-    "columns": 11
+    "columns": 14
    }
   },
   {
@@ -39,7 +39,7 @@
    "summary": "one row per (item, occurrence), UNIQUE, holding only changed fields, each field stamped",
    "growth": {
     "tables": 1,
-    "columns": 10
+    "columns": 23
    }
   },
   {
@@ -58,7 +58,8 @@
     "tendril-habit-from-now-on",
     "tendril-concurrent-field-edits",
     "shared-concurrent-moves-once",
-    "shared-one-mechanism"
+    "shared-one-mechanism",
+    "owner-occurrence-clash-asks"
    ]
   }
  ]

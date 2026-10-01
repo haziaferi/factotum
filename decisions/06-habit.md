@@ -24,7 +24,21 @@ The facts were verified with `tools/verify.py`; the raw output is in `verify/06-
 | Chronicle | There is no habit entity. `habitPresenceOf` reads BOOLEAN and RATING trackers: a yes counts, any rating counts, and a no doesn't. It gives days this month, the last date, and a usual time withheld until 3 presences with a majority bucket. Every tracker type gets a "Typically N apart" strip, and presence is computed only for BOOLEAN and RATING. | `HabitPresence.kt:20-82`; `TrackerDetailScreen.kt:302-328`; `TrackerDetailViewModel.kt:139-141` | "withheld until three" (partial: only the usual time is withheld) |
 | Chronicle | Goals store a period and a value, with progress as a **sum** over the window. Kinds are RECURRING or MILESTONE, and the direction comes from the tracker's polarity. Trackers have no cadence and no reminder. | `Goal.kt:24`; `GoalProgressRepository.kt:231-235`; `Enums.kt:52` (MILESTONE_DAYS), `:62` (GoalKind) | not stated |
 
-## Scores (`06-habit-scores.md`, run by `tools/habit_sql.py` on SQLite)
+## Re-scored 2026-10-01
+
+**Why:** the planner check (`docs/spikes-2026-10-01.md` §9.2) proved a HABIT needs `block_id` and `duration_min`. Both columns were added to **every** option that can hold a habit, together with a case that requires them (`tendril-planner-fields`). The current scores are in `06-habit-scores.md`.
+
+| Option | Chronicle | Owner | Shared | Tendril | Growth | Status |
+|---|---|---|---|---|---|---|
+| habit-table | 0.00 | 1.00 | 0.00 | 1.00 | 58 | dominated |
+| trackers-only | 1.00 | 1.00 | 0.50 | 0.25 | 38 | front (it has no habit to carry the columns) |
+| item-kind | 0.00 | 1.00 | 1.00 | 1.00 | 44 | dominated |
+| **item+tracker** | 1.00 | 1.00 | 1.00 | 1.00 | 43 | **front, still the only full coverage** |
+| with-streak (control) | 0.00 | 0.00 | 0.00 | 1.00 | 60 | failed as expected |
+
+The decision is unchanged.
+
+## Scores as first scored (2026-09-30)
 
 | Option | Chronicle | Owner | Shared | Tendril | Growth | Status |
 |---|---|---|---|---|---|---|

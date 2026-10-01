@@ -1,6 +1,6 @@
 {
  "contest": "12-page-merge",
- "growth_note": "columns added to Tendril's page tables (hand count: 3 stamp/tombstone columns on each of 5 part tables; +2 base stamp for ask)",
+ "growth_note": "columns added to Tendril's page tables (hand count: 3 stamp/tombstone columns on each of 5 part tables; +2 base stamp for ask); a full MERGE revision adds cells_json and canvas_json (+2) to every per-row option (2026-10-01)",
  "options": [
   {
    "id": "whole-page",
@@ -20,19 +20,26 @@
    "id": "per-row",
    "summary": "ADR 01 applied to blocks, cells and canvas nodes; existence is the page's own group",
    "growth": {
-    "columns": 15
+    "columns": 17
    }
   },
   {
    "id": "per-row+ask",
    "summary": "per-row, and a block changed on both sides asks the person",
    "growth": {
-    "columns": 17
+    "columns": 19
    }
   },
   {
    "id": "per-row+revive",
    "summary": "per-row, and an edit to any part later than the trash restores the page (Tendril's rule)",
+   "growth": {
+    "columns": 17
+   }
+  },
+  {
+   "id": "per-row+revive-blocks",
+   "summary": "per-row+revive as first decided: the MERGE revision keeps losing paragraphs only",
    "growth": {
     "columns": 15
    }
@@ -49,7 +56,8 @@
     "shared-different-blocks-both-live",
     "shared-concurrent-inserts",
     "shared-cell-and-body",
-    "shared-canvas-nodes"
+    "shared-canvas-nodes",
+    "shared-cell-loser-recoverable"
    ]
   }
  ]
