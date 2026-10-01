@@ -1,0 +1,13 @@
+P0-original            start                37s 5093 chars
+P0-original            trap-screen          29s 4480 chars
+P0-original            burnout              33s 4572 chars
+P0-original            import               21s 2840 chars
+P1-structured          start                22s 3669 chars
+P1-structured          trap-screen          17s 2913 chars
+P1-structured          burnout              26s 3852 chars
+P1-structured          import               13s 2795 chars
+P2-lean                start                32s 6115 chars
+P2-lean                trap-screen          18s 1925 chars
+P2-lean                burnout              26s 4858 chars
+P2-lean                import               13s 2273 chars
+wrote C:\Users\User\Downloads\Builds\Schema overlap\Factotum - merged app\tools\workflow-brief\results.json

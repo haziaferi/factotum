@@ -347,7 +347,11 @@ Status: 2, 4 and 6 are done (`docs/spikes-2026-10-01.md`). With §10.2 decided, 
 5. **Equipoise's burnout index isn't computed in production.** `BurnoutIndex.compute` is called only from a test, and `sleepHours` has no source table. The work is to decide where the score is computed and where sleep comes from; a tracker is the obvious source.
 6. **Occurrence-edit log growth.** A storage policy for edits on occurrences more than a year in the past (§3.11).
 7. **Checklists in search.** Checklist text isn't indexed today (§3.10). Adding it is a feature choice.
-8. **The map's copies.** `schema-overlap-map.html`, `.json` and `.csv` still show the pre-correction map. Only the `.md` has the corrections.
+8. **The map's copies. Done 2026-10-01.**
+   - The `.md` table and its count line now read 10 contested, 0 duplicated and 1 name collision.
+   - The `.html` carries both correction sections, and its exporters emit them.
+   - The `.json` and `.csv` were rebuilt from the `.md` table, and all 14 rows were checked equal.
+   - The pre-edit copies are in `../_map-before-2026-10-01/`.
 
 ---
 

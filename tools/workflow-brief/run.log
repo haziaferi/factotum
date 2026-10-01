@@ -1,0 +1,20 @@
+P1-structured          start                18s 3166 chars
+P1-structured          trap-screen          14s 2518 chars
+P1-structured          burnout              24s 3540 chars
+P1-structured          import               16s 3017 chars
+P1-structured          fts5                 15s 940 chars
+P1-structured          drained              11s 1031 chars
+P3-structured-fixed    start                25s 5362 chars
+P3-structured-fixed    trap-screen          12s 2912 chars
+P3-structured-fixed    burnout              19s 3470 chars
+P3-structured-fixed    import               12s 2412 chars
+P3-structured-fixed    fts5                 10s 806 chars
+P3-structured-fixed    drained               7s 727 chars
+P4-lean-fixed          start                28s 5574 chars
+P4-lean-fixed          trap-screen          25s 3249 chars
+P4-lean-fixed          burnout              40s 7768 chars
+P4-lean-fixed          import               12s 2365 chars
+P4-lean-fixed          fts5                 11s 793 chars
+P4-lean-fixed          drained              17s 1043 chars
+wrote C:\Users\User\Downloads\Builds\Schema overlap\Factotum - merged app\tools\workflow-brief\results.json
+exit=0
