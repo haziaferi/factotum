@@ -1,6 +1,6 @@
 # Factotum — Product & Technical Spec
 
-**Status:** draft v0.5, seeded from the decision register · **Scope:** the merged data model, sync and behaviour rules of Factotum. Screens are not decided and are marked open (§10.1).
+**Status:** draft v0.6, seeded from the decision register · **Scope:** the merged data model, sync and behaviour rules of Factotum. Screens are not decided and are marked open (§10.1).
 **Related documents:** `decisions/`, the evidence behind §3: one ADR per decision with verified `file:line` facts, the scored options, the behaviour cases and the harness that measured them (`decisions/register.md` is the index). This spec states each decision once and points to its ADR for the evidence. It never restates the evidence.
 
 ---
@@ -9,6 +9,7 @@
 
 | Version | Summary | Sections touched |
 |---|---|---|
+| v0.6 | §10.9 decided as ADR 13: device-log+copies. Five folder requirements added (§3.13) | §3.1, §3.13, §7, §10 |
 | v0.5 | Slice 01 built: the sync merge engine (§3.1), the database with its real open path and corruption guard, the purge registry, the clock and the device id. §10.9 opened: the sync folder's layout | §3.1, §7, §10 |
 | v0.4 | §10.2 and §10.3 decided: KMP split by layer (`:core`, `:data`, `:llm`, `:ui` later, `:android`, `:windows`); the data layer goes first, in ADR order, with no screens. Imports are hybrid and pass a review gate | §5.1, §7, §9, §10 |
 | v0.3 | The post-scoring fixes in ADRs 06, 11 and 12 were re-scored and a growth sensitivity pass run: no decision changed | §3.6, §3.11, §3.12 |
@@ -108,7 +109,7 @@ Every decision here was scored against its owners' behaviour cases, with a contr
 - **The device id lives in its own file** (ADR 09), written atomically. An unreadable file is set aside and a new id made.
 - **Purges:** an import re-checks only the registry entries it added or lowered.
 
-**Waiting on §10.9:** the importer that reads the folder, and its local `base` and pending-question tables, wait until the folder layout is decided.
+**Next (unblocked by §3.13):** the importer that reads the folder, with its local `base`, pending-question and read-position tables.
 
 ### 3.2 Items: tasks and events — ADR 02
 
@@ -240,6 +241,29 @@ The device id is not a setting.
 
 **Acceptance:** `cases/12-page-merge.jsonl`, 8 cases.
 
+### 3.13 Sync folder layout — ADR 13
+
+**Finding [Measured]:** with ADR 01's merge, every layout that delivers every version is lossless, so the layouts differ in cost and risk. At one year of data:
+- **Rewriting each device's whole state** costs hundreds of MB of writes a day (Chronicle's snapshot: 900 MB/day; Tendril's per-area files: 411 MB/day).
+- **Shared files** produce conflict copies, and lose a wiped device's losing edit.
+- **One file per row** passes Android's 10,000-file slowdown within a year.
+`decisions/13-folder.md` has the evidence, the simulator, a reviewed model and the scores.
+
+**Decided:** **device-log+copies** (owner, 2026-10-01).
+- Each device writes only under `devices/<device-id>/`, so ordinary use makes no conflict copies.
+- Exports append the versions written since the last export, including versions imported from peers, to `log-<seq>.jsonl` segments of up to 16 KiB. Every write replaces the whole segment atomically.
+- Every 64 segments the device writes `snapshot.json` (compact JSON) and deletes its older segments.
+- Exports follow the last local write by 30 s. Readers keep a device-local read position per file, and merge, then delete, any `.sync-conflict-` copy.
+
+**Requirements, whatever is synced** (`decisions/verify/13-folder/workload.md`):
+1. Firing a reminder writes nothing that syncs. Fire bookkeeping is device state, and occurrences come from the rule (§3.4).
+2. Folder exports are debounced, although the database may be written on every keystroke.
+3. Every folder write is an atomic replace (temp file, then rename). Where Android's SAF cannot do that, the reader tolerates a torn file.
+4. Synced files are compact JSON, never pretty-printed.
+5. The device-id file is excluded from Android Auto Backup and device transfer, so two devices never share an identity.
+
+**Acceptance:** the 4 cases in `cases/13-folder.jsonl` pass through the real importer and exporter, under a Syncthing double in the tests.
+
 ---
 
 ## 4. Explicitly Out of Scope
@@ -321,7 +345,7 @@ The four source apps are the owner's own. The only third-party code found so far
    - The guard recovers only from SQLITE_CORRUPT and SQLITE_NOTADB. A locked or full database is rethrown, and its file is left in place.
    - It moves the `-journal`, `-wal` and `-shm` files with the database.
    - Tests cover both drivers, with a control showing that the stock Android driver deletes a corrupt file. Wiring the guard into the Room open path comes with slice 01.
-2. **Schema slices in ADR dependency order:** 01 → 02 → 03 → 04 → 11 → 06 → 07 → 08 → 09 → 10 → 05 → 12. Each slice is done when its ADR cases pass as tests against the real implementation (§3). Spikes 1 and 3 run with slice 10, and spike 5 runs with slice 04. **Slice 01: done 2026-10-01** (§3.1). Only its importer waits on §10.9.
+2. **Schema slices in ADR dependency order:** 01 → 02 → 03 → 04 → 11 → 06 → 07 → 08 → 09 → 10 → 05 → 12. Each slice is done when its ADR cases pass as tests against the real implementation (§3). Spikes 1 and 3 run with slice 10, and spike 5 runs with slice 04. **Slice 01: done 2026-10-01** (§3.1). Its importer follows §3.13.
 3. **The sole-owner modules of §2.**
 4. **Screens**, after §10.1.
 
@@ -368,13 +392,7 @@ Status: 2, 4 and 6 are done (`docs/spikes-2026-10-01.md`). With §10.2 decided, 
    - The `.html` carries both correction sections, and its exporters emit them.
    - The `.json` and `.csv` were rebuilt from the `.md` table, and all 14 rows were checked equal.
    - The pre-edit copies are in `../_map-before-2026-10-01/`.
-9. **The sync folder's layout.** No ADR decides how rows sit in the folder (opened 2026-10-01). ADR 01 records the source apps' layouts, but picks none:
-   - Tendril: 12 folder-wide array files plus one file per page, with undecodable records quarantined (`SnapshotSyncOrchestrator.kt:98`).
-   - Mnemo: one file per row (`ReminderSyncManager.kt:38`).
-   - Chronicle: one file per device (`FolderSync.kt:115`).
-   The choice affects how often a file-sync tool (Syncthing, a cloud drive) creates its own conflict copies, how large each write is, and what a person sees in the folder. It blocks the importer, its local `base` and pending-question tables, and every slice's 'syncs as rows' check. It does not block the merge engine or the schema slices.
-
----
+9. **The sync folder's layout. Decided 2026-10-01:** ADR 13, device-log+copies (§3.13).
 
 ## 11. Next Steps
 

@@ -1,0 +1,86 @@
+{
+ "one-file": {
+  "st-no-conflict-copies": 0,
+  "st-retired-loser": 0,
+  "android-files-1y": 1,
+  "ff-nothing-lost": 1
+ },
+ "one-file+copies": {
+  "st-no-conflict-copies": 0.5,
+  "st-retired-loser": 0,
+  "android-files-1y": 1,
+  "ff-nothing-lost": 1
+ },
+ "per-area": {
+  "st-no-conflict-copies": 0,
+  "st-retired-loser": 0,
+  "android-files-1y": 1,
+  "ff-nothing-lost": 1
+ },
+ "per-area+copies": {
+  "st-no-conflict-copies": 0.5,
+  "st-retired-loser": 0,
+  "android-files-1y": 1,
+  "ff-nothing-lost": 1
+ },
+ "per-row": {
+  "st-no-conflict-copies": 0,
+  "st-retired-loser": 0,
+  "android-files-1y": 0,
+  "ff-nothing-lost": 1
+ },
+ "per-row+copies": {
+  "st-no-conflict-copies": 0.5,
+  "st-retired-loser": 0,
+  "android-files-1y": 0,
+  "ff-nothing-lost": 1
+ },
+ "device-snapshot": {
+  "st-no-conflict-copies": 1,
+  "st-retired-loser": 1,
+  "android-files-1y": 1,
+  "ff-nothing-lost": 1
+ },
+ "device-area": {
+  "st-no-conflict-copies": 1,
+  "st-retired-loser": 1,
+  "android-files-1y": 1,
+  "ff-nothing-lost": 1
+ },
+ "device-row": {
+  "st-no-conflict-copies": 1,
+  "st-retired-loser": 1,
+  "android-files-1y": 0,
+  "ff-nothing-lost": 1
+ },
+ "device-log": {
+  "st-no-conflict-copies": 1,
+  "st-retired-loser": 1,
+  "android-files-1y": 1,
+  "ff-nothing-lost": 1
+ },
+ "device-log+copies": {
+  "st-no-conflict-copies": 1,
+  "st-retired-loser": 1,
+  "android-files-1y": 1,
+  "ff-nothing-lost": 1
+ },
+ "device-chunks": {
+  "st-no-conflict-copies": 1,
+  "st-retired-loser": 1,
+  "android-files-1y": 1,
+  "ff-nothing-lost": 1
+ },
+ "device-chunks-own": {
+  "st-no-conflict-copies": 1,
+  "st-retired-loser": 1,
+  "android-files-1y": 1,
+  "ff-nothing-lost": 1
+ },
+ "device-chunks-area": {
+  "st-no-conflict-copies": 1,
+  "st-retired-loser": 1,
+  "android-files-1y": 1,
+  "ff-nothing-lost": 1
+ }
+}

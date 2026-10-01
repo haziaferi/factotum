@@ -1,0 +1,81 @@
+{
+ "contest": "13-folder",
+ "growth_note": "growth = files the layout keeps in the folder after a year, from tools/folder_cases.py",
+ "options": [
+  {
+   "id": "one-file",
+   "summary": "one shared file, every device rewrites it (Super Productivity v2, KeePassXC); control",
+   "growth": {},
+   "control": true,
+   "expect_fail": [
+    "st-no-conflict-copies",
+    "st-retired-loser"
+   ]
+  },
+  {
+   "id": "one-file+copies",
+   "summary": "one shared file; the app merges .sync-conflict- copies, then deletes them",
+   "growth": {}
+  },
+  {
+   "id": "per-area",
+   "summary": "one shared file per area (Tendril's 12 array files)",
+   "growth": {}
+  },
+  {
+   "id": "per-area+copies",
+   "summary": "per-area, merging conflict copies (what Tendril does)",
+   "growth": {}
+  },
+  {
+   "id": "per-row",
+   "summary": "one shared file per row (Mnemo, Joplin, Obsidian)",
+   "growth": {}
+  },
+  {
+   "id": "per-row+copies",
+   "summary": "per-row, merging conflict copies",
+   "growth": {}
+  },
+  {
+   "id": "device-snapshot",
+   "summary": "each device rewrites one file of its whole merged state (Chronicle)",
+   "growth": {}
+  },
+  {
+   "id": "device-area",
+   "summary": "each device writes one file per area of its merged state",
+   "growth": {}
+  },
+  {
+   "id": "device-row",
+   "summary": "each device writes one file per row (rows/<id>/<device>)",
+   "growth": {}
+  },
+  {
+   "id": "device-log",
+   "summary": "each device appends to its own log segments, with a periodic snapshot (Tonsky, outl)",
+   "growth": {}
+  },
+  {
+   "id": "device-log+copies",
+   "summary": "device-log, also merging conflict copies (cloned device id)",
+   "growth": {}
+  },
+  {
+   "id": "device-chunks",
+   "summary": "each export is a new immutable chunk in the device's folder; compaction folds chunks into a snapshot (Automerge storage)",
+   "growth": {}
+  },
+  {
+   "id": "device-chunks-own",
+   "summary": "device-chunks holding only versions this device wrote (no relay)",
+   "growth": {}
+  },
+  {
+   "id": "device-chunks-area",
+   "summary": "device-chunks whose compaction rewrites only the snapshots of areas written since the last one",
+   "growth": {}
+  }
+ ]
+}

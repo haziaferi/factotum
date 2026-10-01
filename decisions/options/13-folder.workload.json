@@ -1,0 +1,120 @@
+{
+ "note": "Rates are assumptions about one person's use (code cannot measure them); write triggers and sizes follow decisions/verify/13-folder/workload.md; tools/folder_tune.py checks the ranking against light/heavy pages and three devices",
+ "kinds": {
+  "item": {
+   "per_day": 30,
+   "create_share": 0.3,
+   "bytes": 400,
+   "groups": [
+    "schedule",
+    "status"
+   ]
+  },
+  "completion": {
+   "per_day": 10,
+   "create_share": 1.0,
+   "bytes": 120,
+   "groups": [
+    "row"
+   ]
+  },
+  "time_span": {
+   "per_day": 8,
+   "create_share": 0.5,
+   "bytes": 150,
+   "groups": [
+    "row"
+   ]
+  },
+  "reading": {
+   "per_day": 15,
+   "create_share": 1.0,
+   "bytes": 120,
+   "groups": [
+    "row"
+   ]
+  },
+  "check_in": {
+   "per_day": 5,
+   "create_share": 1.0,
+   "bytes": 200,
+   "groups": [
+    "row"
+   ]
+  },
+  "block": {
+   "per_day": 200,
+   "create_share": 0.2,
+   "bytes": 300,
+   "groups": [
+    "row"
+   ]
+  },
+  "cell": {
+   "per_day": 20,
+   "create_share": 0.3,
+   "bytes": 200,
+   "groups": [
+    "row"
+   ]
+  },
+  "setting": {
+   "per_day": 1,
+   "create_share": 0.1,
+   "bytes": 80,
+   "groups": [
+    "row"
+   ]
+  }
+ },
+ "devices": {
+  "phone": {
+   "share": 0.7,
+   "always": true,
+   "from": 0,
+   "to": 1440
+  },
+  "laptop": {
+   "share": 0.3,
+   "from": 540,
+   "to": 1080,
+   "writes_offline": false
+  }
+ },
+ "app": {
+  "debounce_s": 5,
+  "write_ms": 50,
+  "import_every_min": 15,
+  "segment_bytes": 262144,
+  "snapshot_every": 8,
+  "chunks_before_compaction": 64
+ },
+ "syncthing": {
+  "session_every_s": 60,
+  "cut_chance": 0.05
+ },
+ "tuned": {
+  "device-log": {
+   "debounce_s": 30,
+   "segment_bytes": 16384,
+   "snapshot_every": 64
+  },
+  "device-log+copies": {
+   "debounce_s": 30,
+   "segment_bytes": 16384,
+   "snapshot_every": 64
+  },
+  "device-chunks": {
+   "debounce_s": 30,
+   "chunks_before_compaction": 1024
+  },
+  "device-chunks-own": {
+   "debounce_s": 30,
+   "chunks_before_compaction": 1024
+  },
+  "device-chunks-area": {
+   "debounce_s": 30,
+   "chunks_before_compaction": 1024
+  }
+ }
+}
