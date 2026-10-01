@@ -9,9 +9,12 @@ import java.io.File
  */
 fun setAsideDatabaseFiles(dbPath: String, stamp: Long) {
     for (suffix in listOf("-journal", "-wal", "-shm", "")) {
-        val from = File(dbPath + suffix)
-        if (from.exists()) check(from.renameTo(File(from.path + UNOPENABLE_SUFFIX + stamp))) {
-            "could not set aside ${from.path}"
-        }
+        val file = File(dbPath + suffix)
+        if (file.exists()) setAside(file, stamp)
     }
+}
+
+/** Renames [file] to `<name>.unopenable-<stamp>`; it is kept, never deleted. */
+internal fun setAside(file: File, stamp: Long) {
+    check(file.renameTo(File(file.path + UNOPENABLE_SUFFIX + stamp))) { "could not set aside ${file.path}" }
 }

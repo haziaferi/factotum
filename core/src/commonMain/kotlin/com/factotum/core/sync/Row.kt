@@ -1,0 +1,33 @@
+package com.factotum.core.sync
+
+/**
+ * One field group of a row: its values and the stamp of the last write to any of them.
+ *
+ * [settles] is set only by a person's answer to a clash: it names the other side's stamp that
+ * the answer saw, so that device takes the answer instead of asking again.
+ */
+data class Group(
+    val stamp: Stamp,
+    val values: Map<String, Any?>,
+    val settles: Stamp? = null,
+) {
+    init {
+        // Clashes compare values with ==, so 5 and 5L would differ: one type per kind of value.
+        require(values.values.all { it == null || it is String || it is Long || it is Boolean || it is Double }) {
+            "values must be String, Long, Boolean, Double or null: $values"
+        }
+    }
+}
+
+/** A synced row as the merge sees it. A table's columns map onto its groups (ADR 01). */
+data class Row(val id: String, val groups: Map<String, Group>) {
+
+    val newest: Stamp get() = groups.values.maxOf { it.stamp }
+
+    /** A local write: [changes] land in [group], which takes [stamp]. */
+    fun edit(group: String, stamp: Stamp, changes: Map<String, Any?>): Row {
+        val old = requireNotNull(groups[group]) { "row $id has no group $group" }
+        require(changes.keys.all { it in old.values }) { "fields outside group $group: ${changes.keys - old.values.keys}" }
+        return copy(groups = groups + (group to Group(stamp, old.values + changes)))
+    }
+}

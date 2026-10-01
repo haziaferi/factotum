@@ -1,10 +1,16 @@
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.android.kotlin.multiplatform.library)
+    alias(libs.plugins.ksp)
 }
 
 kotlin {
     jvmToolchain(21)
+
+    // Room generates an `actual object` for the database constructor.
+    compilerOptions {
+        freeCompilerArgs.add("-Xexpect-actual-classes")
+    }
 
     android {
         namespace = "com.factotum.data"
@@ -24,7 +30,9 @@ kotlin {
 
         commonMain.dependencies {
             api(project(":core"))
+            api(libs.androidx.room.runtime)
             api(libs.androidx.sqlite)
+            implementation(libs.kotlinx.coroutines.core)
         }
         androidMain.dependencies {
             implementation(libs.androidx.sqlite.framework)
@@ -40,4 +48,19 @@ kotlin {
             implementation(libs.robolectric)
         }
     }
+}
+
+dependencies {
+    add("kspAndroid", libs.androidx.room.compiler)
+    add("kspDesktop", libs.androidx.room.compiler)
+}
+
+// One database, one schema file per version, committed: a migration needs the previous version's file.
+ksp {
+    arg("room.schemaLocation", "$projectDir/schemas")
+}
+
+// Both targets write the same schema file; running them in parallel races on it.
+tasks.matching { it.name == "kspKotlinDesktop" }.configureEach {
+    mustRunAfter("kspAndroidMain")
 }

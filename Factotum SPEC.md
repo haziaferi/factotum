@@ -1,6 +1,6 @@
 # Factotum — Product & Technical Spec
 
-**Status:** draft v0.4, seeded from the decision register · **Scope:** the merged data model, sync and behaviour rules of Factotum. Screens are not decided and are marked open (§10.1).
+**Status:** draft v0.5, seeded from the decision register · **Scope:** the merged data model, sync and behaviour rules of Factotum. Screens are not decided and are marked open (§10.1).
 **Related documents:** `decisions/`, the evidence behind §3: one ADR per decision with verified `file:line` facts, the scored options, the behaviour cases and the harness that measured them (`decisions/register.md` is the index). This spec states each decision once and points to its ADR for the evidence. It never restates the evidence.
 
 ---
@@ -9,6 +9,7 @@
 
 | Version | Summary | Sections touched |
 |---|---|---|
+| v0.5 | Slice 01 built: the sync merge engine (§3.1), the database with its real open path and corruption guard, the purge registry, the clock and the device id. §10.9 opened: the sync folder's layout | §3.1, §7, §10 |
 | v0.4 | §10.2 and §10.3 decided: KMP split by layer (`:core`, `:data`, `:llm`, `:ui` later, `:android`, `:windows`); the data layer goes first, in ADR order, with no screens. Imports are hybrid and pass a review gate | §5.1, §7, §9, §10 |
 | v0.3 | The post-scoring fixes in ADRs 06, 11 and 12 were re-scored and a growth sensitivity pass run: no decision changed | §3.6, §3.11, §3.12 |
 | v0.2 | Spikes 9.2, 9.4 and 9.6 run: DTSTART aligned, RULE_SET for set times, HABIT gains block_id and duration_min, seed and generator fixed, llama.cpp MIT | §3.4, §3.6, §6, §9 |
@@ -97,6 +98,17 @@ Every decision here was scored against its owners' behaviour cases, with a contr
 - A person is asked (keep mine / take theirs / keep both) only when an item's **schedule** group changed on both sides since its base stamp. Everything else merges silently.
 
 **Acceptance:** the 10 cases in `cases/01-sync.jsonl` pass. `tools/sync_sim.py` is the reference model.
+
+**Built (2026-10-01):** the merge engine in `:core` (`com.factotum.core.sync`), behind a `SyncStore` interface. The 10 cases pass against it on both targets, with hybrid+'s scored outcomes: 8 hold, and 2 ask a person. `tools/mutants.py 01` shows that each rule is needed: without it, named tests fail. Rules the implementation had to fix, none of which changes the decision:
+- **A person's answer settles the clash everywhere.** The answered group carries `settles`, the other side's stamp that the answer saw, and it syncs. The device that was also asked takes the answer instead of asking again. This adds one synced `(hlc, device)` pair to every asking group.
+- **Keep mine** re-stamps the local group. Its base becomes the stamp it settled, so a later edit on the other side is asked again. **Take theirs** adopts their group, stamp and all. **Keep both** keeps mine, and makes their version a new row with a new ULID.
+- **Two devices that answer differently are asked again.** That is ADR 01's rule as written: both sides changed the schedule since their base. Nothing is lost.
+- **Group values are String, Long, Boolean, Double or null.** Clashes compare values with `==`, so 5 and 5L would otherwise differ.
+- **The clock resumes from its stored high-water mark** (table `clock`). A wall clock set backwards therefore cannot reissue an older stamp. The repository must save the clock in the same transaction as the write it stamps (slice 02).
+- **The device id lives in its own file** (ADR 09), written atomically. An unreadable file is set aside and a new id made.
+- **Purges:** an import re-checks only the registry entries it added or lowered.
+
+**Waiting on §10.9:** the importer that reads the folder, and its local `base` and pending-question tables, wait until the folder layout is decided.
 
 ### 3.2 Items: tasks and events — ADR 02
 
@@ -309,7 +321,7 @@ The four source apps are the owner's own. The only third-party code found so far
    - The guard recovers only from SQLITE_CORRUPT and SQLITE_NOTADB. A locked or full database is rethrown, and its file is left in place.
    - It moves the `-journal`, `-wal` and `-shm` files with the database.
    - Tests cover both drivers, with a control showing that the stock Android driver deletes a corrupt file. Wiring the guard into the Room open path comes with slice 01.
-2. **Schema slices in ADR dependency order:** 01 → 02 → 03 → 04 → 11 → 06 → 07 → 08 → 09 → 10 → 05 → 12. Each slice is done when its ADR cases pass as tests against the real implementation (§3). Spikes 1 and 3 run with slice 10, and spike 5 runs with slice 04.
+2. **Schema slices in ADR dependency order:** 01 → 02 → 03 → 04 → 11 → 06 → 07 → 08 → 09 → 10 → 05 → 12. Each slice is done when its ADR cases pass as tests against the real implementation (§3). Spikes 1 and 3 run with slice 10, and spike 5 runs with slice 04. **Slice 01: done 2026-10-01** (§3.1). Only its importer waits on §10.9.
 3. **The sole-owner modules of §2.**
 4. **Screens**, after §10.1.
 
@@ -356,6 +368,11 @@ Status: 2, 4 and 6 are done (`docs/spikes-2026-10-01.md`). With §10.2 decided, 
    - The `.html` carries both correction sections, and its exporters emit them.
    - The `.json` and `.csv` were rebuilt from the `.md` table, and all 14 rows were checked equal.
    - The pre-edit copies are in `../_map-before-2026-10-01/`.
+9. **The sync folder's layout.** No ADR decides how rows sit in the folder (opened 2026-10-01). ADR 01 records the source apps' layouts, but picks none:
+   - Tendril: 12 folder-wide array files plus one file per page, with undecodable records quarantined (`SnapshotSyncOrchestrator.kt:98`).
+   - Mnemo: one file per row (`ReminderSyncManager.kt:38`).
+   - Chronicle: one file per device (`FolderSync.kt:115`).
+   The choice affects how often a file-sync tool (Syncthing, a cloud drive) creates its own conflict copies, how large each write is, and what a person sees in the folder. It blocks the importer, its local `base` and pending-question tables, and every slice's 'syncs as rows' check. It does not block the merge engine or the schema slices.
 
 ---
 

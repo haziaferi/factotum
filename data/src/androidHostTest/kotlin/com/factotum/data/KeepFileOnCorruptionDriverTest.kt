@@ -1,9 +1,9 @@
 package com.factotum.data
 
 import android.database.sqlite.SQLiteDatabaseCorruptException
-import androidx.sqlite.SQLiteDriver
 import androidx.sqlite.driver.AndroidSQLiteDriver
 import androidx.sqlite.execSQL
+import org.robolectric.RuntimeEnvironment
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import org.junit.runner.RunWith
@@ -25,24 +25,17 @@ class KeepFileOnCorruptionDriverTest {
 
     private val garbage = "this is not a database\n".toByteArray()
 
-    /** Opens [file] through [driver] lazily, as Room does, so the open happens inside the probe. */
-    private fun open(driver: SQLiteDriver, file: File) = openOrRecover(
-        build = { lazy { driver.open(file.path) } },
-        probe = { it.value.execSQL("SELECT count(*) FROM sqlite_master") },
-        close = { if (it.isInitialized()) it.value.close() },
-        setAside = { setAsideDatabaseFiles(file.path, stamp = 1) },
-        isUnopenable = ::isCorruptDatabase,
-    )
-
     @Test
-    fun aCorruptFileIsSetAsideWithItsBytesIntact() {
-        val file = tmp.newFile("factotum.db").apply { writeBytes(garbage) }
+    fun theAppSetsACorruptDatabaseAsideWithItsBytesIntact() {
+        val context = RuntimeEnvironment.getApplication()
+        val file = context.getDatabasePath(DATABASE_NAME).apply { parentFile!!.mkdirs(); writeBytes(garbage) }
 
-        val result = open(KeepFileOnCorruptionDriver(), file)
-        result.database.value.close()
+        val open = openFactotumDatabase(context)
+        open.database.close()
 
-        assertTrue(result.recovered, "the probe never saw the corrupt file")
-        assertContentEquals(garbage, File(file.path + UNOPENABLE_SUFFIX + 1).readBytes())
+        assertTrue(open.recovered, "the app never saw the corrupt file")
+        val setAside = file.parentFile!!.listFiles { f -> f.name.startsWith(file.name + UNOPENABLE_SUFFIX) }!!
+        assertContentEquals(garbage, setAside.single().readBytes())
         assertTrue(file.exists())
     }
 
@@ -62,10 +55,8 @@ class KeepFileOnCorruptionDriverTest {
     fun theStockDriverDeletesACorruptFile() {
         val file = tmp.newFile("stock.db").apply { writeBytes(garbage) }
 
-        val result = open(AndroidSQLiteDriver(), file)
-        result.database.value.close()
+        AndroidSQLiteDriver().open(file.path).use { it.execSQL("SELECT count(*) FROM sqlite_master") }
 
-        assertFalse(result.recovered)
         assertFalse(File(file.path + UNOPENABLE_SUFFIX + 1).exists())
         assertEquals(0, tmp.root.listFiles()!!.count { it.readBytes().contentEquals(garbage) })
     }

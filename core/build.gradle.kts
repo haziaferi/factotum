@@ -10,7 +10,14 @@ kotlin {
         namespace = "com.factotum.core"
         compileSdk = libs.versions.compileSdk.get().toInt()
         minSdk = libs.versions.minSdk.get().toInt()
+        withHostTest {}
     }
 
     jvm("desktop")
+
+    sourceSets {
+        commonTest.dependencies {
+            implementation(kotlin("test"))
+        }
+    }
 }
