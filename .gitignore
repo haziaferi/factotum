@@ -1,5 +1,47 @@
-tools/spikes/seeded_draw/out/
+# Gradle and Kotlin
 .gradle/
 .kotlin/
 build/
+!gradle/wrapper/gradle-wrapper.jar
+
+# Android
 local.properties
+captures/
+.externalNativeBuild/
+.cxx/
+*.apk
+*.aab
+*.ap_
+*.dex
+output-metadata.json
+
+# Signing and secrets: never public
+*.jks
+*.keystore
+keystore.properties
+signing.properties
+google-services.json
+.env
+.env.*
+
+# IDEs
+.idea/
+*.iml
+.vscode/
+.fleet/
+.claude/settings.local.json
+
+# Python (tools/)
+__pycache__/
+*.py[cod]
+.venv/
+tools/spikes/seeded_draw/out/
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Stray build logs and edit snapshots at the root (run logs under decisions/ and tools/ are evidence and stay tracked)
+/*.log
+*.before
