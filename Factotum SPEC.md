@@ -304,7 +304,11 @@ The four source apps are the owner's own. The only third-party code found so far
 
 **Decided (2026-10-01, owner): the data layer goes first. No screens are built in this phase.**
 
-1. **Skeleton.** The modules of §5.1, building on Android and Windows, and the corruption guard (§8).
+1. **Skeleton.** The modules of §5.1, building on Android and Windows, and the corruption guard (§8). **Done 2026-10-01.**
+   - `:core`, `:data`, `:android` and `:windows` build. `:llm` is created with Equipoise's module in step 3, where its first code lands.
+   - The guard recovers only from SQLITE_CORRUPT and SQLITE_NOTADB. A locked or full database is rethrown, and its file is left in place.
+   - It moves the `-journal`, `-wal` and `-shm` files with the database.
+   - Tests cover both drivers, with a control showing that the stock Android driver deletes a corrupt file. Wiring the guard into the Room open path comes with slice 01.
 2. **Schema slices in ADR dependency order:** 01 → 02 → 03 → 04 → 11 → 06 → 07 → 08 → 09 → 10 → 05 → 12. Each slice is done when its ADR cases pass as tests against the real implementation (§3). Spikes 1 and 3 run with slice 10, and spike 5 runs with slice 04.
 3. **The sole-owner modules of §2.**
 4. **Screens**, after §10.1.

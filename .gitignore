@@ -1,1 +1,5 @@
 tools/spikes/seeded_draw/out/
+.gradle/
+.kotlin/
+build/
+local.properties
