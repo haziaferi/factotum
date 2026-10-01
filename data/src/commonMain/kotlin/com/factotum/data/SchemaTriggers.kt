@@ -3,27 +3,39 @@ package com.factotum.data
 import androidx.room.RoomDatabase
 import com.factotum.data.item.COMPLETION
 import com.factotum.data.item.ITEM
+import com.factotum.data.reminder.REMINDER
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.execSQL
 
 /**
  * The triggers Room's annotations cannot declare, dropped and created again on every open so an
  * upgrade never keeps an old body:
- * - each kind's rules on `item` and `completion`, standing in for CHECK constraints (ADR 02);
+ * - each table's rules on `item`, `completion` and `reminder`, standing in for CHECK constraints
+ *   (ADR 02, ADR 03);
  * - the sync outbox: every write to a synced table, and every purge, queues the row for export
  *   (ADR 13), so no write path can forget to; a deleted row's base and pending questions go too.
  */
 internal object SchemaTriggers : RoomDatabase.Callback() {
 
+    /** ADR 02's kind rules, and ADR 03's: a standalone reminder has a status and always a date and time. */
     private val itemRules = """
-        NEW.kind IN ('TASK', 'EVENT')
-        AND (NEW.kind = 'TASK' OR (NEW.due_date IS NULL AND NEW.status IS NULL AND NEW.capacity_rank IS NULL AND NEW.parent_id IS NULL))
+        NEW.kind IN ('TASK', 'EVENT', 'REMINDER')
+        AND (NEW.kind = 'TASK' OR (NEW.due_date IS NULL AND NEW.capacity_rank IS NULL AND NEW.parent_id IS NULL))
         AND (NEW.kind = 'EVENT' OR (NEW.end_date IS NULL AND NEW.end_time IS NULL AND NEW.status IN ('PENDING', 'DONE', 'SKIPPED')))
+        AND (NEW.kind <> 'EVENT' OR NEW.status IS NULL)
+        AND (NEW.kind <> 'REMINDER' OR (NEW.start_date IS NOT NULL AND NEW.start_time IS NOT NULL))
+    """.trimIndent()
+
+    /** ADR 03's alert settings: unknown values are refused. */
+    private val reminderRules = """
+        NEW.alert_kind IN ('NOTIFICATION', 'ALARM') AND NEW.mode IN ('EASE', 'SCHEDULE', 'ALERT')
+        AND NEW.nag_repeats >= 0 AND (NEW.nag_minutes IS NULL OR NEW.nag_minutes > 0)
     """.trimIndent()
 
     private val rules = mapOf(
         ITEM to itemRules,
         COMPLETION to "NEW.status IN ('DONE', 'SKIPPED')",
+        REMINDER to reminderRules,
     )
 
     private val statements: List<String> = buildList {

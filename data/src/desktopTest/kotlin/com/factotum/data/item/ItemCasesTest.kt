@@ -4,6 +4,7 @@ import androidx.room.execSQL
 import androidx.room.useReaderConnection
 import androidx.room.useWriterConnection
 import com.factotum.data.FactotumDatabase
+import com.factotum.data.LocalWrites
 import com.factotum.data.isConstraintViolation
 import com.factotum.data.openFactotumDatabase
 import com.factotum.data.sync.AskEntity
@@ -37,7 +38,7 @@ class ItemCasesTest {
         db = openFactotumDatabase(File(tmp.root, "items.db")).database
         var n = 0
         val clock = runBlocking { db.syncDao().loadClock("A") { now } }
-        items = ItemRepository(db, clock) { "id-$now-${n++}" }
+        items = ItemRepository(db, LocalWrites(db, clock)) { "id-$now-${n++}" }
     }
 
     @After fun close() = db.close()

@@ -3,8 +3,8 @@ package com.factotum.data.item
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
 
-/** The kinds of calendar item built so far (ADR 02); REMINDER, HABIT and ACTIVITY come with their slices. */
-enum class ItemKind { TASK, EVENT }
+/** The kinds of item built so far (ADR 02, ADR 03); HABIT and ACTIVITY come with their slices. */
+enum class ItemKind { TASK, EVENT, REMINDER }
 
 enum class TaskStatus { PENDING, DONE, SKIPPED }
 
@@ -12,8 +12,9 @@ enum class TaskStatus { PENDING, DONE, SKIPPED }
 enum class Outcome { DONE, SKIPPED }
 
 /**
- * A task or an event (ADR 02). A task's [start] and [at] are when it is planned, and [due] is a
- * separate deadline. With no [at] the item takes the whole day. Task-only fields are null on an event.
+ * A task, an event (ADR 02) or a standalone reminder (ADR 03). A task's [start] and [at] are
+ * when it is planned, and [due] is a separate deadline. With no [at] the item takes the whole day.
+ * Only a task has [due], [capacityRank] and [parentId]; an event has no [status].
  */
 data class Item(
     val id: String,

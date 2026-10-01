@@ -86,9 +86,12 @@ internal interface ItemDao {
     @Query("SELECT id FROM item WHERE parent_id = :id AND deleted_at IS NULL")
     suspend fun liveChildren(id: String): List<String>
 
-    /** One day's timeline: timed items in time order, then the whole-day ones. */
-    @Query("SELECT * FROM item WHERE start_date = :date AND deleted_at IS NULL ORDER BY start_time IS NULL, start_time, id")
-    suspend fun day(date: String): List<ItemEntity>
+    /** One day's timeline: timed items in time order, then the whole-day ones; standalone reminders only when asked (ADR 03). */
+    @Query(
+        "SELECT * FROM item WHERE start_date = :date AND deleted_at IS NULL AND (kind <> 'REMINDER' OR :showReminders) " +
+            "ORDER BY start_time IS NULL, start_time, id",
+    )
+    suspend fun day(date: String, showReminders: Boolean): List<ItemEntity>
 
     @Query(CAPACITY_QUERY)
     suspend fun capacity(date: String, n: Int): List<ItemEntity>

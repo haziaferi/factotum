@@ -10,9 +10,13 @@ import com.factotum.data.item.Question
 import com.factotum.data.item.SCHEDULE
 import com.factotum.data.item.STATUS
 import com.factotum.data.openFactotumDatabase
+import com.factotum.data.reminder.Alert
+import com.factotum.data.reminder.AlertKind
 import kotlinx.coroutines.runBlocking
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.LocalTime
 import kotlinx.datetime.plus
 import org.junit.After
 import org.junit.Rule
@@ -408,6 +412,47 @@ class FolderSyncTest {
         assertEquals(ImportReport(changed = 0, skipped = 1), b.import())
         assertTrue(b.rows().isEmpty())
         assertEquals(emptyList(), runBlocking { b.db.syncDao().waiting() })
+    }
+
+    @Test
+    fun aSnoozeOnOneDeviceAndAnAlertChangeOnAnotherBothStayWithoutAQuestion() {
+        val w = world()
+        val a = w.Device("A")
+        val b = w.Device("B")
+        val task = runBlocking { a.items.createTask("call", MONDAY, LocalTime(14, 0)) }
+        val reminder = runBlocking { a.reminders.add(task, -5) }
+        w.settle(listOf(a, b))
+
+        val snoozed = LocalDateTime(MONDAY, LocalTime(14, 10))
+        runBlocking { a.reminders.snooze(reminder, snoozed) }
+        runBlocking { b.reminders.setAlert(reminder, Alert(AlertKind.ALARM)) }
+        w.settle(listOf(a, b))
+
+        for (d in listOf(a, b)) {
+            assertEquals(AlertKind.ALARM, runBlocking { d.reminders.alertOf(reminder) }?.kind, d.name)
+            assertEquals(snoozed, runBlocking { d.reminders.firings() }.single().at, d.name)
+            assertEquals(emptyList(), runBlocking { d.items.questions() }, d.name)
+        }
+    }
+
+    @Test
+    fun keepingBothTimesOfAStandaloneReminderKeepsBothFiring() {
+        val w = world()
+        val a = w.Device("A")
+        val b = w.Device("B")
+        val pills = runBlocking { a.reminders.createStandalone("take pills", MONDAY, LocalTime(8, 0)) }
+        w.settle(listOf(a, b))
+        runBlocking { a.items.reschedule(pills, MONDAY, LocalTime(9, 0)) }
+        runBlocking { b.items.reschedule(pills, MONDAY, LocalTime(10, 0)) }
+        w.settle(listOf(a, b))
+
+        runBlocking { b.items.answer(Question(pills, SCHEDULE), Answer.KEEP_BOTH) }
+        w.settle(listOf(a, b))
+
+        for (d in listOf(a, b)) {
+            val times = runBlocking { d.reminders.firings() }.map { it.at.time }
+            assertEquals(listOf(LocalTime(9, 0), LocalTime(10, 0)), times, d.name)
+        }
     }
 
     /** A record of a row in a table only [MemoryTable] would take: one group, no item fields. */

@@ -1,6 +1,6 @@
 # Factotum — Product & Technical Spec
 
-**Status:** draft v0.8, seeded from the decision register · **Scope:** the merged data model, sync and behaviour rules of Factotum. Screens are not decided and are marked open (§10.1).
+**Status:** draft v0.9, seeded from the decision register · **Scope:** the merged data model, sync and behaviour rules of Factotum. Screens are not decided and are marked open (§10.1).
 **Related documents:** `decisions/`, the evidence behind §3: one ADR per decision with verified `file:line` facts, the scored options, the behaviour cases and the harness that measured them (`decisions/register.md` is the index). This spec states each decision once and points to its ADR for the evidence. It never restates the evidence.
 
 ---
@@ -9,6 +9,7 @@
 
 | Version | Summary | Sections touched |
 |---|---|---|
+| v0.9 | Slice 03 built: reminders on any item, standalone reminders as REMINDER items, fire times, synced snooze, the day-view toggle | §3.2, §3.3, §7 |
 | v0.8 | Slice 02 built: `item` (TASK, EVENT) and `completion`, the repository, CHECK rules and the export queue as triggers, deferred foreign keys with a waiting table for rows that arrive before their parent. ADR 01's merge fixed: a replayed old version moved the base and hid a later clash | §3.1, §3.2, §3.13, §7 |
 | v0.7 | Slice 01's folder importer and exporter built (ADR 13): its 4 cases pass through them under a Syncthing double. Rows carry their table; group doubles must be finite; database version 2 | §3.1, §3.13, §7 |
 | v0.6 | §10.9 decided as ADR 13: device-log+copies. Five folder requirements added (§3.13) | §3.1, §3.13, §7, §10 |
@@ -126,7 +127,7 @@ Every decision here was scored against its owners' behaviour cases, with a contr
 
 **Acceptance:** `cases/02-task.jsonl`, 9 cases.
 
-**Built (2026-10-01):** `com.factotum.data.item`. Eight of the 9 cases pass as tests against the real database (`ItemCasesTest`). The ninth, `tendril-reminder-fk`, needs the `reminder` table and is tested with slice 03. What the build settled, none of which changes the decision:
+**Built (2026-10-01):** `com.factotum.data.item`. All 9 cases pass as tests against the real database: eight in `ItemCasesTest`, and `tendril-reminder-fk` with the `reminder` table in `ReminderCasesTest` (slice 03). What the build settled, none of which changes the decision:
 - **Three groups, not two.** The columns ADR 02 leaves unassigned (`kind`, `title`, `parent_id`) form a third group, `details`. It merges silently, like everything but the schedule (§3.1: the whole row is one group by default).
 - **The CHECK constraints are triggers.** Room cannot declare a CHECK, so `SchemaTriggers` creates BEFORE INSERT and BEFORE UPDATE triggers that refuse a row breaking its kind's rules. They are dropped and created again on every open, so an upgrade never keeps an old body.
 - **Deleting a parent deletes its subtasks** (`deleted_at` on each). Deleting forever (a purge) removes them through the foreign key, with the parent's completions.
@@ -144,6 +145,15 @@ Every decision here was scored against its owners' behaviour cases, with a contr
 - A reminder on an item with no start date is refused.
 
 **Acceptance:** `cases/03-reminder.jsonl`, 11 cases.
+
+**Built (2026-10-02):** `com.factotum.data.reminder`. Ten of the 11 cases pass as tests against the real database (`ReminderCasesTest`). The eleventh, `chronicle-standalone-repeats`, needs the recurrence column and is tested with slice 04; `shared-one-recurrence-home` is checked now on the reminder table, and again in slice 04 on `item`. ADR 02's `tendril-reminder-fk` passes here too. What the build settled, none of which changes the decision:
+- **Two groups.** `alert` holds the offset, anchor, alert settings and `deleted_at`; `status` holds only the snooze (`snoozed_until`, `snoozed_from`). Neither asks a person; a retime of a standalone reminder is a change to its item's schedule, which does.
+- **Fire time** is the item's start date, at its start time (else the reminder's anchor, else midnight), moved by the offset in wall-clock minutes: five minutes before 14:00 is 13:55 on any day, whatever the time zone does. A reminder is quiet once its item is done, skipped or deleted.
+- **A snooze holds for the firing it snoozed.** The `status` group keeps the snoozed time and the time it replaced. Once the item is rescheduled or the reminder retimed, the reminder fires at its new time, as Mnemo's does when a reschedule replaces its next fire. Snoozing never changes the item's schedule.
+- **Computing firings writes nothing** (§3.13 requirement 1). Which firings have rung is device state, built with the Android and Windows shells.
+- **A reminder on an item with no start date is refused by the repository**, and so is taking the start date away from an item with live reminders, or adding one to a deleted item. A trigger would instead drop a synced reminder whose item lost its date on another device; such a reminder is kept, and does not fire.
+- **Deleting a standalone reminder's last reminder deletes its item**, which would otherwise sit unseen, never firing. **"Keep both"** on a clash over a standalone reminder copies its reminders onto the new item, so both times fire.
+- **The day-view setting** (off by default) is a parameter of the day query until slice 09 brings settings.
 
 ### 3.4 Recurrence — ADR 04
 
@@ -377,7 +387,7 @@ The four source apps are the owner's own. The only third-party code found so far
    - The guard recovers only from SQLITE_CORRUPT and SQLITE_NOTADB. A locked or full database is rethrown, and its file is left in place.
    - It moves the `-journal`, `-wal` and `-shm` files with the database.
    - Tests cover both drivers, with a control showing that the stock Android driver deletes a corrupt file. Wiring the guard into the Room open path comes with slice 01.
-2. **Schema slices in ADR dependency order:** 01 → 02 → 03 → 04 → 11 → 06 → 07 → 08 → 09 → 10 → 05 → 12. Each slice is done when its ADR cases pass as tests against the real implementation (§3). Spikes 1 and 3 run with slice 10, and spike 5 runs with slice 04. **Slice 01: done 2026-10-01** (§3.1), with its folder importer and exporter (§3.13). **Slice 02: done 2026-10-01** (§3.2), except one case that needs slice 03's table.
+2. **Schema slices in ADR dependency order:** 01 → 02 → 03 → 04 → 11 → 06 → 07 → 08 → 09 → 10 → 05 → 12. Each slice is done when its ADR cases pass as tests against the real implementation (§3). Spikes 1 and 3 run with slice 10, and spike 5 runs with slice 04. **Slice 01: done 2026-10-01** (§3.1), with its folder importer and exporter (§3.13). **Slice 02: done 2026-10-01** (§3.2). **Slice 03: done 2026-10-02** (§3.3), except one case that needs slice 04's recurrence column.
 3. **The sole-owner modules of §2.**
 4. **Screens**, after §10.1.
 

@@ -4,11 +4,13 @@ import com.factotum.core.sync.Group
 import com.factotum.core.sync.HybridClock
 import com.factotum.core.sync.Row
 import com.factotum.data.FactotumDatabase
+import com.factotum.data.LocalWrites
 import com.factotum.data.item.DETAILS
 import com.factotum.data.item.ITEM
 import com.factotum.data.item.ItemRepository
 import com.factotum.data.item.STATUS
 import com.factotum.data.openFactotumDatabase
+import com.factotum.data.reminder.ReminderRepository
 import com.factotum.data.syncedTables
 import kotlinx.coroutines.runBlocking
 import java.io.File
@@ -52,7 +54,10 @@ internal class World(private val dir: File, seed: Int, private val segmentBytes:
         val db = openFactotumDatabase(File(dir, "$name.db")).database.also { opened += it }
         private val tables = db.syncedTables() + extra
         private var made = 0
-        val items = ItemRepository(db, clock) { "$name-${made++}" }
+        private val writes = LocalWrites(db, clock)
+        private val newId = { "$name-${made++}" }
+        val items = ItemRepository(db, writes, newId)
+        val reminders = ReminderRepository(db, writes, newId)
         val sync = FolderSync(db, syncthing.folder(name), id, clock, tables, segmentBytes, snapshotEvery)
 
         fun create(): String = runBlocking { items.createTask("$name@${syncthing.now}") }.also(::record)

@@ -19,6 +19,10 @@ STAGED = "data/src/commonMain/kotlin/com/factotum/data/sync/StagedStore.kt"
 CODEC = "data/src/commonMain/kotlin/com/factotum/data/sync/Records.kt"
 TRIGGERS = "data/src/commonMain/kotlin/com/factotum/data/SchemaTriggers.kt"
 REPO = "data/src/commonMain/kotlin/com/factotum/data/item/ItemRepository.kt"
+ITEMDAO = "data/src/commonMain/kotlin/com/factotum/data/item/ItemDao.kt"
+WRITES = "data/src/commonMain/kotlin/com/factotum/data/LocalWrites.kt"
+REMREPO = "data/src/commonMain/kotlin/com/factotum/data/reminder/ReminderRepository.kt"
+REMDAO = "data/src/commonMain/kotlin/com/factotum/data/reminder/ReminderDao.kt"
 
 # slice -> [(name, file, old, new, test task, tests that must fail)]
 SLICES = {
@@ -77,8 +81,38 @@ SLICES = {
          ":data:desktopTest", {"rescheduleLeavesADeletedItemDeleted"}),
         ("a deleted row keeps its merge state", TRIGGERS, "DELETE FROM sync_base WHERE id = OLD.id; DELETE FROM sync_ask WHERE id = OLD.id;", "",
          ":data:desktopTest", {"aPurgedParentTakesItsSubtasksPendingQuestionWithIt"}),
-        ("the clock is not saved with a write", REPO, "                sync.saveClock(clock)\n", "",
+        ("the clock is not saved with a write", WRITES, "                sync.saveClock(clock)\n", "",
          ":data:desktopTest", {"eachWriteSavesTheClockWithIt"}),
+    ],
+    "03": [
+        ("alert settings unchecked", TRIGGERS, "        REMINDER to reminderRules,\n", "",
+         ":data:desktopTest", {"chronicleAlertSettings_storedPerReminderAndUnknownValuesRefused"}),
+        ("a standalone reminder without a time", TRIGGERS, "\n        AND (NEW.kind <> 'REMINDER' OR (NEW.start_date IS NOT NULL AND NEW.start_time IS NOT NULL))", "",
+         ":data:desktopTest", {"aStandaloneReminderNeedsATime"}),
+        ("a done item's reminder still fires", REMDAO, " +\n            \"AND (i.status IS NULL OR i.status = 'PENDING')\"", "",
+         ":data:desktopTest", {"tendrilQuietWhenDone_aDoneTasksReminderNoLongerFires", "mnemoStandaloneDone_theRowStaysAndStopsFiring"}),
+        ("a deleted item's reminder still fires", REMDAO, "AND i.deleted_at IS NULL AND i.start_date", "AND i.start_date",
+         ":data:desktopTest", {"tendrilCascade_aDeletedTaskSilencesItsReminderAndAPurgedOneRemovesIt"}),
+        ("a deleted reminder still fires", REMDAO, "\"WHERE r.deleted_at IS NULL AND ", "\"WHERE ",
+         ":data:desktopTest", {"aDeletedReminderNoLongerFires"}),
+        ("the anchor is ignored", REMREPO, "(startTime ?: anchorTime)", "startTime",
+         ":data:desktopTest", {"tendrilAnchorDateOnly_theDayBeforeAtNine"}),
+        ("a snooze is ignored", REMREPO, "Firing(s.reminderId, s.itemId, snoozed ?: due)", "Firing(s.reminderId, s.itemId, due)",
+         ":data:desktopTest", {"aSnoozeMovesTheFiringAndLeavesTheItemsTimeAlone"}),
+        ("a snooze outlives the firing it snoozed", REMREPO, "s.snoozedUntil?.takeIf { s.snoozedFrom == due.toString() }", "s.snoozedUntil",
+         ":data:desktopTest", {"aSnoozeFromBeforeARescheduleNoLongerApplies", "aRescheduleThatDoesNotPassTheSnoozeStillMovesTheFiring", "aRetimedReminderDropsItsSnooze"}),
+        ("standalone reminders crowd the day", ITEMDAO, "OR :showReminders)", "OR :showReminders OR 1)",
+         ":data:desktopTest", {"sharedTimelineUnchanged_standaloneRemindersShowOnlyWhenAsked"}),
+        ("a reminder on an undated item is taken", REMREPO, "require(item.startDate != null && ", "require(",
+         ":data:desktopTest", {"aReminderOnAnItemWithNoDateIsRefused"}),
+        ("a reminder on a deleted item is taken", REMREPO, " && item.deletedAt == null)", ")",
+         ":data:desktopTest", {"aReminderOnADeletedItemIsRefused"}),
+        ("an item with reminders loses its date", REPO, "require(start != null || reminders.remindersOf(id).isEmpty())", "require(true)",
+         ":data:desktopTest", {"anItemWithRemindersKeepsItsStartDate"}),
+        ("a standalone reminder's item outlives its last reminder", REMREPO, "if (standalone && last) listOf(itemId) else emptyList()", "emptyList()",
+         ":data:desktopTest", {"deletingAStandaloneRemindersOnlyReminderDeletesItsItem"}),
+        ("keep both leaves the copy without reminders", REPO, "reminders.remindersOf(id).forEach { copied[it.id] = newId() }", "Unit",
+         ":data:desktopTest", {"keepingBothTimesOfAStandaloneReminderKeepsBothFiring"}),
     ],
 }
 
