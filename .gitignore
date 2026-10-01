@@ -45,3 +45,6 @@ desktop.ini
 # Stray build logs and edit snapshots at the root (run logs under decisions/ and tools/ are evidence and stay tracked)
 /*.log
 *.before
+
+# Audit working sets (kept locally; they hold deliberately planted defects)
+_fresh-eyes-*/
