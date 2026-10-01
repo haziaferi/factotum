@@ -6,6 +6,8 @@ import com.factotum.core.sync.HybridClock
 import com.factotum.core.sync.Merger
 import com.factotum.core.sync.Stamp
 import com.factotum.data.FactotumDatabase
+import com.factotum.data.isConstraintViolation
+import com.factotum.data.item.ASK_GROUPS
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
@@ -16,8 +18,9 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
 /**
- * What one import did: rows and purges it changed, and folder lines it skipped, either unreadable
- * or for a table this version lacks. Skipped lines are read again once the synced tables change.
+ * What one import did: rows and purges it changed, and folder lines it skipped: unreadable, for a
+ * table this version lacks (read again once the synced tables change), refused by a table's rules,
+ * or naming a purged parent.
  */
 data class ImportReport(val changed: Int, val skipped: Int)
 
@@ -35,12 +38,11 @@ internal class FolderSync(
     private val device: String,
     private val clock: HybridClock,
     private val tables: Map<String, RowTable>,
-    askGroups: Set<String>,
     private val segmentBytes: Int = 16 * 1024,
     private val snapshotEvery: Int = 64,
 ) {
     private val dao = db.syncDao()
-    private val merger = Merger(clock, askGroups)
+    private val merger = Merger(clock, ASK_GROUPS)
     private val lock = Mutex()
 
     suspend fun import(): ImportReport = lock.withLock {
@@ -73,7 +75,7 @@ internal class FolderSync(
             }
         }
         dao.keepReads(present)
-        report
+        report + retryWaiting()
     }
 
     private suspend fun forgetReadsIfTablesChanged() {
@@ -87,37 +89,120 @@ internal class FolderSync(
      * Merges [lines] in transactions of at most [MERGE_LINES], each one also saving the clock and,
      * for a file read by position, how far into [path] it got. A crash between two only means the
      * rest is read again, and the merge takes a version it already has without change.
+     *
+     * Sync gives no order between files, so a line can name a parent that is not here yet: it
+     * waits for it ([retryWaiting]). One whose parent was purged will never apply, and is dropped.
      */
     private suspend fun merge(lines: List<Line>, path: String?): ImportReport {
         var report = ImportReport(0, 0)
         for (chunk in lines.chunked(MERGE_LINES)) {
-            val records = chunk.mapNotNull { readable(it.text) }
-            val rows = records.filterIsInstance<RowRecord>().map { it.row }
-            val purges = mutableMapOf<String, Stamp>()
-            for (p in records.filterIsInstance<PurgeRecord>()) purges[p.id] = minOf(p.stamp, purges[p.id] ?: p.stamp)
-            val changed = db.useWriterConnection { connection ->
-                connection.immediateTransaction {
-                    val store = StagedStore.load(dao, tables, rows, purges.keys)
-                    merger.import(store, rows, purges)
-                    store.flush(dao, tables)
-                    if (path != null) dao.putRead(ReadEntity(path, chunk.last().end.toLong()))
-                    dao.saveClock(clock)
-                    store.changed.size
-                }
+            val readable = chunk.mapNotNull { line -> readable(line.text)?.let { line.text to it } }
+            val position = path?.let { ReadEntity(it, chunk.last().end.toLong()) }
+            val sorted = sortByParents(readable)
+            var dropped = sorted.dropped.size
+            val changed = try {
+                apply(sorted.ready.map { it.second }, position, waiting = sorted.waiting)
+            } catch (e: Exception) {
+                if (!isConstraintViolation(e)) throw e
+                // A backstop: some line was refused although its parents seemed here. Apply the
+                // lines one by one; a refused one either lost its parent in this chunk, and waits,
+                // or breaks its table's rules, and is dropped.
+                var applied = 0
+                val refused = mutableListOf<Pair<String, Record>>()
+                for (line in sorted.ready) applyOne(line.second)?.let { applied += it } ?: run { refused += line }
+                val again = sortByParents(refused)
+                dropped += again.dropped.size + again.ready.size
+                applied + apply(emptyList(), position, waiting = sorted.waiting + again.waiting)
             }
-            report += ImportReport(changed, chunk.size - records.size)
+            report += ImportReport(changed, chunk.size - readable.size + dropped)
         }
         return report
     }
 
-    /** A record this version can apply, or null: unreadable, or for a table it does not have. */
+    /** Lines whose parents are all here or among [lines], lines still waiting for one, and lines whose parent was purged. */
+    private class ByParents(val ready: List<Pair<String, Record>>, val waiting: List<String>, val dropped: List<String>)
+
+    private suspend fun sortByParents(lines: List<Pair<String, Record>>): ByParents {
+        val parentsOf = lines.associate { (text, r) -> text to (if (r is RowRecord) tables.getValue(r.row.table).parents(r.row) else emptyList()) }
+        val inBatch = lines.mapNotNull { (it.second as? RowRecord)?.row?.id }.toSet()
+        val wanted = parentsOf.values.flatten().filter { it.second !in inBatch }.distinct()
+        val here = wanted.groupBy({ it.first }, { it.second })
+            .flatMap { (t, ids) -> ids.chunked(StagedStore.CHUNK).flatMap { tables.getValue(t).load(it) } }
+            .map { it.id }.toSet()
+        val missing = wanted.map { it.second }.filter { it !in here }
+        val purged = missing.chunked(StagedStore.CHUNK).flatMap { dao.purges(it) }.map { it.id }.toSet()
+        val ready = mutableListOf<Pair<String, Record>>()
+        val waiting = mutableListOf<String>()
+        val dropped = mutableListOf<String>()
+        for (line in lines) {
+            val absent = parentsOf.getValue(line.first).map { it.second }.filter { it !in inBatch && it !in here }
+            when {
+                absent.isEmpty() -> ready += line
+                absent.any { it in purged } -> dropped += line.first
+                else -> waiting += line.first
+            }
+        }
+        return ByParents(ready, waiting, dropped)
+    }
+
+    /** One transaction: merges [records], then saves [position], the [waiting] lines and the clock. */
+    private suspend fun apply(records: List<Record>, position: ReadEntity?, waiting: List<String> = emptyList()): Int {
+        val rows = records.filterIsInstance<RowRecord>().map { it.row }
+        val purges = mutableMapOf<String, Stamp>()
+        for (p in records.filterIsInstance<PurgeRecord>()) purges[p.id] = minOf(p.stamp, purges[p.id] ?: p.stamp)
+        return db.useWriterConnection { connection ->
+            connection.immediateTransaction {
+                val store = StagedStore.load(dao, tables, rows.groupBy({ it.table }, { it.id }), purges.keys)
+                merger.import(store, rows, purges)
+                store.flush(dao, tables)
+                position?.let { dao.putRead(it) }
+                dao.wait(waiting.map { WaitingEntity(line = it) })
+                dao.saveClock(clock)
+                store.changed.size
+            }
+        }
+    }
+
+    /** Merges one [record] in its own transaction; null when a constraint refuses it. */
+    private suspend fun applyOne(record: Record): Int? = try {
+        apply(listOf(record), position = null)
+    } catch (e: Exception) {
+        if (!isConstraintViolation(e)) throw e
+        null
+    }
+
+    /**
+     * Applies the waiting lines whose parents have arrived, until a pass applies none. A line that
+     * can no longer be read, whose parent was purged, or that a rule refuses, stops waiting.
+     */
+    private suspend fun retryWaiting(): ImportReport {
+        var changed = 0
+        var dropped = 0
+        while (true) {
+            val waiting = dao.waiting()
+            val parsed = waiting.map { it to readable(it.line) }
+            val sorted = sortByParents(parsed.mapNotNull { (w, r) -> r?.let { w.line to it } })
+            val gone = parsed.filter { it.second == null }.map { it.first.line } + sorted.dropped
+            if (sorted.ready.isEmpty() && gone.isEmpty()) break
+            val n = waiting.associate { it.line to it.n }
+            for ((line, record) in sorted.ready) {
+                applyOne(record)?.let { changed += it } ?: dropped++
+                dao.stopWaiting(n.getValue(line))
+            }
+            gone.forEach { dao.stopWaiting(n.getValue(it)) }
+            dropped += gone.size
+        }
+        return ImportReport(changed, dropped)
+    }
+
+    /** A record this version can apply, or null: unreadable, or not a row of any table it has. */
     private fun readable(line: String): Record? {
         val record = try {
             RecordCodec.decode(line)
         } catch (_: IllegalArgumentException) {
             return null
         }
-        return record.takeIf { it !is RowRecord || it.row.table in tables }
+        return record.takeIf { it !is RowRecord || tables[it.row.table]?.fits(it.row) == true }
     }
 
     /** Appends every row and purge in the outbox to this device's log, then compacts it if due. */

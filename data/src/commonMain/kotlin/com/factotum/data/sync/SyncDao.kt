@@ -3,7 +3,9 @@ package com.factotum.data.sync
 import androidx.room.ColumnInfo
 import androidx.room.Dao
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.PrimaryKey
 import androidx.room.Query
 import androidx.room.Upsert
@@ -50,8 +52,9 @@ internal data class ReadEntity(
 )
 
 /**
- * A row or purge to export: written with every local change and every change an import makes,
- * cleared once the export is in the folder. [table] is null for a purge of a row never held here.
+ * A row or purge to export, queued by triggers on every synced table and on the purge registry
+ * ([com.factotum.data.SchemaTriggers]), and cleared once the export is in the folder. [table] is
+ * null for a purge.
  */
 @Entity(tableName = "sync_outbox")
 internal data class OutboxEntity(
@@ -68,6 +71,16 @@ internal data class OutboxEntity(
 internal data class KnownTablesEntity(
     @PrimaryKey val id: Int = 0,
     val names: String,
+)
+
+/**
+ * A folder line whose parent has not arrived yet, such as a subtask or completion read before
+ * the item it names; local only. Retried after every import, applied once its parent is here.
+ */
+@Entity(tableName = "sync_waiting", indices = [Index("line", unique = true)])
+internal data class WaitingEntity(
+    @PrimaryKey(autoGenerate = true) val n: Long = 0,
+    val line: String,
 )
 
 @Dao
@@ -96,9 +109,6 @@ internal interface SyncDao {
     @Upsert
     suspend fun putBases(bases: List<BaseEntity>)
 
-    @Query("DELETE FROM sync_base WHERE id IN (:ids)")
-    suspend fun removeBases(ids: List<String>)
-
     @Query("SELECT * FROM sync_ask WHERE id IN (:ids)")
     suspend fun asks(ids: List<String>): List<AskEntity>
 
@@ -107,9 +117,6 @@ internal interface SyncDao {
 
     @Query("DELETE FROM sync_ask WHERE id = :id AND grp = :group")
     suspend fun removeAsk(id: String, group: String)
-
-    @Query("DELETE FROM sync_ask WHERE id IN (:ids)")
-    suspend fun removeAsks(ids: List<String>)
 
     @Query("SELECT * FROM sync_read")
     suspend fun reads(): List<ReadEntity>
@@ -124,14 +131,24 @@ internal interface SyncDao {
     @Query("DELETE FROM sync_read WHERE path NOT IN (:present)")
     suspend fun keepReads(present: List<String>)
 
+    /** A line already waiting (a peer's snapshot repeats it) is not added twice. */
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun wait(lines: List<WaitingEntity>)
+
+    @Query("SELECT * FROM sync_waiting ORDER BY n")
+    suspend fun waiting(): List<WaitingEntity>
+
+    @Query("DELETE FROM sync_waiting WHERE n = :n")
+    suspend fun stopWaiting(n: Long)
+
+    @Query("SELECT id, grp FROM sync_ask ORDER BY id, grp")
+    suspend fun allAsks(): List<AskKey>
+
     @Query("SELECT names FROM sync_tables WHERE id = 0")
     suspend fun knownTables(): String?
 
     @Upsert
     suspend fun saveKnownTables(tables: KnownTablesEntity)
-
-    @Insert
-    suspend fun putOutbox(entries: List<OutboxEntity>)
 
     @Query("SELECT * FROM sync_outbox ORDER BY n")
     suspend fun outbox(): List<OutboxEntity>
@@ -149,3 +166,5 @@ internal suspend fun SyncDao.loadClock(device: String, wallMillis: () -> Long) =
 internal suspend fun SyncDao.saveClock(clock: HybridClock) = saveClock(ClockEntity(lastHlc = clock.last))
 
 internal fun BaseEntity.stamp() = Stamp(hlc, device)
+
+internal data class AskKey(val id: String, val grp: String)

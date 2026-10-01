@@ -32,6 +32,7 @@ kotlin {
             api(project(":core"))
             api(libs.androidx.room.runtime)
             api(libs.androidx.sqlite)
+            api(libs.kotlinx.datetime)
             implementation(libs.kotlinx.coroutines.core)
             // The element API only, so no serialization compiler plugin.
             implementation(libs.kotlinx.serialization.json)

@@ -82,10 +82,15 @@ class Merger(private val clock: HybridClock, private val askGroups: Set<String>)
                 continue
             }
             val base = store.base(local.id, name)
-            if (mine.stamp != base && theirs.stamp != base && mine.values != theirs.values && theirs.settles != mine.stamp) {
-                store.ask(local.id, name, theirs)
+            // A version no newer than the base, such as one a log replays, brings nothing: it must
+            // not move the base, or a later change from the other side would look uncontested.
+            if (base != null && theirs.stamp <= base) continue
+            if (mine.stamp != base && mine.values != theirs.values && theirs.settles != mine.stamp) {
+                // A replay older than the version already waiting must not replace it.
+                if ((store.asked(local.id, name)?.stamp ?: theirs.stamp) <= theirs.stamp) store.ask(local.id, name, theirs)
                 continue
             }
+            // Only they changed it since the base, both changed it alike, or theirs answers the clash.
             val winner = if (theirs.stamp > mine.stamp) theirs else mine
             merged[name] = winner
             if (winner.stamp != base) store.putBase(local.id, name, winner.stamp)

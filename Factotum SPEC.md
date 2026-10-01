@@ -1,6 +1,6 @@
 # Factotum — Product & Technical Spec
 
-**Status:** draft v0.7, seeded from the decision register · **Scope:** the merged data model, sync and behaviour rules of Factotum. Screens are not decided and are marked open (§10.1).
+**Status:** draft v0.8, seeded from the decision register · **Scope:** the merged data model, sync and behaviour rules of Factotum. Screens are not decided and are marked open (§10.1).
 **Related documents:** `decisions/`, the evidence behind §3: one ADR per decision with verified `file:line` facts, the scored options, the behaviour cases and the harness that measured them (`decisions/register.md` is the index). This spec states each decision once and points to its ADR for the evidence. It never restates the evidence.
 
 ---
@@ -9,6 +9,7 @@
 
 | Version | Summary | Sections touched |
 |---|---|---|
+| v0.8 | Slice 02 built: `item` (TASK, EVENT) and `completion`, the repository, CHECK rules and the export queue as triggers, deferred foreign keys with a waiting table for rows that arrive before their parent. ADR 01's merge fixed: a replayed old version moved the base and hid a later clash | §3.1, §3.2, §3.13, §7 |
 | v0.7 | Slice 01's folder importer and exporter built (ADR 13): its 4 cases pass through them under a Syncthing double. Rows carry their table; group doubles must be finite; database version 2 | §3.1, §3.13, §7 |
 | v0.6 | §10.9 decided as ADR 13: device-log+copies. Five folder requirements added (§3.13) | §3.1, §3.13, §7, §10 |
 | v0.5 | Slice 01 built: the sync merge engine (§3.1), the database with its real open path and corruption guard, the purge registry, the clock and the device id. §10.9 opened: the sync folder's layout | §3.1, §7, §10 |
@@ -106,7 +107,9 @@ Every decision here was scored against its owners' behaviour cases, with a contr
 - **Keep mine** re-stamps the local group. Its base becomes the stamp it settled, so a later edit on the other side is asked again. **Take theirs** adopts their group, stamp and all. **Keep both** keeps mine, and makes their version a new row with a new ULID.
 - **Two devices that answer differently are asked again.** That is ADR 01's rule as written: both sides changed the schedule since their base. Nothing is lost.
 - **Group values are String, Long, Boolean, Double or null.** Clashes compare values with `==`, so 5 and 5L would otherwise differ.
-- **The clock resumes from its stored high-water mark** (table `clock`). A wall clock set backwards therefore cannot reissue an older stamp. The repository must save the clock in the same transaction as the write it stamps (slice 02).
+- **The clock resumes from its stored high-water mark** (table `clock`). A wall clock set backwards therefore cannot reissue an older stamp. Each write saves the clock in its own transaction (slice 02).
+- **A pending question is not replaced by an older replay** of the other side's version (fixed with slice 02).
+- **A version no newer than the base is ignored** (fixed with slice 02). A device log replays old versions, and merging one used to move the base up to this device's own newer stamp. The other side's next change then looked uncontested and replaced this device's change without asking. The in-memory cases never replayed an old version, so this was missed until the folder tests did.
 - **The device id lives in its own file** (ADR 09), written atomically. An unreadable file is set aside and a new id made.
 - **Purges:** an import re-checks only the registry entries it added or lowered.
 
@@ -122,6 +125,15 @@ Every decision here was scored against its owners' behaviour cases, with a contr
 **Names:** `Item`, and `TrackerReading` for Chronicle's logged value. Nothing is called "Entry".
 
 **Acceptance:** `cases/02-task.jsonl`, 9 cases.
+
+**Built (2026-10-01):** `com.factotum.data.item`. Eight of the 9 cases pass as tests against the real database (`ItemCasesTest`). The ninth, `tendril-reminder-fk`, needs the `reminder` table and is tested with slice 03. What the build settled, none of which changes the decision:
+- **Three groups, not two.** The columns ADR 02 leaves unassigned (`kind`, `title`, `parent_id`) form a third group, `details`. It merges silently, like everything but the schedule (§3.1: the whole row is one group by default).
+- **The CHECK constraints are triggers.** Room cannot declare a CHECK, so `SchemaTriggers` creates BEFORE INSERT and BEFORE UPDATE triggers that refuse a row breaking its kind's rules. They are dropped and created again on every open, so an upgrade never keeps an old body.
+- **Deleting a parent deletes its subtasks** (`deleted_at` on each). Deleting forever (a purge) removes them through the foreign key, with the parent's completions.
+- **Two devices resolving one occurrence leave two `completion` rows.** A unique key would make the second device's row fail to import, so reads take the later stamp per occurrence.
+- **The capacity query uses `item_kind_date`** and never scans the table, checked from the query plan.
+- **Each write is one transaction** through the same staged merge as an import. It stamps the groups it changes and saves the clock with them (§3.1). Answers to a pending question (keep mine, take theirs, keep both) go the same way.
+- **The recurrence column** comes with slice 04, whose ADR sets its format.
 
 ### 3.3 Reminders — ADR 03
 
@@ -275,10 +287,13 @@ The device id is not a setting.
 - **A cloned device id:** copies are merged, then deleted. A conflict copy in a device's own folder also makes it re-read its own files, because the side that won the clash is not its own writing. Only a new id for one of the two devices ends the clashes; requirement 5 keeps that from arising. Owed: on finding such a copy, the device also takes a new id (ADR 09's file), which needs the app's identity wiring.
 - **Tables reach the importer through `RowTable`**, one per synced table. Slice 02 brings the first real one; the tests use tables held in memory.
 - **The folder** is `DirectorySyncFolder` on Windows and in app storage. A SAF folder on Android's shared storage comes with the Android shell.
-- **Owed by slice 02**, with the first synced tables:
-  - queueing exports by SQL triggers on each synced table, as §3.10 does for search, so that no write path can forget the outbox;
-  - starting the export from those queue writes, through `exportAfterQuiet`;
-  - answering a pending question from the app (`Merger.keepMine`, `takeTheirs`, `keepBoth`), through the same staged load as an import;
+- **Exports are queued by triggers** on every synced table and on the purge registry (slice 02), so no write path can forget the outbox.
+- **A row whose parent has not arrived waits.** Sync gives no order between files, so a subtask or a completion can arrive before its parent. Each table names the parents a row needs (`RowTable.parents`), and before each chunk is applied, a line whose parent is neither here nor in the chunk is kept in `sync_waiting` (once per line). After every import, the waiting lines whose parents have arrived are applied. A line whose parent was purged is dropped, because the purge already meant the cascade. Foreign keys are deferred, and a snapshot lists parents first.
+- **A line the database still refuses** is applied again one line at a time, as a backstop. One refused with its parents present breaks its table's rules, and is dropped and counted as skipped, never kept waiting.
+- **A deleted row takes its local merge state with it**: a trigger clears its base and pending questions, whether the merge removed it or a foreign key's cascade did.
+- **A row that does not fit its table** (missing groups, wrong value types) is skipped like an unreadable line.
+- **Owed:**
+  - starting the export from the queue writes through `exportAfterQuiet`, which needs the app's process wiring;
   - paging `RowTable.all()`, so a snapshot is written without holding every row at once.
 
 ---
@@ -362,7 +377,7 @@ The four source apps are the owner's own. The only third-party code found so far
    - The guard recovers only from SQLITE_CORRUPT and SQLITE_NOTADB. A locked or full database is rethrown, and its file is left in place.
    - It moves the `-journal`, `-wal` and `-shm` files with the database.
    - Tests cover both drivers, with a control showing that the stock Android driver deletes a corrupt file. Wiring the guard into the Room open path comes with slice 01.
-2. **Schema slices in ADR dependency order:** 01 → 02 → 03 → 04 → 11 → 06 → 07 → 08 → 09 → 10 → 05 → 12. Each slice is done when its ADR cases pass as tests against the real implementation (§3). Spikes 1 and 3 run with slice 10, and spike 5 runs with slice 04. **Slice 01: done 2026-10-01** (§3.1), with its folder importer and exporter (§3.13).
+2. **Schema slices in ADR dependency order:** 01 → 02 → 03 → 04 → 11 → 06 → 07 → 08 → 09 → 10 → 05 → 12. Each slice is done when its ADR cases pass as tests against the real implementation (§3). Spikes 1 and 3 run with slice 10, and spike 5 runs with slice 04. **Slice 01: done 2026-10-01** (§3.1), with its folder importer and exporter (§3.13). **Slice 02: done 2026-10-01** (§3.2), except one case that needs slice 03's table.
 3. **The sole-owner modules of §2.**
 4. **Screens**, after §10.1.
 

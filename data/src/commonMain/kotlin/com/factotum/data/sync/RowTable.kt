@@ -15,4 +15,10 @@ internal interface RowTable {
     suspend fun save(rows: Collection<Row>)
 
     suspend fun delete(ids: Collection<String>)
+
+    /** Whether [row] has this table's groups, fields and value types; one that does not is skipped on import. */
+    fun fits(row: Row): Boolean
+
+    /** The rows [row] needs present first, as (table, id): what its foreign keys name. */
+    fun parents(row: Row): List<Pair<String, String>>
 }

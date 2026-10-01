@@ -17,16 +17,22 @@ OPEN = "data/src/jvmCommon/kotlin/com/factotum/data/OpenDatabase.kt"
 FOLDER = "data/src/commonMain/kotlin/com/factotum/data/sync/FolderSync.kt"
 STAGED = "data/src/commonMain/kotlin/com/factotum/data/sync/StagedStore.kt"
 CODEC = "data/src/commonMain/kotlin/com/factotum/data/sync/Records.kt"
+TRIGGERS = "data/src/commonMain/kotlin/com/factotum/data/SchemaTriggers.kt"
+REPO = "data/src/commonMain/kotlin/com/factotum/data/item/ItemRepository.kt"
 
 # slice -> [(name, file, old, new, test task, tests that must fail)]
 SLICES = {
     "01": [
-        ("no ask (hybrid, not hybrid+)", MERGE, "                store.ask(local.id, name, theirs)\n                continue\n",
-         "", ":core:desktopTest", {"mnemoSameTimeShown", "mnemoDeleteVsEditShown", "chronicleTieConverges"}),
+        ("no ask (hybrid, not hybrid+)", MERGE, "if (mine.stamp != base && mine.values",
+         "if (false && mine.values", ":core:desktopTest", {"mnemoSameTimeShown", "mnemoDeleteVsEditShown", "chronicleTieConverges"}),
         ("purge ignored on import", MERGE, "if (incoming.newest <= purge) continue", "if (false) continue",
          ":core:desktopTest", {"tendrilPurgeHolds"}),
         ("answers do not settle", MERGE, " && theirs.settles != mine.stamp", "",
          ":core:desktopTest", {"keepMineWinsEverywhere"}),
+        ("a version no newer than the base is merged", MERGE, "            if (base != null && theirs.stamp <= base) continue\n", "",
+         ":core:desktopTest", {"aReplayedOldVersionIsNotAskedAbout"}),
+        ("an older replay replaces the pending question", MERGE, "if ((store.asked(local.id, name)?.stamp ?: theirs.stamp) <= theirs.stamp) ", "",
+         ":core:desktopTest", {"aPendingQuestionIsNotReplacedByAnOlderReplay"}),
         ("Room's leaked connection kept open", OPEN, "            tracked.closeAll()\n", "",
          ":data:desktopTest", {"aDatabaseCorruptPastItsSchemaPageIsSetAsideToo"}),
     ],
@@ -35,8 +41,6 @@ SLICES = {
          ":data:desktopTest", {"aClonedDeviceIdsClashIsMergedAndTheCopyRemoved"}),
         ("own clash not re-read", FOLDER, "val shared = owner == device && names.any(FolderLayout::isConflictCopy)",
          "val shared = false", ":data:desktopTest", {"aClonedDeviceIdsClashIsMergedAndTheCopyRemoved"}),
-        ("imported versions not re-exported", STAGED, "dao.putOutbox(changed.map { OutboxEntity(id = it, table = tableOf[it]) })",
-         "", ":data:desktopTest", {"aVersionOutlivesTheLossOfItsAuthorsFiles"}),
         ("log never compacted", FOLDER, "if (held.size >= snapshotEvery) {", "if (false) {",
          ":data:desktopTest", {"androidFiles1y_aYearKeepsEachDeviceToItsSegmentsAndOneSnapshot", "aPurgeReachesAPeerAndOutlivesCompaction"}),
         ("unfinished last line read", FOLDER, "    return lines\n}", "    if (start < bytes.size) lines += Line(bytes.decodeToString(start, bytes.size), bytes.size)\n    return lines\n}",
@@ -51,6 +55,30 @@ SLICES = {
          ":data:desktopTest", {"aPeerFileIsReadOnlyWhenItHasGrown"}),
         ("Long and Double read alike", CODEC, "p.booleanOrNull ?: p.longOrNull ?: p.double", "p.booleanOrNull ?: p.double",
          ":data:desktopTest", {"aRowReadsBackWithEveryValueItsOwnType"}),
+        ("a refused line stops the import", FOLDER, "                if (!isConstraintViolation(e)) throw e\n                // A backstop", "                throw e\n                // A backstop",
+         ":data:desktopTest", {"aRowThatBreaksItsKindsRulesIsDroppedNotKeptWaiting"}),
+        ("a line naming a purged parent waits forever", FOLDER, "                absent.any { it in purged } -> dropped += line.first\n", "",
+         ":data:desktopTest", {"aSubtaskWhoseParentWasPurgedIsDroppedNotKeptWaiting"}),
+        ("waiting lines never retried", FOLDER, "report + retryWaiting()", "report",
+         ":data:desktopTest", {"aSubtaskThatArrivesBeforeItsParentWaitsForIt"}),
+        ("a row that does not fit is merged", FOLDER, "tables[it.row.table]?.fits(it.row) == true", "it.row.table in tables",
+         ":data:desktopTest", {"aRowThatDoesNotFitItsTableIsSkipped"}),
+    ],
+    "02": [
+        ("kind rules dropped", TRIGGERS, '        ITEM to itemRules,\n', "",
+         ":data:desktopTest", {"sharedEventHasNoTaskState_theDatabaseRefusesIt", "theKindRulesHoldAfterAReopen"}),
+        ("completion status unchecked", TRIGGERS, '        COMPLETION to "NEW.status IN (\'DONE\', \'SKIPPED\')",\n', "",
+         ":data:desktopTest", {"tendrilCompletionLog_eachOccurrenceKeepsItsOutcomeAndNoOtherStatusIsTaken"}),
+        ("writes not queued for export", TRIGGERS, "for (table in SYNCED_TABLES)", "for (table in emptyList<String>())",
+         ":data:desktopTest", {"stRetiredLoser_aWipedDevicesChangeSurvives", "aVersionOutlivesTheLossOfItsAuthorsFiles"}),
+        ("a deleted parent keeps its subtasks", REPO, "listOf(id) + dao.liveChildren(id)", "listOf(id)",
+         ":data:desktopTest", {"tendrilSubtaskCascade_aDeletedParentTakesItsSubtasks"}),
+        ("rescheduling undeletes", REPO, ' - "deleted_at")', ")",
+         ":data:desktopTest", {"rescheduleLeavesADeletedItemDeleted"}),
+        ("a deleted row keeps its merge state", TRIGGERS, "DELETE FROM sync_base WHERE id = OLD.id; DELETE FROM sync_ask WHERE id = OLD.id;", "",
+         ":data:desktopTest", {"aPurgedParentTakesItsSubtasksPendingQuestionWithIt"}),
+        ("the clock is not saved with a write", REPO, "                sync.saveClock(clock)\n", "",
+         ":data:desktopTest", {"eachWriteSavesTheClockWithIt"}),
     ],
 }
 

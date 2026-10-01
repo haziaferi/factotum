@@ -21,7 +21,7 @@ internal fun openDatabase(
     file.parentFile?.mkdirs()
     val tracked = TrackingDriver(driver)
     return openOrRecover(
-        build = { builder().setDriver(tracked).setQueryCoroutineContext(Dispatchers.IO).build() },
+        build = { builder().setDriver(tracked).setQueryCoroutineContext(Dispatchers.IO).addCallback(SchemaTriggers).build() },
         // Room opens lazily; a real read forces the open, schema creation and migrations.
         probe = { db ->
             runBlocking { db.useReaderConnection { it.usePrepared("SELECT count(*) FROM sqlite_master") { s -> s.step() } } }

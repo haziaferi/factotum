@@ -93,7 +93,7 @@ internal class StagedStore private constructor(
 
     private fun loaded(id: String) = check(id in rows) { "row $id was not loaded for this merge" }
 
-    /** Writes every change back, and queues it for export. A removed row takes its bases and pending questions with it. */
+    /** Writes every change back; the triggers queue it for export and clear a removed row's bases and questions. */
     suspend fun flush(dao: SyncDao, tables: Map<String, RowTable>) {
         val (kept, removed) = changedRows.partition { rows[it] != null }
         kept.mapNotNull { rows[it] }.groupBy { it.table }.forEach { (t, rs) -> tables.getValue(t).save(rs) }
@@ -107,22 +107,27 @@ internal class StagedStore private constructor(
         val (asked, cleared) = changedAsks.filter { it.first !in gone }.partition { it in asks }
         dao.putAsks(asked.map { (id, g) -> AskEntity(id, g, RecordCodec.encodeGroup(asks.getValue(id to g))) })
         cleared.forEach { (id, g) -> dao.removeAsk(id, g) }
-        gone.chunked(CHUNK).forEach { dao.removeBases(it); dao.removeAsks(it) }
-        dao.putOutbox(changed.map { OutboxEntity(id = it, table = tableOf[it]) })
     }
 
     companion object {
         /** Under SQLite's 999 bound variables on Android's older builds. */
         const val CHUNK = 500
 
-        /** Loads what merging [rows] and [purges] can touch: those ids in their tables, with their purges, bases and questions. */
-        suspend fun load(dao: SyncDao, tables: Map<String, RowTable>, rows: Collection<Row>, purges: Collection<String>): StagedStore {
-            val byTable = rows.groupBy({ it.table }, { it.id })
-            val ids = (rows.map { it.id } + purges).distinct()
+        /**
+         * Loads what a merge or a local write can touch: the ids in [byTable] from their tables, the ids
+         * in [anyTable] from whichever table holds them, and their purges, bases and questions.
+         */
+        suspend fun load(
+            dao: SyncDao,
+            tables: Map<String, RowTable>,
+            byTable: Map<String, Collection<String>>,
+            anyTable: Collection<String> = emptyList(),
+        ): StagedStore {
+            val ids = (byTable.values.flatten() + anyTable).distinct()
             val found = ids.associateWith<String, Row?> { null }.toMutableMap()
-            val unplaced = purges.toMutableSet()
+            val unplaced = anyTable.toMutableSet()
             for ((name, table) in tables) {
-                // A purge can name a row in any table, until one table has it; a row record names its own.
+                // An id in [anyTable] can be in any table, until one table has it.
                 val wanted = (byTable[name].orEmpty() + unplaced).distinct()
                 wanted.chunked(CHUNK).forEach { chunk -> table.load(chunk).forEach { found[it.id] = it; unplaced -= it.id } }
             }

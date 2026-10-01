@@ -1,0 +1,38 @@
+package com.factotum.data.item
+
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalTime
+
+/** The kinds of calendar item built so far (ADR 02); REMINDER, HABIT and ACTIVITY come with their slices. */
+enum class ItemKind { TASK, EVENT }
+
+enum class TaskStatus { PENDING, DONE, SKIPPED }
+
+/** How one occurrence of a recurring task was resolved; PENDING is not an outcome. */
+enum class Outcome { DONE, SKIPPED }
+
+/**
+ * A task or an event (ADR 02). A task's [start] and [at] are when it is planned, and [due] is a
+ * separate deadline. With no [at] the item takes the whole day. Task-only fields are null on an event.
+ */
+data class Item(
+    val id: String,
+    val kind: ItemKind,
+    val title: String,
+    val parentId: String?,
+    val start: LocalDate?,
+    val at: LocalTime?,
+    val endDate: LocalDate?,
+    val endTime: LocalTime?,
+    val due: LocalDate?,
+    val deleted: Boolean,
+    val status: TaskStatus?,
+    val importance: Long,
+    val capacityRank: Long?,
+)
+
+/** A person's answer to a clash on an item's schedule (ADR 01). */
+enum class Answer { KEEP_MINE, TAKE_THEIRS, KEEP_BOTH }
+
+/** A clash waiting for a person: the item, and the group both sides changed. */
+data class Question(val itemId: String, val group: String)

@@ -3,18 +3,22 @@ package com.factotum.data.sync
 import com.factotum.core.sync.Group
 import com.factotum.core.sync.HybridClock
 import com.factotum.core.sync.Row
-import com.factotum.core.sync.Stamp
 import com.factotum.data.FactotumDatabase
+import com.factotum.data.item.DETAILS
+import com.factotum.data.item.ITEM
+import com.factotum.data.item.ItemRepository
+import com.factotum.data.item.STATUS
 import com.factotum.data.openFactotumDatabase
+import com.factotum.data.syncedTables
 import kotlinx.coroutines.runBlocking
 import java.io.File
 import kotlin.random.Random
 import kotlin.test.assertEquals
 
-const val ITEM = "item"
-val GROUPS = listOf("a", "b")
+/** The groups the ordinary-use workload edits: neither asks a person. */
+val GROUPS = listOf(DETAILS, STATUS)
 
-/** A table held in memory; each schema slice brings the real ones. Its saves fail once [savesLeft] runs out. */
+/** A table held in memory, for rows no real table has. Its saves fail once [savesLeft] runs out. */
 internal class MemoryTable : RowTable {
     val rows = mutableMapOf<String, Row>()
     var savesLeft = Int.MAX_VALUE
@@ -25,72 +29,68 @@ internal class MemoryTable : RowTable {
         rows.forEach { this.rows[it.id] = it }
     }
     override suspend fun delete(ids: Collection<String>) = ids.forEach { rows.remove(it) }
+    override fun fits(row: Row) = true
+    override fun parents(row: Row) = emptyList<Pair<String, String>>()
 }
 
 /**
- * Devices sharing one folder through [syncthing]. [truth] holds the newest version of every group
- * any device wrote: what every device must hold once sync settles (ADR 01's join).
+ * Devices sharing one folder through [syncthing], writing items through the real repository.
+ * [truth] holds the newest version of every group any device wrote: what every device must hold
+ * once sync settles (ADR 01's join).
  */
 internal class World(private val dir: File, seed: Int, private val segmentBytes: Int = 16 * 1024, private val snapshotEvery: Int = 64) {
     val syncthing = SyncthingDouble(Random(seed))
     val truth = mutableMapOf<Pair<String, String>, Group>()
     private val opened = mutableListOf<FactotumDatabase>()
 
-    /** [id] is the sync identity; two devices given the same one model a cloned device id. */
-    inner class Device(val name: String, val id: String = name, tables: Set<String> = setOf(ITEM)) {
+    /**
+     * [id] is the sync identity; two devices given the same one model a cloned device id.
+     * [extra] adds tables, or replaces a real one, for rows written straight into the folder.
+     */
+    inner class Device(val name: String, val id: String = name, extra: Map<String, RowTable> = emptyMap()) {
         val clock = HybridClock(id, { syncthing.now })
         val db = openFactotumDatabase(File(dir, "$name.db")).database.also { opened += it }
-        val table = MemoryTable()
-        private val all = tables.associateWith { if (it == ITEM) table else MemoryTable() }
-        val sync = FolderSync(db, syncthing.folder(name), id, clock, all, setOf("schedule"), segmentBytes, snapshotEvery)
+        private val tables = db.syncedTables() + extra
         private var made = 0
+        val items = ItemRepository(db, clock) { "$name-${made++}" }
+        val sync = FolderSync(db, syncthing.folder(name), id, clock, tables, segmentBytes, snapshotEvery)
 
-        fun create(): String {
-            val rowId = "$name-${made++}"
-            val s = clock.tick()
-            table.rows[rowId] = Row(ITEM, rowId, GROUPS.associateWith { g -> version(g, rowId, s) })
-            changed(rowId)
-            return rowId
-        }
+        fun create(): String = runBlocking { items.createTask("$name@${syncthing.now}") }.also(::record)
 
         fun edit(rowId: String, group: String) {
-            val row = table.rows.getValue(rowId)
-            table.rows[rowId] = row.copy(groups = row.groups + (group to version(group, rowId, clock.tick())))
-            changed(rowId)
+            runBlocking {
+                when (group) {
+                    DETAILS -> items.rename(rowId, "$name@${syncthing.now}")
+                    STATUS -> items.setImportance(rowId, syncthing.now)
+                    else -> error("the workload does not edit $group")
+                }
+            }
+            record(rowId)
         }
 
-        /** What the repository will do for "delete forever" (slice 02): remove, register, export. */
-        fun purge(rowId: String) {
-            val s = clock.tick()
-            table.rows.remove(rowId)
-            runBlocking { db.syncDao().putPurge(PurgeEntity(rowId, s.hlc, s.device)) }
-            changed(rowId)
+        fun purge(rowId: String) = runBlocking { items.purge(rowId) }
+
+        private fun record(rowId: String) {
+            for ((g, v) in rows().getValue(rowId).groups) {
+                truth.merge(rowId to g, v) { old, new -> if (new.stamp > old.stamp) new else old }
+            }
         }
 
-        private fun version(group: String, rowId: String, s: Stamp): Group {
-            val g = Group(s, mapOf("v" to "$name@${s.hlc}"))
-            truth.merge(rowId to group, g) { old, new -> if (new.stamp > old.stamp) new else old }
-            return g
-        }
-
-        private fun changed(rowId: String) = runBlocking {
-            db.syncDao().putOutbox(listOf(OutboxEntity(id = rowId, table = ITEM)))
-        }
+        fun rows(): Map<String, Row> = runBlocking { tables.getValue(ITEM).all() }.associateBy { it.id }
 
         fun import() = runBlocking { sync.import() }
         fun export() = runBlocking { sync.export() }
 
         fun held(): Map<Pair<String, String>, Group> =
-            table.rows.values.flatMap { r -> r.groups.map { (g, v) -> (r.id to g) to v } }.toMap()
+            rows().values.flatMap { r -> r.groups.map { (g, v) -> (r.id to g) to v } }.toMap()
     }
 
-    /** Every device imports and exports, and every pair meets in full, until an import changes nothing. */
+    /** Every device exports, every pair meets in full, and every device imports, until an import changes nothing. */
     fun settle(devices: List<Device>) {
         repeat(20) {
-            for (a in devices) for (b in devices) if (a.name < b.name) syncthing.session(a.name, b.name)
-            val changed = devices.sumOf { it.import().changed }
             devices.forEach { it.export() }
-            if (changed == 0) return
+            for (a in devices) for (b in devices) if (a.name < b.name) syncthing.session(a.name, b.name)
+            if (devices.sumOf { it.import().changed } == 0) return
         }
         error("sync did not settle")
     }

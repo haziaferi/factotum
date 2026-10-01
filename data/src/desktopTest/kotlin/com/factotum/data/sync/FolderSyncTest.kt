@@ -3,8 +3,17 @@ package com.factotum.data.sync
 import com.factotum.core.sync.Group
 import com.factotum.core.sync.Row
 import com.factotum.core.sync.Stamp
+import com.factotum.data.item.Answer
+import com.factotum.data.item.DETAILS
+import com.factotum.data.item.ITEM
+import com.factotum.data.item.Question
+import com.factotum.data.item.SCHEDULE
+import com.factotum.data.item.STATUS
 import com.factotum.data.openFactotumDatabase
 import kotlinx.coroutines.runBlocking
+import kotlinx.datetime.DateTimeUnit
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.plus
 import org.junit.After
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
@@ -16,7 +25,7 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
-/** ADR 13's cases (`decisions/cases/13-folder.jsonl`) through the real importer and exporter. */
+/** ADR 13's cases (`decisions/cases/13-folder.jsonl`) through the real importer, exporter and item table. */
 class FolderSyncTest {
 
     @get:Rule val tmp = TemporaryFolder()
@@ -31,16 +40,16 @@ class FolderSyncTest {
     private val hour = 3_600_000L
 
     /**
-     * [days] of a phone and a laptop editing while online and offline: each hour a device is online
-     * with some chance, and two online devices meet in a session that is cut 5% of the time.
+     * [days] of a phone and a laptop editing while online and offline: every [stepHours] a device is
+     * online with some chance, and two online devices meet in a session that is cut 5% of the time.
      */
-    private fun ordinaryUse(w: World, days: Int, editsPerHour: Int, random: Random): List<World.Device> {
+    private fun ordinaryUse(w: World, days: Int, editsPerStep: Int, random: Random, stepHours: Int = 1): List<World.Device> {
         val devices = listOf(w.Device("phone"), w.Device("laptop"))
-        for (h in 0 until days * 24) {
-            w.syncthing.now = h * hour
+        for (step in 0 until days * 24 / stepHours) {
+            w.syncthing.now = step * stepHours * hour
             val online = devices.filter { random.nextDouble() < 0.6 }
-            for (d in devices) repeat(random.nextInt(editsPerHour + 1)) {
-                val rows = d.table.rows.keys.toList()
+            for (d in devices) repeat(random.nextInt(editsPerStep + 1)) {
+                val rows = d.rows().keys.toList()
                 if (rows.isEmpty() || random.nextDouble() < 0.1) d.create() else d.edit(rows.random(random), GROUPS.random(random))
             }
             online.forEach { it.import() }
@@ -53,7 +62,7 @@ class FolderSyncTest {
     @Test
     fun stNoConflictCopies_aMonthOfOrdinaryUseMakesNone() {
         val w = world()
-        val devices = ordinaryUse(w, days = 30, editsPerHour = 2, Random(7))
+        val devices = ordinaryUse(w, days = 30, editsPerStep = 2, Random(7))
         w.settle(devices)
 
         assertEquals(0, w.syncthing.conflictCopies)
@@ -62,7 +71,7 @@ class FolderSyncTest {
     @Test
     fun ffNothingLost_cutSessionsThenSettlingLeaveEveryDeviceWithTheJoin() {
         val w = world()
-        val devices = ordinaryUse(w, days = 30, editsPerHour = 3, Random(11))
+        val devices = ordinaryUse(w, days = 30, editsPerStep = 3, Random(11))
         w.settle(devices)
 
         w.assertJoined(devices)
@@ -80,9 +89,9 @@ class FolderSyncTest {
         b.import()
 
         w.syncthing.now = 10
-        b.edit(row, "b")
+        b.edit(row, STATUS)
         w.syncthing.now = 20
-        a.edit(row, "a")
+        a.edit(row, DETAILS)
         b.export()
         a.export()
         w.syncthing.session("A", "B")
@@ -99,7 +108,7 @@ class FolderSyncTest {
         val a = w.Device("A")
         val b = w.Device("B")
         val row = b.create()
-        b.edit(row, "a")
+        b.edit(row, DETAILS)
         b.export()
         w.syncthing.session("A", "B")
         a.import()
@@ -118,7 +127,8 @@ class FolderSyncTest {
     @Test
     fun androidFiles1y_aYearKeepsEachDeviceToItsSegmentsAndOneSnapshot() {
         val w = world()
-        val devices = ordinaryUse(w, days = 365, editsPerHour = 1, Random(3))
+        // Steps of 4 hours: the file count follows how much is exported, not how often devices meet.
+        val devices = ordinaryUse(w, days = 365, editsPerStep = 4, Random(3), stepHours = 4)
         w.settle(devices)
 
         val files = devices.flatMap { w.syncthing.paths(it.name) }.toSet()
@@ -147,8 +157,8 @@ class FolderSyncTest {
         a.import()
         w.syncthing.forget("A'")
 
-        assertNotNull(a.table.rows[mine])
-        assertNotNull(a.table.rows[theirs])
+        assertNotNull(a.rows()[mine])
+        assertNotNull(a.rows()[theirs])
         assertTrue(w.syncthing.paths("A").none { ".sync-conflict-" in it })
     }
 
@@ -164,13 +174,13 @@ class FolderSyncTest {
         w.syncthing.session("A", "B")
         b.import()
         a.purge(gone)
-        repeat(3) { a.edit(kept, "a"); a.export() }
+        repeat(3) { a.edit(kept, DETAILS); a.export() }
 
         val late = w.Device("C")
         w.settle(listOf(a, b, late))
 
         for (d in listOf(a, b, late)) {
-            assertEquals(setOf(kept), d.table.rows.keys, d.name)
+            assertEquals(setOf(kept), d.rows().keys, d.name)
             assertEquals(listOf(gone), runBlocking { d.db.syncDao().purges() }.map { it.id }, d.name)
         }
         assertTrue(w.syncthing.paths("A").any { "/snapshot-" in it })
@@ -191,7 +201,7 @@ class FolderSyncTest {
         w.syncthing.session("A", "B")
         b.import()
 
-        assertTrue(b.table.rows.isEmpty())
+        assertTrue(b.rows().isEmpty())
         assertTrue(w.syncthing.paths("A").none { "/snapshot-" in it })
     }
 
@@ -214,38 +224,36 @@ class FolderSyncTest {
     @Test
     fun aBigFileIsMergedInChunksEachWithItsReadPosition() {
         val w = world()
-        val lines = (0 until 2_500).map {
-            RecordCodec.encode(RowRecord(Row(ITEM, "r$it", mapOf("a" to Group(Stamp(1, "A"), mapOf("v" to "$it")))))) + "\n"
-        }
+        val lines = (0 until 2_500).map { "${line("r$it")}\n" }
         w.syncthing.folder("B").replace(FolderLayout.segment("A", 0), lines.joinToString("").encodeToByteArray())
-        val b = w.Device("B")
+        val memory = MemoryTable()
+        val b = w.Device("B", extra = mapOf(ITEM to memory))
 
-        b.table.savesLeft = 1
+        memory.savesLeft = 1
         assertFailsWith<IllegalStateException> { b.import() }
-        assertEquals(2_000, b.table.rows.size)
+        assertEquals(2_000, memory.rows.size)
         val firstChunk = lines.take(2_000).sumOf { it.encodeToByteArray().size }.toLong()
         assertEquals(firstChunk, runBlocking { b.db.syncDao().reads() }.single().readBytes)
 
-        b.table.savesLeft = Int.MAX_VALUE
+        memory.savesLeft = Int.MAX_VALUE
         b.import()
-        assertEquals(2_500, b.table.rows.size)
+        assertEquals(2_500, memory.rows.size)
     }
 
     @Test
     fun aLineStillBeingWrittenWaitsForItsNewline() {
         val w = world()
-        val b = w.Device("B")
-        val line = RecordCodec.encode(RowRecord(Row(ITEM, "x", mapOf("a" to Group(Stamp(1, "A"), mapOf("v" to "1"))))))
+        val b = w.Device("B", extra = mapOf(ITEM to MemoryTable()))
         val path = FolderLayout.segment("A", 0)
         val folder = w.syncthing.folder("B")
 
-        folder.replace(path, line.encodeToByteArray())
+        folder.replace(path, line("x").encodeToByteArray())
         b.import()
-        assertTrue(b.table.rows.isEmpty())
+        assertTrue(b.rows().isEmpty())
 
-        folder.replace(path, "$line\n".encodeToByteArray())
+        folder.replace(path, "${line("x")}\n".encodeToByteArray())
         b.import()
-        assertNotNull(b.table.rows["x"])
+        assertNotNull(b.rows()["x"])
     }
 
     @Test
@@ -259,8 +267,18 @@ class FolderSyncTest {
         assertEquals(ImportReport(changed = 0, skipped = 2), old.import())
         old.db.close()
 
-        val upgraded = w.Device("old", tables = setOf(ITEM, "page"))
+        val upgraded = w.Device("old", extra = mapOf("page" to MemoryTable()))
         assertEquals(ImportReport(changed = 1, skipped = 1), upgraded.import())
+    }
+
+    @Test
+    fun aRowThatDoesNotFitItsTableIsSkipped() {
+        val w = world()
+        w.syncthing.folder("B").replace(FolderLayout.segment("A", 0), "${line("x")}\n".encodeToByteArray())
+        val b = w.Device("B")
+
+        assertEquals(ImportReport(changed = 0, skipped = 1), b.import())
+        assertTrue(b.rows().isEmpty())
     }
 
     @Test
@@ -273,14 +291,9 @@ class FolderSyncTest {
         w.syncthing.session("A", "B")
         b.import()
 
-        // A schedule group is the one that asks (ADR 01): both sides change it since their base.
-        fun scheduleEdit(d: World.Device, due: String) {
-            val r = d.table.rows.getValue(row)
-            d.table.rows[row] = r.copy(groups = r.groups + ("schedule" to Group(d.clock.tick(), mapOf("due" to due))))
-            runBlocking { d.db.syncDao().putOutbox(listOf(OutboxEntity(id = row, table = ITEM))) }
-        }
-        scheduleEdit(a, "monday")
-        scheduleEdit(b, "tuesday")
+        // The schedule is the group that asks (ADR 01): both sides change it since their base.
+        runBlocking { a.items.reschedule(row, MONDAY) }
+        runBlocking { b.items.reschedule(row, TUESDAY) }
         a.export()
         b.export()
         w.syncthing.session("A", "B")
@@ -290,8 +303,119 @@ class FolderSyncTest {
         val reopened = openFactotumDatabase(File(tmp.root, "B.db")).database
         val asked = runBlocking { reopened.syncDao().asks(listOf(row)) }
         reopened.close()
-        assertEquals(listOf("schedule"), asked.map { it.grp })
-        assertEquals(mapOf("due" to "monday"), RecordCodec.decodeGroup(asked.single().theirs).values)
-        assertEquals("tuesday", b.table.rows.getValue(row).groups.getValue("schedule").values["due"])
+        assertEquals(listOf(SCHEDULE), asked.map { it.grp })
+        assertEquals(MONDAY.toString(), RecordCodec.decodeGroup(asked.single().theirs).values["start_date"])
+    }
+
+    @Test
+    fun anAnswerSettlesTheQuestionOnBothDevices() {
+        val w = world()
+        val a = w.Device("A")
+        val b = w.Device("B")
+        val row = a.create()
+        a.export()
+        w.syncthing.session("A", "B")
+        b.import()
+        runBlocking { a.items.reschedule(row, MONDAY) }
+        runBlocking { b.items.reschedule(row, TUESDAY) }
+        w.settle(listOf(a, b))
+        for (d in listOf(a, b)) assertEquals(listOf(Question(row, SCHEDULE)), runBlocking { d.items.questions() }, d.name)
+
+        runBlocking { b.items.answer(Question(row, SCHEDULE), Answer.KEEP_MINE) }
+        w.settle(listOf(a, b))
+
+        for (d in listOf(a, b)) {
+            assertEquals(emptyList(), runBlocking { d.items.questions() }, d.name)
+            assertEquals(TUESDAY, runBlocking { d.items.item(row) }?.start, d.name)
+        }
+    }
+
+    @Test
+    fun aSubtaskThatArrivesBeforeItsParentWaitsForIt() {
+        val w = world()
+        val a = w.Device("A")
+        val parent = runBlocking { a.items.createTask("tax form") }
+        val child = runBlocking { a.items.createTask("find receipts", parentId = parent) }
+        a.export()
+        val lines = w.syncthing.folder("A").read(FolderLayout.segment("A", 0))!!.decodeToString().lines().filter { it.isNotEmpty() }
+        val (parentLine, childLine) = listOf(parent, child).map { id -> lines.single { "\"id\":\"$id\"" in it } }
+
+        // The subtask reaches B in one device's file before the parent arrives in another's.
+        val b = w.Device("B")
+        val folder = w.syncthing.folder("B")
+        folder.replace(FolderLayout.segment("X", 0), "$childLine\n".encodeToByteArray())
+        b.import()
+        assertEquals(emptySet(), b.rows().keys)
+        assertEquals(1, runBlocking { b.db.syncDao().waiting() }.size)
+
+        folder.replace(FolderLayout.segment("Y", 0), "$parentLine\n".encodeToByteArray())
+        b.import()
+        assertEquals(setOf(parent, child), b.rows().keys)
+        assertEquals(emptyList(), runBlocking { b.db.syncDao().waiting() })
+    }
+
+    @Test
+    fun aSubtaskWhoseParentWasPurgedIsDroppedNotKeptWaiting() {
+        val w = world()
+        val a = w.Device("A")
+        val parent = runBlocking { a.items.createTask("tax form") }
+        val child = runBlocking { a.items.createTask("find receipts", parentId = parent) }
+        a.export()
+        val childLine = w.syncthing.folder("A").read(FolderLayout.segment("A", 0))!!.decodeToString()
+            .lines().single { "\"id\":\"$child\"" in it }
+        a.purge(parent)
+        a.export()
+        val b = w.Device("B")
+        w.syncthing.session("A", "B")
+        b.import()
+
+        w.syncthing.folder("B").replace(FolderLayout.segment("X", 0), "$childLine\n".encodeToByteArray())
+
+        assertEquals(ImportReport(changed = 0, skipped = 1), b.import())
+        assertEquals(emptyList(), runBlocking { b.db.syncDao().waiting() })
+    }
+
+    @Test
+    fun aLineWaitingForItsParentIsKeptOnceThoughTwoFilesHoldIt() {
+        val w = world()
+        val a = w.Device("A")
+        val parent = runBlocking { a.items.createTask("tax form") }
+        val child = runBlocking { a.items.createTask("find receipts", parentId = parent) }
+        a.export()
+        val childLine = w.syncthing.folder("A").read(FolderLayout.segment("A", 0))!!.decodeToString()
+            .lines().single { "\"id\":\"$child\"" in it }
+        val b = w.Device("B")
+        val folder = w.syncthing.folder("B")
+
+        folder.replace(FolderLayout.segment("X", 0), "$childLine\n".encodeToByteArray())
+        folder.replace(FolderLayout.segment("Y", 0), "$childLine\n".encodeToByteArray())
+        b.import()
+
+        assertEquals(1, runBlocking { b.db.syncDao().waiting() }.size)
+    }
+
+    @Test
+    fun aRowThatBreaksItsKindsRulesIsDroppedNotKeptWaiting() {
+        val w = world()
+        val a = w.Device("A")
+        val event = runBlocking { a.items.createEvent("standup", MONDAY) }
+        val row = a.rows().getValue(event)
+        val status = row.groups.getValue(STATUS)
+        val bad = row.copy(groups = row.groups + (STATUS to status.copy(values = status.values + ("status" to "PENDING"))))
+        val b = w.Device("B")
+        w.syncthing.folder("B").replace(FolderLayout.segment("A", 0), "${RecordCodec.encode(RowRecord(bad))}\n".encodeToByteArray())
+
+        assertEquals(ImportReport(changed = 0, skipped = 1), b.import())
+        assertTrue(b.rows().isEmpty())
+        assertEquals(emptyList(), runBlocking { b.db.syncDao().waiting() })
+    }
+
+    /** A record of a row in a table only [MemoryTable] would take: one group, no item fields. */
+    private fun line(id: String) =
+        RecordCodec.encode(RowRecord(Row(ITEM, id, mapOf("a" to Group(Stamp(1, "A"), mapOf("v" to id))))))
+
+    private companion object {
+        val MONDAY = LocalDate(2026, 10, 5)
+        val TUESDAY = MONDAY.plus(1, DateTimeUnit.DAY)
     }
 }
