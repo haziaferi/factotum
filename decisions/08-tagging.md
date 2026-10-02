@@ -60,3 +60,11 @@ The facts were verified with `tools/verify.py`; the raw output is in `verify/08-
 - **Labels sync as rows** under ADR 01, with id, stamps and tombstone. They no longer travel as names inside a page record. A page's label set merges per `page_label` row rather than replacing the whole set, so a label removed on the losing side isn't lost.
 - **Rename, recolour and delete apply to every label.** Tendril has none of these today. Deleting a label clears it from members and keeps them, as Chronicle does.
 - **Scope in the pickers.** The activity picker offers ALL and ACTIVITY labels, and the tracker picker offers ALL and TRACKER labels. Pages and habits are offered ALL labels.
+
+## Owner answers, 2026-10-02
+
+A source survey before building slice 08 found three choices the decision does not settle (Tendril merges labels by exact name on sync, `PagesSyncEngine.kt:684-687`; Chronicle never lets a person choose a category's scope, `TrackListViewModel.kt:158`; Chronicle's category totals cover activities only, `ChartDataRepository.kt:162-187`). The owner answered:
+
+1. **Two labels with the same name merge into one.** When devices that each made "Health" (or renamed one onto an existing name) sync, the one made first survives, with its colour and scope; whatever carried the other moves to it, and the other is removed. Names compare ignoring case.
+2. **A label's scope is chosen and can change**: everything, activities only, or trackers only. Narrowing it hides it from the other pickers; what already carries it keeps it.
+3. **A label's time total counts everything that carries it**, habits as well as activities, with overlapping time counted once as in every Factotum total (Chronicle's pie summed overlapping activities twice).

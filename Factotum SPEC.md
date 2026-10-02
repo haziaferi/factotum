@@ -264,6 +264,8 @@ Names are unique ignoring case. A new label takes a colour derived from its name
 
 **The word on screen is "Label".** "Tag" keeps Tendril's meaning: a Select property.
 
+**Owner answers, 2026-10-02:** two labels with the same name (ignoring case), made or renamed on devices that then sync, merge into the one made first, which keeps its colour and scope; a label's scope (everything, activities, trackers) is chosen and can change, and narrowing it only hides it from the other pickers; a label's time total counts every activity and habit carrying it, overlapping time once.
+
 **Acceptance:** `cases/08-tagging.jsonl`, 10 cases.
 
 ### 3.9 Settings — ADR 09
