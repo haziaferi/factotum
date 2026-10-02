@@ -48,3 +48,12 @@ Growth counts every trigger as 1. The 18 triggers are generated from one list of
 - **Result order is defined.** Tendril's `LIMIT` without `ORDER BY` returns an arbitrary subset. Hits are now ordered: title matches first, as Tendril ranks in Kotlin, then by recency, as Chronicle sorts.
 - **Labels (ADR 08) aren't in the text index.** The label picker keeps substring `LIKE`, as Tendril's does, because a label name is short and found by part of a word.
 - **Check-ins and journal text** (ADR 05) aren't indexed in either app today. Adding them is a feature, not part of this decision.
+
+## Owner answers, 2026-10-03
+
+A source survey before building slice 10 found choices the decision does not settle (Chronicle keeps an archived parent's entries searchable, `SearchRepository.kt:75-77`, and marks done reminders, `:124`; Chronicle needs two letters, `:63`, Tendril one). The owner answered:
+
+1. **What was written under an archived activity or tracker stays findable**, shown under its archived name. Anything deleted, or under something deleted, never shows.
+2. **Finished things show, marked**: done or skipped tasks, past events and done reminders are found, with a mark.
+3. **Order: names first, then newest.** Hits on a thing's own name (an activity, a tracker, a task, a habit, a page title) come first; then text found inside (a Log's note, a session's comment, a block), newest first by its own time.
+4. **Search starts at two letters.**

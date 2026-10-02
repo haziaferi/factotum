@@ -308,6 +308,8 @@ The device id is not a setting.
 - Queries AND prefix terms. Block hits get snippets.
 - The index is local and rebuildable.
 
+**Owner answers, 2026-10-03:** what was written under an archived activity or tracker stays findable; nothing deleted, or under something deleted, shows; finished tasks, events and reminders show with a mark; names come first, then text inside by its own time, newest first; search starts at two letters.
+
 **Acceptance:** `cases/10-search.jsonl`, 7 cases.
 
 ### 3.11 Occurrence edits — ADR 11
