@@ -6,6 +6,7 @@ import com.factotum.core.recurrence.EditScope
 import com.factotum.core.recurrence.Occurrence
 import com.factotum.core.recurrence.clashes
 import com.factotum.core.recurrence.occurrencesWithEdits
+import com.factotum.core.recurrence.timed
 import com.factotum.core.sync.Group
 import com.factotum.core.sync.Row
 import com.factotum.data.FactotumDatabase
@@ -84,10 +85,12 @@ internal class OccurrenceRepository(
         val start = item.dtstart() ?: return emptyList()
         val habit = item.trackerId?.let { t ->
             if (readings.trackers(listOf(t)).singleOrNull()?.deletedAt != null) return emptyList()
-            habitStates(readings, listOf(t), { item.pauseFrom to item.pauseUntil }, dayStart, from, to).getValue(t)
+            habitStates(readings, listOf(HabitRef(itemId, t, item.pauseFrom, item.pauseUntil)), dayStart, from, to).getValue(itemId)
         } ?: HabitState.NONE
-        return item.recurrence().occurrencesWithEdits(itemId, start, item.title, item.durationMin, dao.liveEditsOf(itemId).map { it.toEdit() }, from, to, habit.lastDone)
-            .filter { !habit.paused(it.at) }
+        val recurrence = item.recurrence()
+        val edits = dao.liveEditsOf(itemId).map { it.toEdit() }
+        return recurrence.occurrencesWithEdits(itemId, start, item.title, item.durationMin, edits, from, to, habit.lastDone)
+            .filter { !habit.paused(it, recurrence.timed(it, edits, item.startTime != null)) }
     }
 
     suspend fun questions(): List<OccurrenceQuestion> =

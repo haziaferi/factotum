@@ -9,7 +9,8 @@ import kotlinx.datetime.plus
 
 /**
  * How an item repeats (ADR 04, rrule+ext). Each kind expands from the item's start (DTSTART) into
- * local, floating date-times. ROLLING is Tendril's rolling habit (ADR 06, owner 2026-10-02).
+ * local, floating date-times. ROLLING is Tendril's rolling habit (ADR 06, owner 2026-10-02), and
+ * PLANNED its habit planner's two rules (ADR 04, amended).
  */
 sealed interface Recurrence {
 
@@ -41,6 +42,25 @@ sealed interface Recurrence {
         }
     }
 
+    /**
+     * Tendril's planner rules, which no fixed schedule expresses (ADR 04, amended). [Per.DAY]: [n]
+     * a day on [days], each in a time block: [blocks] in order when given (one each, so [n] is their
+     * count), else spread evenly over all of them. Its occurrences have no time of their own: the
+     * i-th of a day is at [slotTime] (i), which tells them apart. [Per.WEEK]: [n] days a week among
+     * [days]; the planner only suggests them, and a week's days are the person's WEEK edit (ADR 11),
+     * so the rule alone gives no occurrence.
+     */
+    data class Planned(val n: Int, val per: Per, val days: Set<DayOfWeek> = DayOfWeek.entries.toSet(), val blocks: List<String> = emptyList()) : Recurrence {
+        enum class Per { DAY, WEEK }
+
+        init {
+            require(days.isNotEmpty()) { "a planned habit needs a day" }
+            require(n in 1..(if (per == Per.DAY) MAX_PER_DAY else 7)) { "$n a ${per.name.lowercase()} is out of range" }
+            require(blocks.isEmpty() || (per == Per.DAY && blocks.size == n)) { "blocks name each of a day's occurrences" }
+            require(blocks.none { it.isEmpty() || ',' in it }) { "not block ids: $blocks" }
+        }
+    }
+
     /** Mnemo's stochastic window: on each of [days], one drawn minute in `[start, end)`. */
     data class RandomWindow(val days: Set<DayOfWeek>, val start: LocalTime, val end: LocalTime) : Recurrence {
         init {
@@ -51,6 +71,12 @@ sealed interface Recurrence {
 }
 
 enum class RollUnit { DAY, WEEK, MONTH }
+
+/** At most one occurrence every half hour (Tendril's `MAX_TIMES_PER_DAY`). */
+const val MAX_PER_DAY = 48
+
+/** The time that tells the [i]-th of a planned day's occurrences apart: [i] seconds past midnight, which no set time uses. */
+fun slotTime(i: Int): LocalTime = LocalTime.fromSecondOfDay(i)
 
 /**
  * The occurrences of [this] for the item [itemId] starting at [dtstart], within `[from, to)`. The
@@ -78,6 +104,16 @@ fun Recurrence.occurrences(
                 val at = LocalDateTime(day, dtstart.time)
                 if (at >= to) break
                 if (at >= from) add(at)
+                day = day.plus(1, DateTimeUnit.DAY)
+            }
+        }
+        is Recurrence.Planned -> buildList {
+            if (per == Recurrence.Planned.Per.WEEK) return@buildList
+            var day = maxOf(from.date, dtstart.date)
+            while (LocalDateTime(day, MIDNIGHT) < to) {
+                if (day.dayOfWeek in days) {
+                    for (i in 0 until n) LocalDateTime(day, slotTime(i)).takeIf { it >= from && it < to }?.let(::add)
+                }
                 day = day.plus(1, DateTimeUnit.DAY)
             }
         }
@@ -111,7 +147,7 @@ val Recurrence.setsTimes: Boolean
     get() = when (this) {
         is Recurrence.Rule -> rule.setsTimes
         is Recurrence.RuleSet -> rules.any { it.setsTimes }
-        is Recurrence.RandomDays, is Recurrence.Rolling -> false
+        is Recurrence.RandomDays, is Recurrence.Rolling, is Recurrence.Planned -> false
         is Recurrence.RandomWindow -> true
     }
 

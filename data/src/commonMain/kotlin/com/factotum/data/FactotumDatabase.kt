@@ -5,7 +5,13 @@ import androidx.room.ConstructedBy
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.RoomDatabaseConstructor
+import androidx.room.migration.AutoMigrationSpec
+import androidx.sqlite.SQLiteConnection
 import com.factotum.data.item.COMPLETION
+import com.factotum.data.item.HABIT_BLOCK
+import com.factotum.data.item.HabitBlockEntity
+import com.factotum.data.item.habitBlockTable
+import com.factotum.data.item.seedBlocks
 import com.factotum.data.item.CompletionEntity
 import com.factotum.data.item.completionTable
 import com.factotum.data.item.ITEM
@@ -48,11 +54,14 @@ import com.factotum.data.sync.WaitingEntity
         PurgeEntity::class, ClockEntity::class,
         BaseEntity::class, AskEntity::class, ReadEntity::class, OutboxEntity::class, KnownTablesEntity::class,
         WaitingEntity::class, ItemEntity::class, CompletionEntity::class, ReminderEntity::class, OccurrenceEditEntity::class,
-        TrackerEntity::class, TrackerChoiceEntity::class, TrackerReadingEntity::class, GoalEntity::class,
+        TrackerEntity::class, TrackerChoiceEntity::class, TrackerReadingEntity::class, GoalEntity::class, HabitBlockEntity::class,
     ],
-    version = 7,
+    version = 8,
     exportSchema = true,
-    autoMigrations = [AutoMigration(from = 1, to = 2), AutoMigration(from = 2, to = 3), AutoMigration(from = 3, to = 4), AutoMigration(from = 4, to = 5), AutoMigration(from = 5, to = 6), AutoMigration(from = 6, to = 7)],
+    autoMigrations = [
+        AutoMigration(from = 1, to = 2), AutoMigration(from = 2, to = 3), AutoMigration(from = 3, to = 4), AutoMigration(from = 4, to = 5),
+        AutoMigration(from = 5, to = 6), AutoMigration(from = 6, to = 7), AutoMigration(from = 7, to = 8, spec = SeedBlocks::class),
+    ],
 )
 @ConstructedBy(FactotumDatabaseConstructor::class)
 abstract class FactotumDatabase : RoomDatabase() {
@@ -63,17 +72,22 @@ abstract class FactotumDatabase : RoomDatabase() {
 }
 
 /** The synced tables, by the name their folder records carry; [SchemaTriggers] queues writes to each for export. */
-internal val SYNCED_TABLES = listOf(TRACKER, TRACKER_CHOICE, ITEM, COMPLETION, REMINDER, OCCURRENCE_EDIT, TRACKER_READING, GOAL)
+internal val SYNCED_TABLES = listOf(TRACKER, TRACKER_CHOICE, HABIT_BLOCK, ITEM, COMPLETION, REMINDER, OCCURRENCE_EDIT, TRACKER_READING, GOAL)
 
 /** In [SYNCED_TABLES]' order, parents before children, which is the order a snapshot is written in. */
 internal fun FactotumDatabase.syncedTables(): Map<String, RowTable> {
     val items = itemDao()
     val trackers = trackerDao()
     return mapOf(
-        TRACKER to trackerTable(trackers), TRACKER_CHOICE to choiceTable(trackers), ITEM to itemTable(items),
+        TRACKER to trackerTable(trackers), TRACKER_CHOICE to choiceTable(trackers), HABIT_BLOCK to habitBlockTable(items), ITEM to itemTable(items),
         COMPLETION to completionTable(items), REMINDER to reminderTable(reminderDao()), OCCURRENCE_EDIT to occurrenceEditTable(items),
         TRACKER_READING to readingTable(trackers), GOAL to goalTable(trackers),
     ).also { check(it.keys.toList() == SYNCED_TABLES) { "every synced table needs its export triggers" } }
+}
+
+/** Version 8 brings the time blocks, and a database that had none gets the defaults a new one starts with. */
+internal class SeedBlocks : AutoMigrationSpec {
+    override fun onPostMigrate(connection: SQLiteConnection) = seedBlocks(connection)
 }
 
 // Room's KSP processor generates the actual for each target.

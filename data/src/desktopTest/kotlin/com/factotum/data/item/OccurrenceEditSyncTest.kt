@@ -3,6 +3,7 @@ package com.factotum.data.item
 import androidx.room.execSQL
 import androidx.room.useWriterConnection
 import com.factotum.core.recurrence.EditChanges
+import com.factotum.core.recurrence.Patch
 import com.factotum.core.recurrence.RRule
 import com.factotum.core.recurrence.Recurrence
 import com.factotum.data.isConstraintViolation
@@ -289,7 +290,7 @@ class OccurrenceEditSyncTest {
 
     @Test
     fun habitFieldsThisVersionDoesNotApplyArriveIntact() {
-        val changes = EditChanges(time = LocalTime(7, 0), others = mapOf("block" to "\"Evening\"", "rule_patch" to """{"n":3,"days":[1,3]}"""))
+        val changes = EditChanges(time = LocalTime(7, 0), block = Patch("Evening"), others = mapOf("sort_order" to "2.5", "rule_patch" to """{"n":3,"days":[1,3]}"""))
 
         val back = EditCodec.decode(EditCodec.encode(changes))
 

@@ -1,6 +1,6 @@
 # Factotum — Product & Technical Spec
 
-**Status:** draft v0.12, seeded from the decision register · **Scope:** the merged data model, sync and behaviour rules of Factotum. Screens are not decided and are marked open (§10.1).
+**Status:** draft v0.13, seeded from the decision register · **Scope:** the merged data model, sync and behaviour rules of Factotum. Screens are not decided and are marked open (§10.1).
 **Related documents:** `decisions/`, the evidence behind §3: one ADR per decision with verified `file:line` facts, the scored options, the behaviour cases and the harness that measured them (`decisions/register.md` is the index). This spec states each decision once and points to its ADR for the evidence. It never restates the evidence.
 
 ---
@@ -9,6 +9,7 @@
 
 | Version | Summary | Sections touched |
 |---|---|---|
+| v0.13 | Slice 06b built: time blocks with Tendril's five defaults, the PLANNED kind, and the week planner ported from Tendril. A 06a defect fixed: two habits sharing a tracker shared one pause | §3.4, §3.6, §7 |
 | v0.12 | Slice 06a built: trackers (Chronicle's, as they are), habits tied to their trackers, Logs, presence with the owner's rule, rolling habits, pause. The item rules now sit in COALESCE: a task with no status had slipped through | §3.4, §3.6, §7 |
 | v0.11 | Slice 11 built: the occurrence-edit log, its engine in `:core`, clash questions from base stamps, edits reaching reminders | §3.11, §7 |
 | v0.10 | Slice 04 built: the RRULE expander (ported from Tendril, extended to times of day), rule sets, seeded random kinds, cron conversion, recurrence on items, reminders on repeating items | §3.2, §3.3, §3.4, §7 |
@@ -187,7 +188,7 @@ Every decision here was scored against its owners' behaviour cases, with a contr
 - **Recurrence lives in the item's schedule group**, so a clashing rule change asks a person (ADR 04). Triggers tie each kind to its columns and require a start date.
 - **Reminders on a repeating item** fire at its next occurrence after a given moment that is not resolved in the completion log. A whole-day item's fire at the reminder's anchor, unless its rule sets times (BYHOUR, a random window, cron). A snooze names the firing it snoozes, which only the shell knows, and holds for that one firing. A rule this version cannot read (from a newer peer) silences only its own item's reminders.
 - **Rules that would mislead are refused**, as well as unsupported parts: BYMONTHDAY under WEEKLY, a day no listed month has, an INTERVAL over 10,000. A minutely or hourly rule skips the days its limits exclude, so a rare one costs no more than a frequent one.
-- **PLANNED** (habits' planner) comes with slice 06: it needs ADR 06's `block_id` and `duration_min`, and ADR 11's WEEK edits.
+- **PLANNED** (habits' planner) was built with slice 06 (§3.6, part b).
 - **Spike 5 (force-stop detection)** needs the Android shell and a device; it runs with the shell, not here.
 
 ### 3.5 Check-in — ADR 05
@@ -219,7 +220,17 @@ Every decision here was scored against its owners' behaviour cases, with a contr
 - **Columns:** `tracker_id` and `block_id` in the item's details group (a block merges silently, ADR 11); `pause_from`, `pause_until` (none means until resumed, as in Tendril), `duration_min`, `roll_every` and `roll_unit` in its schedule group.
 - **A rolling habit** falls due a period after the day of its last Log that counts as presence, or at its start before any, and stays due every day until a Log, as Tendril's does; a month is a calendar month (Tendril counted 30 days).
 - **Logged occurrences are quiet:** a Log naming an occurrence silences that one; a Log naming none silences the first other occurrence of its personal day, so one dose of three leaves two. Pause and Logs both go by the personal day.
-- **Part b** (time blocks and the week planner, ADR 04's PLANNED kind) follows.
+
+**Built (2026-10-02), part b:** time blocks and the week planner in `com.factotum.core.plan`, ported from Tendril's `CalendarSchedule.kt`; the blocks in `habit_block`, the PLANNED columns on `item`. Tendril's planner tests that still apply pass as tests (`PlannerTest`), with the database cases in `PlannerCasesTest`. What the build settled, none of which changes the decision:
+- **Expanding and editing moved out of the planner.** Each habit's occurrences come from ADR 04's expander with ADR 11's edits applied, less its paused days; the planner only places them and suggests. So the load a suggestion balances is the week after its edits, where Tendril counted the week before them. Each day follows the rule in force on it, the item's own or one a FROM edit set, as Tendril's planner reads the habit day by day.
+- **A confirmed week** is laid out before the other edits, so every DAY, WEEK and FROM edit reaches its days whenever it was written (a skip, a block, a time), and a moved or added entry in that week stays, as in Tendril. Confirmed days count only from the habit's start and on its own days. This replaces slice 11's rule that a confirmation cleared whatever was in the week. The days suggested leave out paused and skipped ones.
+- **PLANNED** is `plan_n`, `plan_per` (DAY or WEEK), `plan_days` and `plan_blocks`, on a HABIT only. "n a day" has no set time: the i-th occurrence of a day is at i seconds past midnight, an ordinal no real time uses, which ADR 11's edits and a Log name. It sits in the block it names, or is spread evenly over the blocks in their order. "n a week" places nothing until a WEEK edit confirms the week's days; until then the planner suggests them as Tendril does (evenly spaced, rotated to keep the busiest day lightest, then the load even), each habit on the load the earlier ones left.
+- **Blocks** are Tendril's rows, one group each, with its weekday times in its own text (`SAT,SUN@480-630`). The five defaults are written when a database is made (or upgraded to blocks), under fixed ids and one fixed stamp, so two devices hold the same five and any real edit is newer. A habit names its block without a foreign key: a deleted block leaves its habits at any time of day.
+- **Placing:** a set time goes in the block holding it (start in, end out), else outside every block, kept and shown; otherwise in the block an edit gave the occurrence (or none), else its slot's block, else the habit's. Blocks that overlap on a day are reported. With every block deleted, "n a day" occurrences are at any time, where Tendril placed none: they still exist to be Logged.
+- **The personal day** of a whole-day occurrence is its own date; only a timed one moves to the day before when the day starts after midnight (§3.6, part a). Pause and Logs both follow it. Whether an occurrence is timed is one rule for the planner, pause, Logs and reminders: the item's set time, a time its day's rule sets, or one an edit gave it.
+- **An occurrence's block** is ADR 11's `block` field, now read; it merges silently. `sort_order`, `rule_patch` and `pause` stay as written: items have no sort order yet (order in a block is by item, then occurrence), and Factotum edits a rule with a FROM edit and pauses on the item.
+- **Reminders** on an "n a day" habit fire at the reminder's anchor, once for the day's unlogged occurrences, as on any whole-day item. Whether each occurrence should remind at its own block is open (§10, item 11).
+- **Found on the way:** habits sharing a tracker shared one pause, as their state was keyed by tracker. It is keyed by habit now.
 
 ### 3.7 Timed intervals — ADR 07
 
@@ -421,7 +432,7 @@ The four source apps are the owner's own. The only third-party code found so far
    - The guard recovers only from SQLITE_CORRUPT and SQLITE_NOTADB. A locked or full database is rethrown, and its file is left in place.
    - It moves the `-journal`, `-wal` and `-shm` files with the database.
    - Tests cover both drivers, with a control showing that the stock Android driver deletes a corrupt file. Wiring the guard into the Room open path comes with slice 01.
-2. **Schema slices in ADR dependency order:** 01 → 02 → 03 → 04 → 11 → 06 → 07 → 08 → 09 → 10 → 05 → 12. Each slice is done when its ADR cases pass as tests against the real implementation (§3). Spikes 1 and 3 run with slice 10. Spike 5 needs the Android shell and a device, so it runs with the shell (step 4). **Slice 01: done 2026-10-01** (§3.1), with its folder importer and exporter (§3.13). **Slice 02: done 2026-10-01** (§3.2). **Slice 03: done 2026-10-02** (§3.3). **Slice 04: done 2026-10-02** (§3.4), except the PLANNED kind, which needs slice 06, and spike 5, which needs the Android shell. **Slice 11: done 2026-10-02** (§3.11).
+2. **Schema slices in ADR dependency order:** 01 → 02 → 03 → 04 → 11 → 06 → 07 → 08 → 09 → 10 → 05 → 12. Each slice is done when its ADR cases pass as tests against the real implementation (§3). Spikes 1 and 3 run with slice 10. Spike 5 needs the Android shell and a device, so it runs with the shell (step 4). **Slice 01: done 2026-10-01** (§3.1), with its folder importer and exporter (§3.13). **Slice 02: done 2026-10-01** (§3.2). **Slice 03: done 2026-10-02** (§3.3). **Slice 04: done 2026-10-02** (§3.4), except spike 5, which needs the Android shell. **Slice 11: done 2026-10-02** (§3.11). **Slice 06: done 2026-10-02** (§3.6), with PLANNED.
 3. **The sole-owner modules of §2.**
 4. **Screens**, after §10.1.
 
@@ -470,6 +481,7 @@ Status: 2, 4 and 6 are done (`docs/spikes-2026-10-01.md`). With §10.2 decided, 
    - The pre-edit copies are in `../_map-before-2026-10-01/`.
 9. **The sync folder's layout. Decided 2026-10-01:** ADR 13, device-log+copies (§3.13).
 10. **A habit whose tracker is deleted. Decided 2026-10-02:** the habit goes with it; the tracker is created with the habit (§3.6).
+11. **Reminders on an "n a day" habit.** Today one reminder a day fires, at its anchor, while any of the day's occurrences is unlogged. Each occurrence could instead remind at the start of its block (§3.6, part b). Tendril gave such habits no reminder at all.
 
 ## 11. Next Steps
 

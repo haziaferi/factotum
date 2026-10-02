@@ -11,18 +11,19 @@ import com.factotum.data.item.STATUS
 import com.factotum.data.item.TaskStatus
 import com.factotum.data.item.itemRow
 import com.factotum.data.item.dtstartOf
+import com.factotum.data.item.HabitRef
+import com.factotum.data.item.MIDNIGHT
 import com.factotum.data.item.HabitState
 import com.factotum.data.item.habitStates
 import com.factotum.data.item.OccurrenceEditEntity
 import com.factotum.data.item.toEdit
-import com.factotum.data.item.recurrenceOf
 import com.factotum.data.item.recurrenceValues
 import com.factotum.data.item.schedule
 import com.factotum.core.recurrence.Occurrence
 import com.factotum.core.recurrence.OccurrenceEdit
 import com.factotum.core.recurrence.Recurrence
 import com.factotum.core.recurrence.occurrencesWithEdits
-import com.factotum.core.recurrence.setsTimes
+import com.factotum.core.recurrence.timed
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
@@ -116,16 +117,16 @@ internal class ReminderRepository(
         val editsByItem = items.liveEdits().groupBy { it.itemId }
         // Logs from the moment searched from: a habit's earlier Logs no longer quiet anything.
         val since = after ?: sources.minOfOrNull { dtstartOf(it.startDate, it.startTime) } ?: return emptyList()
-        val pauses = sources.filter { it.trackerId != null }.associate { it.trackerId!! to (it.pauseFrom to it.pauseUntil) }
-        val states = habitStates(readings, pauses.keys, { pauses.getValue(it) }, dayStart, LocalDateTime(since.date.plus(-2, DateTimeUnit.DAY), since.time), FAR)
-        return sources.mapNotNull { s -> firing(s, editsByItem[s.itemId].orEmpty(), s.trackerId?.let(states::getValue) ?: HabitState.NONE, after) }
+        val habits = sources.mapNotNull { s -> s.trackerId?.let { HabitRef(s.itemId, it, s.pauseFrom, s.pauseUntil) } }.distinctBy { it.id }
+        val states = habitStates(readings, habits, dayStart, LocalDateTime(since.date.plus(-2, DateTimeUnit.DAY), since.time), FAR)
+        return sources.mapNotNull { s -> firing(s, editsByItem[s.itemId].orEmpty(), states[s.itemId] ?: HabitState.NONE, after) }
             .sortedWith(compareBy({ it.at }, { it.reminderId }))
     }
 
     private suspend fun firing(s: FiringSource, editRows: List<OccurrenceEditEntity>, habit: HabitState, after: LocalDateTime?): Firing? {
         // A row this version cannot read (a rule from a newer peer) silences its own reminder, not all of them.
         val recurrence = try {
-            recurrenceOf(s.recurrenceKind, s.rrule, s.randMinDays, s.randMaxDays, s.windowDays, s.windowStart, s.windowEnd, s.rollEvery, s.rollUnit)
+            s.repeat.recurrence()
         } catch (_: IllegalArgumentException) {
             return null
         }
@@ -150,9 +151,9 @@ internal class ReminderRepository(
             val from = after?.let { LocalDateTime(it.date.plus(-(s.offsetMin.floorDiv(MINUTES_PER_DAY) + 1), DateTimeUnit.DAY), it.time) } ?: dtstart
             for (days in SEARCH_DAYS) {
                 val to = LocalDateTime(from.date.plus(days, DateTimeUnit.DAY), from.time)
-                habit.unlogged(recurrence.occurrencesWithEdits(s.itemId, dtstart, "", null, edits, from, to, habit.lastDone))
+                habit.unlogged(recurrence.occurrencesWithEdits(s.itemId, dtstart, "", null, edits, from, to, habit.lastDone), ::timed)
                     .asSequence()
-                    .filter { (it.original ?: it.at) !in resolved && !habit.paused(it.at) }
+                    .filter { (it.original ?: it.at) !in resolved && !habit.paused(it, timed(it)) }
                     .map(::fire)
                     .firstOrNull { (after == null || it > after) && it != skip }
                     ?.let { return it }
@@ -171,16 +172,13 @@ internal class ReminderRepository(
         /** Whether [at] is still one of this reminder's firings: a reschedule or a retime makes an old snooze stale. */
         private fun isDue(at: LocalDateTime): Boolean = first(after = secondBefore(at)) == at
 
+        private fun timed(o: Occurrence) = recurrence.timed(o, edits, s.startTime != null)
+
         /**
          * A timed item fires at each occurrence's time, and so does a whole-day one whose rule sets
          * times, or whose edit gave this occurrence a time of its own; others at the anchor.
          */
-        private fun fire(o: Occurrence): LocalDateTime {
-            val original = o.original
-            val ownTime = if (original == null) o.at.time != MIDNIGHT else o.at.time != original.time
-            val timed = s.startTime != null || recurrence?.setsTimes == true || ownTime
-            return shift(o.at.date, if (timed) o.at.time else anchor, s.offsetMin)
-        }
+        private fun fire(o: Occurrence): LocalDateTime = shift(o.at.date, if (timed(o)) o.at.time else anchor, s.offsetMin)
     }
 
     private fun reminderRow(id: String, itemId: String, offset: Long, anchor: LocalTime?, alert: Alert): Row {
@@ -218,8 +216,6 @@ private fun shift(date: LocalDate, time: LocalTime, offsetMin: Long): LocalDateT
 private fun secondBefore(t: LocalDateTime): LocalDateTime =
     if (t.time.toSecondOfDay() > 0) LocalDateTime(t.date, LocalTime.fromSecondOfDay(t.time.toSecondOfDay() - 1))
     else LocalDateTime(t.date.plus(-1, DateTimeUnit.DAY), LocalTime(23, 59, 59))
-
-private val MIDNIGHT = LocalTime(0, 0)
 
 /** The far end of a search for Logs: the firing searches widen to years. Year 9000, so a date added to it still sorts as text. */
 private val FAR = LocalDateTime(9000, 1, 1, 0, 0)

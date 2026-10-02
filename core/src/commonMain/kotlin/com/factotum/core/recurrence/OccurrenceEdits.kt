@@ -31,8 +31,9 @@ enum class EditScope {
  * The fields one edit sets, and only those (ADR 11). [movedTo] (OCCURRENCE only) keeps the
  * occurrence's time unless [time] sets one. [rule] (FROM only) repeats the item differently from
  * the edit's date, and [weekDays] on a FROM edit is the weekly pattern from then; on a WEEK edit it
- * is that week's days. [others] holds the habit fields (block, sort_order, rule_patch, pause) as raw
- * JSON until habits apply them (ADR 06), so nothing a peer wrote is lost.
+ * is that week's days. [block] places a habit's occurrences in another time block, or in none
+ * (ADR 06); it is not a schedule field, so it merges silently. [others] holds Tendril's remaining
+ * habit fields (sort_order, rule_patch, pause) as raw JSON, so nothing a peer wrote is lost.
  */
 data class EditChanges(
     val skip: Boolean = false,
@@ -42,6 +43,7 @@ data class EditChanges(
     val title: String? = null,
     val rule: Recurrence? = null,
     val weekDays: Set<DayOfWeek>? = null,
+    val block: Patch<String?>? = null,
     val others: Map<String, String> = emptyMap(),
 ) {
     /** The fields that decide when an occurrence happens (ADR 11), with their values: what a clash is about. */
@@ -54,6 +56,9 @@ data class EditChanges(
             weekDays?.let { put("week_days", it) }
         }
 }
+
+/** A field an edit sets, possibly to null ("no block"); a null [Patch] leaves the field alone. */
+data class Patch<out T>(val value: T)
 
 /** Where an edit applies: its scope and what the scope names. Two edits clash only on the same place. */
 data class EditPlace(val scope: EditScope, val at: LocalDateTime?, val date: LocalDate?, val days: Set<DayOfWeek>)
@@ -102,8 +107,8 @@ data class OccurrenceEdit(
     }
 }
 
-/** One occurrence as shown: [original] is where the series put it (null for an added one). */
-data class Occurrence(val original: LocalDateTime?, val at: LocalDateTime, val title: String, val durationMin: Long?)
+/** One occurrence as shown: [original] is where the series put it (null for an added one); [block] is an edit's time block. */
+data class Occurrence(val original: LocalDateTime?, val at: LocalDateTime, val title: String, val durationMin: Long?, val block: Patch<String?>? = null)
 
 /**
  * The occurrences of a series in `[from, to)` with its live [edits] applied in stamp order, field by
@@ -123,13 +128,7 @@ fun Recurrence?.occurrencesWithEdits(
     lastDone: LocalDate? = null,
 ): List<Occurrence> {
     val ordered = edits.sortedBy { it.created }
-    // A FROM edit with a rule or week_days repeats the item differently from its date. Each day
-    // follows the latest-created pattern dated on or before it; a new pattern starts afresh there.
-    val patterns = ordered.mapNotNull { e ->
-        val weekly = e.changes.weekDays?.takeIf { e.scope == EditScope.FROM }
-            ?.let { days -> Recurrence.Rule(RRule(Frequency.WEEKLY, byDay = days.sorted().map { WeekdayNum(null, it) })) }
-        (e.changes.rule ?: weekly)?.let { e.date to it }
-    }
+    val patterns = patternsOf(ordered)
     fun series(a: LocalDateTime, b: LocalDateTime): List<LocalDateTime> {
         val segments = listOf<Pair<LocalDate?, Recurrence?>>(null to this) + patterns
         return segments.flatMapIndexed { i, (start, rule) ->
@@ -150,27 +149,32 @@ fun Recurrence?.occurrencesWithEdits(
     val shown: MutableMap<Any, Occurrence?> = (series(from, to) + named).distinct()
         .associateWith<LocalDateTime, Occurrence?> { Occurrence(it, it, title, durationMin) }.toMutableMap()
 
+    // A confirmed week (the latest WEEK edit with week_days for it) is those days at the series'
+    // time, in place of what the series gave, from the start on and, for a planned rule, on its own
+    // days. It is laid out first, so every other edit reaches it whenever it was made (Tendril).
+    for (confirm in ordered.filter { it.scope == EditScope.WEEK && it.changes.weekDays != null }.associateBy { it.date }.values) {
+        val monday = requireNotNull(confirm.date)
+        shown.entries.filter { (_, o) -> o != null && confirm.reaches(o.at) }.forEach { shown.remove(it.key) }
+        for (day in requireNotNull(confirm.changes.weekDays)) {
+            val confirmed = LocalDateTime(monday.plus(day.isoDayNumber - 1, DateTimeUnit.DAY), dtstart.time)
+            val rule = patterns.ruleOn(confirmed.date) ?: this
+            if (confirmed >= dtstart && (rule !is Recurrence.Planned || day in rule.days)) shown[confirmed] = Occurrence(confirmed, confirmed, title, durationMin)
+        }
+    }
+
     fun change(o: Occurrence, c: EditChanges): Occurrence? = if (c.skip) null else o.copy(
         at = LocalDateTime(c.movedTo ?: o.at.date, c.time ?: o.at.time),
         title = c.title ?: o.title,
         durationMin = c.durationMin ?: o.durationMin,
+        block = c.block ?: o.block,
     )
 
     for (edit in ordered) {
         val c = edit.changes
         val at = edit.at
-        val monday = edit.date
         when {
             edit.scope == EditScope.OCCURRENCE && at != null -> shown[at]?.let { shown[at] = change(it, c) }
-            edit.scope == EditScope.EXTRA && at != null -> shown[edit.id] = if (c.skip) null else Occurrence(null, at, c.title ?: title, c.durationMin ?: durationMin)
-            edit.scope == EditScope.WEEK && monday != null && c.weekDays != null -> {
-                // A confirmed week: exactly these days that week, at the series' time, whatever was there.
-                shown.entries.filter { (_, o) -> o != null && edit.reaches(o.at) }.forEach { shown.remove(it.key) }
-                for (day in c.weekDays) {
-                    val confirmed = LocalDateTime(monday.plus(day.isoDayNumber - 1, DateTimeUnit.DAY), dtstart.time)
-                    shown[confirmed] = Occurrence(confirmed, confirmed, title, durationMin)
-                }
-            }
+            edit.scope == EditScope.EXTRA && at != null -> shown[edit.id] = if (c.skip) null else Occurrence(null, at, c.title ?: title, c.durationMin ?: durationMin, c.block)
             // A new pattern from a date was laid out by series(); its other fields apply like any FROM edit.
             else -> for ((key, o) in shown.entries.toList()) {
                 if (o != null && edit.reaches(o.at)) shown[key] = change(o, c)
@@ -179,6 +183,33 @@ fun Recurrence?.occurrencesWithEdits(
     }
     return shown.values.filterNotNull().filter { it.at >= from && it.at < to }.sortedWith(compareBy({ it.at }, { it.title }))
 }
+
+/**
+ * The FROM edits that repeat the item differently from their date, in [ordered] (stamp) order: a
+ * rule, or week_days as a weekly rule. Each day follows the latest-created one dated on or before
+ * it; a new pattern starts afresh there.
+ */
+private fun patternsOf(ordered: List<OccurrenceEdit>): List<Pair<LocalDate?, Recurrence>> = ordered.mapNotNull { e ->
+    val weekly = e.changes.weekDays?.takeIf { e.scope == EditScope.FROM }
+        ?.let { days -> Recurrence.Rule(RRule(Frequency.WEEKLY, byDay = days.sorted().map { WeekdayNum(null, it) })) }
+    (e.changes.rule ?: weekly)?.let { e.date to it }
+}
+
+/** The rule [day] follows: the series' own, or the latest pattern a FROM edit set on or before it. */
+fun Recurrence?.inForceOn(day: LocalDate, edits: List<OccurrenceEdit>): Recurrence? = patternsOf(edits.sortedBy { it.created }).ruleOn(day) ?: this
+
+private fun List<Pair<LocalDate?, Recurrence>>.ruleOn(day: LocalDate) = lastOrNull { (start, _) -> start != null && start <= day }?.second
+
+/**
+ * Whether [this] keeps a time of its own, which a whole-day item's occurrence has only when an edit
+ * gave it one: placed by that time (the planner) and fired at it (reminders).
+ */
+val Occurrence.ownTime: Boolean
+    get() = original.let { if (it == null) at.time != MIDNIGHT else at.time != it.time }
+
+/** Whether [o] is at a time of its own: the item's set time ([setTime]), one its day's rule sets, or an edit's. */
+fun Recurrence?.timed(o: Occurrence, edits: List<OccurrenceEdit>, setTime: Boolean): Boolean =
+    setTime || o.ownTime || inForceOn(o.original?.date ?: o.at.date, edits)?.setsTimes == true
 
 /**
  * Pairs of live edits that clash (ADR 11): OCCURRENCE or FROM edits on the same place, made on

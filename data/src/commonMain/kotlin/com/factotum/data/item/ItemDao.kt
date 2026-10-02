@@ -2,6 +2,7 @@ package com.factotum.data.item
 
 import androidx.room.ColumnInfo
 import androidx.room.Dao
+import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
@@ -46,16 +47,7 @@ internal data class ItemEntity(
     @ColumnInfo(name = "end_time") val endTime: String?,
     @ColumnInfo(name = "due_date") val dueDate: String?,
     @ColumnInfo(name = "deleted_at") val deletedAt: Long?,
-    @ColumnInfo(name = "recurrence_kind") val recurrenceKind: String?,
-    val rrule: String?,
-    @ColumnInfo(name = "rand_min_days") val randMinDays: Long?,
-    @ColumnInfo(name = "rand_max_days") val randMaxDays: Long?,
-    @ColumnInfo(name = "window_days") val windowDays: Long?,
-    @ColumnInfo(name = "window_start") val windowStart: String?,
-    @ColumnInfo(name = "window_end") val windowEnd: String?,
-    /** ROLLING: due again every [rollEvery] [rollUnit]s after the last Log. */
-    @ColumnInfo(name = "roll_every") val rollEvery: Long?,
-    @ColumnInfo(name = "roll_unit") val rollUnit: String?,
+    @Embedded val repeat: RecurrenceColumns,
     /** A HABIT's pause; no end means until resumed (Tendril). */
     @ColumnInfo(name = "pause_from") val pauseFrom: String?,
     @ColumnInfo(name = "pause_until") val pauseUntil: String?,
@@ -160,4 +152,26 @@ internal interface ItemDao {
 
     @Query("SELECT * FROM occurrence_edit WHERE deleted_at IS NULL")
     suspend fun liveEdits(): List<OccurrenceEditEntity>
+
+    @Query("SELECT * FROM habit_block WHERE id IN (:ids)")
+    suspend fun blocks(ids: List<String>): List<HabitBlockEntity>
+
+    @Query("SELECT * FROM habit_block ORDER BY id")
+    suspend fun allBlocks(): List<HabitBlockEntity>
+
+    @Upsert
+    suspend fun putBlocks(rows: List<HabitBlockEntity>)
+
+    @Query("DELETE FROM habit_block WHERE id IN (:ids)")
+    suspend fun deleteBlocks(ids: List<String>)
+
+    @Query("SELECT * FROM habit_block WHERE deleted_at IS NULL ORDER BY position, id")
+    suspend fun liveBlocks(): List<HabitBlockEntity>
+
+    /** Live habits whose tracker is live too: a habit on a deleted tracker reads as deleted (ADR 06). */
+    @Query(
+        "SELECT i.* FROM item i JOIN tracker t ON t.id = i.tracker_id " +
+            "WHERE i.kind = 'HABIT' AND i.deleted_at IS NULL AND t.deleted_at IS NULL AND i.start_date IS NOT NULL ORDER BY i.id",
+    )
+    suspend fun liveHabits(): List<ItemEntity>
 }

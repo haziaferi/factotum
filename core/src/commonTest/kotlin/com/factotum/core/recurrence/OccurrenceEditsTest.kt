@@ -164,12 +164,13 @@ class OccurrenceEditsTest {
     }
 
     @Test
-    fun aConfirmedWeekHoldsExactlyItsDaysWhateverWasMovedThere() {
+    fun aConfirmedWeekReplacesTheSeriesDaysAndKeepsWhatWasMovedOrAddedThere() {
+        // As in Tendril, where a move is a skip and an added entry, both applied after the week's days.
         val moveIn = edit(EditScope.OCCURRENCE, EditChanges(movedTo = day(13)), at = LocalDateTime(day(6), LocalTime(9, 0)))
         val extra = edit(EditScope.EXTRA, EditChanges(), at = LocalDateTime(day(15), LocalTime(9, 0)))
         val confirm = edit(EditScope.WEEK, EditChanges(weekDays = setOf(DayOfWeek.FRIDAY)), date = day(12))
 
-        assertEquals(listOf(16, 20), dates(report(listOf(moveIn, extra, confirm))))
+        assertEquals(listOf(13, 15, 16, 20), dates(report(listOf(moveIn, extra, confirm))))
     }
 
     @Test

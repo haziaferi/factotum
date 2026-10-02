@@ -2,6 +2,8 @@ package com.factotum.data
 
 import androidx.room.RoomDatabase
 import com.factotum.data.item.COMPLETION
+import com.factotum.data.item.HABIT_BLOCK
+import com.factotum.data.item.seedBlocks
 import com.factotum.data.item.ITEM
 import com.factotum.data.item.OCCURRENCE_EDIT
 import com.factotum.data.reminder.REMINDER
@@ -18,6 +20,8 @@ import androidx.sqlite.execSQL
  *   (ADR 02, ADR 03);
  * - the sync outbox: every write to a synced table, and every purge, queues the row for export
  *   (ADR 13), so no write path can forget to; a deleted row's base and pending questions go too.
+ *
+ * A new database also gets the default time blocks, before the triggers exist ([seedBlocks]).
  */
 internal object SchemaTriggers : RoomDatabase.Callback() {
 
@@ -29,7 +33,7 @@ internal object SchemaTriggers : RoomDatabase.Callback() {
     private val recurrenceRules = """
         COALESCE(
             (NEW.recurrence_kind IS NULL OR NEW.start_date IS NOT NULL)
-            AND (NEW.recurrence_kind IS NULL OR NEW.recurrence_kind IN ('RRULE', 'RULE_SET', 'RANDOM_DAYS', 'RANDOM_WINDOW', 'ROLLING'))
+            AND (NEW.recurrence_kind IS NULL OR NEW.recurrence_kind IN ('RRULE', 'RULE_SET', 'RANDOM_DAYS', 'RANDOM_WINDOW', 'ROLLING', 'PLANNED'))
             AND (NEW.rrule IS NOT NULL) = (NEW.recurrence_kind IS 'RRULE' OR NEW.recurrence_kind IS 'RULE_SET')
             AND (NEW.recurrence_kind IS NOT 'RULE_SET' OR instr(NEW.rrule, char(10)) > 0)
             AND (NEW.rand_min_days IS NOT NULL) = (NEW.recurrence_kind IS 'RANDOM_DAYS')
@@ -41,14 +45,23 @@ internal object SchemaTriggers : RoomDatabase.Callback() {
             AND (NEW.window_days IS NULL OR (NEW.window_days BETWEEN 1 AND 127 AND NEW.window_end > NEW.window_start))
             AND (NEW.roll_every IS NOT NULL) = (NEW.recurrence_kind IS 'ROLLING')
             AND (NEW.roll_unit IS NOT NULL) = (NEW.recurrence_kind IS 'ROLLING')
-            AND (NEW.roll_every IS NULL OR (NEW.roll_every BETWEEN 1 AND 10000 AND NEW.roll_unit IN ('DAY', 'WEEK', 'MONTH'))),
+            AND (NEW.roll_every IS NULL OR (NEW.roll_every BETWEEN 1 AND 10000 AND NEW.roll_unit IN ('DAY', 'WEEK', 'MONTH')))
+            AND (NEW.plan_n IS NOT NULL) = (NEW.recurrence_kind IS 'PLANNED')
+            AND (NEW.plan_per IS NOT NULL) = (NEW.recurrence_kind IS 'PLANNED')
+            AND (NEW.plan_days IS NOT NULL) = (NEW.recurrence_kind IS 'PLANNED')
+            AND (NEW.plan_blocks IS NULL OR NEW.plan_per IS 'DAY')
+            AND (NEW.plan_per IS NULL OR (NEW.plan_days BETWEEN 1 AND 127 AND (
+                (NEW.plan_per = 'DAY' AND NEW.plan_n BETWEEN 1 AND 48 AND NEW.start_time IS NULL
+                    AND (NEW.plan_blocks IS NULL OR (length(NEW.plan_blocks) - length(replace(NEW.plan_blocks, ',', '')) + 1 = NEW.plan_n
+                        AND instr(',' || NEW.plan_blocks || ',', ',,') = 0)))
+                OR (NEW.plan_per = 'WEEK' AND NEW.plan_n BETWEEN 1 AND 7)))),
         0)
     """.trimIndent()
 
     /**
      * ADR 02's kind rules; ADR 03's (a standalone reminder has a status and always a date and time);
      * ADR 06's (a habit has a tracker, which nothing else has, and only a habit pauses, has a block
-     * or a length, or rolls). In COALESCE, as a NULL inside would let the row through.
+     * or a length, rolls, or is planned). In COALESCE, as a NULL inside would let the row through.
      */
     private val itemRules = """
         COALESCE(
@@ -60,7 +73,7 @@ internal object SchemaTriggers : RoomDatabase.Callback() {
             AND (NEW.kind <> 'REMINDER' OR (NEW.start_date IS NOT NULL AND NEW.start_time IS NOT NULL))
             AND (NEW.tracker_id IS NOT NULL) = (NEW.kind = 'HABIT')
             AND (NEW.kind = 'HABIT' OR (NEW.pause_from IS NULL AND NEW.pause_until IS NULL AND NEW.block_id IS NULL AND NEW.duration_min IS NULL))
-            AND (NEW.kind = 'HABIT' OR NEW.recurrence_kind IS NOT 'ROLLING')
+            AND (NEW.kind = 'HABIT' OR NEW.recurrence_kind IS NULL OR NEW.recurrence_kind NOT IN ('ROLLING', 'PLANNED'))
             AND (NEW.pause_until IS NULL OR (NEW.pause_from IS NOT NULL AND NEW.pause_until >= NEW.pause_from))
             AND (NEW.duration_min IS NULL OR NEW.duration_min > 0),
         0)
@@ -95,6 +108,9 @@ internal object SchemaTriggers : RoomDatabase.Callback() {
         0)
     """.trimIndent()
 
+    /** A block is a stretch of one day (Tendril's planner); its weekday times are checked where they are read. */
+    private val blockRules = "COALESCE(NEW.start_minute >= 0 AND NEW.end_minute > NEW.start_minute AND NEW.end_minute <= 1440 AND NEW.position >= 0, 0)"
+
     /** ADR 11: each scope names what it covers, a date-time or a date, and nothing else. */
     private val editRules = """
         COALESCE(
@@ -119,6 +135,7 @@ internal object SchemaTriggers : RoomDatabase.Callback() {
         TRACKER to trackerRules,
         TRACKER_READING to readingRules,
         GOAL to goalRules,
+        HABIT_BLOCK to blockRules,
     )
 
     private val statements: List<String> = buildList {
@@ -151,6 +168,8 @@ internal object SchemaTriggers : RoomDatabase.Callback() {
             add("CREATE TRIGGER $name AFTER $event ON purge_registry BEGIN INSERT INTO sync_outbox(id, tbl) VALUES (NEW.id, NULL); END")
         }
     }
+
+    override fun onCreate(connection: SQLiteConnection) = seedBlocks(connection)
 
     override fun onOpen(connection: SQLiteConnection) {
         statements.forEach(connection::execSQL)

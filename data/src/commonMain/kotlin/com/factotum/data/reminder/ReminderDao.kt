@@ -2,12 +2,14 @@ package com.factotum.data.reminder
 
 import androidx.room.ColumnInfo
 import androidx.room.Dao
+import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
 import androidx.room.Query
 import androidx.room.Upsert
+import com.factotum.data.item.RecurrenceColumns
 import com.factotum.data.item.ItemEntity
 
 /**
@@ -53,15 +55,7 @@ internal data class FiringSource(
     val anchorTime: String?,
     val snoozedUntil: String?,
     val snoozedFrom: String?,
-    val recurrenceKind: String?,
-    val rrule: String?,
-    val randMinDays: Long?,
-    val randMaxDays: Long?,
-    val windowDays: Long?,
-    val windowStart: String?,
-    val windowEnd: String?,
-    val rollEvery: Long?,
-    val rollUnit: String?,
+    @Embedded val repeat: RecurrenceColumns,
     val trackerId: String?,
     val pauseFrom: String?,
     val pauseUntil: String?,
@@ -87,9 +81,9 @@ internal interface ReminderDao {
     @Query(
         "SELECT r.id AS reminderId, i.id AS itemId, i.start_date AS startDate, i.start_time AS startTime, " +
             "r.offset_min AS offsetMin, r.anchor_time AS anchorTime, r.snoozed_until AS snoozedUntil, r.snoozed_from AS snoozedFrom, " +
-            "i.recurrence_kind AS recurrenceKind, i.rrule AS rrule, i.rand_min_days AS randMinDays, i.rand_max_days AS randMaxDays, " +
-            "i.window_days AS windowDays, i.window_start AS windowStart, i.window_end AS windowEnd, i.roll_every AS rollEvery, " +
-            "i.roll_unit AS rollUnit, i.tracker_id AS trackerId, i.pause_from AS pauseFrom, i.pause_until AS pauseUntil " +
+            "i.recurrence_kind, i.rrule, i.rand_min_days, i.rand_max_days, i.window_days, i.window_start, i.window_end, " +
+            "i.roll_every, i.roll_unit, i.plan_n, i.plan_per, i.plan_days, i.plan_blocks, " +
+            "i.tracker_id AS trackerId, i.pause_from AS pauseFrom, i.pause_until AS pauseUntil " +
             "FROM reminder r JOIN item i ON i.id = r.item_id LEFT JOIN tracker t ON t.id = i.tracker_id " +
             "WHERE r.deleted_at IS NULL AND i.deleted_at IS NULL AND t.deleted_at IS NULL AND i.start_date IS NOT NULL " +
             "AND (i.status IS NULL OR i.status = 'PENDING')",

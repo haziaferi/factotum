@@ -8,6 +8,7 @@ import androidx.room.PrimaryKey
 import com.factotum.core.recurrence.EditChanges
 import com.factotum.core.recurrence.EditScope
 import com.factotum.core.recurrence.OccurrenceEdit
+import com.factotum.core.recurrence.Patch
 import com.factotum.core.sync.Group
 import com.factotum.core.sync.Row
 import com.factotum.core.sync.Stamp
@@ -22,6 +23,7 @@ import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.boolean
+import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.long
@@ -102,13 +104,9 @@ internal fun OccurrenceEditEntity.toEdit() = OccurrenceEdit(
     seen = seen.split(',').filter { it.isNotEmpty() }.toSet(),
 )
 
-internal fun daysOf(mask: Long): Set<DayOfWeek> = DayOfWeek.entries.filter { mask and (1L shl (it.isoDayNumber - 1)) != 0L }.toSet()
-
-internal fun maskOf(days: Set<DayOfWeek>): Long = days.sumOf { 1L shl (it.isoDayNumber - 1) }
-
 /**
  * [EditChanges] as the compact JSON the `changes` column holds: only the fields set, under ADR 11's
- * names (skip, moved_to, time, duration, title, rule, week_days), plus the habit fields it carries.
+ * names (skip, moved_to, time, duration, title, rule, week_days, block), plus the habit fields it carries.
  */
 internal object EditCodec {
 
@@ -123,13 +121,14 @@ internal object EditCodec {
             fields["rule"] = JsonObject(recurrenceValues(r).filterValues { it != null }.mapValues { (_, v) -> primitive(v) })
         }
         c.weekDays?.let { fields["week_days"] = JsonPrimitive(maskOf(it)) }
+        c.block?.let { fields["block"] = JsonPrimitive(it.value) }
         c.others.forEach { (k, raw) -> fields[k] = Json.parseToJsonElement(raw) }
         return JsonObject(fields).toString()
     }
 
     fun decode(text: String): EditChanges {
         val o = Json.parseToJsonElement(text).jsonObject
-        val known = setOf("skip", "deleted", "moved_to", "time", "duration", "title", "rule", "week_days")
+        val known = setOf("skip", "deleted", "moved_to", "time", "duration", "title", "rule", "week_days", "block")
         return EditChanges(
             // ADR 11 lists both skip and deleted; an occurrence deleted is one skipped.
             skip = o["skip"]?.jsonPrimitive?.boolean ?: o["deleted"]?.jsonPrimitive?.boolean ?: false,
@@ -137,12 +136,9 @@ internal object EditCodec {
             time = o["time"]?.jsonPrimitive?.content?.let(LocalTime::parse),
             durationMin = o["duration"]?.jsonPrimitive?.long,
             title = o["title"]?.jsonPrimitive?.content,
-            rule = o["rule"]?.jsonObject?.let { r ->
-                fun s(k: String) = r[k]?.jsonPrimitive?.content
-                fun n(k: String) = r[k]?.jsonPrimitive?.long
-                recurrenceOf(s("recurrence_kind"), s("rrule"), n("rand_min_days"), n("rand_max_days"), n("window_days"), s("window_start"), s("window_end"), n("roll_every"), s("roll_unit"))
-            },
+            rule = o["rule"]?.jsonObject?.let { r -> RecurrenceColumns.read({ r[it]?.jsonPrimitive?.content }, { r[it]?.jsonPrimitive?.long }).recurrence() },
             weekDays = o["week_days"]?.jsonPrimitive?.long?.let(::daysOf),
+            block = o["block"]?.jsonPrimitive?.let { Patch(it.contentOrNull) },
             others = o.filterKeys { it !in known }.mapValues { (_, v) -> v.toString() },
         )
     }
