@@ -168,7 +168,7 @@ class ReminderCasesTest {
         val task = runBlocking { items.createTask("call", MONDAY, LocalTime(14, 0)) }
         val reminder = runBlocking { reminders.add(task, -5) }
 
-        runBlocking { reminders.snooze(reminder, LocalDateTime(MONDAY, LocalTime(14, 10))) }
+        runBlocking { reminders.snooze(reminder, firesAt(reminder)!!, LocalDateTime(MONDAY, LocalTime(14, 10))) }
 
         assertEquals(LocalDateTime(MONDAY, LocalTime(14, 10)), firesAt(reminder))
         assertEquals(LocalTime(14, 0), runBlocking { items.item(task) }?.at)
@@ -178,7 +178,7 @@ class ReminderCasesTest {
     fun aSnoozeFromBeforeARescheduleNoLongerApplies() {
         val task = runBlocking { items.createTask("call", MONDAY, LocalTime(14, 0)) }
         val reminder = runBlocking { reminders.add(task, -5) }
-        runBlocking { reminders.snooze(reminder, LocalDateTime(MONDAY, LocalTime(14, 10))) }
+        runBlocking { reminders.snooze(reminder, firesAt(reminder)!!, LocalDateTime(MONDAY, LocalTime(14, 10))) }
 
         runBlocking { items.reschedule(task, LocalDate(2026, 10, 6), LocalTime(9, 0)) }
 
@@ -189,22 +189,25 @@ class ReminderCasesTest {
     fun aRescheduleThatDoesNotPassTheSnoozeStillMovesTheFiring() {
         val task = runBlocking { items.createTask("call", MONDAY, LocalTime(14, 0)) }
         val reminder = runBlocking { reminders.add(task, -5) }
-        runBlocking { reminders.snooze(reminder, LocalDateTime(LocalDate(2026, 10, 6), LocalTime(9, 0))) }
+        runBlocking { reminders.snooze(reminder, firesAt(reminder)!!, LocalDateTime(LocalDate(2026, 10, 6), LocalTime(9, 0))) }
 
         runBlocking { items.reschedule(task, MONDAY, LocalTime(18, 0)) }
 
         assertEquals(LocalDateTime(MONDAY, LocalTime(17, 55)), firesAt(reminder))
+        // The snooze was of the old firing: it does not ring once the new one has.
+        assertEquals(emptyList(), runBlocking { reminders.firings(after = LocalDateTime(MONDAY, LocalTime(17, 55))) })
     }
 
     @Test
     fun aRetimedReminderDropsItsSnooze() {
         val task = runBlocking { items.createTask("call", MONDAY, LocalTime(14, 0)) }
         val reminder = runBlocking { reminders.add(task, -5) }
-        runBlocking { reminders.snooze(reminder, LocalDateTime(MONDAY, LocalTime(14, 30))) }
+        runBlocking { reminders.snooze(reminder, firesAt(reminder)!!, LocalDateTime(MONDAY, LocalTime(14, 30))) }
 
         runBlocking { reminders.retime(reminder, -60) }
 
         assertEquals(LocalDateTime(MONDAY, LocalTime(13, 0)), firesAt(reminder))
+        assertEquals(emptyList(), runBlocking { reminders.firings(after = LocalDateTime(MONDAY, LocalTime(13, 0))) })
     }
 
     @Test

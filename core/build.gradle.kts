@@ -16,6 +16,10 @@ kotlin {
     jvm("desktop")
 
     sourceSets {
+        commonMain.dependencies {
+            // Recurrence works in local dates and times (ADR 04); nothing else in :core needs a library.
+            api(libs.kotlinx.datetime)
+        }
         commonTest.dependencies {
             implementation(kotlin("test"))
         }

@@ -1,5 +1,6 @@
 package com.factotum.data.item
 
+import com.factotum.core.recurrence.Recurrence
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
 
@@ -30,6 +31,8 @@ data class Item(
     val status: TaskStatus?,
     val importance: Long,
     val capacityRank: Long?,
+    /** How the item repeats from its start (ADR 04), or null for a one-off. */
+    val recurrence: Recurrence?,
 )
 
 /** A person's answer to a clash on an item's schedule (ADR 01). */

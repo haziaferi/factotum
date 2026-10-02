@@ -424,7 +424,7 @@ class FolderSyncTest {
         w.settle(listOf(a, b))
 
         val snoozed = LocalDateTime(MONDAY, LocalTime(14, 10))
-        runBlocking { a.reminders.snooze(reminder, snoozed) }
+        runBlocking { a.reminders.snooze(reminder, LocalDateTime(MONDAY, LocalTime(13, 55)), snoozed) }
         runBlocking { b.reminders.setAlert(reminder, Alert(AlertKind.ALARM)) }
         w.settle(listOf(a, b))
 

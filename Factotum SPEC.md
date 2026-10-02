@@ -1,6 +1,6 @@
 # Factotum — Product & Technical Spec
 
-**Status:** draft v0.9, seeded from the decision register · **Scope:** the merged data model, sync and behaviour rules of Factotum. Screens are not decided and are marked open (§10.1).
+**Status:** draft v0.10, seeded from the decision register · **Scope:** the merged data model, sync and behaviour rules of Factotum. Screens are not decided and are marked open (§10.1).
 **Related documents:** `decisions/`, the evidence behind §3: one ADR per decision with verified `file:line` facts, the scored options, the behaviour cases and the harness that measured them (`decisions/register.md` is the index). This spec states each decision once and points to its ADR for the evidence. It never restates the evidence.
 
 ---
@@ -9,6 +9,7 @@
 
 | Version | Summary | Sections touched |
 |---|---|---|
+| v0.10 | Slice 04 built: the RRULE expander (ported from Tendril, extended to times of day), rule sets, seeded random kinds, cron conversion, recurrence on items, reminders on repeating items | §3.2, §3.3, §3.4, §7 |
 | v0.9 | Slice 03 built: reminders on any item, standalone reminders as REMINDER items, fire times, synced snooze, the day-view toggle | §3.2, §3.3, §7 |
 | v0.8 | Slice 02 built: `item` (TASK, EVENT) and `completion`, the repository, CHECK rules and the export queue as triggers, deferred foreign keys with a waiting table for rows that arrive before their parent. ADR 01's merge fixed: a replayed old version moved the base and hid a later clash | §3.1, §3.2, §3.13, §7 |
 | v0.7 | Slice 01's folder importer and exporter built (ADR 13): its 4 cases pass through them under a Syncthing double. Rows carry their table; group doubles must be finite; database version 2 | §3.1, §3.13, §7 |
@@ -134,7 +135,7 @@ Every decision here was scored against its owners' behaviour cases, with a contr
 - **Two devices resolving one occurrence leave two `completion` rows.** A unique key would make the second device's row fail to import, so reads take the later stamp per occurrence.
 - **The capacity query uses `item_kind_date`** and never scans the table, checked from the query plan.
 - **Each write is one transaction** through the same staged merge as an import. It stamps the groups it changes and saves the clock with them (§3.1). Answers to a pending question (keep mine, take theirs, keep both) go the same way.
-- **The recurrence column** comes with slice 04, whose ADR sets its format.
+- **The recurrence columns** came with slice 04 (§3.4).
 
 ### 3.3 Reminders — ADR 03
 
@@ -146,7 +147,7 @@ Every decision here was scored against its owners' behaviour cases, with a contr
 
 **Acceptance:** `cases/03-reminder.jsonl`, 11 cases.
 
-**Built (2026-10-02):** `com.factotum.data.reminder`. Ten of the 11 cases pass as tests against the real database (`ReminderCasesTest`). The eleventh, `chronicle-standalone-repeats`, needs the recurrence column and is tested with slice 04; `shared-one-recurrence-home` is checked now on the reminder table, and again in slice 04 on `item`. ADR 02's `tendril-reminder-fk` passes here too. What the build settled, none of which changes the decision:
+**Built (2026-10-02):** `com.factotum.data.reminder`. All 11 cases pass as tests against the real database: ten in `ReminderCasesTest`, and `chronicle-standalone-repeats` with the recurrence columns in `RecurringItemTest` (slice 04), where `shared-one-recurrence-home` is also checked across every synced table. ADR 02's `tendril-reminder-fk` passes here too. What the build settled, none of which changes the decision:
 - **Two groups.** `alert` holds the offset, anchor, alert settings and `deleted_at`; `status` holds only the snooze (`snoozed_until`, `snoozed_from`). Neither asks a person; a retime of a standalone reminder is a change to its item's schedule, which does.
 - **Fire time** is the item's start date, at its start time (else the reminder's anchor, else midnight), moved by the offset in wall-clock minutes: five minutes before 14:00 is 13:55 on any day, whatever the time zone does. A reminder is quiet once its item is done, skipped or deleted.
 - **A snooze holds for the firing it snoozed.** The `status` group keeps the snoozed time and the time it replaced. Once the item is rescheduled or the reminder retimed, the reminder fires at its new time, as Mnemo's does when a reschedule replaces its next fire. Snoozing never changes the item's schedule.
@@ -175,6 +176,17 @@ Every decision here was scored against its owners' behaviour cases, with a contr
 - A force-stopped app loses its alarms until it is next opened, and it says so when it starts.
 
 **Acceptance:** `cases/04-recurrence.jsonl`, 11 real rules round-trip through `tools/recurrence_sim.py`'s expander.
+
+**Built (2026-10-02):** `com.factotum.core.recurrence`, with the columns on `item`. All 11 cases pass as tests (`RecurrenceCasesTest`). The 9 fixed rules are compared, occurrence by occurrence, with the truth `tools/recurrence_sim.py` computes from the owner apps' rules (`tools/recurrence_fixtures.py` writes it as a fixture); Mnemo's three go through the cron converter. The two random kinds are checked for their properties, and the draw against the spike's own SplitMix64 in both Python and its Java. What the build settled, none of which changes the decision:
+- **The expander is Tendril's `RecurrenceSpec`, ported and extended**: to local date-times, `MINUTELY`, `HOURLY`, `BYHOUR`, `BYMINUTE`, `BYSETPOS`, and `UNTIL` to the second. It stays strict: a rule with a part it lacks (or YEARLY day selection without `BYMONTH`) is refused, never half-read. Porting found a bug in the original: a YEARLY period began at the start's month, so a `BYMONTH` earlier in the year was missed in the last year of a window.
+- **DTSTART is an occurrence only when it matches the rule**, unlike RFC 5545. DTSTART is aligned to the rule anyway, and a converted cron rule starts at midnight, which must not ring.
+- **Times are floating.** `UNTIL` with a `Z` is read as local, like every other time. Turning a time into an instant, with the DST-gap rule above, belongs to the shells' alarm code.
+- **The seeded draw** is the spike's FNV-1a 64 + SplitMix64, cut at the same bound, so its draws equal the spike's.
+- **Recurrence lives in the item's schedule group**, so a clashing rule change asks a person (ADR 04). Triggers tie each kind to its columns and require a start date.
+- **Reminders on a repeating item** fire at its next occurrence after a given moment that is not resolved in the completion log. A whole-day item's fire at the reminder's anchor, unless its rule sets times (BYHOUR, a random window, cron). A snooze names the firing it snoozes, which only the shell knows, and holds for that one firing. A rule this version cannot read (from a newer peer) silences only its own item's reminders.
+- **Rules that would mislead are refused**, as well as unsupported parts: BYMONTHDAY under WEEKLY, a day no listed month has, an INTERVAL over 10,000. A minutely or hourly rule skips the days its limits exclude, so a rare one costs no more than a frequent one.
+- **PLANNED** (habits' planner) comes with slice 06: it needs ADR 06's `block_id` and `duration_min`, and ADR 11's WEEK edits.
+- **Spike 5 (force-stop detection)** needs the Android shell and a device; it runs with the shell, not here.
 
 ### 3.5 Check-in — ADR 05
 
@@ -387,7 +399,7 @@ The four source apps are the owner's own. The only third-party code found so far
    - The guard recovers only from SQLITE_CORRUPT and SQLITE_NOTADB. A locked or full database is rethrown, and its file is left in place.
    - It moves the `-journal`, `-wal` and `-shm` files with the database.
    - Tests cover both drivers, with a control showing that the stock Android driver deletes a corrupt file. Wiring the guard into the Room open path comes with slice 01.
-2. **Schema slices in ADR dependency order:** 01 → 02 → 03 → 04 → 11 → 06 → 07 → 08 → 09 → 10 → 05 → 12. Each slice is done when its ADR cases pass as tests against the real implementation (§3). Spikes 1 and 3 run with slice 10, and spike 5 runs with slice 04. **Slice 01: done 2026-10-01** (§3.1), with its folder importer and exporter (§3.13). **Slice 02: done 2026-10-01** (§3.2). **Slice 03: done 2026-10-02** (§3.3), except one case that needs slice 04's recurrence column.
+2. **Schema slices in ADR dependency order:** 01 → 02 → 03 → 04 → 11 → 06 → 07 → 08 → 09 → 10 → 05 → 12. Each slice is done when its ADR cases pass as tests against the real implementation (§3). Spikes 1 and 3 run with slice 10. Spike 5 needs the Android shell and a device, so it runs with the shell (step 4). **Slice 01: done 2026-10-01** (§3.1), with its folder importer and exporter (§3.13). **Slice 02: done 2026-10-01** (§3.2). **Slice 03: done 2026-10-02** (§3.3). **Slice 04: done 2026-10-02** (§3.4), except the PLANNED kind, which needs slice 06, and spike 5, which needs the Android shell.
 3. **The sole-owner modules of §2.**
 4. **Screens**, after §10.1.
 
@@ -409,7 +421,7 @@ The four source apps are the owner's own. The only third-party code found so far
 
 ## 9. Pre-Implementation Validation / Spikes
 
-Status: 2, 4 and 6 are done (`docs/spikes-2026-10-01.md`). With §10.2 decided, 1 and 3 run with schema slice 10, and 5 runs with slice 04 (§7).
+Status: 2, 4 and 6 are done (`docs/spikes-2026-10-01.md`). With §10.2 decided, 1 and 3 run with schema slice 10, and 5 with the Android shell (§7).
 
 1. **FTS5 on target devices.** It could replace FTS4 (§3.10) if every target SQLite build has it. Room's annotations don't generate it.
 2. **PLANNED recurrence. Done.** All 8 RRULE-form rules match once DTSTART is aligned and set times use a RULE_SET. PLANNED matches on 500/500 random weeks once HABIT has `block_id` and `duration_min`.

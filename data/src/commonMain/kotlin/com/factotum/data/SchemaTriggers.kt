@@ -17,6 +17,27 @@ import androidx.sqlite.execSQL
  */
 internal object SchemaTriggers : RoomDatabase.Callback() {
 
+    /**
+     * ADR 04: each recurrence kind has all of its own columns and none of another's, and repeats
+     * from a start date. Wrapped in COALESCE, since a NULL inside would make WHEN NOT(...) let the
+     * row through.
+     */
+    private val recurrenceRules = """
+        COALESCE(
+            (NEW.recurrence_kind IS NULL OR NEW.start_date IS NOT NULL)
+            AND (NEW.recurrence_kind IS NULL OR NEW.recurrence_kind IN ('RRULE', 'RULE_SET', 'RANDOM_DAYS', 'RANDOM_WINDOW'))
+            AND (NEW.rrule IS NOT NULL) = (NEW.recurrence_kind IS 'RRULE' OR NEW.recurrence_kind IS 'RULE_SET')
+            AND (NEW.recurrence_kind IS NOT 'RULE_SET' OR instr(NEW.rrule, char(10)) > 0)
+            AND (NEW.rand_min_days IS NOT NULL) = (NEW.recurrence_kind IS 'RANDOM_DAYS')
+            AND (NEW.rand_max_days IS NOT NULL) = (NEW.recurrence_kind IS 'RANDOM_DAYS')
+            AND (NEW.rand_min_days IS NULL OR (NEW.rand_min_days >= 1 AND NEW.rand_max_days >= NEW.rand_min_days))
+            AND (NEW.window_days IS NOT NULL) = (NEW.recurrence_kind IS 'RANDOM_WINDOW')
+            AND (NEW.window_start IS NOT NULL) = (NEW.recurrence_kind IS 'RANDOM_WINDOW')
+            AND (NEW.window_end IS NOT NULL) = (NEW.recurrence_kind IS 'RANDOM_WINDOW')
+            AND (NEW.window_days IS NULL OR (NEW.window_days BETWEEN 1 AND 127 AND NEW.window_end > NEW.window_start)),
+        0)
+    """.trimIndent()
+
     /** ADR 02's kind rules, and ADR 03's: a standalone reminder has a status and always a date and time. */
     private val itemRules = """
         NEW.kind IN ('TASK', 'EVENT', 'REMINDER')
@@ -24,6 +45,7 @@ internal object SchemaTriggers : RoomDatabase.Callback() {
         AND (NEW.kind = 'EVENT' OR (NEW.end_date IS NULL AND NEW.end_time IS NULL AND NEW.status IN ('PENDING', 'DONE', 'SKIPPED')))
         AND (NEW.kind <> 'EVENT' OR NEW.status IS NULL)
         AND (NEW.kind <> 'REMINDER' OR (NEW.start_date IS NOT NULL AND NEW.start_time IS NOT NULL))
+        AND $recurrenceRules
     """.trimIndent()
 
     /** ADR 03's alert settings: unknown values are refused. */

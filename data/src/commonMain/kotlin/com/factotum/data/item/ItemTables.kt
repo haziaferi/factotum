@@ -49,14 +49,16 @@ internal fun ItemEntity.toRow() = Row(ITEM, id, mapOf(
         Stamp(scheduleHlc, scheduleDevice),
         mapOf(
             "start_date" to startDate, "start_time" to startTime, "end_date" to endDate, "end_time" to endTime,
-            "due_date" to dueDate, "deleted_at" to deletedAt,
+            "due_date" to dueDate, "deleted_at" to deletedAt, "recurrence_kind" to recurrenceKind, "rrule" to rrule,
+            "rand_min_days" to randMinDays, "rand_max_days" to randMaxDays, "window_days" to windowDays,
+            "window_start" to windowStart, "window_end" to windowEnd,
         ),
         settles = scheduleSettlesHlc?.let { Stamp(it, requireNotNull(scheduleSettlesDevice)) },
     ),
     STATUS to Group(Stamp(statusHlc, statusDevice), mapOf("status" to status, "importance" to importance, "capacity_rank" to capacityRank)),
 ))
 
-/** Throws when [this] lacks an item's groups or holds a value of the wrong type. */
+/** Throws when [this] lacks an item's groups, holds a value of the wrong type, or a recurrence this version cannot read. */
 internal fun Row.toItemEntity(): ItemEntity {
     val d = groups.getValue(DETAILS)
     val s = groups.getValue(SCHEDULE)
@@ -74,6 +76,13 @@ internal fun Row.toItemEntity(): ItemEntity {
         endTime = s.values["end_time"] as String?,
         dueDate = s.values["due_date"] as String?,
         deletedAt = s.values["deleted_at"] as Long?,
+        recurrenceKind = s.values["recurrence_kind"] as String?,
+        rrule = s.values["rrule"] as String?,
+        randMinDays = s.values["rand_min_days"] as Long?,
+        randMaxDays = s.values["rand_max_days"] as Long?,
+        windowDays = s.values["window_days"] as Long?,
+        windowStart = s.values["window_start"] as String?,
+        windowEnd = s.values["window_end"] as String?,
         scheduleHlc = s.stamp.hlc,
         scheduleDevice = s.stamp.device,
         scheduleSettlesHlc = s.settles?.hlc,
@@ -83,7 +92,7 @@ internal fun Row.toItemEntity(): ItemEntity {
         capacityRank = st.values["capacity_rank"] as Long?,
         statusHlc = st.stamp.hlc,
         statusDevice = st.stamp.device,
-    )
+    ).also { it.recurrence() }
 }
 
 internal fun CompletionEntity.toRow() = Row(COMPLETION, id, mapOf(

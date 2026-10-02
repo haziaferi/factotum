@@ -23,6 +23,9 @@ ITEMDAO = "data/src/commonMain/kotlin/com/factotum/data/item/ItemDao.kt"
 WRITES = "data/src/commonMain/kotlin/com/factotum/data/LocalWrites.kt"
 REMREPO = "data/src/commonMain/kotlin/com/factotum/data/reminder/ReminderRepository.kt"
 REMDAO = "data/src/commonMain/kotlin/com/factotum/data/reminder/ReminderDao.kt"
+RRULE = "core/src/commonMain/kotlin/com/factotum/core/recurrence/RRule.kt"
+RECUR = "core/src/commonMain/kotlin/com/factotum/core/recurrence/Recurrence.kt"
+CRON = "core/src/commonMain/kotlin/com/factotum/core/recurrence/Cron.kt"
 
 # slice -> [(name, file, old, new, test task, tests that must fail)]
 SLICES = {
@@ -95,11 +98,11 @@ SLICES = {
          ":data:desktopTest", {"tendrilCascade_aDeletedTaskSilencesItsReminderAndAPurgedOneRemovesIt"}),
         ("a deleted reminder still fires", REMDAO, "\"WHERE r.deleted_at IS NULL AND ", "\"WHERE ",
          ":data:desktopTest", {"aDeletedReminderNoLongerFires"}),
-        ("the anchor is ignored", REMREPO, "(startTime ?: anchorTime)", "startTime",
+        ("the anchor is ignored", REMREPO, "private val anchor = s.anchorTime?.let(LocalTime::parse) ?: MIDNIGHT", "private val anchor = MIDNIGHT",
          ":data:desktopTest", {"tendrilAnchorDateOnly_theDayBeforeAtNine"}),
-        ("a snooze is ignored", REMREPO, "Firing(s.reminderId, s.itemId, snoozed ?: due)", "Firing(s.reminderId, s.itemId, due)",
+        ("a snooze is ignored", REMREPO, "return listOfNotNull(snoozed, first(after, skip = snoozedFrom)).minOrNull()", "return first(after, skip = snoozedFrom)",
          ":data:desktopTest", {"aSnoozeMovesTheFiringAndLeavesTheItemsTimeAlone"}),
-        ("a snooze outlives the firing it snoozed", REMREPO, "s.snoozedUntil?.takeIf { s.snoozedFrom == due.toString() }", "s.snoozedUntil",
+        ("a snooze outlives the firing it snoozed", REMREPO, "snoozedFrom != null && isDue(snoozedFrom)", "snoozedFrom != null",
          ":data:desktopTest", {"aSnoozeFromBeforeARescheduleNoLongerApplies", "aRescheduleThatDoesNotPassTheSnoozeStillMovesTheFiring", "aRetimedReminderDropsItsSnooze"}),
         ("standalone reminders crowd the day", ITEMDAO, "OR :showReminders)", "OR :showReminders OR 1)",
          ":data:desktopTest", {"sharedTimelineUnchanged_standaloneRemindersShowOnlyWhenAsked"}),
@@ -113,6 +116,43 @@ SLICES = {
          ":data:desktopTest", {"deletingAStandaloneRemindersOnlyReminderDeletesItsItem"}),
         ("keep both leaves the copy without reminders", REPO, "reminders.remindersOf(id).forEach { copied[it.id] = newId() }", "Unit",
          ":data:desktopTest", {"keepingBothTimesOfAStandaloneReminderKeepsBothFiring"}),
+    ],
+    "04": [
+        ("COUNT counted from the window", RRULE, "var period = if (count == null) firstPeriodNear(start, from) else 0L", "var period = firstPeriodNear(start, from)",
+         ":core:desktopTest", {"countCountsFromTheStartEvenForALaterWindow"}),
+        ("BYSETPOS ignored", RRULE, "    if (bySetPos.isEmpty()) return times\n", "    return times\n",
+         ":core:desktopTest", {"bySetPosPicksWithinEachPeriod"}),
+        ("an unknown part is ignored", RRULE, "if (name !in KNOWN || name in parts) return null", "if (name in parts) return null",
+         ":core:desktopTest", {"aRuleWithAPartTheExpanderLacksIsRefusedNotGuessed"}),
+        ("a year begins at the start's month", RRULE, "LocalDateTime(LocalDate(start.date.year, 1, 1).plus(step, DateTimeUnit.YEAR), MIDNIGHT)",
+         "LocalDateTime(firstOfMonth(start.date).plus(step * 12, DateTimeUnit.MONTH), MIDNIGHT)",
+         ":core:desktopTest", {"aYearlyRuleKeepsItsLastYearsEarlierMonths"}),
+        ("cron's day OR weekday read as AND", CRON, "-> Recurrence.RuleSet(listOf(byMonthDay, byWeekday))", "-> Recurrence.Rule(byMonthDay.copy(byDay = byWeekday.byDay))",
+         ":core:desktopTest", {"theNineFixedRulesGiveTheOwnerAppsOccurrences"}),
+        ("draws seeded without the item", RECUR, 'kind: String) = "$itemId|$date|$kind"', 'kind: String) = "$date|$kind"',
+         ":core:desktopTest", {"chronicleRandomDays_gapsOfTwoToFourDaysAtTheSameTimeTheSameOnEveryDevice"}),
+        ("recurrence rules dropped", TRIGGERS, "        AND $recurrenceRules\n", "",
+         ":data:desktopTest", {"eachKindKeepsToItsOwnColumns"}),
+        ("rescheduling drops the recurrence", REPO, 'schedule(start, at, endDate, endTime, due) - "deleted_at")', 'schedule(start, at, endDate, endTime, due) - "deleted_at" + recurrenceValues(null))',
+         ":data:desktopTest", {"reschedulingKeepsTheRecurrenceAndMovesItsStart"}),
+        ("a resolved occurrence still fires", REMREPO, ".filter { it.date !in resolved }", "",
+         ":data:desktopTest", {"aResolvedOccurrenceDoesNotFire"}),
+        ("a whole-day repeat fires at its occurrence's midnight", REMREPO, "if (s.startTime != null || recurrence?.setsTimes == true) occurrence.time else anchor", "occurrence.time",
+         ":data:desktopTest", {"aWholeDayRepeatingTaskFiresAtTheReminderAnchor"}),
+        ("a whole-day rule's own times are ignored", REMREPO, " || recurrence?.setsTimes == true", "",
+         ":data:desktopTest", {"aWholeDayItemWhoseRuleSetsTimesFiresAtThem"}),
+        ("one unreadable rule silences every reminder", REMREPO, "            return@mapNotNull null\n", "            throw IllegalStateException(\"unreadable\")\n",
+         ":data:desktopTest", {"aRuleThisVersionCannotReadSilencesOnlyItsOwnReminder"}),
+        ("a recurrence column can stand alone", TRIGGERS, "            AND (NEW.window_start IS NOT NULL) = (NEW.recurrence_kind IS 'RANDOM_WINDOW')\n", "",
+         ":data:desktopTest", {"noColumnOfARecurrenceKindStandsAlone"}),
+        ("a missing month day falls back to the weekday", RRULE,
+         "byMonthDay.isNotEmpty() && plainDays.isNotEmpty() -> fromMonthDay.filter { it.dayOfWeek in plainDays }\n        byMonthDay.isNotEmpty() -> fromMonthDay",
+         "fromMonthDay.isNotEmpty() && plainDays.isNotEmpty() -> fromMonthDay.filter { it.dayOfWeek in plainDays }\n        fromMonthDay.isNotEmpty() -> fromMonthDay",
+         ":core:desktopTest", {"aMonthDayAndAWeekdayMeanBoth"}),
+        ("WEEKLY takes BYMONTHDAY and ignores it", RRULE, "            if (frequency == Frequency.WEEKLY && byMonthDay.isNotEmpty()) return null\n", "",
+         ":core:desktopTest", {"aRuleThatCouldNeverOccurOrOverflowsIsRefused"}),
+        ("a huge interval is taken", RRULE, "n in 1..MAX_INTERVAL", "n >= 1",
+         ":core:desktopTest", {"aRuleThatCouldNeverOccurOrOverflowsIsRefused"}),
     ],
 }
 

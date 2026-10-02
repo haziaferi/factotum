@@ -8,7 +8,10 @@ import com.factotum.data.LocalWrites
 import com.factotum.data.reminder.ALERT
 import com.factotum.data.reminder.REMINDER
 import com.factotum.data.sync.StagedStore
+import com.factotum.core.recurrence.Recurrence
+import com.factotum.core.recurrence.occurrences
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.LocalTime
 
 /** The one way the app writes items (SPEC §5.3), each write through [writes]. [newId] makes row ids (ULIDs). */
@@ -31,10 +34,17 @@ internal class ItemRepository(
         importance: Long = 0,
         capacityRank: Long? = null,
         parentId: String? = null,
-    ): String = create(ItemKind.TASK, title, parentId, schedule(start, at, null, null, due), TaskStatus.PENDING, importance, capacityRank)
+        recurrence: Recurrence? = null,
+    ): String = create(ItemKind.TASK, title, parentId, schedule(start, at, null, null, due) + recurrenceValues(recurrence), TaskStatus.PENDING, importance, capacityRank)
 
-    suspend fun createEvent(title: String, start: LocalDate, at: LocalTime? = null, endDate: LocalDate? = null, endTime: LocalTime? = null): String =
-        create(ItemKind.EVENT, title, null, schedule(start, at, endDate, endTime, null), null, 0, null)
+    suspend fun createEvent(
+        title: String,
+        start: LocalDate,
+        at: LocalTime? = null,
+        endDate: LocalDate? = null,
+        endTime: LocalTime? = null,
+        recurrence: Recurrence? = null,
+    ): String = create(ItemKind.EVENT, title, null, schedule(start, at, endDate, endTime, null) + recurrenceValues(recurrence), null, 0, null)
 
     private suspend fun create(
         kind: ItemKind,
@@ -65,6 +75,21 @@ internal class ItemRepository(
         }) { store, _ ->
             store.put(requireNotNull(store.row(id)) { "no item $id" }.edit(SCHEDULE, clock.tick(), schedule(start, at, endDate, endTime, due) - "deleted_at"))
         }
+
+    /** Sets how [id] repeats (ADR 04), from its start; an item that repeats needs a start date. */
+    suspend fun setRecurrence(id: String, recurrence: Recurrence?) = writes.write({
+        require(recurrence == null || dao.items(listOf(id)).singleOrNull()?.startDate != null) { "item $id has no start date to repeat from" }
+        mapOf(ITEM to listOf(id))
+    }) { store, _ ->
+        store.put(requireNotNull(store.row(id)) { "no item $id" }.edit(SCHEDULE, clock.tick(), recurrenceValues(recurrence)))
+    }
+
+    /** [id]'s occurrences in `[from, to)`: its recurrence expanded from its start, or the start alone. None once deleted. */
+    suspend fun occurrences(id: String, from: LocalDateTime, to: LocalDateTime): List<LocalDateTime> {
+        val item = dao.items(listOf(id)).singleOrNull()?.takeIf { it.deletedAt == null } ?: return emptyList()
+        val start = item.dtstart() ?: return emptyList()
+        return occurrencesOf(id, start, item.recurrence(), from, to)
+    }
 
     suspend fun setStatus(id: String, status: TaskStatus) = edit(id, STATUS, mapOf("status" to status.name))
 
@@ -191,4 +216,14 @@ internal fun ItemEntity.toItem() = Item(
     status = status?.let(TaskStatus::valueOf),
     importance = importance,
     capacityRank = capacityRank,
+    recurrence = recurrence(),
 )
+
+internal fun ItemEntity.dtstart(): LocalDateTime? = startDate?.let { dtstartOf(it, startTime) }
+
+/** Where an item's recurrence starts (DTSTART): its start date at its start time, or midnight for a whole-day item. */
+internal fun dtstartOf(startDate: String, startTime: String?) = LocalDateTime(LocalDate.parse(startDate), startTime?.let(LocalTime::parse) ?: LocalTime(0, 0))
+
+/** An item's occurrences in `[from, to)`: its [recurrence] expanded from [dtstart], or [dtstart] alone. */
+internal fun occurrencesOf(itemId: String, dtstart: LocalDateTime, recurrence: Recurrence?, from: LocalDateTime, to: LocalDateTime) =
+    recurrence?.occurrences(itemId, dtstart, from, to) ?: listOf(dtstart).filter { it >= from && it < to }

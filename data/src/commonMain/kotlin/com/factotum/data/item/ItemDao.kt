@@ -12,7 +12,8 @@ import androidx.room.Upsert
 /**
  * ADR 02's one `item` table, in ADR 01's three groups, each with its own stamp:
  * - details: `kind`, `title`, `parent_id`;
- * - schedule (asks a person on a clash): dates, times, `due_date`, `deleted_at`;
+ * - schedule (asks a person on a clash): dates, times, `due_date`, `deleted_at`, and ADR 04's
+ *   recurrence columns ([recurrenceValues]);
  * - status: `status`, `importance`, `capacity_rank`.
  *
  * Room cannot declare CHECK constraints, so the kind rules are triggers ([SchemaTriggers]).
@@ -36,6 +37,13 @@ internal data class ItemEntity(
     @ColumnInfo(name = "end_time") val endTime: String?,
     @ColumnInfo(name = "due_date") val dueDate: String?,
     @ColumnInfo(name = "deleted_at") val deletedAt: Long?,
+    @ColumnInfo(name = "recurrence_kind") val recurrenceKind: String?,
+    val rrule: String?,
+    @ColumnInfo(name = "rand_min_days") val randMinDays: Long?,
+    @ColumnInfo(name = "rand_max_days") val randMaxDays: Long?,
+    @ColumnInfo(name = "window_days") val windowDays: Long?,
+    @ColumnInfo(name = "window_start") val windowStart: String?,
+    @ColumnInfo(name = "window_end") val windowEnd: String?,
     @ColumnInfo(name = "schedule_hlc") val scheduleHlc: Long,
     @ColumnInfo(name = "schedule_device") val scheduleDevice: String,
     @ColumnInfo(name = "schedule_settles_hlc") val scheduleSettlesHlc: Long?,
