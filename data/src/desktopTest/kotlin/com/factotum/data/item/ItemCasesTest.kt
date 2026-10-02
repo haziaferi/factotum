@@ -13,6 +13,7 @@ import com.factotum.data.sync.loadClock
 import com.factotum.data.syncedTables
 import kotlinx.coroutines.runBlocking
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.LocalTime
 import org.junit.After
 import org.junit.Before
@@ -78,7 +79,7 @@ class ItemCasesTest {
     fun tendrilSubtaskCascade_aPurgedParentTakesItsSubtasksAndCompletions() {
         val parent = runBlocking { items.createTask("tax form", MONDAY) }
         val child = runBlocking { items.createTask("find receipts", parentId = parent) }
-        runBlocking { items.resolve(parent, MONDAY, Outcome.DONE) }
+        runBlocking { items.resolve(parent, LocalDateTime(MONDAY, LocalTime(0, 0)), Outcome.DONE) }
 
         runBlocking { items.purge(parent) }
 
@@ -90,11 +91,11 @@ class ItemCasesTest {
     fun tendrilCompletionLog_eachOccurrenceKeepsItsOutcomeAndNoOtherStatusIsTaken() {
         val task = runBlocking { items.createTask("plants", MONDAY) }
         runBlocking {
-            items.resolve(task, MONDAY, Outcome.DONE)
-            items.resolve(task, LocalDate(2026, 10, 12), Outcome.SKIPPED)
+            items.resolve(task, LocalDateTime(MONDAY, LocalTime(0, 0)), Outcome.DONE)
+            items.resolve(task, LocalDateTime(2026, 10, 12, 0, 0), Outcome.SKIPPED)
         }
 
-        assertEquals(mapOf(MONDAY to Outcome.DONE, LocalDate(2026, 10, 12) to Outcome.SKIPPED), runBlocking { items.outcomes(task) })
+        assertEquals(mapOf(LocalDateTime(MONDAY, LocalTime(0, 0)) to Outcome.DONE, LocalDateTime(2026, 10, 12, 0, 0) to Outcome.SKIPPED), runBlocking { items.outcomes(task) })
         refused("UPDATE completion SET status = 'PENDING'")
     }
 

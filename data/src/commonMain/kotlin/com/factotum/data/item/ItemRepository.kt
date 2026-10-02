@@ -9,7 +9,6 @@ import com.factotum.data.reminder.ALERT
 import com.factotum.data.reminder.REMINDER
 import com.factotum.data.sync.StagedStore
 import com.factotum.core.recurrence.Recurrence
-import com.factotum.core.recurrence.occurrences
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.LocalTime
@@ -84,13 +83,6 @@ internal class ItemRepository(
         store.put(requireNotNull(store.row(id)) { "no item $id" }.edit(SCHEDULE, clock.tick(), recurrenceValues(recurrence)))
     }
 
-    /** [id]'s occurrences in `[from, to)`: its recurrence expanded from its start, or the start alone. None once deleted. */
-    suspend fun occurrences(id: String, from: LocalDateTime, to: LocalDateTime): List<LocalDateTime> {
-        val item = dao.items(listOf(id)).singleOrNull()?.takeIf { it.deletedAt == null } ?: return emptyList()
-        val start = item.dtstart() ?: return emptyList()
-        return occurrencesOf(id, start, item.recurrence(), from, to)
-    }
-
     suspend fun setStatus(id: String, status: TaskStatus) = edit(id, STATUS, mapOf("status" to status.name))
 
     suspend fun setImportance(id: String, importance: Long) = edit(id, STATUS, mapOf("importance" to importance))
@@ -108,8 +100,12 @@ internal class ItemRepository(
     /** "Delete forever" (ADR 01): the purge travels; subtasks and completions go by the foreign keys. */
     suspend fun purge(id: String) = write(listOf(id)) { store -> merger.purge(store, id) }
 
-    /** Records how one occurrence of a recurring task was resolved (ADR 02's completion log). */
-    suspend fun resolve(itemId: String, occurrence: LocalDate, outcome: Outcome): String {
+    /**
+     * Records how one occurrence of a recurring task was resolved (ADR 02's completion log). The
+     * occurrence is named by the date-time the series gave it, or an added one's own, so two
+     * occurrences on one day are told apart.
+     */
+    suspend fun resolve(itemId: String, occurrence: LocalDateTime, outcome: Outcome): String {
         val id = newId()
         write(listOf(id), table = COMPLETION) { store ->
             merger.created(store, Row(COMPLETION, id, mapOf(
@@ -123,10 +119,10 @@ internal class ItemRepository(
      * Each occurrence's outcome. Two devices resolving one occurrence leave two log rows; the
      * later stamp is the answer.
      */
-    suspend fun outcomes(itemId: String): Map<LocalDate, Outcome> =
+    suspend fun outcomes(itemId: String): Map<LocalDateTime, Outcome> =
         dao.completionsOf(itemId).groupBy { it.occurrence }
             .mapValues { (_, rows) -> Outcome.valueOf(rows.maxBy { Stamp(it.hlc, it.device) }.status) }
-            .mapKeys { LocalDate.parse(it.key) }
+            .mapKeys { LocalDateTime.parse(it.key) }
 
     suspend fun item(id: String): Item? = dao.items(listOf(id)).singleOrNull()?.toItem()
 
@@ -223,7 +219,3 @@ internal fun ItemEntity.dtstart(): LocalDateTime? = startDate?.let { dtstartOf(i
 
 /** Where an item's recurrence starts (DTSTART): its start date at its start time, or midnight for a whole-day item. */
 internal fun dtstartOf(startDate: String, startTime: String?) = LocalDateTime(LocalDate.parse(startDate), startTime?.let(LocalTime::parse) ?: LocalTime(0, 0))
-
-/** An item's occurrences in `[from, to)`: its [recurrence] expanded from [dtstart], or [dtstart] alone. */
-internal fun occurrencesOf(itemId: String, dtstart: LocalDateTime, recurrence: Recurrence?, from: LocalDateTime, to: LocalDateTime) =
-    recurrence?.occurrences(itemId, dtstart, from, to) ?: listOf(dtstart).filter { it >= from && it < to }

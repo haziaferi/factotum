@@ -118,4 +118,26 @@ internal interface ItemDao {
 
     @Query("DELETE FROM completion WHERE id IN (:ids)")
     suspend fun deleteCompletions(ids: List<String>)
+
+    @Query("SELECT * FROM occurrence_edit WHERE id IN (:ids)")
+    suspend fun edits(ids: List<String>): List<OccurrenceEditEntity>
+
+    @Query("SELECT * FROM occurrence_edit ORDER BY created_hlc, created_device")
+    suspend fun allEdits(): List<OccurrenceEditEntity>
+
+    @Upsert
+    suspend fun putEdits(edits: List<OccurrenceEditEntity>)
+
+    @Query("DELETE FROM occurrence_edit WHERE id IN (:ids)")
+    suspend fun deleteEdits(ids: List<String>)
+
+    /** Undone edits too: an edit's base is the newest one its author had seen, live or not. */
+    @Query("SELECT * FROM occurrence_edit WHERE item_id = :itemId")
+    suspend fun editsOf(itemId: String): List<OccurrenceEditEntity>
+
+    @Query("SELECT * FROM occurrence_edit WHERE item_id = :itemId AND deleted_at IS NULL")
+    suspend fun liveEditsOf(itemId: String): List<OccurrenceEditEntity>
+
+    @Query("SELECT * FROM occurrence_edit WHERE deleted_at IS NULL")
+    suspend fun liveEdits(): List<OccurrenceEditEntity>
 }

@@ -37,6 +37,7 @@ class RecurringItemTest {
     private lateinit var db: FactotumDatabase
     private lateinit var items: ItemRepository
     private lateinit var reminders: ReminderRepository
+    private lateinit var occurrences: OccurrenceRepository
 
     @Before fun open() {
         db = openFactotumDatabase(File(tmp.root, "recurring.db")).database
@@ -45,7 +46,10 @@ class RecurringItemTest {
         val newId = { "id-${n++}" }
         items = ItemRepository(db, writes, newId)
         reminders = ReminderRepository(db, writes, newId)
+        occurrences = OccurrenceRepository(db, writes, newId)
     }
+
+    private fun occurrencesOf(id: String, from: LocalDateTime, to: LocalDateTime) = runBlocking { occurrences.occurrences(id, from, to) }.map { it.at }
 
     @After fun close() = db.close()
 
@@ -71,7 +75,7 @@ class RecurringItemTest {
     fun aRepeatingItemExpandsFromItsStart() {
         val id = runBlocking { items.createEvent("standup", MONDAY, LocalTime(10, 0), recurrence = rule("FREQ=WEEKLY;BYDAY=MO,WE")) }
 
-        val got = runBlocking { items.occurrences(id, at(5, 0), at(15, 0)) }
+        val got = occurrencesOf(id, at(5, 0), at(15, 0))
 
         assertEquals(listOf(at(5, 10), at(7, 10), at(12, 10), at(14, 10)), got)
     }
@@ -80,7 +84,7 @@ class RecurringItemTest {
     fun aOneOffItemHasItsStartAsItsOnlyOccurrence() {
         val id = runBlocking { items.createTask("call", MONDAY, LocalTime(14, 0)) }
 
-        assertEquals(listOf(at(5, 14)), runBlocking { items.occurrences(id, at(1, 0), at(30, 0)) })
+        assertEquals(listOf(at(5, 14)), occurrencesOf(id, at(1, 0), at(30, 0)))
     }
 
     @Test
@@ -89,7 +93,7 @@ class RecurringItemTest {
 
         runBlocking { items.reschedule(id, LocalDate(2026, 10, 6), LocalTime(9, 0)) }
 
-        assertEquals(listOf(at(6, 9), at(9, 9)), runBlocking { items.occurrences(id, at(1, 0), at(10, 0)) })
+        assertEquals(listOf(at(6, 9), at(9, 9)), occurrencesOf(id, at(1, 0), at(10, 0)))
     }
 
     @Test
@@ -137,7 +141,7 @@ class RecurringItemTest {
         val task = runBlocking { items.createTask("plants", MONDAY, LocalTime(9, 0), recurrence = rule("FREQ=DAILY")) }
         val reminder = runBlocking { reminders.add(task, -15) }
 
-        runBlocking { items.resolve(task, MONDAY, Outcome.DONE) }
+        runBlocking { items.resolve(task, at(5, 9), Outcome.DONE) }
 
         assertEquals(at(6, 8, 45), runBlocking { reminders.firings() }.single { it.reminderId == reminder }.at)
     }

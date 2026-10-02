@@ -3,6 +3,7 @@ package com.factotum.data
 import androidx.room.RoomDatabase
 import com.factotum.data.item.COMPLETION
 import com.factotum.data.item.ITEM
+import com.factotum.data.item.OCCURRENCE_EDIT
 import com.factotum.data.reminder.REMINDER
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.execSQL
@@ -48,6 +49,16 @@ internal object SchemaTriggers : RoomDatabase.Callback() {
         AND $recurrenceRules
     """.trimIndent()
 
+    /** ADR 11: each scope names what it covers, a date-time or a date, and nothing else. */
+    private val editRules = """
+        COALESCE(
+            NEW.scope IN ('OCCURRENCE', 'DAY', 'WEEK', 'FROM', 'EXTRA')
+            AND (NEW.at IS NOT NULL) = (NEW.scope IN ('OCCURRENCE', 'EXTRA'))
+            AND (NEW.date IS NOT NULL) = (NEW.scope IN ('DAY', 'WEEK', 'FROM'))
+            AND NEW.days BETWEEN 0 AND 127 AND (NEW.days = 0 OR NEW.scope IN ('WEEK', 'FROM')),
+        0)
+    """.trimIndent()
+
     /** ADR 03's alert settings: unknown values are refused. */
     private val reminderRules = """
         NEW.alert_kind IN ('NOTIFICATION', 'ALARM') AND NEW.mode IN ('EASE', 'SCHEDULE', 'ALERT')
@@ -58,6 +69,7 @@ internal object SchemaTriggers : RoomDatabase.Callback() {
         ITEM to itemRules,
         COMPLETION to "NEW.status IN ('DONE', 'SKIPPED')",
         REMINDER to reminderRules,
+        OCCURRENCE_EDIT to editRules,
     )
 
     private val statements: List<String> = buildList {
@@ -66,6 +78,16 @@ internal object SchemaTriggers : RoomDatabase.Callback() {
             add("DROP TRIGGER IF EXISTS $name")
             add("CREATE TRIGGER $name BEFORE $event ON $table WHEN NOT ($rule) BEGIN SELECT RAISE(ABORT, '$table: a row breaks its rules'); END")
         }
+        // ADR 11: an edit is written once and undone once; nothing else about it changes.
+        add("DROP TRIGGER IF EXISTS occurrence_edit_once")
+        add(
+            "CREATE TRIGGER occurrence_edit_once BEFORE UPDATE ON occurrence_edit WHEN " +
+                "NEW.item_id IS NOT OLD.item_id OR NEW.scope IS NOT OLD.scope OR NEW.at IS NOT OLD.at OR NEW.date IS NOT OLD.date " +
+                "OR NEW.days IS NOT OLD.days OR NEW.changes IS NOT OLD.changes OR NEW.created_hlc IS NOT OLD.created_hlc " +
+                "OR NEW.created_device IS NOT OLD.created_device OR NEW.seen IS NOT OLD.seen " +
+                "OR (OLD.deleted_at IS NOT NULL AND NEW.deleted_at IS NOT OLD.deleted_at) " +
+                "BEGIN SELECT RAISE(ABORT, 'occurrence_edit: an edit is written once and undone once'); END",
+        )
         for (table in SYNCED_TABLES) for (event in listOf("INSERT", "UPDATE", "DELETE")) {
             val name = "${table}_outbox_${event.lowercase()}"
             val row = if (event == "DELETE") "OLD" else "NEW"

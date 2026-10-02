@@ -8,6 +8,7 @@ import com.factotum.data.LocalWrites
 import com.factotum.data.item.DETAILS
 import com.factotum.data.item.ITEM
 import com.factotum.data.item.ItemRepository
+import com.factotum.data.item.OccurrenceRepository
 import com.factotum.data.item.STATUS
 import com.factotum.data.openFactotumDatabase
 import com.factotum.data.reminder.ReminderRepository
@@ -58,6 +59,7 @@ internal class World(private val dir: File, seed: Int, private val segmentBytes:
         private val newId = { "$name-${made++}" }
         val items = ItemRepository(db, writes, newId)
         val reminders = ReminderRepository(db, writes, newId)
+        val occurrences = OccurrenceRepository(db, writes, newId)
         val sync = FolderSync(db, syncthing.folder(name), id, clock, tables, segmentBytes, snapshotEvery)
 
         fun create(): String = runBlocking { items.createTask("$name@${syncthing.now}") }.also(::record)

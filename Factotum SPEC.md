@@ -1,6 +1,6 @@
 # Factotum — Product & Technical Spec
 
-**Status:** draft v0.10, seeded from the decision register · **Scope:** the merged data model, sync and behaviour rules of Factotum. Screens are not decided and are marked open (§10.1).
+**Status:** draft v0.11, seeded from the decision register · **Scope:** the merged data model, sync and behaviour rules of Factotum. Screens are not decided and are marked open (§10.1).
 **Related documents:** `decisions/`, the evidence behind §3: one ADR per decision with verified `file:line` facts, the scored options, the behaviour cases and the harness that measured them (`decisions/register.md` is the index). This spec states each decision once and points to its ADR for the evidence. It never restates the evidence.
 
 ---
@@ -9,6 +9,7 @@
 
 | Version | Summary | Sections touched |
 |---|---|---|
+| v0.11 | Slice 11 built: the occurrence-edit log, its engine in `:core`, clash questions from base stamps, edits reaching reminders | §3.11, §7 |
 | v0.10 | Slice 04 built: the RRULE expander (ported from Tendril, extended to times of day), rule sets, seeded random kinds, cron conversion, recurrence on items, reminders on repeating items | §3.2, §3.3, §3.4, §7 |
 | v0.9 | Slice 03 built: reminders on any item, standalone reminders as REMINDER items, fire times, synced snooze, the day-view toggle | §3.2, §3.3, §7 |
 | v0.8 | Slice 02 built: `item` (TASK, EVENT) and `completion`, the repository, CHECK rules and the export queue as triggers, deferred foreign keys with a waiting table for rows that arrive before their parent. ADR 01's merge fixed: a replayed old version moved the base and hid a later clash | §3.1, §3.2, §3.13, §7 |
@@ -266,6 +267,16 @@ The device id is not a setting.
 
 **Acceptance:** `cases/11-occurrence-edits.jsonl`, 10 cases.
 
+**Built (2026-10-02):** the engine in `com.factotum.core.recurrence` (`OccurrenceEdits.kt`), the log in `com.factotum.data.item`. All 10 cases pass as tests: on the engine (`OccurrenceEditsTest`, with `tools/occurrence_sim.py`'s fixture) and across two syncing devices (`OccurrenceEditSyncTest`). Habits come with slice 06, so the cases' habit stands in as a repeating event, and the field that merges silently beside a retime is `title` rather than `block`; both are non-schedule fields under ADR 11. What the build settled, none of which changes the decision:
+- **An OCCURRENCE edit names the series' own date-time**; DAY, WEEK and FROM reach occurrences where they are at that point, moved and added ones too, as `tools/occurrence_sim.py` applies them. Only one occurrence moves: `moved_to` is an OCCURRENCE field, and a new pattern for a day or week is a FROM edit with `week_days` (Tendril's "weekly" move) or a rule.
+- **An added occurrence is keyed by its edit**, so it never replaces the series' occurrence at the same time.
+- **A FROM edit with a rule or `week_days`** repeats the item differently from its date, starting afresh there (as Tendril's split series did). Each day follows the latest-created pattern dated on or before it.
+- **A clash is computed, not stored.** Each edit lists the ids of the edits on the same place its author had seen, live or undone; ADR 11 said a base stamp, but one stamp cannot tell that a third device never saw an edit. Two live OCCURRENCE or FROM edits on one place, from two devices, neither having seen the other, that set a same schedule field to different values, make a question, until an edit that has seen both settles it.
+- **An answer is a new edit that has seen both.** Keeping one re-sets its schedule fields, and the other's title still merges. Keeping both (one occurrence only) also adds an occurrence where the earlier edit had put it, under an id made from that edit, so two devices keeping both make one. Two devices answering differently make two corrections that clash in turn, as ADR 01's answers do. Edits are insert-once: a trigger refuses any change but the one undo.
+- **The completion log names an occurrence by its date-time** (the series' own, or an added one's), so two occurrences on one day are resolved apart.
+- **Habit fields this version does not apply** (block, sort_order, rule_patch, pause) are kept as raw JSON in `changes`, so nothing a newer peer wrote is lost on a round trip.
+- **Reminders fire on the edited occurrences**: a skipped one is quiet, a moved or retimed one fires at its new time; an added occurrence on a whole-day item fires at the anchor unless it was given a time.
+
 ### 3.12 Page merge — ADR 12
 
 **Decided:** **per-row+revive.**
@@ -399,7 +410,7 @@ The four source apps are the owner's own. The only third-party code found so far
    - The guard recovers only from SQLITE_CORRUPT and SQLITE_NOTADB. A locked or full database is rethrown, and its file is left in place.
    - It moves the `-journal`, `-wal` and `-shm` files with the database.
    - Tests cover both drivers, with a control showing that the stock Android driver deletes a corrupt file. Wiring the guard into the Room open path comes with slice 01.
-2. **Schema slices in ADR dependency order:** 01 → 02 → 03 → 04 → 11 → 06 → 07 → 08 → 09 → 10 → 05 → 12. Each slice is done when its ADR cases pass as tests against the real implementation (§3). Spikes 1 and 3 run with slice 10. Spike 5 needs the Android shell and a device, so it runs with the shell (step 4). **Slice 01: done 2026-10-01** (§3.1), with its folder importer and exporter (§3.13). **Slice 02: done 2026-10-01** (§3.2). **Slice 03: done 2026-10-02** (§3.3). **Slice 04: done 2026-10-02** (§3.4), except the PLANNED kind, which needs slice 06, and spike 5, which needs the Android shell.
+2. **Schema slices in ADR dependency order:** 01 → 02 → 03 → 04 → 11 → 06 → 07 → 08 → 09 → 10 → 05 → 12. Each slice is done when its ADR cases pass as tests against the real implementation (§3). Spikes 1 and 3 run with slice 10. Spike 5 needs the Android shell and a device, so it runs with the shell (step 4). **Slice 01: done 2026-10-01** (§3.1), with its folder importer and exporter (§3.13). **Slice 02: done 2026-10-01** (§3.2). **Slice 03: done 2026-10-02** (§3.3). **Slice 04: done 2026-10-02** (§3.4), except the PLANNED kind, which needs slice 06, and spike 5, which needs the Android shell. **Slice 11: done 2026-10-02** (§3.11).
 3. **The sole-owner modules of §2.**
 4. **Screens**, after §10.1.
 
