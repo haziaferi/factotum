@@ -43,6 +43,8 @@ LABELS = "data/src/commonMain/kotlin/com/factotum/data/label/LabelRepository.kt"
 REGISTRY = "core/src/commonMain/kotlin/com/factotum/core/settings/Settings.kt"
 SETTINGS = "data/src/commonMain/kotlin/com/factotum/data/settings/SettingsRepository.kt"
 STORES = "data/src/commonMain/kotlin/com/factotum/data/settings/SettingStores.kt"
+SEARCHINDEX = "data/src/commonMain/kotlin/com/factotum/data/search/SearchIndex.kt"
+SEARCH = "data/src/commonMain/kotlin/com/factotum/data/search/SearchRepository.kt"
 
 # slice -> [(name, file, old, new, test task, tests that must fail)]
 SLICES = {
@@ -468,6 +470,37 @@ SLICES = {
          ":data:desktopTest", {"theLongTimerLimitIsOneSettingForEveryDevice"}),
         ("a recovered device skips its own files", FOLDER, "(owner != device || readOwn)", "owner != device",
          ":data:desktopTest", {"aDeviceWhoseDatabaseWasRecoveredGetsItsSettingsBackFromItsOwnFiles"}),
+    ],
+    "10": [
+        ("an archived name stays in the index", SEARCHINDEX, " AND COALESCE($.archived, 0) = 0", "",
+         ":data:desktopTest", {"whatWasWrittenUnderAnArchivedActivityStaysFindableButItsNameAndAnythingDeletedDoNot"}),
+        ("a deleted item stays in the index", SEARCHINDEX, '"$.deleted_at IS NULL AND COALESCE($.archived, 0) = 0', '"1 = 1 AND COALESCE($.archived, 0) = 0',
+         ":data:desktopTest", {"chronicleTombstoneLeaves_aDeletedReminderIsNoLongerFound"}),
+        ("no update trigger", SEARCHINDEX, '        "CREATE TRIGGER ${s.table}_search_update AFTER UPDATE OF ${s.watched.joinToString(", ")} ON ${s.table} BEGIN ${s.remove("OLD")} ${s.add()} END",\n', "",
+         ":data:desktopTest", {"chronicleTombstoneLeaves_aDeletedReminderIsNoLongerFound"}),
+        ("no insert trigger", SEARCHINDEX, '        "CREATE TRIGGER ${s.table}_search_insert AFTER INSERT ON ${s.table} BEGIN ${s.add()} END",\n', "",
+         ":data:desktopTest", {"chronicleAnyWritePath_aLogWrittenAroundTheRepositoriesOrArrivingFromAPeerIsFound"}),
+        ("no rebuild", SEARCHINDEX, '    if (wanted == held && held == connection.count("SELECT count(*) FROM search_fts")) return', "    return",
+         ":data:desktopTest", {"anIndexThatMissesRowsIsRebuiltOnOpenAndAnUpgradedDatabaseIsIndexed"}),
+        ("search from one letter", SEARCH, "if (terms.sumOf { it.length } < 2) return emptyList()", "if (terms.sumOf { it.length } < 1) return emptyList()",
+         ":data:desktopTest", {"searchStartsAtTwoLetters"}),
+        ("whole words only", SEARCH, '"$it*"', '"$it"',
+         ":data:desktopTest", {"chronicleAccentsFolded_perch\u00e9IsFoundAsPercheAndCaseNeverMatters"}),
+        ("an accent written apart splits a word", SEARCH, 'Regex("[\\\\p{L}\\\\p{N}][\\\\p{L}\\\\p{N}\\\\p{M}]*")', 'Regex("[\\\\p{L}\\\\p{N}]+")',
+         ":data:desktopTest", {"chronicleAccentsFolded_perch\u00e9IsFoundAsPercheAndCaseNeverMatters"}),
+        ("text inside comes before names", SEARCH, "return names.sortedWith(NEWEST.thenBy { it.text }.thenBy { it.id }) + inside.sortedWith(NEWEST.thenBy { it.id })",
+         "return inside.sortedWith(NEWEST.thenBy { it.id }) + names.sortedWith(NEWEST.thenBy { it.text }.thenBy { it.id })",
+         ":data:desktopTest", {"sharedOneSearch_itemsAndSessionsComeBackFromOneQueryNamesFirstThenNewest"}),
+        ("oldest first", SEARCH, ".thenByDescending { it.at }", ".thenBy { it.at }",
+         ":data:desktopTest", {"sharedOneSearch_itemsAndSessionsComeBackFromOneQueryNamesFirstThenNewest"}),
+        ("a deleted tracker's Logs are found", SEARCH, "trackerRows[r.trackerId]?.takeIf { it.deletedAt == null }?.let { t ->", "trackerRows[r.trackerId]?.let { t ->",
+         ":data:desktopTest", {"whatWasWrittenUnderAnArchivedActivityStaysFindableButItsNameAndAnythingDeletedDoNot"}),
+        ("a deleted parent is ignored", SEARCH, " && (it.parentId == null || itemLive(it.parentId))", "",
+         ":data:desktopTest", {"aSubtaskUnderADeletedParentIsNotFound"}),
+        ("events are never finished", SEARCH, "ItemKind.EVENT.name -> repeat.kind == null && ", "ItemKind.EVENT.name -> false && ",
+         ":data:desktopTest", {"aPastEventIsMarkedFinishedAndARepeatingOneIsNot"}),
+        ("finished tasks are not marked", SEARCH, "else -> status == TaskStatus.DONE.name || status == TaskStatus.SKIPPED.name", "else -> false",
+         ":data:desktopTest", {"finishedTasksAreFoundAndMarked"}),
     ],
 }
 

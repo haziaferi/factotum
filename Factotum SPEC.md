@@ -1,6 +1,6 @@
 # Factotum — Product & Technical Spec
 
-**Status:** draft v0.17, seeded from the decision register · **Scope:** the merged data model, sync and behaviour rules of Factotum. Screens are not decided and are marked open (§10.1).
+**Status:** draft v0.18, seeded from the decision register · **Scope:** the merged data model, sync and behaviour rules of Factotum. Screens are not decided and are marked open (§10.1).
 **Related documents:** `decisions/`, the evidence behind §3: one ADR per decision with verified `file:line` facts, the scored options, the behaviour cases and the harness that measured them (`decisions/register.md` is the index). This spec states each decision once and points to its ADR for the evidence. It never restates the evidence.
 
 ---
@@ -9,6 +9,7 @@
 
 | Version | Summary | Sections touched |
 |---|---|---|
+| v0.18 | Slice 10 built: the search index over items, trackers, Logs and sessions, with the owner's answers; spikes 1 and 3 on the desktop | §3.10, §5.2, §7, §9 |
 | v0.17 | Slice 09 built: settings by scope, the day boundary and the timer limit as PERSONAL settings every repository reads on each call, the settings part of a backup. A recovered database reads its own folder files again | §3.4, §3.7, §3.9, §3.13, §7 |
 | v0.16 | Slice 08 built: labels on activities, habits and trackers, merged by name after a sync, read through what they were merged into; label time totals. Found on the way: an upgrade that rebuilt a table stopped on a trigger naming it, so the app's triggers are dropped before any upgrade | §3.7, §3.8, §7 |
 | v0.15 | Slice 07 built: activities as items, one `time_span` table, several timers, day totals as unions by the start day, goals on tracked time, the owner's answers (long timers ask, finishing stops a timer, an activity is never deleted forever) | §3.6, §3.7, §7 |
@@ -312,6 +313,12 @@ The device id is not a setting.
 
 **Acceptance:** `cases/10-search.jsonl`, 7 cases.
 
+**Built (2026-10-03):** `com.factotum.data.search`. The cases that need no page pass as tests (`SearchCasesTest`): `chronicle-all-kinds`, `chronicle-tombstone-leaves`, the Log half of `chronicle-any-write-path`, `chronicle-accents-folded` (on an item's title) and the item half of `shared-one-search`; the page and block halves come with §3.12. What the build settled, none of which changes the decision:
+- **The index is `search_fts(text)` and a plain `search_key(doc, kind, row_key)`**, whose `doc` is each entry's FTS document id: a trigger removes an entry by its key in about 0.04 ms, where finding it by a column FTS4 does not index scanned the index (13 ms at 50,000 entries). `unicode61` with `remove_diacritics=2` folds case and accents.
+- **Sources:** every item's title, a tracker's name, a Log's label and note, a session's comment. A deleted row, a blank text, and an archived activity's or tracker's own name leave the index by trigger; whether what a hit belongs to is deleted (a deleted tracker's Logs, a deleted task's sessions, a subtask under a deleted parent, a habit whose tracker is deleted) is read when searching.
+- **Kept current by triggers** made again on every open, which import writes fire like any other; **rebuilt on open** when the index holds a different number of entries than rows belong in it: an upgrade (whose triggers were dropped for it), a restore or a recovery.
+- **Queries:** words of letters and digits (with any accent written apart), each a prefix, all required, from two letters on; hits are read in chunks under SQLite's 999 variables. Names come first, then text inside, newest first by its own time; a name's time is its item's date. Done or skipped tasks and reminders and one-off events that have ended are marked finished.
+
 ### 3.11 Occurrence edits — ADR 11
 
 **Decided:** one insert-once `occurrence_edit` log for every repeating item.
@@ -439,7 +446,7 @@ The device id is not a setting.
 **Local only, never synced:**
 - `page_revision` (§3.12);
 - `calendar_link` (§2);
-- `search_fts` (§3.10);
+- `search_fts` and `search_key` (§3.10);
 - the device store for DEVICE_PREF and DEVICE_STATE keys;
 - the secret store;
 - the device id (§3.9).
@@ -467,7 +474,7 @@ The four source apps are the owner's own. The only third-party code found so far
    - The guard recovers only from SQLITE_CORRUPT and SQLITE_NOTADB. A locked or full database is rethrown, and its file is left in place.
    - It moves the `-journal`, `-wal` and `-shm` files with the database.
    - Tests cover both drivers, with a control showing that the stock Android driver deletes a corrupt file. Wiring the guard into the Room open path comes with slice 01.
-2. **Schema slices in ADR dependency order:** 01 → 02 → 03 → 04 → 11 → 06 → 07 → 08 → 09 → 10 → 05 → 12. Each slice is done when its ADR cases pass as tests against the real implementation (§3). Spikes 1 and 3 run with slice 10. Spike 5 needs the Android shell and a device, so it runs with the shell (step 4). **Slice 01: done 2026-10-01** (§3.1), with its folder importer and exporter (§3.13). **Slice 02: done 2026-10-01** (§3.2). **Slice 03: done 2026-10-02** (§3.3). **Slice 04: done 2026-10-02** (§3.4), except spike 5, which needs the Android shell. **Slice 11: done 2026-10-02** (§3.11). **Slice 06: done 2026-10-02** (§3.6), with PLANNED. **Slice 07: done 2026-10-02** (§3.7). **Slice 08: done 2026-10-02** (§3.8), but for its page cases, which come with slice 12. **Slice 09: done 2026-10-02** (§3.9).
+2. **Schema slices in ADR dependency order:** 01 → 02 → 03 → 04 → 11 → 06 → 07 → 08 → 09 → 10 → 05 → 12. Each slice is done when its ADR cases pass as tests against the real implementation (§3). Spikes 1 and 3 run with slice 10. Spike 5 needs the Android shell and a device, so it runs with the shell (step 4). **Slice 01: done 2026-10-01** (§3.1), with its folder importer and exporter (§3.13). **Slice 02: done 2026-10-01** (§3.2). **Slice 03: done 2026-10-02** (§3.3). **Slice 04: done 2026-10-02** (§3.4), except spike 5, which needs the Android shell. **Slice 11: done 2026-10-02** (§3.11). **Slice 06: done 2026-10-02** (§3.6), with PLANNED. **Slice 07: done 2026-10-02** (§3.7). **Slice 08: done 2026-10-02** (§3.8), but for its page cases, which come with slice 12. **Slice 09: done 2026-10-02** (§3.9). **Slice 10: done 2026-10-03** (§3.10), but for its page cases, which come with slice 12, and the device halves of spikes 1 and 3, which come with the Android shell.
 3. **The sole-owner modules of §2.**
 4. **Screens**, after §10.1.
 
@@ -489,11 +496,11 @@ The four source apps are the owner's own. The only third-party code found so far
 
 ## 9. Pre-Implementation Validation / Spikes
 
-Status: 2, 4 and 6 are done (`docs/spikes-2026-10-01.md`). With §10.2 decided, 1 and 3 run with schema slice 10, and 5 with the Android shell (§7).
+Status: 2, 4 and 6 are done (`docs/spikes-2026-10-01.md`). 1 and 3 ran on the desktop with slice 10; their device halves, and 5, run with the Android shell (§7).
 
-1. **FTS5 on target devices.** It could replace FTS4 (§3.10) if every target SQLite build has it. Room's annotations don't generate it.
+1. **FTS5 on target devices.** It could replace FTS4 (§3.10) if every target SQLite build has it. Room's annotations don't generate it. **Desktop measured 2026-10-03:** the bundled SQLite is 3.50.1 with FTS5 compiled in, and makes the FTS4 index with `remove_diacritics=2` (`SearchCasesTest`). The phones use Android's own SQLite (3.28 on Android 11, the minimum, which has `remove_diacritics=2`); their FTS5 is measured with the Android shell.
 2. **PLANNED recurrence. Done.** All 8 RRULE-form rules match once DTSTART is aligned and set times use a RULE_SET. PLANNED matches on 500/500 random weeks once HABIT has `block_id` and `duration_min`.
-3. **Triggers on both drivers.** §3.10's search triggers and §3.7's spans trigger install and fire on Android and on Windows.
+3. **Triggers on both drivers.** §3.10's search triggers and §3.7's spans trigger install and fire on Android and on Windows. **Desktop: holds** (every trigger test runs on the bundled driver). The device half runs with the Android shell, which has no code yet.
 4. **Seeded random draws. Done.** The draws are identical across 18 Kotlin versions and 4 time zones. Chronicle's current seed made two items draw in lockstep 1000/1000 times; the item-keyed seed doesn't. Both generators pass a uniformity test.
 5. **Force-stop detection.** On the next start, the app detects that the OS cancelled its alarms and says so (§3.4).
 6. **llama.cpp licence. Done:** MIT only (§6).

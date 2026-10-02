@@ -4,6 +4,8 @@ import androidx.room.RoomDatabase
 import com.factotum.data.item.COMPLETION
 import com.factotum.data.item.HABIT_BLOCK
 import com.factotum.data.label.LABEL
+import com.factotum.data.search.rebuildSearchIfStale
+import com.factotum.data.search.searchTriggers
 import com.factotum.data.item.seedBlocks
 import com.factotum.data.item.ITEM
 import com.factotum.data.item.OCCURRENCE_EDIT
@@ -24,6 +26,8 @@ import androidx.sqlite.execSQL
  *   (ADR 13), so no write path can forget to; a deleted row's base and pending questions go too.
  *
  * A new database also gets the default time blocks, before the triggers exist ([seedBlocks]).
+ * The search index's triggers are made with the rest, and the index is rebuilt when it does not
+ * hold what it should ([rebuildSearchIfStale], ADR 10).
  */
 internal object SchemaTriggers : RoomDatabase.Callback() {
 
@@ -209,5 +213,7 @@ internal object SchemaTriggers : RoomDatabase.Callback() {
 
     override fun onOpen(connection: SQLiteConnection) {
         statements.forEach(connection::execSQL)
+        searchTriggers.forEach(connection::execSQL)
+        rebuildSearchIfStale(connection)
     }
 }
