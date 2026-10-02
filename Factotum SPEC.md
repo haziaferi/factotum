@@ -288,6 +288,8 @@ Names are unique ignoring case. A new label takes a colour derived from its name
 
 The device id is not a setting.
 
+**Owner answers, 2026-10-02:** the day view's standalone-reminders switch is DEVICE_PREF; the long-timer limit (§3.7) is PERSONAL, default 12 hours; app lock is per device (its PIN a SECRET, its on/off and grace DEVICE_PREF); the personal day boundary (§3.6) is PERSONAL, default midnight. This slice builds the settings part of the backup only (export PERSONAL and DEVICE_PREF; restore writes only those); a full backup comes with the shells.
+
 **Acceptance:** `cases/09-settings.jsonl`, 9 cases.
 
 ### 3.10 Search — ADR 10
