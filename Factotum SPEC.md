@@ -1,6 +1,6 @@
 # Factotum — Product & Technical Spec
 
-**Status:** draft v0.15, seeded from the decision register · **Scope:** the merged data model, sync and behaviour rules of Factotum. Screens are not decided and are marked open (§10.1).
+**Status:** draft v0.16, seeded from the decision register · **Scope:** the merged data model, sync and behaviour rules of Factotum. Screens are not decided and are marked open (§10.1).
 **Related documents:** `decisions/`, the evidence behind §3: one ADR per decision with verified `file:line` facts, the scored options, the behaviour cases and the harness that measured them (`decisions/register.md` is the index). This spec states each decision once and points to its ADR for the evidence. It never restates the evidence.
 
 ---
@@ -9,6 +9,7 @@
 
 | Version | Summary | Sections touched |
 |---|---|---|
+| v0.16 | Slice 08 built: labels on activities, habits and trackers, merged by name after a sync, read through what they were merged into; label time totals. Found on the way: an upgrade that rebuilt a table stopped on a trigger naming it, so the app's triggers are dropped before any upgrade | §3.7, §3.8, §7 |
 | v0.15 | Slice 07 built: activities as items, one `time_span` table, several timers, day totals as unions by the start day, goals on tracked time, the owner's answers (long timers ask, finishing stops a timer, an activity is never deleted forever) | §3.6, §3.7, §7 |
 | v0.14 | Owner answer: an "n a day" habit reminds at the start of each occurrence's block. Found on the way: a whole-day item reminded before its anchor missed the rest of a day once a firing had passed | §3.4, §3.6, §10 |
 | v0.13 | Slice 06b built: time blocks with Tendril's five defaults, the PLANNED kind, and the week planner ported from Tendril. A 06a defect fixed: two habits sharing a tracker shared one pause | §3.4, §3.6, §7 |
@@ -216,7 +217,7 @@ Every decision here was scored against its owners' behaviour cases, with a contr
 **Acceptance:** `cases/06-habit.jsonl`, 8 cases.
 
 **Built (2026-10-02), part a:** trackers in `com.factotum.data.tracker`, habits in `com.factotum.data.item` (`HabitRepository`), presence and the rolling kind in `:core`. All 8 cases pass as tests (`HabitCasesTest`), with the owner's answers. What the build settled, none of which changes the decision:
-- **Chronicle's trackers move as they are** (`tracker`, `tracker_choice`, `tracker_reading`, `goal`), one ADR 01 group per row, as Chronicle stamps whole rows; their domain rules (one value per reading, a rating from 1 to 5, a unit only on a number tracker, a CHOICE tracker with no default) are triggers. A reading's time is a floating local date-time, as every Factotum time is, so the day boundary compares the wall clock directly. A tracker's category becomes ADR 08's label with slice 08.
+- **Chronicle's trackers move as they are** (`tracker`, `tracker_choice`, `tracker_reading`, `goal`), one ADR 01 group per row, as Chronicle stamps whole rows; their domain rules (one value per reading, a rating from 1 to 5, a unit only on a number tracker, a CHOICE tracker with no default) are triggers. A reading's time is a floating local date-time, as every Factotum time is, so the day boundary compares the wall clock directly. A tracker's category is ADR 08's label (§3.8).
 - **A habit and its tracker are one write**; a number habit's amount per Log is the tracker's default value, and its daily amount is Chronicle's recurring, automatic DAY goal (one per tracker). A habit's Log with no value is a "yes", or its amount per Log, and a Log must be of its tracker's kind. A habit is a yes/no, rating or number habit: a choice tracker has no presence. A habit that uses an existing tracker shares its Logs, which belong to the tracker.
 - **A deleted tracker** takes its habits and goals; a purge takes its goals too, which name it without a foreign key. A habit another device made on it meanwhile reads as deleted. Undo takes the Log made last.
 - **Columns:** `tracker_id` and `block_id` in the item's details group (a block merges silently, ADR 11); `pause_from`, `pause_until` (none means until resumed, as in Tendril), `duration_min`, `roll_every` and `roll_unit` in its schedule group.
@@ -246,7 +247,7 @@ Every decision here was scored against its owners' behaviour cases, with a contr
 
 **Acceptance:** `cases/07-timelog.jsonl`, 9 cases.
 
-**Built (2026-10-02):** totals in `com.factotum.core.time`; spans and activities in `com.factotum.data.time`. The cases pass as tests (`TimeCasesTest`), but for the category half of `chronicle-activity-and-category-totals`, which needs §3.8's label and comes with slice 08. What the build settled, none of which changes the decision:
+**Built (2026-10-02):** totals in `com.factotum.core.time`; spans and activities in `com.factotum.data.time`. The cases pass as tests (`TimeCasesTest`); the category half of `chronicle-activity-and-category-totals` passes with §3.8's labels (`LabelCasesTest`). What the build settled, none of which changes the decision:
 - **An activity** is an item with no dates, an `archived` flag, and optionally an icon and a colour; an activity or a habit has a manual `sort_order`, fractional as Tendril's, which the planner now follows inside a block.
 - **A span has five ADR 01 groups**, one per thing written apart: its start (with its owner and planned run), its end, its deletion, when a long run was last kept, and its comment. Each write touches only what it changes, so a stop, a deletion, a "keep", a start time and a comment made on different devices all survive the merge, and nothing reopens or revives a span. Times are kept to the second. A span stays on its owner and is timed only on a task, habit or activity. That it ends no earlier than it starts is checked where it is written, not in the database: start and end merge apart, and a row the database refused would stop every later import; totals count such a span as nothing. A deleted span, or one on a deleted owner, is not edited again (Chronicle); deleting twice changes nothing.
 - **Totals** add each personal day's union of the spans started on it; a running span counts up to now; a span whose owner is deleted, or a habit whose tracker is deleted, does not count. Seconds are kept and minutes shown rounded down, as both apps round once at the end.
@@ -267,6 +268,15 @@ Names are unique ignoring case. A new label takes a colour derived from its name
 **Owner answers, 2026-10-02:** two labels with the same name (ignoring case), made or renamed on devices that then sync, merge into the one made first, which keeps its colour and scope; a label's scope (everything, activities, trackers) is chosen and can change, and narrowing it only hides it from the other pickers; a label's time total counts every activity and habit carrying it, overlapping time once.
 
 **Acceptance:** `cases/08-tagging.jsonl`, 10 cases.
+
+**Built (2026-10-02):** `com.factotum.core.label` and `com.factotum.data.label`. Six of the ten cases pass as tests (`LabelCasesTest`), with the owner's answers and ADR 07's category total; the four that need a page (`tendril-page-many-labels`, `tendril-database-doorway`, `tendril-page-delete-no-orphans`, and the page half of the vocabulary) come with §3.12's pages. What the build settled, none of which changes the decision:
+- **A label has five ADR 01 groups** (name, colour, scope, order, deletion), and an item's or a tracker's `label_id` is a group of its own, so a rename and a recolour made apart both stand, and a label deleted on one device never brings back a tracker deleted on another.
+- **Names are unique by the repository, not by an index**: two devices make the same name apart, and a database rule a merged row broke would stop every later import. Names are compared trimmed, in one Unicode form (NFC), ignoring case; a new label's colour is Tendril's for its name.
+- **The merge** (owner, 2026-10-02) runs after every import: of the live labels with one name, all but the one with the lowest id (ULIDs begin with the time, so the one made first) are deleted with `merged_into` naming it. Nothing that carried them is rewritten: readers take a merged label as the label it went into, so a merge never overwrites a label a person chose meanwhile on another device. Deleting a label clears what carried it or any label merged into it.
+- **No foreign key on `label_id`**: a label is never deleted for good, and a key would only add a table rebuild; readers take a missing or deleted label as none (Tendril's habit label had no key either).
+- **Scope** is where a label is offered: activities get labels for everything and for activities, trackers for everything and for trackers, habits for everything (ADR 08). A label outside the scope is refused when set; narrowing the scope leaves what carries it alone.
+- **Upgrades drop the app's triggers first.** Adding the label columns made Room rebuild `item`, and SQLite checks every trigger when the rebuilt copy is renamed into place: the span rule, which names `item`, stopped the upgrade. Before Room upgrades an older file, the app now drops its own triggers, which it makes again on every open; a test upgrades a version 9 file holding them.
+- **A label's time total** is the union of the spans on every activity and habit carrying it, or a label merged into it (owner, 2026-10-02); Chronicle's pie summed overlapping activities twice.
 
 ### 3.9 Settings — ADR 09
 
@@ -445,7 +455,7 @@ The four source apps are the owner's own. The only third-party code found so far
    - The guard recovers only from SQLITE_CORRUPT and SQLITE_NOTADB. A locked or full database is rethrown, and its file is left in place.
    - It moves the `-journal`, `-wal` and `-shm` files with the database.
    - Tests cover both drivers, with a control showing that the stock Android driver deletes a corrupt file. Wiring the guard into the Room open path comes with slice 01.
-2. **Schema slices in ADR dependency order:** 01 → 02 → 03 → 04 → 11 → 06 → 07 → 08 → 09 → 10 → 05 → 12. Each slice is done when its ADR cases pass as tests against the real implementation (§3). Spikes 1 and 3 run with slice 10. Spike 5 needs the Android shell and a device, so it runs with the shell (step 4). **Slice 01: done 2026-10-01** (§3.1), with its folder importer and exporter (§3.13). **Slice 02: done 2026-10-01** (§3.2). **Slice 03: done 2026-10-02** (§3.3). **Slice 04: done 2026-10-02** (§3.4), except spike 5, which needs the Android shell. **Slice 11: done 2026-10-02** (§3.11). **Slice 06: done 2026-10-02** (§3.6), with PLANNED. **Slice 07: done 2026-10-02** (§3.7), but for category totals, which need slice 08.
+2. **Schema slices in ADR dependency order:** 01 → 02 → 03 → 04 → 11 → 06 → 07 → 08 → 09 → 10 → 05 → 12. Each slice is done when its ADR cases pass as tests against the real implementation (§3). Spikes 1 and 3 run with slice 10. Spike 5 needs the Android shell and a device, so it runs with the shell (step 4). **Slice 01: done 2026-10-01** (§3.1), with its folder importer and exporter (§3.13). **Slice 02: done 2026-10-01** (§3.2). **Slice 03: done 2026-10-02** (§3.3). **Slice 04: done 2026-10-02** (§3.4), except spike 5, which needs the Android shell. **Slice 11: done 2026-10-02** (§3.11). **Slice 06: done 2026-10-02** (§3.6), with PLANNED. **Slice 07: done 2026-10-02** (§3.7). **Slice 08: done 2026-10-02** (§3.8), but for its page cases, which come with slice 12.
 3. **The sole-owner modules of §2.**
 4. **Screens**, after §10.1.
 

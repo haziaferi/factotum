@@ -95,14 +95,16 @@ internal interface TimeDao {
 
     /**
      * The live spans that count: started in `[from, to)`, on a live owner, not a habit whose
-     * tracker is deleted (ADR 06), and, when [itemId] is given, on that owner alone.
+     * tracker is deleted (ADR 06); when [itemId] is given, on that owner alone, and with [byLabel],
+     * on whatever carries one of [labelIds] (ADR 08: activities and habits alike, owner 2026-10-02).
      */
     @Query(
         "SELECT s.* FROM time_span s JOIN item i ON i.id = s.item_id LEFT JOIN tracker t ON t.id = i.tracker_id " +
             "WHERE s.deleted_at IS NULL AND i.deleted_at IS NULL AND t.deleted_at IS NULL AND i.kind IN ('TASK', 'HABIT', 'ACTIVITY') " +
-            "AND s.started_at >= :from AND s.started_at < :to AND (:itemId IS NULL OR s.item_id = :itemId) ORDER BY s.started_at, s.id",
+            "AND s.started_at >= :from AND s.started_at < :to AND (:itemId IS NULL OR s.item_id = :itemId) " +
+            "AND (NOT :byLabel OR i.label_id IN (:labelIds)) ORDER BY s.started_at, s.id",
     )
-    suspend fun counted(from: String, to: String, itemId: String?): List<TimeSpanEntity>
+    suspend fun counted(from: String, to: String, itemId: String?, byLabel: Boolean = false, labelIds: List<String> = emptyList()): List<TimeSpanEntity>
 
     /** The running spans that count, as [counted] reads them, on owners not yet finished. */
     @Query(

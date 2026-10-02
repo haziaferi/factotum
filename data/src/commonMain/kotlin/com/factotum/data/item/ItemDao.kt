@@ -28,7 +28,7 @@ import com.factotum.data.tracker.TrackerEntity
         // A habit goes with its tracker (owner, 2026-10-02).
         ForeignKey(TrackerEntity::class, ["id"], ["tracker_id"], onDelete = ForeignKey.CASCADE, deferred = true),
     ],
-    indices = [Index("kind", "start_date", name = "item_kind_date"), Index("parent_id"), Index("tracker_id")],
+    indices = [Index("kind", "start_date", name = "item_kind_date"), Index("parent_id"), Index("tracker_id"), Index("label_id")],
 )
 internal data class ItemEntity(
     @PrimaryKey val id: String,
@@ -69,6 +69,14 @@ internal data class ItemEntity(
     @ColumnInfo(name = "capacity_rank") val capacityRank: Long?,
     @ColumnInfo(name = "status_hlc") val statusHlc: Long,
     @ColumnInfo(name = "status_device") val statusDevice: String,
+    /**
+     * An ACTIVITY's or a HABIT's label (ADR 08), in a group of its own. No foreign key: a label is
+     * never deleted for good, and readers take a deleted or merged one as none or its successor
+     * (as Tendril's habit label had none).
+     */
+    @ColumnInfo(name = "label_id") val labelId: String? = null,
+    @ColumnInfo(name = "label_hlc", defaultValue = "0") val labelHlc: Long = 0,
+    @ColumnInfo(name = "label_device", defaultValue = "''") val labelDevice: String = "",
 )
 
 /** One resolved occurrence of a recurring task (ADR 02): an append-only log, one group. */

@@ -3,6 +3,7 @@ package com.factotum.data
 import androidx.room.RoomDatabase
 import com.factotum.data.item.COMPLETION
 import com.factotum.data.item.HABIT_BLOCK
+import com.factotum.data.label.LABEL
 import com.factotum.data.item.seedBlocks
 import com.factotum.data.item.ITEM
 import com.factotum.data.item.OCCURRENCE_EDIT
@@ -63,7 +64,8 @@ internal object SchemaTriggers : RoomDatabase.Callback() {
      * ADR 02's kind rules; ADR 03's (a standalone reminder has a status and always a date and time);
      * ADR 06's (a habit has a tracker, which nothing else has, and only a habit pauses, has a block
      * or a length, rolls, or is planned); ADR 07's (only an activity has an icon, a colour or an
-     * archived flag, and it has no dates; an activity or a habit has a manual order). In COALESCE, as a NULL inside would let the row through.
+     * archived flag, and it has no dates; an activity or a habit has a manual order); ADR 08's (an
+     * activity or a habit carries a label). In COALESCE, as a NULL inside would let the row through.
      */
     private val itemRules = """
         COALESCE(
@@ -81,6 +83,7 @@ internal object SchemaTriggers : RoomDatabase.Callback() {
             AND (NEW.kind = 'ACTIVITY' OR (NEW.icon IS NULL AND NEW.color IS NULL))
             AND (NEW.archived IS NOT NULL) = (NEW.kind = 'ACTIVITY')
             AND (NEW.sort_order IS NULL OR NEW.kind IN ('ACTIVITY', 'HABIT'))
+            AND (NEW.label_id IS NULL OR NEW.kind IN ('ACTIVITY', 'HABIT'))
             AND (NEW.kind <> 'ACTIVITY' OR (NEW.start_date IS NULL AND NEW.start_time IS NULL AND NEW.due_date IS NULL AND NEW.recurrence_kind IS NULL)),
         0)
         AND $recurrenceRules
@@ -122,6 +125,12 @@ internal object SchemaTriggers : RoomDatabase.Callback() {
      */
     private val spanRules = "COALESCE((SELECT kind FROM item WHERE id = NEW.item_id) IN ('TASK', 'HABIT', 'ACTIVITY'), 1)"
 
+    /**
+     * ADR 08: a label's scope is one of three. That names are unique is not a database rule: two
+     * devices make the same name apart, and the sync merges them (owner, 2026-10-02).
+     */
+    private val labelRules = "COALESCE(NEW.applies_to IN ('ALL', 'ACTIVITY', 'TRACKER'), 0)"
+
     /** A block is a stretch of one day (Tendril's planner); its weekday times are checked where they are read. */
     private val blockRules = "COALESCE(NEW.start_minute >= 0 AND NEW.end_minute > NEW.start_minute AND NEW.end_minute <= 1440 AND NEW.position >= 0, 0)"
 
@@ -151,6 +160,7 @@ internal object SchemaTriggers : RoomDatabase.Callback() {
         GOAL to goalRules,
         HABIT_BLOCK to blockRules,
         TIME_SPAN to spanRules,
+        LABEL to labelRules,
     )
 
     private val statements: List<String> = buildList {

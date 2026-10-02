@@ -3,8 +3,6 @@ package com.factotum.data.item
 import androidx.room.execSQL
 import androidx.room.useReaderConnection
 import androidx.room.useWriterConnection
-import androidx.sqlite.driver.bundled.BundledSQLiteDriver
-import androidx.sqlite.execSQL
 import com.factotum.core.plan.PlanDay
 import com.factotum.core.plan.WeekSuggestion
 import com.factotum.core.recurrence.EditChanges
@@ -14,6 +12,7 @@ import com.factotum.core.recurrence.Recurrence
 import com.factotum.core.recurrence.slotTime
 import com.factotum.data.FactotumDatabase
 import com.factotum.data.LocalWrites
+import com.factotum.data.createAtVersion
 import com.factotum.data.isConstraintViolation
 import com.factotum.data.openFactotumDatabase
 import com.factotum.data.reminder.ReminderRepository
@@ -21,10 +20,6 @@ import com.factotum.data.sync.World
 import com.factotum.data.sync.loadClock
 import com.factotum.data.tracker.TrackerRepository
 import kotlinx.coroutines.runBlocking
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.jsonArray
-import kotlinx.serialization.json.jsonObject
-import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
@@ -112,19 +107,7 @@ class PlannerCasesTest {
     fun aDatabaseUpgradedToTimeBlocksGetsTheDefaults() {
         // A version 7 file as Room's exported schema describes it, which Room then migrates on open.
         val file = File(tmp.root, "v7.db")
-        val schema = Json.parseToJsonElement(File("schemas/com.factotum.data.FactotumDatabase/7.json").readText()).jsonObject.getValue("database").jsonObject
-        val connection = BundledSQLiteDriver().open(file.path)
-        try {
-            for (entity in schema.getValue("entities").jsonArray.map { it.jsonObject }) {
-                val table = entity.getValue("tableName").jsonPrimitive.content
-                val sql = listOf(entity.getValue("createSql")) + entity["indices"]?.jsonArray?.map { it.jsonObject.getValue("createSql") }.orEmpty()
-                sql.forEach { connection.execSQL(it.jsonPrimitive.content.replace("\${TABLE_NAME}", table)) }
-            }
-            schema.getValue("setupQueries").jsonArray.forEach { connection.execSQL(it.jsonPrimitive.content) }
-            connection.execSQL("PRAGMA user_version = 7")
-        } finally {
-            connection.close()
-        }
+        createAtVersion(file, 7)
 
         val upgraded = openFactotumDatabase(file).database
         try {

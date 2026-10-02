@@ -38,6 +38,8 @@ TOTALS = "core/src/commonMain/kotlin/com/factotum/core/time/TimeTotals.kt"
 TIMEREPO = "data/src/commonMain/kotlin/com/factotum/data/time/TimeRepository.kt"
 TIMESPAN = "data/src/commonMain/kotlin/com/factotum/data/time/TimeSpan.kt"
 ACTIVITIES = "data/src/commonMain/kotlin/com/factotum/data/time/ActivityRepository.kt"
+LABELKEY = "core/src/commonMain/kotlin/com/factotum/core/label/Labels.kt"
+LABELS = "data/src/commonMain/kotlin/com/factotum/data/label/LabelRepository.kt"
 
 # slice -> [(name, file, old, new, test task, tests that must fail)]
 SLICES = {
@@ -341,7 +343,7 @@ SLICES = {
          ":data:desktopTest", {"resolvingAPastOccurrenceLeavesTodaysTimerRunning"}),
         ("deleting a tracker leaves its habits' timers", TRACKERS, "TIME_SPAN to times.runningOf(habits))", "TIME_SPAN to emptyList())",
          ":data:desktopTest", {"finishingOrDeletingATaskOrHabitStopsItsTimerAndALogDoesNot"}),
-        ("no sweep after an import", FOLDER, ".also { if (it.changed > 0) afterImport() }", "",
+        ("no sweep after an import", FOLDER, ".also { afterImport() }", "",
          ":data:desktopTest", {"aTaskFinishedOnAnotherDeviceStopsTheTimerHereWhenItArrives"}),
         ("keep rewrites the span's end", TIMEREPO, 'store.put(row.edit(KEPT, clock.tick(), mapOf("kept_at" to seconds(at))))',
          'store.put(row.edit(KEPT, clock.tick(), mapOf("kept_at" to seconds(at))).edit(END, clock.tick(), mapOf("ended_at" to null)))',
@@ -384,6 +386,49 @@ SLICES = {
          ":data:desktopTest", {"activitiesArchiveAndKeepTheirOrderAndTheirColumnsStayTheirs"}),
         ("an activity has dates", TRIGGERS, "\n            AND (NEW.kind <> 'ACTIVITY' OR (NEW.start_date IS NULL AND NEW.start_time IS NULL AND NEW.due_date IS NULL AND NEW.recurrence_kind IS NULL))", "",
          ":data:desktopTest", {"activitiesArchiveAndKeepTheirOrderAndTheirColumnsStayTheirs"}),
+    ],
+    "08": [
+        ("names compare with case", LABELKEY, "fun nameKey(name: String): String = name.trim().lowercase()", "fun nameKey(name: String): String = name.trim()",
+         ":core:desktopTest", {"namesCompareIgnoringCaseAndOuterSpaces"}),
+        ("names compare in any Unicode form", LABELS, "internal fun labelKey(name: String): String = nameKey(nfc(name))", "internal fun labelKey(name: String): String = nameKey(name)",
+         ":data:desktopTest", {"aNameStoredInAnotherUnicodeFormStillCountsAsTheSameName"}),
+        ("a new label's colour is not its name's", LABELS, "(color ?: colorForName(clean))", "(color ?: 0L)",
+         ":data:desktopTest", {"namesAreUniqueIgnoringCaseAndANewLabelTakesItsColourFromItsName"}),
+        ("names need not be unique", LABELS, 'require(dao.liveLabels().none { it.id != except && labelKey(it.name) == labelKey(clean) }) { "there is already a label \\"$clean\\"" }', "Unit",
+         ":data:desktopTest", {"namesAreUniqueIgnoringCaseAndANewLabelTakesItsColourFromItsName"}),
+        ("a dead label is edited", LABELS, "        live(id)\n        check()\n", "        check()\n",
+         ":data:desktopTest", {"deletingASurvivorClearsWhatCarriedTheLabelsMergedIntoItAndADeadLabelIsNotEdited"}),
+        ("the merge keeps the one made last", LABELS, "val first = same.minOf { it.id }", "val first = same.maxOf { it.id }",
+         ":data:desktopTest", {"twoLabelsOfOneNameMadeApartMergeIntoTheOneMadeFirstWithWhatCarriedThem", "aRenameOntoAnotherDevicesNameMergesTheSameWay"}),
+        ("labels never merge", LABELS, "if (into.isEmpty()) return@write", "return@write",
+         ":data:desktopTest", {"twoLabelsOfOneNameMadeApartMergeIntoTheOneMadeFirstWithWhatCarriedThem", "aRenameOntoAnotherDevicesNameMergesTheSameWay"}),
+        ("a merged label reads as none", LABELS, "{ it.mergedInto?.let(byId::get) }", "{ null }",
+         ":data:desktopTest", {"aMergeChainReadsToItsEndAndAChainEndingInADeletedLabelReadsAsNone", "somethingLabelledOnAPeerThatHadNotSeenTheMergeReadsAsTheSurvivor"}),
+        ("deleting leaves what carried merged labels", LABELS, "val same = dao.allLabels().let { all -> val r = resolver(all); all.map { it.id }.filter { r(it) == id } }", "val same = listOf(id)",
+         ":data:desktopTest", {"deletingASurvivorClearsWhatCarriedTheLabelsMergedIntoItAndADeadLabelIsNotEdited"}),
+        ("deleting leaves what carried it", LABELS, '            store.put(requireNotNull(store.row(member)).edit(LABELLED, s, mapOf("label_id" to null)))\n', "",
+         ":data:desktopTest", {"deletingASurvivorClearsWhatCarriedTheLabelsMergedIntoItAndADeadLabelIsNotEdited"}),
+        ("a label outside its scope is set", LABELS, '        require(applies == LabelScope.ALL || applies == scope) { "label ${label.name} is not offered here" }\n', "",
+         ":data:desktopTest", {"chronicleAppliesToScope_aLabelIsOfferedOnlyWhereItAppliesAndNarrowingHides"}),
+        ("a habit is offered activity labels", LABELS, "if (kind == ItemKind.ACTIVITY) LabelScope.ACTIVITY else LabelScope.ALL", "LabelScope.ACTIVITY",
+         ":data:desktopTest", {"chronicleAppliesToScope_aLabelIsOfferedOnlyWhereItAppliesAndNarrowingHides"}),
+        ("a task is labelled", LABELS, '        require(kind == ItemKind.ACTIVITY || kind == ItemKind.HABIT) { "a ${item.kind} carries no label" }\n', "",
+         ":data:desktopTest", {"chronicleOneCategoryPerRow_aSecondLabelReplacesTheFirstAndAnyKindElseCarriesNone"}),
+        ("any item carries a label", TRIGGERS, "            AND (NEW.label_id IS NULL OR NEW.kind IN ('ACTIVITY', 'HABIT'))\n", "",
+         ":data:desktopTest", {"chronicleOneCategoryPerRow_aSecondLabelReplacesTheFirstAndAnyKindElseCarriesNone"}),
+        ("label rules dropped", TRIGGERS, "        LABEL to labelRules,\n", "",
+         ":data:desktopTest", {"chronicleAppliesToScope_aLabelIsOfferedOnlyWhereItAppliesAndNarrowingHides"}),
+        ("a label's total is everything's", TIMEREPO, "dao.counted(from, to, itemId, labelIds != null, labelIds.orEmpty())", "dao.counted(from, to, itemId, false, labelIds.orEmpty())",
+         ":data:desktopTest", {"chronicleActivityAndCategoryTotals_40MinutesOfReadingTotal40ForLeisure"}),
+        ("a label's total leaves out labels merged into it", TIMEREPO, "all.map { it.id }.filter { r(it) == id }", "listOf(id)",
+         ":data:desktopTest", {"deletingASurvivorClearsWhatCarriedTheLabelsMergedIntoItAndADeadLabelIsNotEdited"}),
+        ("an activity shows a merged label as stored", ACTIVITIES, "it.sortOrder, label(it.labelId))", "it.sortOrder, it.labelId)",
+         ":data:desktopTest", {"somethingLabelledOnAPeerThatHadNotSeenTheMergeReadsAsTheSurvivor"}),
+        ("a label reads as stored", LABELS, "suspend fun labelOf(itemId: String): String? = items.items(listOf(itemId)).singleOrNull()?.labelId.let(resolver(dao.allLabels()))",
+         "suspend fun labelOf(itemId: String): String? = items.items(listOf(itemId)).singleOrNull()?.labelId",
+         ":data:desktopTest", {"somethingLabelledOnAPeerThatHadNotSeenTheMergeReadsAsTheSurvivor", "aMergeWritesNothingOnWhatCarriedTheMergedLabelSoAChoiceMadeMeanwhileStands"}),
+        ("triggers kept on an upgrade", OPEN, ".also(::dropTriggersBeforeUpgrade)", "",
+         ":data:desktopTest", {"aVersion9DatabaseKeepsItsItemsAndTrackersWhenLabelsArrive"}),
     ],
 }
 

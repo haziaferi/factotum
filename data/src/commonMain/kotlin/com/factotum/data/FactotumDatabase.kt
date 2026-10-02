@@ -48,6 +48,10 @@ import com.factotum.data.sync.ReadEntity
 import com.factotum.data.sync.RowTable
 import com.factotum.data.sync.SyncDao
 import com.factotum.data.sync.WaitingEntity
+import com.factotum.data.label.LABEL
+import com.factotum.data.label.LabelDao
+import com.factotum.data.label.LabelEntity
+import com.factotum.data.label.labelTable
 import com.factotum.data.time.TIME_SPAN
 import com.factotum.data.time.TimeDao
 import com.factotum.data.time.TimeSpanEntity
@@ -59,14 +63,14 @@ import com.factotum.data.time.timeSpanTable
         BaseEntity::class, AskEntity::class, ReadEntity::class, OutboxEntity::class, KnownTablesEntity::class,
         WaitingEntity::class, ItemEntity::class, CompletionEntity::class, ReminderEntity::class, OccurrenceEditEntity::class,
         TrackerEntity::class, TrackerChoiceEntity::class, TrackerReadingEntity::class, GoalEntity::class, HabitBlockEntity::class,
-        TimeSpanEntity::class,
+        TimeSpanEntity::class, LabelEntity::class,
     ],
-    version = 9,
+    version = SCHEMA_VERSION,
     exportSchema = true,
     autoMigrations = [
         AutoMigration(from = 1, to = 2), AutoMigration(from = 2, to = 3), AutoMigration(from = 3, to = 4), AutoMigration(from = 4, to = 5),
         AutoMigration(from = 5, to = 6), AutoMigration(from = 6, to = 7), AutoMigration(from = 7, to = 8, spec = SeedBlocks::class),
-        AutoMigration(from = 8, to = 9),
+        AutoMigration(from = 8, to = 9), AutoMigration(from = 9, to = 10),
     ],
 )
 @ConstructedBy(FactotumDatabaseConstructor::class)
@@ -76,17 +80,18 @@ abstract class FactotumDatabase : RoomDatabase() {
     internal abstract fun reminderDao(): ReminderDao
     internal abstract fun trackerDao(): TrackerDao
     internal abstract fun timeDao(): TimeDao
+    internal abstract fun labelDao(): LabelDao
 }
 
 /** The synced tables, by the name their folder records carry; [SchemaTriggers] queues writes to each for export. */
-internal val SYNCED_TABLES = listOf(TRACKER, TRACKER_CHOICE, HABIT_BLOCK, ITEM, TIME_SPAN, COMPLETION, REMINDER, OCCURRENCE_EDIT, TRACKER_READING, GOAL)
+internal val SYNCED_TABLES = listOf(LABEL, TRACKER, TRACKER_CHOICE, HABIT_BLOCK, ITEM, TIME_SPAN, COMPLETION, REMINDER, OCCURRENCE_EDIT, TRACKER_READING, GOAL)
 
 /** In [SYNCED_TABLES]' order, parents before children, which is the order a snapshot is written in. */
 internal fun FactotumDatabase.syncedTables(): Map<String, RowTable> {
     val items = itemDao()
     val trackers = trackerDao()
     return mapOf(
-        TRACKER to trackerTable(trackers), TRACKER_CHOICE to choiceTable(trackers), HABIT_BLOCK to habitBlockTable(items), ITEM to itemTable(items),
+        LABEL to labelTable(labelDao()), TRACKER to trackerTable(trackers), TRACKER_CHOICE to choiceTable(trackers), HABIT_BLOCK to habitBlockTable(items), ITEM to itemTable(items),
         TIME_SPAN to timeSpanTable(timeDao()),
         COMPLETION to completionTable(items), REMINDER to reminderTable(reminderDao()), OCCURRENCE_EDIT to occurrenceEditTable(items),
         TRACKER_READING to readingTable(trackers), GOAL to goalTable(trackers),
@@ -103,3 +108,6 @@ internal class SeedBlocks : AutoMigrationSpec {
 expect object FactotumDatabaseConstructor : RoomDatabaseConstructor<FactotumDatabase>
 
 const val DATABASE_NAME = "factotum.db"
+
+/** The schema's version; a file below it is upgraded by Room's migrations on open. */
+internal const val SCHEMA_VERSION = 10

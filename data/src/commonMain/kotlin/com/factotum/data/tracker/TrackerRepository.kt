@@ -10,6 +10,7 @@ import com.factotum.data.LocalWrites
 import com.factotum.data.item.ITEM
 import com.factotum.data.item.SCHEDULE
 import com.factotum.data.item.WHOLE
+import com.factotum.data.label.LABELLED
 import com.factotum.data.time.TIME_SPAN
 import com.factotum.data.time.endRunning
 import com.factotum.data.time.localNow
@@ -36,12 +37,17 @@ internal class TrackerRepository(
     private val clock = writes.clock
 
     /** A new tracker row, for [create] or for a habit made in the same write. */
-    internal fun trackerRow(id: String, name: String, type: TrackerType, unit: String?, unitLabel: String?, defaultNumber: Double?) =
-        Row(TRACKER, id, mapOf(WHOLE to Group(clock.tick(), mapOf(
-            "name" to name, "type" to type.name, "unit" to unit, "unit_label" to unitLabel, "default_number" to defaultNumber,
-            "default_bool" to null, "default_rating" to null, "polarity" to "NEUTRAL", "archived" to false, "sort_order" to 0L,
-            "deleted_at" to null,
-        ))))
+    internal fun trackerRow(id: String, name: String, type: TrackerType, unit: String?, unitLabel: String?, defaultNumber: Double?): Row {
+        val s = clock.tick()
+        return Row(TRACKER, id, mapOf(
+            WHOLE to Group(s, mapOf(
+                "name" to name, "type" to type.name, "unit" to unit, "unit_label" to unitLabel, "default_number" to defaultNumber,
+                "default_bool" to null, "default_rating" to null, "polarity" to "NEUTRAL", "archived" to false, "sort_order" to 0L,
+                "deleted_at" to null,
+            )),
+            LABELLED to Group(s, mapOf("label_id" to null)),
+        ))
+    }
 
     /** A daily (or weekly, monthly) amount to reach, kept as Chronicle's recurring, automatic goal. */
     internal fun trackerGoalRow(id: String, trackerId: String, period: String, value: Double) = goalRow(id, clock.tick(), "TRACKER", trackerId, period, value, "RECURRING")

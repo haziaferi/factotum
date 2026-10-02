@@ -14,6 +14,7 @@ import com.factotum.data.item.STATUS
 import com.factotum.data.openFactotumDatabase
 import com.factotum.data.reminder.ReminderRepository
 import com.factotum.data.tracker.TrackerRepository
+import com.factotum.data.label.LabelRepository
 import com.factotum.data.time.ActivityRepository
 import com.factotum.data.time.TimeRepository
 import com.factotum.data.syncedTables
@@ -60,7 +61,7 @@ internal class World(private val dir: File, seed: Int, private val segmentBytes:
         val db = openFactotumDatabase(File(dir, "$name.db")).database.also { opened += it }
         private val tables = db.syncedTables() + extra
         private var made = 0
-        private val writes = LocalWrites(db, clock)
+        val writes = LocalWrites(db, clock)
         private val newId = { "$name-${made++}" }
         val items = ItemRepository(db, writes, newId)
         val reminders = ReminderRepository(db, writes, newId)
@@ -69,9 +70,13 @@ internal class World(private val dir: File, seed: Int, private val segmentBytes:
         val trackers = TrackerRepository(db, writes, newId)
         val time = TimeRepository(db, writes, newId)
         val activities = ActivityRepository(db, writes, newId)
+        val labels = LabelRepository(db, writes, newId)
         /** The wall clock the time rules read, as a local date-time. */
         var now = LocalDateTime(2026, 10, 5, 12, 0)
-        val sync = FolderSync(db, syncthing.folder(name), id, clock, tables, segmentBytes, snapshotEvery, afterImport = { time.endFinished(now) })
+        val sync = FolderSync(db, syncthing.folder(name), id, clock, tables, segmentBytes, snapshotEvery, afterImport = {
+            labels.mergeDuplicates()
+            time.endFinished(now)
+        })
 
         fun create(): String = runBlocking { items.createTask("$name@${syncthing.now}") }.also(::record)
 

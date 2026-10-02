@@ -5,6 +5,7 @@ import com.factotum.core.sync.Row
 import com.factotum.core.sync.Stamp
 import com.factotum.data.item.EntityTable
 import com.factotum.data.item.WHOLE
+import com.factotum.data.label.LABELLED
 
 internal const val TRACKER = "tracker"
 internal const val TRACKER_CHOICE = "tracker_choice"
@@ -45,16 +46,21 @@ private class Values(row: Row) {
     fun bOrNull(k: String) = v[k] as Boolean?
 }
 
-internal fun TrackerEntity.toRow() = whole(TRACKER, id, hlc, device, mapOf(
-    "name" to name, "type" to type, "unit" to unit, "unit_label" to unitLabel, "default_number" to defaultNumber,
-    "default_bool" to defaultBool, "default_rating" to defaultRating, "polarity" to polarity, "archived" to archived,
-    "sort_order" to sortOrder, "deleted_at" to deletedAt,
+internal fun TrackerEntity.toRow() = Row(TRACKER, id, mapOf(
+    WHOLE to Group(Stamp(hlc, device), mapOf(
+        "name" to name, "type" to type, "unit" to unit, "unit_label" to unitLabel, "default_number" to defaultNumber,
+        "default_bool" to defaultBool, "default_rating" to defaultRating, "polarity" to polarity, "archived" to archived,
+        "sort_order" to sortOrder, "deleted_at" to deletedAt,
+    )),
+    LABELLED to Group(Stamp(labelHlc, labelDevice), mapOf("label_id" to labelId)),
 ))
 
 internal fun Row.toTrackerEntity() = Values(this).run {
+    val label = groups.getValue(LABELLED)
     TrackerEntity(
         id, s("name"), s("type"), sOrNull("unit"), sOrNull("unit_label"), dOrNull("default_number"), bOrNull("default_bool"),
         lOrNull("default_rating"), s("polarity"), b("archived"), l("sort_order"), lOrNull("deleted_at"), group.stamp.hlc, group.stamp.device,
+        label.values["label_id"] as String?, label.stamp.hlc, label.stamp.device,
     )
 }
 

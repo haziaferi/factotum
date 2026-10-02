@@ -14,9 +14,9 @@ import androidx.room.Upsert
  * `TrackerChoiceEntity`, `EntryEntity` (now `tracker_reading`, ADR 02's name) and `GoalEntity`.
  * Chronicle stamps whole rows, so each table is one ADR 01 group. Two changes: a reading's time
  * is a floating local date-time, as every time in Factotum is (§3.4), and the creation time is
- * the ULID's own. A tracker's category becomes ADR 08's label with slice 08.
+ * the ULID's own. A tracker's category is ADR 08's label.
  */
-@Entity(tableName = "tracker")
+@Entity(tableName = "tracker", indices = [Index("label_id")])
 internal data class TrackerEntity(
     @PrimaryKey val id: String,
     val name: String,
@@ -37,6 +37,10 @@ internal data class TrackerEntity(
     @ColumnInfo(name = "deleted_at") val deletedAt: Long?,
     val hlc: Long,
     val device: String,
+    /** Its label (ADR 08, Chronicle's category), in a group of its own; no foreign key, as on an item. */
+    @ColumnInfo(name = "label_id") val labelId: String? = null,
+    @ColumnInfo(name = "label_hlc", defaultValue = "0") val labelHlc: Long = 0,
+    @ColumnInfo(name = "label_device", defaultValue = "''") val labelDevice: String = "",
 )
 
 @Entity(

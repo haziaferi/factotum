@@ -12,6 +12,7 @@ import com.factotum.data.item.ITEM
 import com.factotum.data.item.ItemKind
 import com.factotum.data.item.MIDNIGHT
 import com.factotum.data.item.SCHEDULE
+import com.factotum.data.label.resolver
 import com.factotum.data.sync.StagedStore
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDate
@@ -51,6 +52,7 @@ internal class TimeRepository(
 ) {
     private val dao = db.timeDao()
     private val items = db.itemDao()
+    private val labels = db.labelDao()
     private val clock = writes.clock
 
     /** Starts a timer on [itemId] at [at]; another running timer keeps running. */
@@ -133,14 +135,22 @@ internal class TimeRepository(
     /** The spans that count, started on [day] (the personal day), of [itemId] or of everything. */
     suspend fun spansOn(day: LocalDate, itemId: String? = null): List<TrackedSpan> = counted(listOf(day), itemId).map { it.toTracked() }
 
-    /** [days]' total in seconds at [now], of [itemId] or of everything: overlaps once, each day added. */
-    suspend fun total(days: List<LocalDate>, now: LocalDateTime, itemId: String? = null): Long =
-        totalOf(days, counted(days, itemId).map { it.toSpan() }, now, dayStart)
+    /**
+     * [days]' total in seconds at [now], of [itemId], of everything carrying [labelId] (Chronicle's
+     * category total; a label merged into it counts as it), or of everything: overlaps once, each
+     * day added. A deleted label has no time.
+     */
+    suspend fun total(days: List<LocalDate>, now: LocalDateTime, itemId: String? = null, labelId: String? = null): Long {
+        val labelIds = labelId?.let { id -> labels.allLabels().let { all -> val r = resolver(all); all.map { it.id }.filter { r(it) == id } } }
+        return totalOf(days, counted(days, itemId, labelIds).map { it.toSpan() }, now, dayStart)
+    }
 
-    private suspend fun counted(days: List<LocalDate>, itemId: String?): List<TimeSpanEntity> {
+    private suspend fun counted(days: List<LocalDate>, itemId: String?, labelIds: List<String>? = null): List<TimeSpanEntity> {
         if (days.isEmpty()) return emptyList()
         // A personal day starting after midnight runs into the next date.
-        return dao.counted(LocalDateTime(days.min(), dayStart).toString(), LocalDateTime(days.max().plus(1, DateTimeUnit.DAY), dayStart).toString(), itemId)
+        val from = LocalDateTime(days.min(), dayStart).toString()
+        val to = LocalDateTime(days.max().plus(1, DateTimeUnit.DAY), dayStart).toString()
+        return dao.counted(from, to, itemId, labelIds != null, labelIds.orEmpty())
     }
 
     private suspend fun add(itemId: String, start: LocalDateTime, end: LocalDateTime?, comment: String?, plannedRun: String?): String {

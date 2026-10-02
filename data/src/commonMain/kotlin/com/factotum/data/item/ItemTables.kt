@@ -4,6 +4,7 @@ import com.factotum.core.sync.Group
 import com.factotum.core.sync.Row
 import com.factotum.core.sync.Stamp
 import com.factotum.data.sync.RowTable
+import com.factotum.data.label.LABELLED
 import com.factotum.data.tracker.TRACKER
 
 internal const val ITEM = "item"
@@ -59,6 +60,7 @@ internal fun ItemEntity.toRow() = Row(ITEM, id, mapOf(
         settles = scheduleSettlesHlc?.let { Stamp(it, requireNotNull(scheduleSettlesDevice)) },
     ),
     STATUS to Group(Stamp(statusHlc, statusDevice), mapOf("status" to status, "importance" to importance, "capacity_rank" to capacityRank, "archived" to archived)),
+    LABELLED to Group(Stamp(labelHlc, labelDevice), mapOf("label_id" to labelId)),
 ))
 
 /** Throws when [this] lacks an item's groups, holds a value of the wrong type, or a recurrence this version cannot read. */
@@ -66,6 +68,7 @@ internal fun Row.toItemEntity(): ItemEntity {
     val d = groups.getValue(DETAILS)
     val s = groups.getValue(SCHEDULE)
     val st = groups.getValue(STATUS)
+    val label = groups.getValue(LABELLED)
     return ItemEntity(
         id = id,
         kind = d.values["kind"] as String,
@@ -98,6 +101,9 @@ internal fun Row.toItemEntity(): ItemEntity {
         capacityRank = st.values["capacity_rank"] as Long?,
         statusHlc = st.stamp.hlc,
         statusDevice = st.stamp.device,
+        labelId = label.values["label_id"] as String?,
+        labelHlc = label.stamp.hlc,
+        labelDevice = label.stamp.device,
     ).also { it.recurrence() }
 }
 

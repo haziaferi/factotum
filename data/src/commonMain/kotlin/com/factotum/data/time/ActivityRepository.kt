@@ -14,12 +14,14 @@ import com.factotum.data.item.WHOLE
 import com.factotum.data.item.itemRow
 import com.factotum.data.item.schedule
 import com.factotum.data.tracker.GOAL
+import com.factotum.data.label.resolver
 import com.factotum.data.tracker.goalRow
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.LocalTime
 
-data class Activity(val id: String, val name: String, val icon: String?, val color: Long?, val archived: Boolean, val sortOrder: Double?)
+/** An activity; [labelId] is its label (Chronicle's category) as it reads now: a merged one's successor, none once deleted. */
+data class Activity(val id: String, val name: String, val icon: String?, val color: Long?, val archived: Boolean, val sortOrder: Double?, val labelId: String? = null)
 
 /** A goal on an activity's time against its target, in whole minutes, as Chronicle shows it. */
 data class TimeGoalProgress(val minutes: Long, val targetMinutes: Long)
@@ -38,6 +40,7 @@ internal class ActivityRepository(
     private val items = db.itemDao()
     private val times = db.timeDao()
     private val goals = db.trackerDao()
+    private val labelDao = db.labelDao()
     private val time = TimeRepository(db, writes, newId, dayStart)
     private val clock = writes.clock
 
@@ -54,9 +57,12 @@ internal class ActivityRepository(
     }
 
     /** The live activities in their manual order, archived ones only when asked. */
-    suspend fun activities(withArchived: Boolean = false): List<Activity> = items.liveActivities()
-        .filter { withArchived || it.archived != true }
-        .map { Activity(it.id, it.title, it.icon, it.color, it.archived == true, it.sortOrder) }
+    suspend fun activities(withArchived: Boolean = false): List<Activity> {
+        val label = resolver(labelDao.allLabels())
+        return items.liveActivities()
+            .filter { withArchived || it.archived != true }
+            .map { Activity(it.id, it.title, it.icon, it.color, it.archived == true, it.sortOrder, label(it.labelId)) }
+    }
 
     suspend fun setArchived(id: String, archived: Boolean) {
         activity(id)

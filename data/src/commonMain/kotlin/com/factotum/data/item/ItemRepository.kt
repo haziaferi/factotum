@@ -5,6 +5,7 @@ import com.factotum.core.sync.Row
 import com.factotum.core.sync.Stamp
 import com.factotum.data.FactotumDatabase
 import com.factotum.data.LocalWrites
+import com.factotum.data.label.LABELLED
 import com.factotum.data.reminder.ALERT
 import com.factotum.data.reminder.REMINDER
 import com.factotum.data.time.TIME_SPAN
@@ -228,6 +229,7 @@ internal fun itemRow(
     )),
     SCHEDULE to Group(s, mapOf<String, Any?>("pause_from" to null, "pause_until" to null, "duration_min" to null) + schedule),
     STATUS to Group(s, mapOf("status" to status?.name, "importance" to importance, "capacity_rank" to capacityRank, "archived" to null)),
+    LABELLED to Group(s, mapOf("label_id" to null)),
 ))
 
 internal fun ItemEntity.toItem() = Item(

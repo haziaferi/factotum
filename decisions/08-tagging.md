@@ -55,7 +55,7 @@ The facts were verified with `tools/verify.py`; the raw output is in `verify/08-
 
 ## Consequences: fixes, not questions
 
-- **Names are unique, ignoring case** (a unique index on `lower(name)`). Neither app enforces this. Chronicle's by-name pick can choose the wrong row (`TrackerCreationSheet.kt:107`), and Tendril relies on the create-on-type path.
+- **Names are unique, ignoring case** (amended at build, 2026-10-02: kept by the repository and by a merge after each sync, not by a unique index, which would refuse a merged row and stop every later import). Neither app enforces this. Chronicle's by-name pick can choose the wrong row (`TrackerCreationSheet.kt:107`), and Tendril relies on the create-on-type path.
 - **Colour.** A new label takes Tendril's name-derived colour as its default, so creating one as you type needs no picker. It can then be changed, as in Chronicle, and the chosen colour syncs.
 - **Labels sync as rows** under ADR 01, with id, stamps and tombstone. They no longer travel as names inside a page record. A page's label set merges per `page_label` row rather than replacing the whole set, so a label removed on the losing side isn't lost.
 - **Rename, recolour and delete apply to every label.** Tendril has none of these today. Deleting a label clears it from members and keeps them, as Chronicle does.
