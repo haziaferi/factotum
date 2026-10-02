@@ -241,6 +241,7 @@ Every decision here was scored against its owners' behaviour cases, with a contr
 - A span counts wholly for **the day it started**.
 - A day's total is the union of the spans that started that day, and a week's total is the sum of its days.
 - Manual entry and editing apply to every owner.
+- **Owner answers, 2026-10-02:** a span running past a limit (12 hours to start with) asks the person to keep it, end it at a time they pick, or end it at the limit, and counts as running until answered; marking a task done or skipped, or deleting a task or habit, ends its running spans, while a habit's Log does not.
 
 **Acceptance:** `cases/07-timelog.jsonl`, 9 cases.
 
