@@ -1,6 +1,6 @@
 # Factotum — Product & Technical Spec
 
-**Status:** draft v0.13, seeded from the decision register · **Scope:** the merged data model, sync and behaviour rules of Factotum. Screens are not decided and are marked open (§10.1).
+**Status:** draft v0.14, seeded from the decision register · **Scope:** the merged data model, sync and behaviour rules of Factotum. Screens are not decided and are marked open (§10.1).
 **Related documents:** `decisions/`, the evidence behind §3: one ADR per decision with verified `file:line` facts, the scored options, the behaviour cases and the harness that measured them (`decisions/register.md` is the index). This spec states each decision once and points to its ADR for the evidence. It never restates the evidence.
 
 ---
@@ -9,6 +9,7 @@
 
 | Version | Summary | Sections touched |
 |---|---|---|
+| v0.14 | Owner answer: an "n a day" habit reminds at the start of each occurrence's block. Found on the way: a whole-day item reminded before its anchor missed the rest of a day once a firing had passed | §3.4, §3.6, §10 |
 | v0.13 | Slice 06b built: time blocks with Tendril's five defaults, the PLANNED kind, and the week planner ported from Tendril. A 06a defect fixed: two habits sharing a tracker shared one pause | §3.4, §3.6, §7 |
 | v0.12 | Slice 06a built: trackers (Chronicle's, as they are), habits tied to their trackers, Logs, presence with the owner's rule, rolling habits, pause. The item rules now sit in COALESCE: a task with no status had slipped through | §3.4, §3.6, §7 |
 | v0.11 | Slice 11 built: the occurrence-edit log, its engine in `:core`, clash questions from base stamps, edits reaching reminders | §3.11, §7 |
@@ -186,7 +187,7 @@ Every decision here was scored against its owners' behaviour cases, with a contr
 - **Times are floating.** `UNTIL` with a `Z` is read as local, like every other time. Turning a time into an instant, with the DST-gap rule above, belongs to the shells' alarm code.
 - **The seeded draw** is the spike's FNV-1a 64 + SplitMix64, cut at the same bound, so its draws equal the spike's.
 - **Recurrence lives in the item's schedule group**, so a clashing rule change asks a person (ADR 04). Triggers tie each kind to its columns and require a start date.
-- **Reminders on a repeating item** fire at its next occurrence after a given moment that is not resolved in the completion log. A whole-day item's fire at the reminder's anchor, unless its rule sets times (BYHOUR, a random window, cron). A snooze names the firing it snoozes, which only the shell knows, and holds for that one firing. A rule this version cannot read (from a newer peer) silences only its own item's reminders.
+- **Reminders on a repeating item** fire at its next occurrence after a given moment that is not resolved in the completion log. The search for it starts at the beginning of the day before that moment (earlier by a positive offset), since a whole-day occurrence sits at midnight and fires hours later: starting at the moment itself missed the rest of a day for a reminder set before its anchor (fixed 2026-10-02). A whole-day item's fire at the reminder's anchor, unless its rule sets times (BYHOUR, a random window, cron). A snooze names the firing it snoozes, which only the shell knows, and holds for that one firing. A rule this version cannot read (from a newer peer) silences only its own item's reminders.
 - **Rules that would mislead are refused**, as well as unsupported parts: BYMONTHDAY under WEEKLY, a day no listed month has, an INTERVAL over 10,000. A minutely or hourly rule skips the days its limits exclude, so a rare one costs no more than a frequent one.
 - **PLANNED** (habits' planner) was built with slice 06 (§3.6, part b).
 - **Spike 5 (force-stop detection)** needs the Android shell and a device; it runs with the shell, not here.
@@ -229,7 +230,7 @@ Every decision here was scored against its owners' behaviour cases, with a contr
 - **Placing:** a set time goes in the block holding it (start in, end out), else outside every block, kept and shown; otherwise in the block an edit gave the occurrence (or none), else its slot's block, else the habit's. Blocks that overlap on a day are reported. With every block deleted, "n a day" occurrences are at any time, where Tendril placed none: they still exist to be Logged.
 - **The personal day** of a whole-day occurrence is its own date; only a timed one moves to the day before when the day starts after midnight (§3.6, part a). Pause and Logs both follow it. Whether an occurrence is timed is one rule for the planner, pause, Logs and reminders: the item's set time, a time its day's rule sets, or one an edit gave it.
 - **An occurrence's block** is ADR 11's `block` field, now read; it merges silently. `sort_order`, `rule_patch` and `pause` stay as written: items have no sort order yet (order in a block is by item, then occurrence), and Factotum edits a rule with a FROM edit and pauses on the item.
-- **Reminders** on an "n a day" habit fire at the reminder's anchor, once for the day's unlogged occurrences, as on any whole-day item. Whether each occurrence should remind at its own block is open (§10, item 11).
+- **Reminders** on an "n a day" habit fire once per unlogged occurrence, at the start of its block that day (weekday times included), moved by the reminder's offset (owner, 2026-10-02). An occurrence with no block left fires at the reminder's anchor. The next firing is the earliest due, not the next occurrence's, as blocks need not follow the occurrences' order.
 - **Found on the way:** habits sharing a tracker shared one pause, as their state was keyed by tracker. It is keyed by habit now.
 
 ### 3.7 Timed intervals — ADR 07
@@ -481,7 +482,7 @@ Status: 2, 4 and 6 are done (`docs/spikes-2026-10-01.md`). With §10.2 decided, 
    - The pre-edit copies are in `../_map-before-2026-10-01/`.
 9. **The sync folder's layout. Decided 2026-10-01:** ADR 13, device-log+copies (§3.13).
 10. **A habit whose tracker is deleted. Decided 2026-10-02:** the habit goes with it; the tracker is created with the habit (§3.6).
-11. **Reminders on an "n a day" habit.** Today one reminder a day fires, at its anchor, while any of the day's occurrences is unlogged. Each occurrence could instead remind at the start of its block (§3.6, part b). Tendril gave such habits no reminder at all.
+11. **Reminders on an "n a day" habit. Decided 2026-10-02:** each occurrence reminds at the start of its block (§3.6, part b). Tendril gave such habits no reminder at all.
 
 ## 11. Next Steps
 

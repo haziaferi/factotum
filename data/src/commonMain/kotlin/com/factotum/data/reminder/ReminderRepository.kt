@@ -23,7 +23,11 @@ import com.factotum.core.recurrence.Occurrence
 import com.factotum.core.recurrence.OccurrenceEdit
 import com.factotum.core.recurrence.Recurrence
 import com.factotum.core.recurrence.occurrencesWithEdits
+import com.factotum.core.recurrence.inForceOn
 import com.factotum.core.recurrence.timed
+import com.factotum.core.plan.TimeBlock
+import com.factotum.core.plan.blockOf
+import com.factotum.core.plan.blockOrder
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
@@ -107,8 +111,8 @@ internal class ReminderRepository(
     /**
      * When each live reminder fires next, after [after] if given. A firing is an occurrence of the
      * item (its start, or each time its recurrence gives, ADR 04) at the occurrence's time (or the
-     * reminder's anchor for a whole-day item, else midnight), moved by the offset in wall-clock
-     * minutes. An occurrence resolved in the completion log does not fire, nor does any once the
+     * start of its block that day for an "n a day" habit, owner 2026-10-02; else the reminder's
+     * anchor for a whole-day item, else midnight), moved by the offset in wall-clock minutes. An occurrence resolved in the completion log does not fire, nor does any once the
      * item is done, skipped or deleted. A snooze replaces the one firing it snoozed. Nothing here
      * writes (§3.13 requirement 1).
      */
@@ -119,11 +123,12 @@ internal class ReminderRepository(
         val since = after ?: sources.minOfOrNull { dtstartOf(it.startDate, it.startTime) } ?: return emptyList()
         val habits = sources.mapNotNull { s -> s.trackerId?.let { HabitRef(s.itemId, it, s.pauseFrom, s.pauseUntil) } }.distinctBy { it.id }
         val states = habitStates(readings, habits, dayStart, LocalDateTime(since.date.plus(-2, DateTimeUnit.DAY), since.time), FAR)
-        return sources.mapNotNull { s -> firing(s, editsByItem[s.itemId].orEmpty(), states[s.itemId] ?: HabitState.NONE, after) }
+        val blocks = items.liveBlocks().map { it.toBlock() }
+        return sources.mapNotNull { s -> firing(s, editsByItem[s.itemId].orEmpty(), states[s.itemId] ?: HabitState.NONE, blocks, after) }
             .sortedWith(compareBy({ it.at }, { it.reminderId }))
     }
 
-    private suspend fun firing(s: FiringSource, editRows: List<OccurrenceEditEntity>, habit: HabitState, after: LocalDateTime?): Firing? {
+    private suspend fun firing(s: FiringSource, editRows: List<OccurrenceEditEntity>, habit: HabitState, blocks: List<TimeBlock>, after: LocalDateTime?): Firing? {
         // A row this version cannot read (a rule from a newer peer) silences its own reminder, not all of them.
         val recurrence = try {
             s.repeat.recurrence()
@@ -131,7 +136,7 @@ internal class ReminderRepository(
             return null
         }
         val resolved = if (recurrence == null) emptySet() else items.completionsOf(s.itemId).map { LocalDateTime.parse(it.occurrence) }.toSet()
-        return Firings(s, recurrence, editRows.map { it.toEdit() }, resolved, habit).next(after)?.let { Firing(s.reminderId, s.itemId, it) }
+        return Firings(s, recurrence, editRows.map { it.toEdit() }, resolved, habit, blocks).next(after)?.let { Firing(s.reminderId, s.itemId, it) }
     }
 
     /** One reminder's firings, from its item's start, [recurrence] and occurrence [edits] (ADR 11), less the [resolved] occurrence dates. */
@@ -141,21 +146,27 @@ internal class ReminderRepository(
         private val edits: List<OccurrenceEdit>,
         private val resolved: Set<LocalDateTime>,
         private val habit: HabitState,
+        private val blocks: List<TimeBlock>,
     ) {
         private val dtstart = dtstartOf(s.startDate, s.startTime)
+        private val order = blockOrder(blocks)
         private val anchor = s.anchorTime?.let(LocalTime::parse) ?: MIDNIGHT
 
         /** The first firing after [after] (from the start when null) other than [skip], searched in widening windows. */
         fun first(after: LocalDateTime?, skip: LocalDateTime? = null): LocalDateTime? {
-            // An occurrence can fire days either side of itself: start the search the offset earlier, less a day.
-            val from = after?.let { LocalDateTime(it.date.plus(-(s.offsetMin.floorDiv(MINUTES_PER_DAY) + 1), DateTimeUnit.DAY), it.time) } ?: dtstart
+            // An occurrence fires up to its offset after itself, and a whole-day one hours into its day:
+            // search from the start of the day before, less the offset in whole days.
+            val back = maxOf(0L, s.offsetMin).let { (it + MINUTES_PER_DAY - 1) / MINUTES_PER_DAY } + 1
+            val from = after?.let { LocalDateTime(it.date.plus(-back, DateTimeUnit.DAY), MIDNIGHT) } ?: dtstart
             for (days in SEARCH_DAYS) {
                 val to = LocalDateTime(from.date.plus(days, DateTimeUnit.DAY), from.time)
                 habit.unlogged(recurrence.occurrencesWithEdits(s.itemId, dtstart, "", null, edits, from, to, habit.lastDone), ::timed)
                     .asSequence()
                     .filter { (it.original ?: it.at) !in resolved && !habit.paused(it, timed(it)) }
                     .map(::fire)
-                    .firstOrNull { (after == null || it > after) && it != skip }
+                    // The earliest, as firings need not follow the occurrences' order: an "n a day" habit's blocks need not.
+                    .filter { (after == null || it > after) && it != skip }
+                    .minOrNull()
                     ?.let { return it }
             }
             return null
@@ -178,7 +189,15 @@ internal class ReminderRepository(
          * A timed item fires at each occurrence's time, and so does a whole-day one whose rule sets
          * times, or whose edit gave this occurrence a time of its own; others at the anchor.
          */
-        private fun fire(o: Occurrence): LocalDateTime = shift(o.at.date, if (timed(o)) o.at.time else anchor, s.offsetMin)
+        private fun fire(o: Occurrence): LocalDateTime = shift(o.at.date, if (timed(o)) o.at.time else blockStart(o) ?: anchor, s.offsetMin)
+
+        /** An "n a day" habit's occurrence reminds at the start of its block that day (owner, 2026-10-02); none when it has no block. */
+        private fun blockStart(o: Occurrence): LocalTime? {
+            val rule = recurrence.inForceOn(o.original?.date ?: o.at.date, edits)
+            if ((rule as? Recurrence.Planned)?.per != Recurrence.Planned.Per.DAY) return null
+            val block = blockOf(o, rule, s.blockId, order)
+            return blocks.firstOrNull { it.id == block }?.on(o.at.dayOfWeek)?.let { LocalTime.fromSecondOfDay(it.start * 60) }
+        }
     }
 
     private fun reminderRow(id: String, itemId: String, offset: Long, anchor: LocalTime?, alert: Alert): Row {

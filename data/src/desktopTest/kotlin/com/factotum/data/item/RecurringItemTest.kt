@@ -166,6 +166,14 @@ class RecurringItemTest {
     }
 
     @Test
+    fun aWholeDayItemRemindedBeforeItsAnchorStillFiresLaterThatDay() {
+        val task = runBlocking { items.createTask("water plants", MONDAY, recurrence = rule("FREQ=DAILY")) }
+        runBlocking { reminders.add(task, -10, anchor = LocalTime(12, 0)) }
+
+        assertEquals(at(5, 11, 50), runBlocking { reminders.firings(after = at(5, 8)) }.single().at)
+    }
+
+    @Test
     fun aWholeDayItemWhoseRuleSetsTimesFiresAtThem() {
         val task = runBlocking { items.createTask("meds", MONDAY, recurrence = rule("FREQ=DAILY;BYHOUR=8,20;BYMINUTE=0")) }
         runBlocking { reminders.add(task, 0) }

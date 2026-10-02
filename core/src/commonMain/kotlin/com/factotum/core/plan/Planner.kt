@@ -97,9 +97,8 @@ fun spread(k: Int, n: Int): List<Int> = (0 until n).map { i -> minOf(k - 1, ((i 
  */
 fun planWeek(monday: LocalDate, blocks: List<TimeBlock>, habits: List<PlanHabit>): PlanWeek {
     val days = (0 until 7).map { monday.plus(it, DateTimeUnit.DAY) }
-    val order = blocks.sortedWith(compareBy({ it.position }, { it.id })).map { it.id }
-    val slots = HashMap<Recurrence.Planned, List<String>>()
-    val placed = habits.associate { h -> h.itemId to h.occurrences.map { o -> placed(h, o) { r -> slots.getOrPut(r) { slotsOf(r, order) } } } }
+    val order = blockOrder(blocks)
+    val placed = habits.associate { h -> h.itemId to h.occurrences.map { o -> placed(h, o, order) } }
 
     // The days a habit follows an "n a week" rule are its weekly part; the rest is fixed load.
     fun weeklyOn(h: PlanHabit, d: LocalDate) = (h.rules[d] as? Recurrence.Planned)?.per == Recurrence.Planned.Per.WEEK
@@ -131,24 +130,27 @@ fun planWeek(monday: LocalDate, blocks: List<TimeBlock>, habits: List<PlanHabit>
     return PlanWeek(monday, days.map { d -> placeDay(d, blocks.map { it.on(d.dayOfWeek) }, byDay[d].orEmpty()) }, suggestions)
 }
 
-/** An "n a day" rule's blocks, one per occurrence: those it names, else spread over [order]. */
-private fun slotsOf(r: Recurrence.Planned, order: List<String>): List<String> =
-    r.blocks.ifEmpty { if (order.isEmpty()) emptyList() else spread(order.size, r.n).map(order::get) }
+/** The order blocks are listed in and an "n a day" habit is spread over: by position, then id. */
+fun blockOrder(blocks: List<TimeBlock>): List<String> = blocks.sortedWith(compareBy({ it.position }, { it.id })).map { it.id }
 
 /**
- * Where [o] goes: at its time when timed; else in the block an edit gave it, else its slot's block
- * ("n a day", by the occurrence's place in its day), else the habit's block. With no block left,
- * an "n a day" habit's occurrences are at any time, where Tendril placed none.
+ * The block an untimed [o] sits in: the one an edit gave it, even none ("any time"); else, under
+ * an "n a day" [rule] (its day's), its slot's block by its place in the day, those the rule names
+ * or the blocks in [order] spread evenly; else [habitBlock]. With no block left, an "n a day"
+ * habit's occurrences are at any time, where Tendril placed none.
  */
-private fun placed(h: PlanHabit, o: Occurrence, slots: (Recurrence.Planned) -> List<String>): Placed {
-    val original = o.original
-    val rule = h.rules[original?.date ?: o.at.date]
+fun blockOf(o: Occurrence, rule: Recurrence?, habitBlock: String?, order: List<String>): String? {
+    o.block?.let { return it.value }
+    val r = (rule as? Recurrence.Planned)?.takeIf { it.per == Recurrence.Planned.Per.DAY }
+    val slots = r?.blocks?.ifEmpty { if (order.isEmpty()) emptyList() else spread(order.size, r.n).map(order::get) }
+    return o.original?.let { slots?.getOrNull(it.time.second) } ?: habitBlock
+}
+
+/** Where [o] goes: at its time when timed, else in its block ([blockOf]). */
+private fun placed(h: PlanHabit, o: Occurrence, order: List<String>): Placed {
+    val rule = h.rules[o.original?.date ?: o.at.date]
     val minute = if (h.setTime || rule?.setsTimes == true || o.ownTime) o.at.time.hour * 60 + o.at.time.minute else null
-    val slot = original?.let { (rule as? Recurrence.Planned)?.takeIf { it.per == Recurrence.Planned.Per.DAY }?.let(slots)?.getOrNull(it.time.second) }
-    // An edit's block wins even when it is none ("any time").
-    val edited = o.block
-    val block = if (edited != null) edited.value else slot ?: h.blockId
-    return Placed(h.itemId, o, minute, block, (o.durationMin ?: h.durationMin.toLong()).toInt())
+    return Placed(h.itemId, o, minute, blockOf(o, rule, h.blockId, order), (o.durationMin ?: h.durationMin.toLong()).toInt())
 }
 
 private fun placeDay(d: LocalDate, blocks: List<TimeBlock>, entries: List<Placed>): PlanDay {

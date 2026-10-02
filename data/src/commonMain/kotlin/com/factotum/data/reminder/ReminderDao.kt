@@ -57,6 +57,7 @@ internal data class FiringSource(
     val snoozedFrom: String?,
     @Embedded val repeat: RecurrenceColumns,
     val trackerId: String?,
+    val blockId: String?,
     val pauseFrom: String?,
     val pauseUntil: String?,
 )
@@ -83,7 +84,7 @@ internal interface ReminderDao {
             "r.offset_min AS offsetMin, r.anchor_time AS anchorTime, r.snoozed_until AS snoozedUntil, r.snoozed_from AS snoozedFrom, " +
             "i.recurrence_kind, i.rrule, i.rand_min_days, i.rand_max_days, i.window_days, i.window_start, i.window_end, " +
             "i.roll_every, i.roll_unit, i.plan_n, i.plan_per, i.plan_days, i.plan_blocks, " +
-            "i.tracker_id AS trackerId, i.pause_from AS pauseFrom, i.pause_until AS pauseUntil " +
+            "i.tracker_id AS trackerId, i.block_id AS blockId, i.pause_from AS pauseFrom, i.pause_until AS pauseUntil " +
             "FROM reminder r JOIN item i ON i.id = r.item_id LEFT JOIN tracker t ON t.id = i.tracker_id " +
             "WHERE r.deleted_at IS NULL AND i.deleted_at IS NULL AND t.deleted_at IS NULL AND i.start_date IS NOT NULL " +
             "AND (i.status IS NULL OR i.status = 'PENDING')",

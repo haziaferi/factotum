@@ -236,6 +236,46 @@ class PlannerCasesTest {
         assertEquals(listOf(evening), runBlocking { reminders.firings(LocalDateTime(day(5), LocalTime(0, 0))) }.map { it.itemId }.distinct())
     }
 
+    private fun nextFirings(count: Int, from: LocalDateTime): List<LocalDateTime> = runBlocking {
+        buildList {
+            var after = from
+            repeat(count) { after = reminders.firings(after).single().at.also(::add) }
+        }
+    }
+
+    @Test
+    fun anNADayHabitRemindsAtTheStartOfEachOfItsBlocks() {
+        val water = runBlocking { habits.create("water", monday, recurrence = Recurrence.Planned(3, Recurrence.Planned.Per.DAY)) }
+        runBlocking { reminders.add(water, -10, anchor = LocalTime(12, 0)) }
+
+        assertEquals(
+            listOf(LocalDateTime(day(5), LocalTime(6, 20)), LocalDateTime(day(5), LocalTime(12, 50)), LocalDateTime(day(5), LocalTime(21, 20)), LocalDateTime(day(6), LocalTime(6, 20))),
+            nextFirings(4, LocalDateTime(day(5), LocalTime(0, 0))),
+        )
+    }
+
+    @Test
+    fun aLoggedOccurrenceIsQuietAndABlocksOwnDayAndOrderAreFollowed() {
+        val pills = runBlocking { habits.create("pills", monday, recurrence = Recurrence.Planned(2, Recurrence.Planned.Per.DAY, blocks = listOf("block-night", "block-morning"))) }
+        runBlocking { reminders.add(pills, 0) }
+        runBlocking { habits.log(pills, LocalDateTime(day(5), LocalTime(7, 0)), occurrence = LocalDateTime(day(5), slotTime(1))) }
+        runBlocking { habits.retimeBlock("block-morning", 480, 540, on = setOf(DayOfWeek.TUESDAY)) }
+
+        assertEquals(
+            listOf(LocalDateTime(day(5), LocalTime(21, 30)), LocalDateTime(day(6), LocalTime(8, 0)), LocalDateTime(day(6), LocalTime(21, 30))),
+            nextFirings(3, LocalDateTime(day(5), LocalTime(0, 0))),
+        )
+    }
+
+    @Test
+    fun anOccurrenceWithNoBlockRemindsAtTheAnchor() {
+        val water = runBlocking { habits.create("water", monday, recurrence = Recurrence.Planned(1, Recurrence.Planned.Per.DAY, blocks = listOf("block-evening"))) }
+        runBlocking { reminders.add(water, 0, anchor = LocalTime(12, 0)) }
+        runBlocking { habits.deleteBlock("block-evening") }
+
+        assertEquals(listOf(LocalDateTime(day(5), LocalTime(12, 0))), nextFirings(1, LocalDateTime(day(5), LocalTime(0, 0))))
+    }
+
     @Test
     fun plannedAndBlockRulesHold() {
         val gym = runBlocking { habits.create("gym", monday, recurrence = threeAWeek()) }
