@@ -140,7 +140,7 @@ internal object EditCodec {
             rule = o["rule"]?.jsonObject?.let { r ->
                 fun s(k: String) = r[k]?.jsonPrimitive?.content
                 fun n(k: String) = r[k]?.jsonPrimitive?.long
-                recurrenceOf(s("recurrence_kind"), s("rrule"), n("rand_min_days"), n("rand_max_days"), n("window_days"), s("window_start"), s("window_end"))
+                recurrenceOf(s("recurrence_kind"), s("rrule"), n("rand_min_days"), n("rand_max_days"), n("window_days"), s("window_start"), s("window_end"), n("roll_every"), s("roll_unit"))
             },
             weekDays = o["week_days"]?.jsonPrimitive?.long?.let(::daysOf),
             others = o.filterKeys { it !in known }.mapValues { (_, v) -> v.toString() },

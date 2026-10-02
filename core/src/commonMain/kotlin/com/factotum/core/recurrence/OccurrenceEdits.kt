@@ -120,6 +120,7 @@ fun Recurrence?.occurrencesWithEdits(
     edits: List<OccurrenceEdit>,
     from: LocalDateTime,
     to: LocalDateTime,
+    lastDone: LocalDate? = null,
 ): List<Occurrence> {
     val ordered = edits.sortedBy { it.created }
     // A FROM edit with a rule or week_days repeats the item differently from its date. Each day
@@ -137,7 +138,7 @@ fun Recurrence?.occurrencesWithEdits(
             val lo = maxOf(a, begin)
             val hi = minOf(b, end ?: b)
             if (lo >= hi) emptyList()
-            else rule?.occurrences(itemId, begin, lo, hi) ?: listOf(begin).filter { it >= lo && it < hi }
+            else rule?.occurrences(itemId, begin, lo, hi, lastDone) ?: listOf(begin).filter { it >= lo && it < hi }
         }.distinct().sorted()
     }
 

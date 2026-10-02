@@ -38,8 +38,10 @@ internal class OccurrenceRepository(
     db: FactotumDatabase,
     private val writes: LocalWrites,
     private val newId: () -> String,
+    private val dayStart: LocalTime = LocalTime(0, 0),
 ) {
     private val dao = db.itemDao()
+    private val readings = db.trackerDao()
     private val clock = writes.clock
 
     suspend fun skip(itemId: String, occurrence: LocalDateTime) =
@@ -73,11 +75,19 @@ internal class OccurrenceRepository(
     /** Undoes one edit: the series underneath shows again. */
     suspend fun undo(editId: String) = writes.edit(OCCURRENCE_EDIT, editId, WHOLE) { s -> mapOf("deleted_at" to s.hlc) }
 
-    /** [itemId]'s occurrences in `[from, to)`, its live edits applied. None once it is deleted. */
+    /**
+     * [itemId]'s occurrences in `[from, to)`, its live edits applied. A habit rolls from its last
+     * Log and shows none while paused (ADR 06). None once the item is deleted.
+     */
     suspend fun occurrences(itemId: String, from: LocalDateTime, to: LocalDateTime): List<Occurrence> {
         val item = dao.items(listOf(itemId)).singleOrNull()?.takeIf { it.deletedAt == null } ?: return emptyList()
         val start = item.dtstart() ?: return emptyList()
-        return item.recurrence().occurrencesWithEdits(itemId, start, item.title, null, dao.liveEditsOf(itemId).map { it.toEdit() }, from, to)
+        val habit = item.trackerId?.let { t ->
+            if (readings.trackers(listOf(t)).singleOrNull()?.deletedAt != null) return emptyList()
+            habitStates(readings, listOf(t), { item.pauseFrom to item.pauseUntil }, dayStart, from, to).getValue(t)
+        } ?: HabitState.NONE
+        return item.recurrence().occurrencesWithEdits(itemId, start, item.title, item.durationMin, dao.liveEditsOf(itemId).map { it.toEdit() }, from, to, habit.lastDone)
+            .filter { !habit.paused(it.at) }
     }
 
     suspend fun questions(): List<OccurrenceQuestion> =

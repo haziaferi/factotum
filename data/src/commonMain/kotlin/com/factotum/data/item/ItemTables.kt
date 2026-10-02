@@ -4,6 +4,7 @@ import com.factotum.core.sync.Group
 import com.factotum.core.sync.Row
 import com.factotum.core.sync.Stamp
 import com.factotum.data.sync.RowTable
+import com.factotum.data.tracker.TRACKER
 
 internal const val ITEM = "item"
 internal const val COMPLETION = "completion"
@@ -35,7 +36,7 @@ internal class EntityTable<E>(
 
 internal fun itemTable(dao: ItemDao) =
     EntityTable(dao::items, dao::allItems, dao::putItems, dao::deleteItems, ItemEntity::toRow, Row::toItemEntity) {
-        listOfNotNull(it.parentId?.let { p -> ITEM to p })
+        listOfNotNull(it.parentId?.let { p -> ITEM to p }, it.trackerId?.let { t -> TRACKER to t })
     }
 
 internal fun completionTable(dao: ItemDao) =
@@ -44,14 +45,15 @@ internal fun completionTable(dao: ItemDao) =
     }
 
 internal fun ItemEntity.toRow() = Row(ITEM, id, mapOf(
-    DETAILS to Group(Stamp(detailsHlc, detailsDevice), mapOf("kind" to kind, "title" to title, "parent_id" to parentId)),
+    DETAILS to Group(Stamp(detailsHlc, detailsDevice), mapOf("kind" to kind, "title" to title, "parent_id" to parentId, "tracker_id" to trackerId, "block_id" to blockId)),
     SCHEDULE to Group(
         Stamp(scheduleHlc, scheduleDevice),
         mapOf(
             "start_date" to startDate, "start_time" to startTime, "end_date" to endDate, "end_time" to endTime,
             "due_date" to dueDate, "deleted_at" to deletedAt, "recurrence_kind" to recurrenceKind, "rrule" to rrule,
             "rand_min_days" to randMinDays, "rand_max_days" to randMaxDays, "window_days" to windowDays,
-            "window_start" to windowStart, "window_end" to windowEnd,
+            "window_start" to windowStart, "window_end" to windowEnd, "roll_every" to rollEvery, "roll_unit" to rollUnit,
+            "pause_from" to pauseFrom, "pause_until" to pauseUntil, "duration_min" to durationMin,
         ),
         settles = scheduleSettlesHlc?.let { Stamp(it, requireNotNull(scheduleSettlesDevice)) },
     ),
@@ -68,6 +70,8 @@ internal fun Row.toItemEntity(): ItemEntity {
         kind = d.values["kind"] as String,
         title = d.values["title"] as String,
         parentId = d.values["parent_id"] as String?,
+        trackerId = d.values["tracker_id"] as String?,
+        blockId = d.values["block_id"] as String?,
         detailsHlc = d.stamp.hlc,
         detailsDevice = d.stamp.device,
         startDate = s.values["start_date"] as String?,
@@ -83,6 +87,11 @@ internal fun Row.toItemEntity(): ItemEntity {
         windowDays = s.values["window_days"] as Long?,
         windowStart = s.values["window_start"] as String?,
         windowEnd = s.values["window_end"] as String?,
+        rollEvery = s.values["roll_every"] as Long?,
+        rollUnit = s.values["roll_unit"] as String?,
+        pauseFrom = s.values["pause_from"] as String?,
+        pauseUntil = s.values["pause_until"] as String?,
+        durationMin = s.values["duration_min"] as Long?,
         scheduleHlc = s.stamp.hlc,
         scheduleDevice = s.stamp.device,
         scheduleSettlesHlc = s.settles?.hlc,

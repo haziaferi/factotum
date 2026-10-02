@@ -28,6 +28,9 @@ RECUR = "core/src/commonMain/kotlin/com/factotum/core/recurrence/Recurrence.kt"
 CRON = "core/src/commonMain/kotlin/com/factotum/core/recurrence/Cron.kt"
 EDITS = "core/src/commonMain/kotlin/com/factotum/core/recurrence/OccurrenceEdits.kt"
 OCCREPO = "data/src/commonMain/kotlin/com/factotum/data/item/OccurrenceRepository.kt"
+PRESENCE = "core/src/commonMain/kotlin/com/factotum/core/habit/HabitPresence.kt"
+HABITS = "data/src/commonMain/kotlin/com/factotum/data/item/HabitRepository.kt"
+TRACKERS = "data/src/commonMain/kotlin/com/factotum/data/tracker/TrackerRepository.kt"
 
 # slice -> [(name, file, old, new, test task, tests that must fail)]
 SLICES = {
@@ -92,11 +95,11 @@ SLICES = {
     "03": [
         ("alert settings unchecked", TRIGGERS, "        REMINDER to reminderRules,\n", "",
          ":data:desktopTest", {"chronicleAlertSettings_storedPerReminderAndUnknownValuesRefused"}),
-        ("a standalone reminder without a time", TRIGGERS, "\n        AND (NEW.kind <> 'REMINDER' OR (NEW.start_date IS NOT NULL AND NEW.start_time IS NOT NULL))", "",
+        ("a standalone reminder without a time", TRIGGERS, "            AND (NEW.kind <> 'REMINDER' OR (NEW.start_date IS NOT NULL AND NEW.start_time IS NOT NULL))\n", "",
          ":data:desktopTest", {"aStandaloneReminderNeedsATime"}),
         ("a done item's reminder still fires", REMDAO, " +\n            \"AND (i.status IS NULL OR i.status = 'PENDING')\"", "",
          ":data:desktopTest", {"tendrilQuietWhenDone_aDoneTasksReminderNoLongerFires", "mnemoStandaloneDone_theRowStaysAndStopsFiring"}),
-        ("a deleted item's reminder still fires", REMDAO, "AND i.deleted_at IS NULL AND i.start_date", "AND i.start_date",
+        ("a deleted item's reminder still fires", REMDAO, "AND i.deleted_at IS NULL AND t.deleted_at", "AND t.deleted_at",
          ":data:desktopTest", {"tendrilCascade_aDeletedTaskSilencesItsReminderAndAPurgedOneRemovesIt"}),
         ("a deleted reminder still fires", REMDAO, "\"WHERE r.deleted_at IS NULL AND ", "\"WHERE ",
          ":data:desktopTest", {"aDeletedReminderNoLongerFires"}),
@@ -137,7 +140,7 @@ SLICES = {
          ":data:desktopTest", {"eachKindKeepsToItsOwnColumns"}),
         ("rescheduling drops the recurrence", REPO, 'schedule(start, at, endDate, endTime, due) - "deleted_at")', 'schedule(start, at, endDate, endTime, due) - "deleted_at" + recurrenceValues(null))',
          ":data:desktopTest", {"reschedulingKeepsTheRecurrenceAndMovesItsStart"}),
-        ("a resolved occurrence still fires", REMREPO, ".filter { (it.original ?: it.at) !in resolved }", "",
+        ("a resolved occurrence still fires", REMREPO, ".filter { (it.original ?: it.at) !in resolved && !habit.paused(it.at) }", ".filter { !habit.paused(it.at) }",
          ":data:desktopTest", {"aResolvedOccurrenceDoesNotFire"}),
         ("a whole-day repeat fires at its occurrence's midnight", REMREPO, "val timed = s.startTime != null || recurrence?.setsTimes == true || ownTime", "val timed = true",
          ":data:desktopTest", {"aWholeDayRepeatingTaskFiresAtTheReminderAnchor"}),
@@ -172,7 +175,7 @@ SLICES = {
          ":core:desktopTest", {"aLaterCreatedRuleWithAnEarlierDateEndsTheEarlierCreatedOne"}),
         ("edits carry no seen ids", OCCREPO, '"seen" to seen.joinToString(",")', '"seen" to ""',
          ":data:desktopTest", {"aRetimeMadeAfterSeeingTheOtherIsACorrectionNotAClash"}),
-        ("reminders ignore occurrence edits", REMREPO, 'occurrencesWithEdits(s.itemId, dtstart, "", null, edits, from, to)', 'occurrencesWithEdits(s.itemId, dtstart, "", null, emptyList(), from, to)',
+        ("reminders ignore occurrence edits", REMREPO, 'occurrencesWithEdits(s.itemId, dtstart, "", null, edits, from, to, habit.lastDone)', 'occurrencesWithEdits(s.itemId, dtstart, "", null, emptyList(), from, to, habit.lastDone)',
          ":data:desktopTest", {"aSkippedOccurrenceDoesNotFireAndAMovedOneFiresAtItsNewTime"}),
         ("an undone edit still applies", ITEMDAO, '"SELECT * FROM occurrence_edit WHERE item_id = :itemId AND deleted_at IS NULL"', '"SELECT * FROM occurrence_edit WHERE item_id = :itemId"',
          ":data:desktopTest", {"undoingASkipBringsTheOccurrenceBackEverywhere"}),
@@ -200,6 +203,46 @@ SLICES = {
          ":data:desktopTest", {"twoOccurrencesOnOneDayAreResolvedApart"}),
         ("an added midnight occurrence counts as timed", REMREPO, "if (original == null) o.at.time != MIDNIGHT else", "if (original == null) true else",
          ":data:desktopTest", {"anAddedOccurrenceOnAWholeDayItemFiresAtTheAnchor"}),
+    ],
+    "06": [
+        ("a no counts as presence", PRESENCE, "yes == true || rating != null", "yes != null || rating != null",
+         ":core:desktopTest", {"aYesAnyRatingAndANumberAboveZeroCountAndANoDoesNot"}),
+        ("a zero counts as presence", PRESENCE, "(number ?: 0.0) > 0.0", "number != null",
+         ":core:desktopTest", {"aYesAnyRatingAndANumberAboveZeroCountAndANoDoesNot"}),
+        ("the day always starts at midnight", PRESENCE, "if (at.time < dayStart) at.date.plus(-1, DateTimeUnit.DAY) else at.date", "at.date",
+         ":core:desktopTest", {"aLogAfterMidnightCountsForYesterdayWhenTheDayStartsLater"}),
+        ("a rolling habit ignores its last Log", RECUR, "lastDone?.plus(every, unit) ?: dtstart.date", "dtstart.date",
+         ":core:desktopTest", {"aRollingHabitIsDueAPeriodAfterItsLastLog"}),
+        ("an overdue rolling habit waits a period", RECUR, "var day = maxOf(due, from.date)", "var day = due",
+         ":core:desktopTest", {"anOverdueRollingHabitIsDueToday"}),
+        ("a paused habit still shows", OCCREPO, "            .filter { !habit.paused(it.at) }\n", "\n",
+         ":data:desktopTest", {"tendrilPauseWindow_noOccurrencesWhilePausedAndOnlyHabitsPause"}),
+        ("a paused habit still fires", REMREPO, "!in resolved && !habit.paused(it.at) }", "!in resolved }",
+         ":data:desktopTest", {"aPausedHabitsReminderIsQuietUntilThePauseEnds"}),
+        ("a Logged occurrence still fires", REMREPO, "habit.unlogged(recurrence.occurrencesWithEdits(", "(recurrence.occurrencesWithEdits(",
+         ":data:desktopTest", {"sharedOneReminderPath_aHabitsReminderIsAReminderRowAndQuietOnceLogged"}),
+        ("a Log naming nothing quiets the whole day", HABITS, "            if (n > 0) left[day] = n - 1\n            n == 0", "            n == 0 && day !in left",
+         ":data:desktopTest", {"aLogNamingNoOccurrenceQuietsOnlyOneOfTheDays"}),
+        ("a deleted tracker keeps its habits", TRACKERS, "ITEM to items.liveHabitsOf(trackerId)", "ITEM to emptyList()",
+         ":data:desktopTest", {"deletingATrackerDeletesItsHabitsAndDeletingAHabitKeepsTheTracker"}),
+        ("a habit on a tracker deleted elsewhere still fires", REMDAO, "AND t.deleted_at IS NULL ", "",
+         ":data:desktopTest", {"aHabitMadeOnATrackerDeletedElsewhereCountsAsDeleted"}),
+        ("a purge leaves goals behind", TRACKERS, "        targets.getValue(GOAL).forEach { writes.merger.purge(store, it) }\n", "",
+         ":data:desktopTest", {"aTrackersGoalsGoWithIt"}),
+        ("a Log of the wrong kind is taken", TRACKERS, "        require(fits) { \"a $type tracker Logs a ${type.lowercase()}\" }\n", "",
+         ":data:desktopTest", {"aSecondDailyGoalAChoiceHabitAndAValueOfTheWrongKindAreRefused"}),
+        ("undo takes the latest time", TRACKERS, ".maxByOrNull { Stamp(it.hlc, it.device) }", ".maxByOrNull { it.at }",
+         ":data:desktopTest", {"undoTakesTheLogMadeLastNotTheLatestTime"}),
+        ("tracker rules dropped", TRIGGERS, "        TRACKER to trackerRules,\n", "",
+         ":data:desktopTest", {"trackerAndReadingRulesHold"}),
+        ("reading rules dropped", TRIGGERS, "        TRACKER_READING to readingRules,\n", "",
+         ":data:desktopTest", {"trackerAndReadingRulesHold"}),
+        ("a habit needs no tracker", TRIGGERS, "            AND (NEW.tracker_id IS NOT NULL) = (NEW.kind = 'HABIT')\n", "",
+         ":data:desktopTest", {"trackerAndReadingRulesHold"}),
+        ("any item pauses", TRIGGERS, "            AND (NEW.kind = 'HABIT' OR (NEW.pause_from IS NULL AND NEW.pause_until IS NULL AND NEW.block_id IS NULL AND NEW.duration_min IS NULL))\n", "",
+         ":data:desktopTest", {"tendrilPauseWindow_noOccurrencesWhilePausedAndOnlyHabitsPause", "tendrilPlannerFields_aHabitKeepsItsBlockAndLengthAndATaskMayNot"}),
+        ("a task may lose its status", TRIGGERS, "            AND (NEW.status IS NULL) = (NEW.kind IN ('EVENT', 'HABIT'))\n", "",
+         ":data:desktopTest", {"aTaskWithoutAStatusIsRefused"}),
     ],
 }
 

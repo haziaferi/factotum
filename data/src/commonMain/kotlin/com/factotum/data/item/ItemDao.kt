@@ -8,12 +8,13 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 import androidx.room.Query
 import androidx.room.Upsert
+import com.factotum.data.tracker.TrackerEntity
 
 /**
  * ADR 02's one `item` table, in ADR 01's three groups, each with its own stamp:
- * - details: `kind`, `title`, `parent_id`;
+ * - details: `kind`, `title`, `parent_id`, and a habit's `tracker_id` and `block_id`;
  * - schedule (asks a person on a clash): dates, times, `due_date`, `deleted_at`, and ADR 04's
- *   recurrence columns ([recurrenceValues]);
+ *   recurrence columns ([recurrenceValues]), and a habit's pause and `duration_min`;
  * - status: `status`, `importance`, `capacity_rank`.
  *
  * Room cannot declare CHECK constraints, so the kind rules are triggers ([SchemaTriggers]).
@@ -21,14 +22,22 @@ import androidx.room.Upsert
  */
 @Entity(
     tableName = "item",
-    foreignKeys = [ForeignKey(ItemEntity::class, ["id"], ["parent_id"], onDelete = ForeignKey.CASCADE, deferred = true)],
-    indices = [Index("kind", "start_date", name = "item_kind_date"), Index("parent_id")],
+    foreignKeys = [
+        ForeignKey(ItemEntity::class, ["id"], ["parent_id"], onDelete = ForeignKey.CASCADE, deferred = true),
+        // A habit goes with its tracker (owner, 2026-10-02).
+        ForeignKey(TrackerEntity::class, ["id"], ["tracker_id"], onDelete = ForeignKey.CASCADE, deferred = true),
+    ],
+    indices = [Index("kind", "start_date", name = "item_kind_date"), Index("parent_id"), Index("tracker_id")],
 )
 internal data class ItemEntity(
     @PrimaryKey val id: String,
     val kind: String,
     val title: String,
     @ColumnInfo(name = "parent_id") val parentId: String?,
+    /** A HABIT's tracker, which its Logs are readings on (ADR 06); required on a habit, absent elsewhere. */
+    @ColumnInfo(name = "tracker_id") val trackerId: String?,
+    /** A HABIT's default time block (ADR 06, amended): where the planner places it. */
+    @ColumnInfo(name = "block_id") val blockId: String?,
     @ColumnInfo(name = "details_hlc") val detailsHlc: Long,
     @ColumnInfo(name = "details_device") val detailsDevice: String,
     @ColumnInfo(name = "start_date") val startDate: String?,
@@ -44,6 +53,14 @@ internal data class ItemEntity(
     @ColumnInfo(name = "window_days") val windowDays: Long?,
     @ColumnInfo(name = "window_start") val windowStart: String?,
     @ColumnInfo(name = "window_end") val windowEnd: String?,
+    /** ROLLING: due again every [rollEvery] [rollUnit]s after the last Log. */
+    @ColumnInfo(name = "roll_every") val rollEvery: Long?,
+    @ColumnInfo(name = "roll_unit") val rollUnit: String?,
+    /** A HABIT's pause; no end means until resumed (Tendril). */
+    @ColumnInfo(name = "pause_from") val pauseFrom: String?,
+    @ColumnInfo(name = "pause_until") val pauseUntil: String?,
+    /** A HABIT's length, which the planner balances days by (ADR 06, amended). */
+    @ColumnInfo(name = "duration_min") val durationMin: Long?,
     @ColumnInfo(name = "schedule_hlc") val scheduleHlc: Long,
     @ColumnInfo(name = "schedule_device") val scheduleDevice: String,
     @ColumnInfo(name = "schedule_settles_hlc") val scheduleSettlesHlc: Long?,
@@ -93,6 +110,9 @@ internal interface ItemDao {
 
     @Query("SELECT id FROM item WHERE parent_id = :id AND deleted_at IS NULL")
     suspend fun liveChildren(id: String): List<String>
+
+    @Query("SELECT id FROM item WHERE tracker_id = :trackerId AND deleted_at IS NULL")
+    suspend fun liveHabitsOf(trackerId: String): List<String>
 
     /** One day's timeline: timed items in time order, then the whole-day ones; standalone reminders only when asked (ADR 03). */
     @Query(

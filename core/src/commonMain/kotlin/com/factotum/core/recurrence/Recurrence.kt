@@ -9,7 +9,7 @@ import kotlinx.datetime.plus
 
 /**
  * How an item repeats (ADR 04, rrule+ext). Each kind expands from the item's start (DTSTART) into
- * local, floating date-times. PLANNED, the habit planner's kind, comes with habits (ADR 06).
+ * local, floating date-times. ROLLING is Tendril's rolling habit (ADR 06, owner 2026-10-02).
  */
 sealed interface Recurrence {
 
@@ -30,6 +30,17 @@ sealed interface Recurrence {
         }
     }
 
+    /**
+     * Tendril's rolling habit (owner, 2026-10-02): it falls due [every] [unit]s after the last Log,
+     * or at the start before any Log, and stays due every day from then until a Log moves it, as
+     * Tendril's does (`isIntervalHabitDueOn`). A month is a calendar month (Tendril counted 30 days).
+     */
+    data class Rolling(val every: Int, val unit: RollUnit) : Recurrence {
+        init {
+            require(every in 1..10_000) { "roll every 1 to 10,000 units: $every" }
+        }
+    }
+
     /** Mnemo's stochastic window: on each of [days], one drawn minute in `[start, end)`. */
     data class RandomWindow(val days: Set<DayOfWeek>, val start: LocalTime, val end: LocalTime) : Recurrence {
         init {
@@ -39,13 +50,37 @@ sealed interface Recurrence {
     }
 }
 
+enum class RollUnit { DAY, WEEK, MONTH }
+
 /**
  * The occurrences of [this] for the item [itemId] starting at [dtstart], within `[from, to)`. The
  * random kinds draw from [itemId] and the occurrence's date, so every device computes the same
- * times and nothing drawn is stored (SPEC §3.4).
+ * times and nothing drawn is stored (SPEC §3.4). A ROLLING item rolls from [lastDone], the day of
+ * its last Log.
  */
-fun Recurrence.occurrences(itemId: String, dtstart: LocalDateTime, from: LocalDateTime, to: LocalDateTime): List<LocalDateTime> =
+fun Recurrence.occurrences(
+    itemId: String,
+    dtstart: LocalDateTime,
+    from: LocalDateTime,
+    to: LocalDateTime,
+    lastDone: LocalDate? = null,
+): List<LocalDateTime> =
     when (this) {
+        is Recurrence.Rolling -> buildList {
+            val unit = when (unit) {
+                RollUnit.DAY -> DateTimeUnit.DAY
+                RollUnit.WEEK -> DateTimeUnit.WEEK
+                RollUnit.MONTH -> DateTimeUnit.MONTH
+            }
+            val due = maxOf(lastDone?.plus(every, unit) ?: dtstart.date, dtstart.date)
+            var day = maxOf(due, from.date)
+            while (true) {
+                val at = LocalDateTime(day, dtstart.time)
+                if (at >= to) break
+                if (at >= from) add(at)
+                day = day.plus(1, DateTimeUnit.DAY)
+            }
+        }
         is Recurrence.Rule -> rule.occurrences(dtstart, from, to)
         is Recurrence.RuleSet -> rules.flatMap { it.occurrences(dtstart, from, to) }.distinct().sorted()
         is Recurrence.RandomDays -> buildList {
@@ -76,7 +111,7 @@ val Recurrence.setsTimes: Boolean
     get() = when (this) {
         is Recurrence.Rule -> rule.setsTimes
         is Recurrence.RuleSet -> rules.any { it.setsTimes }
-        is Recurrence.RandomDays -> false
+        is Recurrence.RandomDays, is Recurrence.Rolling -> false
         is Recurrence.RandomWindow -> true
     }
 

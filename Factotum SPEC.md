@@ -1,6 +1,6 @@
 # Factotum — Product & Technical Spec
 
-**Status:** draft v0.11, seeded from the decision register · **Scope:** the merged data model, sync and behaviour rules of Factotum. Screens are not decided and are marked open (§10.1).
+**Status:** draft v0.12, seeded from the decision register · **Scope:** the merged data model, sync and behaviour rules of Factotum. Screens are not decided and are marked open (§10.1).
 **Related documents:** `decisions/`, the evidence behind §3: one ADR per decision with verified `file:line` facts, the scored options, the behaviour cases and the harness that measured them (`decisions/register.md` is the index). This spec states each decision once and points to its ADR for the evidence. It never restates the evidence.
 
 ---
@@ -9,6 +9,7 @@
 
 | Version | Summary | Sections touched |
 |---|---|---|
+| v0.12 | Slice 06a built: trackers (Chronicle's, as they are), habits tied to their trackers, Logs, presence with the owner's rule, rolling habits, pause. The item rules now sit in COALESCE: a task with no status had slipped through | §3.4, §3.6, §7 |
 | v0.11 | Slice 11 built: the occurrence-edit log, its engine in `:core`, clash questions from base stamps, edits reaching reminders | §3.11, §7 |
 | v0.10 | Slice 04 built: the RRULE expander (ported from Tendril, extended to times of day), rule sets, seeded random kinds, cron conversion, recurrence on items, reminders on repeating items | §3.2, §3.3, §3.4, §7 |
 | v0.9 | Slice 03 built: reminders on any item, standalone reminders as REMINDER items, fire times, synced snooze, the day-view toggle | §3.2, §3.3, §7 |
@@ -210,6 +211,15 @@ Every decision here was scored against its owners' behaviour cases, with a contr
 - **Owner answers, 2026-10-02:** a rolling habit ("due again N days after the last Log", Tendril's default) stays rolling, as a recurrence kind ROLLING; presence counts a "yes", any rating and a number above 0, and number habits show today's and this month's amounts; the day boundary is a personal setting, default midnight. The tracker stays required and is created with its habit in one write (a habit may also use an existing tracker); deleting a tracker deletes its habits, deleting a habit leaves the tracker and its Logs.
 
 **Acceptance:** `cases/06-habit.jsonl`, 8 cases.
+
+**Built (2026-10-02), part a:** trackers in `com.factotum.data.tracker`, habits in `com.factotum.data.item` (`HabitRepository`), presence and the rolling kind in `:core`. All 8 cases pass as tests (`HabitCasesTest`), with the owner's answers. What the build settled, none of which changes the decision:
+- **Chronicle's trackers move as they are** (`tracker`, `tracker_choice`, `tracker_reading`, `goal`), one ADR 01 group per row, as Chronicle stamps whole rows; their domain rules (one value per reading, a rating from 1 to 5, a unit only on a number tracker, a CHOICE tracker with no default) are triggers. A reading's time is a floating local date-time, as every Factotum time is, so the day boundary compares the wall clock directly. A tracker's category becomes ADR 08's label with slice 08.
+- **A habit and its tracker are one write**; a number habit's amount per Log is the tracker's default value, and its daily amount is Chronicle's recurring, automatic DAY goal (one per tracker). A habit's Log with no value is a "yes", or its amount per Log, and a Log must be of its tracker's kind. A habit is a yes/no, rating or number habit: a choice tracker has no presence. A habit that uses an existing tracker shares its Logs, which belong to the tracker.
+- **A deleted tracker** takes its habits and goals; a purge takes its goals too, which name it without a foreign key. A habit another device made on it meanwhile reads as deleted. Undo takes the Log made last.
+- **Columns:** `tracker_id` and `block_id` in the item's details group (a block merges silently, ADR 11); `pause_from`, `pause_until` (none means until resumed, as in Tendril), `duration_min`, `roll_every` and `roll_unit` in its schedule group.
+- **A rolling habit** falls due a period after the day of its last Log that counts as presence, or at its start before any, and stays due every day until a Log, as Tendril's does; a month is a calendar month (Tendril counted 30 days).
+- **Logged occurrences are quiet:** a Log naming an occurrence silences that one; a Log naming none silences the first other occurrence of its personal day, so one dose of three leaves two. Pause and Logs both go by the personal day.
+- **Part b** (time blocks and the week planner, ADR 04's PLANNED kind) follows.
 
 ### 3.7 Timed intervals — ADR 07
 

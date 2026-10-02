@@ -5,6 +5,9 @@ import com.factotum.data.item.COMPLETION
 import com.factotum.data.item.ITEM
 import com.factotum.data.item.OCCURRENCE_EDIT
 import com.factotum.data.reminder.REMINDER
+import com.factotum.data.tracker.GOAL
+import com.factotum.data.tracker.TRACKER
+import com.factotum.data.tracker.TRACKER_READING
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.execSQL
 
@@ -26,7 +29,7 @@ internal object SchemaTriggers : RoomDatabase.Callback() {
     private val recurrenceRules = """
         COALESCE(
             (NEW.recurrence_kind IS NULL OR NEW.start_date IS NOT NULL)
-            AND (NEW.recurrence_kind IS NULL OR NEW.recurrence_kind IN ('RRULE', 'RULE_SET', 'RANDOM_DAYS', 'RANDOM_WINDOW'))
+            AND (NEW.recurrence_kind IS NULL OR NEW.recurrence_kind IN ('RRULE', 'RULE_SET', 'RANDOM_DAYS', 'RANDOM_WINDOW', 'ROLLING'))
             AND (NEW.rrule IS NOT NULL) = (NEW.recurrence_kind IS 'RRULE' OR NEW.recurrence_kind IS 'RULE_SET')
             AND (NEW.recurrence_kind IS NOT 'RULE_SET' OR instr(NEW.rrule, char(10)) > 0)
             AND (NEW.rand_min_days IS NOT NULL) = (NEW.recurrence_kind IS 'RANDOM_DAYS')
@@ -35,18 +38,61 @@ internal object SchemaTriggers : RoomDatabase.Callback() {
             AND (NEW.window_days IS NOT NULL) = (NEW.recurrence_kind IS 'RANDOM_WINDOW')
             AND (NEW.window_start IS NOT NULL) = (NEW.recurrence_kind IS 'RANDOM_WINDOW')
             AND (NEW.window_end IS NOT NULL) = (NEW.recurrence_kind IS 'RANDOM_WINDOW')
-            AND (NEW.window_days IS NULL OR (NEW.window_days BETWEEN 1 AND 127 AND NEW.window_end > NEW.window_start)),
+            AND (NEW.window_days IS NULL OR (NEW.window_days BETWEEN 1 AND 127 AND NEW.window_end > NEW.window_start))
+            AND (NEW.roll_every IS NOT NULL) = (NEW.recurrence_kind IS 'ROLLING')
+            AND (NEW.roll_unit IS NOT NULL) = (NEW.recurrence_kind IS 'ROLLING')
+            AND (NEW.roll_every IS NULL OR (NEW.roll_every BETWEEN 1 AND 10000 AND NEW.roll_unit IN ('DAY', 'WEEK', 'MONTH'))),
         0)
     """.trimIndent()
 
-    /** ADR 02's kind rules, and ADR 03's: a standalone reminder has a status and always a date and time. */
+    /**
+     * ADR 02's kind rules; ADR 03's (a standalone reminder has a status and always a date and time);
+     * ADR 06's (a habit has a tracker, which nothing else has, and only a habit pauses, has a block
+     * or a length, or rolls). In COALESCE, as a NULL inside would let the row through.
+     */
     private val itemRules = """
-        NEW.kind IN ('TASK', 'EVENT', 'REMINDER')
-        AND (NEW.kind = 'TASK' OR (NEW.due_date IS NULL AND NEW.capacity_rank IS NULL AND NEW.parent_id IS NULL))
-        AND (NEW.kind = 'EVENT' OR (NEW.end_date IS NULL AND NEW.end_time IS NULL AND NEW.status IN ('PENDING', 'DONE', 'SKIPPED')))
-        AND (NEW.kind <> 'EVENT' OR NEW.status IS NULL)
-        AND (NEW.kind <> 'REMINDER' OR (NEW.start_date IS NOT NULL AND NEW.start_time IS NOT NULL))
+        COALESCE(
+            NEW.kind IN ('TASK', 'EVENT', 'REMINDER', 'HABIT')
+            AND (NEW.kind = 'TASK' OR (NEW.due_date IS NULL AND NEW.capacity_rank IS NULL AND NEW.parent_id IS NULL))
+            AND (NEW.kind = 'EVENT' OR (NEW.end_date IS NULL AND NEW.end_time IS NULL))
+            AND (NEW.status IS NULL) = (NEW.kind IN ('EVENT', 'HABIT'))
+            AND (NEW.status IS NULL OR NEW.status IN ('PENDING', 'DONE', 'SKIPPED'))
+            AND (NEW.kind <> 'REMINDER' OR (NEW.start_date IS NOT NULL AND NEW.start_time IS NOT NULL))
+            AND (NEW.tracker_id IS NOT NULL) = (NEW.kind = 'HABIT')
+            AND (NEW.kind = 'HABIT' OR (NEW.pause_from IS NULL AND NEW.pause_until IS NULL AND NEW.block_id IS NULL AND NEW.duration_min IS NULL))
+            AND (NEW.kind = 'HABIT' OR NEW.recurrence_kind IS NOT 'ROLLING')
+            AND (NEW.pause_until IS NULL OR (NEW.pause_from IS NOT NULL AND NEW.pause_until >= NEW.pause_from))
+            AND (NEW.duration_min IS NULL OR NEW.duration_min > 0),
+        0)
         AND $recurrenceRules
+    """.trimIndent()
+
+    /** Chronicle's tracker rules, which its domain layer kept and the database here keeps instead. */
+    private val trackerRules = """
+        COALESCE(
+            NEW.type IN ('NUMBER', 'BOOLEAN', 'RATING', 'CHOICE')
+            AND NEW.polarity IN ('HIGHER_IS_BETTER', 'LOWER_IS_BETTER', 'NEUTRAL')
+            AND (NEW.unit IS NULL OR (NEW.type = 'NUMBER' AND NEW.unit IN ('HOURS', 'KM', 'TIMES', 'PAGES', 'REPS', 'STEPS', 'CALORIES', 'CUSTOM')))
+            AND (NEW.unit_label IS NOT NULL) = (NEW.unit IS 'CUSTOM')
+            AND (NEW.default_number IS NULL OR NEW.type = 'NUMBER')
+            AND (NEW.default_bool IS NULL OR NEW.type = 'BOOLEAN')
+            AND (NEW.default_rating IS NULL OR (NEW.type = 'RATING' AND NEW.default_rating BETWEEN 1 AND 5)),
+        0)
+    """.trimIndent()
+
+    /** A reading holds exactly one value, a rating from 1 to 5 (Chronicle `Entry.kt`). */
+    private val readingRules = """
+        COALESCE(
+            (NEW.number_value IS NOT NULL) + (NEW.bool_value IS NOT NULL) + (NEW.rating_value IS NOT NULL) + (NEW.choice_id IS NOT NULL) = 1
+            AND (NEW.rating_value IS NULL OR NEW.rating_value BETWEEN 1 AND 5),
+        0)
+    """.trimIndent()
+
+    private val goalRules = """
+        COALESCE(
+            NEW.target_type IN ('ACTIVITY', 'TRACKER') AND NEW.period IN ('DAY', 'WEEK', 'MONTH')
+            AND NEW.kind IN ('RECURRING', 'MILESTONE') AND NEW.completion_mode IN ('AUTO', 'MANUAL'),
+        0)
     """.trimIndent()
 
     /** ADR 11: each scope names what it covers, a date-time or a date, and nothing else. */
@@ -70,6 +116,9 @@ internal object SchemaTriggers : RoomDatabase.Callback() {
         COMPLETION to "NEW.status IN ('DONE', 'SKIPPED')",
         REMINDER to reminderRules,
         OCCURRENCE_EDIT to editRules,
+        TRACKER to trackerRules,
+        TRACKER_READING to readingRules,
+        GOAL to goalRules,
     )
 
     private val statements: List<String> = buildList {

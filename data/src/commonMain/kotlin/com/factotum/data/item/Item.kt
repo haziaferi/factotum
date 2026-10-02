@@ -4,8 +4,8 @@ import com.factotum.core.recurrence.Recurrence
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
 
-/** The kinds of item built so far (ADR 02, ADR 03); HABIT and ACTIVITY come with their slices. */
-enum class ItemKind { TASK, EVENT, REMINDER }
+/** The kinds of item built so far (ADR 02, 03, 06); ACTIVITY comes with slice 07. */
+enum class ItemKind { TASK, EVENT, REMINDER, HABIT }
 
 enum class TaskStatus { PENDING, DONE, SKIPPED }
 
@@ -33,6 +33,14 @@ data class Item(
     val capacityRank: Long?,
     /** How the item repeats from its start (ADR 04), or null for a one-off. */
     val recurrence: Recurrence?,
+    /** A habit's tracker (ADR 06). */
+    val trackerId: String? = null,
+    /** A habit's pause; no end means until resumed. */
+    val pauseFrom: LocalDate? = null,
+    val pauseUntil: LocalDate? = null,
+    /** A habit's default time block and length (ADR 06, amended). */
+    val blockId: String? = null,
+    val durationMin: Long? = null,
 )
 
 /** A person's answer to a clash on an item's schedule (ADR 01). */

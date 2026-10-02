@@ -192,9 +192,11 @@ internal fun itemRow(
     status: TaskStatus?,
     importance: Long,
     capacityRank: Long?,
+    trackerId: String? = null,
+    blockId: String? = null,
 ) = Row(ITEM, id, mapOf(
-    DETAILS to Group(s, mapOf("kind" to kind.name, "title" to title, "parent_id" to parentId)),
-    SCHEDULE to Group(s, schedule),
+    DETAILS to Group(s, mapOf("kind" to kind.name, "title" to title, "parent_id" to parentId, "tracker_id" to trackerId, "block_id" to blockId)),
+    SCHEDULE to Group(s, mapOf<String, Any?>("pause_from" to null, "pause_until" to null, "duration_min" to null) + schedule),
     STATUS to Group(s, mapOf("status" to status?.name, "importance" to importance, "capacity_rank" to capacityRank)),
 ))
 
@@ -213,6 +215,11 @@ internal fun ItemEntity.toItem() = Item(
     importance = importance,
     capacityRank = capacityRank,
     recurrence = recurrence(),
+    trackerId = trackerId,
+    pauseFrom = pauseFrom?.let(LocalDate::parse),
+    pauseUntil = pauseUntil?.let(LocalDate::parse),
+    blockId = blockId,
+    durationMin = durationMin,
 )
 
 internal fun ItemEntity.dtstart(): LocalDateTime? = startDate?.let { dtstartOf(it, startTime) }
