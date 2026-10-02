@@ -40,6 +40,8 @@ internal class FolderSync(
     private val tables: Map<String, RowTable>,
     private val segmentBytes: Int = 16 * 1024,
     private val snapshotEvery: Int = 64,
+    /** Runs after an import that changed something, inside the import's lock: rules that follow from what peers wrote. */
+    private val afterImport: suspend () -> Unit = {},
 ) {
     private val dao = db.syncDao()
     private val merger = Merger(clock, ASK_GROUPS)
@@ -75,7 +77,7 @@ internal class FolderSync(
             }
         }
         dao.keepReads(present)
-        report + retryWaiting()
+        (report + retryWaiting()).also { if (it.changed > 0) afterImport() }
     }
 
     private suspend fun forgetReadsIfTablesChanged() {

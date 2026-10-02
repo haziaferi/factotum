@@ -10,6 +10,9 @@ import com.factotum.data.LocalWrites
 import com.factotum.data.item.ITEM
 import com.factotum.data.item.SCHEDULE
 import com.factotum.data.item.WHOLE
+import com.factotum.data.time.TIME_SPAN
+import com.factotum.data.time.endRunning
+import com.factotum.data.time.localNow
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.LocalTime
@@ -25,9 +28,11 @@ internal class TrackerRepository(
     db: FactotumDatabase,
     private val writes: LocalWrites,
     private val newId: () -> String,
+    private val now: () -> LocalDateTime = ::localNow,
 ) {
     private val dao = db.trackerDao()
     private val items = db.itemDao()
+    private val times = db.timeDao()
     private val clock = writes.clock
 
     /** A new tracker row, for [create] or for a habit made in the same write. */
@@ -39,11 +44,7 @@ internal class TrackerRepository(
         ))))
 
     /** A daily (or weekly, monthly) amount to reach, kept as Chronicle's recurring, automatic goal. */
-    internal fun goalRow(id: String, trackerId: String, period: String, value: Double) =
-        Row(GOAL, id, mapOf(WHOLE to Group(clock.tick(), mapOf(
-            "target_type" to "TRACKER", "target_id" to trackerId, "period" to period, "value" to value, "kind" to "RECURRING",
-            "completion_mode" to "AUTO", "achieved_at" to null, "deleted_at" to null,
-        ))))
+    internal fun trackerGoalRow(id: String, trackerId: String, period: String, value: Double) = goalRow(id, clock.tick(), "TRACKER", trackerId, period, value, "RECURRING")
 
     suspend fun create(name: String, type: TrackerType, unit: String? = null, unitLabel: String? = null, defaultNumber: Double? = null): String {
         val id = newId()
@@ -91,17 +92,19 @@ internal class TrackerRepository(
 
     suspend fun logs(trackerId: String): List<Log> = dao.liveReadingsOf(listOf(trackerId)).map { it.toLog() }
 
-    suspend fun goalsOf(trackerId: String): List<GoalEntity> = dao.goalsOf(trackerId)
+    suspend fun goalsOf(trackerId: String): List<GoalEntity> = dao.goalsOf("TRACKER", trackerId)
 
     /**
-     * Deletes the tracker and, with it, every habit that uses it and its goals (owner, 2026-10-02).
-     * A habit another device makes on it meanwhile is deleted too: readers treat a habit whose
-     * tracker is deleted as deleted.
+     * Deletes the tracker and, with it, every habit that uses it and its goals (owner, 2026-10-02);
+     * the habits' running timers stop. A habit another device makes on it meanwhile is deleted
+     * too: readers treat a habit whose tracker is deleted as deleted.
      */
     suspend fun delete(trackerId: String) = writes.write({
-        mapOf(TRACKER to listOf(trackerId), ITEM to items.liveHabitsOf(trackerId), GOAL to dao.goalsOf(trackerId).map { it.id })
+        val habits = items.liveHabitsOf(trackerId)
+        mapOf(TRACKER to listOf(trackerId), ITEM to habits, GOAL to dao.goalsOf("TRACKER", trackerId).map { it.id }, TIME_SPAN to times.runningOf(habits))
     }) { store, targets ->
         val s = clock.tick()
+        endRunning(store, targets.getValue(TIME_SPAN), now(), s)
         store.put(requireNotNull(store.row(trackerId)) { "no tracker $trackerId" }.edit(WHOLE, s, mapOf("deleted_at" to s.hlc)))
         for (habit in targets.getValue(ITEM)) store.put(requireNotNull(store.row(habit)).edit(SCHEDULE, s, mapOf("deleted_at" to s.hlc)))
         for (goal in targets.getValue(GOAL)) store.put(requireNotNull(store.row(goal)).edit(WHOLE, s, mapOf("deleted_at" to s.hlc)))
@@ -112,12 +115,19 @@ internal class TrackerRepository(
      * its goals, which name it without one (Chronicle), are purged with it.
      */
     suspend fun purge(trackerId: String) = writes.write({
-        mapOf(TRACKER to listOf(trackerId), GOAL to dao.everyGoalOf(trackerId))
+        mapOf(TRACKER to listOf(trackerId), GOAL to dao.everyGoalOf("TRACKER", trackerId))
     }) { store, targets ->
         writes.merger.purge(store, trackerId)
         targets.getValue(GOAL).forEach { writes.merger.purge(store, it) }
     }
 }
+
+/** A goal on a tracker or an activity (ADR 07: an activity's goal names the activity item), automatic as Chronicle's are. */
+internal fun goalRow(id: String, s: Stamp, targetType: String, targetId: String, period: String, value: Double, kind: String) =
+    Row(GOAL, id, mapOf(WHOLE to Group(s, mapOf(
+        "target_type" to targetType, "target_id" to targetId, "period" to period, "value" to value, "kind" to kind,
+        "completion_mode" to "AUTO", "achieved_at" to null, "deleted_at" to null,
+    ))))
 
 internal fun TrackerReadingEntity.toLog() =
     Log(LocalDateTime.parse(at), yes = boolValue, rating = ratingValue?.toInt(), number = numberValue, choiceId = choiceId)

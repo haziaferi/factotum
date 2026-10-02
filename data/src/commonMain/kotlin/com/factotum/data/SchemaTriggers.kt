@@ -10,6 +10,7 @@ import com.factotum.data.reminder.REMINDER
 import com.factotum.data.tracker.GOAL
 import com.factotum.data.tracker.TRACKER
 import com.factotum.data.tracker.TRACKER_READING
+import com.factotum.data.time.TIME_SPAN
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.execSQL
 
@@ -61,21 +62,26 @@ internal object SchemaTriggers : RoomDatabase.Callback() {
     /**
      * ADR 02's kind rules; ADR 03's (a standalone reminder has a status and always a date and time);
      * ADR 06's (a habit has a tracker, which nothing else has, and only a habit pauses, has a block
-     * or a length, rolls, or is planned). In COALESCE, as a NULL inside would let the row through.
+     * or a length, rolls, or is planned); ADR 07's (only an activity has an icon, a colour or an
+     * archived flag, and it has no dates; an activity or a habit has a manual order). In COALESCE, as a NULL inside would let the row through.
      */
     private val itemRules = """
         COALESCE(
-            NEW.kind IN ('TASK', 'EVENT', 'REMINDER', 'HABIT')
+            NEW.kind IN ('TASK', 'EVENT', 'REMINDER', 'HABIT', 'ACTIVITY')
             AND (NEW.kind = 'TASK' OR (NEW.due_date IS NULL AND NEW.capacity_rank IS NULL AND NEW.parent_id IS NULL))
             AND (NEW.kind = 'EVENT' OR (NEW.end_date IS NULL AND NEW.end_time IS NULL))
-            AND (NEW.status IS NULL) = (NEW.kind IN ('EVENT', 'HABIT'))
+            AND (NEW.status IS NULL) = (NEW.kind IN ('EVENT', 'HABIT', 'ACTIVITY'))
             AND (NEW.status IS NULL OR NEW.status IN ('PENDING', 'DONE', 'SKIPPED'))
             AND (NEW.kind <> 'REMINDER' OR (NEW.start_date IS NOT NULL AND NEW.start_time IS NOT NULL))
             AND (NEW.tracker_id IS NOT NULL) = (NEW.kind = 'HABIT')
             AND (NEW.kind = 'HABIT' OR (NEW.pause_from IS NULL AND NEW.pause_until IS NULL AND NEW.block_id IS NULL AND NEW.duration_min IS NULL))
             AND (NEW.kind = 'HABIT' OR NEW.recurrence_kind IS NULL OR NEW.recurrence_kind NOT IN ('ROLLING', 'PLANNED'))
             AND (NEW.pause_until IS NULL OR (NEW.pause_from IS NOT NULL AND NEW.pause_until >= NEW.pause_from))
-            AND (NEW.duration_min IS NULL OR NEW.duration_min > 0),
+            AND (NEW.duration_min IS NULL OR NEW.duration_min > 0)
+            AND (NEW.kind = 'ACTIVITY' OR (NEW.icon IS NULL AND NEW.color IS NULL))
+            AND (NEW.archived IS NOT NULL) = (NEW.kind = 'ACTIVITY')
+            AND (NEW.sort_order IS NULL OR NEW.kind IN ('ACTIVITY', 'HABIT'))
+            AND (NEW.kind <> 'ACTIVITY' OR (NEW.start_date IS NULL AND NEW.start_time IS NULL AND NEW.due_date IS NULL AND NEW.recurrence_kind IS NULL)),
         0)
         AND $recurrenceRules
     """.trimIndent()
@@ -108,6 +114,14 @@ internal object SchemaTriggers : RoomDatabase.Callback() {
         0)
     """.trimIndent()
 
+    /**
+     * ADR 07: a span is on a task, habit or activity (an owner not yet arrived passes, as foreign
+     * keys are deferred, and readers check the kind too). That it ends no earlier than it starts is
+     * checked where it is written, not here: its start and end merge apart, and a merged row the
+     * database refused would stop every import after it.
+     */
+    private val spanRules = "COALESCE((SELECT kind FROM item WHERE id = NEW.item_id) IN ('TASK', 'HABIT', 'ACTIVITY'), 1)"
+
     /** A block is a stretch of one day (Tendril's planner); its weekday times are checked where they are read. */
     private val blockRules = "COALESCE(NEW.start_minute >= 0 AND NEW.end_minute > NEW.start_minute AND NEW.end_minute <= 1440 AND NEW.position >= 0, 0)"
 
@@ -136,6 +150,7 @@ internal object SchemaTriggers : RoomDatabase.Callback() {
         TRACKER_READING to readingRules,
         GOAL to goalRules,
         HABIT_BLOCK to blockRules,
+        TIME_SPAN to spanRules,
     )
 
     private val statements: List<String> = buildList {
@@ -153,6 +168,17 @@ internal object SchemaTriggers : RoomDatabase.Callback() {
                 "OR NEW.created_device IS NOT OLD.created_device OR NEW.seen IS NOT OLD.seen " +
                 "OR (OLD.deleted_at IS NOT NULL AND NEW.deleted_at IS NOT OLD.deleted_at) " +
                 "BEGIN SELECT RAISE(ABORT, 'occurrence_edit: an edit is written once and undone once'); END",
+        )
+        // ADR 07: a span stays on its owner; an activity is never deleted for good (owner, 2026-10-02).
+        add("DROP TRIGGER IF EXISTS time_span_owner_fixed")
+        add(
+            "CREATE TRIGGER time_span_owner_fixed BEFORE UPDATE ON time_span WHEN NEW.item_id IS NOT OLD.item_id " +
+                "BEGIN SELECT RAISE(ABORT, 'time_span: a span stays on its owner'); END",
+        )
+        add("DROP TRIGGER IF EXISTS item_activity_keep")
+        add(
+            "CREATE TRIGGER item_activity_keep BEFORE DELETE ON item WHEN OLD.kind = 'ACTIVITY' " +
+                "BEGIN SELECT RAISE(ABORT, 'item: an activity is not deleted for good'); END",
         )
         for (table in SYNCED_TABLES) for (event in listOf("INSERT", "UPDATE", "DELETE")) {
             val name = "${table}_outbox_${event.lowercase()}"

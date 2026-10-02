@@ -1,6 +1,6 @@
 # Factotum — Product & Technical Spec
 
-**Status:** draft v0.14, seeded from the decision register · **Scope:** the merged data model, sync and behaviour rules of Factotum. Screens are not decided and are marked open (§10.1).
+**Status:** draft v0.15, seeded from the decision register · **Scope:** the merged data model, sync and behaviour rules of Factotum. Screens are not decided and are marked open (§10.1).
 **Related documents:** `decisions/`, the evidence behind §3: one ADR per decision with verified `file:line` facts, the scored options, the behaviour cases and the harness that measured them (`decisions/register.md` is the index). This spec states each decision once and points to its ADR for the evidence. It never restates the evidence.
 
 ---
@@ -9,6 +9,7 @@
 
 | Version | Summary | Sections touched |
 |---|---|---|
+| v0.15 | Slice 07 built: activities as items, one `time_span` table, several timers, day totals as unions by the start day, goals on tracked time, the owner's answers (long timers ask, finishing stops a timer, an activity is never deleted forever) | §3.6, §3.7, §7 |
 | v0.14 | Owner answer: an "n a day" habit reminds at the start of each occurrence's block. Found on the way: a whole-day item reminded before its anchor missed the rest of a day once a firing had passed | §3.4, §3.6, §10 |
 | v0.13 | Slice 06b built: time blocks with Tendril's five defaults, the PLANNED kind, and the week planner ported from Tendril. A 06a defect fixed: two habits sharing a tracker shared one pause | §3.4, §3.6, §7 |
 | v0.12 | Slice 06a built: trackers (Chronicle's, as they are), habits tied to their trackers, Logs, presence with the owner's rule, rolling habits, pause. The item rules now sit in COALESCE: a task with no status had slipped through | §3.4, §3.6, §7 |
@@ -229,7 +230,7 @@ Every decision here was scored against its owners' behaviour cases, with a contr
 - **Blocks** are Tendril's rows, one group each, with its weekday times in its own text (`SAT,SUN@480-630`). The five defaults are written when a database is made (or upgraded to blocks), under fixed ids and one fixed stamp, so two devices hold the same five and any real edit is newer. A habit names its block without a foreign key: a deleted block leaves its habits at any time of day.
 - **Placing:** a set time goes in the block holding it (start in, end out), else outside every block, kept and shown; otherwise in the block an edit gave the occurrence (or none), else its slot's block, else the habit's. Blocks that overlap on a day are reported. With every block deleted, "n a day" occurrences are at any time, where Tendril placed none: they still exist to be Logged.
 - **The personal day** of a whole-day occurrence is its own date; only a timed one moves to the day before when the day starts after midnight (§3.6, part a). Pause and Logs both follow it. Whether an occurrence is timed is one rule for the planner, pause, Logs and reminders: the item's set time, a time its day's rule sets, or one an edit gave it.
-- **An occurrence's block** is ADR 11's `block` field, now read; it merges silently. `sort_order`, `rule_patch` and `pause` stay as written: items have no sort order yet (order in a block is by item, then occurrence), and Factotum edits a rule with a FROM edit and pauses on the item.
+- **An occurrence's block** is ADR 11's `block` field, now read; it merges silently. `sort_order`, `rule_patch` and `pause` stay as written: an occurrence keeps its habit's manual order (`sort_order` on the item, from slice 07, then the item), and Factotum edits a rule with a FROM edit and pauses on the item.
 - **Reminders** on an "n a day" habit fire once per unlogged occurrence, at the start of its block that day (weekday times included), moved by the reminder's offset (owner, 2026-10-02). An occurrence with no block left fires at the reminder's anchor. The next firing is the earliest due, not the next occurrence's, as blocks need not follow the occurrences' order.
 - **Found on the way:** habits sharing a tracker shared one pause, as their state was keyed by tracker. It is keyed by habit now.
 
@@ -241,9 +242,17 @@ Every decision here was scored against its owners' behaviour cases, with a contr
 - A span counts wholly for **the day it started**.
 - A day's total is the union of the spans that started that day, and a week's total is the sum of its days.
 - Manual entry and editing apply to every owner.
-- **Owner answers, 2026-10-02:** a span running past a limit (12 hours to start with) asks the person to keep it, end it at a time they pick, or end it at the limit, and counts as running until answered; marking a task done or skipped, or deleting a task or habit, ends its running spans, while a habit's Log does not.
+- **Owner answers, 2026-10-02:** a span running past a limit (12 hours to start with) asks the person to keep it, end it at a time they pick, or end it at the limit, and counts as running until answered; marking a task done or skipped, or deleting a task or habit, ends its running spans, while a habit's Log does not; an activity is never deleted forever, so no tracked time is lost to a purge.
 
 **Acceptance:** `cases/07-timelog.jsonl`, 9 cases.
+
+**Built (2026-10-02):** totals in `com.factotum.core.time`; spans and activities in `com.factotum.data.time`. The cases pass as tests (`TimeCasesTest`), but for the category half of `chronicle-activity-and-category-totals`, which needs §3.8's label and comes with slice 08. What the build settled, none of which changes the decision:
+- **An activity** is an item with no dates, an `archived` flag, and optionally an icon and a colour; an activity or a habit has a manual `sort_order`, fractional as Tendril's, which the planner now follows inside a block.
+- **A span has five ADR 01 groups**, one per thing written apart: its start (with its owner and planned run), its end, its deletion, when a long run was last kept, and its comment. Each write touches only what it changes, so a stop, a deletion, a "keep", a start time and a comment made on different devices all survive the merge, and nothing reopens or revives a span. Times are kept to the second. A span stays on its owner and is timed only on a task, habit or activity. That it ends no earlier than it starts is checked where it is written, not in the database: start and end merge apart, and a row the database refused would stop every later import; totals count such a span as nothing. A deleted span, or one on a deleted owner, is not edited again (Chronicle); deleting twice changes nothing.
+- **Totals** add each personal day's union of the spans started on it; a running span counts up to now; a span whose owner is deleted, or a habit whose tracker is deleted, does not count. Seconds are kept and minutes shown rounded down, as both apps round once at the end.
+- **Goals on an activity** name the activity item. Their windows are Chronicle's (the day, the week from Monday, the month from the 1st, a milestone the last 400 days), built from day totals.
+- **Deleting an activity** deletes its live spans and goals in the same write (Chronicle). An activity is never deleted forever (owner, 2026-10-02): the repository refuses, and a trigger refuses the row's delete. A purge on one device could otherwise take time another device logged before they synced.
+- **The owner's answers:** a timer running 12 hours since it started, or since the person last said to keep it, is listed to ask about (`runningLong`); "end it at the limit" ends it 12 hours after that. Marking a task done or skipped, resolving an occurrence, deleting a task or habit, or deleting a habit's tracker ends its running timers in the same write; resolving a past occurrence of a repeating task leaves a timer started after it running. A device that learns of a finished task or a deleted owner from a peer ends its timers when it imports it (`endFinished`, run after each import). A habit's Log does not stop a timer.
 
 ### 3.8 Labels — ADR 08
 
@@ -434,7 +443,7 @@ The four source apps are the owner's own. The only third-party code found so far
    - The guard recovers only from SQLITE_CORRUPT and SQLITE_NOTADB. A locked or full database is rethrown, and its file is left in place.
    - It moves the `-journal`, `-wal` and `-shm` files with the database.
    - Tests cover both drivers, with a control showing that the stock Android driver deletes a corrupt file. Wiring the guard into the Room open path comes with slice 01.
-2. **Schema slices in ADR dependency order:** 01 → 02 → 03 → 04 → 11 → 06 → 07 → 08 → 09 → 10 → 05 → 12. Each slice is done when its ADR cases pass as tests against the real implementation (§3). Spikes 1 and 3 run with slice 10. Spike 5 needs the Android shell and a device, so it runs with the shell (step 4). **Slice 01: done 2026-10-01** (§3.1), with its folder importer and exporter (§3.13). **Slice 02: done 2026-10-01** (§3.2). **Slice 03: done 2026-10-02** (§3.3). **Slice 04: done 2026-10-02** (§3.4), except spike 5, which needs the Android shell. **Slice 11: done 2026-10-02** (§3.11). **Slice 06: done 2026-10-02** (§3.6), with PLANNED.
+2. **Schema slices in ADR dependency order:** 01 → 02 → 03 → 04 → 11 → 06 → 07 → 08 → 09 → 10 → 05 → 12. Each slice is done when its ADR cases pass as tests against the real implementation (§3). Spikes 1 and 3 run with slice 10. Spike 5 needs the Android shell and a device, so it runs with the shell (step 4). **Slice 01: done 2026-10-01** (§3.1), with its folder importer and exporter (§3.13). **Slice 02: done 2026-10-01** (§3.2). **Slice 03: done 2026-10-02** (§3.3). **Slice 04: done 2026-10-02** (§3.4), except spike 5, which needs the Android shell. **Slice 11: done 2026-10-02** (§3.11). **Slice 06: done 2026-10-02** (§3.6), with PLANNED. **Slice 07: done 2026-10-02** (§3.7), but for category totals, which need slice 08.
 3. **The sole-owner modules of §2.**
 4. **Screens**, after §10.1.
 

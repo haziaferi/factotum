@@ -45,7 +45,10 @@ internal fun completionTable(dao: ItemDao) =
     }
 
 internal fun ItemEntity.toRow() = Row(ITEM, id, mapOf(
-    DETAILS to Group(Stamp(detailsHlc, detailsDevice), mapOf("kind" to kind, "title" to title, "parent_id" to parentId, "tracker_id" to trackerId, "block_id" to blockId)),
+    DETAILS to Group(Stamp(detailsHlc, detailsDevice), mapOf(
+        "kind" to kind, "title" to title, "parent_id" to parentId, "tracker_id" to trackerId, "block_id" to blockId,
+        "icon" to icon, "color" to color, "sort_order" to sortOrder,
+    )),
     SCHEDULE to Group(
         Stamp(scheduleHlc, scheduleDevice),
         mapOf(
@@ -55,7 +58,7 @@ internal fun ItemEntity.toRow() = Row(ITEM, id, mapOf(
         ) + repeat.values,
         settles = scheduleSettlesHlc?.let { Stamp(it, requireNotNull(scheduleSettlesDevice)) },
     ),
-    STATUS to Group(Stamp(statusHlc, statusDevice), mapOf("status" to status, "importance" to importance, "capacity_rank" to capacityRank)),
+    STATUS to Group(Stamp(statusHlc, statusDevice), mapOf("status" to status, "importance" to importance, "capacity_rank" to capacityRank, "archived" to archived)),
 ))
 
 /** Throws when [this] lacks an item's groups, holds a value of the wrong type, or a recurrence this version cannot read. */
@@ -70,6 +73,9 @@ internal fun Row.toItemEntity(): ItemEntity {
         parentId = d.values["parent_id"] as String?,
         trackerId = d.values["tracker_id"] as String?,
         blockId = d.values["block_id"] as String?,
+        icon = d.values["icon"] as String?,
+        color = d.values["color"] as Long?,
+        sortOrder = d.values["sort_order"] as Double?,
         detailsHlc = d.stamp.hlc,
         detailsDevice = d.stamp.device,
         startDate = s.values["start_date"] as String?,
@@ -88,6 +94,7 @@ internal fun Row.toItemEntity(): ItemEntity {
         scheduleSettlesDevice = s.settles?.device,
         status = st.values["status"] as String?,
         importance = st.values["importance"] as Long,
+        archived = st.values["archived"] as Boolean?,
         capacityRank = st.values["capacity_rank"] as Long?,
         statusHlc = st.stamp.hlc,
         statusDevice = st.stamp.device,

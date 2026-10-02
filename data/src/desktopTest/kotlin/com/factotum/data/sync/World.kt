@@ -14,8 +14,11 @@ import com.factotum.data.item.STATUS
 import com.factotum.data.openFactotumDatabase
 import com.factotum.data.reminder.ReminderRepository
 import com.factotum.data.tracker.TrackerRepository
+import com.factotum.data.time.ActivityRepository
+import com.factotum.data.time.TimeRepository
 import com.factotum.data.syncedTables
 import kotlinx.coroutines.runBlocking
+import kotlinx.datetime.LocalDateTime
 import java.io.File
 import kotlin.random.Random
 import kotlin.test.assertEquals
@@ -64,7 +67,11 @@ internal class World(private val dir: File, seed: Int, private val segmentBytes:
         val occurrences = OccurrenceRepository(db, writes, newId)
         val habits = HabitRepository(db, writes, newId)
         val trackers = TrackerRepository(db, writes, newId)
-        val sync = FolderSync(db, syncthing.folder(name), id, clock, tables, segmentBytes, snapshotEvery)
+        val time = TimeRepository(db, writes, newId)
+        val activities = ActivityRepository(db, writes, newId)
+        /** The wall clock the time rules read, as a local date-time. */
+        var now = LocalDateTime(2026, 10, 5, 12, 0)
+        val sync = FolderSync(db, syncthing.folder(name), id, clock, tables, segmentBytes, snapshotEvery, afterImport = { time.endFinished(now) })
 
         fun create(): String = runBlocking { items.createTask("$name@${syncthing.now}") }.also(::record)
 

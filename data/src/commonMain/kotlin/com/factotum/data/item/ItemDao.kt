@@ -39,6 +39,11 @@ internal data class ItemEntity(
     @ColumnInfo(name = "tracker_id") val trackerId: String?,
     /** A HABIT's default time block (ADR 06, amended): where the planner places it. */
     @ColumnInfo(name = "block_id") val blockId: String?,
+    /** An ACTIVITY's icon and colour (ADR 07); absent elsewhere. */
+    val icon: String?,
+    val color: Long?,
+    /** The manual order of activities, and of habits inside a time block (ADR 07); fractional, as Tendril's, to fit one between two. */
+    @ColumnInfo(name = "sort_order") val sortOrder: Double?,
     @ColumnInfo(name = "details_hlc") val detailsHlc: Long,
     @ColumnInfo(name = "details_device") val detailsDevice: String,
     @ColumnInfo(name = "start_date") val startDate: String?,
@@ -59,6 +64,8 @@ internal data class ItemEntity(
     @ColumnInfo(name = "schedule_settles_device") val scheduleSettlesDevice: String?,
     val status: String?,
     val importance: Long,
+    /** An ACTIVITY put away: kept, with its time, but no longer offered (ADR 07). */
+    val archived: Boolean?,
     @ColumnInfo(name = "capacity_rank") val capacityRank: Long?,
     @ColumnInfo(name = "status_hlc") val statusHlc: Long,
     @ColumnInfo(name = "status_device") val statusDevice: String,
@@ -152,6 +159,10 @@ internal interface ItemDao {
 
     @Query("SELECT * FROM occurrence_edit WHERE deleted_at IS NULL")
     suspend fun liveEdits(): List<OccurrenceEditEntity>
+
+    /** Live activities in their manual order (ADR 07). */
+    @Query("SELECT * FROM item WHERE kind = 'ACTIVITY' AND deleted_at IS NULL ORDER BY sort_order IS NULL, sort_order, id")
+    suspend fun liveActivities(): List<ItemEntity>
 
     @Query("SELECT * FROM habit_block WHERE id IN (:ids)")
     suspend fun blocks(ids: List<String>): List<HabitBlockEntity>

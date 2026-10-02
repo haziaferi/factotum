@@ -87,7 +87,7 @@ internal class HabitRepository(
         val made = if (trackerId == null) listOf(tracker) else emptyList()
         writes.write(mapOf(ITEM to listOf(habit), TRACKER to made, GOAL to listOfNotNull(goal?.first))) { store ->
             if (trackerId == null) writes.merger.created(store, trackers.trackerRow(tracker, title, type, unit, unitLabel, amountPerLog))
-            goal?.let { (id, value) -> writes.merger.created(store, trackers.goalRow(id, tracker, "DAY", value)) }
+            goal?.let { (id, value) -> writes.merger.created(store, trackers.trackerGoalRow(id, tracker, "DAY", value)) }
             val schedule = schedule(start, at, null, null, null) + recurrenceValues(recurrence) + ("duration_min" to durationMin)
             writes.merger.created(store, itemRow(habit, clock.tick(), ItemKind.HABIT, title, null, schedule, null, 0, null, trackerId = tracker, blockId = blockId))
         }
@@ -160,6 +160,7 @@ internal class HabitRepository(
                         mine.none { it.changes.skip && it.reaches(LocalDateTime(d, start.time)) }
                 },
                 confirmed = mine.any { it.scope == EditScope.WEEK && it.date == monday && it.changes.weekDays != null },
+                sortOrder = h.sortOrder ?: 0.0,
             )
         }
         return planWeek(monday, blocks(), plan)

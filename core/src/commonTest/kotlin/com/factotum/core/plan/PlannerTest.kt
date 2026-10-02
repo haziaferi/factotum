@@ -254,6 +254,15 @@ class PlannerTest {
     }
 
     @Test
+    fun habitsInABlockFollowTheirManualOrderThenTheirId() {
+        val first = habit("b", daily(), block = "evening").copy(sortOrder = 1.0)
+        val second = habit("a", daily(), block = "evening").copy(sortOrder = 2.0)
+        val third = habit("c", daily(), block = "evening").copy(sortOrder = 2.0)
+
+        assertEquals(listOf("b", "a", "c"), week(third, second, first).on(5).blocks.single { it.block.id == "evening" }.flexible.map { it.itemId })
+    }
+
+    @Test
     fun entriesKeepTheirOrderPastNine() {
         val plan = week(habit("sips", Recurrence.Planned(12, Recurrence.Planned.Per.DAY, blocks = List(12) { "midday" })))
 

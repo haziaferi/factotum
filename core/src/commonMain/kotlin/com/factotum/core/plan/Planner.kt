@@ -60,10 +60,12 @@ data class PlanHabit(
     val occurrences: List<Occurrence>,
     val pool: List<LocalDate> = emptyList(),
     val confirmed: Boolean = false,
+    /** The habit's manual order inside a block (ADR 07); none sorts as 0, as in Tendril. */
+    val sortOrder: Double = 0.0,
 )
 
 /** One occurrence as placed: at [minute] when timed, else in [blockId]. */
-data class Placed(val itemId: String, val occurrence: Occurrence, val minute: Int?, val blockId: String?, val durationMin: Int)
+data class Placed(val itemId: String, val occurrence: Occurrence, val minute: Int?, val blockId: String?, val durationMin: Int, val sortOrder: Double = 0.0)
 
 data class PlacedBlock(val block: TimeBlock, val timed: List<Placed>, val flexible: List<Placed>)
 
@@ -92,7 +94,7 @@ fun spread(k: Int, n: Int): List<Int> = (0 until n).map { i -> minOf(k - 1, ((i 
  * The plan of the week from [monday]: every habit's occurrences placed in the day's [blocks], the
  * overlapping blocks, and the suggestions for unconfirmed "n a week" habits. A suggestion is the
  * evenly spaced pick of the pool, rotated to the offset that keeps the busiest day lightest, then
- * the spread of load lowest, then the first offset (Tendril). Habits are suggested in id order,
+ * the spread of load lowest, then the first offset (Tendril). Habits are suggested in their order,
  * each on the load the earlier ones left.
  */
 fun planWeek(monday: LocalDate, blocks: List<TimeBlock>, habits: List<PlanHabit>): PlanWeek {
@@ -109,7 +111,7 @@ fun planWeek(monday: LocalDate, blocks: List<TimeBlock>, habits: List<PlanHabit>
     }
     habits.forEach { addLoad(it, weekly = false) }
     val suggestions = mutableListOf<WeekSuggestion>()
-    for (h in habits.filter { h -> days.any { weeklyOn(h, it) } }.sortedBy { it.itemId }) {
+    for (h in habits.filter { h -> days.any { weeklyOn(h, it) } }.sortedWith(compareBy({ it.sortOrder }, { it.itemId }))) {
         val pool = h.pool.sorted()
         val n = minOf((pool.firstOrNull()?.let(h.rules::get) as? Recurrence.Planned)?.n ?: 0, pool.size)
         if (h.confirmed || n == 0) {
@@ -150,7 +152,7 @@ fun blockOf(o: Occurrence, rule: Recurrence?, habitBlock: String?, order: List<S
 private fun placed(h: PlanHabit, o: Occurrence, order: List<String>): Placed {
     val rule = h.rules[o.original?.date ?: o.at.date]
     val minute = if (h.setTime || rule?.setsTimes == true || o.ownTime) o.at.time.hour * 60 + o.at.time.minute else null
-    return Placed(h.itemId, o, minute, blockOf(o, rule, h.blockId, order), (o.durationMin ?: h.durationMin.toLong()).toInt())
+    return Placed(h.itemId, o, minute, blockOf(o, rule, h.blockId, order), (o.durationMin ?: h.durationMin.toLong()).toInt(), h.sortOrder)
 }
 
 private fun placeDay(d: LocalDate, blocks: List<TimeBlock>, entries: List<Placed>): PlanDay {
@@ -167,8 +169,8 @@ private fun placeDay(d: LocalDate, blocks: List<TimeBlock>, entries: List<Placed
             flexible[p.blockId]?.add(p) ?: anyTime.add(p)
         }
     }
-    // A habit's own occurrences in their order; an added one after them.
-    val byOrder = compareBy<Placed>({ it.itemId }, { it.occurrence.original == null }, { it.occurrence.original }, { it.occurrence.at })
+    // Habits in their manual order, then by id; a habit's own occurrences in their order, an added one after them.
+    val byOrder = compareBy<Placed>({ it.sortOrder }, { it.itemId }, { it.occurrence.original == null }, { it.occurrence.original }, { it.occurrence.at })
     val byTime = compareBy<Placed> { it.minute }.then(byOrder)
     val ordered = blocks.sortedBy { it.start }
     return PlanDay(

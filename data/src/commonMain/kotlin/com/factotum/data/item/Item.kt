@@ -4,8 +4,8 @@ import com.factotum.core.recurrence.Recurrence
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
 
-/** The kinds of item built so far (ADR 02, 03, 06); ACTIVITY comes with slice 07. */
-enum class ItemKind { TASK, EVENT, REMINDER, HABIT }
+/** The kinds of item (ADR 02, 03, 06, 07). */
+enum class ItemKind { TASK, EVENT, REMINDER, HABIT, ACTIVITY }
 
 enum class TaskStatus { PENDING, DONE, SKIPPED }
 

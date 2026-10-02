@@ -79,3 +79,4 @@ A source survey before building slice 07 found two choices neither app settles (
 
 1. **A timer left running asks at a cap.** Once a span has run past a limit (12 hours to start with), the app asks: keep it running, end it at a time the person picks, or end it at the limit. Until then it counts as running. Nothing is ended without the person.
 2. **Finishing a task stops its timer.** Marking a task done or skipped, or deleting a task or habit, ends its running spans at that moment. A habit's Log does not.
+3. **Activities are never deleted forever** (asked after slice 07's review found that a purge on one device took time another device had logged meanwhile). An activity is deleted with its time and goals, as in Chronicle, but "delete forever" is not offered for it, so no tracked time is lost to a purge. Tasks, habits and the rest keep "delete forever".

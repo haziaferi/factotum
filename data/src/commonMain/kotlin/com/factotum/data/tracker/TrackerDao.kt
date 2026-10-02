@@ -170,10 +170,11 @@ internal interface TrackerDao {
     @Query("DELETE FROM goal WHERE id IN (:ids)")
     suspend fun deleteGoals(ids: List<String>)
 
-    @Query("SELECT * FROM goal WHERE target_type = 'TRACKER' AND target_id = :trackerId AND deleted_at IS NULL")
-    suspend fun goalsOf(trackerId: String): List<GoalEntity>
+    /** The live goals on a tracker or an activity ([targetType] TRACKER or ACTIVITY). */
+    @Query("SELECT * FROM goal WHERE target_type = :targetType AND target_id = :targetId AND deleted_at IS NULL")
+    suspend fun goalsOf(targetType: String, targetId: String): List<GoalEntity>
 
     /** Deleted ones too: a purge takes them all. */
-    @Query("SELECT id FROM goal WHERE target_type = 'TRACKER' AND target_id = :trackerId")
-    suspend fun everyGoalOf(trackerId: String): List<String>
+    @Query("SELECT id FROM goal WHERE target_type = :targetType AND target_id = :targetId")
+    suspend fun everyGoalOf(targetType: String, targetId: String): List<String>
 }

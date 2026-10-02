@@ -39,7 +39,7 @@ class ItemCasesTest {
         db = openFactotumDatabase(File(tmp.root, "items.db")).database
         var n = 0
         val clock = runBlocking { db.syncDao().loadClock("A") { now } }
-        items = ItemRepository(db, LocalWrites(db, clock)) { "id-$now-${n++}" }
+        items = ItemRepository(db, LocalWrites(db, clock), newId = { "id-$now-${n++}" })
     }
 
     @After fun close() = db.close()

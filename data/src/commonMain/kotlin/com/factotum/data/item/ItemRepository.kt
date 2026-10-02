@@ -7,7 +7,9 @@ import com.factotum.data.FactotumDatabase
 import com.factotum.data.LocalWrites
 import com.factotum.data.reminder.ALERT
 import com.factotum.data.reminder.REMINDER
-import com.factotum.data.sync.StagedStore
+import com.factotum.data.time.TIME_SPAN
+import com.factotum.data.time.endRunning
+import com.factotum.data.time.localNow
 import com.factotum.core.recurrence.Recurrence
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
@@ -18,8 +20,10 @@ internal class ItemRepository(
     db: FactotumDatabase,
     private val writes: LocalWrites,
     private val newId: () -> String,
+    private val now: () -> LocalDateTime = ::localNow,
 ) {
     private val dao = db.itemDao()
+    private val times = db.timeDao()
     private val reminders = db.reminderDao()
     private val sync = db.syncDao()
     private val clock = writes.clock
@@ -55,7 +59,7 @@ internal class ItemRepository(
         capacityRank: Long?,
     ): String {
         val id = newId()
-        write(listOf(id)) { store ->
+        writes.write(mapOf(ITEM to listOf(id))) { store ->
             merger.created(store, itemRow(id, clock.tick(), kind, title, parentId, schedule, status, importance, capacityRank))
         }
         return id
@@ -83,34 +87,60 @@ internal class ItemRepository(
         store.put(requireNotNull(store.row(id)) { "no item $id" }.edit(SCHEDULE, clock.tick(), recurrenceValues(recurrence)))
     }
 
-    suspend fun setStatus(id: String, status: TaskStatus) = edit(id, STATUS, mapOf("status" to status.name))
+    /** Sets a task's status; done or skipped, its running timers stop (owner, 2026-10-02). */
+    suspend fun setStatus(id: String, status: TaskStatus) = writes.write({
+        mapOf(ITEM to listOf(id), TIME_SPAN to if (status == TaskStatus.PENDING) emptyList() else times.runningOf(listOf(id)))
+    }) { store, targets ->
+        val s = clock.tick()
+        store.put(requireNotNull(store.row(id)) { "no item $id" }.edit(STATUS, s, mapOf("status" to status.name)))
+        endRunning(store, targets.getValue(TIME_SPAN), now(), s)
+    }
+
+    /** The manual order of an activity, or of a habit inside its time block (ADR 07). */
+    suspend fun setSortOrder(id: String, order: Double) = edit(id, DETAILS, mapOf("sort_order" to order))
 
     suspend fun setImportance(id: String, importance: Long) = edit(id, STATUS, mapOf("importance" to importance))
 
     suspend fun setCapacityRank(id: String, rank: Long?) = edit(id, STATUS, mapOf("capacity_rank" to rank))
 
-    /** Deletes [id] and its subtasks, which go with their parent (ADR 02); "delete forever" is [purge]. */
-    suspend fun delete(id: String) = writes.write({ mapOf(ITEM to listOf(id) + dao.liveChildren(id)) }) { store, targets ->
+    /**
+     * Deletes [id] and its subtasks, which go with their parent (ADR 02), and stops their running
+     * timers (owner, 2026-10-02); "delete forever" is [purge]. An activity is deleted with its
+     * time by `ActivityRepository`.
+     */
+    suspend fun delete(id: String) = writes.write({
+        val ids = listOf(id) + dao.liveChildren(id)
+        mapOf(ITEM to ids, TIME_SPAN to times.runningOf(ids))
+    }) { store, targets ->
         val s = clock.tick()
         for (target in targets.getValue(ITEM)) {
             store.put(requireNotNull(store.row(target)) { "no item $target" }.edit(SCHEDULE, s, mapOf("deleted_at" to s.hlc)))
         }
+        endRunning(store, targets.getValue(TIME_SPAN), now(), s)
     }
 
-    /** "Delete forever" (ADR 01): the purge travels; subtasks and completions go by the foreign keys. */
-    suspend fun purge(id: String) = write(listOf(id)) { store -> merger.purge(store, id) }
+    /**
+     * "Delete forever" (ADR 01): the purge travels; subtasks, completions and tracked time go by the
+     * foreign keys. An activity is never deleted forever (owner, 2026-10-02), so no time is lost to it.
+     */
+    suspend fun purge(id: String) {
+        require(dao.items(listOf(id)).singleOrNull()?.kind != ItemKind.ACTIVITY.name) { "an activity is deleted, never deleted forever" }
+        writes.write(mapOf(ITEM to listOf(id))) { store -> merger.purge(store, id) }
+    }
 
     /**
      * Records how one occurrence of a recurring task was resolved (ADR 02's completion log). The
      * occurrence is named by the date-time the series gave it, or an added one's own, so two
-     * occurrences on one day are told apart.
+     * occurrences on one day are told apart. The task's running timers stop (owner, 2026-10-02).
      */
     suspend fun resolve(itemId: String, occurrence: LocalDateTime, outcome: Outcome): String {
         val id = newId()
-        write(listOf(id), table = COMPLETION) { store ->
+        writes.write({ mapOf(COMPLETION to listOf(id), TIME_SPAN to times.runningOf(listOf(itemId))) }) { store, targets ->
+            val s = clock.tick()
             merger.created(store, Row(COMPLETION, id, mapOf(
-                WHOLE to Group(clock.tick(), mapOf("item_id" to itemId, "occurrence" to occurrence.toString(), "status" to outcome.name, "deleted_at" to null)),
+                WHOLE to Group(s, mapOf("item_id" to itemId, "occurrence" to occurrence.toString(), "status" to outcome.name, "deleted_at" to null)),
             )))
+            endRunning(store, targets.getValue(TIME_SPAN), now(), s, occurrence = occurrence.date)
         }
         return id
     }
@@ -170,9 +200,6 @@ internal class ItemRepository(
 
     private suspend fun edit(id: String, group: String, changes: Map<String, Any?>) = writes.edit(ITEM, id, group) { changes }
 
-    private suspend fun write(ids: List<String>, table: String = ITEM, block: (StagedStore) -> Unit) =
-        writes.write(mapOf(table to ids), block)
-
 }
 
 /** An item's schedule group values; a new item is not deleted. */
@@ -195,9 +222,12 @@ internal fun itemRow(
     trackerId: String? = null,
     blockId: String? = null,
 ) = Row(ITEM, id, mapOf(
-    DETAILS to Group(s, mapOf("kind" to kind.name, "title" to title, "parent_id" to parentId, "tracker_id" to trackerId, "block_id" to blockId)),
+    DETAILS to Group(s, mapOf(
+        "kind" to kind.name, "title" to title, "parent_id" to parentId, "tracker_id" to trackerId, "block_id" to blockId,
+        "icon" to null, "color" to null, "sort_order" to null,
+    )),
     SCHEDULE to Group(s, mapOf<String, Any?>("pause_from" to null, "pause_until" to null, "duration_min" to null) + schedule),
-    STATUS to Group(s, mapOf("status" to status?.name, "importance" to importance, "capacity_rank" to capacityRank)),
+    STATUS to Group(s, mapOf("status" to status?.name, "importance" to importance, "capacity_rank" to capacityRank, "archived" to null)),
 ))
 
 internal fun ItemEntity.toItem() = Item(
