@@ -215,7 +215,7 @@ SLICES = {
          ":core:desktopTest", {"aLogAfterMidnightCountsForYesterdayWhenTheDayStartsLater"}),
         ("a rolling habit ignores its last Log", RECUR, "lastDone?.plus(every, unit) ?: dtstart.date", "dtstart.date",
          ":core:desktopTest", {"aRollingHabitIsDueAPeriodAfterItsLastLog"}),
-        ("an overdue rolling habit waits a period", RECUR, "var day = maxOf(due, from.date)", "var day = due",
+        ("an overdue rolling habit waits a period", RECUR, "var day = maxOf(due, from.date)", "var day = if (due < from.date) from.date.plus(every, unit) else due",
          ":core:desktopTest", {"anOverdueRollingHabitIsDueToday"}),
         ("a paused habit still shows", OCCREPO, "            .filter { !habit.paused(it, recurrence.timed(it, edits, item.startTime != null)) }\n", "\n",
          ":data:desktopTest", {"tendrilPauseWindow_noOccurrencesWhilePausedAndOnlyHabitsPause"}),
