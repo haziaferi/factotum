@@ -81,5 +81,5 @@ A source survey before building slice 06 found gaps the decision did not settle 
 1. **Rolling habits stay rolling.** Tendril's default schedule, "due again N days, weeks or months after the last Log", becomes a recurrence kind of its own, ROLLING, beside ADR 04's. A late Log moves the next due date.
 2. **Presence counts a "yes", any rating, and a number above 0.** A "no" does not count. Number habits also show today's and this month's amounts, as Tendril's did.
 3. **The day boundary is a personal setting** (ADR 09), default midnight: it decides which day a Log made after midnight counts for.
-4. **Deleting a tracker that a habit uses:** open. The owner asked whether making the tracker optional would be simpler.
+4. **The tracker stays required, and is created with its habit** (2026-10-02, after the owner asked whether an optional tracker would be simpler: it would need a second place for Logs). Making "water, every 2 days" makes its tracker in the same write; a person never has to make one first. A habit can also use a tracker that already exists. Deleting a tracker deletes the habits that use it ("delete forever" purges them); deleting a habit leaves its tracker and its Logs in Trackers.
 

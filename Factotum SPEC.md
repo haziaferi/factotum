@@ -207,7 +207,7 @@ Every decision here was scored against its owners' behaviour cases, with a contr
 - Pause is `pause_from` and `pause_until`.
 - **[Amended]** A HABIT also carries `block_id` (its default time block) and `duration_min`. The planner needs both (§9.2).
 - **The verb is "Log".** "Check-in" is kept for §3.5.
-- **Owner answers, 2026-10-02:** a rolling habit ("due again N days after the last Log", Tendril's default) stays rolling, as a recurrence kind ROLLING; presence counts a "yes", any rating and a number above 0, and number habits show today's and this month's amounts; the day boundary is a personal setting, default midnight. What deleting a tracker does to its habit is open (§10).
+- **Owner answers, 2026-10-02:** a rolling habit ("due again N days after the last Log", Tendril's default) stays rolling, as a recurrence kind ROLLING; presence counts a "yes", any rating and a number above 0, and number habits show today's and this month's amounts; the day boundary is a personal setting, default midnight. The tracker stays required and is created with its habit in one write (a habit may also use an existing tracker); deleting a tracker deletes its habits, deleting a habit leaves the tracker and its Logs.
 
 **Acceptance:** `cases/06-habit.jsonl`, 8 cases.
 
@@ -459,7 +459,7 @@ Status: 2, 4 and 6 are done (`docs/spikes-2026-10-01.md`). With §10.2 decided, 
    - The `.json` and `.csv` were rebuilt from the `.md` table, and all 14 rows were checked equal.
    - The pre-edit copies are in `../_map-before-2026-10-01/`.
 9. **The sync folder's layout. Decided 2026-10-01:** ADR 13, device-log+copies (§3.13).
-10. **A habit whose tracker is deleted** (§3.6): the habit goes with it, the delete is refused, or the tracker becomes optional.
+10. **A habit whose tracker is deleted. Decided 2026-10-02:** the habit goes with it; the tracker is created with the habit (§3.6).
 
 ## 11. Next Steps
 
