@@ -70,13 +70,13 @@ fun goalDays(period: GoalPeriod, milestone: Boolean, today: LocalDate): List<Loc
 /** How far back a milestone counts (Chronicle's `MILESTONE_DAYS`). */
 const val MILESTONE_DAYS = 400
 
-/** How long a timer runs before the person is asked about it (owner, 2026-10-02). */
+/** How long a timer runs before the person is asked about it, until they set otherwise (owner, 2026-10-02: a personal setting). */
 val LONG_RUN: Duration = 12.hours
 
 /**
- * Whether a running span has run past [LONG_RUN] since it started, or since the person last said
- * to keep it ([keptAt]): then they are asked to keep it, end it at a time they pick, or end it at
- * the limit. A finished span never is.
+ * Whether a running span has run past [limit] since it started, or since the person last said to
+ * keep it ([keptAt]): then they are asked to keep it, end it at a time they pick, or end it at the
+ * limit. A finished span never is.
  */
-fun runsLong(span: Span, keptAt: LocalDateTime?, now: LocalDateTime): Boolean =
-    span.end == null && secondsBetween(maxOf(span.start, keptAt ?: span.start), now) > LONG_RUN.inWholeSeconds
+fun runsLong(span: Span, keptAt: LocalDateTime?, now: LocalDateTime, limit: Duration): Boolean =
+    span.end == null && secondsBetween(maxOf(span.start, keptAt ?: span.start), now) > limit.inWholeSeconds

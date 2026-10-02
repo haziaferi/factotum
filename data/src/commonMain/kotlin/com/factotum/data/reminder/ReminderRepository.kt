@@ -4,6 +4,7 @@ import com.factotum.core.sync.Group
 import com.factotum.core.sync.Row
 import com.factotum.data.FactotumDatabase
 import com.factotum.data.LocalWrites
+import com.factotum.data.settings.PersonalSettings
 import com.factotum.data.item.ITEM
 import com.factotum.data.item.ItemKind
 import com.factotum.data.item.SCHEDULE
@@ -43,7 +44,7 @@ internal class ReminderRepository(
     db: FactotumDatabase,
     private val writes: LocalWrites,
     private val newId: () -> String,
-    private val dayStart: LocalTime = LocalTime(0, 0),
+    private val personal: PersonalSettings,
 ) {
     private val dao = db.reminderDao()
     private val items = db.itemDao()
@@ -122,7 +123,7 @@ internal class ReminderRepository(
         // Logs from the moment searched from: a habit's earlier Logs no longer quiet anything.
         val since = after ?: sources.minOfOrNull { dtstartOf(it.startDate, it.startTime) } ?: return emptyList()
         val habits = sources.mapNotNull { s -> s.trackerId?.let { HabitRef(s.itemId, it, s.pauseFrom, s.pauseUntil) } }.distinctBy { it.id }
-        val states = habitStates(readings, habits, dayStart, LocalDateTime(since.date.plus(-2, DateTimeUnit.DAY), since.time), FAR)
+        val states = habitStates(readings, habits, personal.dayStart(), LocalDateTime(since.date.plus(-2, DateTimeUnit.DAY), since.time), FAR)
         val blocks = items.liveBlocks().map { it.toBlock() }
         return sources.mapNotNull { s -> firing(s, editsByItem[s.itemId].orEmpty(), states[s.itemId] ?: HabitState.NONE, blocks, after) }
             .sortedWith(compareBy({ it.at }, { it.reminderId }))

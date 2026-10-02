@@ -11,6 +11,7 @@ import com.factotum.core.sync.Group
 import com.factotum.core.sync.Row
 import com.factotum.data.FactotumDatabase
 import com.factotum.data.LocalWrites
+import com.factotum.data.settings.PersonalSettings
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
@@ -39,7 +40,7 @@ internal class OccurrenceRepository(
     db: FactotumDatabase,
     private val writes: LocalWrites,
     private val newId: () -> String,
-    private val dayStart: LocalTime = LocalTime(0, 0),
+    private val personal: PersonalSettings,
 ) {
     private val dao = db.itemDao()
     private val readings = db.trackerDao()
@@ -85,7 +86,7 @@ internal class OccurrenceRepository(
         val start = item.dtstart() ?: return emptyList()
         val habit = item.trackerId?.let { t ->
             if (readings.trackers(listOf(t)).singleOrNull()?.deletedAt != null) return emptyList()
-            habitStates(readings, listOf(HabitRef(itemId, t, item.pauseFrom, item.pauseUntil)), dayStart, from, to).getValue(itemId)
+            habitStates(readings, listOf(HabitRef(itemId, t, item.pauseFrom, item.pauseUntil)), personal.dayStart(), from, to).getValue(itemId)
         } ?: HabitState.NONE
         val recurrence = item.recurrence()
         val edits = dao.liveEditsOf(itemId).map { it.toEdit() }

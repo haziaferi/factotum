@@ -8,6 +8,7 @@ import com.factotum.core.recurrence.Recurrence
 import com.factotum.core.recurrence.RollUnit
 import com.factotum.data.FactotumDatabase
 import com.factotum.data.LocalWrites
+import com.factotum.data.FixedSettings
 import com.factotum.data.isConstraintViolation
 import com.factotum.data.openFactotumDatabase
 import com.factotum.data.reminder.ReminderRepository
@@ -47,10 +48,10 @@ class HabitCasesTest {
         val writes = LocalWrites(db, runBlocking { db.syncDao().loadClock("A") { 1_000 } })
         val newId = { "id-${n++}" }
         items = ItemRepository(db, writes, newId)
-        habits = HabitRepository(db, writes, newId)
+        habits = HabitRepository(db, writes, newId, FixedSettings())
         trackers = TrackerRepository(db, writes, newId)
-        occurrences = OccurrenceRepository(db, writes, newId)
-        reminders = ReminderRepository(db, writes, newId)
+        occurrences = OccurrenceRepository(db, writes, newId, FixedSettings())
+        reminders = ReminderRepository(db, writes, newId, FixedSettings())
     }
 
     @After fun close() = db.close()
@@ -214,7 +215,7 @@ class HabitCasesTest {
     fun aLogAfterMidnightCountsForYesterdayWhenTheDayStartsLater() {
         val writes = LocalWrites(db, runBlocking { db.syncDao().loadClock("A") { 2_000 } })
         var n = 100
-        val nightOwl = HabitRepository(db, writes, { "late-${n++}" }, dayStart = LocalTime(4, 0))
+        val nightOwl = HabitRepository(db, writes, { "late-${n++}" }, FixedSettings(LocalTime(4, 0)))
         val read = runBlocking { nightOwl.create("read", monday) }
 
         runBlocking { nightOwl.log(read, at(6, 1, 30)) }

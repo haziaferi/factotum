@@ -5,6 +5,7 @@ import androidx.room.useWriterConnection
 import com.factotum.core.time.GoalPeriod
 import com.factotum.data.FactotumDatabase
 import com.factotum.data.LocalWrites
+import com.factotum.data.FixedSettings
 import com.factotum.data.isConstraintViolation
 import com.factotum.data.item.HabitRepository
 import com.factotum.data.item.ItemRepository
@@ -48,10 +49,10 @@ class TimeCasesTest {
         val writes = LocalWrites(db, runBlocking { db.syncDao().loadClock("A") { 1_000 } })
         val newId = { "id-${n++}" }
         items = ItemRepository(db, writes, newId, now = { now })
-        habits = HabitRepository(db, writes, newId)
+        habits = HabitRepository(db, writes, newId, FixedSettings())
         trackers = TrackerRepository(db, writes, newId, now = { now })
-        time = TimeRepository(db, writes, newId)
-        activities = ActivityRepository(db, writes, newId)
+        time = TimeRepository(db, writes, newId, FixedSettings())
+        activities = ActivityRepository(db, writes, newId, FixedSettings())
     }
 
     @After fun close() = db.close()
@@ -374,7 +375,7 @@ class TimeCasesTest {
     fun aPersonalDayStartingLaterCountsAnEarlySpanForTheDayBefore() {
         var n = 0
         val writes = LocalWrites(db, runBlocking { db.syncDao().loadClock("A") { 1_000 } })
-        val owl = TimeRepository(db, writes, { "owl-${n++}" }, dayStart = kotlinx.datetime.LocalTime(4, 0))
+        val owl = TimeRepository(db, writes, { "owl-${n++}" }, FixedSettings(kotlinx.datetime.LocalTime(4, 0)))
         val reading = runBlocking { activities.create("Reading") }
         runBlocking { owl.logManual(reading, at(6, 2), at(6, 3)) }
         runBlocking { owl.logManual(reading, at(6, 5), at(6, 6)) }

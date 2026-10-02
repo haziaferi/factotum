@@ -40,6 +40,9 @@ TIMESPAN = "data/src/commonMain/kotlin/com/factotum/data/time/TimeSpan.kt"
 ACTIVITIES = "data/src/commonMain/kotlin/com/factotum/data/time/ActivityRepository.kt"
 LABELKEY = "core/src/commonMain/kotlin/com/factotum/core/label/Labels.kt"
 LABELS = "data/src/commonMain/kotlin/com/factotum/data/label/LabelRepository.kt"
+REGISTRY = "core/src/commonMain/kotlin/com/factotum/core/settings/Settings.kt"
+SETTINGS = "data/src/commonMain/kotlin/com/factotum/data/settings/SettingsRepository.kt"
+STORES = "data/src/commonMain/kotlin/com/factotum/data/settings/SettingStores.kt"
 
 # slice -> [(name, file, old, new, test task, tests that must fail)]
 SLICES = {
@@ -429,6 +432,42 @@ SLICES = {
          ":data:desktopTest", {"somethingLabelledOnAPeerThatHadNotSeenTheMergeReadsAsTheSurvivor", "aMergeWritesNothingOnWhatCarriedTheMergedLabelSoAChoiceMadeMeanwhileStands"}),
         ("triggers kept on an upgrade", OPEN, ".also(::dropTriggersBeforeUpgrade)", "",
          ":data:desktopTest", {"aVersion9DatabaseKeepsItsItemsAndTrackersWhenLabelsArrive"}),
+    ],
+    "09": [
+        ("a restore stamps personal values anew", SETTINGS, "Group(Stamp(v.hlc, v.device), mapOf(VALUE to v.value))", "Group(clock.tick(), mapOf(VALUE to v.value))",
+         ":data:desktopTest", {"anOldBackupNeverOutranksANewerPersonalValue"}),
+        ("a restore writes device state", SETTINGS, "it.scope == SettingScope.DEVICE_PREF && it !== Settings.APP_LOCK", "it.scope != SettingScope.SECRET && it !== Settings.APP_LOCK",
+         ":data:desktopTest", {"sharedFirstRunNotRestored_aNewPhoneAsksItsFirstRunQuestions", "mnemoFolderNotRestored_aRestoredPhoneDoesNotInheritTheFolderGrant"}),
+        ("a restore turns the lock on", SETTINGS, " && it !== Settings.APP_LOCK }", " }",
+         ":data:desktopTest", {"appLockIsPerDeviceAndNeverOnWithoutThisDevicesPin"}),
+        ("the lock goes on without a PIN", SETTINGS, 'if (setting === Settings.APP_LOCK && value == true) require(get(Settings.APP_LOCK_PIN).isNotEmpty()) { "set this device\'s PIN before the lock" }', "Unit",
+         ":data:desktopTest", {"appLockIsPerDeviceAndNeverOnWithoutThisDevicesPin"}),
+        ("a backup carries device state", SETTINGS, "device = Settings.all.filter { it.scope == SettingScope.DEVICE_PREF }", "device = Settings.all.filter { it.scope != SettingScope.SECRET && it.scope != SettingScope.PERSONAL }",
+         ":data:desktopTest", {"chronicleDeviceIdOwn_theDeviceIdIsNoSettingAndRidesInNoBackup"}),
+        ("personal settings read from the device", SETTINGS, "SettingScope.PERSONAL -> dao.settings(listOf(settingId(setting.key))).singleOrNull()?.value", "SettingScope.PERSONAL -> dao.deviceValue(setting.key)",
+         ":data:desktopTest", {"equipoisePersonalTravels_theThresholdAndContactsReachEveryDeviceAndTheRestoredPhone"}),
+        ("a default is stored", SETTINGS, "if (value == setting.default) null else setting.encode(value)", "setting.encode(value)",
+         ":data:desktopTest", {"aPersonalSettingChangedOnTwoDevicesKeepsTheLaterAndTheDefaultClearsIt"}),
+        ("a restore pins a default", SETTINGS, "value.takeUnless { setting.decode(it) == setting.default }", "value",
+         ":data:desktopTest", {"aRestoreClearsADevicePreferenceThatIsTheDefault"}),
+        ("an unreadable day start is used", REGISTRY, "{ runCatching { LocalTime.parse(it) }.getOrNull() }", "{ LocalTime.parse(it) }",
+         ":data:desktopTest", {"aValueThatDoesNotReadReadsAsTheDefaultAndOneOutOfRangeIsRefused"}),
+        ("a zero timer limit is taken", REGISTRY, "v.toIntOrNull()?.takeIf { it >= 1 }?.hours", "v.toIntOrNull()?.takeIf { it >= 0 }?.hours",
+         ":data:desktopTest", {"aValueThatDoesNotReadReadsAsTheDefaultAndOneOutOfRangeIsRefused"}),
+        ("setting ids unmarked", STORES, 'internal fun settingId(key: String) = "setting:$key"', "internal fun settingId(key: String) = key",
+         ":data:desktopTest", {"aPersonalSettingChangedOnTwoDevicesKeepsTheLaterAndTheDefaultClearsIt"}),
+        ("the AI key syncs", REGISTRY, 'val AI_KEY = text("ai_key", SettingScope.SECRET)', 'val AI_KEY = text("ai_key", SettingScope.PERSONAL)',
+         ":data:desktopTest", {"tendrilSecretNeverLeaves_theAiKeyIsInNoFolderBackupOrOtherDevice"}),
+        ("the window frame syncs", REGISTRY, 'val WINDOW_FRAME = text("window_frame", SettingScope.DEVICE_STATE)', 'val WINDOW_FRAME = text("window_frame", SettingScope.PERSONAL)',
+         ":data:desktopTest", {"tendrilLayoutPerDevice_aWindowFrameReachesNoOtherDevice"}),
+        ("one key for two secrets", REGISTRY, 'text("llm_endpoint_key", SettingScope.SECRET)', 'text("ai_key", SettingScope.SECRET)',
+         ":data:desktopTest", {"tendrilSecretNeverLeaves_theAiKeyIsInNoFolderBackupOrOtherDevice"}),
+        ("totals ignore the day-start setting", TIMEREPO, "        val dayStart = personal.dayStart()\n", "        val dayStart = MIDNIGHT\n",
+         ":data:desktopTest", {"theDayStartSetOnOneDeviceDecidesTheDayOnAnotherAtOnce"}),
+        ("timers ignore the limit setting", TIMEREPO, "        val limit = personal.longRun()\n", "        val limit = com.factotum.core.time.LONG_RUN\n",
+         ":data:desktopTest", {"theLongTimerLimitIsOneSettingForEveryDevice"}),
+        ("a recovered device skips its own files", FOLDER, "(owner != device || readOwn)", "owner != device",
+         ":data:desktopTest", {"aDeviceWhoseDatabaseWasRecoveredGetsItsSettingsBackFromItsOwnFiles"}),
     ],
 }
 

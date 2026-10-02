@@ -45,7 +45,14 @@ internal class FolderSync(
      * runs whether or not this import changed anything, so a step a crash cut short is done next time.
      */
     private val afterImport: suspend () -> Unit = {},
+    /**
+     * The database was just made anew after a corrupt one was set aside (`DatabaseOpen.recovered`):
+     * the first import reads this device's own files too, so what it wrote, settings included, comes
+     * back from the folder even with no peer (ADR 09).
+     */
+    recovered: Boolean = false,
 ) {
+    private var readOwn = recovered
     private val dao = db.syncDao()
     private val merger = Merger(clock, ASK_GROUPS)
     private val lock = Mutex()
@@ -68,7 +75,7 @@ internal class FolderSync(
                 if (copy || (data && shared)) {
                     report += merge(completeLines(folder.read(path) ?: continue, 0), path = null)
                     if (copy) folder.delete(path)
-                } else if (data && owner != device) {
+                } else if (data && (owner != device || readOwn)) {
                     present += path
                     val from = held[path] ?: 0
                     // Unchanged since the last read: a peer's snapshot is read once, not on every import.
@@ -80,6 +87,7 @@ internal class FolderSync(
             }
         }
         dao.keepReads(present)
+        readOwn = false
         (report + retryWaiting()).also { afterImport() }
     }
 

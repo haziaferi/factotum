@@ -8,6 +8,7 @@ import com.factotum.core.recurrence.RRule
 import com.factotum.core.recurrence.Recurrence
 import com.factotum.data.FactotumDatabase
 import com.factotum.data.LocalWrites
+import com.factotum.data.FixedSettings
 import com.factotum.data.SYNCED_TABLES
 import com.factotum.data.isConstraintViolation
 import com.factotum.data.openFactotumDatabase
@@ -45,8 +46,8 @@ class RecurringItemTest {
         val writes = LocalWrites(db, runBlocking { db.syncDao().loadClock("A") { 1_000 } })
         val newId = { "id-${n++}" }
         items = ItemRepository(db, writes, newId)
-        reminders = ReminderRepository(db, writes, newId)
-        occurrences = OccurrenceRepository(db, writes, newId)
+        reminders = ReminderRepository(db, writes, newId, FixedSettings())
+        occurrences = OccurrenceRepository(db, writes, newId, FixedSettings())
     }
 
     private fun occurrencesOf(id: String, from: LocalDateTime, to: LocalDateTime) = runBlocking { occurrences.occurrences(id, from, to) }.map { it.at }

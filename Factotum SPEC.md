@@ -1,6 +1,6 @@
 # Factotum — Product & Technical Spec
 
-**Status:** draft v0.16, seeded from the decision register · **Scope:** the merged data model, sync and behaviour rules of Factotum. Screens are not decided and are marked open (§10.1).
+**Status:** draft v0.17, seeded from the decision register · **Scope:** the merged data model, sync and behaviour rules of Factotum. Screens are not decided and are marked open (§10.1).
 **Related documents:** `decisions/`, the evidence behind §3: one ADR per decision with verified `file:line` facts, the scored options, the behaviour cases and the harness that measured them (`decisions/register.md` is the index). This spec states each decision once and points to its ADR for the evidence. It never restates the evidence.
 
 ---
@@ -9,6 +9,7 @@
 
 | Version | Summary | Sections touched |
 |---|---|---|
+| v0.17 | Slice 09 built: settings by scope, the day boundary and the timer limit as PERSONAL settings every repository reads on each call, the settings part of a backup. A recovered database reads its own folder files again | §3.4, §3.7, §3.9, §3.13, §7 |
 | v0.16 | Slice 08 built: labels on activities, habits and trackers, merged by name after a sync, read through what they were merged into; label time totals. Found on the way: an upgrade that rebuilt a table stopped on a trigger naming it, so the app's triggers are dropped before any upgrade | §3.7, §3.8, §7 |
 | v0.15 | Slice 07 built: activities as items, one `time_span` table, several timers, day totals as unions by the start day, goals on tracked time, the owner's answers (long timers ask, finishing stops a timer, an activity is never deleted forever) | §3.6, §3.7, §7 |
 | v0.14 | Owner answer: an "n a day" habit reminds at the start of each occurrence's block. Found on the way: a whole-day item reminded before its anchor missed the rest of a day once a firing had passed | §3.4, §3.6, §10 |
@@ -160,7 +161,7 @@ Every decision here was scored against its owners' behaviour cases, with a contr
 - **Computing firings writes nothing** (§3.13 requirement 1). Which firings have rung is device state, built with the Android and Windows shells.
 - **A reminder on an item with no start date is refused by the repository**, and so is taking the start date away from an item with live reminders, or adding one to a deleted item. A trigger would instead drop a synced reminder whose item lost its date on another device; such a reminder is kept, and does not fire.
 - **Deleting a standalone reminder's last reminder deletes its item**, which would otherwise sit unseen, never firing. **"Keep both"** on a clash over a standalone reminder copies its reminders onto the new item, so both times fire.
-- **The day-view setting** (off by default) is a parameter of the day query until slice 09 brings settings.
+- **The day-view setting** (off by default) is ADR 09's `show_reminders_on_day`, a DEVICE_PREF (§3.9); the day query takes it from its caller, with no default of its own.
 
 ### 3.4 Recurrence — ADR 04
 
@@ -253,7 +254,7 @@ Every decision here was scored against its owners' behaviour cases, with a contr
 - **Totals** add each personal day's union of the spans started on it; a running span counts up to now; a span whose owner is deleted, or a habit whose tracker is deleted, does not count. Seconds are kept and minutes shown rounded down, as both apps round once at the end.
 - **Goals on an activity** name the activity item. Their windows are Chronicle's (the day, the week from Monday, the month from the 1st, a milestone the last 400 days), built from day totals.
 - **Deleting an activity** deletes its live spans and goals in the same write (Chronicle). An activity is never deleted forever (owner, 2026-10-02): the repository refuses, and a trigger refuses the row's delete. A purge on one device could otherwise take time another device logged before they synced.
-- **The owner's answers:** a timer running 12 hours since it started, or since the person last said to keep it, is listed to ask about (`runningLong`); "end it at the limit" ends it 12 hours after that. Marking a task done or skipped, resolving an occurrence, deleting a task or habit, or deleting a habit's tracker ends its running timers in the same write; resolving a past occurrence of a repeating task leaves a timer started after it running. A device that learns of a finished task or a deleted owner from a peer ends its timers when it imports it (`endFinished`, run after each import). A habit's Log does not stop a timer.
+- **The owner's answers:** a timer running past the limit (12 hours by default, a PERSONAL setting since slice 09, §3.9) since it started, or since the person last said to keep it, is listed to ask about (`runningLong`); "end it at the limit" ends it that long after. Marking a task done or skipped, resolving an occurrence, deleting a task or habit, or deleting a habit's tracker ends its running timers in the same write; resolving a past occurrence of a repeating task leaves a timer started after it running. A device that learns of a finished task or a deleted owner from a peer ends its timers when it imports it (`endFinished`, run after each import). A habit's Log does not stop a timer.
 
 ### 3.8 Labels — ADR 08
 
@@ -291,6 +292,13 @@ The device id is not a setting.
 **Owner answers, 2026-10-02:** the day view's standalone-reminders switch is DEVICE_PREF; the long-timer limit (§3.7) is PERSONAL, default 12 hours; app lock is per device (its PIN a SECRET, its on/off and grace DEVICE_PREF); the personal day boundary (§3.6) is PERSONAL, default midnight. This slice builds the settings part of the backup only (export PERSONAL and DEVICE_PREF; restore writes only those); a full backup comes with the shells.
 
 **Acceptance:** `cases/09-settings.jsonl`, 9 cases.
+
+**Built (2026-10-02):** `com.factotum.core.settings` and `com.factotum.data.settings`. All 9 cases pass as tests (`SettingsCasesTest`): A and B share a folder, and C is a phone restored from A's backup. What the build settled, none of which changes the decision:
+- **A typed registry** names each setting's key, scope, default and the values it takes; a value that does not read (unreadable, or one no version could mean, such as a timer limit under an hour) reads as the default. No upper bounds were invented. Setting a value to its default clears it, so a later default reaches it.
+- **PERSONAL settings** are rows of a synced `setting` table, one ADR 01 group each, later stamp first. A row's id is `setting:` and its key, so two devices that set one key apart write one row; a key this version does not know travels as it came. DEVICE_PREF and DEVICE_STATE live in a local `device_setting` table no export reads. SECRET goes to a `SecretStore`; the Keystore and DPAPI ones come with the shells (Tendril's `SecretStore` and `FileAiKeyStore` are the code to port). Tendril's AI key and Equipoise's endpoint key are two secrets.
+- **Repositories read the day boundary and the timer limit on every call** through a required `PersonalSettings`, so a change imported from another device applies at once and no repository can be built that ignores them.
+- **The backup's settings part** carries the PERSONAL rows with their stamps, so restoring an old backup never outranks a newer value here or on a peer, and the DEVICE_PREF values; a restore writes only settings this version knows, of those two scopes, with values they take. App lock is never turned on by a restore, nor at all before this device has its PIN.
+- **Recovery:** a database made anew after a corrupt one was set aside reads this device's own folder files on its first import, so its settings and data come back with no peer; its DEVICE settings go back to defaults (ADR 09).
 
 ### 3.10 Search — ADR 10
 
@@ -457,7 +465,7 @@ The four source apps are the owner's own. The only third-party code found so far
    - The guard recovers only from SQLITE_CORRUPT and SQLITE_NOTADB. A locked or full database is rethrown, and its file is left in place.
    - It moves the `-journal`, `-wal` and `-shm` files with the database.
    - Tests cover both drivers, with a control showing that the stock Android driver deletes a corrupt file. Wiring the guard into the Room open path comes with slice 01.
-2. **Schema slices in ADR dependency order:** 01 → 02 → 03 → 04 → 11 → 06 → 07 → 08 → 09 → 10 → 05 → 12. Each slice is done when its ADR cases pass as tests against the real implementation (§3). Spikes 1 and 3 run with slice 10. Spike 5 needs the Android shell and a device, so it runs with the shell (step 4). **Slice 01: done 2026-10-01** (§3.1), with its folder importer and exporter (§3.13). **Slice 02: done 2026-10-01** (§3.2). **Slice 03: done 2026-10-02** (§3.3). **Slice 04: done 2026-10-02** (§3.4), except spike 5, which needs the Android shell. **Slice 11: done 2026-10-02** (§3.11). **Slice 06: done 2026-10-02** (§3.6), with PLANNED. **Slice 07: done 2026-10-02** (§3.7). **Slice 08: done 2026-10-02** (§3.8), but for its page cases, which come with slice 12.
+2. **Schema slices in ADR dependency order:** 01 → 02 → 03 → 04 → 11 → 06 → 07 → 08 → 09 → 10 → 05 → 12. Each slice is done when its ADR cases pass as tests against the real implementation (§3). Spikes 1 and 3 run with slice 10. Spike 5 needs the Android shell and a device, so it runs with the shell (step 4). **Slice 01: done 2026-10-01** (§3.1), with its folder importer and exporter (§3.13). **Slice 02: done 2026-10-01** (§3.2). **Slice 03: done 2026-10-02** (§3.3). **Slice 04: done 2026-10-02** (§3.4), except spike 5, which needs the Android shell. **Slice 11: done 2026-10-02** (§3.11). **Slice 06: done 2026-10-02** (§3.6), with PLANNED. **Slice 07: done 2026-10-02** (§3.7). **Slice 08: done 2026-10-02** (§3.8), but for its page cases, which come with slice 12. **Slice 09: done 2026-10-02** (§3.9).
 3. **The sole-owner modules of §2.**
 4. **Screens**, after §10.1.
 

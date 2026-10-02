@@ -3,11 +3,11 @@ package com.factotum.data.time
 import com.factotum.core.sync.Group
 import com.factotum.core.sync.Row
 import com.factotum.core.sync.Stamp
-import com.factotum.core.time.LONG_RUN
 import com.factotum.core.time.runsLong
 import com.factotum.core.time.totalOf
 import com.factotum.data.FactotumDatabase
 import com.factotum.data.LocalWrites
+import com.factotum.data.settings.PersonalSettings
 import com.factotum.data.item.ITEM
 import com.factotum.data.item.ItemKind
 import com.factotum.data.item.MIDNIGHT
@@ -23,6 +23,7 @@ import kotlinx.datetime.plus
 import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
 import kotlin.time.Clock
+import kotlin.time.Duration
 
 /** One span as read back: [end] is null while it runs; [keptAt] is when a long run was last kept going. */
 data class TrackedSpan(
@@ -41,14 +42,15 @@ internal fun localNow(): LocalDateTime = Clock.System.now().toLocalDateTime(Time
 /**
  * Tracked time on tasks, habits and activities (ADR 07): timers, several at once, and spans
  * entered or edited by hand, on every owner. Totals count each span for the personal day it
- * started on ([dayStart]) and overlapping spans once; a deleted span, or one whose owner is
+ * started on (the personal day boundary) and overlapping spans once; a deleted span, or one whose owner is
  * deleted, does not count.
  */
 internal class TimeRepository(
     db: FactotumDatabase,
     private val writes: LocalWrites,
     private val newId: () -> String,
-    private val dayStart: LocalTime = MIDNIGHT,
+    /** The day boundary and the long-timer limit, read on every call (ADR 09). */
+    private val personal: PersonalSettings,
 ) {
     private val dao = db.timeDao()
     private val items = db.itemDao()
@@ -69,10 +71,10 @@ internal class TimeRepository(
         endRunning(store, listOf(spanId), at, clock.tick())
     }
 
-    /** "End it at the limit": [spanId] ends [LONG_RUN] after it started, or after it was last kept (owner, 2026-10-02). */
+    /** "End it at the limit": [spanId] ends the long-run limit after it started, or after it was last kept (owner, 2026-10-02). */
     suspend fun stopAtLimit(spanId: String) {
         val span = requireNotNull(dao.spans(listOf(spanId)).singleOrNull()) { "no span $spanId" }.toTracked()
-        stop(spanId, limitOf(span))
+        stop(spanId, limitOf(span, personal.longRun()))
     }
 
     /** "Keep it running": the answer to a long-running timer, asked again a full period later (owner, 2026-10-02). */
@@ -129,11 +131,13 @@ internal class TimeRepository(
     suspend fun running(): List<TrackedSpan> = dao.running().map { it.toTracked() }
 
     /** The running timers to ask about at [now]: past the limit since they started or were last kept. */
-    suspend fun runningLong(now: LocalDateTime): List<TrackedSpan> =
-        dao.running().filter { runsLong(it.toSpan(), it.keptAt?.let(LocalDateTime::parse), now) }.map { it.toTracked() }
+    suspend fun runningLong(now: LocalDateTime): List<TrackedSpan> {
+        val limit = personal.longRun()
+        return dao.running().filter { runsLong(it.toSpan(), it.keptAt?.let(LocalDateTime::parse), now, limit) }.map { it.toTracked() }
+    }
 
     /** The spans that count, started on [day] (the personal day), of [itemId] or of everything. */
-    suspend fun spansOn(day: LocalDate, itemId: String? = null): List<TrackedSpan> = counted(listOf(day), itemId).map { it.toTracked() }
+    suspend fun spansOn(day: LocalDate, itemId: String? = null): List<TrackedSpan> = counted(listOf(day), personal.dayStart(), itemId).map { it.toTracked() }
 
     /**
      * [days]' total in seconds at [now], of [itemId], of everything carrying [labelId] (Chronicle's
@@ -142,10 +146,11 @@ internal class TimeRepository(
      */
     suspend fun total(days: List<LocalDate>, now: LocalDateTime, itemId: String? = null, labelId: String? = null): Long {
         val labelIds = labelId?.let { id -> labels.allLabels().let { all -> val r = resolver(all); all.map { it.id }.filter { r(it) == id } } }
-        return totalOf(days, counted(days, itemId, labelIds).map { it.toSpan() }, now, dayStart)
+        val dayStart = personal.dayStart()
+        return totalOf(days, counted(days, dayStart, itemId, labelIds).map { it.toSpan() }, now, dayStart)
     }
 
-    private suspend fun counted(days: List<LocalDate>, itemId: String?, labelIds: List<String>? = null): List<TimeSpanEntity> {
+    private suspend fun counted(days: List<LocalDate>, dayStart: LocalTime, itemId: String?, labelIds: List<String>? = null): List<TimeSpanEntity> {
         if (days.isEmpty()) return emptyList()
         // A personal day starting after midnight runs into the next date.
         val from = LocalDateTime(days.min(), dayStart).toString()
@@ -178,9 +183,9 @@ private fun seconds(t: LocalDateTime) = LocalDateTime(t.date, LocalTime(t.hour, 
 
 private fun Row.value(group: String, field: String) = groups.getValue(group).values[field]
 
-/** When a long run reaches its limit: [LONG_RUN] after it started, or after it was last kept. */
-internal fun limitOf(span: TrackedSpan): LocalDateTime =
-    maxOf(span.start, span.keptAt ?: span.start).toInstant(TimeZone.UTC).plus(LONG_RUN).toLocalDateTime(TimeZone.UTC)
+/** When a long run reaches its [limit]: that long after it started, or after it was last kept. */
+internal fun limitOf(span: TrackedSpan, limit: Duration): LocalDateTime =
+    maxOf(span.start, span.keptAt ?: span.start).toInstant(TimeZone.UTC).plus(limit).toLocalDateTime(TimeZone.UTC)
 
 /**
  * Ends each of [spanIds] that still runs, at [at] or at its start if that is later, in a write

@@ -69,10 +69,10 @@ class TimeTotalsTest {
     fun aTimerIsAskedAboutPastTwelveHoursAndAgainTwelveHoursAfterItWasKept() {
         val running = span(5, 8, null)
 
-        assertFalse(runsLong(running, null, at(5, 20)))
-        assertTrue(runsLong(running, null, at(5, 20, 1)))
-        assertFalse(runsLong(running, at(5, 21), at(6, 9)))
-        assertTrue(runsLong(running, at(5, 21), at(6, 9, 1)))
-        assertFalse(runsLong(span(5, 8, 23), null, at(7, 0)))
+        assertFalse(runsLong(running, null, at(5, 20), LONG_RUN))
+        assertTrue(runsLong(running, null, at(5, 20, 1), LONG_RUN))
+        assertFalse(runsLong(running, at(5, 21), at(6, 9), LONG_RUN))
+        assertTrue(runsLong(running, at(5, 21), at(6, 9, 1), LONG_RUN))
+        assertFalse(runsLong(span(5, 8, 23), null, at(7, 0), LONG_RUN))
     }
 }

@@ -12,6 +12,7 @@ import com.factotum.core.recurrence.Recurrence
 import com.factotum.core.recurrence.slotTime
 import com.factotum.data.FactotumDatabase
 import com.factotum.data.LocalWrites
+import com.factotum.data.FixedSettings
 import com.factotum.data.createAtVersion
 import com.factotum.data.isConstraintViolation
 import com.factotum.data.openFactotumDatabase
@@ -50,10 +51,10 @@ class PlannerCasesTest {
         var n = 0
         val writes = LocalWrites(db, runBlocking { db.syncDao().loadClock("A") { 1_000 } })
         val newId = { "id-${n++}" }
-        habits = HabitRepository(db, writes, newId)
+        habits = HabitRepository(db, writes, newId, FixedSettings())
         trackers = TrackerRepository(db, writes, newId)
-        occurrences = OccurrenceRepository(db, writes, newId)
-        reminders = ReminderRepository(db, writes, newId)
+        occurrences = OccurrenceRepository(db, writes, newId, FixedSettings())
+        reminders = ReminderRepository(db, writes, newId, FixedSettings())
     }
 
     @After fun close() = db.close()
@@ -184,7 +185,7 @@ class PlannerCasesTest {
     fun aWholeDayOccurrenceIsPausedOnItsOwnDateWhenTheDayStartsLater() {
         var n = 0
         val writes = LocalWrites(db, runBlocking { db.syncDao().loadClock("A") { 1_000 } })
-        val nightOwl = HabitRepository(db, writes, { "owl-${n++}" }, dayStart = LocalTime(4, 0))
+        val nightOwl = HabitRepository(db, writes, { "owl-${n++}" }, FixedSettings(LocalTime(4, 0)))
         val pills = runBlocking { nightOwl.create("pills", monday, recurrence = Recurrence.Planned(2, Recurrence.Planned.Per.DAY)) }
         runBlocking { nightOwl.pause(pills, day(7)) }
 

@@ -6,6 +6,7 @@ import com.factotum.core.label.LabelScope
 import com.factotum.core.label.colorForName
 import com.factotum.data.FactotumDatabase
 import com.factotum.data.LocalWrites
+import com.factotum.data.FixedSettings
 import com.factotum.data.createAtVersion
 import androidx.sqlite.execSQL
 import com.factotum.data.isConstraintViolation
@@ -54,10 +55,10 @@ class LabelCasesTest {
         val newId = { "id-${n++}" }
         labels = LabelRepository(db, writes, newId)
         items = ItemRepository(db, writes, newId)
-        habits = HabitRepository(db, writes, newId)
+        habits = HabitRepository(db, writes, newId, FixedSettings())
         trackers = TrackerRepository(db, writes, newId)
-        activities = ActivityRepository(db, writes, newId)
-        time = TimeRepository(db, writes, newId)
+        activities = ActivityRepository(db, writes, newId, FixedSettings())
+        time = TimeRepository(db, writes, newId, FixedSettings())
     }
 
     @After fun close() = db.close()

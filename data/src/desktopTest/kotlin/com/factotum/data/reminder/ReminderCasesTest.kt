@@ -5,6 +5,7 @@ import androidx.room.useReaderConnection
 import androidx.room.useWriterConnection
 import com.factotum.data.FactotumDatabase
 import com.factotum.data.LocalWrites
+import com.factotum.data.FixedSettings
 import com.factotum.data.isConstraintViolation
 import com.factotum.data.item.ItemKind
 import com.factotum.data.item.ItemRepository
@@ -41,7 +42,7 @@ class ReminderCasesTest {
         val writes = LocalWrites(db, runBlocking { db.syncDao().loadClock("A") { 1_000 } })
         val newId = { "id-${n++}" }
         items = ItemRepository(db, writes, newId)
-        reminders = ReminderRepository(db, writes, newId)
+        reminders = ReminderRepository(db, writes, newId, FixedSettings())
     }
 
     @After fun close() = db.close()
@@ -152,7 +153,7 @@ class ReminderCasesTest {
         val task = runBlocking { items.createTask("call", MONDAY, LocalTime(14, 0)) }
         val pills = runBlocking { reminders.createStandalone("take pills", MONDAY, LocalTime(8, 0)) }
 
-        assertEquals(listOf(task), runBlocking { items.day(MONDAY) }.map { it.id })
+        assertEquals(listOf(task), runBlocking { items.day(MONDAY, showReminders = false) }.map { it.id })
         assertEquals(listOf(pills, task), runBlocking { items.day(MONDAY, showReminders = true) }.map { it.id })
     }
 

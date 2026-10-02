@@ -12,7 +12,7 @@ import androidx.room.Upsert
 import com.factotum.core.sync.HybridClock
 import com.factotum.core.sync.Stamp
 
-/** ADR 01's permanent purge registry: one row per purged id, never expired. Ids are ULIDs, unique across tables. */
+/** ADR 01's permanent purge registry: one row per purged id, never expired. Ids are unique across tables (ULIDs, a seeded block's, a setting's). */
 @Entity(tableName = "purge_registry")
 internal data class PurgeEntity(
     @PrimaryKey val id: String,

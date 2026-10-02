@@ -4,6 +4,7 @@ import com.factotum.core.time.GoalPeriod
 import com.factotum.core.time.goalDays
 import com.factotum.data.FactotumDatabase
 import com.factotum.data.LocalWrites
+import com.factotum.data.settings.PersonalSettings
 import com.factotum.data.item.DETAILS
 import com.factotum.data.item.ITEM
 import com.factotum.data.item.ItemKind
@@ -35,13 +36,13 @@ internal class ActivityRepository(
     db: FactotumDatabase,
     private val writes: LocalWrites,
     private val newId: () -> String,
-    private val dayStart: LocalTime = MIDNIGHT,
+    private val personal: PersonalSettings,
 ) {
     private val items = db.itemDao()
     private val times = db.timeDao()
     private val goals = db.trackerDao()
     private val labelDao = db.labelDao()
-    private val time = TimeRepository(db, writes, newId, dayStart)
+    private val time = TimeRepository(db, writes, newId, personal)
     private val clock = writes.clock
 
     suspend fun create(name: String, icon: String? = null, color: Long? = null): String {

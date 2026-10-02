@@ -15,6 +15,8 @@ import com.factotum.data.openFactotumDatabase
 import com.factotum.data.reminder.ReminderRepository
 import com.factotum.data.tracker.TrackerRepository
 import com.factotum.data.label.LabelRepository
+import com.factotum.data.settings.MemorySecretStore
+import com.factotum.data.settings.SettingsRepository
 import com.factotum.data.time.ActivityRepository
 import com.factotum.data.time.TimeRepository
 import com.factotum.data.syncedTables
@@ -56,24 +58,27 @@ internal class World(private val dir: File, seed: Int, private val segmentBytes:
      * [id] is the sync identity; two devices given the same one model a cloned device id.
      * [extra] adds tables, or replaces a real one, for rows written straight into the folder.
      */
-    inner class Device(val name: String, val id: String = name, extra: Map<String, RowTable> = emptyMap()) {
+    inner class Device(val name: String, val id: String = name, extra: Map<String, RowTable> = emptyMap(), recovered: Boolean = false) {
         val clock = HybridClock(id, { syncthing.now })
         val db = openFactotumDatabase(File(dir, "$name.db")).database.also { opened += it }
         private val tables = db.syncedTables() + extra
         private var made = 0
         val writes = LocalWrites(db, clock)
         private val newId = { "$name-${made++}" }
+        /** This device's secret store: a map, as the Keystore or DPAPI would hold it apart from everything else. */
+        val secrets = MemorySecretStore()
+        val settings = SettingsRepository(db, writes, secrets)
         val items = ItemRepository(db, writes, newId)
-        val reminders = ReminderRepository(db, writes, newId)
-        val occurrences = OccurrenceRepository(db, writes, newId)
-        val habits = HabitRepository(db, writes, newId)
+        val reminders = ReminderRepository(db, writes, newId, settings)
+        val occurrences = OccurrenceRepository(db, writes, newId, settings)
+        val habits = HabitRepository(db, writes, newId, settings)
         val trackers = TrackerRepository(db, writes, newId)
-        val time = TimeRepository(db, writes, newId)
-        val activities = ActivityRepository(db, writes, newId)
+        val time = TimeRepository(db, writes, newId, settings)
+        val activities = ActivityRepository(db, writes, newId, settings)
         val labels = LabelRepository(db, writes, newId)
         /** The wall clock the time rules read, as a local date-time. */
         var now = LocalDateTime(2026, 10, 5, 12, 0)
-        val sync = FolderSync(db, syncthing.folder(name), id, clock, tables, segmentBytes, snapshotEvery, afterImport = {
+        val sync = FolderSync(db, syncthing.folder(name), id, clock, tables, segmentBytes, snapshotEvery, recovered = recovered, afterImport = {
             labels.mergeDuplicates()
             time.endFinished(now)
         })

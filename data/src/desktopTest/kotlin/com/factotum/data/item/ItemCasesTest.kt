@@ -60,7 +60,7 @@ class ItemCasesTest {
     fun tendrilTimeline_timedItemsInTimeOrderThenWholeDayOnes() {
         val m = monday()
 
-        val day = runBlocking { items.day(MONDAY) }.map { it.id }
+        val day = runBlocking { items.day(MONDAY, showReminders = false) }.map { it.id }
 
         assertEquals(listOf(m.event, m.call, m.tax, m.plants), day)
     }

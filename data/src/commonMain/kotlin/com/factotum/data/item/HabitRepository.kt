@@ -21,6 +21,7 @@ import com.factotum.core.sync.Group
 import com.factotum.core.sync.Row
 import com.factotum.data.FactotumDatabase
 import com.factotum.data.LocalWrites
+import com.factotum.data.settings.PersonalSettings
 import com.factotum.data.tracker.GOAL
 import com.factotum.data.tracker.TRACKER
 import com.factotum.data.tracker.TrackerRepository
@@ -44,14 +45,14 @@ data class Progress(val amount: Double, val goal: Double?)
  * Habits (ADR 06): items of kind HABIT, each Logged as readings on its tracker. A habit and its
  * tracker are made together (owner, 2026-10-02); deleting the habit leaves the tracker and its
  * Logs. A habit that uses an existing tracker shares its Logs: they belong to the tracker, which the
- * habit is a face of. [dayStart] is the personal day boundary (owner, 2026-10-02), midnight until
- * settings carry it (slice 09).
+ * habit is a face of. [personal] gives the personal day boundary (owner, 2026-10-02), a
+ * PERSONAL setting (ADR 09).
  */
 internal class HabitRepository(
     db: FactotumDatabase,
     private val writes: LocalWrites,
     private val newId: () -> String,
-    private val dayStart: LocalTime = LocalTime(0, 0),
+    private val personal: PersonalSettings,
 ) {
     private val items = db.itemDao()
     private val readings = db.trackerDao()
@@ -109,13 +110,14 @@ internal class HabitRepository(
     }
 
     /** Undoes the latest Log of [habitId] counting for [day]: one glass less, or the day's "yes" gone. */
-    suspend fun undo(habitId: String, day: LocalDate): Boolean = trackers.undoLast(habitAndTracker(habitId).second.id, day, dayStart)
+    suspend fun undo(habitId: String, day: LocalDate): Boolean = trackers.undoLast(habitAndTracker(habitId).second.id, day, personal.dayStart())
 
-    suspend fun presence(habitId: String, today: LocalDate): HabitPresence = presenceOf(logsOf(habitId), today, dayStart)
+    suspend fun presence(habitId: String, today: LocalDate): HabitPresence = presenceOf(logsOf(habitId), today, personal.dayStart())
 
     /** Today's amount against the tracker's daily goal, if it has one. */
     suspend fun progress(habitId: String, today: LocalDate): Progress {
         val tracker = habitAndTracker(habitId).second
+        val dayStart = personal.dayStart()
         val amount = logsOf(habitId).filter { it.isPresence && dayOf(it.at, dayStart) == today }.sumOf { it.number ?: 1.0 }
         return Progress(amount, trackers.goalsOf(tracker.id).firstOrNull { it.period == "DAY" }?.value)
     }
@@ -139,6 +141,7 @@ internal class HabitRepository(
         val to = LocalDateTime(monday.plus(7, DateTimeUnit.DAY), MIDNIGHT)
         val habits = items.liveHabits()
         val edits = items.liveEdits().groupBy({ it.itemId }, { it.toEdit() })
+        val dayStart = personal.dayStart()
         val states = habitStates(readings, habits.map { HabitRef(it.id, requireNotNull(it.trackerId), it.pauseFrom, it.pauseUntil) }, dayStart, from, to)
         val plan = habits.mapNotNull { h ->
             val recurrence = runCatching { h.recurrence() }.getOrElse { return@mapNotNull null }

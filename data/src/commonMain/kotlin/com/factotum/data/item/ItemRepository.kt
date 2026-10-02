@@ -161,7 +161,7 @@ internal class ItemRepository(
      * One day's timeline (Tendril): timed items in time order, then whole-day ones. Standalone
      * reminders show only with [showReminders], a setting that is off by default (ADR 03).
      */
-    suspend fun day(date: LocalDate, showReminders: Boolean = false): List<Item> = dao.day(date.toString(), showReminders).map { it.toItem() }
+    suspend fun day(date: LocalDate, showReminders: Boolean): List<Item> = dao.day(date.toString(), showReminders).map { it.toItem() }
 
     /** Equipoise's capacity-sized day: at most [n] pending top-level tasks, by capacity rank. */
     suspend fun capacity(date: LocalDate, n: Int): List<Item> = dao.capacity(date.toString(), n).map { it.toItem() }
