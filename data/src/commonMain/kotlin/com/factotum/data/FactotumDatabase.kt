@@ -69,6 +69,25 @@ import com.factotum.data.time.TimeDao
 import com.factotum.data.time.TimeSpanEntity
 import com.factotum.data.time.timeSpanTable
 import com.factotum.data.page.BLOCK
+import com.factotum.data.page.DatabaseDao
+import com.factotum.data.page.OptionEntity
+import com.factotum.data.page.PAGE_DATABASE
+import com.factotum.data.page.PAGE_VIEW
+import com.factotum.data.page.PROPERTY
+import com.factotum.data.page.PROPERTY_OPTION
+import com.factotum.data.page.PROPERTY_VALUE
+import com.factotum.data.page.PageDatabaseEntity
+import com.factotum.data.page.PropertyEntity
+import com.factotum.data.page.PropertyValueEntity
+import com.factotum.data.page.VALUE_PICK
+import com.factotum.data.page.ValuePickEntity
+import com.factotum.data.page.ViewEntity
+import com.factotum.data.page.databaseTable
+import com.factotum.data.page.optionTable
+import com.factotum.data.page.pickTable
+import com.factotum.data.page.propertyTable
+import com.factotum.data.page.valueTable
+import com.factotum.data.page.viewTable
 import com.factotum.data.page.BlockEntity
 import com.factotum.data.page.PAGE
 import com.factotum.data.page.PAGE_LABEL
@@ -93,6 +112,7 @@ import com.factotum.data.sync.LostEntity
         TimeSpanEntity::class, LabelEntity::class, SettingEntity::class, DeviceSettingEntity::class,
         SearchTextEntity::class, SearchKeyEntity::class, CheckInEntity::class,
         PageEntity::class, BlockEntity::class, PageLabelEntity::class, PageNoticeEntity::class, PageRevisionEntity::class, LostEntity::class,
+        PageDatabaseEntity::class, PropertyEntity::class, OptionEntity::class, PropertyValueEntity::class, ValuePickEntity::class, ViewEntity::class,
     ],
     version = SCHEMA_VERSION,
     exportSchema = true,
@@ -100,7 +120,7 @@ import com.factotum.data.sync.LostEntity
         AutoMigration(from = 1, to = 2), AutoMigration(from = 2, to = 3), AutoMigration(from = 3, to = 4), AutoMigration(from = 4, to = 5),
         AutoMigration(from = 5, to = 6), AutoMigration(from = 6, to = 7), AutoMigration(from = 7, to = 8, spec = SeedBlocks::class),
         AutoMigration(from = 8, to = 9), AutoMigration(from = 9, to = 10), AutoMigration(from = 10, to = 11), AutoMigration(from = 11, to = 12), AutoMigration(from = 12, to = 13),
-        AutoMigration(from = 13, to = 14),
+        AutoMigration(from = 13, to = 14), AutoMigration(from = 14, to = 15),
     ],
 )
 @ConstructedBy(FactotumDatabaseConstructor::class)
@@ -115,22 +135,26 @@ abstract class FactotumDatabase : RoomDatabase() {
     internal abstract fun searchDao(): SearchDao
     internal abstract fun checkInDao(): CheckInDao
     internal abstract fun pageDao(): PageDao
+    internal abstract fun databaseDao(): DatabaseDao
 }
 
 /** The synced tables, by the name their folder records carry; [SchemaTriggers] queues writes to each for export. */
-internal val SYNCED_TABLES = listOf(SETTING, LABEL, TRACKER, TRACKER_CHOICE, HABIT_BLOCK, ITEM, TIME_SPAN, COMPLETION, REMINDER, OCCURRENCE_EDIT, TRACKER_READING, GOAL, CHECK_IN, PAGE, BLOCK, PAGE_LABEL, PAGE_NOTICE)
+internal val SYNCED_TABLES = listOf(SETTING, LABEL, TRACKER, TRACKER_CHOICE, HABIT_BLOCK, ITEM, TIME_SPAN, COMPLETION, REMINDER, OCCURRENCE_EDIT, TRACKER_READING, GOAL, CHECK_IN, PAGE, PAGE_DATABASE, PROPERTY, PROPERTY_OPTION, PAGE_VIEW, BLOCK, PAGE_LABEL, PAGE_NOTICE, PROPERTY_VALUE, VALUE_PICK)
 
 /** In [SYNCED_TABLES]' order, parents before children, which is the order a snapshot is written in. */
 internal fun FactotumDatabase.syncedTables(): Map<String, RowTable> {
     val items = itemDao()
     val trackers = trackerDao()
     val pages = pageDao()
+    val databases = databaseDao()
     return mapOf(
         SETTING to settingTable(settingDao()), LABEL to labelTable(labelDao()), TRACKER to trackerTable(trackers), TRACKER_CHOICE to choiceTable(trackers), HABIT_BLOCK to habitBlockTable(items), ITEM to itemTable(items),
         TIME_SPAN to timeSpanTable(timeDao()),
         COMPLETION to completionTable(items), REMINDER to reminderTable(reminderDao()), OCCURRENCE_EDIT to occurrenceEditTable(items),
         TRACKER_READING to readingTable(trackers), GOAL to goalTable(trackers), CHECK_IN to checkInTable(checkInDao()),
-        PAGE to pageTable(pages), BLOCK to blockTable(pages), PAGE_LABEL to pageLabelTable(pages), PAGE_NOTICE to noticeTable(pages),
+        PAGE to pageTable(pages), PAGE_DATABASE to databaseTable(databases), PROPERTY to propertyTable(databases), PROPERTY_OPTION to optionTable(databases),
+        PAGE_VIEW to viewTable(databases), BLOCK to blockTable(pages), PAGE_LABEL to pageLabelTable(pages), PAGE_NOTICE to noticeTable(pages),
+        PROPERTY_VALUE to valueTable(databases), VALUE_PICK to pickTable(databases),
     ).also { check(it.keys.toList() == SYNCED_TABLES) { "every synced table needs its export triggers" } }
 }
 
@@ -146,4 +170,4 @@ expect object FactotumDatabaseConstructor : RoomDatabaseConstructor<FactotumData
 const val DATABASE_NAME = "factotum.db"
 
 /** The schema's version; a file below it is upgraded by Room's migrations on open. */
-internal const val SCHEMA_VERSION = 14
+internal const val SCHEMA_VERSION = 15

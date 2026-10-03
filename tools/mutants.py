@@ -49,6 +49,8 @@ SCALES = "core/src/commonMain/kotlin/com/factotum/core/checkin/CheckIns.kt"
 CHECKINS = "data/src/commonMain/kotlin/com/factotum/data/checkin/CheckInRepository.kt"
 CHECKINDAO = "data/src/commonMain/kotlin/com/factotum/data/checkin/CheckIn.kt"
 PAGES = "data/src/commonMain/kotlin/com/factotum/data/page/PageRepository.kt"
+PAGE = "data/src/commonMain/kotlin/com/factotum/data/page/Page.kt"
+DBS = "data/src/commonMain/kotlin/com/factotum/data/page/DatabaseRepository.kt"
 
 # slice -> [(name, file, old, new, test task, tests that must fail)]
 SLICES = {
@@ -585,6 +587,58 @@ SLICES = {
          ":data:desktopTest", {"aPageIsFoundByATitleWordAndABodyWordAccentsFoldedAndNothingUnderTheTrash"}),
         ("a block moves page", TRIGGERS, 'listOf(BLOCK to listOf("page_id"), ', "listOf(",
          ":data:desktopTest", {"aBlockStaysOnItsPage"}),
+    ],
+    "12b": [
+        ("an option merge takes a fresh stamp", DBS, 'edit(GONE, Stamp(last.hlc, last.device + "~"), mapOf("deleted_at" to last.hlc, "merged_into" to survivor))',
+         'edit(GONE, clock.tick(), mapOf("deleted_at" to last.hlc, "merged_into" to survivor))', ":data:desktopTest", {"anOptionMergeIsNoEditThatBringsATrashedDatabaseBack"}),
+        ("a deleted option stays deleted", DBS, "if (at > Stamp(o.goneHlc, o.goneDevice)) found[o.id]", "if (false) found[o.id]",
+         ":data:desktopTest", {"aDeletedOptionReadsAsEmptyKeepsThePickAndComesBackWhenPickedLaterElsewhere"}),
+        ("a merged option reads as none", DBS, "generateSequence(start?.let(byId::get)) { it.mergedInto?.let(byId::get) }", "generateSequence(start?.let(byId::get)) { null }",
+         ":data:desktopTest", {"twoOptionsOfOneNameMadeApartMergeIntoTheFirst"}),
+        ("same-name options stay apart", DBS, ".values.filter { it.size > 1 }", ".values.filter { false }",
+         ":data:desktopTest", {"twoOptionsOfOneNameMadeApartMergeIntoTheFirst", "aFilterOnAnOptionMergedSinceStillMatches"}),
+        ("a type change makes no options", DBS, "made = texts.map { newId() to it }", "made = emptyList()",
+         ":data:desktopTest", {"aTypeChangeRewritesNoValueAndChangingBackReadsAsBefore", "aDeletedOptionsNameIsFreeForATypeChange"}),
+        ("a deleted option's name is taken", DBS, "val known = options.map { it.id }.toSet() + options.filter { it.deletedAt == null }.map { labelKey(it.name) }",
+         "val known = options.flatMap { listOf(it.id, labelKey(it.name)) }.toSet()", ":data:desktopTest", {"aDeletedOptionsNameIsFreeForATypeChange"}),
+        ("a Multi-select ignores its picks", DBS, "(picks.mapNotNull(resolve) + tokensOf(raw)", "(tokensOf(raw)",
+         ":data:desktopTest", {"multiSelectPicksMadeApartBothStay"}),
+        ("a Multi-select reads as no Select", DBS, " ?: picks.mapNotNull(resolve).minByOrNull { order.getValue(it) })", ")",
+         ":data:desktopTest", {"picksReadFromAnotherTypesValueCanBeTakenOutAndAMultiSelectReadsAsASelect"}),
+        ("unpick leaves the text", DBS, "val kept = tokens.filter { optionOfToken(it, options, r) != optionId }", "val kept = tokens",
+         ":data:desktopTest", {"picksReadFromAnotherTypesValueCanBeTakenOutAndAMultiSelectReadsAsASelect"}),
+        ("a cell clash is silent", PAGE, "setOf(PAGE_TITLE, BLOCK_TEXT, CELL)", "setOf(PAGE_TITLE, BLOCK_TEXT)",
+         ":data:desktopTest", {"aCellSetApartKeepsTheLaterAndTheEarlierIsInHistoryWithANotice"}),
+        ("a new cell gets a base", DBS, "                store.put(Row(PROPERTY_VALUE, id, mapOf(", "                writes.merger.created(store, Row(PROPERTY_VALUE, id, mapOf(",
+         ":data:desktopTest", {"aCellSetApartKeepsTheLaterAndTheEarlierIsInHistoryWithANotice"}),
+        ("a notice shows an option id", PAGES, "val text = cell?.let { c -> raw?.let { r -> databases.options(listOf(r)).singleOrNull()?.takeIf { it.propertyId == c.propertyId }?.name } } ?: raw.orEmpty()",
+         "val text = raw.orEmpty()", ":data:desktopTest", {"aCellSetApartKeepsTheLaterAndTheEarlierIsInHistoryWithANotice"}),
+        ("an empty cell is written", DBS, "                if (v == null) return@write\n", "",
+         ":data:desktopTest", {"clearingACellNoOneFilledHereWritesNothingOverAValueFilledElsewhere"}),
+        ("labelled pages are no rows", DBS, "        val labelled = if (doorway == null) emptyList() else {", "        val labelled = if (true) emptyList<String>() else {",
+         ":data:desktopTest", {"theRowsAreThePagesMadeInItAndThePagesCarryingItsLabel"}),
+        ("a filter misses a merged option", DBS, "view.filterValue?.let { optionResolver(options)(it) ?: it }", "view.filterValue",
+         ":data:desktopTest", {"aFilterOnAnOptionMergedSinceStillMatches"}),
+        ("numbers sort as text", DBS, "PropertyType.NUMBER -> compareValues(a.number, b.number)", "PropertyType.NUMBER -> compareValues(a.text, b.text)",
+         ":data:desktopTest", {"aViewSortsByTypeWithEmptyLastAndFiltersByType"}),
+        ("empty cells sort first", DBS, "return full.sortedWith(if (view.sortDescending) byValue.reversed() else byValue) + empty",
+         "return empty + full.sortedWith(if (view.sortDescending) byValue.reversed() else byValue)", ":data:desktopTest", {"aViewSortsByTypeWithEmptyLastAndFiltersByType"}),
+        ("the none column comes last", DBS, "val columns = listOf<String?>(null) + options(property.id).map { it.id }",
+         "val columns = options(property.id).map<SelectOption, String?> { it.id } + listOf<String?>(null)", ":data:desktopTest", {"aBoardHasANoneColumnFirstThenTheOptionsInOrderAndMovingACardIsAPick"}),
+        ("a cell edit leaves a trashed row", PAGES, "cells[p.id].orEmpty() + picks[p.id].orEmpty() + schema[p.id].orEmpty()", "schema[p.id].orEmpty()",
+         ":data:desktopTest", {"aCellOrASchemaEditAfterATrashBringsThePageBack"}),
+        ("a schema edit leaves a trashed database", PAGES, "cells[p.id].orEmpty() + picks[p.id].orEmpty() + schema[p.id].orEmpty()", "cells[p.id].orEmpty() + picks[p.id].orEmpty()",
+         ":data:desktopTest", {"aCellOrASchemaEditAfterATrashBringsThePageBack"}),
+        ("a revived database leaves its rows", PAGES, "                    branch(q.id, pages) { it.deletedAt == q.deletedAt }.forEach { found[it.id] = Stamp(it.goneHlc, it.goneDevice) }\n", "",
+         ":data:desktopTest", {"aRevivedDatabaseBringsBackTheRowsTrashedWithIt"}),
+        ("History forgets picks", PAGES, "val want = picks[property]?.contains(option) ?: live", "val want = live",
+         ":data:desktopTest", {"historyGivesBackAMultiSelectsPicks"}),
+        ("the last view is deleted", DBS, 'require(dao.viewsOf(view.databaseId).count { it.deletedAt == null } > 1) { "a database keeps one view" }', "",
+         ":data:desktopTest", {"aDatabaseKeepsOneViewAndATrashedOnesSchemaIsNotEdited"}),
+        ("a trashed database is edited", DBS, '{ "no property $id" }.also { shell(it.databaseId) }', '{ "no property $id" }',
+         ":data:desktopTest", {"aDatabaseKeepsOneViewAndATrashedOnesSchemaIsNotEdited"}),
+        ("a cell moves page", TRIGGERS, 'PROPERTY_VALUE to listOf("page_id", "property_id"),', "",
+         ":data:desktopTest", {"aCellStaysOnItsPageAndProperty"}),
     ],
 }
 

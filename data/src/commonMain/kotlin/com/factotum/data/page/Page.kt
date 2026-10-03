@@ -34,8 +34,8 @@ internal const val ATTRS = "attrs"
 internal const val GONE = "gone"
 internal const val DISMISSED = "dismissed"
 
-/** The groups whose replaced version is kept for the person (ADR 12): a page's title and a block's text. */
-internal val KEEP_LOSER_GROUPS = setOf(PAGE_TITLE, BLOCK_TEXT)
+/** The groups whose replaced version is kept for the person (ADR 12): a page's title, a block's text and a database cell. */
+internal val KEEP_LOSER_GROUPS = setOf(PAGE_TITLE, BLOCK_TEXT, CELL)
 
 /** Tendril's block types; an image's bytes and a canvas come with later slices (ADR 12, 12c and §7 step 3). */
 enum class BlockType {
@@ -180,6 +180,8 @@ internal data class PageRevisionEntity(
     /** When it was kept, by this device's wall clock, in milliseconds. */
     val at: Long,
     @ColumnInfo(name = "notice_id") val noticeId: String?,
+    /** The page's database cells as they were, a JSON object of property id to stored value. */
+    @ColumnInfo(name = "cells_json") val cellsJson: String? = null,
 )
 
 @Dao
@@ -207,6 +209,7 @@ internal interface PageDao {
     /** Every page, live or trashed: the tree and the revive pass read it whole. */
 
     @Query("SELECT * FROM block WHERE deleted_at IS NOT NULL") suspend fun deletedBlocks(): List<BlockEntity>
+    @Query("SELECT * FROM page WHERE parent_id = :parentId") suspend fun childrenOf(parentId: String): List<PageEntity>
     @Query("SELECT * FROM block WHERE page_id = :pageId") suspend fun blocksOf(pageId: String): List<BlockEntity>
     @Query("SELECT * FROM block WHERE page_id IN (:pageIds)") suspend fun blocksOfPages(pageIds: List<String>): List<BlockEntity>
     @Query("SELECT * FROM page_label WHERE page_id IN (:pageIds)") suspend fun labelsOfPages(pageIds: List<String>): List<PageLabelEntity>

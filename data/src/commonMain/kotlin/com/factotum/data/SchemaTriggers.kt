@@ -17,7 +17,13 @@ import com.factotum.data.tracker.TRACKER_READING
 import com.factotum.data.time.TIME_SPAN
 import com.factotum.data.page.BLOCK
 import com.factotum.data.page.PAGE_LABEL
+import com.factotum.data.page.PAGE_DATABASE
 import com.factotum.data.page.PAGE_NOTICE
+import com.factotum.data.page.PAGE_VIEW
+import com.factotum.data.page.PROPERTY
+import com.factotum.data.page.PROPERTY_OPTION
+import com.factotum.data.page.PROPERTY_VALUE
+import com.factotum.data.page.VALUE_PICK
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.execSQL
 
@@ -214,8 +220,11 @@ internal object SchemaTriggers : RoomDatabase.Callback() {
             "CREATE TRIGGER time_span_owner_fixed BEFORE UPDATE ON time_span WHEN NEW.item_id IS NOT OLD.item_id " +
                 "BEGIN SELECT RAISE(ABORT, 'time_span: a span stays on its owner'); END",
         )
-        // ADR 12: a block stays on its page, and a page label or a notice on what it was made for.
-        for ((table, columns) in listOf(BLOCK to listOf("page_id"), PAGE_LABEL to listOf("page_id", "label_id"), PAGE_NOTICE to listOf("page_id", "row_id"))) {
+        // ADR 12: a block stays on its page, and a page label, a notice, a database's parts and a cell on what they were made for.
+        for ((table, columns) in listOf(BLOCK to listOf("page_id"), PAGE_LABEL to listOf("page_id", "label_id"), PAGE_NOTICE to listOf("page_id", "row_id"),
+            PAGE_DATABASE to listOf("page_id"), PROPERTY to listOf("database_id"), PROPERTY_OPTION to listOf("property_id"), PROPERTY_VALUE to listOf("page_id", "property_id"),
+            VALUE_PICK to listOf("page_id", "property_id", "option_id"), PAGE_VIEW to listOf("database_id"),
+        )) {
             add("DROP TRIGGER IF EXISTS ${table}_made_fixed")
             add(
                 "CREATE TRIGGER ${table}_made_fixed BEFORE UPDATE ON $table WHEN " + columns.joinToString(" OR ") { "NEW.$it IS NOT OLD.$it" } +

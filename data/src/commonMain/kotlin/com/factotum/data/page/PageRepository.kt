@@ -40,7 +40,7 @@ data class BlockView(val id: String, val depth: Int, val type: BlockType, val co
 
 data class Revision(val id: Long, val reason: String, val title: String, val blockCount: Int, val at: Long, val noticeId: String?)
 
-/** "Replaced by a sync" on [pageId]: [rowId] is the page (its title) or a block (its text), and [lostText] what it said. */
+/** "Replaced by a sync" on [pageId]: [rowId] is the page (its title), a block (its text) or a database cell, and [lostText] what it said (a Select's option by name). */
 data class Notice(val id: String, val pageId: String, val rowId: String, val lostText: String, val lostSpans: String?)
 
 /**
@@ -60,6 +60,7 @@ internal class PageRepository(
     private val wallMillis: () -> Long,
 ) {
     private val dao = db.pageDao()
+    private val databases = db.databaseDao()
     private val sync = db.syncDao()
     private val clock = writes.clock
 
@@ -69,13 +70,7 @@ internal class PageRepository(
             parentId?.let { live(it) }
             mapOf(PAGE to listOf(id))
         }) { store, _ ->
-            val s = clock.tick()
-            writes.merger.created(store, Row(PAGE, id, mapOf(
-                MADE to Group(s, mapOf("kind" to "PAGE")),
-                PAGE_TITLE to Group(s, mapOf("title" to title, "icon" to icon)),
-                PLACE to Group(s, mapOf("parent_id" to parentId)),
-                GONE to Group(s, mapOf("deleted_at" to null)),
-            )))
+            writes.merger.created(store, newPageRow(id, clock.tick(), title, icon, parentId, "PAGE"))
         }
         return id
     }
@@ -234,8 +229,40 @@ internal class PageRepository(
     suspend fun restoreRevision(revisionId: Long) {
         val revision = requireNotNull(dao.revision(revisionId)) { "no revision $revisionId" }
         val wanted = decodeBlocks(revision.blocksJson).associateBy { it.getValue("id").jsonPrimitive.content }
+        val saved = revision.cellsJson?.let { Json.parseToJsonElement(it).jsonObject }
+        val cells = saved?.get("values")?.jsonObject.orEmpty()
+        val picks = saved?.get("picks")?.jsonObject.orEmpty().mapValues { (_, ids) -> ids.jsonArray.map { it.jsonPrimitive.content }.toSet() }
         keep(revision.pageId, "RESTORE", null)
-        writes.write({ mapOf(PAGE to listOf(revision.pageId), BLOCK to dao.blocksOf(revision.pageId).map { it.id }) }) { store, targets ->
+        writes.write({
+            val held = databases.picksOfPages(listOf(revision.pageId)).map { it.id }
+            val wanted = picks.flatMap { (property, ids) -> ids.map { pickId(revision.pageId, property, it) } }
+            mapOf(
+                PAGE to listOf(revision.pageId), BLOCK to dao.blocksOf(revision.pageId).map { it.id },
+                PROPERTY_VALUE to databases.valuesOfPages(listOf(revision.pageId)).map { it.id }, VALUE_PICK to (held + wanted).distinct(),
+            )
+        }) { store, targets ->
+            // A Multi-select cell gets back the picks it had: missing ones made or undeleted, others taken out.
+            for (id in targets.getValue(VALUE_PICK)) {
+                val row = store.row(id)
+                val made = row?.groups?.getValue(MADE)?.values
+                val property = made?.get("property_id") as String? ?: id.split(':')[2]
+                val option = made?.get("option_id") as String? ?: id.split(':')[3]
+                val live = row != null && row.groups.getValue(GONE).values["deleted_at"] == null
+                val want = picks[property]?.contains(option) ?: live
+                if (want == live) continue
+                val s = clock.tick()
+                if (row == null) writes.merger.created(store, Row(VALUE_PICK, id, mapOf(
+                    MADE to Group(s, mapOf("page_id" to revision.pageId, "property_id" to property, "option_id" to option)),
+                    GONE to Group(s, mapOf("deleted_at" to null)),
+                ))) else store.put(row.edit(GONE, s, mapOf("deleted_at" to if (want) null else s.hlc)))
+            }
+            // A cell is set back only while its row is here: one made since stays, as a block made since is deleted.
+            for (id in targets.getValue(PROPERTY_VALUE)) {
+                val row = requireNotNull(store.row(id))
+                val property = row.groups.getValue(MADE).values["property_id"] as String
+                val was = cells[property]?.jsonPrimitive?.contentOrNull
+                if (property in cells && row.groups.getValue(CELL).values["value"] != was) store.put(row.edit(CELL, clock.tick(), mapOf("value" to was)))
+            }
             val s = clock.tick()
             val page = requireNotNull(store.row(revision.pageId))
             store.put(page.edit(PAGE_TITLE, s, page.groups.getValue(PAGE_TITLE).values + ("title" to revision.title)))
@@ -287,16 +314,21 @@ internal class PageRepository(
             sync.clearLost(listOf(lostId))
             val loser = RecordCodec.decodeGroup(lost.groupJson)
             val isTitle = lost.tbl == PAGE
-            val text = loser.values[if (isTitle) "title" else "content"] as String
-            val spans = if (isTitle) null else loser.values["spans"] as String?
-            val block = if (isTitle) null else dao.blocks(listOf(lost.rowId)).singleOrNull()
-            val page = dao.pages(listOf(block?.pageId ?: lost.rowId)).singleOrNull()
-            val current = if (isTitle) page?.title else block?.content
+            val cell = if (lost.tbl == PROPERTY_VALUE) databases.values(listOf(lost.rowId)).singleOrNull() else null
+            val block = if (lost.tbl == BLOCK) dao.blocks(listOf(lost.rowId)).singleOrNull() else null
+            // A cleared cell's text is empty: what the notice offers back is the clearing.
+            val raw = loser.values[if (isTitle) "title" else if (lost.tbl == BLOCK) "content" else "value"] as String?
+            val text = cell?.let { c -> raw?.let { r -> databases.options(listOf(r)).singleOrNull()?.takeIf { it.propertyId == c.propertyId }?.name } } ?: raw.orEmpty()
+            val spans = if (lost.tbl == BLOCK) loser.values["spans"] as String? else null
+            val page = dao.pages(listOf(block?.pageId ?: cell?.pageId ?: lost.rowId)).singleOrNull()
+            val current = when (lost.tbl) { PAGE -> page?.title; BLOCK -> block?.content; else -> cell?.value }
+            if (lost.tbl == PROPERTY_VALUE && current == raw) return@write emptyMap()
             val notice = noticeId(lost.rowId, loser.stamp)
-            if (page == null || current == text || dao.revisionsOf(page.id).any { it.noticeId == notice }) return@write emptyMap()
+            if (page == null || (lost.tbl != PROPERTY_VALUE && current == text) || dao.revisionsOf(page.id).any { it.noticeId == notice }) return@write emptyMap()
             val blocks = dao.blocksOf(page.id).filter { it.deletedAt == null || it.id == lost.rowId }
                 .map { if (it.id == lost.rowId) it.copy(content = text, spans = spans, deletedAt = null) else it }
-            dao.addRevision(PageRevisionEntity(0, page.id, "MERGE", if (isTitle) text else page.title, JsonArray(blocks.map { it.json() }).toString(), blocks.size.toLong(), wallMillis(), notice))
+            val cells = databases.valuesOfPages(listOf(page.id)).associate { it.propertyId to if (it.id == lost.rowId) raw else it.value }
+            dao.addRevision(PageRevisionEntity(0, page.id, "MERGE", if (isTitle) text else page.title, JsonArray(blocks.map { it.json() }).toString(), blocks.size.toLong(), wallMillis(), notice, cellsJson(cells, picksOf(page.id))))
             dao.keepRevisions(page.id, KEPT)
             // Stamped with the lost version's own stamp: two devices write the same notice, and a
             // copy written late never undoes a dismissal the other has made since.
@@ -324,6 +356,9 @@ internal class PageRepository(
             val trashed = pages.filter { it.deletedAt != null }
             val blocks = readChunked(trashed.map { it.id }) { dao.blocksOfPages(it) }.groupBy { it.pageId }
             val labels = readChunked(trashed.map { it.id }) { dao.labelsOfPages(it) }.groupBy { it.pageId }
+            val cells = readChunked(trashed.map { it.id }) { databases.valuesOfPages(it) }.groupBy({ it.pageId }, { Stamp(it.cellHlc, it.cellDevice) })
+            val picks = readChunked(trashed.map { it.id }) { databases.picksOfPages(it) }.groupBy({ it.pageId }, { maxOf(Stamp(it.madeHlc, it.madeDevice), Stamp(it.goneHlc, it.goneDevice)) })
+            val schema = schemaStamps(readChunked(trashed.map { shellId(it.id) }) { databases.databases(it) })
             val under = pages.filter { it.deletedAt == null }.groupBy { it.parentId }
             val byId = pages.associateBy { it.id }
             val found = HashMap<String, Stamp>()
@@ -334,11 +369,15 @@ internal class PageRepository(
                 val parts = listOf(Stamp(p.titleHlc, p.titleDevice), Stamp(p.placeHlc, p.placeDevice)) +
                     blocks[p.id].orEmpty().flatMap { it.edits() + Stamp(it.goneHlc, it.goneDevice) } +
                     labels[p.id].orEmpty().flatMap { listOf(Stamp(it.madeHlc, it.madeDevice), Stamp(it.goneHlc, it.goneDevice)) } +
-                    under[p.id].orEmpty().map { Stamp(it.placeHlc, it.placeDevice) }
+                    under[p.id].orEmpty().map { Stamp(it.placeHlc, it.placeDevice) } +
+                    cells[p.id].orEmpty() + picks[p.id].orEmpty() + schema[p.id].orEmpty()
                 val newest = parts.max()
                 for (q in generateSequence(p) { byId[it.parentId] }.take(pages.size)) {
                     val gone = Stamp(q.goneHlc, q.goneDevice)
-                    if (q.deletedAt != null && gone < newest) found[q.id] = gone
+                    if (q.deletedAt == null || gone >= newest) continue
+                    found[q.id] = gone
+                    // The pages trashed with it come back with it, as a restore brings them (a database's rows).
+                    branch(q.id, pages) { it.deletedAt == q.deletedAt }.forEach { found[it.id] = Stamp(it.goneHlc, it.goneDevice) }
                 }
             }
             back = found
@@ -349,6 +388,30 @@ internal class PageRepository(
             }
         }
     }
+
+    /** The stamps of each database's own parts: its doorway and look, and its properties', options' and views' groups. */
+    private suspend fun schemaStamps(shells: List<PageDatabaseEntity>): Map<String, List<Stamp>> {
+        if (shells.isEmpty()) return emptyMap()
+        val ids = shells.map { it.pageId }.toSet()
+        val properties = databases.allProperties().filter { it.databaseId in ids }
+        val owner = properties.associate { it.id to it.databaseId }
+        val out = HashMap<String, MutableList<Stamp>>()
+        fun add(db: String, vararg s: Stamp) { out.getOrPut(db) { mutableListOf() } += s }
+        shells.forEach { add(it.pageId, Stamp(it.doorwayHlc, it.doorwayDevice), Stamp(it.lookHlc, it.lookDevice)) }
+        properties.forEach { add(it.databaseId, Stamp(it.nameHlc, it.nameDevice), Stamp(it.typeHlc, it.typeDevice), Stamp(it.placeHlc, it.placeDevice)) }
+        readChunked(owner.keys.toList()) { databases.optionsOf(it) }.forEach {
+            add(owner.getValue(it.propertyId), Stamp(it.nameHlc, it.nameDevice), Stamp(it.lookHlc, it.lookDevice), Stamp(it.placeHlc, it.placeDevice), Stamp(it.goneHlc, it.goneDevice))
+        }
+        databases.allViews().filter { it.databaseId in ids }.forEach {
+            add(it.databaseId, Stamp(it.nameHlc, it.nameDevice), Stamp(it.kindHlc, it.kindDevice), Stamp(it.showHlc, it.showDevice), Stamp(it.sortHlc, it.sortDevice),
+                Stamp(it.filterHlc, it.filterDevice), Stamp(it.placeHlc, it.placeDevice), Stamp(it.goneHlc, it.goneDevice))
+        }
+        return out
+    }
+
+    /** The live picks of [pageId]'s Multi-select cells, by property. */
+    private suspend fun picksOf(pageId: String): Map<String, List<String>> =
+        databases.picksOfPages(listOf(pageId)).filter { it.deletedAt == null }.groupBy({ it.propertyId }, { it.optionId })
 
     private suspend fun changeTitle(id: String, change: Pair<String, String?>) = writes.write({
         live(id)
@@ -362,12 +425,13 @@ internal class PageRepository(
     private suspend fun keep(pageId: String, reason: String, notice: String?) {
         val page = dao.pages(listOf(pageId)).singleOrNull() ?: return
         val blocks = dao.blocksOf(pageId).filter { it.deletedAt == null }
-        dao.addRevision(PageRevisionEntity(0, pageId, reason, page.title, JsonArray(blocks.map { it.json() }).toString(), blocks.size.toLong(), wallMillis(), notice))
+        val cells = databases.valuesOfPages(listOf(pageId)).associate { it.propertyId to it.value }
+        dao.addRevision(PageRevisionEntity(0, pageId, reason, page.title, JsonArray(blocks.map { it.json() }).toString(), blocks.size.toLong(), wallMillis(), notice, cellsJson(cells, picksOf(pageId))))
         dao.keepRevisions(pageId, KEPT)
     }
 
     /** An EDIT revision before a change, unless one was kept in the last ten minutes (Tendril). */
-    private suspend fun snapshotIfDue(pageId: String) {
+    suspend fun snapshotIfDue(pageId: String) {
         val last = dao.revisionsOf(pageId).firstOrNull { it.reason == "EDIT" }
         if (last == null || wallMillis() - last.at >= EDIT_EVERY_MS) keep(pageId, "EDIT", null)
     }
@@ -378,6 +442,22 @@ internal class PageRepository(
 }
 
 private const val KEPT = 50
+
+/** A page's row as made: [kind] is PAGE or a database's [DATABASE_KIND]. */
+internal fun newPageRow(id: String, s: Stamp, title: String, icon: String?, parentId: String?, kind: String) = Row(PAGE, id, mapOf(
+    MADE to Group(s, mapOf("kind" to kind)),
+    PAGE_TITLE to Group(s, mapOf("title" to title, "icon" to icon)),
+    PLACE to Group(s, mapOf("parent_id" to parentId)),
+    GONE to Group(s, mapOf("deleted_at" to null)),
+))
+
+/** A page's cells for History: `values`, property id to stored text, and `picks`, a Multi-select's property id to its option ids. */
+private fun cellsJson(cells: Map<String, String?>, picks: Map<String, List<String>>): String? =
+    if (cells.isEmpty() && picks.isEmpty()) null
+    else JsonObject(mapOf(
+        "values" to JsonObject(cells.mapValues { it.value.json() }),
+        "picks" to JsonObject(picks.mapValues { (_, ids) -> JsonArray(ids.map(::JsonPrimitive)) }),
+    )).toString()
 private const val EDIT_EVERY_MS = 10 * 60 * 1000L
 
 /**
