@@ -530,7 +530,7 @@ The four source apps are the owner's own. The only third-party code found so far
    - It moves the `-journal`, `-wal` and `-shm` files with the database.
    - Tests cover both drivers, with a control showing that the stock Android driver deletes a corrupt file. Wiring the guard into the Room open path comes with slice 01.
 2. **Schema slices in ADR dependency order:** 01 → 02 → 03 → 04 → 11 → 06 → 07 → 08 → 09 → 10 → 05 → 12. Each slice is done when its ADR cases pass as tests against the real implementation (§3). Spikes 1 and 3 run with slice 10. Spike 5 needs the Android shell and a device, so it runs with the shell (step 4). **Slice 01: done 2026-10-01** (§3.1), with its folder importer and exporter (§3.13). **Slice 02: done 2026-10-01** (§3.2). **Slice 03: done 2026-10-02** (§3.3). **Slice 04: done 2026-10-02** (§3.4), except spike 5, which needs the Android shell. **Slice 11: done 2026-10-02** (§3.11). **Slice 06: done 2026-10-02** (§3.6), with PLANNED. **Slice 07: done 2026-10-02** (§3.7). **Slice 08: done 2026-10-02** (§3.8), but for its page cases, which come with slice 12. **Slice 09: done 2026-10-02** (§3.9). **Slice 10: done 2026-10-03** (§3.10), but for its page cases, which come with slice 12, and the device halves of spikes 1 and 3, which come with the Android shell. **Slice 05: done 2026-10-03** (§3.5). **Slice 12a: done 2026-10-03** (§3.12): pages, blocks, labels on pages, page search, History, the notice and revive; **Slice 12b: done 2026-10-03** (§3.12): databases. **Slice 12c: done 2026-10-03** (§3.12): the canvas. **Slice 12d: done 2026-10-03** (§3.12): the journal, links and templates. With it every schema slice is done; what remains of step 2 is the device halves of spikes 1, 3 and 5, which need the Android shell.
-3. **The sole-owner modules of §2.**
+3. **The sole-owner modules of §2.** Owner answers 2026-10-03 (`decisions/14-sole-owner-modules.md`): built simplest first, formulas and rollups, then checklists and saved charts, regulation, database rows as tasks, and images.
 4. **Screens**, after §10.1.
 
 **Imports from the source apps are hybrid.**
@@ -568,9 +568,9 @@ Status: 2, 4 and 6 are done (`docs/spikes-2026-10-01.md`). 1 and 3 ran on the de
 2. **Module layout. Decided 2026-10-01:** KMP split by layer (§5.1).
 3. **Phasing. Decided 2026-10-01:** the data layer first, with no screens (§7).
 4. **What an ALARM does on Windows** (§8).
-5. **Equipoise's burnout index isn't computed in production.** `BurnoutIndex.compute` is called only from a test, and `sleepHours` has no source table. The work is to decide where the score is computed and where sleep comes from; a tracker is the obvious source.
+5. **Equipoise's burnout index isn't computed in production. Decided 2026-10-03** (`decisions/14-sole-owner-modules.md`): computed on demand, never synced; sleep from a tracker the person names; a missing input reweighs the rest; a day's sensory load and energy are means. `BurnoutIndex.compute` is called only from a test, and `sleepHours` has no source table. The work is to decide where the score is computed and where sleep comes from; a tracker is the obvious source.
 6. **Occurrence-edit log growth.** A storage policy for edits on occurrences more than a year in the past (§3.11).
-7. **Checklists in search.** Checklist text isn't indexed today (§3.10). Adding it is a feature choice.
+7. **Checklists in search. Decided 2026-10-03:** names first, then item text (`decisions/14-sole-owner-modules.md`). Checklist text isn't indexed today (§3.10). Adding it is a feature choice.
 8. **The map's copies. Done 2026-10-01.**
    - The `.md` table and its count line now read 10 contested, 0 duplicated and 1 name collision.
    - The `.html` carries both correction sections, and its exporters emit them.
