@@ -365,6 +365,8 @@ The device id is not a setting.
 
 **Owner answers on databases, 2026-10-03:** a deleted Select option reads as empty and comes back when picked again; a type change keeps the stored values and reads them under the new type; a view's sort, filter and visible columns sync; a Multi-select cell merges its picks; a database's members are the rows made in it and the pages carrying its label; two options with one name merge into the first; a renamed property, option or view takes the later name silently.
 
+**Owner answers on the canvas, 2026-10-03:** a card moved on two devices takes the later position; a frame and a card in it moved apart each keep their own later position; deleting a card deletes its lines, and a card that comes back brings them back; a line or a child added to a card deleted elsewhere brings it back; a page card keeps showing a trashed page (marked) and a purged one (as a placeholder), and a purge never deletes a card; a line's label is kept when replaced, with a notice. The viewport, stacking verbs and re-tidying after a sync wait for the screens.
+
 **Acceptance:** `cases/12-page-merge.jsonl`, 8 cases.
 
 **Built, slice 12a (2026-10-03):** `com.factotum.core.page` and `com.factotum.data.page`. Five of the eight cases pass as tests (`PageCasesTest`): `tendril-loser-recoverable`, `tendril-later-edit-beats-trash`, `tendril-block-uid-stable`, `shared-different-blocks-both-live` and `shared-concurrent-inserts`; the two cell cases pass with 12b, and the canvas case comes with 12c. What the build settled, none of which changes the decision:

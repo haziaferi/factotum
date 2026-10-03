@@ -95,3 +95,17 @@ A survey of Tendril's databases (`PageDatabase.kt`, `Property.kt`, `PageDatabase
 5. **A database's members are the union** of the rows made inside it and the pages carrying its label (Tendril's rule).
 6. **Two options with one name**, made on two devices, merge into the one made first; a cell that picked the other reads as it, and nothing is rewritten (ADR 08's label rule).
 7. **A property, option or view renamed on two devices**: the later name wins, silently. The notice stays for what a person types into a page: titles, text and cells.
+
+## Owner answers on the canvas, 2026-10-03 (slice 12c)
+
+A survey of Tendril's canvas (`PageCanvas.kt`, `CanvasViewModel.kt`, `CanvasScreen.kt`, `Frames.kt`, `Tree.kt`, `PageSnapshotRecords.kt`, `PagesSyncEngine.kt`) found choices the decision does not settle. Tendril syncs a canvas as one whole page and rebuilds it on every winning record, so two devices moving two different cards lose one move, and edges get fresh ids on every device. The owner answered:
+
+1. **A card moved on two devices** takes the later position, silently; a move of one card never touches another.
+2. **A frame or a branch moved on one device while a card in it is moved on another**: each card keeps its own later position. A card can so end up outside its frame and leave it; frame membership stays geometric, as in Tendril.
+3. **Deleting a card deletes its lines in the same step**, and a card that comes back (a later edit, answer 1 of the first set) brings back the lines deleted with it.
+4. **A line drawn to, or a child added under, a card deleted on another device brings the card back**, as a sub-page made under a trashed page does.
+5. **A page card whose page is in the Trash** stays, marked as in the Trash, offering Restore; **one whose page was deleted forever** stays as a "deleted page" placeholder the person can remove. A purge never deletes a card. The look waits for the screens.
+6. **A line's label changed on two devices** keeps the later and puts the earlier in History with a notice, as a card's text does.
+
+Waiting for the screens: whether the viewport and zoom are remembered per device (Tendril keeps neither), "bring to front" and "send to back" (a stacking key is stored now, in creation order), and whether a board re-tidies after a sync changes its structure.
+
