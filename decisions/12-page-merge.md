@@ -109,3 +109,21 @@ A survey of Tendril's canvas (`PageCanvas.kt`, `CanvasViewModel.kt`, `CanvasScre
 
 Waiting for the screens: whether the viewport and zoom are remembered per device (Tendril keeps neither), "bring to front" and "send to back" (a stacking key is stored now, in creation order), and whether a board re-tidies after a sync changes its structure.
 
+## Owner answers on the journal, relations and templates, 2026-10-03 (slice 12d)
+
+A survey of Tendril (`JournalToday.kt`, `PagesViewModel.kt`, `PageDao.kt`, `PageRelation.kt`, `Property.kt`, `PageDatabaseViewModel.kt`, `TemplateManager.kt`, `PagesSyncEngine.kt`) found that two devices opening one day offline make two day pages (and two "Journal" roots); that ADR 12's "relations stay add-only and undirected" was written for the Road Map's `page_relations`, not the database relation column, whose cells Tendril lets a person unlink; that a relation's two sides are separate cells that a sync can leave disagreeing; and that a canvas copied from a template loses its mind-map links. The owner answered:
+
+1. **A journal day's title** shows the date until renamed; renaming keeps it the day's page, as its date is its identity.
+2. **The journal is one page per day under one "Journal" page**, and two devices that open one day make one page.
+3. **A Road Map link can be removed**, and relating the two pages again brings it back (amends "add-only" for removal; links stay undirected and merge as one).
+4. **A link made to a page trashed on another device brings that page back**, as a line drawn to a deleted card does.
+5. **A link in a database relation column can be removed**, and linking again brings it back; links made on two devices both stay.
+6. **A database relation is always two-way**: the related database shows a matching column, and both read one stored link.
+7. **A relation to a page in the Trash** shows it marked, **one to a page deleted forever** a placeholder the person can remove; a blocker in the Trash does not block.
+8. **A journal day and a database's new rows start empty**; templates for either can come later.
+9. **A template copies structure, not content**: a page's blocks; a database's properties, options, views and colour (no rows, no doorway label); a canvas's whole board; no sub-pages, no labels.
+10. **A relation column in a database template** is copied to relate to the same database, with a new matching column there.
+11. **A copy is independent of its template**: editing the template changes no copy.
+
+Waiting for the screens: whether opening a trashed day shows it in the Trash (typing in it brings it back, by revive), how trashed and deleted links look, and a list for opening, editing and deleting templates (templates are kept out of the tree, links and pickers).
+
