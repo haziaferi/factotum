@@ -1,6 +1,6 @@
 # Factotum — Product & Technical Spec
 
-**Status:** draft v0.21, seeded from the decision register · **Scope:** the merged data model, sync and behaviour rules of Factotum. Screens are not decided and are marked open (§10.1).
+**Status:** draft v0.22, seeded from the decision register · **Scope:** the merged data model, sync and behaviour rules of Factotum. Screens are not decided and are marked open (§10.1).
 **Related documents:** `decisions/`, the evidence behind §3: one ADR per decision with verified `file:line` facts, the scored options, the behaviour cases and the harness that measured them (`decisions/register.md` is the index). This spec states each decision once and points to its ADR for the evidence. It never restates the evidence.
 
 ---
@@ -9,6 +9,7 @@
 
 | Version | Summary | Sections touched |
 |---|---|---|
+| v0.22 | Slice 12c built: the canvas, cards and lines per group, revive with what was deleted together, page cards that survive a purge, the app's own writes marked so revive never reads them as edits; a purge undone by a later edit is an open item | §3.12, §5.2, §7, §10 |
 | v0.21 | Slice 12b built: page databases with properties, options as rows, cells kept when replaced, Multi-select picks as rows, views, membership by sub-page and label, with the owner's answers on databases | §3.12, §5.2, §7 |
 | v0.20 | Slice 12a built: pages and blocks per row with fractional text keys, labels on pages, page search, History, the replaced-by-a-sync notice and revive, with the owner's answers; the page cases of ADR 08 and ADR 10 | §3.8, §3.10, §3.12, §5.2, §7 |
 | v0.19 | Slice 05 built: one `check_in` table on own-axis, Tendril's mood and energy taps, Equipoise's two axes and widget, past days, and Equipoise's LowMoment and StabilityTrend ported | §3.5, §7 |
@@ -369,7 +370,7 @@ The device id is not a setting.
 
 **Acceptance:** `cases/12-page-merge.jsonl`, 8 cases.
 
-**Built, slice 12a (2026-10-03):** `com.factotum.core.page` and `com.factotum.data.page`. Five of the eight cases pass as tests (`PageCasesTest`): `tendril-loser-recoverable`, `tendril-later-edit-beats-trash`, `tendril-block-uid-stable`, `shared-different-blocks-both-live` and `shared-concurrent-inserts`; the two cell cases pass with 12b, and the canvas case comes with 12c. What the build settled, none of which changes the decision:
+**Built, slice 12a (2026-10-03):** `com.factotum.core.page` and `com.factotum.data.page`. Five of the eight cases pass as tests (`PageCasesTest`): `tendril-loser-recoverable`, `tendril-later-edit-beats-trash`, `tendril-block-uid-stable`, `shared-different-blocks-both-live` and `shared-concurrent-inserts`; the two cell cases pass with 12b, and `shared-canvas-nodes` with 12c, so all eight pass. What the build settled, none of which changes the decision:
 - **Field groups.** A page: its making, its title and icon, its place under a parent, its deletion. A block: its making (which page; a trigger keeps it there), its type, its text with Tendril's formatting spans, its place (parent block and sort key), its attributes, its deletion. Each is a §3.1 group, so edits to different parts of one block both stand.
 - **The sort key is text**, base-36 digits compared character by character (fractional indexing after Greenspan): there is always a key between two neighbours, so placing a block never re-keys its siblings. A Double key ran out of room after about fifty inserts at one spot, and re-keying the siblings wrote over moves and deletions made on other devices. Two blocks placed at one key read in id order.
 - **The later text wins, and the earlier is kept** (keep-loser groups: a page's title, a block's text). The merge hands every version that both sides changed since their base to a local `sync_lost` table; its base is the newest version read from a peer, not the winner, so with three devices each replaced text is kept on at least one. After every import, each one becomes a MERGE version in that device's History and a synced `page_notice` row, unless the text it lost to says the same (an icon or a format changed apart). The notice carries the replaced text, so a device that never held it can bring it back, and is stamped with the replaced version's own stamp: two devices write one notice, and the second never undoes a dismissal.
@@ -385,6 +386,14 @@ The device id is not a setting.
 - **Options.** A deleted option reads as none and keeps its picks; a later pick of it, or of an option merged into it, brings it back. Options of one property with one name merge into the lowest id, the one made first; a merge or a revival is stamped just above the option's own stamps, so it is never an edit that brings back a trashed database.
 - **Rows** are the database page's sub-pages and the live pages carrying its doorway label. Trashing a database trashes its rows; a revived page brings back the pages trashed with it; a cell, a pick, or an edit to the database's schema counts as an edit to its page. A trashed database's schema is not edited.
 - **Views** keep Tendril's single sort and single filter, compared by type: numbers as numbers, dates as dates, a Select by its options' order, an empty cell last either way. A filter naming an option merged since reads as the option it went into; a setting naming a deleted property reads as none. A Board shows a column for no option first, then the live options in order, and is empty without a Select to group by. A database keeps at least one view.
+
+**Built, slice 12c (2026-10-03):** the canvas, in `com.factotum.data.page` (`CanvasRepository`). `shared-canvas-nodes` passes as a test (`CanvasCasesTest`), with the owner's answers on the canvas. What the build settled, none of which changes the decision:
+- **Tables.** `page_canvas` makes a page a canvas (id `canvas:<page>`, the board's layout). `canvas_node` is a card: a text card, a page card or a frame, with its position, size (a card's width only; its height follows its text), text, hue, mind-map parent, fold, layout and stacking key each a group. `canvas_edge` is a line with an id of its own, its direction and its label. Neither a page card's page nor a card's parent has a foreign key: a purge never deletes a card, and a card read under a missing, deleted or cycled parent is a root.
+- **The app's own writes are marked.** A revival, a merge of options, the lift of a deleted card's children, a carried card's move and a tidy are stamped with the stamp of what caused them and `~` after its device: every device writes the same row, it outranks what it replaces, and revive (pages, blocks, cells, options, cards, lines) never reads it as a person's edit. Without the mark, two devices deleting a card and its parent always brought one back, and a carried or tidied card brought back one deleted elsewhere.
+- **Deleting a card** deletes, in one stamp, its lines, the frames that follow it and their lines, and lifts its children to its parent. A later edit to it on any device, a line drawn to it, or a child put under it brings it back with all of that, its children moved back under it.
+- **Moves** are written when a card is dropped, carrying its mind-map subtree (frames do not ride along). Frame membership stays geometric, worked out by the screen that draws the boxes: carrying a frame's contents is a bulk move of the cards it holds. Tidy layouts wait for the screens.
+- **A page card** reads its page as live, in the Trash, deleted for good (in the purge registry), or not on this device yet.
+- **History** holds a canvas's cards and lines, each group as a record line encodes it, and gives them back by id; a card's text and a line's label are kept when replaced, with a notice.
 
 ### 3.13 Sync folder layout — ADR 13
 
@@ -474,7 +483,7 @@ The device id is not a setting.
 | Items | `item` (TASK, EVENT, REMINDER, HABIT, ACTIVITY), `completion`, `reminder`, `occurrence_edit`, `time_span` | §3.2, §3.3, §3.6, §3.7, §3.11 |
 | Trackers | `tracker`, `tracker_choice`, `tracker_reading`, `goal`, `saved_chart` | §2, §3.6 |
 | Check-in & regulation | `check_in`, `sensory_log`, `masking_entry`, `regulation_event`, `pending_outcome`, `daily_index` | §3.5, §2 |
-| Pages | `page`, `block`, `page_database`, `property`, `property_option`, `property_value`, `value_pick`, `page_view`; with 12c and 12d, `page_relation`, `page_canvas`, `canvas_node`, `canvas_edge` | §2, §3.12 |
+| Pages | `page`, `block`, `page_database`, `property`, `property_option`, `property_value`, `value_pick`, `page_view`, `page_canvas`, `canvas_node`, `canvas_edge`; with 12d, `page_relation` | §2, §3.12 |
 | Labels | `label`, `page_label` | §3.8 |
 | Page notices | `page_notice` (the replaced-by-a-sync notice) | §3.12 |
 | Other | `checklist`, `checklist_item`, `habit_block`, `setting` (PERSONAL only), `purge_registry` | §2, §3.9, §3.1 |
@@ -510,7 +519,7 @@ The four source apps are the owner's own. The only third-party code found so far
    - The guard recovers only from SQLITE_CORRUPT and SQLITE_NOTADB. A locked or full database is rethrown, and its file is left in place.
    - It moves the `-journal`, `-wal` and `-shm` files with the database.
    - Tests cover both drivers, with a control showing that the stock Android driver deletes a corrupt file. Wiring the guard into the Room open path comes with slice 01.
-2. **Schema slices in ADR dependency order:** 01 → 02 → 03 → 04 → 11 → 06 → 07 → 08 → 09 → 10 → 05 → 12. Each slice is done when its ADR cases pass as tests against the real implementation (§3). Spikes 1 and 3 run with slice 10. Spike 5 needs the Android shell and a device, so it runs with the shell (step 4). **Slice 01: done 2026-10-01** (§3.1), with its folder importer and exporter (§3.13). **Slice 02: done 2026-10-01** (§3.2). **Slice 03: done 2026-10-02** (§3.3). **Slice 04: done 2026-10-02** (§3.4), except spike 5, which needs the Android shell. **Slice 11: done 2026-10-02** (§3.11). **Slice 06: done 2026-10-02** (§3.6), with PLANNED. **Slice 07: done 2026-10-02** (§3.7). **Slice 08: done 2026-10-02** (§3.8), but for its page cases, which come with slice 12. **Slice 09: done 2026-10-02** (§3.9). **Slice 10: done 2026-10-03** (§3.10), but for its page cases, which come with slice 12, and the device halves of spikes 1 and 3, which come with the Android shell. **Slice 05: done 2026-10-03** (§3.5). **Slice 12a: done 2026-10-03** (§3.12): pages, blocks, labels on pages, page search, History, the notice and revive; **Slice 12b: done 2026-10-03** (§3.12): databases. 12c (canvas) and 12d (journal, relations, templates) follow.
+2. **Schema slices in ADR dependency order:** 01 → 02 → 03 → 04 → 11 → 06 → 07 → 08 → 09 → 10 → 05 → 12. Each slice is done when its ADR cases pass as tests against the real implementation (§3). Spikes 1 and 3 run with slice 10. Spike 5 needs the Android shell and a device, so it runs with the shell (step 4). **Slice 01: done 2026-10-01** (§3.1), with its folder importer and exporter (§3.13). **Slice 02: done 2026-10-01** (§3.2). **Slice 03: done 2026-10-02** (§3.3). **Slice 04: done 2026-10-02** (§3.4), except spike 5, which needs the Android shell. **Slice 11: done 2026-10-02** (§3.11). **Slice 06: done 2026-10-02** (§3.6), with PLANNED. **Slice 07: done 2026-10-02** (§3.7). **Slice 08: done 2026-10-02** (§3.8), but for its page cases, which come with slice 12. **Slice 09: done 2026-10-02** (§3.9). **Slice 10: done 2026-10-03** (§3.10), but for its page cases, which come with slice 12, and the device halves of spikes 1 and 3, which come with the Android shell. **Slice 05: done 2026-10-03** (§3.5). **Slice 12a: done 2026-10-03** (§3.12): pages, blocks, labels on pages, page search, History, the notice and revive; **Slice 12b: done 2026-10-03** (§3.12): databases. **Slice 12c: done 2026-10-03** (§3.12): the canvas. 12d (journal, relations, templates) follows.
 3. **The sole-owner modules of §2.**
 4. **Screens**, after §10.1.
 
@@ -560,6 +569,7 @@ Status: 2, 4 and 6 are done (`docs/spikes-2026-10-01.md`). 1 and 3 ran on the de
 9. **The sync folder's layout. Decided 2026-10-01:** ADR 13, device-log+copies (§3.13).
 10. **A habit whose tracker is deleted. Decided 2026-10-02:** the habit goes with it; the tracker is created with the habit (§3.6).
 11. **Reminders on an "n a day" habit. Decided 2026-10-02:** each occurrence reminds at the start of its block (§3.6, part b). Tendril gave such habits no reminder at all.
+12. **A purge undone by a later edit leaves its children behind** (a fix, not an owner choice). ADR 01 lets a row edited after its purge come back, but the device that purged it also lost, through foreign-key cascades, the rows under it: a page's blocks, a database's schema and cells, a canvas's cards, a task's completions. The peer that edited keeps them and never sends them again, since they did not change, so the two devices differ until a snapshot carries them. Found by the slice 12c review; the fix belongs with the importer (§3.13): a purge that is undone asks for its children again.
 
 ## 11. Next Steps
 

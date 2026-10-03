@@ -375,7 +375,7 @@ internal class DatabaseRepository(
                 fun touch(optionId: String?, at: Stamp) {
                     val end = generateSequence(optionId?.let(byId::get)) { it.mergedInto?.let(byId::get) }.take(all.size + 1).lastOrNull()
                     val o = end?.id?.let(deleted::get) ?: return
-                    if (at > Stamp(o.goneHlc, o.goneDevice)) found[o.id] = Stamp(o.goneHlc, o.goneDevice)
+                    if (at.byHand && at > Stamp(o.goneHlc, o.goneDevice)) found[o.id] = Stamp(o.goneHlc, o.goneDevice)
                 }
                 val properties = all.filter { it.deletedAt != null }.map { it.propertyId }.distinct()
                 properties.flatMap { dao.valuesOf(it) }.forEach { touch(it.value, Stamp(it.cellHlc, it.cellDevice)) }
@@ -384,7 +384,7 @@ internal class DatabaseRepository(
             back = found
             mapOf(PROPERTY_OPTION to found.keys.toList())
         }) { store, _ ->
-            for ((id, gone) in back) store.put(requireNotNull(store.row(id)).edit(GONE, Stamp(gone.hlc, gone.device + "~"), mapOf("deleted_at" to null, "merged_into" to null)))
+            for ((id, gone) in back) store.put(requireNotNull(store.row(id)).edit(GONE, automatic(gone), mapOf("deleted_at" to null, "merged_into" to null)))
         }
         var into = emptyMap<String, Pair<String, Stamp>>()
         writes.write({
@@ -394,7 +394,7 @@ internal class DatabaseRepository(
         }) { store, _ ->
             for ((id, merge) in into) {
                 val (survivor, last) = merge
-                store.put(requireNotNull(store.row(id)).edit(GONE, Stamp(last.hlc, last.device + "~"), mapOf("deleted_at" to last.hlc, "merged_into" to survivor)))
+                store.put(requireNotNull(store.row(id)).edit(GONE, automatic(last), mapOf("deleted_at" to last.hlc, "merged_into" to survivor)))
             }
         }
     }

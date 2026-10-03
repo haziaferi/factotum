@@ -34,8 +34,8 @@ internal const val ATTRS = "attrs"
 internal const val GONE = "gone"
 internal const val DISMISSED = "dismissed"
 
-/** The groups whose replaced version is kept for the person (ADR 12): a page's title, a block's text and a database cell. */
-internal val KEEP_LOSER_GROUPS = setOf(PAGE_TITLE, BLOCK_TEXT, CELL)
+/** The groups whose replaced version is kept for the person (ADR 12): a page's title, a block's text, a database cell, a card's text and a line's label. */
+internal val KEEP_LOSER_GROUPS = setOf(PAGE_TITLE, BLOCK_TEXT, CELL, NODE_TEXT, EDGE_LABEL)
 
 /** Tendril's block types; an image's bytes and a canvas come with later slices (ADR 12, 12c and §7 step 3). */
 enum class BlockType {
@@ -182,6 +182,8 @@ internal data class PageRevisionEntity(
     @ColumnInfo(name = "notice_id") val noticeId: String?,
     /** The page's database cells as they were, a JSON object of property id to stored value. */
     @ColumnInfo(name = "cells_json") val cellsJson: String? = null,
+    /** A canvas's cards and lines as they were: their groups by id, as record lines encode them. */
+    @ColumnInfo(name = "canvas_json") val canvasJson: String? = null,
 )
 
 @Dao

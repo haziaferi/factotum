@@ -17,6 +17,9 @@ import com.factotum.data.tracker.TRACKER_READING
 import com.factotum.data.time.TIME_SPAN
 import com.factotum.data.page.BLOCK
 import com.factotum.data.page.PAGE_LABEL
+import com.factotum.data.page.CANVAS_EDGE
+import com.factotum.data.page.CANVAS_NODE
+import com.factotum.data.page.PAGE_CANVAS
 import com.factotum.data.page.PAGE_DATABASE
 import com.factotum.data.page.PAGE_NOTICE
 import com.factotum.data.page.PAGE_VIEW
@@ -224,6 +227,7 @@ internal object SchemaTriggers : RoomDatabase.Callback() {
         for ((table, columns) in listOf(BLOCK to listOf("page_id"), PAGE_LABEL to listOf("page_id", "label_id"), PAGE_NOTICE to listOf("page_id", "row_id"),
             PAGE_DATABASE to listOf("page_id"), PROPERTY to listOf("database_id"), PROPERTY_OPTION to listOf("property_id"), PROPERTY_VALUE to listOf("page_id", "property_id"),
             VALUE_PICK to listOf("page_id", "property_id", "option_id"), PAGE_VIEW to listOf("database_id"),
+            PAGE_CANVAS to listOf("page_id"), CANVAS_NODE to listOf("page_id", "type", "page_ref"), CANVAS_EDGE to listOf("page_id", "from_node_id", "to_node_id"),
         )) {
             add("DROP TRIGGER IF EXISTS ${table}_made_fixed")
             add(

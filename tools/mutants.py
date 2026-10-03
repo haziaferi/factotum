@@ -51,6 +51,7 @@ CHECKINDAO = "data/src/commonMain/kotlin/com/factotum/data/checkin/CheckIn.kt"
 PAGES = "data/src/commonMain/kotlin/com/factotum/data/page/PageRepository.kt"
 PAGE = "data/src/commonMain/kotlin/com/factotum/data/page/Page.kt"
 DBS = "data/src/commonMain/kotlin/com/factotum/data/page/DatabaseRepository.kt"
+CANVAS = "data/src/commonMain/kotlin/com/factotum/data/page/CanvasRepository.kt"
 
 # slice -> [(name, file, old, new, test task, tests that must fail)]
 SLICES = {
@@ -639,6 +640,42 @@ SLICES = {
          ":data:desktopTest", {"aDatabaseKeepsOneViewAndATrashedOnesSchemaIsNotEdited"}),
         ("a cell moves page", TRIGGERS, 'PROPERTY_VALUE to listOf("page_id", "property_id"),', "",
          ":data:desktopTest", {"aCellStaysOnItsPageAndProperty"}),
+    ],
+    "12c": [
+        ("a carried card is a person's move", CANVAS, 'if (n == id) s else automatic(s)', 's',
+         ":data:desktopTest", {'aCardCarriedOrTidiedAfterItWasDeletedElsewhereStaysDeleted'}),
+        ("a tidy is a person's move", CANVAS, 'store.put(requireNotNull(store.row(n)).edit(NODE_AT, automatic(s),', 'store.put(requireNotNull(store.row(n)).edit(NODE_AT, s,',
+         ":data:desktopTest", {'aCardCarriedOrTidiedAfterItWasDeletedElsewhereStaysDeleted'}),
+        ("a lift is a person's edit", CANVAS, 'edit(NODE_TREE, automatic(s), mapOf("parent_id" to lifted))', 'edit(NODE_TREE, s, mapOf("parent_id" to lifted))',
+         ":data:desktopTest", {'aCardAndItsParentDeletedOnTwoDevicesBothStayDeleted'}),
+        ("revive reads the app's stamps", PAGES, 'internal val Stamp.byHand get() = !device.endsWith("~")', 'internal val Stamp.byHand get() = true',
+         ":data:desktopTest", {'aCardAndItsParentDeletedOnTwoDevicesBothStayDeleted'}),
+        ('an edited card stays deleted', CANVAS, '            for (n in gone.values) latestByHand(n.edits())?.let { touch(n.id, it) }\n', '',
+         ":data:desktopTest", {'deletingACardTakesItsLinesAndFramesLiftsItsChildrenAndALaterEditBringsThemAllBack'}),
+        ('a line to a deleted card is lost', CANVAS, '                if (e.deletedAt == null || e.id in found) { touch(e.fromNodeId, newest); touch(e.toNodeId, newest) }\n', '',
+         ":data:desktopTest", {'aLineOrAChildAddedToACardDeletedElsewhereBringsItBack'}),
+        ('a child under a deleted card is lost', CANVAS, '            nodes.filter { it.deletedAt == null }.forEach { c -> Stamp(c.treeHlc, c.treeDevice).takeIf { it.byHand }?.let { s -> c.parentId?.let { touch(it, s) } } }\n', '',
+         ":data:desktopTest", {'aLineOrAChildAddedToACardDeletedElsewhereBringsItBack'}),
+        ('a revived card comes back alone', CANVAS, '                edges.filter { it.deletedAt != null && it.gone() == n.gone() && (it.fromNodeId in with || it.toNodeId in with) }.forEach { found[it.id] = it.gone() }\n', '',
+         ":data:desktopTest", {'deletingACardTakesItsLinesAndFramesLiftsItsChildrenAndALaterEditBringsThemAllBack'}),
+        ('lifted children stay lifted', CANVAS, '                nodes.filter { it.deletedAt == null && Stamp(it.treeHlc, it.treeDevice) == lift }.forEach { relift[it.id] = n.id to automatic(lift) }\n', '',
+         ":data:desktopTest", {'deletingACardTakesItsLinesAndFramesLiftsItsChildrenAndALaterEditBringsThemAllBack'}),
+        ('a frame keeps its lines', CANVAS, 'val going = (frames + id).toSet()', 'val going = setOf(id)',
+         ":data:desktopTest", {'aFrameFollowingADeletedCardTakesItsLinesWithIt'}),
+        ('a subtree stays behind', CANVAS, 'moves = (listOf(node) + carried(node, nodes))', 'moves = listOf(node)',
+         ":data:desktopTest", {'movingACardCarriesItsSubtreeButNotItsFrames'}),
+        ('a page not here yet reads deleted', CANVAS, 'if (r in purged) PageState.DELETED else PageState.ABSENT', 'PageState.DELETED',
+         ":data:desktopTest", {'aPageCardWhosePageIsNotHereYetIsNotADeletedPage'}),
+        ('a canvas edit leaves the trash', PAGES, ' + board[p.id].orEmpty()', '',
+         ":data:desktopTest", {'aCanvasEditAfterTheTrashBringsTheCanvasBack'}),
+        ("a card's text clash is silent", PAGE, 'setOf(PAGE_TITLE, BLOCK_TEXT, CELL, NODE_TEXT, EDGE_LABEL)', 'setOf(PAGE_TITLE, BLOCK_TEXT, CELL, EDGE_LABEL)',
+         ":data:desktopTest", {'aCardsTextAndALinesLabelChangedApartKeepTheEarlierInHistoryWithANotice'}),
+        ('History forgets the canvas', PAGES, 'notice, cellsJson(cells, picksOf(pageId)), canvasJson(pageId)))', 'notice, cellsJson(cells, picksOf(pageId))))',
+         ":data:desktopTest", {'historyGivesBackACanvasAsItWas'}),
+        ('a line moves its ends', TRIGGERS, 'CANVAS_EDGE to listOf("page_id", "from_node_id", "to_node_id"),', '',
+         ":data:desktopTest", {'aLineStaysBetweenTheCardsItWasDrawnBetween'}),
+        ('frames draw over cards', CANVAS, 'compareBy({ it.type != NodeType.FRAME.name }, { it.zKey }, { it.id })', 'compareBy({ it.zKey }, { it.id })',
+         ":data:desktopTest", {'framesAreDrawnFirstAndBringToFrontPutsACardOnTop'}),
     ],
 }
 
