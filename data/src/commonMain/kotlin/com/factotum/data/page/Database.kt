@@ -11,6 +11,7 @@ import androidx.room.Upsert
 import com.factotum.core.sync.Group
 import com.factotum.core.sync.Row
 import com.factotum.core.sync.Stamp
+import com.factotum.core.formula.RollupAggregation
 import com.factotum.data.item.EntityTable
 
 internal const val PAGE_DATABASE = "page_database"
@@ -35,9 +36,10 @@ internal const val VIEW_SHOW = "view_show"
 internal const val VIEW_SORT = "view_sort"
 internal const val VIEW_FILTER = "view_filter"
 internal const val BLOCKED = "blocked"
+internal const val FORMULA = "formula"
 
-/** Tendril's property types; formulas, rollups and intervals come with §7 step 3 (ADR 12, owner 2026-10-03). */
-enum class PropertyType { TEXT, NUMBER, CHECKBOX, SELECT, MULTI_SELECT, DATE, URL, EMAIL, PHONE, RELATION }
+/** Tendril's property types; a COMPUTED column is a formula or a rollup, and intervals come with rows as tasks (§7 step 3). */
+enum class PropertyType { TEXT, NUMBER, CHECKBOX, SELECT, MULTI_SELECT, DATE, URL, EMAIL, PHONE, RELATION, COMPUTED }
 
 /** Tendril's view types: how a database's rows are laid out. */
 enum class ViewType { TABLE, BOARD, GALLERY, CALENDAR, TIMELINE }
@@ -100,6 +102,17 @@ internal data class PropertyEntity(
     @ColumnInfo(name = "target_database_id") val targetDatabaseId: String? = null,
     /** A relation's matching column in [targetDatabaseId] (owner, 2026-10-03: a relation is always two-way). */
     @ColumnInfo(name = "pair_property_id") val pairPropertyId: String? = null,
+    /**
+     * A computed column's definition (§7 step 3), written apart from its name and taking the later
+     * stamp: a [formula] with property ids for keys, or a rollup of [rollupTarget] over the rows its
+     * relation [rollupRelation] links, by [rollupAggregation]. Null on every other column.
+     */
+    val formula: String? = null,
+    @ColumnInfo(name = "rollup_relation") val rollupRelation: String? = null,
+    @ColumnInfo(name = "rollup_target") val rollupTarget: String? = null,
+    @ColumnInfo(name = "rollup_aggregation") val rollupAggregation: String? = null,
+    @ColumnInfo(name = "formula_hlc") val formulaHlc: Long? = null,
+    @ColumnInfo(name = "formula_device") val formulaDevice: String? = null,
 )
 
 /**
@@ -310,20 +323,26 @@ internal fun PropertyEntity.toRow() = Row(PROPERTY, id, mapOf(
     NAME to stamped(nameHlc, nameDevice, mapOf("name" to name)),
     PROPERTY_TYPE to stamped(typeHlc, typeDevice, mapOf("type" to type)),
     PLACE to stamped(placeHlc, placeDevice, mapOf("sort_key" to sortKey)),
-))
+) + listOfNotNull(formulaHlc?.let {
+    FORMULA to stamped(it, requireNotNull(formulaDevice), mapOf("expression" to formula, "rollup_relation" to rollupRelation, "rollup_target" to rollupTarget, "rollup_aggregation" to rollupAggregation))
+}))
 
 internal fun Row.toPropertyEntity(): PropertyEntity {
     val made = groups.getValue(MADE)
     val name = groups.getValue(NAME)
     val type = groups.getValue(PROPERTY_TYPE)
     val place = groups.getValue(PLACE)
+    // Only a computed column has the group, and a line written before computed columns has none.
+    val formula = groups[FORMULA]
     return PropertyEntity(
         id, made.values["database_id"] as String, made.stamp.hlc, made.stamp.device,
         name.values["name"] as String, name.stamp.hlc, name.stamp.device,
         type.values["type"] as String, type.stamp.hlc, type.stamp.device,
         place.values["sort_key"] as String, place.stamp.hlc, place.stamp.device,
         made.values["target_database_id"] as String?, made.values["pair_property_id"] as String?,
-    ).also { PropertyType.valueOf(it.type) }
+        formula?.values?.get("expression") as String?, formula?.values?.get("rollup_relation") as String?, formula?.values?.get("rollup_target") as String?,
+        formula?.values?.get("rollup_aggregation") as String?, formula?.stamp?.hlc, formula?.stamp?.device,
+    ).also { p -> PropertyType.valueOf(p.type); p.rollupAggregation?.let(RollupAggregation::valueOf) }
 }
 
 internal fun OptionEntity.toRow() = Row(PROPERTY_OPTION, id, mapOf(

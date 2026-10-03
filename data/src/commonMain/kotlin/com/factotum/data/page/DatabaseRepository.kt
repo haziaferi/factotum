@@ -1,5 +1,20 @@
 package com.factotum.data.page
 
+import com.factotum.core.formula.FormulaAst
+import com.factotum.core.formula.FormulaNode
+import com.factotum.core.formula.FormulaPropertyKind
+import com.factotum.core.formula.FormulaSyntaxError
+import com.factotum.core.formula.FormulaType
+import com.factotum.core.formula.FormulaValue
+import com.factotum.core.formula.RollupAggregation
+import com.factotum.core.formula.checkAllFormulas
+import com.factotum.core.formula.evaluateFormula
+import com.factotum.core.formula.formatNumber
+import com.factotum.core.formula.parseFormula
+import com.factotum.core.formula.rewriteKeys
+import com.factotum.core.formula.rewriteKeysMapped
+import com.factotum.core.formula.rollup
+import com.factotum.core.formula.toCellText
 import com.factotum.core.label.LabelScope
 import com.factotum.core.page.keyBetween
 import com.factotum.core.sync.Group
@@ -15,6 +30,9 @@ import com.factotum.data.sync.readChunked
 import kotlinx.datetime.LocalDate
 
 data class Property(val id: String, val name: String, val type: PropertyType)
+
+/** A formula refused when written: its message, in property names, and where in what was typed it points, if anywhere. */
+class FormulaInputException(message: String, val position: Int?) : IllegalArgumentException(message)
 
 data class SelectOption(val id: String, val name: String, val color: Long?)
 
@@ -131,6 +149,67 @@ internal class DatabaseRepository(
         return forward
     }
 
+    /**
+     * A formula column, last (Tendril's): [expression] names properties as a person does, and is
+     * stored with their ids, so a rename never breaks it (owner, 2026-10-03). A formula with an error,
+     * or one that makes a cycle, is refused with its message.
+     */
+    suspend fun addFormula(databaseId: String, name: String, expression: String): String {
+        val id = newId()
+        var stored = ""
+        var key = ""
+        writes.write({
+            shell(databaseId)
+            stored = checkedFormula(databaseId, id, checkedName(name), expression)
+            key = keyBetween(dao.propertiesOf(databaseId).maxOfOrNull { it.sortKey }, null)
+            mapOf(PROPERTY to listOf(id))
+        }) { store, _ -> writes.merger.created(store, computedColumn(id, databaseId, checkedName(name), key, clock.tick(), stored, null, null, null)) }
+        return id
+    }
+
+    /** Changes a formula column's expression, checked as [addFormula] checks one. */
+    suspend fun setFormula(propertyId: String, expression: String) {
+        var stored = ""
+        edit(PROPERTY, propertyId, FORMULA, {
+            val p = property(propertyId)
+            require(p.type == PropertyType.COMPUTED.name && p.formula != null) { "${p.name} is not a formula" }
+            stored = checkedFormula(p.databaseId, p.id, p.name, expression)
+        }) { mapOf("expression" to stored, "rollup_relation" to null, "rollup_target" to null, "rollup_aggregation" to null) }
+    }
+
+    /** A formula as a person reads it, with the property names of the day; a property deleted since keeps its id. */
+    suspend fun formulaText(propertyId: String): String? {
+        val p = property(propertyId)
+        val names = dao.propertiesOf(p.databaseId).associate { it.id to it.name }
+        return p.formula?.let { f -> runCatching { rewriteKeys(f) { names[it] } }.getOrDefault(f) }
+    }
+
+    /**
+     * A rollup column, last (Tendril's): [aggregation] over [target]'s values in the rows the relation
+     * column [relation] links, live rows only (owner, 2026-10-03); COUNT needs no target.
+     */
+    suspend fun addRollup(databaseId: String, name: String, relation: String, aggregation: RollupAggregation, target: String? = null): String {
+        val id = newId()
+        var key = ""
+        writes.write({
+            shell(databaseId)
+            val r = property(relation)
+            require(r.type == PropertyType.RELATION.name && r.databaseId == databaseId) { "a rollup reads a relation of its own database" }
+            require(aggregation == RollupAggregation.COUNT || target != null) { "$aggregation needs a property to read" }
+            target?.let { t ->
+                val p = property(t)
+                require(p.databaseId == r.targetDatabaseId) { "the property a rollup reads is in the related database" }
+                // A rollup of a rollup, or of links, would read blank: the related rows are read without their rollups.
+                require(p.type != PropertyType.RELATION.name && (p.type != PropertyType.COMPUTED.name || p.formula != null)) { "a rollup reads a value, not a relation or another rollup" }
+            }
+            key = keyBetween(dao.propertiesOf(databaseId).maxOfOrNull { it.sortKey }, null)
+            mapOf(PROPERTY to listOf(id))
+        }) { store, _ ->
+            writes.merger.created(store, computedColumn(id, databaseId, checkedName(name), key, clock.tick(), null, relation, target, aggregation.name))
+        }
+        return id
+    }
+
     /** Links row [pageId] to [targetId] through the relation column [propertyId]; linking again after an unlink brings the link back. */
     suspend fun link(pageId: String, propertyId: String, targetId: String) {
         var l: RelationLinkEntity? = null
@@ -188,6 +267,7 @@ internal class DatabaseRepository(
     /** Adds a property after [after] (first when null). */
     suspend fun addProperty(databaseId: String, name: String, type: PropertyType, after: String? = null): String {
         require(type != PropertyType.RELATION) { "a relation is made with addRelation, which makes its pair" }
+        require(type != PropertyType.COMPUTED) { "a computed column is made with addFormula or addRollup" }
         val id = newId()
         var key = ""
         writes.write({
@@ -224,6 +304,7 @@ internal class DatabaseRepository(
         writes.write({
             val p = property(id)
             require(p.type != PropertyType.RELATION.name && type != PropertyType.RELATION) { "a type never changes to or from a relation (Tendril)" }
+            require(p.type != PropertyType.COMPUTED.name && type != PropertyType.COMPUTED) { "a type never changes to or from a computed column (Tendril)" }
             if (type == PropertyType.SELECT || type == PropertyType.MULTI_SELECT) {
                 val options = dao.optionsOf(listOf(id))
                 val known = options.map { it.id }.toSet() + options.filter { it.deletedAt == null }.map { labelKey(it.name) }
@@ -294,7 +375,7 @@ internal class DatabaseRepository(
         setCell(pageId, propertyId, setOf(PropertyType.TEXT, PropertyType.URL, PropertyType.EMAIL, PropertyType.PHONE)) { text?.takeIf { it.isNotBlank() } }
 
     suspend fun setNumber(pageId: String, propertyId: String, number: Double?) = setCell(pageId, propertyId, setOf(PropertyType.NUMBER)) {
-        number?.also { require(it.isFinite()) { "a number is finite" } }?.let(::canonical)
+        number?.also { require(it.isFinite()) { "a number is finite" } }?.let(::formatNumber)
     }
 
     suspend fun setChecked(pageId: String, propertyId: String, checked: Boolean) = setCell(pageId, propertyId, setOf(PropertyType.CHECKBOX)) { checked.toString() }
@@ -490,7 +571,14 @@ internal class DatabaseRepository(
         }
     }
 
-    private suspend fun read(databaseId: String, pageIds: List<String>): List<DatabaseRow> {
+    /**
+     * [pageIds]' cells in [databaseId], each read under its column's type now. Computed columns are
+     * worked out here, so a view sorts and filters on them (Tendril's read them as blank there): a
+     * formula from its own row, a rollup from the live rows its relation links, when [rollups] (a
+     * rollup's own reading of related rows computes formulas only, so two databases rolling up each
+     * other never loop).
+     */
+    private suspend fun read(databaseId: String, pageIds: List<String>, rollups: Boolean = true): List<DatabaseRow> {
         val properties = dao.propertiesOf(databaseId)
         val options = readChunked(properties.map { it.id }) { dao.optionsOf(it) }
         val r = optionResolver(options)
@@ -513,14 +601,121 @@ internal class DatabaseRepository(
                 }
             }
         }
-        return pageIds.map { pageId ->
-            DatabaseRow(pageId, titles[pageId].orEmpty(), properties.associate { p ->
+        val rows = pageIds.map { pageId ->
+            pageId to properties.associate { p ->
                 val raw = values[pageId to p.id]?.value
                 val cell = cellOf(PropertyType.valueOf(p.type), raw, picks[pageId to p.id].orEmpty(), byProperty[p.id].orEmpty(), r)
                 p.id to cell.copy(pages = linked[pageId to p.id].orEmpty().sortedWith(compareBy({ it.first }, { it.second })).map { it.second }.distinct())
-            })
+            }.toMutableMap()
+        }
+        val computed = properties.filter { it.type == PropertyType.COMPUTED.name }
+        if (computed.isNotEmpty()) {
+            val byId = properties.associateBy { it.id }
+            if (rollups) fillRollups(computed.filter { it.formula == null }, byId, rows)
+            val formulas = computed.filter { it.formula != null }
+            val parsed = formulas.associate { it.id to runCatching { parseFormula(requireNotNull(it.formula)) }.getOrNull() }
+            for ((_, cells) in rows) {
+                val memo = HashMap<String, FormulaValue>()
+                for (p in formulas) cells[p.id] = formulaValue(p, cells, byId, parsed, memo).asCell()
+            }
+        }
+        return rows.map { (pageId, cells) -> DatabaseRow(pageId, titles[pageId].orEmpty(), cells) }
+    }
+
+    /** Each rollup's cell on [rows]: its aggregation over the live rows its relation links, read in the related database. */
+    private suspend fun fillRollups(rollups: List<PropertyEntity>, byId: Map<String, PropertyEntity>, rows: List<Pair<String, MutableMap<String, Cell>>>) {
+        val valid = rollups.filter { p -> byId[p.rollupRelation]?.type == PropertyType.RELATION.name }
+        val states = pageStates(rows.flatMap { (_, cells) -> valid.flatMap { cells[it.rollupRelation]?.pages.orEmpty() } })
+        val related = HashMap<String, Map<String, DatabaseRow>>()
+        for (p in valid) {
+            val relation = byId.getValue(requireNotNull(p.rollupRelation))
+            val target = p.rollupTarget?.let { dao.properties(listOf(it)).singleOrNull() }
+            val db = requireNotNull(relation.targetDatabaseId)
+            val linked = { cells: Map<String, Cell> -> cells.getValue(relation.id).pages.filter { states[it] == PageState.LIVE } }
+            val read = if (target == null) emptyMap() else related.getOrPut(relation.id) {
+                read(db, rows.flatMap { (_, c) -> linked(c) }.distinct(), rollups = false).associateBy { it.pageId }
+            }
+            for ((_, cells) in rows) {
+                val live = linked(cells)
+                val texts = if (target == null) emptyList() else live.mapNotNull { read[it]?.cells?.get(target.id)?.let { c -> rolledText(c, target) } }
+                val text = rollup(RollupAggregation.valueOf(requireNotNull(p.rollupAggregation)), live.size, texts)
+                cells[p.id] = Cell(text, text?.toDoubleOrNull(), text?.let { runCatching { LocalDate.parse(it) }.getOrNull() }, false, emptyList())
+            }
         }
     }
+
+    /**
+     * A formula's value on one row: each `prop(…)` key names a column of its database, read from its
+     * cell (a number, a checkbox, a date, a rollup as what it holds, text; a Select's option by name),
+     * another formula worked out once per row ([memo]), a relation as blank. A cycle a sync made
+     * reads blank.
+     */
+    private fun formulaValue(
+        p: PropertyEntity, cells: Map<String, Cell>, byId: Map<String, PropertyEntity>, parsed: Map<String, FormulaAst?>,
+        memo: MutableMap<String, FormulaValue>, evaluating: MutableSet<String> = mutableSetOf(),
+    ): FormulaValue {
+        memo[p.id]?.let { return it }
+        if (!evaluating.add(p.id)) return FormulaValue.Empty
+        val ast = parsed[p.id]
+        val value = if (ast == null) FormulaValue.Empty else evaluateFormula(ast) { key ->
+            val q = byId[key] ?: return@evaluateFormula FormulaValue.Empty
+            val cell = cells[q.id]
+            when (PropertyType.valueOf(q.type)) {
+                PropertyType.NUMBER -> cell?.number?.let { FormulaValue.Number(it) }
+                // A box never ticked reads unchecked, as the cell shows it (Tendril read it blank, so if() on it was blank).
+                PropertyType.CHECKBOX -> FormulaValue.Bool(cell?.checked == true)
+                PropertyType.DATE -> cell?.date?.let { FormulaValue.DateValue(it) }
+                PropertyType.RELATION -> null
+                PropertyType.COMPUTED -> if (q.formula != null) formulaValue(q, cells, byId, parsed, memo, evaluating) else cell?.asValue()
+                else -> cell?.text?.let { FormulaValue.Text(it) }
+            } ?: FormulaValue.Empty
+        }
+        evaluating -= p.id
+        return value.also { memo[p.id] = it }
+    }
+
+    /**
+     * [expression], written with names, stored with ids, checked with every other formula of the
+     * database (Tendril's write-time check). Refused, with a message in names and the position the
+     * person typed: a name two columns share; an error in it; a cycle among the database's formulas,
+     * this one's or one a sync made elsewhere, which leaves nothing to check against; and an edit
+     * that breaks a formula naming this one.
+     */
+    private suspend fun checkedFormula(databaseId: String, id: String, name: String, expression: String): String {
+        val properties = dao.propertiesOf(databaseId)
+        val names = properties.associate { it.id to it.name } + (id to name)
+        val byName = names.entries.groupBy({ it.value }, { it.key })
+        val (stored, typedAt) = try {
+            rewriteKeysMapped(expression) { n -> byName[n]?.let { same -> if (same.size > 1) throw FormulaInputException("two properties are named \"$n\"", null); same.single() } }
+                .also { parseFormula(it.first) }
+        } catch (e: FormulaSyntaxError) {
+            throw FormulaInputException(e.message.orEmpty(), e.position)
+        }
+        val byId = properties.associateBy { it.id }
+        val kinds = { key: String -> byId[key]?.let(::kindOf) }
+        val others = properties.filter { it.formula != null && it.id != id }.mapNotNull { p -> runCatching { FormulaNode(p.id, parseFormula(requireNotNull(p.formula))) }.getOrNull() }
+        val before = checkAllFormulas(others, kinds)
+        val after = checkAllFormulas(others + FormulaNode(id, parseFormula(stored)), kinds)
+        fun named(message: String) = names.entries.fold(message) { m, (pid, n) -> m.replace(pid, n) }
+        val own = after[id]?.errors ?: after.values.firstOrNull { it.errors.isNotEmpty() }?.errors.orEmpty().map { it.copy(position = -1) }
+        own.firstOrNull()?.let { e -> throw FormulaInputException(named(e.message), e.position.takeIf { it >= 0 }?.let(typedAt)) }
+        val broken = others.firstOrNull { before[it.key]?.errors.isNullOrEmpty() && !after[it.key]?.errors.isNullOrEmpty() }
+        if (broken != null) throw FormulaInputException("this breaks the formula ${names[broken.key]}: ${named(after.getValue(broken.key).errors.first().message)}", null)
+        return stored
+    }
+
+    private fun kindOf(p: PropertyEntity): FormulaPropertyKind = when (PropertyType.valueOf(p.type)) {
+        PropertyType.RELATION -> FormulaPropertyKind.Relation
+        PropertyType.NUMBER -> FormulaPropertyKind.Typed(FormulaType.NUMBER)
+        PropertyType.CHECKBOX -> FormulaPropertyKind.Typed(FormulaType.BOOLEAN)
+        PropertyType.DATE -> FormulaPropertyKind.Typed(FormulaType.DATE)
+        PropertyType.COMPUTED -> FormulaPropertyKind.Typed(FormulaType.ANY)
+        else -> FormulaPropertyKind.Typed(FormulaType.TEXT)
+    }
+
+    private fun computedColumn(id: String, databaseId: String, name: String, key: String, s: Stamp, formula: String?, relation: String?, target: String?, aggregation: String?) =
+        PropertyEntity(id, databaseId, s.hlc, s.device, name, s.hlc, s.device, PropertyType.COMPUTED.name, s.hlc, s.device, key, s.hlc, s.device,
+            formula = formula, rollupRelation = relation, rollupTarget = target, rollupAggregation = aggregation, formulaHlc = s.hlc, formulaDevice = s.device).toRow()
 
     private suspend fun setCell(pageId: String, propertyId: String, types: Set<PropertyType>, value: suspend () -> String?) {
         pages.snapshotIfDue(pageId)
@@ -672,6 +867,7 @@ private fun cellOf(type: PropertyType, raw: String?, picks: List<String>, option
 
 private fun isEmpty(cell: Cell, type: PropertyType) = when (type) {
     PropertyType.RELATION -> cell.pages.isEmpty()
+    PropertyType.COMPUTED -> cell.text == null
     PropertyType.NUMBER -> cell.number == null
     PropertyType.DATE -> cell.date == null
     PropertyType.CHECKBOX -> !cell.checked
@@ -681,6 +877,8 @@ private fun isEmpty(cell: Cell, type: PropertyType) = when (type) {
 
 private fun compare(a: Cell, b: Cell, type: PropertyType, optionOrder: Map<String, String>): Int = when (type) {
     PropertyType.RELATION -> compareValues(a.pages.size, b.pages.size)
+    // A computed value sorts as what it is, numbers before dates before text, so the order is one order.
+    PropertyType.COMPUTED -> compareValuesBy(a, b, { it.computedRank() }, { it.number }, { it.date }, { it.text?.lowercase() })
     PropertyType.NUMBER -> compareValues(a.number, b.number)
     PropertyType.DATE -> compareValues(a.date, b.date)
     PropertyType.CHECKBOX -> compareValues(a.checked, b.checked)
@@ -692,6 +890,8 @@ private fun compare(a: Cell, b: Cell, type: PropertyType, optionOrder: Map<Strin
 private fun passes(cell: Cell, type: PropertyType, op: FilterOp, value: String?): Boolean {
     fun equal(): Boolean = when (type) {
         PropertyType.RELATION -> value in cell.pages
+        PropertyType.COMPUTED -> cell.text != null && value != null &&
+            (if (cell.number != null && value.toDoubleOrNull() != null) value.toDouble() == cell.number else cell.text.equals(value, ignoreCase = true))
         PropertyType.SELECT, PropertyType.MULTI_SELECT -> value in cell.options
         PropertyType.NUMBER -> value?.toDoubleOrNull()?.let { it == cell.number } == true
         PropertyType.DATE -> value != null && runCatching { LocalDate.parse(value) }.getOrNull() == cell.date
@@ -711,6 +911,26 @@ private fun passes(cell: Cell, type: PropertyType, op: FilterOp, value: String?)
     }
 }
 
+/** A computed cell's kind, for one sort order: a number, a date, then text. */
+private fun Cell.computedRank() = when {
+    number != null -> 0
+    date != null -> 1
+    else -> 2
+}
+
+/** A computed cell read back as a formula value: a number, a date or text, as it holds. */
+private fun Cell.asValue(): FormulaValue? = number?.let { FormulaValue.Number(it) } ?: date?.let { FormulaValue.DateValue(it) } ?: text?.let { FormulaValue.Text(it) }
+
+/** A formula's value as a cell: its text, and its number, date or truth when it is one. */
+private fun FormulaValue.asCell() = Cell(toCellText(), (this as? FormulaValue.Number)?.value, (this as? FormulaValue.DateValue)?.value, this == FormulaValue.Bool(true), emptyList())
+
+/** A related row's cell as a rollup reads it: a number or a date as such, else its text. */
+private fun rolledText(cell: Cell, target: PropertyEntity): String? = when (PropertyType.valueOf(target.type)) {
+    PropertyType.NUMBER -> cell.number?.let(::formatNumber)
+    PropertyType.DATE -> cell.date?.toString()
+    else -> cell.text
+}
+
 /**
  * The column of a relation's pair that holds its links: the one with the lower id, or [p] itself
  * when its pair is gone (purged on one device while the other kept this column with an edit).
@@ -724,8 +944,7 @@ private fun relationColumn(id: String, databaseId: String, name: String, key: St
     PLACE to Group(s, mapOf("sort_key" to key)),
 ))
 
-/** A number in one form: a whole number without a fraction, any other as Kotlin writes a Double. */
-private fun canonical(n: Double): String = if (n == kotlin.math.floor(n) && kotlin.math.abs(n) < 1e15) n.toLong().toString() else n.toString()
+
 
 private fun newOption(id: String, propertyId: String, s: Stamp, name: String, color: Long?, key: String) = Row(PROPERTY_OPTION, id, mapOf(
     MADE to Group(s, mapOf("property_id" to propertyId)),

@@ -1,5 +1,6 @@
 package com.factotum.data.page
 
+import com.factotum.core.formula.rewriteKeys
 import com.factotum.core.page.keyBetween
 import com.factotum.core.sync.Group
 import com.factotum.core.sync.Row
@@ -90,7 +91,12 @@ internal class TemplateRepository(
             val outside = p.type == PropertyType.RELATION.name && p.targetDatabaseId != sourceId
             // A relation to another database gets a new matching column there, named after the copy, last.
             val pair = if (outside) newId().takeIf { !template } else p.pairPropertyId?.let(ids::get)
-            out += p.copy(id = ids.getValue(p.id), databaseId = pageId, targetDatabaseId = p.targetDatabaseId?.let { if (it == sourceId) pageId else it }, pairPropertyId = pair).toRow()
+            // A formula's keys and a rollup's relation follow their copies; a rollup's target in another database stays.
+            out += p.copy(
+                id = ids.getValue(p.id), databaseId = pageId, targetDatabaseId = p.targetDatabaseId?.let { if (it == sourceId) pageId else it }, pairPropertyId = pair,
+                formula = p.formula?.let { f -> runCatching { rewriteKeys(f) { ids[it] } }.getOrDefault(f) },
+                rollupRelation = p.rollupRelation?.let { ids[it] ?: it }, rollupTarget = p.rollupTarget?.let { ids[it] ?: it },
+            ).toRow()
             if (outside && pair != null) {
                 val target = requireNotNull(p.targetDatabaseId)
                 val key = keyBetween(lastKey.getOrPut(target) { databases.propertiesOf(target).maxOfOrNull { it.sortKey } }, null).also { lastKey[target] = it }

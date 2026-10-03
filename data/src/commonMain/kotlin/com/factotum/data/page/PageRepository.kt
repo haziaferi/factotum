@@ -432,7 +432,10 @@ internal class PageRepository(
             add(s.pageId, Stamp(s.doorwayHlc, s.doorwayDevice), Stamp(s.lookHlc, s.lookDevice))
             s.blockedHlc?.let { add(s.pageId, Stamp(it, requireNotNull(s.blockedDevice))) }
         }
-        properties.forEach { add(it.databaseId, Stamp(it.nameHlc, it.nameDevice), Stamp(it.typeHlc, it.typeDevice), Stamp(it.placeHlc, it.placeDevice)) }
+        properties.forEach {
+            add(it.databaseId, Stamp(it.nameHlc, it.nameDevice), Stamp(it.typeHlc, it.typeDevice), Stamp(it.placeHlc, it.placeDevice))
+            it.formulaHlc?.let { h -> add(it.databaseId, Stamp(h, requireNotNull(it.formulaDevice))) }
+        }
         readChunked(owner.keys.toList()) { databases.optionsOf(it) }.forEach {
             add(owner.getValue(it.propertyId), Stamp(it.nameHlc, it.nameDevice), Stamp(it.lookHlc, it.lookDevice), Stamp(it.placeHlc, it.placeDevice), Stamp(it.goneHlc, it.goneDevice))
         }
