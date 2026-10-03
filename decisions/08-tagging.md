@@ -51,7 +51,7 @@ The facts were verified with `tools/verify.py`; the raw output is in `verify/08-
 - **Pages** carry many labels through `page_label`, with CASCADE on both sides.
 - **Items** carry at most one, through `item.label_id` (SET NULL). This is an activity's category and a habit's area, and it is allowed on ACTIVITY and HABIT only. It replaces the `category_id` that ADR 07 first named, and ADR 07 is amended to match.
 - **Trackers** carry at most one, through `tracker.label_id` (SET NULL).
-- **Page databases** carry at most one doorway label, through `page_database.label_id`. It now has a foreign key (SET NULL).
+- **Page databases** carry at most one doorway label, through `page_database.label_id`. **[Amended 2026-10-03]** No foreign key, as for every `label_id` (SPEC §3.8's build): a label is never deleted for good, and readers take a missing or deleted label as none.
 
 ## Consequences: fixes, not questions
 

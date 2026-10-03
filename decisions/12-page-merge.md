@@ -83,3 +83,15 @@ A source survey before building slice 12 (Tendril's pages, `PagesSyncEngine.kt`,
 6. **Journal days follow the personal day boundary** (ADR 06, ADR 09).
 7. **Select options are rows**, so options added on two devices both stay (amends "properties upsert by id" for options).
 8. **Scope, in order:** 12a pages, blocks, labels on pages, search, History, revive and the notice; 12b databases; 12c canvas; 12d journal, relations and templates. Images, formulas and rollups, and database rows as tasks wait for §7 step 3.
+
+## Owner answers on databases, 2026-10-03 (slice 12b)
+
+A survey of Tendril's databases (`PageDatabase.kt`, `Property.kt`, `PageDatabaseView.kt`, `PageDatabaseViewModel.kt`, `PageSnapshotRecords.kt`, `PagesSyncEngine.kt`) found choices the decision does not settle. Tendril cannot rename or delete a property's options, never converts values on a type change, and syncs a whole database page as one record, so two edits to one row's different cells lose one. The owner answered:
+
+1. **A deleted Select option**: the cells that picked it read as empty (a Board's "No" column) and keep the pick; a later pick of the option, on any device, brings it back, as a later edit brings back a deleted block.
+2. **A type change keeps the stored values** and reads them under the new type; changing back restores them. No row is written.
+3. **A view's sort, filter and visible columns sync**, each its own group, so a sort and a filter changed apart both stand. Column widths wait for the screens.
+4. **A Multi-select cell merges its picks**: each pick is its own row, as a label on a page is, so two devices adding different options both keep theirs.
+5. **A database's members are the union** of the rows made inside it and the pages carrying its label (Tendril's rule).
+6. **Two options with one name**, made on two devices, merge into the one made first; a cell that picked the other reads as it, and nothing is rewritten (ADR 08's label rule).
+7. **A property, option or view renamed on two devices**: the later name wins, silently. The notice stays for what a person types into a page: titles, text and cells.
