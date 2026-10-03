@@ -54,5 +54,13 @@ On 2026-09-30 the owner decided both open questions.
    - `energy` and `pleasantness` are REAL in 0..1 and nullable, with a CHECK that at least one of mood, energy or pleasantness is set.
    - `source_levels`, `stability` and `note` are all nullable.
 
-   **What the owner accepts with this.** A quick mood tap never reaches Equipoise's direction engine or its LowMoment assessment, because both need pleasantness. That is the measured loss `shared-one-history`. A quick *energy* tap still lands on the shared energy axis, stored as (k−0.5)/5 with `source_levels = 5`. It is treated like Equipoise's own widget energy-only row. BurnoutIndex, whose only check-in input is energy, may use it. DirectionModel reads it with pleasantness 0.5, as it already reads widget rows (`Repositories.kt:159`). LowMoment leaves it out, as it already does with widget rows (`Repositories.kt:63`).
+   **What the owner accepts with this.** A quick mood tap never reaches Equipoise's direction engine or its LowMoment assessment, because both need pleasantness. That is the measured loss `shared-one-history`. A quick *energy* tap still lands on the shared energy axis, stored as (k−0.5)/5 with `source_levels = 5`. It is treated like Equipoise's own widget energy-only row. BurnoutIndex, whose only check-in input is energy, may use it. DirectionModel would read it with pleasantness 0.5 (`Repositories.kt:159`), but in Equipoise no production path asks it about a widget row: a recommendation is asked only for a full check-in (`EquipoiseNav.kt:59-63`) (corrected 2026-10-03, slice 05 survey). LowMoment leaves it out, as it already does with widget rows (`Repositories.kt:63`).
 2. **No numbers on the check-in screen.** Tendril's rule carries over: no averages, counts or trend curves are shown. The Equipoise engines that run today keep running on demand (`Repositories.kt:65`; there is no background worker yet). BurnoutIndex isn't wired into the app yet (SPEC §10.5), and what they produce appears only as their own outputs, such as a suggested direction or a low-moment prompt, never as a chart of the check-ins.
+
+## Owner answers, 2026-10-03
+
+A source survey before building slice 05 found choices the decision does not settle. The owner answered:
+
+1. **A check-in may be about a past day.** It keeps the moment it was made and, optionally, the day it is about (Tendril's Journal page puts a mood on an earlier day); the engines read the moment.
+2. **Equipoise's stability trend is kept, in words only.** The calculation is ported; a screen may say it in words ("steadier lately"), never as a chart or a number. Settled again with the screens.
+3. **Check-in notes stay out of search** (ADR 10 left check-ins out): they are about how a person feels.

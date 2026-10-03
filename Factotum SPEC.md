@@ -204,6 +204,8 @@ Every decision here was scored against its owners' behaviour cases, with a contr
 - `source_levels`, `stability` and `note` are also stored.
 - **No numbers on the check-in screen**: no averages, counts or curves. Equipoise's engines still compute on demand.
 
+**Owner answers, 2026-10-03:** a check-in may be about a past day (it keeps the moment it was made and, optionally, the day it is about); Equipoise's stability trend is kept, said in words only; check-in notes stay out of search.
+
 **Acceptance:** `cases/05-checkin.jsonl`, 7 cases.
 
 ### 3.6 Habits — ADR 06
