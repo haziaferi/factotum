@@ -26,6 +26,13 @@ internal class StagedStore private constructor(
     private val changedAsks = mutableSetOf<Pair<String, String>>()
     private val lostOnes = mutableListOf<LostEntity>()
 
+    /**
+     * Whether this merge took back a purge that was here: a row edited after its purge came back
+     * (ADR 01), but the rows under it went with the purge here, through the foreign keys.
+     */
+    var undidPurge = false
+        private set
+
     /** Ids whose row or purge this merge changed: the ones to export again. */
     val changed: Set<String> get() = changedRows + changedPurges
 
@@ -59,6 +66,7 @@ internal class StagedStore private constructor(
     }
 
     override fun removePurge(id: String) {
+        if (id in purges) undidPurge = true
         loaded(id)
         purges.remove(id)
         changedPurges += id

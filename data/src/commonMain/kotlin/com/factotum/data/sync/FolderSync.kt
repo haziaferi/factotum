@@ -54,11 +54,29 @@ internal class FolderSync(
     recovered: Boolean = false,
 ) {
     private var readOwn = recovered
+    private var undidPurge = false
     private val dao = db.syncDao()
     private val merger = Merger(clock, ASK_GROUPS, KEEP_LOSER_GROUPS)
     private val lock = Mutex()
 
+    /**
+     * Reads what peers wrote since the last import. When it takes back a purge (a row edited after
+     * it, ADR 01), the rows under that row, which the purge took here through the foreign keys, are
+     * in files already read: every file, this device's own too, is read again from its start, which
+     * the merge takes without change for what it already holds.
+     */
     suspend fun import(): ImportReport = lock.withLock {
+        undidPurge = false
+        var report = readFiles()
+        if (undidPurge) {
+            dao.clearReads()
+            readOwn = true
+            report += readFiles()
+        }
+        (report + retryWaiting()).also { afterImport() }
+    }
+
+    private suspend fun readFiles(): ImportReport {
         forgetReadsIfTablesChanged()
         val held = dao.reads().associate { it.path to it.readBytes }
         val present = mutableListOf<String>()
@@ -89,7 +107,7 @@ internal class FolderSync(
         }
         dao.keepReads(present)
         readOwn = false
-        (report + retryWaiting()).also { afterImport() }
+        return report
     }
 
     private suspend fun forgetReadsIfTablesChanged() {
@@ -172,6 +190,7 @@ internal class FolderSync(
                 position?.let { dao.putRead(it) }
                 dao.wait(waiting.map { WaitingEntity(line = it) })
                 dao.saveClock(clock)
+                if (store.undidPurge) undidPurge = true
                 store.changed.size
             }
         }

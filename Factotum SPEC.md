@@ -1,6 +1,6 @@
 # Factotum — Product & Technical Spec
 
-**Status:** draft v0.22, seeded from the decision register · **Scope:** the merged data model, sync and behaviour rules of Factotum. Screens are not decided and are marked open (§10.1).
+**Status:** draft v0.23, seeded from the decision register · **Scope:** the merged data model, sync and behaviour rules of Factotum. Screens are not decided and are marked open (§10.1).
 **Related documents:** `decisions/`, the evidence behind §3: one ADR per decision with verified `file:line` facts, the scored options, the behaviour cases and the harness that measured them (`decisions/register.md` is the index). This spec states each decision once and points to its ADR for the evidence. It never restates the evidence.
 
 ---
@@ -9,6 +9,7 @@
 
 | Version | Summary | Sections touched |
 |---|---|---|
+| v0.23 | Open item 12 fixed: an import that takes back a purge reads the folder again, so the rows the purge took through the foreign keys come back | §10 |
 | v0.22 | Slice 12c built: the canvas, cards and lines per group, revive with what was deleted together, page cards that survive a purge, the app's own writes marked so revive never reads them as edits; a purge undone by a later edit is an open item | §3.12, §5.2, §7, §10 |
 | v0.21 | Slice 12b built: page databases with properties, options as rows, cells kept when replaced, Multi-select picks as rows, views, membership by sub-page and label, with the owner's answers on databases | §3.12, §5.2, §7 |
 | v0.20 | Slice 12a built: pages and blocks per row with fractional text keys, labels on pages, page search, History, the replaced-by-a-sync notice and revive, with the owner's answers; the page cases of ADR 08 and ADR 10 | §3.8, §3.10, §3.12, §5.2, §7 |
@@ -569,7 +570,7 @@ Status: 2, 4 and 6 are done (`docs/spikes-2026-10-01.md`). 1 and 3 ran on the de
 9. **The sync folder's layout. Decided 2026-10-01:** ADR 13, device-log+copies (§3.13).
 10. **A habit whose tracker is deleted. Decided 2026-10-02:** the habit goes with it; the tracker is created with the habit (§3.6).
 11. **Reminders on an "n a day" habit. Decided 2026-10-02:** each occurrence reminds at the start of its block (§3.6, part b). Tendril gave such habits no reminder at all.
-12. **A purge undone by a later edit leaves its children behind** (a fix, not an owner choice). ADR 01 lets a row edited after its purge come back, but the device that purged it also lost, through foreign-key cascades, the rows under it: a page's blocks, a database's schema and cells, a canvas's cards, a task's completions. The peer that edited keeps them and never sends them again, since they did not change, so the two devices differ until a snapshot carries them. Found by the slice 12c review; the fix belongs with the importer (§3.13): a purge that is undone asks for its children again.
+12. **A purge undone by a later edit leaves its children behind** (a fix, not an owner choice). ADR 01 lets a row edited after its purge come back, but the device that purged it also lost, through foreign-key cascades, the rows under it: a page's blocks, a database's schema and cells, a canvas's cards, a task's completions. The peer that edited keeps them and never sends them again, since they did not change, so the two devices differ until a snapshot carries them. Found by the slice 12c review. **Fixed 2026-10-03:** an import that takes back a purge reads every file again from its start, this device's own too (§3.13); the merge takes what it already holds without change, and the rows under the purged one come back.
 
 ## 11. Next Steps
 

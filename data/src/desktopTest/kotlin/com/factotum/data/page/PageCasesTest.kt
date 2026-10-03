@@ -518,4 +518,25 @@ class PageCasesTest {
         runBlocking { pages.deleteBlock(a1) }
         assertFailsWith<IllegalArgumentException> { runBlocking { pages.addBlock(page, parent = a1) } }
     }
+
+    @Test
+    fun aPurgeUndoneByALaterEditBringsBackWhatThePurgeTookOnThisDevice() = two(15) { a, b ->
+        syncthing.now = 1_000
+        val page = runBlocking { a.pages.create("Trip") }
+        val hotel = runBlocking { a.pages.addBlock(page, content = "Hotel") }
+        settle(listOf(a, b))
+        syncthing.now = 2_000
+        runBlocking { a.pages.trash(page) }
+        syncthing.now = 3_000
+        runBlocking { a.pages.purge(page) }
+        // B renames the page after the purge, before it has heard of either: the page stands (ADR 01).
+        syncthing.now = 4_000
+        runBlocking { b.pages.rename(page, "Trip to Rome") }
+        settle(listOf(a, b))
+
+        for (d in listOf(a, b)) {
+            assertEquals("Trip to Rome", runBlocking { d.pages.page(page) }!!.title)
+            assertEquals(listOf(hotel), runBlocking { d.pages.outline(page) }.map { it.id })
+        }
+    }
 }

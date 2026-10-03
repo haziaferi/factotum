@@ -642,6 +642,8 @@ SLICES = {
          ":data:desktopTest", {"aCellStaysOnItsPageAndProperty"}),
     ],
     "12c": [
+        ("an undone purge reads nothing again", FOLDER, "        if (undidPurge) {\n", "        if (false) {\n",
+         ":data:desktopTest", {"aPurgeUndoneByALaterEditBringsBackWhatThePurgeTookOnThisDevice"}),
         ("a carried card is a person's move", CANVAS, 'if (n == id) s else automatic(s)', 's',
          ":data:desktopTest", {'aCardCarriedOrTidiedAfterItWasDeletedElsewhereStaysDeleted'}),
         ("a tidy is a person's move", CANVAS, 'store.put(requireNotNull(store.row(n)).edit(NODE_AT, automatic(s),', 'store.put(requireNotNull(store.row(n)).edit(NODE_AT, s,',
