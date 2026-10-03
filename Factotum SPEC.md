@@ -358,6 +358,8 @@ The device id is not a setting.
 - A later edit to any part restores a trashed page. **[Amended]** This is a deliberate exception to §3.1's group rule, and it applies to pages only.
 - On a clash within the same paragraph, the later text wins. The losing part (block, cell or canvas node) goes to History, and a "replaced by a sync" notice appears.
 
+**Owner answers, 2026-10-03:** a later edit brings back a deleted block; trashing a page trashes its sub-pages, "delete forever" purges them, and revive brings back trashed parents; the "replaced by a sync" notice syncs, shows everywhere until dismissed once, and counts a title clash; journal days follow the personal day boundary; Select options are rows; the slice is built as 12a (pages, blocks, page labels, search, History, revive, notice), 12b (databases), 12c (canvas), 12d (journal, relations, templates), with images, formulas and rollups, and rows as tasks in §7 step 3.
+
 **Acceptance:** `cases/12-page-merge.jsonl`, 8 cases.
 
 ### 3.13 Sync folder layout — ADR 13

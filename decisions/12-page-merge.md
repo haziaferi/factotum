@@ -70,3 +70,16 @@ The owner confirmed **per-row+revive** on 2026-10-01.
 - **Labels on pages** merge per `page_label` row (ADR 08), not by rebuilding the set from names.
 - **A block's `updatedAt`** becomes its ADR 01 stamp. Tendril carries the field but never uses it.
 - **Search** (ADR 10) indexes blocks through triggers, so a merged block is indexed on the write, with no per-page rebuild.
+
+## Owner answers, 2026-10-03
+
+A source survey before building slice 12 (Tendril's pages, `PagesSyncEngine.kt`, `PageDetailViewModel.kt`, `PurgeRegistry.kt`) found choices the decision does not settle. The owner answered:
+
+1. **A later edit brings back a deleted block**, as revive does for a trashed page; nothing typed is lost, and it can be deleted again.
+2. **Trashing a page trashes its sub-pages**, and restoring brings them back together (Tendril left them live but unreachable).
+3. **"Delete forever" on a page deletes its sub-pages forever too**, as a task's subtasks go with it. A purge stays permanent (ADR 01): revive is for the trash only.
+4. **Revive brings back a page's trashed parents** with it, so it reappears in its place.
+5. **The "replaced by a sync" notice syncs**: it shows on every device until dismissed on any one. A clash on a page's title counts as one on a paragraph.
+6. **Journal days follow the personal day boundary** (ADR 06, ADR 09).
+7. **Select options are rows**, so options added on two devices both stay (amends "properties upsert by id" for options).
+8. **Scope, in order:** 12a pages, blocks, labels on pages, search, History, revive and the notice; 12b databases; 12c canvas; 12d journal, relations and templates. Images, formulas and rollups, and database rows as tasks wait for §7 step 3.
