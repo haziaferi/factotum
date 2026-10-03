@@ -4,6 +4,7 @@ import androidx.room.RoomDatabase
 import com.factotum.data.item.COMPLETION
 import com.factotum.data.item.HABIT_BLOCK
 import com.factotum.data.label.LABEL
+import com.factotum.data.checkin.CHECK_IN
 import com.factotum.data.search.rebuildSearchIfStale
 import com.factotum.data.search.searchTriggers
 import com.factotum.data.item.seedBlocks
@@ -135,6 +136,26 @@ internal object SchemaTriggers : RoomDatabase.Callback() {
      */
     private val labelRules = "COALESCE(NEW.applies_to IN ('ALL', 'ACTIVITY', 'TRACKER'), 0)"
 
+    /**
+     * ADR 05: a check-in says something, on its scales: a whole mood 1 to 5, energy and
+     * pleasantness 0 to 1, a whole step count of two or more on an axis, a known stability, a
+     * well-formed moment, and a day it is about no later than the date it was made (the repository
+     * holds it to the personal day). All in the group written once, so no rule spans two groups.
+     */
+    private val checkInRules = """
+        COALESCE(
+            (NEW.mood IS NOT NULL OR NEW.energy IS NOT NULL OR NEW.pleasantness IS NOT NULL)
+            AND (NEW.mood IS NULL OR (typeof(NEW.mood) = 'integer' AND NEW.mood BETWEEN 1 AND 5))
+            AND (NEW.energy IS NULL OR NEW.energy BETWEEN 0 AND 1)
+            AND (NEW.pleasantness IS NULL OR NEW.pleasantness BETWEEN 0 AND 1)
+            AND (NEW.source_levels IS NULL OR (typeof(NEW.source_levels) = 'integer' AND NEW.source_levels >= 2
+                AND (NEW.energy IS NOT NULL OR NEW.pleasantness IS NOT NULL)))
+            AND (NEW.stability IS NULL OR NEW.stability IN ('JUMPY', 'STEADY', 'FLAT'))
+            AND NEW.at GLOB '[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]T[0-9][0-9]:[0-9][0-9]*'
+            AND (NEW.day IS NULL OR (NEW.day GLOB '[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]' AND NEW.day <= substr(NEW.at, 1, 10))),
+        0)
+    """.trimIndent()
+
     /** A block is a stretch of one day (Tendril's planner); its weekday times are checked where they are read. */
     private val blockRules = "COALESCE(NEW.start_minute >= 0 AND NEW.end_minute > NEW.start_minute AND NEW.end_minute <= 1440 AND NEW.position >= 0, 0)"
 
@@ -165,6 +186,7 @@ internal object SchemaTriggers : RoomDatabase.Callback() {
         HABIT_BLOCK to blockRules,
         TIME_SPAN to spanRules,
         LABEL to labelRules,
+        CHECK_IN to checkInRules,
     )
 
     private val statements: List<String> = buildList {

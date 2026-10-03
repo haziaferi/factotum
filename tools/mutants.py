@@ -45,6 +45,9 @@ SETTINGS = "data/src/commonMain/kotlin/com/factotum/data/settings/SettingsReposi
 STORES = "data/src/commonMain/kotlin/com/factotum/data/settings/SettingStores.kt"
 SEARCHINDEX = "data/src/commonMain/kotlin/com/factotum/data/search/SearchIndex.kt"
 SEARCH = "data/src/commonMain/kotlin/com/factotum/data/search/SearchRepository.kt"
+SCALES = "core/src/commonMain/kotlin/com/factotum/core/checkin/CheckIns.kt"
+CHECKINS = "data/src/commonMain/kotlin/com/factotum/data/checkin/CheckInRepository.kt"
+CHECKINDAO = "data/src/commonMain/kotlin/com/factotum/data/checkin/CheckIn.kt"
 
 # slice -> [(name, file, old, new, test task, tests that must fail)]
 SLICES = {
@@ -501,6 +504,40 @@ SLICES = {
          ":data:desktopTest", {"aPastEventIsMarkedFinishedAndARepeatingOneIsNot"}),
         ("finished tasks are not marked", SEARCH, "else -> status == TaskStatus.DONE.name || status == TaskStatus.SKIPPED.name", "else -> false",
          ":data:desktopTest", {"finishedTasksAreFoundAndMarked"}),
+    ],
+    "05": [
+        ("a step sits on its band's edge", SCALES, "return (level - 0.5) / levels", "return (level - 1.0) / levels",
+         ":core:desktopTest", {"aStepSitsInTheMiddleOfItsBandAndReadsBackAsItself"}),
+        ("a top value reads past the scale", SCALES, "return minOf(levels, (value * levels).toInt() + 1)", "return (value * levels).toInt() + 1",
+         ":core:desktopTest", {"aStepSitsInTheMiddleOfItsBandAndReadsBackAsItself"}),
+        ("a future day is offered", SCALES, "fun checkInOffered(day: LocalDate, today: LocalDate): Boolean = day <= today", "fun checkInOffered(day: LocalDate, today: LocalDate): Boolean = true",
+         ":core:desktopTest", {"tendrilsWordsAndACheckInOnlyForADayThatHasHappened"}),
+        ("an energy tap is unmarked", CHECKINS, "record(at, energy = axisValue(level, 5), sourceLevels = 5, day = day)", "record(at, energy = axisValue(level, 5), day = day)",
+         ":data:desktopTest", {"tendrilEnergyRoundtrip_lowIsStoredOnTheSharedAxisAndReadsBackLow", "noMidline_theEnginesReadOnlyTwoAxisCheckInsAndAStepValueIsMarked"}),
+        ("the widget is rescaled", CHECKINS, "private val WIDGET_ENERGY = listOf(0.15, 0.5, 0.85)", "private val WIDGET_ENERGY = listOf(1.0 / 6, 0.5, 5.0 / 6)",
+         ":data:desktopTest", {"equipoiseWidgetEnergyOnly_pleasantnessAndMoodStayEmpty"}),
+        ("the engines read one-axis taps", CHECKINDAO, "WHERE deleted_at IS NULL AND energy IS NOT NULL AND pleasantness IS NOT NULL AND at < :before", "WHERE deleted_at IS NULL AND energy IS NOT NULL AND at < :before",
+         ":data:desktopTest", {"noMidline_theEnginesReadOnlyTwoAxisCheckInsAndAStepValueIsMarked"}),
+        ("the engines read the judged check-in", CHECKINDAO, " AND at < :before ORDER BY at, id", " AND at <= :before ORDER BY at, id",
+         ":data:desktopTest", {"theEnginesReadOnlyCheckInsMadeBeforeTheOneJudged"}),
+        ("the engines read the day it is about", CHECKINS, "Logged(dayOf(LocalDateTime.parse(e.at), dayStart).toEpochDays().toInt()", "Logged((e.day?.let(LocalDate::parse) ?: dayOf(LocalDateTime.parse(e.at), dayStart)).toEpochDays().toInt()",
+         ":data:desktopTest", {"aCheckInMayBeAboutAPastDayButNotAFutureOneAndTheEnginesReadTheMoment"}),
+        ("the day it is about is ignored", CHECKINS, "id, made, day?.let(LocalDate::parse) ?: dayOf(made, dayStart),", "id, made, dayOf(made, dayStart),",
+         ":data:desktopTest", {"aCheckInMayBeAboutAPastDayButNotAFutureOneAndTheEnginesReadTheMoment"}),
+        ("a future day is taken", CHECKINS, '        require(day == null || day <= dayOf(at, personal.dayStart())) { "a check-in is about a day that has happened: $day" }\n', "",
+         ":data:desktopTest", {"aCheckInMayBeAboutAPastDayButNotAFutureOneAndTheEnginesReadTheMoment", "aCheckInAfterMidnightCountsForTheDayBeforeWhenTheDayStartsLater"}),
+        ("days end at midnight", CHECKINS, "        return dao.around(LocalDateTime(day, dayStart).toString(), LocalDateTime(next, dayStart).toString(),",
+         "        return dao.around(LocalDateTime(day, kotlinx.datetime.LocalTime(0, 0)).toString(), LocalDateTime(next, kotlinx.datetime.LocalTime(0, 0)).toString(),",
+         ":data:desktopTest", {"aCheckInAfterMidnightCountsForTheDayBeforeWhenTheDayStartsLater"}),
+        ("an undo restamps", CHECKINS, 'if (row.groups.getValue(GONE).values["deleted_at"] == null) {', "if (true) {",
+         ":data:desktopTest", {"aCheckInIsUndoneNotChangedAndItsNoteStaysOutOfSearch"}),
+        ("a note shares the deletion's group", CHECKINS, 'suspend fun setNote(id: String, note: String?) = writes.edit(CHECK_IN, id, NOTE) { mapOf("note" to note?.trim()?.ifEmpty { null }) }',
+         'suspend fun setNote(id: String, note: String?) = writes.edit(CHECK_IN, id, GONE) { mapOf("deleted_at" to null) }',
+         ":data:desktopTest", {"aNoteWrittenOnOneDeviceNeverBringsBackACheckInUndoneOnAnother"}),
+        ("check-in rules dropped", TRIGGERS, "        CHECK_IN to checkInRules,\n", "",
+         ":data:desktopTest", {"aCheckInOutsideItsScalesIsRefused"}),
+        ("a fractional mood is taken", TRIGGERS, "(typeof(NEW.mood) = 'integer' AND NEW.mood BETWEEN 1 AND 5)", "(NEW.mood BETWEEN 1 AND 5)",
+         ":data:desktopTest", {"aCheckInOutsideItsScalesIsRefused"}),
     ],
 }
 

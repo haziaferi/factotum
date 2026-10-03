@@ -1,6 +1,6 @@
 # Factotum — Product & Technical Spec
 
-**Status:** draft v0.18, seeded from the decision register · **Scope:** the merged data model, sync and behaviour rules of Factotum. Screens are not decided and are marked open (§10.1).
+**Status:** draft v0.19, seeded from the decision register · **Scope:** the merged data model, sync and behaviour rules of Factotum. Screens are not decided and are marked open (§10.1).
 **Related documents:** `decisions/`, the evidence behind §3: one ADR per decision with verified `file:line` facts, the scored options, the behaviour cases and the harness that measured them (`decisions/register.md` is the index). This spec states each decision once and points to its ADR for the evidence. It never restates the evidence.
 
 ---
@@ -9,6 +9,7 @@
 
 | Version | Summary | Sections touched |
 |---|---|---|
+| v0.19 | Slice 05 built: one `check_in` table on own-axis, Tendril's mood and energy taps, Equipoise's two axes and widget, past days, and Equipoise's LowMoment and StabilityTrend ported | §3.5, §7 |
 | v0.18 | Slice 10 built: the search index over items, trackers, Logs and sessions, with the owner's answers; spikes 1 and 3 on the desktop | §3.10, §5.2, §7, §9 |
 | v0.17 | Slice 09 built: settings by scope, the day boundary and the timer limit as PERSONAL settings every repository reads on each call, the settings part of a backup. A recovered database reads its own folder files again | §3.4, §3.7, §3.9, §3.13, §7 |
 | v0.16 | Slice 08 built: labels on activities, habits and trackers, merged by name after a sync, read through what they were merged into; label time totals. Found on the way: an upgrade that rebuilt a table stopped on a trigger naming it, so the app's triggers are dropped before any upgrade | §3.7, §3.8, §7 |
@@ -207,6 +208,12 @@ Every decision here was scored against its owners' behaviour cases, with a contr
 **Owner answers, 2026-10-03:** a check-in may be about a past day (it keeps the moment it was made and, optionally, the day it is about); Equipoise's stability trend is kept, said in words only; check-in notes stay out of search.
 
 **Acceptance:** `cases/05-checkin.jsonl`, 7 cases.
+
+**Built (2026-10-03):** `com.factotum.core.checkin` and `com.factotum.data.checkin`. All 7 cases pass as tests (`CheckInCasesTest`). What the build settled, none of which changes the decision:
+- **A check-in has three ADR 01 groups**: what it says (its moment, the day it is about, its values), written once; its note; its deletion, so a note edited on another device never brings back one undone (Tendril: delete wins). It is undone, not changed; several a day are kept.
+- **Scales:** a Tendril energy tap is (k − 0.5) / 5 with `source_levels = 5`; Equipoise's widget keeps the values it has always stored, 0.15, 0.5 and 0.85, with `source_levels = 3`. The rules (a whole mood 1–5, axes 0–1, a whole step count on an axis, a well-formed moment and day) sit on the group written once.
+- **Days:** a check-in counts for the day it is about, else the personal day it was made on; the day it is about is no later than that personal day. The engines read the moment: their history is every two-axis check-in made before the one judged, by its personal day.
+- **Ported unchanged:** Equipoise's LowMoment and StabilityTrend (said in words only, owner 2026-10-03), with their tests. Not ported yet: the check-in shapes (with the screens), BurnoutIndex (§10 item 5) and the direction engines (with regulation, §7 step 3).
 
 ### 3.6 Habits — ADR 06
 
@@ -476,7 +483,7 @@ The four source apps are the owner's own. The only third-party code found so far
    - The guard recovers only from SQLITE_CORRUPT and SQLITE_NOTADB. A locked or full database is rethrown, and its file is left in place.
    - It moves the `-journal`, `-wal` and `-shm` files with the database.
    - Tests cover both drivers, with a control showing that the stock Android driver deletes a corrupt file. Wiring the guard into the Room open path comes with slice 01.
-2. **Schema slices in ADR dependency order:** 01 → 02 → 03 → 04 → 11 → 06 → 07 → 08 → 09 → 10 → 05 → 12. Each slice is done when its ADR cases pass as tests against the real implementation (§3). Spikes 1 and 3 run with slice 10. Spike 5 needs the Android shell and a device, so it runs with the shell (step 4). **Slice 01: done 2026-10-01** (§3.1), with its folder importer and exporter (§3.13). **Slice 02: done 2026-10-01** (§3.2). **Slice 03: done 2026-10-02** (§3.3). **Slice 04: done 2026-10-02** (§3.4), except spike 5, which needs the Android shell. **Slice 11: done 2026-10-02** (§3.11). **Slice 06: done 2026-10-02** (§3.6), with PLANNED. **Slice 07: done 2026-10-02** (§3.7). **Slice 08: done 2026-10-02** (§3.8), but for its page cases, which come with slice 12. **Slice 09: done 2026-10-02** (§3.9). **Slice 10: done 2026-10-03** (§3.10), but for its page cases, which come with slice 12, and the device halves of spikes 1 and 3, which come with the Android shell.
+2. **Schema slices in ADR dependency order:** 01 → 02 → 03 → 04 → 11 → 06 → 07 → 08 → 09 → 10 → 05 → 12. Each slice is done when its ADR cases pass as tests against the real implementation (§3). Spikes 1 and 3 run with slice 10. Spike 5 needs the Android shell and a device, so it runs with the shell (step 4). **Slice 01: done 2026-10-01** (§3.1), with its folder importer and exporter (§3.13). **Slice 02: done 2026-10-01** (§3.2). **Slice 03: done 2026-10-02** (§3.3). **Slice 04: done 2026-10-02** (§3.4), except spike 5, which needs the Android shell. **Slice 11: done 2026-10-02** (§3.11). **Slice 06: done 2026-10-02** (§3.6), with PLANNED. **Slice 07: done 2026-10-02** (§3.7). **Slice 08: done 2026-10-02** (§3.8), but for its page cases, which come with slice 12. **Slice 09: done 2026-10-02** (§3.9). **Slice 10: done 2026-10-03** (§3.10), but for its page cases, which come with slice 12, and the device halves of spikes 1 and 3, which come with the Android shell. **Slice 05: done 2026-10-03** (§3.5).
 3. **The sole-owner modules of §2.**
 4. **Screens**, after §10.1.
 
