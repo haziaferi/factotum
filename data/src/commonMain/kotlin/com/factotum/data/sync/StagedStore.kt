@@ -24,6 +24,7 @@ internal class StagedStore private constructor(
     private val changedPurges = mutableSetOf<String>()
     private val changedBases = mutableSetOf<Pair<String, String>>()
     private val changedAsks = mutableSetOf<Pair<String, String>>()
+    private val lostOnes = mutableListOf<LostEntity>()
 
     /** Ids whose row or purge this merge changed: the ones to export again. */
     val changed: Set<String> get() = changedRows + changedPurges
@@ -85,6 +86,10 @@ internal class StagedStore private constructor(
         return asks[id to group]
     }
 
+    override fun lost(row: Row, group: String, loser: Group) {
+        lostOnes += LostEntity(0, row.id, row.table, group, RecordCodec.encodeGroup(loser))
+    }
+
     override fun clearAsk(id: String, group: String) {
         loaded(id)
         asks.remove(id to group)
@@ -107,6 +112,7 @@ internal class StagedStore private constructor(
         val (asked, cleared) = changedAsks.filter { it.first !in gone }.partition { it in asks }
         dao.putAsks(asked.map { (id, g) -> AskEntity(id, g, RecordCodec.encodeGroup(asks.getValue(id to g))) })
         cleared.forEach { (id, g) -> dao.removeAsk(id, g) }
+        if (lostOnes.isNotEmpty()) dao.addLost(lostOnes)
     }
 
     companion object {
@@ -143,3 +149,7 @@ internal class StagedStore private constructor(
         }
     }
 }
+
+/** Reads [ids] in chunks of [StagedStore.CHUNK], under SQLite's 999 bound variables, as older Android builds have it. */
+internal suspend fun <T> readChunked(ids: List<String>?, read: suspend (List<String>) -> List<T>): List<T> =
+    ids.orEmpty().chunked(StagedStore.CHUNK).flatMap { read(it) }

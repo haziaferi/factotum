@@ -15,6 +15,9 @@ import com.factotum.data.tracker.GOAL
 import com.factotum.data.tracker.TRACKER
 import com.factotum.data.tracker.TRACKER_READING
 import com.factotum.data.time.TIME_SPAN
+import com.factotum.data.page.BLOCK
+import com.factotum.data.page.PAGE_LABEL
+import com.factotum.data.page.PAGE_NOTICE
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.execSQL
 
@@ -211,6 +214,14 @@ internal object SchemaTriggers : RoomDatabase.Callback() {
             "CREATE TRIGGER time_span_owner_fixed BEFORE UPDATE ON time_span WHEN NEW.item_id IS NOT OLD.item_id " +
                 "BEGIN SELECT RAISE(ABORT, 'time_span: a span stays on its owner'); END",
         )
+        // ADR 12: a block stays on its page, and a page label or a notice on what it was made for.
+        for ((table, columns) in listOf(BLOCK to listOf("page_id"), PAGE_LABEL to listOf("page_id", "label_id"), PAGE_NOTICE to listOf("page_id", "row_id"))) {
+            add("DROP TRIGGER IF EXISTS ${table}_made_fixed")
+            add(
+                "CREATE TRIGGER ${table}_made_fixed BEFORE UPDATE ON $table WHEN " + columns.joinToString(" OR ") { "NEW.$it IS NOT OLD.$it" } +
+                    " BEGIN SELECT RAISE(ABORT, '$table: what it was made for does not change'); END",
+            )
+        }
         add("DROP TRIGGER IF EXISTS item_activity_keep")
         add(
             "CREATE TRIGGER item_activity_keep BEFORE DELETE ON item WHEN OLD.kind = 'ACTIVITY' " +

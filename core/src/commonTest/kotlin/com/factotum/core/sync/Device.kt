@@ -11,6 +11,9 @@ class MemoryStore : SyncStore {
     private val bases = mutableMapOf<Pair<String, String>, Stamp>()
     private val asks = mutableMapOf<Pair<String, String>, Group>()
 
+    /** What [lost] was handed: the row's id and the version it lost. */
+    val losses = mutableListOf<Pair<String, Group>>()
+
     override fun row(id: String) = rows[id]
     override fun put(row: Row) { rows[row.id] = row }
     override fun remove(id: String) { rows.remove(id) }
@@ -22,6 +25,7 @@ class MemoryStore : SyncStore {
     override fun ask(id: String, group: String, theirs: Group) { asks[id to group] = theirs }
     override fun asked(id: String, group: String) = asks[id to group]
     override fun clearAsk(id: String, group: String) { asks.remove(id to group) }
+    override fun lost(row: Row, group: String, loser: Group) { losses += row.id to loser }
 }
 
 /** What a person sees of a reminder-shaped row. */

@@ -19,21 +19,28 @@ interface SyncStore {
     fun ask(id: String, group: String, theirs: Group)
     fun asked(id: String, group: String): Group?
     fun clearAsk(id: String, group: String)
+
+    /** A version a keep-loser group lost to a later one: kept for the person to recover (ADR 12). */
+    fun lost(row: Row, group: String, loser: Group)
 }
 
 /**
  * Applies a peer's rows and purge registry (ADR 01, hybrid+).
  *
  * Each group takes the higher stamp, except a group in [askGroups] that both sides changed since
- * their base to different values: that one is left alone and handed to a person. A purge holds
- * against every row that has not been edited since it.
+ * their base to different values: that one is left alone and handed to a person. A group in
+ * [keepLoserGroups] (ADR 12, a page's text) takes the later version even then, and the version it
+ * replaced goes to [SyncStore.lost], so nothing typed is lost. A purge holds against every row that
+ * has not been edited since it.
  */
-class Merger(private val clock: HybridClock, private val askGroups: Set<String>) {
+class Merger(private val clock: HybridClock, private val askGroups: Set<String>, private val keepLoserGroups: Set<String> = emptySet()) {
+
+    private val baseGroups = askGroups + keepLoserGroups
 
     /** A row created on this device: its creation is the base both sides start from. */
     fun created(store: SyncStore, row: Row) {
         store.put(row)
-        askGroups.forEach { g -> row.groups[g]?.let { store.putBase(row.id, g, it.stamp) } }
+        baseGroups.forEach { g -> row.groups[g]?.let { store.putBase(row.id, g, it.stamp) } }
     }
 
     /** "Delete forever": the row goes, and its purge travels so no peer brings it back. */
@@ -77,7 +84,7 @@ class Merger(private val clock: HybridClock, private val askGroups: Set<String>)
                 merged[name] = theirs
                 continue
             }
-            if (name !in askGroups) {
+            if (name !in baseGroups) {
                 if (theirs.stamp > mine.stamp) merged[name] = theirs
                 continue
             }
@@ -85,6 +92,16 @@ class Merger(private val clock: HybridClock, private val askGroups: Set<String>)
             // A version no newer than the base, such as one a log replays, brings nothing: it must
             // not move the base, or a later change from the other side would look uncontested.
             if (base != null && theirs.stamp <= base) continue
+            if (name in keepLoserGroups) {
+                val winner = if (theirs.stamp > mine.stamp) theirs else mine
+                // Both changed it since the base, to different text: the earlier is kept, not dropped.
+                if (mine.stamp != base && mine.values != theirs.values) store.lost(local.copy(groups = merged), name, if (winner === theirs) mine else theirs)
+                merged[name] = winner
+                // The base is the newest version read from a peer, not the winner: a local version
+                // that won is still this device's own, and must meet a third device's text as a clash.
+                store.putBase(local.id, name, theirs.stamp)
+                continue
+            }
             if (mine.stamp != base && mine.values != theirs.values && theirs.settles != mine.stamp) {
                 // A replay older than the version already waiting must not replace it.
                 if ((store.asked(local.id, name)?.stamp ?: theirs.stamp) <= theirs.stamp) store.ask(local.id, name, theirs)

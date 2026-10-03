@@ -1,6 +1,6 @@
 # Factotum — Product & Technical Spec
 
-**Status:** draft v0.19, seeded from the decision register · **Scope:** the merged data model, sync and behaviour rules of Factotum. Screens are not decided and are marked open (§10.1).
+**Status:** draft v0.20, seeded from the decision register · **Scope:** the merged data model, sync and behaviour rules of Factotum. Screens are not decided and are marked open (§10.1).
 **Related documents:** `decisions/`, the evidence behind §3: one ADR per decision with verified `file:line` facts, the scored options, the behaviour cases and the harness that measured them (`decisions/register.md` is the index). This spec states each decision once and points to its ADR for the evidence. It never restates the evidence.
 
 ---
@@ -9,6 +9,7 @@
 
 | Version | Summary | Sections touched |
 |---|---|---|
+| v0.20 | Slice 12a built: pages and blocks per row with fractional text keys, labels on pages, page search, History, the replaced-by-a-sync notice and revive, with the owner's answers; the page cases of ADR 08 and ADR 10 | §3.8, §3.10, §3.12, §5.2, §7 |
 | v0.19 | Slice 05 built: one `check_in` table on own-axis, Tendril's mood and energy taps, Equipoise's two axes and widget, past days, and Equipoise's LowMoment and StabilityTrend ported | §3.5, §7 |
 | v0.18 | Slice 10 built: the search index over items, trackers, Logs and sessions, with the owner's answers; spikes 1 and 3 on the desktop | §3.10, §5.2, §7, §9 |
 | v0.17 | Slice 09 built: settings by scope, the day boundary and the timer limit as PERSONAL settings every repository reads on each call, the settings part of a backup. A recovered database reads its own folder files again | §3.4, §3.7, §3.9, §3.13, §7 |
@@ -280,11 +281,12 @@ Names are unique ignoring case. A new label takes a colour derived from its name
 
 **Acceptance:** `cases/08-tagging.jsonl`, 10 cases.
 
-**Built (2026-10-02):** `com.factotum.core.label` and `com.factotum.data.label`. Six of the ten cases pass as tests (`LabelCasesTest`), with the owner's answers and ADR 07's category total; the four that need a page (`tendril-page-many-labels`, `tendril-database-doorway`, `tendril-page-delete-no-orphans`, and the page half of the vocabulary) come with §3.12's pages. What the build settled, none of which changes the decision:
+**Built (2026-10-02):** `com.factotum.core.label` and `com.factotum.data.label`. Six of the ten cases pass as tests (`LabelCasesTest`), with the owner's answers and ADR 07's category total; with slice 12a, `tendril-page-many-labels`, `tendril-page-delete-no-orphans` and the members half of `tendril-database-doorway` pass in `PageCasesTest`. The doorway itself, a page database, comes with 12b. What the build settled, none of which changes the decision:
 - **A label has five ADR 01 groups** (name, colour, scope, order, deletion), and an item's or a tracker's `label_id` is a group of its own, so a rename and a recolour made apart both stand, and a label deleted on one device never brings back a tracker deleted on another.
 - **Names are unique by the repository, not by an index**: two devices make the same name apart, and a database rule a merged row broke would stop every later import. Names are compared trimmed, in one Unicode form (NFC), ignoring case; a new label's colour is Tendril's for its name.
 - **The merge** (owner, 2026-10-02) runs after every import: of the live labels with one name, all but the one with the lowest id (ULIDs begin with the time, so the one made first) are deleted with `merged_into` naming it. Nothing that carried them is rewritten: readers take a merged label as the label it went into, so a merge never overwrites a label a person chose meanwhile on another device. Deleting a label clears what carried it or any label merged into it.
-- **No foreign key on `label_id`**: a label is never deleted for good, and a key would only add a table rebuild; readers take a missing or deleted label as none (Tendril's habit label had no key either).
+- **No foreign key on `label_id`**, on an item, a tracker or a page's `page_label` row: a label is never deleted for good, and a key would only add a table rebuild; readers take a missing or deleted label as none (Tendril's habit label had no key either). `page_label` has a key to its page, which a purge of the page cascades through.
+- **A page carries many labels** through `page_label`, one row per page and label (its id names both), so two devices that put one label on one page write one row. Pages are offered the labels for everything. Deleting a label leaves the page rows as they are and reads them as none: taking them off would count as an edit to every trashed page carrying it, and bring each one back (§3.12).
 - **Scope** is where a label is offered: activities get labels for everything and for activities, trackers for everything and for trackers, habits for everything (ADR 08). A label outside the scope is refused when set; narrowing the scope leaves what carries it alone.
 - **Upgrades drop the app's triggers first.** Adding the label columns made Room rebuild `item`, and SQLite checks every trigger when the rebuilt copy is renamed into place: the span rule, which names `item`, stopped the upgrade. Before Room upgrades an older file, the app now drops its own triggers, which it makes again on every open; a test upgrades a version 9 file holding them.
 - **A label's time total** is the union of the spans on every activity and habit carrying it, or a label merged into it (owner, 2026-10-02); Chronicle's pie summed overlapping activities twice.
@@ -322,9 +324,9 @@ The device id is not a setting.
 
 **Acceptance:** `cases/10-search.jsonl`, 7 cases.
 
-**Built (2026-10-03):** `com.factotum.data.search`. The cases that need no page pass as tests (`SearchCasesTest`): `chronicle-all-kinds`, `chronicle-tombstone-leaves`, the Log half of `chronicle-any-write-path`, `chronicle-accents-folded` (on an item's title) and the item half of `shared-one-search`; the page and block halves come with §3.12. What the build settled, none of which changes the decision:
+**Built (2026-10-03):** `com.factotum.data.search`. The cases that need no page pass as tests (`SearchCasesTest`): `chronicle-all-kinds`, `chronicle-tombstone-leaves`, the Log half of `chronicle-any-write-path`, `chronicle-accents-folded` (on an item's title) and the item half of `shared-one-search`; the page and block halves pass with slice 12a (`PageCasesTest`). What the build settled, none of which changes the decision:
 - **The index is `search_fts(text)` and a plain `search_key(doc, kind, row_key)`**, whose `doc` is each entry's FTS document id: a trigger removes an entry by its key in about 0.04 ms, where finding it by a column FTS4 does not index scanned the index (13 ms at 50,000 entries). `unicode61` with `remove_diacritics=2` folds case and accents.
-- **Sources:** every item's title, a tracker's name, a Log's label and note, a session's comment. A deleted row, a blank text, and an archived activity's or tracker's own name leave the index by trigger; whether what a hit belongs to is deleted (a deleted tracker's Logs, a deleted task's sessions, a subtask under a deleted parent, a habit whose tracker is deleted) is read when searching.
+- **Sources:** every item's title, a tracker's name, a Log's label and note, a session's comment, a page's title and a block's text. A page and a block are found only while the page and every page above it are live. A deleted row, a blank text, and an archived activity's or tracker's own name leave the index by trigger; whether what a hit belongs to is deleted (a deleted tracker's Logs, a deleted task's sessions, a subtask under a deleted parent, a habit whose tracker is deleted) is read when searching.
 - **Kept current by triggers** made again on every open, which import writes fire like any other; **rebuilt on open** when the index holds a different number of entries than rows belong in it: an upgrade (whose triggers were dropped for it), a restore or a recovery.
 - **Queries:** words of letters and digits (with any accent written apart), each a prefix, all required, from two letters on; hits are read in chunks under SQLite's 999 variables. Names come first, then text inside, newest first by its own time; a name's time is its item's date. Done or skipped tasks and reminders and one-off events that have ended are marked finished.
 
@@ -361,6 +363,15 @@ The device id is not a setting.
 **Owner answers, 2026-10-03:** a later edit brings back a deleted block; trashing a page trashes its sub-pages, "delete forever" purges them, and revive brings back trashed parents; the "replaced by a sync" notice syncs, shows everywhere until dismissed once, and counts a title clash; journal days follow the personal day boundary; Select options are rows; the slice is built as 12a (pages, blocks, page labels, search, History, revive, notice), 12b (databases), 12c (canvas), 12d (journal, relations, templates), with images, formulas and rollups, and rows as tasks in §7 step 3.
 
 **Acceptance:** `cases/12-page-merge.jsonl`, 8 cases.
+
+**Built, slice 12a (2026-10-03):** `com.factotum.core.page` and `com.factotum.data.page`. Five of the eight cases pass as tests (`PageCasesTest`): `tendril-loser-recoverable`, `tendril-later-edit-beats-trash`, `tendril-block-uid-stable`, `shared-different-blocks-both-live` and `shared-concurrent-inserts`; the cell cases come with 12b and the canvas case with 12c. What the build settled, none of which changes the decision:
+- **Field groups.** A page: its making, its title and icon, its place under a parent, its deletion. A block: its making (which page; a trigger keeps it there), its type, its text with Tendril's formatting spans, its place (parent block and sort key), its attributes, its deletion. Each is a §3.1 group, so edits to different parts of one block both stand.
+- **The sort key is text**, base-36 digits compared character by character (fractional indexing after Greenspan): there is always a key between two neighbours, so placing a block never re-keys its siblings. A Double key ran out of room after about fifty inserts at one spot, and re-keying the siblings wrote over moves and deletions made on other devices. Two blocks placed at one key read in id order.
+- **The later text wins, and the earlier is kept** (keep-loser groups: a page's title, a block's text). The merge hands every version that both sides changed since their base to a local `sync_lost` table; its base is the newest version read from a peer, not the winner, so with three devices each replaced text is kept on at least one. After every import, each one becomes a MERGE version in that device's History and a synced `page_notice` row, unless the text it lost to says the same (an icon or a format changed apart). The notice carries the replaced text, so a device that never held it can bring it back, and is stamped with the replaced version's own stamp: two devices write one notice, and the second never undoes a dismissal.
+- **Revive** runs after every import. A trashed page comes back when its title, its place, a block, a label, or a live sub-page moved or made under it carries a stamp later than its deletion, and brings back its trashed parents; a deleted block comes back when one of its groups does. A revival is stamped just above the deletion it undoes (that stamp's time, its device followed by `~`): every device writes the same row, and a purge made after the edit still holds (the owner's answer 3).
+- **Trash, restore, delete forever.** Trashing a page trashes its live sub-pages with one stamp; restoring brings back the pages trashed with it. "Delete forever" works only from the trash and purges the page and the trashed pages under it; a live page a sync left under them moves to the top.
+- **What a merge can leave**: two pages moved under each other on two devices, or a live page under a trashed one. Such a page is shown at the top, and a trashed cycle is listed once in the trash, by its lowest id.
+- **History** is this device's (`page_revision`): an EDIT version before a change, at most one every ten minutes; MERGE for a replaced version, linked to its notice; RESTORE when a version is brought back. Fifty are kept per page. Restoring a version sets the title and each block by its id, and deletes the blocks it did not have.
 
 ### 3.13 Sync folder layout — ADR 13
 
@@ -452,10 +463,11 @@ The device id is not a setting.
 | Check-in & regulation | `check_in`, `sensory_log`, `masking_entry`, `regulation_event`, `pending_outcome`, `daily_index` | §3.5, §2 |
 | Pages | `page`, `block`, `property`, `property_value`, `page_database`, `page_database_view`, `page_relation`, `page_canvas`, `canvas_node`, `canvas_edge` | §2, §3.12 |
 | Labels | `label`, `page_label` | §3.8 |
+| Page notices | `page_notice` (the replaced-by-a-sync notice) | §3.12 |
 | Other | `checklist`, `checklist_item`, `habit_block`, `setting` (PERSONAL only), `purge_registry` | §2, §3.9, §3.1 |
 
 **Local only, never synced:**
-- `page_revision` (§3.12);
+- `page_revision` and `sync_lost` (§3.12);
 - `calendar_link` (§2);
 - `search_fts` and `search_key` (§3.10);
 - the device store for DEVICE_PREF and DEVICE_STATE keys;
@@ -485,7 +497,7 @@ The four source apps are the owner's own. The only third-party code found so far
    - The guard recovers only from SQLITE_CORRUPT and SQLITE_NOTADB. A locked or full database is rethrown, and its file is left in place.
    - It moves the `-journal`, `-wal` and `-shm` files with the database.
    - Tests cover both drivers, with a control showing that the stock Android driver deletes a corrupt file. Wiring the guard into the Room open path comes with slice 01.
-2. **Schema slices in ADR dependency order:** 01 → 02 → 03 → 04 → 11 → 06 → 07 → 08 → 09 → 10 → 05 → 12. Each slice is done when its ADR cases pass as tests against the real implementation (§3). Spikes 1 and 3 run with slice 10. Spike 5 needs the Android shell and a device, so it runs with the shell (step 4). **Slice 01: done 2026-10-01** (§3.1), with its folder importer and exporter (§3.13). **Slice 02: done 2026-10-01** (§3.2). **Slice 03: done 2026-10-02** (§3.3). **Slice 04: done 2026-10-02** (§3.4), except spike 5, which needs the Android shell. **Slice 11: done 2026-10-02** (§3.11). **Slice 06: done 2026-10-02** (§3.6), with PLANNED. **Slice 07: done 2026-10-02** (§3.7). **Slice 08: done 2026-10-02** (§3.8), but for its page cases, which come with slice 12. **Slice 09: done 2026-10-02** (§3.9). **Slice 10: done 2026-10-03** (§3.10), but for its page cases, which come with slice 12, and the device halves of spikes 1 and 3, which come with the Android shell. **Slice 05: done 2026-10-03** (§3.5).
+2. **Schema slices in ADR dependency order:** 01 → 02 → 03 → 04 → 11 → 06 → 07 → 08 → 09 → 10 → 05 → 12. Each slice is done when its ADR cases pass as tests against the real implementation (§3). Spikes 1 and 3 run with slice 10. Spike 5 needs the Android shell and a device, so it runs with the shell (step 4). **Slice 01: done 2026-10-01** (§3.1), with its folder importer and exporter (§3.13). **Slice 02: done 2026-10-01** (§3.2). **Slice 03: done 2026-10-02** (§3.3). **Slice 04: done 2026-10-02** (§3.4), except spike 5, which needs the Android shell. **Slice 11: done 2026-10-02** (§3.11). **Slice 06: done 2026-10-02** (§3.6), with PLANNED. **Slice 07: done 2026-10-02** (§3.7). **Slice 08: done 2026-10-02** (§3.8), but for its page cases, which come with slice 12. **Slice 09: done 2026-10-02** (§3.9). **Slice 10: done 2026-10-03** (§3.10), but for its page cases, which come with slice 12, and the device halves of spikes 1 and 3, which come with the Android shell. **Slice 05: done 2026-10-03** (§3.5). **Slice 12a: done 2026-10-03** (§3.12): pages, blocks, labels on pages, page search, History, the notice and revive; 12b (databases), 12c (canvas) and 12d (journal, relations, templates) follow.
 3. **The sole-owner modules of §2.**
 4. **Screens**, after §10.1.
 

@@ -32,8 +32,8 @@ internal data class SearchKeyEntity(
     @ColumnInfo(name = "row_key") val rowKey: String,
 )
 
-/** The kinds the index holds now; pages and blocks join with ADR 12. */
-internal enum class SearchKind(val isName: Boolean) { ITEM(true), TRACKER(true), READING(false), SPAN(false) }
+/** The kinds the index holds; a page's title is a name, a block's text is found inside a page. */
+internal enum class SearchKind(val isName: Boolean) { ITEM(true), TRACKER(true), READING(false), SPAN(false), PAGE(true), BLOCK(false) }
 
 /**
  * One table the index reads: its text, and when a row belongs in the index ([live]), both over a
@@ -55,6 +55,8 @@ private val SOURCES = listOf(
         "$.deleted_at IS NULL AND TRIM(COALESCE($.label, '') || ' ' || COALESCE($.note, '')) <> ''", listOf("label", "note", "deleted_at"),
     ),
     Source(SearchKind.SPAN, "time_span", "$.comment", "$.deleted_at IS NULL AND TRIM(COALESCE($.comment, '')) <> ''", listOf("comment", "deleted_at")),
+    Source(SearchKind.PAGE, "page", "$.title", "$.deleted_at IS NULL AND TRIM($.title) <> ''", listOf("title", "deleted_at")),
+    Source(SearchKind.BLOCK, "block", "$.content", "$.deleted_at IS NULL AND TRIM($.content) <> ''", listOf("content", "deleted_at")),
 )
 
 private fun Source.over(row: String, sql: String) = sql.replace("$", row)

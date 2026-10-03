@@ -263,15 +263,15 @@ class FolderSyncTest {
     @Test
     fun aLineForATableThisVersionLacksIsReadAgainOnceItHasIt() {
         val w = world()
-        val page = Row("page", "p", mapOf("a" to Group(Stamp(1, "A"), mapOf("title" to "notes"))))
-        val lines = RecordCodec.encode(RowRecord(page)) + "\n{not json\n"
+        val node = Row("canvas_node", "n", mapOf("a" to Group(Stamp(1, "A"), mapOf("title" to "notes"))))
+        val lines = RecordCodec.encode(RowRecord(node)) + "\n{not json\n"
         w.syncthing.folder("old").replace(FolderLayout.segment("A", 0), lines.encodeToByteArray())
 
         val old = w.Device("old")
         assertEquals(ImportReport(changed = 0, skipped = 2), old.import())
         old.db.close()
 
-        val upgraded = w.Device("old", extra = mapOf("page" to MemoryTable()))
+        val upgraded = w.Device("old", extra = mapOf("canvas_node" to MemoryTable()))
         assertEquals(ImportReport(changed = 1, skipped = 1), upgraded.import())
     }
 

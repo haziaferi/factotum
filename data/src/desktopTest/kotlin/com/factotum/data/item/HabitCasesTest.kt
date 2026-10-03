@@ -110,7 +110,8 @@ class HabitCasesTest {
             runBlocking { db.useReaderConnection { c -> c.usePrepared("PRAGMA table_info($t)") { s -> buildList { while (s.step()) add(s.getText(1)) } } } }
         }
 
-        assertTrue(columns.none { "streak" in it || "last_completed" in it || "missed" in it }, columns.toString())
+        // By whole words of a column's name: a notice's `dismissed_at` is not a missed day.
+        assertTrue(columns.none { c -> c.split('_').let { "streak" in it || "missed" in it } || "last_completed" in c }, columns.toString())
     }
 
     @Test

@@ -9,7 +9,11 @@ import com.factotum.data.FactotumDatabase
 import com.factotum.data.LocalWrites
 import com.factotum.data.item.ITEM
 import com.factotum.data.item.ItemKind
+import com.factotum.data.page.MADE
+import com.factotum.data.page.PAGE_LABEL
+import com.factotum.data.page.pageLabelId
 import com.factotum.data.sync.StagedStore
+import com.factotum.data.sync.readChunked
 import com.factotum.data.tracker.TRACKER
 
 data class Label(val id: String, val name: String, val color: Long, val appliesTo: LabelScope, val sortOrder: Double)
@@ -38,6 +42,7 @@ internal class LabelRepository(
     private val dao = db.labelDao()
     private val items = db.itemDao()
     private val trackers = db.trackerDao()
+    private val pages = db.pageDao()
     private val clock = writes.clock
 
     /** A new label, last in the order, coloured from its name unless [color] is given (Tendril). */
@@ -74,7 +79,11 @@ internal class LabelRepository(
 
     suspend fun setSortOrder(id: String, order: Double) = change(id, ORDER) { mapOf("sort_order" to order) }
 
-    /** Deletes [id]; what carried it, or a label merged into it, carries no label, in the same write (Chronicle). */
+    /**
+     * Deletes [id]; what carried it, or a label merged into it, carries no label, in the same write
+     * (Chronicle). A page's label rows are left as they are and read as none: taking them off would
+     * be an edit to every trashed page carrying it, which would bring each one back (ADR 12's revive).
+     */
     suspend fun delete(id: String) = writes.write({
         live(id)
         val same = dao.allLabels().let { all -> val r = resolver(all); all.map { it.id }.filter { r(it) == id } }
@@ -115,6 +124,53 @@ internal class LabelRepository(
         labelId?.let { offered(it, LabelScope.TRACKER) }
         mapOf(TRACKER to listOf(trackerId))
     }) { store, _ -> setLabel(store, trackerId, labelId) }
+
+    /**
+     * Puts [labelId] on the page [pageId] (ADR 08: a page carries many). One row per page and
+     * label, whoever puts it there; putting it back undoes the taking off.
+     */
+    suspend fun labelPage(pageId: String, labelId: String) = writes.write({
+        requireNotNull(pages.pages(listOf(pageId)).singleOrNull()?.takeIf { it.deletedAt == null }) { "no page $pageId" }
+        offered(labelId, LabelScope.ALL)
+        mapOf(PAGE_LABEL to listOf(pageLabelId(pageId, labelId)))
+    }) { store, targets ->
+        val id = targets.getValue(PAGE_LABEL).single()
+        val s = clock.tick()
+        val row = store.row(id)
+        if (row == null) {
+            writes.merger.created(store, Row(PAGE_LABEL, id, mapOf(
+                MADE to Group(s, mapOf("page_id" to pageId, "label_id" to labelId)),
+                GONE to Group(s, mapOf("deleted_at" to null)),
+            )))
+        } else if (row.groups.getValue(GONE).values["deleted_at"] != null) {
+            store.put(row.edit(GONE, s, mapOf("deleted_at" to null)))
+        }
+    }
+
+    /** Takes [labelId] off the page [pageId], and every label merged into it, as the page shows them as one. */
+    suspend fun unlabelPage(pageId: String, labelId: String) = writes.write({
+        val r = resolver(dao.allLabels())
+        mapOf(PAGE_LABEL to pages.labelsOfPages(listOf(pageId)).filter { it.deletedAt == null && r(it.labelId) == labelId }.map { it.id })
+    }) { store, targets ->
+        val s = clock.tick()
+        for (id in targets.getValue(PAGE_LABEL)) store.put(requireNotNull(store.row(id)).edit(GONE, s, mapOf("deleted_at" to s.hlc)))
+    }
+
+    /** The labels on the page [pageId], each once, read as [labelOf] reads one, in the labels' order. */
+    suspend fun labelsOfPage(pageId: String): List<Label> {
+        val all = dao.allLabels()
+        val r = resolver(all)
+        val on = pages.labelsOfPages(listOf(pageId)).filter { it.deletedAt == null }.mapNotNull { r(it.labelId) }.toSet()
+        return all.filter { it.id in on }.sortedWith(compareBy({ it.sortOrder }, { it.id })).map { it.toLabel() }
+    }
+
+    /** The live pages carrying [labelId], or a label merged into it. */
+    suspend fun pagesLabelled(labelId: String): List<String> {
+        val all = dao.allLabels()
+        val r = resolver(all)
+        val on = readChunked(all.map { it.id }.filter { r(it) == labelId }) { pages.pagesLabelled(it) }.map { it.pageId }.distinct()
+        return readChunked(on) { pages.pages(it) }.filter { it.deletedAt == null }.map { it.id }.sorted()
+    }
 
     /**
      * After every import: live labels a sync left with one name (ignoring case and Unicode form)

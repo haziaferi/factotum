@@ -48,6 +48,7 @@ SEARCH = "data/src/commonMain/kotlin/com/factotum/data/search/SearchRepository.k
 SCALES = "core/src/commonMain/kotlin/com/factotum/core/checkin/CheckIns.kt"
 CHECKINS = "data/src/commonMain/kotlin/com/factotum/data/checkin/CheckInRepository.kt"
 CHECKINDAO = "data/src/commonMain/kotlin/com/factotum/data/checkin/CheckIn.kt"
+PAGES = "data/src/commonMain/kotlin/com/factotum/data/page/PageRepository.kt"
 
 # slice -> [(name, file, old, new, test task, tests that must fail)]
 SLICES = {
@@ -538,6 +539,52 @@ SLICES = {
          ":data:desktopTest", {"aCheckInOutsideItsScalesIsRefused"}),
         ("a fractional mood is taken", TRIGGERS, "(typeof(NEW.mood) = 'integer' AND NEW.mood BETWEEN 1 AND 5)", "(NEW.mood BETWEEN 1 AND 5)",
          ":data:desktopTest", {"aCheckInOutsideItsScalesIsRefused"}),
+    ],
+    "12a": [
+        ("a winning local text looks agreed", MERGE, "store.putBase(local.id, name, theirs.stamp)", "store.putBase(local.id, name, winner.stamp)",
+         ":core:desktopTest", {"withThreeDevicesEveryReplacedTextIsLostSomewhereWhateverTheOrder"}),
+        ("the replaced text is dropped", STAGED, "        if (lostOnes.isNotEmpty()) dao.addLost(lostOnes)\n", "",
+         ":data:desktopTest", {"theLaterTextWinsAndTheEarlierIsKeptInHistoryWithOneNoticeDismissedEverywhere"}),
+        ("a revival takes a fresh stamp", PAGES, 'edit(GONE, Stamp(gone.hlc, gone.device + "~"), mapOf("deleted_at" to null))', 'edit(GONE, clock.tick(), mapOf("deleted_at" to null))',
+         ":data:desktopTest", {"aPurgeHoldsEvenWhenTheTrashArrivedFirstAndBroughtThePageBack"}),
+        ("a revived page leaves its parents", PAGES, "for (q in generateSequence(p) { byId[it.parentId] }.take(pages.size)) {", "for (q in sequenceOf(p)) {",
+         ":data:desktopTest", {"aLaterEditToASubPageBringsBackItsTrashedParents"}),
+        ("a deleted block stays deleted", PAGES, "if (b.edits().max() > Stamp(b.goneHlc, b.goneDevice)) found", "if (false) found",
+         ":data:desktopTest", {"aLaterEditBringsADeletedBlockBack"}),
+        ("a trashed page stays trashed", PAGES, "if (q.deletedAt != null && gone < newest) found[q.id] = gone", "if (false) found[q.id] = gone",
+         ":data:desktopTest", {"aLaterEditBringsATrashedPageBackAndAnEarlierOneDoesNot", "aLaterEditToASubPageBringsBackItsTrashedParents"}),
+        ("a live page under the trash is hidden", PAGES, "page.parentId?.takeIf { pages[it]?.deletedAt == null && it in pages && !onCycle(page, pages) }",
+         "page.parentId?.takeIf { it in pages && !onCycle(page, pages) }",
+         ":data:desktopTest", {"aLivePageUnderATrashedOneIsShownAtTheTopAndADeleteForeverLeavesIt"}),
+        ("a cycle is out of reach", PAGES, "page.parentId?.takeIf { pages[it]?.deletedAt == null && it in pages && !onCycle(page, pages) }",
+         "page.parentId?.takeIf { pages[it]?.deletedAt == null && it in pages }",
+         ":data:desktopTest", {"twoPagesMovedUnderEachOtherApartAreBothShownAtTheTop"}),
+        ("a cycle shows twice in the trash", PAGES, "cycleOf(it, pages).minOrNull() == it.id", "onCycle(it, pages)",
+         ":data:desktopTest", {"twoPagesMovedUnderEachOtherApartAreBothShownAtTheTop"}),
+        ("delete forever takes a live page", PAGES, 'kept.forEach { store.put(requireNotNull(store.row(it)).edit(PLACE, s, mapOf("parent_id" to null))) }', "",
+         ":data:desktopTest", {"aLivePageUnderATrashedOneIsShownAtTheTopAndADeleteForeverLeavesIt"}),
+        ("an icon clash raises a notice", PAGES, "if (page == null || current == text || ", "if (page == null || ",
+         ":data:desktopTest", {"aRenameKeepsTheIconAndAnIconOrFormatChangedApartRaisesNoNotice"}),
+        ("a late notice undoes a dismissal", PAGES, 'DISMISSED to Group(loser.stamp, mapOf("dismissed_at" to null)),', 'DISMISSED to Group(clock.tick(), mapOf("dismissed_at" to null)),',
+         ":data:desktopTest", {"aNoticeWrittenLateByTheOtherDeviceDoesNotUndoADismissal"}),
+        ("a rename wipes the icon", PAGES, "row.groups.getValue(PAGE_TITLE).values + change", 'mapOf("title" to null, "icon" to null) + change',
+         ":data:desktopTest", {"aRenameKeepsTheIconAndAnIconOrFormatChangedApartRaisesNoNotice"}),
+        ("a block goes under itself", PAGES, 'require(generateSequence(parent) { byId[it]?.parentBlockId }.take(blocks.size + 1).none { it == id }) { "a block cannot go under itself" }', "",
+         ":data:desktopTest", {"aBlockGoesOnlyUnderALiveBlockOfItsPageAndNeverUnderItself"}),
+        ("a block goes under any block", PAGES, 'parent?.let { p -> require(blocks.any { it.id == p }) { "no block $p on page $pageId" } }', "",
+         ":data:desktopTest", {"aBlockGoesOnlyUnderALiveBlockOfItsPageAndNeverUnderItself"}),
+        ("History keeps every version", PAGES, "        dao.keepRevisions(pageId, KEPT)\n", "",
+         ":data:desktopTest", {"historyKeepsAnEditAtMostEveryTenMinutesFiftyKeptAndRestores"}),
+        ("History keeps every edit", PAGES, "if (last == null || wallMillis() - last.at >= EDIT_EVERY_MS)", "if (true)",
+         ":data:desktopTest", {"historyKeepsAnEditAtMostEveryTenMinutesFiftyKeptAndRestores"}),
+        ("a trashed page is a label's", LABELS, "return readChunked(on) { pages.pages(it) }.filter { it.deletedAt == null }.map { it.id }.sorted()", "return on.sorted()",
+         ":data:desktopTest", {"aPageCarriesManyLabelsAndAMergedOrDeletedLabelReadsRight"}),
+        ("pages leave search", SEARCHINDEX, """    Source(SearchKind.PAGE, "page", "$.title", "$.deleted_at IS NULL AND TRIM($.title) <> ''", listOf("title", "deleted_at")),\n""", "",
+         ":data:desktopTest", {"aPageIsFoundByATitleWordAndABodyWordAccentsFoldedAndNothingUnderTheTrash"}),
+        ("a trashed page's blocks are found", SEARCH, "blocks[h.rowKey]?.takeIf { pageLive(it.pageId) }", "blocks[h.rowKey]",
+         ":data:desktopTest", {"aPageIsFoundByATitleWordAndABodyWordAccentsFoldedAndNothingUnderTheTrash"}),
+        ("a block moves page", TRIGGERS, 'listOf(BLOCK to listOf("page_id"), ', "listOf(",
+         ":data:desktopTest", {"aBlockStaysOnItsPage"}),
     ],
 }
 

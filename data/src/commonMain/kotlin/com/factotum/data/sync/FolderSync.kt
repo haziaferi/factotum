@@ -8,6 +8,7 @@ import com.factotum.core.sync.Stamp
 import com.factotum.data.FactotumDatabase
 import com.factotum.data.isConstraintViolation
 import com.factotum.data.item.ASK_GROUPS
+import com.factotum.data.page.KEEP_LOSER_GROUPS
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
@@ -54,7 +55,7 @@ internal class FolderSync(
 ) {
     private var readOwn = recovered
     private val dao = db.syncDao()
-    private val merger = Merger(clock, ASK_GROUPS)
+    private val merger = Merger(clock, ASK_GROUPS, KEEP_LOSER_GROUPS)
     private val lock = Mutex()
 
     suspend fun import(): ImportReport = lock.withLock {

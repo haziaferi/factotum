@@ -83,8 +83,31 @@ internal data class WaitingEntity(
     val line: String,
 )
 
+/**
+ * A version the merge replaced in a keep-loser group (`SyncStore.lost`, ADR 12), local only,
+ * waiting for the after-import step to keep it in the page's History and raise its notice.
+ */
+@Entity(tableName = "sync_lost")
+internal data class LostEntity(
+    @PrimaryKey(autoGenerate = true) val id: Long,
+    @ColumnInfo(name = "row_id") val rowId: String,
+    val tbl: String,
+    val grp: String,
+    /** The replaced group, as a record line encodes one (its stamp included). */
+    @ColumnInfo(name = "group_json") val groupJson: String,
+)
+
 @Dao
 internal interface SyncDao {
+    @Insert
+    suspend fun addLost(rows: List<LostEntity>)
+
+    @Query("SELECT * FROM sync_lost ORDER BY id")
+    suspend fun lost(): List<LostEntity>
+
+    @Query("DELETE FROM sync_lost WHERE id IN (:ids)")
+    suspend fun clearLost(ids: List<Long>)
+
     @Query("SELECT * FROM purge_registry")
     suspend fun purges(): List<PurgeEntity>
 

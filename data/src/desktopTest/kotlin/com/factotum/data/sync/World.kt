@@ -15,6 +15,7 @@ import com.factotum.data.openFactotumDatabase
 import com.factotum.data.reminder.ReminderRepository
 import com.factotum.data.tracker.TrackerRepository
 import com.factotum.data.checkin.CheckInRepository
+import com.factotum.data.page.PageRepository
 import com.factotum.data.label.LabelRepository
 import com.factotum.data.settings.MemorySecretStore
 import com.factotum.data.settings.SettingsRepository
@@ -78,11 +79,13 @@ internal class World(private val dir: File, seed: Int, private val segmentBytes:
         val activities = ActivityRepository(db, writes, newId, settings)
         val labels = LabelRepository(db, writes, newId)
         val checkIns = CheckInRepository(db, writes, newId, settings)
+        val pages = PageRepository(db, writes, newId, { syncthing.now })
         /** The wall clock the time rules read, as a local date-time. */
         var now = LocalDateTime(2026, 10, 5, 12, 0)
         val sync = FolderSync(db, syncthing.folder(name), id, clock, tables, segmentBytes, snapshotEvery, recovered = recovered, afterImport = {
             labels.mergeDuplicates()
             time.endFinished(now)
+            pages.settle()
         })
 
         fun create(): String = runBlocking { items.createTask("$name@${syncthing.now}") }.also(::record)

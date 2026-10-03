@@ -6,6 +6,7 @@ import com.factotum.core.sync.HybridClock
 import com.factotum.core.sync.Merger
 import com.factotum.core.sync.Stamp
 import com.factotum.data.item.ASK_GROUPS
+import com.factotum.data.page.KEEP_LOSER_GROUPS
 import com.factotum.data.sync.StagedStore
 import com.factotum.data.sync.saveClock
 
@@ -15,7 +16,7 @@ import com.factotum.data.sync.saveClock
  * (§3.1). The triggers then queue the rows for export.
  */
 internal class LocalWrites(private val db: FactotumDatabase, val clock: HybridClock) {
-    val merger = Merger(clock, ASK_GROUPS)
+    val merger = Merger(clock, ASK_GROUPS, KEEP_LOSER_GROUPS)
     private val sync = db.syncDao()
     private val tables = db.syncedTables()
 
