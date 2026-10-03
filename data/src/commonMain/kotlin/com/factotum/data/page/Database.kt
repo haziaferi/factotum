@@ -34,9 +34,10 @@ internal const val VIEW_KIND = "view_kind"
 internal const val VIEW_SHOW = "view_show"
 internal const val VIEW_SORT = "view_sort"
 internal const val VIEW_FILTER = "view_filter"
+internal const val BLOCKED = "blocked"
 
-/** Tendril's property types for slice 12b; relations, formulas, rollups and intervals come later (ADR 12, owner 2026-10-03). */
-enum class PropertyType { TEXT, NUMBER, CHECKBOX, SELECT, MULTI_SELECT, DATE, URL, EMAIL, PHONE }
+/** Tendril's property types; formulas, rollups and intervals come with §7 step 3 (ADR 12, owner 2026-10-03). */
+enum class PropertyType { TEXT, NUMBER, CHECKBOX, SELECT, MULTI_SELECT, DATE, URL, EMAIL, PHONE, RELATION }
 
 /** Tendril's view types: how a database's rows are laid out. */
 enum class ViewType { TABLE, BOARD, GALLERY, CALENDAR, TIMELINE }
@@ -67,6 +68,10 @@ internal data class PageDatabaseEntity(
     val hue: Long?,
     @ColumnInfo(name = "look_hlc") val lookHlc: Long,
     @ColumnInfo(name = "look_device") val lookDevice: String,
+    /** The self-relation whose links say what blocks a row (Tendril's Timeline); null for none. */
+    @ColumnInfo(name = "blocked_by") val blockedBy: String? = null,
+    @ColumnInfo(name = "blocked_hlc") val blockedHlc: Long? = null,
+    @ColumnInfo(name = "blocked_device") val blockedDevice: String? = null,
 )
 
 internal fun shellId(pageId: String) = "database:$pageId"
@@ -91,6 +96,10 @@ internal data class PropertyEntity(
     @ColumnInfo(name = "sort_key") val sortKey: String,
     @ColumnInfo(name = "place_hlc") val placeHlc: Long,
     @ColumnInfo(name = "place_device") val placeDevice: String,
+    /** A relation's database, written once in its making (a type never changes to or from a relation). */
+    @ColumnInfo(name = "target_database_id") val targetDatabaseId: String? = null,
+    /** A relation's matching column in [targetDatabaseId] (owner, 2026-10-03: a relation is always two-way). */
+    @ColumnInfo(name = "pair_property_id") val pairPropertyId: String? = null,
 )
 
 /**
@@ -281,17 +290,23 @@ internal fun PageDatabaseEntity.toRow() = Row(PAGE_DATABASE, id, mapOf(
     MADE to stamped(madeHlc, madeDevice, mapOf("page_id" to pageId)),
     DOORWAY to stamped(doorwayHlc, doorwayDevice, mapOf("label_id" to labelId)),
     LOOK to stamped(lookHlc, lookDevice, mapOf("hue" to hue)),
+    BLOCKED to stamped(blockedHlc ?: 0, blockedDevice ?: "seed", mapOf("blocked_by" to blockedBy)),
 ))
 
 internal fun Row.toDatabaseEntity(): PageDatabaseEntity {
     val made = groups.getValue(MADE)
     val door = groups.getValue(DOORWAY)
     val look = groups.getValue(LOOK)
-    return PageDatabaseEntity(id, made.values["page_id"] as String, made.stamp.hlc, made.stamp.device, door.values["label_id"] as String?, door.stamp.hlc, door.stamp.device, look.values["hue"] as Long?, look.stamp.hlc, look.stamp.device)
+    // A line written before blocked-by has no such group: nothing blocks.
+    val blocked = groups[BLOCKED]
+    return PageDatabaseEntity(
+        id, made.values["page_id"] as String, made.stamp.hlc, made.stamp.device, door.values["label_id"] as String?, door.stamp.hlc, door.stamp.device,
+        look.values["hue"] as Long?, look.stamp.hlc, look.stamp.device, blocked?.values?.get("blocked_by") as String?, blocked?.stamp?.hlc, blocked?.stamp?.device,
+    )
 }
 
 internal fun PropertyEntity.toRow() = Row(PROPERTY, id, mapOf(
-    MADE to stamped(madeHlc, madeDevice, mapOf("database_id" to databaseId)),
+    MADE to stamped(madeHlc, madeDevice, mapOf("database_id" to databaseId, "target_database_id" to targetDatabaseId, "pair_property_id" to pairPropertyId)),
     NAME to stamped(nameHlc, nameDevice, mapOf("name" to name)),
     PROPERTY_TYPE to stamped(typeHlc, typeDevice, mapOf("type" to type)),
     PLACE to stamped(placeHlc, placeDevice, mapOf("sort_key" to sortKey)),
@@ -307,6 +322,7 @@ internal fun Row.toPropertyEntity(): PropertyEntity {
         name.values["name"] as String, name.stamp.hlc, name.stamp.device,
         type.values["type"] as String, type.stamp.hlc, type.stamp.device,
         place.values["sort_key"] as String, place.stamp.hlc, place.stamp.device,
+        made.values["target_database_id"] as String?, made.values["pair_property_id"] as String?,
     ).also { PropertyType.valueOf(it.type) }
 }
 

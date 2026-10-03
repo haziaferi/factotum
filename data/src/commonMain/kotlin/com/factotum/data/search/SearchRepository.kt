@@ -10,6 +10,7 @@ import com.factotum.data.item.TaskStatus
 import com.factotum.data.sync.readChunked
 import com.factotum.data.item.dtstartOf
 import com.factotum.data.page.PageEntity
+import com.factotum.data.page.journalDate
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.LocalTime
@@ -82,7 +83,7 @@ internal class SearchRepository(db: FactotumDatabase) {
         }
         // A merge can leave two pages under each other; the walk stops where it would repeat.
         fun pageLive(id: String): Boolean =
-            generateSequence(pageRows[id]) { it.parentId?.let(pageRows::get) }.take(pageRows.size).all { it.deletedAt == null } && id in pageRows
+            generateSequence(pageRows[id]) { it.parentId?.let(pageRows::get) }.take(pageRows.size).all { it.deletedAt == null && it.isTemplate != true } && id in pageRows
         // An item is gone when deleted, under a deleted parent, or a habit whose tracker is deleted (ADR 06).
         fun itemLive(id: String): Boolean = itemRows[id]?.let {
             it.deletedAt == null && (it.trackerId == null || trackerRows[it.trackerId]?.deletedAt == null) && (it.parentId == null || itemLive(it.parentId))
@@ -103,7 +104,8 @@ internal class SearchRepository(db: FactotumDatabase) {
                 }
                 SearchKind.PAGE -> h.rowKey.takeIf(::pageLive)?.let { SearchHit(h.kind, it, h.text, h.snippet, null, null, false) }
                 SearchKind.BLOCK -> blocks[h.rowKey]?.takeIf { pageLive(it.pageId) }?.let { b ->
-                    SearchHit(h.kind, b.id, h.text, h.snippet, pageRows.getValue(b.pageId).title, null, false)
+                    // A journal day with no title of its own reads as its date.
+                    SearchHit(h.kind, b.id, h.text, h.snippet, pageRows.getValue(b.pageId).title.ifBlank { journalDate(b.pageId)?.toString().orEmpty() }, null, false)
                 }
             }
         }

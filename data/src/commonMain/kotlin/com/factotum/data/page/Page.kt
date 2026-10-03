@@ -68,6 +68,8 @@ internal data class PageEntity(
     @ColumnInfo(name = "deleted_at") val deletedAt: Long?,
     @ColumnInfo(name = "gone_hlc") val goneHlc: Long,
     @ColumnInfo(name = "gone_device") val goneDevice: String,
+    /** A template (ADR 12, owner 2026-10-03): written once, in the page's making; null on a page that is not one. */
+    @ColumnInfo(name = "is_template") val isTemplate: Boolean? = null,
 )
 
 /**
@@ -245,7 +247,7 @@ internal fun noticeTable(dao: PageDao) = EntityTable(dao::notices, dao::allNotic
 }
 
 internal fun PageEntity.toRow() = Row(PAGE, id, mapOf(
-    MADE to stamped(madeHlc, madeDevice, mapOf("kind" to kind)),
+    MADE to stamped(madeHlc, madeDevice, mapOf("kind" to kind, "is_template" to (isTemplate == true))),
     PAGE_TITLE to stamped(titleHlc, titleDevice, mapOf("title" to title, "icon" to icon)),
     PLACE to stamped(placeHlc, placeDevice, mapOf("parent_id" to parentId)),
     GONE to stamped(goneHlc, goneDevice, mapOf("deleted_at" to deletedAt)),
@@ -261,6 +263,8 @@ internal fun Row.toPageEntity(): PageEntity {
         title.values["title"] as String, title.values["icon"] as String?, title.stamp.hlc, title.stamp.device,
         place.values["parent_id"] as String?, place.stamp.hlc, place.stamp.device,
         gone.values["deleted_at"] as Long?, gone.stamp.hlc, gone.stamp.device,
+        // A line written before templates has no flag: not a template.
+        isTemplate = (made.values["is_template"] as Boolean?)?.takeIf { it },
     )
 }
 

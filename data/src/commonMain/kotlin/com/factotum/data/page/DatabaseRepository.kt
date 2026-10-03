@@ -10,6 +10,7 @@ import com.factotum.data.LocalWrites
 import com.factotum.data.label.labelKey
 import com.factotum.data.label.nfc
 import com.factotum.data.label.resolver
+import com.factotum.data.sync.StagedStore
 import com.factotum.data.sync.readChunked
 import kotlinx.datetime.LocalDate
 
@@ -21,8 +22,9 @@ data class SelectOption(val id: String, val name: String, val color: Long?)
  * A cell as read under its property's type now (a type change rewrites no value, owner 2026-10-03):
  * [text] for the text types and the names of the options, [number], [date] and [checked] when the
  * stored text reads as one, and [options] the live options picked, merged ones read as their target.
+ * A relation's [pages] are the linked pages, whatever their state ([DatabaseRepository.pageStates]).
  */
-data class Cell(val text: String?, val number: Double?, val date: LocalDate?, val checked: Boolean, val options: List<String>)
+data class Cell(val text: String?, val number: Double?, val date: LocalDate?, val checked: Boolean, val options: List<String>, val pages: List<String> = emptyList())
 
 data class DatabaseRow(val pageId: String, val title: String, val cells: Map<String, Cell>)
 
@@ -41,7 +43,7 @@ data class View(
  * kept when a sync replaces it, like a block's text (ADR 12).
  */
 internal class DatabaseRepository(
-    db: FactotumDatabase,
+    private val db: FactotumDatabase,
     private val writes: LocalWrites,
     private val newId: () -> String,
     private val pages: PageRepository,
@@ -49,6 +51,7 @@ internal class DatabaseRepository(
     private val dao = db.databaseDao()
     private val pageDao = db.pageDao()
     private val labels = db.labelDao()
+    private val links = db.linkDao()
     private val clock = writes.clock
 
     /** A new database page under [parentId], with one table view. */
@@ -56,7 +59,7 @@ internal class DatabaseRepository(
         val id = newId()
         val view = newId()
         writes.write({
-            parentId?.let { live(it) }
+            parentId?.let { p -> require(live(p).isTemplate != true) { "nothing goes under a template" } }
             mapOf(PAGE to listOf(id), PAGE_DATABASE to listOf(shellId(id)), PAGE_VIEW to listOf(view))
         }) { store, _ ->
             val s = clock.tick()
@@ -88,15 +91,95 @@ internal class DatabaseRepository(
     /** The database's rows: the pages made in it and the pages carrying its doorway label, by id (a ULID begins with the time it was made). */
     suspend fun members(databaseId: String): List<String> {
         val shell = shell(databaseId)
-        val made = pageDao.childrenOf(databaseId).filter { it.deletedAt == null }.map { it.id }
+        val made = pageDao.childrenOf(databaseId).filter { it.deletedAt == null && it.isTemplate != true }.map { it.id }
         val all = labels.allLabels()
         val r = resolver(all)
         val doorway = shell.labelId?.let(r)
         val labelled = if (doorway == null) emptyList() else {
             val carrying = readChunked(all.map { it.id }.filter { r(it) == doorway }) { pageDao.pagesLabelled(it) }.map { it.pageId }.distinct()
-            readChunked(carrying) { pageDao.pages(it) }.filter { it.deletedAt == null && it.id != databaseId }.map { it.id }
+            readChunked(carrying) { pageDao.pages(it) }.filter { it.deletedAt == null && it.isTemplate != true && it.id != databaseId }.map { it.id }
         }
         return (made + labelled).distinct().sorted()
+    }
+
+    /** How the pages a relation shows read: live, in the Trash (marked), deleted for good (a placeholder), or not here yet (owner, 2026-10-03). */
+    suspend fun pageStates(ids: List<String>): Map<String, PageState> = pageStates(db, ids)
+
+    /**
+     * A relation from [databaseId] to [targetDatabaseId], always two-way (owner, 2026-10-03): a
+     * column here named [name], and a matching one there named after this database, both last, in
+     * one write. A relation within one database is two columns in it.
+     */
+    suspend fun addRelation(databaseId: String, name: String, targetDatabaseId: String): String {
+        val forward = newId()
+        val reverse = newId()
+        var keys = "" to ""
+        var title = ""
+        writes.write({
+            shell(databaseId)
+            shell(targetDatabaseId)
+            title = pageDao.pages(listOf(databaseId)).single().title.ifBlank { "Related" }
+            val here = keyBetween(dao.propertiesOf(databaseId).maxOfOrNull { it.sortKey }, null)
+            val there = if (targetDatabaseId == databaseId) keyBetween(here, null) else keyBetween(dao.propertiesOf(targetDatabaseId).maxOfOrNull { it.sortKey }, null)
+            keys = here to there
+            mapOf(PROPERTY to listOf(forward, reverse))
+        }) { store, _ ->
+            val s = clock.tick()
+            writes.merger.created(store, relationColumn(forward, databaseId, checkedName(name), keys.first, targetDatabaseId, reverse, s))
+            writes.merger.created(store, relationColumn(reverse, targetDatabaseId, title, keys.second, databaseId, forward, s))
+        }
+        return forward
+    }
+
+    /** Links row [pageId] to [targetId] through the relation column [propertyId]; linking again after an unlink brings the link back. */
+    suspend fun link(pageId: String, propertyId: String, targetId: String) {
+        var l: RelationLinkEntity? = null
+        writes.write({
+            l = linkOf(pageId, propertyId, targetId, check = true)
+            mapOf(RELATION_LINK to listOf(l!!.id))
+        }) { store, _ -> link(store, l!!) }
+    }
+
+    private fun link(store: StagedStore, l: RelationLinkEntity) {
+        val id = l.id
+        val s = clock.tick()
+        val row = store.row(id)
+        if (row == null) {
+            writes.merger.created(store, Row(RELATION_LINK, id, mapOf(
+                MADE to Group(s, mapOf("property_id" to l.propertyId, "page_id" to l.pageId, "target_id" to l.targetId)),
+                GONE to Group(s, mapOf("deleted_at" to null)),
+            )))
+        } else if (row.groups.getValue(GONE).values["deleted_at"] != null) {
+            store.put(row.edit(GONE, s, mapOf("deleted_at" to null)))
+        }
+    }
+
+    /** Takes the link between row [pageId] and [targetId] out of the relation column [propertyId] (owner, 2026-10-03). */
+    suspend fun unlink(pageId: String, propertyId: String, targetId: String) = writes.write({
+        property(propertyId)
+        val id = linkOf(pageId, propertyId, targetId).id
+        mapOf(RELATION_LINK to listOfNotNull(links.links(listOf(id)).singleOrNull()?.takeIf { it.deletedAt == null }?.id))
+    }) { store, targets ->
+        val s = clock.tick()
+        targets.getValue(RELATION_LINK).forEach { store.put(requireNotNull(store.row(it)).edit(GONE, s, mapOf("deleted_at" to s.hlc))) }
+    }
+
+    /** The self-relation whose links say what blocks a row (Tendril's Timeline), or none. */
+    suspend fun setBlockedBy(databaseId: String, propertyId: String?) = writes.write({
+        shell(databaseId)
+        propertyId?.let { p ->
+            val prop = property(p)
+            require(prop.type == PropertyType.RELATION.name && prop.databaseId == databaseId && prop.targetDatabaseId == databaseId) { "only a relation within the database says what blocks" }
+        }
+        mapOf(PAGE_DATABASE to listOf(shellId(databaseId)))
+    }) { store, _ -> store.put(requireNotNull(store.row(shellId(databaseId))).edit(BLOCKED, clock.tick(), mapOf("blocked_by" to propertyId))) }
+
+    /** The rows something live blocks: a blocker in the Trash, or deleted for good, does not block (owner, 2026-10-03). */
+    suspend fun blocked(databaseId: String): Set<String> {
+        val by = shell(databaseId).blockedBy?.let { dao.properties(listOf(it)).singleOrNull() } ?: return emptySet()
+        val rows = read(databaseId, members(databaseId))
+        val states = pageStates(rows.flatMap { it.cells[by.id]?.pages.orEmpty() })
+        return rows.filter { row -> row.cells[by.id]?.pages.orEmpty().any { states[it] == PageState.LIVE } }.map { it.pageId }.toSet()
     }
 
     suspend fun properties(databaseId: String): List<Property> =
@@ -104,6 +187,7 @@ internal class DatabaseRepository(
 
     /** Adds a property after [after] (first when null). */
     suspend fun addProperty(databaseId: String, name: String, type: PropertyType, after: String? = null): String {
+        require(type != PropertyType.RELATION) { "a relation is made with addRelation, which makes its pair" }
         val id = newId()
         var key = ""
         writes.write({
@@ -138,7 +222,8 @@ internal class DatabaseRepository(
         var made = emptyList<Pair<String, String>>()
         var last: String? = null
         writes.write({
-            property(id)
+            val p = property(id)
+            require(p.type != PropertyType.RELATION.name && type != PropertyType.RELATION) { "a type never changes to or from a relation (Tendril)" }
             if (type == PropertyType.SELECT || type == PropertyType.MULTI_SELECT) {
                 val options = dao.optionsOf(listOf(id))
                 val known = options.map { it.id }.toSet() + options.filter { it.deletedAt == null }.map { labelKey(it.name) }
@@ -159,8 +244,14 @@ internal class DatabaseRepository(
         }
     }
 
-    /** Deletes a property for good, with its values and options (ADR 12: the schema is deleted only by a purge). */
-    suspend fun deleteProperty(id: String) = writes.write({ property(id); mapOf(PROPERTY to listOf(id)) }) { store, _ -> writes.merger.purge(store, id) }
+    /**
+     * Deletes a property for good, with its values and options (ADR 12: the schema is deleted only by
+     * a purge); a relation goes with its matching column and its links, as it is always two-way.
+     */
+    suspend fun deleteProperty(id: String) = writes.write({
+        val p = property(id)
+        mapOf(PROPERTY to listOfNotNull(id, p.pairPropertyId?.takeIf { dao.properties(listOf(it)).isNotEmpty() }))
+    }) { store, targets -> targets.getValue(PROPERTY).forEach { writes.merger.purge(store, it) } }
 
     /** The live options of a Select or Multi-select, in order. */
     suspend fun options(propertyId: String): List<SelectOption> =
@@ -407,10 +498,26 @@ internal class DatabaseRepository(
         val values = readChunked(pageIds) { dao.valuesOfPages(it) }.associateBy { it.pageId to it.propertyId }
         val picks = readChunked(pageIds) { dao.picksOfPages(it) }.filter { it.deletedAt == null }.groupBy({ it.pageId to it.propertyId }, { it.optionId })
         val titles = readChunked(pageIds) { pageDao.pages(it) }.associate { it.id to it.title }
+        // A relation's links: each is stored under the pair's lower-id column, from that column's side,
+        // and a column reads it from its own side (as row in the stored one, as target in its pair).
+        val relations = properties.filter { it.type == PropertyType.RELATION.name }
+        val pairs = readChunked(relations.mapNotNull { it.pairPropertyId }) { dao.properties(it) }.map { it.id }.toSet()
+        val linked = HashMap<Pair<String, String>, MutableList<Pair<Stamp, String>>>()
+        if (relations.isNotEmpty()) {
+            val rows = pageIds.toSet()
+            for (l in readChunked(pageIds) { links.linksTouching(it) }.filter { it.deletedAt == null }) {
+                for (q in relations) {
+                    if (stored(q, q.pairPropertyId in pairs) != l.propertyId) continue
+                    val (row, other) = if (q.id == l.propertyId) l.pageId to l.targetId else l.targetId to l.pageId
+                    if (row in rows) linked.getOrPut(row to q.id) { mutableListOf() } += Stamp(l.madeHlc, l.madeDevice) to other
+                }
+            }
+        }
         return pageIds.map { pageId ->
             DatabaseRow(pageId, titles[pageId].orEmpty(), properties.associate { p ->
                 val raw = values[pageId to p.id]?.value
-                p.id to cellOf(PropertyType.valueOf(p.type), raw, picks[pageId to p.id].orEmpty(), byProperty[p.id].orEmpty(), r)
+                val cell = cellOf(PropertyType.valueOf(p.type), raw, picks[pageId to p.id].orEmpty(), byProperty[p.id].orEmpty(), r)
+                p.id to cell.copy(pages = linked[pageId to p.id].orEmpty().sortedWith(compareBy({ it.first }, { it.second })).map { it.second }.distinct())
             })
         }
     }
@@ -440,6 +547,25 @@ internal class DatabaseRepository(
         }
     }
 
+    /**
+     * The one stored link between row [pageId] (in [propertyId]'s database) and [targetId] (in its
+     * related one): held under the column of the pair with the lower id, from that column's side.
+     * With [check], [pageId] must be a row here and [targetId] a live row there.
+     */
+    private suspend fun linkOf(pageId: String, propertyId: String, targetId: String, check: Boolean = false): RelationLinkEntity {
+        val p = property(propertyId)
+        require(p.type == PropertyType.RELATION.name) { "${p.name} is not a relation" }
+        if (check) {
+            member(pageId, p, setOf(PropertyType.RELATION))
+            require(targetId in members(requireNotNull(p.targetDatabaseId))) { "page $targetId is not a row of ${p.targetDatabaseId}" }
+        }
+        val stored = stored(p, pairHere(p))
+        val (row, target) = if (stored == p.id) pageId to targetId else targetId to pageId
+        return RelationLinkEntity(linkId(stored, row, target), stored, row, target, 0, "", null, 0, "")
+    }
+
+    private suspend fun pairHere(p: PropertyEntity) = p.pairPropertyId?.let { dao.properties(listOf(it)).isNotEmpty() } == true
+
     /** Changes one group of a row, after [check] inside the write. */
     private suspend fun edit(table: String, id: String, group: String, check: suspend () -> Unit, values: (Stamp) -> Map<String, Any?>) = writes.write({
         check()
@@ -449,7 +575,7 @@ internal class DatabaseRepository(
     private suspend fun member(pageId: String, property: PropertyEntity, types: Set<PropertyType>) {
         require(PropertyType.valueOf(property.type) in types) { "${property.name} is a ${property.type}" }
         val db = property.databaseId
-        val page = pageDao.pages(listOf(pageId)).singleOrNull()?.takeIf { it.deletedAt == null && it.id != db }
+        val page = pageDao.pages(listOf(pageId)).singleOrNull()?.takeIf { it.deletedAt == null && it.isTemplate != true && it.id != db }
         val r = resolver(labels.allLabels())
         val doorway = shell(db).labelId?.let(r)
         val labelled = doorway != null && pageDao.labelsOfPages(listOf(pageId)).any { it.deletedAt == null && r(it.labelId) == doorway }
@@ -545,6 +671,7 @@ private fun cellOf(type: PropertyType, raw: String?, picks: List<String>, option
 }
 
 private fun isEmpty(cell: Cell, type: PropertyType) = when (type) {
+    PropertyType.RELATION -> cell.pages.isEmpty()
     PropertyType.NUMBER -> cell.number == null
     PropertyType.DATE -> cell.date == null
     PropertyType.CHECKBOX -> !cell.checked
@@ -553,6 +680,7 @@ private fun isEmpty(cell: Cell, type: PropertyType) = when (type) {
 }
 
 private fun compare(a: Cell, b: Cell, type: PropertyType, optionOrder: Map<String, String>): Int = when (type) {
+    PropertyType.RELATION -> compareValues(a.pages.size, b.pages.size)
     PropertyType.NUMBER -> compareValues(a.number, b.number)
     PropertyType.DATE -> compareValues(a.date, b.date)
     PropertyType.CHECKBOX -> compareValues(a.checked, b.checked)
@@ -563,6 +691,7 @@ private fun compare(a: Cell, b: Cell, type: PropertyType, optionOrder: Map<Strin
 /** Tendril's single filter, typed: a Select or Multi-select is compared by option id, a number as a number, a date as a date. */
 private fun passes(cell: Cell, type: PropertyType, op: FilterOp, value: String?): Boolean {
     fun equal(): Boolean = when (type) {
+        PropertyType.RELATION -> value in cell.pages
         PropertyType.SELECT, PropertyType.MULTI_SELECT -> value in cell.options
         PropertyType.NUMBER -> value?.toDoubleOrNull()?.let { it == cell.number } == true
         PropertyType.DATE -> value != null && runCatching { LocalDate.parse(value) }.getOrNull() == cell.date
@@ -575,11 +704,25 @@ private fun passes(cell: Cell, type: PropertyType, op: FilterOp, value: String?)
         FilterOp.EQUALS -> equal()
         FilterOp.NOT_EQUALS -> !equal()
         FilterOp.CONTAINS -> when (type) {
+            PropertyType.RELATION -> value in cell.pages
             PropertyType.SELECT, PropertyType.MULTI_SELECT -> value in cell.options
             else -> value != null && cell.text?.contains(value, ignoreCase = true) == true
         }
     }
 }
+
+/**
+ * The column of a relation's pair that holds its links: the one with the lower id, or [p] itself
+ * when its pair is gone (purged on one device while the other kept this column with an edit).
+ */
+private fun stored(p: PropertyEntity, pairHere: Boolean) = if (pairHere) minOf(p.id, requireNotNull(p.pairPropertyId)) else p.id
+
+private fun relationColumn(id: String, databaseId: String, name: String, key: String, target: String, pair: String, s: Stamp) = Row(PROPERTY, id, mapOf(
+    MADE to Group(s, mapOf("database_id" to databaseId, "target_database_id" to target, "pair_property_id" to pair)),
+    NAME to Group(s, mapOf("name" to name)),
+    PROPERTY_TYPE to Group(s, mapOf("type" to PropertyType.RELATION.name)),
+    PLACE to Group(s, mapOf("sort_key" to key)),
+))
 
 /** A number in one form: a whole number without a fraction, any other as Kotlin writes a Double. */
 private fun canonical(n: Double): String = if (n == kotlin.math.floor(n) && kotlin.math.abs(n) < 1e15) n.toLong().toString() else n.toString()

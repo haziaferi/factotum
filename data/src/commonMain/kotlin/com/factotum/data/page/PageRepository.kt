@@ -62,13 +62,14 @@ internal class PageRepository(
     private val dao = db.pageDao()
     private val databases = db.databaseDao()
     private val canvases = db.canvasDao()
+    private val links = db.linkDao()
     private val sync = db.syncDao()
     private val clock = writes.clock
 
     suspend fun create(title: String, parentId: String? = null, icon: String? = null): String {
         val id = newId()
         writes.write({
-            parentId?.let { live(it) }
+            parentId?.let { parent(it) }
             mapOf(PAGE to listOf(id))
         }) { store, _ ->
             writes.merger.created(store, newPageRow(id, clock.tick(), title, icon, parentId, "PAGE"))
@@ -87,7 +88,7 @@ internal class PageRepository(
     suspend fun move(id: String, parentId: String?) = writes.write({
         live(id)
         if (parentId != null) {
-            live(parentId)
+            parent(parentId)
             val pages = dao.allPages().associateBy { it.id }
             require(generateSequence(parentId) { pages[it]?.parentId }.take(pages.size + 1).none { it == id }) { "a page cannot go under itself" }
         }
@@ -145,7 +146,7 @@ internal class PageRepository(
      */
     suspend fun children(parentId: String? = null): List<Page> {
         val pages = dao.allPages().associateBy { it.id }
-        return pages.values.filter { it.deletedAt == null && shownUnder(it, pages) == parentId }
+        return pages.values.filter { it.deletedAt == null && it.isTemplate != true && shownUnder(it, pages) == parentId }
             .sortedWith(compareBy({ it.title.lowercase() }, { it.id })).map { it.toPage() }
     }
 
@@ -238,9 +239,11 @@ internal class PageRepository(
             board?.get(kind)?.jsonObject.orEmpty().mapValues { (_, groups) -> groups.jsonObject.mapValues { RecordCodec.decodeGroup(it.value.jsonPrimitive.content).values } }
         }
         keep(revision.pageId, "RESTORE", null)
+        var wantedPicks = emptyMap<String, Pair<String, String>>()
         writes.write({
             val held = databases.picksOfPages(listOf(revision.pageId)).map { it.id }
             val wanted = picks.flatMap { (property, ids) -> ids.map { pickId(revision.pageId, property, it) } }
+            wantedPicks = picks.flatMap { (property, ids) -> ids.map { pickId(revision.pageId, property, it) to (property to it) } }.toMap()
             mapOf(
                 PAGE to listOf(revision.pageId), BLOCK to dao.blocksOf(revision.pageId).map { it.id },
                 PROPERTY_VALUE to databases.valuesOfPages(listOf(revision.pageId)).map { it.id }, VALUE_PICK to (held + wanted).distinct(),
@@ -263,8 +266,7 @@ internal class PageRepository(
             for (id in targets.getValue(VALUE_PICK)) {
                 val row = store.row(id)
                 val made = row?.groups?.getValue(MADE)?.values
-                val property = made?.get("property_id") as String? ?: id.split(':')[2]
-                val option = made?.get("option_id") as String? ?: id.split(':')[3]
+                val (property, option) = if (made != null) made.getValue("property_id") as String to made.getValue("option_id") as String else wantedPicks.getValue(id)
                 val live = row != null && row.groups.getValue(GONE).values["deleted_at"] == null
                 val want = picks[property]?.contains(option) ?: live
                 if (want == live) continue
@@ -381,6 +383,15 @@ internal class PageRepository(
             val picks = readChunked(trashed.map { it.id }) { databases.picksOfPages(it) }.groupBy({ it.pageId }, { maxOf(Stamp(it.madeHlc, it.madeDevice), Stamp(it.goneHlc, it.goneDevice)) })
             val schema = schemaStamps(readChunked(trashed.map { shellId(it.id) }) { databases.databases(it) })
             val board = canvasStamps(trashed.map { it.id })
+            // A link made, or made again, counts for both its pages: one made to a page trashed elsewhere brings it back
+            // (owner, 2026-10-03); one taken off does not.
+            val linked = HashMap<String, MutableList<Stamp>>()
+            for (l in readChunked(trashed.map { it.id }) { links.linksTouching(it) }) {
+                for (end in listOf(l.pageId, l.targetId)) linked.getOrPut(end) { mutableListOf() } += listOfNotNull(Stamp(l.madeHlc, l.madeDevice), Stamp(l.goneHlc, l.goneDevice).takeIf { l.deletedAt == null })
+            }
+            for (l in readChunked(trashed.map { it.id }) { links.relationsOf(it) }) {
+                for (end in listOf(l.pageA, l.pageB)) linked.getOrPut(end) { mutableListOf() } += listOfNotNull(Stamp(l.madeHlc, l.madeDevice), Stamp(l.goneHlc, l.goneDevice).takeIf { l.deletedAt == null })
+            }
             val under = pages.filter { it.deletedAt == null }.groupBy { it.parentId }
             val byId = pages.associateBy { it.id }
             val found = HashMap<String, Stamp>()
@@ -392,7 +403,7 @@ internal class PageRepository(
                     blocks[p.id].orEmpty().flatMap { it.edits() + Stamp(it.goneHlc, it.goneDevice) } +
                     labels[p.id].orEmpty().flatMap { listOf(Stamp(it.madeHlc, it.madeDevice), Stamp(it.goneHlc, it.goneDevice)) } +
                     under[p.id].orEmpty().map { Stamp(it.placeHlc, it.placeDevice) } +
-                    cells[p.id].orEmpty() + picks[p.id].orEmpty() + schema[p.id].orEmpty() + board[p.id].orEmpty()
+                    cells[p.id].orEmpty() + picks[p.id].orEmpty() + schema[p.id].orEmpty() + board[p.id].orEmpty() + linked[p.id].orEmpty()
                 val newest = latestByHand(parts) ?: continue
                 for (q in generateSequence(p) { byId[it.parentId] }.take(pages.size)) {
                     val gone = Stamp(q.goneHlc, q.goneDevice)
@@ -417,7 +428,10 @@ internal class PageRepository(
         val owner = properties.associate { it.id to it.databaseId }
         val out = HashMap<String, MutableList<Stamp>>()
         fun add(db: String, vararg s: Stamp) { out.getOrPut(db) { mutableListOf() } += s }
-        shells.forEach { add(it.pageId, Stamp(it.doorwayHlc, it.doorwayDevice), Stamp(it.lookHlc, it.lookDevice)) }
+        shells.forEach { s ->
+            add(s.pageId, Stamp(s.doorwayHlc, s.doorwayDevice), Stamp(s.lookHlc, s.lookDevice))
+            s.blockedHlc?.let { add(s.pageId, Stamp(it, requireNotNull(s.blockedDevice))) }
+        }
         properties.forEach { add(it.databaseId, Stamp(it.nameHlc, it.nameDevice), Stamp(it.typeHlc, it.typeDevice), Stamp(it.placeHlc, it.placeDevice)) }
         readChunked(owner.keys.toList()) { databases.optionsOf(it) }.forEach {
             add(owner.getValue(it.propertyId), Stamp(it.nameHlc, it.nameDevice), Stamp(it.lookHlc, it.lookDevice), Stamp(it.placeHlc, it.placeDevice), Stamp(it.goneHlc, it.goneDevice))
@@ -484,9 +498,21 @@ internal class PageRepository(
     private suspend fun block(id: String) = requireNotNull(dao.blocks(listOf(id)).singleOrNull()) { "no block $id" }
 
     private suspend fun live(id: String) = requireNotNull(dao.pages(listOf(id)).singleOrNull()?.takeIf { it.deletedAt == null }) { "no page $id" }
+
+    /** A page another goes under: live, and not a template, which is kept out of the tree. */
+    private suspend fun parent(id: String) = live(id).also { require(it.isTemplate != true) { "nothing goes under a template" } }
 }
 
 private const val KEPT = 50
+
+/** How [ids] read as pages a card or a link points at: live, in the Trash, deleted for good (in the purge registry), or not on this device yet. */
+internal suspend fun pageStates(db: FactotumDatabase, ids: List<String>): Map<String, PageState> {
+    val pages = readChunked(ids.distinct()) { db.pageDao().pages(it) }.associateBy { it.id }
+    val purged = readChunked(ids.distinct().filter { it !in pages }) { db.syncDao().purges(it) }.map { it.id }.toSet()
+    return ids.associateWith { id ->
+        pages[id]?.let { if (it.deletedAt == null) PageState.LIVE else PageState.TRASHED } ?: if (id in purged) PageState.DELETED else PageState.ABSENT
+    }
+}
 
 /**
  * A stamp the app wrote by itself, not a person: a revival, a merge, a lift or a carry. It is the
@@ -500,9 +526,9 @@ internal val Stamp.byHand get() = !device.endsWith("~")
 /** The latest of [stamps] a person wrote, if any. */
 internal fun latestByHand(stamps: List<Stamp>): Stamp? = stamps.filter { it.byHand }.maxOrNull()
 
-/** A page's row as made: [kind] is PAGE or a database's [DATABASE_KIND]. */
-internal fun newPageRow(id: String, s: Stamp, title: String, icon: String?, parentId: String?, kind: String) = Row(PAGE, id, mapOf(
-    MADE to Group(s, mapOf("kind" to kind)),
+/** A page's row as made: [kind] is PAGE, a database's [DATABASE_KIND] or a canvas's [CANVAS_KIND]; [template] a template's. */
+internal fun newPageRow(id: String, s: Stamp, title: String, icon: String?, parentId: String?, kind: String, template: Boolean = false) = Row(PAGE, id, mapOf(
+    MADE to Group(s, mapOf("kind" to kind, "is_template" to template)),
     PAGE_TITLE to Group(s, mapOf("title" to title, "icon" to icon)),
     PLACE to Group(s, mapOf("parent_id" to parentId)),
     GONE to Group(s, mapOf("deleted_at" to null)),

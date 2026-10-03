@@ -55,7 +55,7 @@ private val SOURCES = listOf(
         "$.deleted_at IS NULL AND TRIM(COALESCE($.label, '') || ' ' || COALESCE($.note, '')) <> ''", listOf("label", "note", "deleted_at"),
     ),
     Source(SearchKind.SPAN, "time_span", "$.comment", "$.deleted_at IS NULL AND TRIM(COALESCE($.comment, '')) <> ''", listOf("comment", "deleted_at")),
-    Source(SearchKind.PAGE, "page", "$.title", "$.deleted_at IS NULL AND TRIM($.title) <> ''", listOf("title", "deleted_at")),
+    Source(SearchKind.PAGE, "page", "$.title", "$.deleted_at IS NULL AND $.is_template IS NOT 1 AND TRIM($.title) <> ''", listOf("title", "deleted_at")),
     Source(SearchKind.BLOCK, "block", "$.content", "$.deleted_at IS NULL AND TRIM($.content) <> ''", listOf("content", "deleted_at")),
 )
 

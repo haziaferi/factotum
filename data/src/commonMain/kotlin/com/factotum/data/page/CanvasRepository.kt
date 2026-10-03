@@ -33,21 +33,20 @@ data class CanvasEdge(val id: String, val from: String, val to: String, val dire
  * later edit that brings it back brings them back too (owner, 2026-10-03).
  */
 internal class CanvasRepository(
-    db: FactotumDatabase,
+    private val db: FactotumDatabase,
     private val writes: LocalWrites,
     private val newId: () -> String,
     private val pages: PageRepository,
 ) {
     private val dao = db.canvasDao()
     private val pageDao = db.pageDao()
-    private val syncDao = db.syncDao()
     private val clock = writes.clock
 
     /** A new canvas page under [parentId], laid out freely. */
     suspend fun create(title: String, parentId: String? = null): String {
         val id = newId()
         writes.write({
-            parentId?.let { livePage(it) }
+            parentId?.let { p -> require(livePage(p).isTemplate != true) { "nothing goes under a template" } }
             mapOf(PAGE to listOf(id), PAGE_CANVAS to listOf(canvasShellId(id)))
         }) { store, _ ->
             val s = clock.tick()
@@ -72,7 +71,7 @@ internal class CanvasRepository(
 
     /** A card showing [pageId]. */
     suspend fun addPageCard(canvasId: String, pageId: String, x: Double, y: Double): String =
-        add(canvasId, NodeType.PAGE_EMBED, x, y, "", pageId, null, null, null) { livePage(pageId) }
+        add(canvasId, NodeType.PAGE_EMBED, x, y, "", pageId, null, null, null) { require(livePage(pageId).isTemplate != true) { "a template is not shown on a board" } }
 
     /** A frame: what lies wholly inside its box is in it (Tendril's rule, worked out by the screen that draws the boxes). */
     suspend fun addFrame(canvasId: String, x: Double, y: Double, width: Double, height: Double, label: String = ""): String {
@@ -84,14 +83,12 @@ internal class CanvasRepository(
     suspend fun nodes(canvasId: String): List<CanvasNode> {
         val nodes = dao.nodesOf(canvasId).filter { it.deletedAt == null }
         val byId = nodes.associateBy { it.id }
-        val refIds = nodes.mapNotNull { it.pageRef }.distinct()
-        val refs = readChunked(refIds) { pageDao.pages(it) }.associateBy { it.id }
-        val purged = readChunked(refIds.filter { it !in refs }) { syncDao.purges(it) }.map { it.id }.toSet()
+        val states = pageStates(db, nodes.mapNotNull { it.pageRef })
         return nodes.sortedWith(compareBy({ it.type != NodeType.FRAME.name }, { it.zKey }, { it.id })).map { n ->
             CanvasNode(
                 n.id, NodeType.valueOf(n.type), n.x, n.y, n.width, n.height, n.text, n.hue?.toInt(), shownParent(n, byId), n.folded,
                 n.structure?.let(CanvasStructure::valueOf), n.pageRef,
-                n.pageRef?.let { r -> refs[r]?.let { if (it.deletedAt == null) PageState.LIVE else PageState.TRASHED } ?: if (r in purged) PageState.DELETED else PageState.ABSENT },
+                n.pageRef?.let(states::getValue),
             )
         }
     }

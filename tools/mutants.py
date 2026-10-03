@@ -52,6 +52,9 @@ PAGES = "data/src/commonMain/kotlin/com/factotum/data/page/PageRepository.kt"
 PAGE = "data/src/commonMain/kotlin/com/factotum/data/page/Page.kt"
 DBS = "data/src/commonMain/kotlin/com/factotum/data/page/DatabaseRepository.kt"
 CANVAS = "data/src/commonMain/kotlin/com/factotum/data/page/CanvasRepository.kt"
+JOURNAL = "data/src/commonMain/kotlin/com/factotum/data/page/JournalRepository.kt"
+RELS = "data/src/commonMain/kotlin/com/factotum/data/page/RelationRepository.kt"
+TEMPL = "data/src/commonMain/kotlin/com/factotum/data/page/TemplateRepository.kt"
 
 # slice -> [(name, file, old, new, test task, tests that must fail)]
 SLICES = {
@@ -678,6 +681,44 @@ SLICES = {
          ":data:desktopTest", {'aLineStaysBetweenTheCardsItWasDrawnBetween'}),
         ('frames draw over cards', CANVAS, 'compareBy({ it.type != NodeType.FRAME.name }, { it.zKey }, { it.id })', 'compareBy({ it.zKey }, { it.id })',
          ":data:desktopTest", {'framesAreDrawnFirstAndBringToFrontPutsACardOnTop'}),
+    ],
+    "12d": [
+        ('opening a day takes a fresh stamp', JOURNAL, 'writes.merger.created(store, newPageRow(page, JOURNAL_STAMP, title, null, parent, "PAGE"))', 'writes.merger.created(store, newPageRow(page, clock.tick(), title, null, parent, "PAGE"))',
+         ":data:desktopTest", {'openingADayTrashedElsewhereLeavesItInTheTrashAndWritingInItBringsItBack'}),
+        ('today ignores the day boundary', JOURNAL, 'day(dayOf(now, personal.dayStart()))', 'day(now.date)',
+         ":data:desktopTest", {'todayIsThePersonalDayAndARenamedDayStaysTheDay'}),
+        ('a purged day stays purged', JOURNAL, '                if (page in purged) {\n', '                if (false) {\n',
+         ":data:desktopTest", {'aDayDeletedForGoodAndOpenedAgainIsAPageEveryDeviceGets'}),
+        ('a Road Map link stays on', RELS, 'targets.getValue(PAGE_RELATION).forEach { store.put(requireNotNull(store.row(it)).edit(GONE, s, mapOf("deleted_at" to s.hlc))) }', '',
+         ":data:desktopTest", {'aRoadMapLinkIsOnePerPairCanBeTakenOffAndComesBackWhenMadeAgain'}),
+        ('a Road Map link made again stays off', RELS, 'store.put(row.edit(GONE, s, mapOf("deleted_at" to null)))', 'Unit',
+         ":data:desktopTest", {'aRoadMapLinkIsOnePerPairCanBeTakenOffAndComesBackWhenMadeAgain'}),
+        ('links leave revive', PAGES, ' + linked[p.id].orEmpty()', '',
+         ":data:desktopTest", {'aLinkMadeToAPageTrashedElsewhereBringsItBack'}),
+        ('an unlink revives', PAGES, 'for (end in listOf(l.pageA, l.pageB)) linked.getOrPut(end) { mutableListOf() } += listOfNotNull(Stamp(l.madeHlc, l.madeDevice), Stamp(l.goneHlc, l.goneDevice).takeIf { l.deletedAt == null })', 'for (end in listOf(l.pageA, l.pageB)) linked.getOrPut(end) { mutableListOf() } += listOf(Stamp(l.madeHlc, l.madeDevice), Stamp(l.goneHlc, l.goneDevice))',
+         ":data:desktopTest", {'aLinkTakenOffAfterATrashElsewhereLeavesThePageInTheTrash'}),
+        ('blocked-by is no schema edit', PAGES, '            s.blockedHlc?.let { add(s.pageId, Stamp(it, requireNotNull(s.blockedDevice))) }\n', '',
+         ":data:desktopTest", {'choosingWhatBlocksADatabaseTrashedElsewhereBringsItBack'}),
+        ('a relation reads one side', DBS, 'val (row, other) = if (q.id == l.propertyId) l.pageId to l.targetId else l.targetId to l.pageId', 'val (row, other) = l.pageId to l.targetId',
+         ":data:desktopTest", {'aRelationIsTwoColumnsReadingOneLinkAndLinksMadeApartBothStay'}),
+        ('a dead pair holds the links', DBS, 'private fun stored(p: PropertyEntity, pairHere: Boolean) = if (pairHere) minOf(p.id, requireNotNull(p.pairPropertyId)) else p.id', 'private fun stored(p: PropertyEntity, pairHere: Boolean) = minOf(p.id, p.pairPropertyId ?: p.id)',
+         ":data:desktopTest", {'aRelationColumnKeptAfterItsPairWasDeletedElsewhereStillLinks'}),
+        ('a trashed blocker blocks', DBS, '.any { states[it] == PageState.LIVE }', '.any { states[it] != PageState.DELETED }',
+         ":data:desktopTest", {'aRelationWithinOneDatabaseReadsEachWayInItsTwoColumnsAndSaysWhatBlocks'}),
+        ("a relation outlives its pair's deletion", DBS, 'listOfNotNull(id, p.pairPropertyId?.takeIf { dao.properties(listOf(it)).isNotEmpty() })', 'listOf(id)',
+         ":data:desktopTest", {'aRelationNeverChangesTypeAndGoesWithItsPair'}),
+        ('a link to a page that is no row', DBS, '            require(targetId in members(requireNotNull(p.targetDatabaseId))) { "page $targetId is not a row of ${p.targetDatabaseId}" }\n', '',
+         ":data:desktopTest", {'aRelationNeverChangesTypeAndGoesWithItsPair'}),
+        ("a template's relation adds a column", TEMPL, 'newId().takeIf { !template }', 'newId()',
+         ":data:desktopTest", {'aDatabaseTemplateCopiesItsSchemaViewsAndColourButNoRowsOrDoorway'}),
+        ('a canvas copy loses its mind map', TEMPL, 'parentId = n.parentId?.let(ids::get)', 'parentId = null',
+         ":data:desktopTest", {'aCanvasTemplateCopiesTheWholeBoardMindMapIncluded'}),
+        ('templates are found', SEARCH, 'all { it.deletedAt == null && it.isTemplate != true }', 'all { it.deletedAt == null }',
+         ":data:desktopTest", {'aTemplateIsNotFoundNorAParentAndATrashedOneIsInTheTrash'}),
+        ('templates are in the tree', PAGES, 'it.deletedAt == null && it.isTemplate != true && shownUnder(it, pages) == parentId', 'it.deletedAt == null && shownUnder(it, pages) == parentId',
+         ":data:desktopTest", {'aTemplateCopiesBlocksAndIsKeptOutOfTheTreeAndACopyIsIndependent'}),
+        ('a journal hit has no date', SEARCH, '.title.ifBlank { journalDate(b.pageId)?.toString().orEmpty() }', '.title',
+         ":data:desktopTest", {'aJournalDaysWritingIsFoundUnderItsDate'}),
     ],
 }
 

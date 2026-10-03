@@ -69,6 +69,13 @@ import com.factotum.data.time.TimeDao
 import com.factotum.data.time.TimeSpanEntity
 import com.factotum.data.time.timeSpanTable
 import com.factotum.data.page.BLOCK
+import com.factotum.data.page.LinkDao
+import com.factotum.data.page.PAGE_RELATION
+import com.factotum.data.page.PageRelationEntity
+import com.factotum.data.page.RELATION_LINK
+import com.factotum.data.page.RelationLinkEntity
+import com.factotum.data.page.linkTable
+import com.factotum.data.page.relationTable
 import com.factotum.data.page.CANVAS_EDGE
 import com.factotum.data.page.CANVAS_NODE
 import com.factotum.data.page.CanvasDao
@@ -123,7 +130,7 @@ import com.factotum.data.sync.LostEntity
         SearchTextEntity::class, SearchKeyEntity::class, CheckInEntity::class,
         PageEntity::class, BlockEntity::class, PageLabelEntity::class, PageNoticeEntity::class, PageRevisionEntity::class, LostEntity::class,
         PageDatabaseEntity::class, PropertyEntity::class, OptionEntity::class, PropertyValueEntity::class, ValuePickEntity::class, ViewEntity::class,
-        PageCanvasEntity::class, CanvasNodeEntity::class, CanvasEdgeEntity::class,
+        PageCanvasEntity::class, CanvasNodeEntity::class, CanvasEdgeEntity::class, PageRelationEntity::class, RelationLinkEntity::class,
     ],
     version = SCHEMA_VERSION,
     exportSchema = true,
@@ -131,7 +138,7 @@ import com.factotum.data.sync.LostEntity
         AutoMigration(from = 1, to = 2), AutoMigration(from = 2, to = 3), AutoMigration(from = 3, to = 4), AutoMigration(from = 4, to = 5),
         AutoMigration(from = 5, to = 6), AutoMigration(from = 6, to = 7), AutoMigration(from = 7, to = 8, spec = SeedBlocks::class),
         AutoMigration(from = 8, to = 9), AutoMigration(from = 9, to = 10), AutoMigration(from = 10, to = 11), AutoMigration(from = 11, to = 12), AutoMigration(from = 12, to = 13),
-        AutoMigration(from = 13, to = 14), AutoMigration(from = 14, to = 15), AutoMigration(from = 15, to = 16),
+        AutoMigration(from = 13, to = 14), AutoMigration(from = 14, to = 15), AutoMigration(from = 15, to = 16), AutoMigration(from = 16, to = 17),
     ],
 )
 @ConstructedBy(FactotumDatabaseConstructor::class)
@@ -148,10 +155,11 @@ abstract class FactotumDatabase : RoomDatabase() {
     internal abstract fun pageDao(): PageDao
     internal abstract fun databaseDao(): DatabaseDao
     internal abstract fun canvasDao(): CanvasDao
+    internal abstract fun linkDao(): LinkDao
 }
 
 /** The synced tables, by the name their folder records carry; [SchemaTriggers] queues writes to each for export. */
-internal val SYNCED_TABLES = listOf(SETTING, LABEL, TRACKER, TRACKER_CHOICE, HABIT_BLOCK, ITEM, TIME_SPAN, COMPLETION, REMINDER, OCCURRENCE_EDIT, TRACKER_READING, GOAL, CHECK_IN, PAGE, PAGE_DATABASE, PROPERTY, PROPERTY_OPTION, PAGE_VIEW, PAGE_CANVAS, CANVAS_NODE, CANVAS_EDGE, BLOCK, PAGE_LABEL, PAGE_NOTICE, PROPERTY_VALUE, VALUE_PICK)
+internal val SYNCED_TABLES = listOf(SETTING, LABEL, TRACKER, TRACKER_CHOICE, HABIT_BLOCK, ITEM, TIME_SPAN, COMPLETION, REMINDER, OCCURRENCE_EDIT, TRACKER_READING, GOAL, CHECK_IN, PAGE, PAGE_DATABASE, PROPERTY, PROPERTY_OPTION, PAGE_VIEW, PAGE_CANVAS, CANVAS_NODE, CANVAS_EDGE, BLOCK, PAGE_LABEL, PAGE_NOTICE, PROPERTY_VALUE, VALUE_PICK, PAGE_RELATION, RELATION_LINK)
 
 /** In [SYNCED_TABLES]' order, parents before children, which is the order a snapshot is written in. */
 internal fun FactotumDatabase.syncedTables(): Map<String, RowTable> {
@@ -160,6 +168,7 @@ internal fun FactotumDatabase.syncedTables(): Map<String, RowTable> {
     val pages = pageDao()
     val databases = databaseDao()
     val canvases = canvasDao()
+    val links = linkDao()
     return mapOf(
         SETTING to settingTable(settingDao()), LABEL to labelTable(labelDao()), TRACKER to trackerTable(trackers), TRACKER_CHOICE to choiceTable(trackers), HABIT_BLOCK to habitBlockTable(items), ITEM to itemTable(items),
         TIME_SPAN to timeSpanTable(timeDao()),
@@ -168,7 +177,7 @@ internal fun FactotumDatabase.syncedTables(): Map<String, RowTable> {
         PAGE to pageTable(pages), PAGE_DATABASE to databaseTable(databases), PROPERTY to propertyTable(databases), PROPERTY_OPTION to optionTable(databases),
         PAGE_VIEW to viewTable(databases), PAGE_CANVAS to canvasTable(canvases), CANVAS_NODE to nodeTable(canvases), CANVAS_EDGE to edgeTable(canvases),
         BLOCK to blockTable(pages), PAGE_LABEL to pageLabelTable(pages), PAGE_NOTICE to noticeTable(pages),
-        PROPERTY_VALUE to valueTable(databases), VALUE_PICK to pickTable(databases),
+        PROPERTY_VALUE to valueTable(databases), VALUE_PICK to pickTable(databases), PAGE_RELATION to relationTable(links), RELATION_LINK to linkTable(links),
     ).also { check(it.keys.toList() == SYNCED_TABLES) { "every synced table needs its export triggers" } }
 }
 
@@ -184,4 +193,4 @@ expect object FactotumDatabaseConstructor : RoomDatabaseConstructor<FactotumData
 const val DATABASE_NAME = "factotum.db"
 
 /** The schema's version; a file below it is upgraded by Room's migrations on open. */
-internal const val SCHEMA_VERSION = 16
+internal const val SCHEMA_VERSION = 17

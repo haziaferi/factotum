@@ -1,6 +1,6 @@
 # Factotum — Product & Technical Spec
 
-**Status:** draft v0.23, seeded from the decision register · **Scope:** the merged data model, sync and behaviour rules of Factotum. Screens are not decided and are marked open (§10.1).
+**Status:** draft v0.24, seeded from the decision register · **Scope:** the merged data model, sync and behaviour rules of Factotum. Screens are not decided and are marked open (§10.1).
 **Related documents:** `decisions/`, the evidence behind §3: one ADR per decision with verified `file:line` facts, the scored options, the behaviour cases and the harness that measured them (`decisions/register.md` is the index). This spec states each decision once and points to its ADR for the evidence. It never restates the evidence.
 
 ---
@@ -9,6 +9,7 @@
 
 | Version | Summary | Sections touched |
 |---|---|---|
+| v0.24 | Slice 12d built: the journal on fixed ids, Road Map links and database relations that can be removed and made again, always two-way relations from one stored link, blocked-by, and templates that copy structure; slice 12 and the schema slices are done | §3.12, §5.2, §7 |
 | v0.23 | Open item 12 fixed: an import that takes back a purge reads the folder again, so the rows the purge took through the foreign keys come back | §10 |
 | v0.22 | Slice 12c built: the canvas, cards and lines per group, revive with what was deleted together, page cards that survive a purge, the app's own writes marked so revive never reads them as edits; a purge undone by a later edit is an open item | §3.12, §5.2, §7, §10 |
 | v0.21 | Slice 12b built: page databases with properties, options as rows, cells kept when replaced, Multi-select picks as rows, views, membership by sub-page and label, with the owner's answers on databases | §3.12, §5.2, §7 |
@@ -358,7 +359,7 @@ The device id is not a setting.
 ### 3.12 Page merge — ADR 12
 
 **Decided:** **per-row+revive.**
-- Blocks, property values, canvas nodes and edges, and database views are rows with §3.1 stamps and tombstones. Relations stay add-only, and the property schema stays upsert-by-uid.
+- Blocks, property values, canvas nodes and edges, and database views are rows with §3.1 stamps and tombstones. Relations stay add-only, and the property schema stays upsert-by-uid. **[Amended 2026-10-03]** A Road Map link can be removed and made again, and a relation column's link likewise (owner); a Road Map link stays undirected, one row per pair.
 - Block order is a fractional key.
 - A later edit to any part restores a trashed page. **[Amended]** This is a deliberate exception to §3.1's group rule, and it applies to pages only.
 - On a clash within the same paragraph, the later text wins. The losing part (block, cell or canvas node) goes to History, and a "replaced by a sync" notice appears.
@@ -397,6 +398,12 @@ The device id is not a setting.
 - **Moves** are written when a card is dropped, carrying its mind-map subtree (frames do not ride along). Frame membership stays geometric, worked out by the screen that draws the boxes: carrying a frame's contents is a bulk move of the cards it holds. Tidy layouts wait for the screens.
 - **A page card** reads its page as live, in the Trash, deleted for good (in the purge registry), or not on this device yet.
 - **History** holds a canvas's cards and lines, each group as a record line encodes it, and gives them back by id; a card's text and a line's label are kept when replaced, with a notice.
+
+**Built, slice 12d (2026-10-03):** the journal, links and templates, in `com.factotum.data.page` (`JournalRepository`, `RelationRepository`, `TemplateRepository`, and relations in `DatabaseRepository`), with the owner's answers (`JournalLinksTemplatesTest`). What the build settled, none of which changes the decision:
+- **The journal** is `journal:root` and one page per personal day, `journal:<date>`, so a day is found by its id, whatever its title. Both are made with one fixed stamp, the app's and the lowest there is: two devices that open a day write the same rows, and opening a day never outranks a trash, a move or a rename made elsewhere. A day this device knows was deleted for good is made again with a fresh stamp; a purge it has not heard of holds against what it writes there meanwhile, as for any page. Writing in a day trashed elsewhere brings it back (revive); a day this device knows is in the Trash is restored from the Trash, a screen's matter. A day with no title is found in search under its date.
+- **Road Map links** are `page_relation`, one row per pair (`relation:<lower>:<higher>`), removed and made again by their deletion. A link made, or made again, counts for both pages in revive; one taken off does not.
+- **Database relations** are two RELATION columns, each naming its database and its pair, made in one write; the reverse is named after the source. Their links are `relation_link` rows held under the pair's lower-id column, from its side (`link:<column>:<row>:<target>`), so the two columns read one row and never disagree; a column whose pair was deleted on another device keeps its links under its own id. Neither page of a link has a foreign key, so a page deleted for good reads as a placeholder from either side. A type never changes to or from a relation, and deleting either column deletes both. A database's blocked-by is a relation within it; a row is blocked while a linked row is live, and choosing it is a schema edit for revive.
+- **Templates** carry `is_template` in the page's making, are kept out of the tree, rows, links, pickers and search, can be no page's parent, and are listed apart (`templates()`); the Trash shows them. A copy, in one write and with new ids throughout, takes a page's blocks (nesting and references inside them follow), a database's shell colour, properties, live options and views (their settings follow; a filter naming source rows is dropped), and a canvas's board with its mind-map links. A relation column's copy relates to the same database with a new matching column there, made only for a page, never for a template, which stays out of every database.
 
 ### 3.13 Sync folder layout — ADR 13
 
@@ -486,7 +493,7 @@ The device id is not a setting.
 | Items | `item` (TASK, EVENT, REMINDER, HABIT, ACTIVITY), `completion`, `reminder`, `occurrence_edit`, `time_span` | §3.2, §3.3, §3.6, §3.7, §3.11 |
 | Trackers | `tracker`, `tracker_choice`, `tracker_reading`, `goal`, `saved_chart` | §2, §3.6 |
 | Check-in & regulation | `check_in`, `sensory_log`, `masking_entry`, `regulation_event`, `pending_outcome`, `daily_index` | §3.5, §2 |
-| Pages | `page`, `block`, `page_database`, `property`, `property_option`, `property_value`, `value_pick`, `page_view`, `page_canvas`, `canvas_node`, `canvas_edge`; with 12d, `page_relation` | §2, §3.12 |
+| Pages | `page`, `block`, `page_database`, `property`, `property_option`, `property_value`, `value_pick`, `page_view`, `page_canvas`, `canvas_node`, `canvas_edge`, `page_relation`, `relation_link` | §2, §3.12 |
 | Labels | `label`, `page_label` | §3.8 |
 | Page notices | `page_notice` (the replaced-by-a-sync notice) | §3.12 |
 | Other | `checklist`, `checklist_item`, `habit_block`, `setting` (PERSONAL only), `purge_registry` | §2, §3.9, §3.1 |
@@ -522,7 +529,7 @@ The four source apps are the owner's own. The only third-party code found so far
    - The guard recovers only from SQLITE_CORRUPT and SQLITE_NOTADB. A locked or full database is rethrown, and its file is left in place.
    - It moves the `-journal`, `-wal` and `-shm` files with the database.
    - Tests cover both drivers, with a control showing that the stock Android driver deletes a corrupt file. Wiring the guard into the Room open path comes with slice 01.
-2. **Schema slices in ADR dependency order:** 01 → 02 → 03 → 04 → 11 → 06 → 07 → 08 → 09 → 10 → 05 → 12. Each slice is done when its ADR cases pass as tests against the real implementation (§3). Spikes 1 and 3 run with slice 10. Spike 5 needs the Android shell and a device, so it runs with the shell (step 4). **Slice 01: done 2026-10-01** (§3.1), with its folder importer and exporter (§3.13). **Slice 02: done 2026-10-01** (§3.2). **Slice 03: done 2026-10-02** (§3.3). **Slice 04: done 2026-10-02** (§3.4), except spike 5, which needs the Android shell. **Slice 11: done 2026-10-02** (§3.11). **Slice 06: done 2026-10-02** (§3.6), with PLANNED. **Slice 07: done 2026-10-02** (§3.7). **Slice 08: done 2026-10-02** (§3.8), but for its page cases, which come with slice 12. **Slice 09: done 2026-10-02** (§3.9). **Slice 10: done 2026-10-03** (§3.10), but for its page cases, which come with slice 12, and the device halves of spikes 1 and 3, which come with the Android shell. **Slice 05: done 2026-10-03** (§3.5). **Slice 12a: done 2026-10-03** (§3.12): pages, blocks, labels on pages, page search, History, the notice and revive; **Slice 12b: done 2026-10-03** (§3.12): databases. **Slice 12c: done 2026-10-03** (§3.12): the canvas. 12d (journal, relations, templates) follows.
+2. **Schema slices in ADR dependency order:** 01 → 02 → 03 → 04 → 11 → 06 → 07 → 08 → 09 → 10 → 05 → 12. Each slice is done when its ADR cases pass as tests against the real implementation (§3). Spikes 1 and 3 run with slice 10. Spike 5 needs the Android shell and a device, so it runs with the shell (step 4). **Slice 01: done 2026-10-01** (§3.1), with its folder importer and exporter (§3.13). **Slice 02: done 2026-10-01** (§3.2). **Slice 03: done 2026-10-02** (§3.3). **Slice 04: done 2026-10-02** (§3.4), except spike 5, which needs the Android shell. **Slice 11: done 2026-10-02** (§3.11). **Slice 06: done 2026-10-02** (§3.6), with PLANNED. **Slice 07: done 2026-10-02** (§3.7). **Slice 08: done 2026-10-02** (§3.8), but for its page cases, which come with slice 12. **Slice 09: done 2026-10-02** (§3.9). **Slice 10: done 2026-10-03** (§3.10), but for its page cases, which come with slice 12, and the device halves of spikes 1 and 3, which come with the Android shell. **Slice 05: done 2026-10-03** (§3.5). **Slice 12a: done 2026-10-03** (§3.12): pages, blocks, labels on pages, page search, History, the notice and revive; **Slice 12b: done 2026-10-03** (§3.12): databases. **Slice 12c: done 2026-10-03** (§3.12): the canvas. **Slice 12d: done 2026-10-03** (§3.12): the journal, links and templates. With it every schema slice is done; what remains of step 2 is the device halves of spikes 1, 3 and 5, which need the Android shell.
 3. **The sole-owner modules of §2.**
 4. **Screens**, after §10.1.
 
