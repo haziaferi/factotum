@@ -115,7 +115,7 @@ internal class ItemRepository(
      * time by `ActivityRepository`. A row's task is deleted with its row, as they are one thing
      * (rows as tasks, answer 17).
      */
-    suspend fun delete(id: String) = pageOfRowTask(id)?.takeIf { rowIsLive(id, it) }?.let { trashPage(db, writes, it) } ?: writes.write({
+    suspend fun delete(id: String) = pageOfRowTask(id)?.takeIf { rowIsLive(id, it) }?.let { trashPage(db, writes, it, now()) } ?: writes.write({
         val ids = listOf(id) + dao.liveChildren(id)
         mapOf(ITEM to ids, TIME_SPAN to times.runningOf(ids))
     }) { store, targets ->

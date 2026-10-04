@@ -123,9 +123,11 @@ class RowTasksTest {
         go { a.pages.restore(c.bins) }
         assertEquals(false, go { a.items.item(task) }?.deleted)
 
-        // Trashing the database trashes its rows' tasks (Tendril left them live).
+        // Trashing the database trashes its rows' tasks (Tendril left them live), and stops their timers.
+        val span = go { a.time.start(task, LocalDateTime(2026, 10, 5, 11, 0)) }
         go { a.pages.trash(c.db) }
         assertEquals(true, go { a.items.item(task) }?.deleted)
+        assertNotNull(go { a.db.timeDao().spans(listOf(span)) }.single().endedAt)
         go { a.pages.restore(c.db) }
         assertEquals(false, go { a.items.item(task) }?.deleted)
 

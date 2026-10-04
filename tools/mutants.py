@@ -825,6 +825,8 @@ SLICES = {
          ":data:desktopTest", {'turningRowsAsTasksOffTrashesTheTasksAndTheColumnsKeepTheirValues'}),
         ('a rich repeat freezes as its rule', ROWT, 'TaskRole.RECURRENCE -> cell?.text?.takeIf { !cell.fixed }', 'TaskRole.RECURRENCE -> cell?.text',
          ":data:desktopTest", {'unbindingFreezesTheValueAndARicherRepeatShowsReadOnlyAndFreezesEmpty'}),
+        ('a row trash leaves its timer running', PAGEREPO, 'endRunning(store, targets.getValue(TIME_SPAN), at, s)', 'Unit',
+         ":data:desktopTest", {'deletingTheTaskTrashesTheRowAndTheRowCarriesItsTask'}),
         ('a database trash leaves the tasks live', PAGEREPO, 'targets.getValue(ITEM).forEach { store.put(requireNotNull(store.row(it)).edit(SCHEDULE, automatic(s), mapOf("deleted_at" to s.hlc))) }', 'Unit',
          ":data:desktopTest", {'deletingTheTaskTrashesTheRowAndTheRowCarriesItsTask'}),
         ('an interval of 0 days', 'core/src/commonMain/kotlin/com/factotum/core/recurrence/Interval.kt', 'n.toIntOrNull()?.takeIf { it in 1..MAX_EVERY }', 'n.toIntOrNull()',

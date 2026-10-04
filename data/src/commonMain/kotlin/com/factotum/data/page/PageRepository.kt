@@ -13,6 +13,10 @@ import com.factotum.data.item.DETAILS
 import com.factotum.data.item.ITEM
 import com.factotum.data.item.ItemEntity
 import com.factotum.data.item.SCHEDULE
+import com.factotum.data.time.TIME_SPAN
+import com.factotum.data.time.endRunning
+import com.factotum.data.time.localNow
+import kotlinx.datetime.LocalDateTime
 import com.factotum.data.sync.RecordCodec
 import com.factotum.data.sync.readChunked
 import kotlinx.serialization.json.Json
@@ -66,6 +70,8 @@ internal class PageRepository(
     private val newId: () -> String,
     /** The wall clock History's times are read from, in milliseconds. */
     private val wallMillis: () -> Long,
+    /** The wall clock as a local date-time: a row trashed here stops its task's running timer then. */
+    private val now: () -> LocalDateTime = ::localNow,
 ) {
     private val dao = db.pageDao()
     private val databases = db.databaseDao()
@@ -104,7 +110,7 @@ internal class PageRepository(
     }) { store, _ -> store.put(requireNotNull(store.row(id)).edit(PLACE, clock.tick(), mapOf("parent_id" to parentId))) }
 
     /** Trashes [id] and every live page under it, with one stamp, so a restore brings the branch back together (owner, 2026-10-03). */
-    suspend fun trash(id: String) = trashPage(db, writes, id)
+    suspend fun trash(id: String) = trashPage(db, writes, id, now())
 
     /** Restores [id] and the pages under it that went to the trash with it. */
     suspend fun restore(id: String) = writes.write({
@@ -553,18 +559,21 @@ internal suspend fun changePageTitle(db: FactotumDatabase, writes: LocalWrites, 
 /**
  * Trashes [id] and every live page under it, with one stamp, and the tasks of those that are rows
  * (rows as tasks, answer 17), stamped as the app's just above the trash, so a task edited after it
- * elsewhere wins and brings the row back (answer 18).
+ * elsewhere wins and brings the row back (answer 18); their running timers stop [at], as a task's
+ * do when it is deleted (owner, 2026-10-02).
  */
-internal suspend fun trashPage(db: FactotumDatabase, writes: LocalWrites, id: String) {
+internal suspend fun trashPage(db: FactotumDatabase, writes: LocalWrites, id: String, at: LocalDateTime) {
     val dao = db.pageDao()
     writes.write({
         requireNotNull(dao.pages(listOf(id)).singleOrNull()?.takeIf { it.deletedAt == null }) { "no page $id" }
         val gone = listOf(id) + branch(id, dao.allPages()) { true }.filter { it.deletedAt == null }.map { it.id }
-        mapOf(PAGE to gone, ITEM to rowTasks(db, gone) { it.deletedAt == null })
+        val tasks = rowTasks(db, gone) { it.deletedAt == null }
+        mapOf(PAGE to gone, ITEM to tasks, TIME_SPAN to db.timeDao().runningOf(tasks))
     }) { store, targets ->
         val s = writes.clock.tick()
         targets.getValue(PAGE).forEach { store.put(requireNotNull(store.row(it)).edit(GONE, s, mapOf("deleted_at" to s.hlc))) }
         targets.getValue(ITEM).forEach { store.put(requireNotNull(store.row(it)).edit(SCHEDULE, automatic(s), mapOf("deleted_at" to s.hlc))) }
+        endRunning(store, targets.getValue(TIME_SPAN), at, s)
     }
 }
 

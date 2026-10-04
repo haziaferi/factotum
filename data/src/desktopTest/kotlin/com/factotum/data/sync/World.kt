@@ -4,37 +4,14 @@ import com.factotum.core.sync.Group
 import com.factotum.core.sync.HybridClock
 import com.factotum.core.sync.Row
 import com.factotum.data.FactotumDatabase
-import com.factotum.data.LocalWrites
+import com.factotum.data.Factotum
 import com.factotum.data.item.DETAILS
 import com.factotum.data.item.ITEM
-import com.factotum.data.item.HabitRepository
-import com.factotum.data.item.ItemRepository
-import com.factotum.data.item.OccurrenceRepository
 import com.factotum.data.item.STATUS
 import com.factotum.data.openFactotumDatabase
-import com.factotum.data.reminder.ReminderRepository
-import com.factotum.data.tracker.TrackerRepository
-import com.factotum.data.checkin.CheckInRepository
-import com.factotum.data.chart.ChartRepository
-import com.factotum.data.checkin.LedgerRepository
-import com.factotum.data.checkin.RegulationRepository
-import com.factotum.data.checklist.ChecklistRepository
-import com.factotum.data.page.CanvasRepository
-import com.factotum.data.page.JournalRepository
-import com.factotum.data.page.RelationRepository
-import com.factotum.data.page.TemplateRepository
-import com.factotum.data.page.DatabaseRepository
-import com.factotum.data.page.PageRepository
-import com.factotum.data.page.RowTaskRepository
-import com.factotum.data.image.BlobSync
 import com.factotum.data.image.DesktopImageScaler
-import com.factotum.data.image.ImageRepository
 import com.factotum.data.image.MemoryBlobStore
-import com.factotum.data.label.LabelRepository
 import com.factotum.data.settings.MemorySecretStore
-import com.factotum.data.settings.SettingsRepository
-import com.factotum.data.time.ActivityRepository
-import com.factotum.data.time.TimeRepository
 import com.factotum.data.syncedTables
 import kotlinx.coroutines.runBlocking
 import kotlinx.datetime.LocalDateTime
@@ -79,45 +56,40 @@ internal class World(private val dir: File, seed: Int, private val segmentBytes:
         val db = openFactotumDatabase(File(dir, "$name.db")).database.also { opened += it }
         private val tables = db.syncedTables() + extra
         private var made = 0
-        val writes = LocalWrites(db, clock)
-        private val newId = { "$name-${made++}" }
         /** This device's secret store: a map, as the Keystore or DPAPI would hold it apart from everything else. */
         val secrets = MemorySecretStore()
-        val settings = SettingsRepository(db, writes, secrets)
-        val items = ItemRepository(db, writes, newId)
-        val reminders = ReminderRepository(db, writes, newId, settings)
-        val occurrences = OccurrenceRepository(db, writes, newId, settings)
-        val habits = HabitRepository(db, writes, newId, settings)
-        val trackers = TrackerRepository(db, writes, newId)
-        val time = TimeRepository(db, writes, newId, settings)
-        val activities = ActivityRepository(db, writes, newId, settings)
-        val labels = LabelRepository(db, writes, newId)
-        val checkIns = CheckInRepository(db, writes, newId, settings)
-        val pages = PageRepository(db, writes, newId, { syncthing.now })
-        val databases = DatabaseRepository(db, writes, newId, pages)
-        val canvases = CanvasRepository(db, writes, newId, pages)
-        val journal = JournalRepository(db, writes, settings)
-        val relations = RelationRepository(db, writes)
-        val templates = TemplateRepository(db, writes, newId)
-        val checklists = ChecklistRepository(db, writes, newId)
-        val charts = ChartRepository(db, writes, newId, settings)
-        val regulation = RegulationRepository(db, writes, newId, settings)
-        val ledger = LedgerRepository(db, writes, newId, settings)
-        val rowTasks = RowTaskRepository(db, writes, items, occurrences, databases, settings, now = { now })
         val blobs = MemoryBlobStore()
-        val images = ImageRepository(pages, blobs, DesktopImageScaler())
-        val blobSync = BlobSync(db, syncthing.folder(name), blobs, { syncthing.now })
         /** The wall clock the time rules read, as a local date-time. */
         var now = LocalDateTime(2026, 10, 5, 12, 0)
-        val sync = FolderSync(db, syncthing.folder(name), id, clock, tables, segmentBytes, snapshotEvery, recovered = recovered, afterImport = {
-            labels.mergeDuplicates()
-            time.endFinished(now)
-            rowTasks.settleClashes()
-            pages.settle()
-            databases.settle()
-            canvases.settle()
-            rowTasks.settle()
-        })
+        /** The production wiring, over this device's database and its copy of the folder. */
+        val app = Factotum(
+            db, syncthing.folder(name), id, clock, secrets, blobs, DesktopImageScaler(), { "$name-${made++}" }, { syncthing.now }, { now },
+            recovered = recovered, tables = tables, segmentBytes = segmentBytes, snapshotEvery = snapshotEvery,
+        )
+        val writes = app.writes
+        val settings = app.settings
+        val items = app.items
+        val reminders = app.reminders
+        val occurrences = app.occurrences
+        val habits = app.habits
+        val trackers = app.trackers
+        val time = app.time
+        val activities = app.activities
+        val labels = app.labels
+        val checkIns = app.checkIns
+        val pages = app.pages
+        val databases = app.databases
+        val canvases = app.canvases
+        val journal = app.journal
+        val relations = app.relations
+        val templates = app.templates
+        val checklists = app.checklists
+        val charts = app.charts
+        val regulation = app.regulation
+        val ledger = app.ledger
+        val rowTasks = app.rowTasks
+        val images = app.images
+        val sync = app.sync
 
         fun create(): String = runBlocking { items.createTask("$name@${syncthing.now}") }.also(::record)
 
@@ -142,9 +114,8 @@ internal class World(private val dir: File, seed: Int, private val segmentBytes:
 
         fun rows(): Map<String, Row> = runBlocking { tables.getValue(ITEM).all() }.associateBy { it.id }
 
-        /** Reads the logs, then fetches and collects pictures; a picture is published before the logs are written. */
-        fun import() = runBlocking { sync.import().also { blobSync.exchange() } }
-        fun export() = runBlocking { blobSync.exchange(); sync.export() }
+        fun import() = runBlocking { app.import() }
+        fun export() = runBlocking { app.export() }
 
         fun held(): Map<Pair<String, String>, Group> =
             rows().values.flatMap { r -> r.groups.map { (g, v) -> (r.id to g) to v } }.toMap()
