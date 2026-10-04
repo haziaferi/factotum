@@ -30,6 +30,13 @@ internal class LocalWrites(private val db: FactotumDatabase, val clock: HybridCl
             store.put(requireNotNull(store.row(id)) { "no $table row $id" }.edit(group, s, changes(s)))
         }
 
+    /** As [edit], after [check] inside the transaction: a row that is not live is refused there, not before. */
+    suspend fun edit(table: String, id: String, group: String, check: suspend () -> Unit, changes: (Stamp) -> Map<String, Any?>) =
+        write({ check(); mapOf(table to listOf(id)) }) { store, _ ->
+            val s = clock.tick()
+            store.put(requireNotNull(store.row(id)) { "no $table row $id" }.edit(group, s, changes(s)))
+        }
+
     /** As [write], with the ids found by [ids] inside the transaction, so they cannot change before the write. */
     suspend fun write(ids: suspend () -> Map<String, List<String>>, block: (StagedStore, Map<String, List<String>>) -> Unit) {
         db.useWriterConnection { connection ->

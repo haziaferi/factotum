@@ -20,6 +20,9 @@ import com.factotum.data.page.PAGE_LABEL
 import com.factotum.data.page.CANVAS_EDGE
 import com.factotum.data.page.CANVAS_NODE
 import com.factotum.data.page.PAGE_CANVAS
+import com.factotum.data.chart.CHART_SOURCE
+import com.factotum.data.chart.SAVED_CHART
+import com.factotum.data.checklist.CHECKLIST_ITEM
 import com.factotum.data.page.PAGE_DATABASE
 import com.factotum.data.page.PAGE_RELATION
 import com.factotum.data.page.RELATION_LINK
@@ -201,6 +204,8 @@ internal object SchemaTriggers : RoomDatabase.Callback() {
         TIME_SPAN to spanRules,
         LABEL to labelRules,
         CHECK_IN to checkInRules,
+        SAVED_CHART to "NEW.chart_type IN ('LINE', 'BAR', 'PIE') AND NEW.range_days > 0",
+        CHART_SOURCE to "NEW.source_kind IN ('ACTIVITY', 'TRACKER')",
     )
 
     private val statements: List<String> = buildList {
@@ -228,7 +233,8 @@ internal object SchemaTriggers : RoomDatabase.Callback() {
         // ADR 12: a block stays on its page, and a page label, a notice, a database's parts and a cell on what they were made for.
         for ((table, columns) in listOf(BLOCK to listOf("page_id"), PAGE_LABEL to listOf("page_id", "label_id"), PAGE_NOTICE to listOf("page_id", "row_id"),
             PAGE_DATABASE to listOf("page_id"), PROPERTY to listOf("database_id", "target_database_id", "pair_property_id"),
-            PAGE_RELATION to listOf("page_a", "page_b"), RELATION_LINK to listOf("property_id", "page_id", "target_id"), PROPERTY_OPTION to listOf("property_id"), PROPERTY_VALUE to listOf("page_id", "property_id"),
+            PAGE_RELATION to listOf("page_a", "page_b"), RELATION_LINK to listOf("property_id", "page_id", "target_id"),
+            CHECKLIST_ITEM to listOf("checklist_id"), SAVED_CHART to listOf("chart_type"), CHART_SOURCE to listOf("chart_id", "source_kind", "source_id"), PROPERTY_OPTION to listOf("property_id"), PROPERTY_VALUE to listOf("page_id", "property_id"),
             VALUE_PICK to listOf("page_id", "property_id", "option_id"), PAGE_VIEW to listOf("database_id"),
             PAGE_CANVAS to listOf("page_id"), CANVAS_NODE to listOf("page_id", "type", "page_ref"), CANVAS_EDGE to listOf("page_id", "from_node_id", "to_node_id"),
         )) {

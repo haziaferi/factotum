@@ -17,9 +17,10 @@ import kotlinx.datetime.LocalTime
 
 /**
  * One hit. [kind] is ITEM, TRACKER, READING (a Log's note), SPAN (a session's comment), PAGE (a
- * page's title) or BLOCK (a block's text); [text] is what matched, with [snippet] marking the
- * matched words between characters 2 and 3; [owner] names what a Log, a session or a block
- * belongs to, archived or not; [at] is the hit's own time; [done]
+ * page's title), BLOCK (a block's text), CHECKLIST (a checklist's name) or CHECKLIST_ITEM (an item's
+ * text); [text] is what matched, with [snippet] marking the
+ * matched words between characters 2 and 3; [owner] names what a Log, a session, a block or an
+ * item belongs to, archived or not; [at] is the hit's own time; [done]
  * marks a finished thing: a task or reminder done or skipped, an event that has ended (owner, 2026-10-03).
  */
 data class SearchHit(
@@ -55,6 +56,7 @@ internal class SearchRepository(db: FactotumDatabase) {
     private val trackers = db.trackerDao()
     private val times = db.timeDao()
     private val pages = db.pageDao()
+    private val checklists = db.checklistDao()
 
     /** Hits for [query] at [now]: an event that has ended by then is marked finished. */
     suspend fun search(query: String, now: LocalDateTime): List<SearchHit> {
@@ -74,6 +76,9 @@ internal class SearchRepository(db: FactotumDatabase) {
         val trackerIds = byKind[SearchKind.TRACKER].orEmpty() + readings.values.map { it.trackerId } + itemRows.values.mapNotNull { it.trackerId }
         val trackerRows = readChunked(trackerIds.distinct()) { trackers.trackers(it) }.associateBy { it.id }
         val blocks = readChunked(byKind[SearchKind.BLOCK]) { pages.blocks(it) }.associateBy { it.id }
+        val checklistItems = readChunked(byKind[SearchKind.CHECKLIST_ITEM]) { checklists.items(it) }.associateBy { it.id }
+        val lists = readChunked((byKind[SearchKind.CHECKLIST].orEmpty() + checklistItems.values.map { it.checklistId }).distinct()) { checklists.checklists(it) }
+            .filter { it.deletedAt == null }.associateBy { it.id }
         // Pages, and the pages above them: what is under a trashed page is not found.
         val pageRows = HashMap<String, PageEntity>()
         var wantedPages = (byKind[SearchKind.PAGE].orEmpty() + blocks.values.map { it.pageId }).toSet()
@@ -103,6 +108,8 @@ internal class SearchRepository(db: FactotumDatabase) {
                     SearchHit(h.kind, s.id, h.text, h.snippet, itemRows.getValue(s.itemId).title, LocalDateTime.parse(s.startedAt), false)
                 }
                 SearchKind.PAGE -> h.rowKey.takeIf(::pageLive)?.let { SearchHit(h.kind, it, h.text, h.snippet, null, null, false) }
+                SearchKind.CHECKLIST -> lists[h.rowKey]?.let { SearchHit(h.kind, it.id, h.text, h.snippet, null, null, false) }
+                SearchKind.CHECKLIST_ITEM -> checklistItems[h.rowKey]?.let { i -> lists[i.checklistId]?.let { SearchHit(h.kind, i.id, h.text, h.snippet, it.name, null, false) } }
                 SearchKind.BLOCK -> blocks[h.rowKey]?.takeIf { pageLive(it.pageId) }?.let { b ->
                     // A journal day with no title of its own reads as its date.
                     SearchHit(h.kind, b.id, h.text, h.snippet, pageRows.getValue(b.pageId).title.ifBlank { journalDate(b.pageId)?.toString().orEmpty() }, null, false)

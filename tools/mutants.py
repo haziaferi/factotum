@@ -56,6 +56,9 @@ JOURNAL = "data/src/commonMain/kotlin/com/factotum/data/page/JournalRepository.k
 RELS = "data/src/commonMain/kotlin/com/factotum/data/page/RelationRepository.kt"
 TEMPL = "data/src/commonMain/kotlin/com/factotum/data/page/TemplateRepository.kt"
 FORMULA = "core/src/commonMain/kotlin/com/factotum/core/formula/Formula.kt"
+CHK = "data/src/commonMain/kotlin/com/factotum/data/checklist/ChecklistRepository.kt"
+CHART = "data/src/commonMain/kotlin/com/factotum/data/chart/ChartRepository.kt"
+CHARTS = "core/src/commonMain/kotlin/com/factotum/core/chart/Charts.kt"
 
 # slice -> [(name, file, old, new, test task, tests that must fail)]
 SLICES = {
@@ -746,6 +749,34 @@ SLICES = {
          ":data:desktopTest", {'aRollupReadsNoRollupAndTwoDatabasesReadingEachOtherDoNotLoop'}),
         ('a text equal to a number never matches', DBS, 'if (cell.number != null && value.toDoubleOrNull() != null) value.toDouble() == cell.number else', 'if (value.toDoubleOrNull() != null) value.toDouble() == cell.number else',
          ":data:desktopTest", {'aComputedColumnOfNumbersAndTextSortsNumbersFirstAndEqualsReadsTextToo'}),
+    ],
+    "s3b": [
+        ('a reset clears nothing', CHK, 'it.checked && Stamp(it.checkHlc, it.checkDevice) > reset', 'it.checked',
+         ":data:desktopTest", {'aResetClearsATickMadeBeforeItEvenWhenTheTickSyncsAfter'}),
+        ('a deleted list keeps its items', CHK, 'targets.getValue(CHECKLIST_ITEM).forEach { item ->', 'emptyList<String>().forEach { item ->',
+         ":data:desktopTest", {'aDeleteWinsOverAnEditMadeApartAndARestoreBringsBackItsItems'}),
+        ('a restore brings back items deleted by hand', CHK, 'it.deletedAt != null && !Stamp(it.goneHlc, it.goneDevice).byHand', 'it.deletedAt != null',
+         ":data:desktopTest", {'anItemDeletedByHandComesBackFromTheTrashAndAListsRestoreTakesBackOnlyWhatItsDeletionTook'}),
+        ("a list's deletion overrides one by hand", CHK, 'automatic(row.groups.getValue(GONE).stamp)', 'automatic(s)',
+         ":data:desktopTest", {'anItemDeletedByHandComesBackFromTheTrashAndAListsRestoreTakesBackOnlyWhatItsDeletionTook'}),
+        ('an item of a deleted list is edited', CHK, '{ "no item $id" }.also { live(it.checklistId) }', '{ "no item $id" }',
+         ":data:desktopTest", {'anItemAddedElsewhereToAListDeletedHereIsNotFound'}),
+        ('a new checklist goes last', CHK, 'keyBetween(null, dao.allChecklists().filter { it.deletedAt == null }.minOfOrNull { it.sortKey })', 'keyBetween(dao.allChecklists().filter { it.deletedAt == null }.maxOfOrNull { it.sortKey }, null)',
+         ":data:desktopTest", {'aNewChecklistComesFirstAndListsAndItemsKeepTheirOrder'}),
+        ('a blank item is taken', CHK, '.also { require(it.isNotEmpty()) { "an item needs text" } }', '',
+         ":data:desktopTest", {'aNewChecklistComesFirstAndListsAndItemsKeepTheirOrder'}),
+        ('an item under a deleted list is found', SEARCH, '.filter { it.deletedAt == null }.associateBy { it.id }', '.associateBy { it.id }',
+         ":data:desktopTest", {'anItemAddedElsewhereToAListDeletedHereIsNotFound'}),
+        ("a chart's day is the calendar's", CHART, 'val today = dayOf(now, dayStart)', 'val today = now.date',
+         ":data:desktopTest", {'aChartShowsAnActivitysMinutesAndATrackersMeanPerPersonalDay'}),
+        ('a day with no reading reads 0', CHART, 'days.map { d -> d to byDay[d]?.average() }', 'days.map { d -> d to (byDay[d]?.average() ?: 0.0) }',
+         ":data:desktopTest", {'aChartShowsAnActivitysMinutesAndATrackersMeanPerPersonalDay'}),
+        ('a source twice on a chart', CHART, '        require(sources.distinct().size == sources.size) { "a source is on a chart once" }\n', '',
+         ":data:desktopTest", {'aNewChartComesFirstAndASourceIsOnAChartOnce'}),
+        ("a week's goal is a day's", CHARTS, 'GoalPeriod.WEEK -> value / 7.0', 'GoalPeriod.WEEK -> value',
+         ":core:desktopTest", {'aGoalIsADailyLine'}),
+        ('a deleted chart stays', CHART, '{ s -> mapOf("deleted_at" to s.hlc) }\n\n    suspend fun restore', '{ mapOf("deleted_at" to null) }\n\n    suspend fun restore',
+         ":data:desktopTest", {'sourcesAddedOnTwoDevicesBothStayAndADeleteWinsOverAnEdit'}),
     ],
 }
 

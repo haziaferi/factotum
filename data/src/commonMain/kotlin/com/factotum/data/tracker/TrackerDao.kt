@@ -149,6 +149,9 @@ internal interface TrackerDao {
     @Query("SELECT * FROM tracker_reading WHERE tracker_id IN (:trackerIds) AND deleted_at IS NULL ORDER BY at, id")
     suspend fun liveReadingsOf(trackerIds: List<String>): List<TrackerReadingEntity>
 
+    @Query("SELECT * FROM tracker_reading WHERE tracker_id IN (:trackerIds) AND deleted_at IS NULL AND at >= :from AND at < :to ORDER BY at, id")
+    suspend fun liveReadingsBetween(trackerIds: List<String>, from: String, to: String): List<TrackerReadingEntity>
+
     /** The latest presence Log of each tracker: a "yes", a rating, or a number above 0 (owner, 2026-10-02). */
     @Query(
         "SELECT tracker_id AS trackerId, MAX(at) AS at FROM tracker_reading WHERE tracker_id IN (:trackerIds) AND deleted_at IS NULL " +

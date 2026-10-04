@@ -33,7 +33,7 @@ internal data class SearchKeyEntity(
 )
 
 /** The kinds the index holds; a page's title is a name, a block's text is found inside a page. */
-internal enum class SearchKind(val isName: Boolean) { ITEM(true), TRACKER(true), READING(false), SPAN(false), PAGE(true), BLOCK(false) }
+internal enum class SearchKind(val isName: Boolean) { ITEM(true), TRACKER(true), READING(false), SPAN(false), PAGE(true), BLOCK(false), CHECKLIST(true), CHECKLIST_ITEM(false) }
 
 /**
  * One table the index reads: its text, and when a row belongs in the index ([live]), both over a
@@ -57,6 +57,9 @@ private val SOURCES = listOf(
     Source(SearchKind.SPAN, "time_span", "$.comment", "$.deleted_at IS NULL AND TRIM(COALESCE($.comment, '')) <> ''", listOf("comment", "deleted_at")),
     Source(SearchKind.PAGE, "page", "$.title", "$.deleted_at IS NULL AND $.is_template IS NOT 1 AND TRIM($.title) <> ''", listOf("title", "deleted_at")),
     Source(SearchKind.BLOCK, "block", "$.content", "$.deleted_at IS NULL AND TRIM($.content) <> ''", listOf("content", "deleted_at")),
+    // Checklists: names first, then the items' text (owner, 2026-10-03, decision 14).
+    Source(SearchKind.CHECKLIST, "checklist", "$.name", "$.deleted_at IS NULL AND TRIM($.name) <> ''", listOf("name", "deleted_at")),
+    Source(SearchKind.CHECKLIST_ITEM, "checklist_item", "$.text", "$.deleted_at IS NULL AND TRIM($.text) <> ''", listOf("text", "deleted_at")),
 )
 
 private fun Source.over(row: String, sql: String) = sql.replace("$", row)

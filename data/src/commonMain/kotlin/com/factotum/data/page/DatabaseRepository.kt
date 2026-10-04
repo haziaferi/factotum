@@ -16,6 +16,7 @@ import com.factotum.core.formula.rewriteKeysMapped
 import com.factotum.core.formula.rollup
 import com.factotum.core.formula.toCellText
 import com.factotum.core.label.LabelScope
+import com.factotum.core.page.keyAfter
 import com.factotum.core.page.keyBetween
 import com.factotum.core.sync.Group
 import com.factotum.core.sync.Row
@@ -170,7 +171,7 @@ internal class DatabaseRepository(
     /** Changes a formula column's expression, checked as [addFormula] checks one. */
     suspend fun setFormula(propertyId: String, expression: String) {
         var stored = ""
-        edit(PROPERTY, propertyId, FORMULA, {
+        writes.edit(PROPERTY, propertyId, FORMULA, {
             val p = property(propertyId)
             require(p.type == PropertyType.COMPUTED.name && p.formula != null) { "${p.name} is not a formula" }
             stored = checkedFormula(p.databaseId, p.id, p.name, expression)
@@ -272,7 +273,7 @@ internal class DatabaseRepository(
         var key = ""
         writes.write({
             shell(databaseId)
-            key = placeAfter(dao.propertiesOf(databaseId).map { it.id to it.sortKey }, after)
+            key = keyAfter(dao.propertiesOf(databaseId).map { it.id to it.sortKey }, after)
             mapOf(PROPERTY to listOf(id))
         }) { store, _ ->
             val s = clock.tick()
@@ -286,11 +287,11 @@ internal class DatabaseRepository(
         return id
     }
 
-    suspend fun renameProperty(id: String, name: String) = edit(PROPERTY, id, NAME, { property(id) }) { mapOf("name" to checkedName(name)) }
+    suspend fun renameProperty(id: String, name: String) = writes.edit(PROPERTY, id, NAME, { property(id) }) { mapOf("name" to checkedName(name)) }
 
     suspend fun moveProperty(id: String, after: String?) {
         var key = ""
-        edit(PROPERTY, id, PLACE, { key = placeAfter(dao.propertiesOf(property(id).databaseId).filter { it.id != id }.map { it.id to it.sortKey }, after) }) { mapOf("sort_key" to key) }
+        writes.edit(PROPERTY, id, PLACE, { key = keyAfter(dao.propertiesOf(property(id).databaseId).filter { it.id != id }.map { it.id to it.sortKey }, after) }) { mapOf("sort_key" to key) }
     }
 
     /**
@@ -354,21 +355,21 @@ internal class DatabaseRepository(
 
     suspend fun renameOption(id: String, name: String) {
         var clean = ""
-        edit(PROPERTY_OPTION, id, NAME, { clean = uniqueOption(liveOption(id).propertyId, name, except = id) }) { mapOf("name" to clean) }
+        writes.edit(PROPERTY_OPTION, id, NAME, { clean = uniqueOption(liveOption(id).propertyId, name, except = id) }) { mapOf("name" to clean) }
     }
 
-    suspend fun recolorOption(id: String, color: Long?) = edit(PROPERTY_OPTION, id, LOOK, { liveOption(id) }) { mapOf("color" to color) }
+    suspend fun recolorOption(id: String, color: Long?) = writes.edit(PROPERTY_OPTION, id, LOOK, { liveOption(id) }) { mapOf("color" to color) }
 
     suspend fun moveOption(id: String, after: String?) {
         var key = ""
-        edit(PROPERTY_OPTION, id, PLACE, {
+        writes.edit(PROPERTY_OPTION, id, PLACE, {
             val option = liveOption(id)
-            key = placeAfter(dao.optionsOf(listOf(option.propertyId)).filter { it.deletedAt == null && it.id != id }.map { it.id to it.sortKey }, after)
+            key = keyAfter(dao.optionsOf(listOf(option.propertyId)).filter { it.deletedAt == null && it.id != id }.map { it.id to it.sortKey }, after)
         }) { mapOf("sort_key" to key) }
     }
 
     /** Deletes an option: the cells that picked it read as empty and keep the pick, which brings it back if made again elsewhere (owner, 2026-10-03). */
-    suspend fun deleteOption(id: String) = edit(PROPERTY_OPTION, id, GONE, { liveOption(id) }) { s -> mapOf("deleted_at" to s.hlc, "merged_into" to null) }
+    suspend fun deleteOption(id: String) = writes.edit(PROPERTY_OPTION, id, GONE, { liveOption(id) }) { s -> mapOf("deleted_at" to s.hlc, "merged_into" to null) }
 
     /** Sets a text, URL, e-mail or phone cell; blank clears it. */
     suspend fun setText(pageId: String, propertyId: String, text: String?) =
@@ -446,17 +447,17 @@ internal class DatabaseRepository(
         var key = ""
         writes.write({
             shell(databaseId)
-            key = placeAfter(dao.viewsOf(databaseId).filter { it.deletedAt == null }.map { it.id to it.sortKey }, null, last = true)
+            key = keyAfter(dao.viewsOf(databaseId).filter { it.deletedAt == null }.map { it.id to it.sortKey }, null, last = true)
             mapOf(PAGE_VIEW to listOf(id))
         }) { store, _ -> writes.merger.created(store, newView(id, databaseId, clock.tick(), checkedName(name), type, key)) }
         return id
     }
 
-    suspend fun renameView(id: String, name: String) = edit(PAGE_VIEW, id, NAME, { liveView(id) }) { mapOf("name" to checkedName(name)) }
+    suspend fun renameView(id: String, name: String) = writes.edit(PAGE_VIEW, id, NAME, { liveView(id) }) { mapOf("name" to checkedName(name)) }
 
     /** A view's layout: its type, the Select a Board groups by, and the dates a Calendar or a Timeline reads. */
     suspend fun setLayout(id: String, type: ViewType, groupBy: String? = null, dateProperty: String? = null, endDateProperty: String? = null) =
-        edit(PAGE_VIEW, id, VIEW_KIND, {
+        writes.edit(PAGE_VIEW, id, VIEW_KIND, {
             val view = liveView(id)
             groupBy?.let { ofType(view.databaseId, it, PropertyType.SELECT) }
             dateProperty?.let { ofType(view.databaseId, it, PropertyType.DATE) }
@@ -464,31 +465,31 @@ internal class DatabaseRepository(
         }) { mapOf("view_type" to type.name, "group_by" to groupBy, "date_property" to dateProperty, "end_date_property" to endDateProperty) }
 
     /** The properties a view shows, in order; null shows them all. */
-    suspend fun setShown(id: String, shown: List<String>?) = edit(PAGE_VIEW, id, VIEW_SHOW, {
+    suspend fun setShown(id: String, shown: List<String>?) = writes.edit(PAGE_VIEW, id, VIEW_SHOW, {
         val view = liveView(id)
         require(shown == null || shown.distinct().size == shown.size) { "a property is shown once" }
         shown?.forEach { ofType(view.databaseId, it, null) }
     }) { mapOf("shown" to shown?.joinToString(",")) }
 
-    suspend fun setSort(id: String, propertyId: String?, descending: Boolean = false) = edit(PAGE_VIEW, id, VIEW_SORT, {
+    suspend fun setSort(id: String, propertyId: String?, descending: Boolean = false) = writes.edit(PAGE_VIEW, id, VIEW_SORT, {
         propertyId?.let { ofType(liveView(id).databaseId, it, null) }
     }) { mapOf("sort_property" to propertyId, "sort_descending" to descending) }
 
-    suspend fun setFilter(id: String, propertyId: String?, op: FilterOp? = null, value: String? = null) = edit(PAGE_VIEW, id, VIEW_FILTER, {
+    suspend fun setFilter(id: String, propertyId: String?, op: FilterOp? = null, value: String? = null) = writes.edit(PAGE_VIEW, id, VIEW_FILTER, {
         require((propertyId == null) == (op == null)) { "a filter has a property and a test" }
         propertyId?.let { ofType(liveView(id).databaseId, it, null) }
     }) { mapOf("filter_property" to propertyId, "filter_op" to op?.name, "filter_value" to value) }
 
     suspend fun moveView(id: String, after: String?) {
         var key = ""
-        edit(PAGE_VIEW, id, PLACE, {
+        writes.edit(PAGE_VIEW, id, PLACE, {
             val view = liveView(id)
-            key = placeAfter(dao.viewsOf(view.databaseId).filter { it.deletedAt == null && it.id != id }.map { it.id to it.sortKey }, after)
+            key = keyAfter(dao.viewsOf(view.databaseId).filter { it.deletedAt == null && it.id != id }.map { it.id to it.sortKey }, after)
         }) { mapOf("sort_key" to key) }
     }
 
     /** Deletes a view; a database keeps at least one. */
-    suspend fun deleteView(id: String) = edit(PAGE_VIEW, id, GONE, {
+    suspend fun deleteView(id: String) = writes.edit(PAGE_VIEW, id, GONE, {
         val view = liveView(id)
         require(dao.viewsOf(view.databaseId).count { it.deletedAt == null } > 1) { "a database keeps one view" }
     }) { s -> mapOf("deleted_at" to s.hlc) }
@@ -761,12 +762,6 @@ internal class DatabaseRepository(
 
     private suspend fun pairHere(p: PropertyEntity) = p.pairPropertyId?.let { dao.properties(listOf(it)).isNotEmpty() } == true
 
-    /** Changes one group of a row, after [check] inside the write. */
-    private suspend fun edit(table: String, id: String, group: String, check: suspend () -> Unit, values: (Stamp) -> Map<String, Any?>) = writes.write({
-        check()
-        mapOf(table to listOf(id))
-    }) { store, _ -> val s = clock.tick(); store.put(requireNotNull(store.row(id)).edit(group, s, values(s))) }
-
     private suspend fun member(pageId: String, property: PropertyEntity, types: Set<PropertyType>) {
         require(PropertyType.valueOf(property.type) in types) { "${property.name} is a ${property.type}" }
         val db = property.databaseId
@@ -809,13 +804,6 @@ internal const val DATABASE_KIND = "DATABASE"
 
 private fun checkedName(name: String): String = nfc(name.trim()).also { require(it.isNotEmpty()) { "a name is needed" } }
 
-/** A key after [after] (first when null, or last when [last]) among (id, key) pairs. */
-private fun placeAfter(siblings: List<Pair<String, String>>, after: String?, last: Boolean = false): String {
-    val ordered = siblings.sortedWith(compareBy({ it.second }, { it.first }))
-    if (last) return keyBetween(ordered.lastOrNull()?.second, null)
-    val before = after?.let { a -> requireNotNull(ordered.firstOrNull { it.first == a }) { "no $a here" }.second }
-    return keyBetween(before, ordered.firstOrNull { before == null || it.second > before }?.second)
-}
 
 /** A stored text read as a Multi-select's: its comma-separated parts. */
 private fun tokensOf(raw: String?): List<String> = raw?.split(',')?.map { it.trim() }?.filter { it.isNotEmpty() }.orEmpty()

@@ -1,6 +1,6 @@
 # Factotum — Product & Technical Spec
 
-**Status:** draft v0.25, seeded from the decision register · **Scope:** the merged data model, sync and behaviour rules of Factotum. Screens are not decided and are marked open (§10.1).
+**Status:** draft v0.26, seeded from the decision register · **Scope:** the merged data model, sync and behaviour rules of Factotum. Screens are not decided and are marked open (§10.1).
 **Related documents:** `decisions/`, the evidence behind §3: one ADR per decision with verified `file:line` facts, the scored options, the behaviour cases and the harness that measured them (`decisions/register.md` is the index). This spec states each decision once and points to its ADR for the evidence. It never restates the evidence.
 
 ---
@@ -9,6 +9,7 @@
 
 | Version | Summary | Sections touched |
 |---|---|---|
+| v0.26 | Step 3: Chronicle's checklists and saved charts, with resets as a stamp, sources as rows and personal-day series | §7, §5.2 |
 | v0.25 | Step 3 begun: formulas and rollups, Tendril's engine ported to `:core` with property ids for keys, computed columns worked out on read so views sort and filter on them | §3.12, §7 |
 | v0.24 | Slice 12d built: the journal on fixed ids, Road Map links and database relations that can be removed and made again, always two-way relations from one stored link, blocked-by, and templates that copy structure; slice 12 and the schema slices are done | §3.12, §5.2, §7 |
 | v0.23 | Open item 12 fixed: an import that takes back a purge reads the folder again, so the rows the purge took through the foreign keys come back | §10 |
@@ -492,12 +493,12 @@ The device id is not a setting.
 | Area | Tables | Home |
 |---|---|---|
 | Items | `item` (TASK, EVENT, REMINDER, HABIT, ACTIVITY), `completion`, `reminder`, `occurrence_edit`, `time_span` | §3.2, §3.3, §3.6, §3.7, §3.11 |
-| Trackers | `tracker`, `tracker_choice`, `tracker_reading`, `goal`, `saved_chart` | §2, §3.6 |
+| Trackers | `tracker`, `tracker_choice`, `tracker_reading`, `goal`, `saved_chart`, `chart_source` | §2, §3.6, §7 |
 | Check-in & regulation | `check_in`, `sensory_log`, `masking_entry`, `regulation_event`, `pending_outcome`, `daily_index` | §3.5, §2 |
 | Pages | `page`, `block`, `page_database`, `property`, `property_option`, `property_value`, `value_pick`, `page_view`, `page_canvas`, `canvas_node`, `canvas_edge`, `page_relation`, `relation_link` | §2, §3.12 |
 | Labels | `label`, `page_label` | §3.8 |
 | Page notices | `page_notice` (the replaced-by-a-sync notice) | §3.12 |
-| Other | `checklist`, `checklist_item`, `habit_block`, `setting` (PERSONAL only), `purge_registry` | §2, §3.9, §3.1 |
+| Other | `checklist`, `checklist_item`, `habit_block`, `setting` (PERSONAL only), `purge_registry` | §2, §3.9, §3.1, §7 |
 
 **Local only, never synced:**
 - `page_revision` and `sync_lost` (§3.12);
@@ -533,6 +534,7 @@ The four source apps are the owner's own. The only third-party code found so far
 2. **Schema slices in ADR dependency order:** 01 → 02 → 03 → 04 → 11 → 06 → 07 → 08 → 09 → 10 → 05 → 12. Each slice is done when its ADR cases pass as tests against the real implementation (§3). Spikes 1 and 3 run with slice 10. Spike 5 needs the Android shell and a device, so it runs with the shell (step 4). **Slice 01: done 2026-10-01** (§3.1), with its folder importer and exporter (§3.13). **Slice 02: done 2026-10-01** (§3.2). **Slice 03: done 2026-10-02** (§3.3). **Slice 04: done 2026-10-02** (§3.4), except spike 5, which needs the Android shell. **Slice 11: done 2026-10-02** (§3.11). **Slice 06: done 2026-10-02** (§3.6), with PLANNED. **Slice 07: done 2026-10-02** (§3.7). **Slice 08: done 2026-10-02** (§3.8), but for its page cases, which come with slice 12. **Slice 09: done 2026-10-02** (§3.9). **Slice 10: done 2026-10-03** (§3.10), but for its page cases, which come with slice 12, and the device halves of spikes 1 and 3, which come with the Android shell. **Slice 05: done 2026-10-03** (§3.5). **Slice 12a: done 2026-10-03** (§3.12): pages, blocks, labels on pages, page search, History, the notice and revive; **Slice 12b: done 2026-10-03** (§3.12): databases. **Slice 12c: done 2026-10-03** (§3.12): the canvas. **Slice 12d: done 2026-10-03** (§3.12): the journal, links and templates. With it every schema slice is done; what remains of step 2 is the device halves of spikes 1, 3 and 5, which need the Android shell.
 3. **The sole-owner modules of §2.** Owner answers 2026-10-03 (`decisions/14-sole-owner-modules.md`): built simplest first, formulas and rollups, then checklists and saved charts, regulation, database rows as tasks, and images.
    - **Formulas and rollups: done 2026-10-03.** Tendril's formula engine (lexer, parser, type checker, dependency graph, evaluator) is in `com.factotum.core.formula`, its 73 tests ported. A COMPUTED column holds, in a group of its own taking the later stamp, a formula stored with property ids for keys (typed and shown with names, so a rename never breaks it) or a rollup (a relation of its database, a value property of the related one, an aggregation). Computed values are worked out when rows are read, so a view sorts and filters on them, numbers before dates before text; a rollup reads the live related rows only, and the related rows without their own rollups, so two databases reading each other never loop. A formula is checked with every other formula of its database when written: a name two columns share, an error, a cycle (the formula's own or one a sync made), or an edit that breaks a formula naming it is refused, the message in names and pointing at what was typed. Changed from Tendril: a box never ticked reads unchecked (Tendril read it blank), a formula may read a rollup, a rollup may not read a rollup or a relation, and a template's copy keeps its formulas working.
+   - **Checklists and saved charts: done 2026-10-04** (`com.factotum.data.checklist`, `com.factotum.data.chart`, `com.factotum.core.chart`). A checklist's name, place, last reset and deletion are groups, and an item's text, tick, place and deletion; a reset is one stamp, and an item reads ticked only when ticked after it, so a tick made before a reset is cleared whenever it syncs. A deletion wins over an edit made apart; a list's deletion takes its items with a stamp just above each one's own, so a restore brings back exactly the items a list's deletion took, on any device, and an item deleted by hand meanwhile stays deleted; an item deleted by hand comes back from the list's Trash. Lists and charts have a manual order, a new one first; items are added last. Names and item text are never blank. Search finds a checklist by name first, then by its items, never under a deleted list. A chart's type is written once; its name, range and place are groups; its sources are rows (`chart_source:<chart>:<kind>:<source>`), so two devices adding one each keep both, and one taken off comes back when added again. A chart's series are the personal days up to the one now is in: an activity's whole minutes, each span on the day it started (§3.7; Chronicle cut sessions at midnight), 0 when none; a tracker's mean reading, none when it had no reading (how to draw that waits for the screens); a deleted source draws nothing; a live recurring goal is a daily line. Chronicle's moving average and goal line are in `:core`.
 4. **Screens**, after §10.1.
 
 **Imports from the source apps are hybrid.**

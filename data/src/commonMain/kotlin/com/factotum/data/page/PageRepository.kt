@@ -1,6 +1,7 @@
 package com.factotum.data.page
 
 import com.factotum.core.page.Placed
+import com.factotum.core.page.keyAfter
 import com.factotum.core.page.keyBetween
 import com.factotum.core.page.outlineOf
 import com.factotum.core.sync.Group
@@ -550,11 +551,7 @@ private const val EDIT_EVERY_MS = 10 * 60 * 1000L
  * The key after the sibling [after] (first when null) among [siblings]. Siblings two devices placed
  * at one key read in id order, so the new key goes after the last of them.
  */
-private fun keyAfter(siblings: List<BlockEntity>, after: String?): String {
-    val ordered = siblings.sortedWith(compareBy({ it.sortKey }, { it.id }))
-    val before = after?.let { a -> requireNotNull(ordered.firstOrNull { it.id == a }) { "no block $a here" }.sortKey }
-    return keyBetween(before, ordered.firstOrNull { before == null || it.sortKey > before }?.sortKey)
-}
+private fun keyAfter(siblings: List<BlockEntity>, after: String?): String = keyAfter(siblings.map { it.id to it.sortKey }, after)
 
 /** Every page under [id], however deep, through pages that [through] lets the walk pass. */
 private fun branch(id: String, pages: List<PageEntity>, through: (PageEntity) -> Boolean): List<PageEntity> {

@@ -15,6 +15,8 @@ import com.factotum.data.openFactotumDatabase
 import com.factotum.data.reminder.ReminderRepository
 import com.factotum.data.tracker.TrackerRepository
 import com.factotum.data.checkin.CheckInRepository
+import com.factotum.data.chart.ChartRepository
+import com.factotum.data.checklist.ChecklistRepository
 import com.factotum.data.page.CanvasRepository
 import com.factotum.data.page.JournalRepository
 import com.factotum.data.page.RelationRepository
@@ -90,6 +92,8 @@ internal class World(private val dir: File, seed: Int, private val segmentBytes:
         val journal = JournalRepository(db, writes, settings)
         val relations = RelationRepository(db, writes)
         val templates = TemplateRepository(db, writes, newId)
+        val checklists = ChecklistRepository(db, writes, newId)
+        val charts = ChartRepository(db, writes, newId, settings)
         /** The wall clock the time rules read, as a local date-time. */
         var now = LocalDateTime(2026, 10, 5, 12, 0)
         val sync = FolderSync(db, syncthing.folder(name), id, clock, tables, segmentBytes, snapshotEvery, recovered = recovered, afterImport = {

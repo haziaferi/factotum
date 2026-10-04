@@ -72,3 +72,15 @@ private fun midpoint(a: String, b: String?): String {
     if (b != null && b.length > 1) return b.substring(0, 1)
     return DIGITS[low] + midpoint(if (a.isEmpty()) "" else a.substring(1), null)
 }
+
+/**
+ * A key after the sibling [after] (first when null, or last when [last]) among (id, key) pairs in
+ * their order: a key between it and the next sibling whose key is greater, so siblings two devices
+ * placed at one key, read in id order, stay together.
+ */
+fun keyAfter(siblings: List<Pair<String, String>>, after: String?, last: Boolean = false): String {
+    val ordered = siblings.sortedWith(compareBy({ it.second }, { it.first }))
+    if (last) return keyBetween(ordered.lastOrNull()?.second, null)
+    val before = after?.let { a -> requireNotNull(ordered.firstOrNull { it.first == a }) { "no $a here" }.second }
+    return keyBetween(before, ordered.firstOrNull { before == null || it.second > before }?.second)
+}
