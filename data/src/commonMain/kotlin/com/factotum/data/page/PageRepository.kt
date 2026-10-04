@@ -9,6 +9,10 @@ import com.factotum.core.sync.Row
 import com.factotum.core.sync.Stamp
 import com.factotum.data.FactotumDatabase
 import com.factotum.data.LocalWrites
+import com.factotum.data.item.DETAILS
+import com.factotum.data.item.ITEM
+import com.factotum.data.item.ItemEntity
+import com.factotum.data.item.SCHEDULE
 import com.factotum.data.sync.RecordCodec
 import com.factotum.data.sync.readChunked
 import kotlinx.serialization.json.Json
@@ -54,7 +58,7 @@ data class Notice(val id: String, val pageId: String, val rowId: String, val los
  * a trashed one. Such a page is shown at the top ([children]), so nothing is out of reach.
  */
 internal class PageRepository(
-    db: FactotumDatabase,
+    private val db: FactotumDatabase,
     private val writes: LocalWrites,
     private val newId: () -> String,
     /** The wall clock History's times are read from, in milliseconds. */
@@ -97,47 +101,26 @@ internal class PageRepository(
     }) { store, _ -> store.put(requireNotNull(store.row(id)).edit(PLACE, clock.tick(), mapOf("parent_id" to parentId))) }
 
     /** Trashes [id] and every live page under it, with one stamp, so a restore brings the branch back together (owner, 2026-10-03). */
-    suspend fun trash(id: String) = writes.write({
-        live(id)
-        mapOf(PAGE to listOf(id) + branch(id, dao.allPages()) { true }.filter { it.deletedAt == null }.map { it.id })
-    }) { store, targets ->
-        val s = clock.tick()
-        targets.getValue(PAGE).forEach { store.put(requireNotNull(store.row(it)).edit(GONE, s, mapOf("deleted_at" to s.hlc))) }
-    }
+    suspend fun trash(id: String) = trashPage(db, writes, id)
 
     /** Restores [id] and the pages under it that went to the trash with it. */
     suspend fun restore(id: String) = writes.write({
         val pages = dao.allPages()
         val page = requireNotNull(pages.firstOrNull { it.id == id && it.deletedAt != null }) { "page $id is not in the trash" }
-        mapOf(PAGE to listOf(id) + branch(id, pages) { it.deletedAt == page.deletedAt }.map { it.id })
+        val back = listOf(id) + branch(id, pages) { it.deletedAt == page.deletedAt }.map { it.id }
+        // Only the tasks trashed with the pages: one let go of earlier, when rows stopped being tasks, stays.
+        mapOf(PAGE to back, ITEM to rowTasks(db, back) { it.deletedAt == page.deletedAt })
     }) { store, targets ->
         val s = clock.tick()
         targets.getValue(PAGE).forEach { store.put(requireNotNull(store.row(it)).edit(GONE, s, mapOf("deleted_at" to null))) }
+        targets.getValue(ITEM).forEach { store.put(requireNotNull(store.row(it)).edit(SCHEDULE, automatic(s), mapOf("deleted_at" to null))) }
     }
 
     /**
      * "Delete forever", from the trash: the page and the trashed pages under it, for good, with
      * their blocks and labels. A live page a sync left under them is moved to the top, not taken.
      */
-    suspend fun purge(id: String) {
-        var gone = emptyList<String>()
-        var kept = emptyList<String>()
-        writes.write({
-            val pages = dao.allPages()
-            require(pages.any { it.id == id && it.deletedAt != null }) { "only a page in the trash is deleted forever" }
-            val trashed = branch(id, pages) { it.deletedAt != null }
-            gone = listOf(id) + trashed.map { it.id }
-            val inside = gone.toSet()
-            kept = pages.filter { it.deletedAt == null && it.parentId in inside }.map { it.id }
-            mapOf(PAGE to gone + kept)
-        }) { store, _ ->
-            if (kept.isNotEmpty()) {
-                val s = clock.tick()
-                kept.forEach { store.put(requireNotNull(store.row(it)).edit(PLACE, s, mapOf("parent_id" to null))) }
-            }
-            gone.forEach { writes.merger.purge(store, it) }
-        }
-    }
+    suspend fun purge(id: String) = purgePage(db, writes, id)
 
     suspend fun page(id: String): Page? = dao.pages(listOf(id)).singleOrNull()?.toPage()
 
@@ -384,6 +367,7 @@ internal class PageRepository(
             val picks = readChunked(trashed.map { it.id }) { databases.picksOfPages(it) }.groupBy({ it.pageId }, { maxOf(Stamp(it.madeHlc, it.madeDevice), Stamp(it.goneHlc, it.goneDevice)) })
             val schema = schemaStamps(readChunked(trashed.map { shellId(it.id) }) { databases.databases(it) })
             val board = canvasStamps(trashed.map { it.id })
+            val tasks = taskStamps(trashed.map { it.id })
             // A link made, or made again, counts for both its pages: one made to a page trashed elsewhere brings it back
             // (owner, 2026-10-03); one taken off does not.
             val linked = HashMap<String, MutableList<Stamp>>()
@@ -404,7 +388,7 @@ internal class PageRepository(
                     blocks[p.id].orEmpty().flatMap { it.edits() + Stamp(it.goneHlc, it.goneDevice) } +
                     labels[p.id].orEmpty().flatMap { listOf(Stamp(it.madeHlc, it.madeDevice), Stamp(it.goneHlc, it.goneDevice)) } +
                     under[p.id].orEmpty().map { Stamp(it.placeHlc, it.placeDevice) } +
-                    cells[p.id].orEmpty() + picks[p.id].orEmpty() + schema[p.id].orEmpty() + board[p.id].orEmpty() + linked[p.id].orEmpty()
+                    cells[p.id].orEmpty() + picks[p.id].orEmpty() + schema[p.id].orEmpty() + board[p.id].orEmpty() + linked[p.id].orEmpty() + tasks[p.id].orEmpty()
                 val newest = latestByHand(parts) ?: continue
                 for (q in generateSequence(p) { byId[it.parentId] }.take(pages.size)) {
                     val gone = Stamp(q.goneHlc, q.goneDevice)
@@ -432,10 +416,12 @@ internal class PageRepository(
         shells.forEach { s ->
             add(s.pageId, Stamp(s.doorwayHlc, s.doorwayDevice), Stamp(s.lookHlc, s.lookDevice))
             s.blockedHlc?.let { add(s.pageId, Stamp(it, requireNotNull(s.blockedDevice))) }
+            s.tasksHlc?.let { add(s.pageId, Stamp(it, requireNotNull(s.tasksDevice))) }
         }
         properties.forEach {
             add(it.databaseId, Stamp(it.nameHlc, it.nameDevice), Stamp(it.typeHlc, it.typeDevice), Stamp(it.placeHlc, it.placeDevice))
             it.formulaHlc?.let { h -> add(it.databaseId, Stamp(h, requireNotNull(it.formulaDevice))) }
+            it.roleHlc?.let { h -> add(it.databaseId, Stamp(h, requireNotNull(it.roleDevice))) }
         }
         readChunked(owner.keys.toList()) { databases.optionsOf(it) }.forEach {
             add(owner.getValue(it.propertyId), Stamp(it.nameHlc, it.nameDevice), Stamp(it.lookHlc, it.lookDevice), Stamp(it.placeHlc, it.placeDevice), Stamp(it.goneHlc, it.goneDevice))
@@ -445,6 +431,20 @@ internal class PageRepository(
                 Stamp(it.filterHlc, it.filterDevice), Stamp(it.placeHlc, it.placeDevice), Stamp(it.goneHlc, it.goneDevice))
         }
         return out
+    }
+
+    /**
+     * The stamps of each row's task (rows as tasks, answer 18): its title, status and schedule while
+     * live (the app writes its deletion, so a deleted one's schedule was no person's), and its
+     * occurrences resolved.
+     */
+    private suspend fun taskStamps(pageIds: List<String>): Map<String, List<Stamp>> {
+        val items = db.itemDao()
+        return readChunked(pageIds.map(::rowTaskId)) { items.items(it) }.associate { t ->
+            requireNotNull(pageOfRowTask(t.id)) to listOfNotNull(
+                Stamp(t.detailsHlc, t.detailsDevice), Stamp(t.statusHlc, t.statusDevice), Stamp(t.scheduleHlc, t.scheduleDevice).takeIf { t.deletedAt == null },
+            ) + items.completionsOf(t.id).map { Stamp(it.hlc, it.device) }
+        }
     }
 
     /** The stamps of each canvas's own parts: its layout, and every group of its cards and lines, their deletions included. */
@@ -476,13 +476,7 @@ internal class PageRepository(
     private suspend fun picksOf(pageId: String): Map<String, List<String>> =
         databases.picksOfPages(listOf(pageId)).filter { it.deletedAt == null }.groupBy({ it.propertyId }, { it.optionId })
 
-    private suspend fun changeTitle(id: String, change: Pair<String, String?>) = writes.write({
-        live(id)
-        mapOf(PAGE to listOf(id))
-    }) { store, _ ->
-        val row = requireNotNull(store.row(id))
-        store.put(row.edit(PAGE_TITLE, clock.tick(), row.groups.getValue(PAGE_TITLE).values + change))
-    }
+    private suspend fun changeTitle(id: String, change: Pair<String, String?>) = changePageTitle(db, writes, id, change)
 
     /** Keeps [pageId] in History as it is now; fifty kept. */
     private suspend fun keep(pageId: String, reason: String, notice: String?) {
@@ -508,6 +502,69 @@ internal class PageRepository(
 }
 
 private const val KEPT = 50
+
+/**
+ * Changes [id]'s title or icon; a title goes to the page's row task too, in the same write, as the
+ * app's (rows as tasks, answer 15).
+ */
+internal suspend fun changePageTitle(db: FactotumDatabase, writes: LocalWrites, id: String, change: Pair<String, String?>) = writes.write({
+    requireNotNull(db.pageDao().pages(listOf(id)).singleOrNull()?.takeIf { it.deletedAt == null }) { "no page $id" }
+    mapOf(PAGE to listOf(id), ITEM to if (change.first == "title") rowTasks(db, listOf(id)) { it.deletedAt == null } else emptyList())
+}) { store, targets ->
+    val s = writes.clock.tick()
+    val row = requireNotNull(store.row(id))
+    store.put(row.edit(PAGE_TITLE, s, row.groups.getValue(PAGE_TITLE).values + change))
+    targets.getValue(ITEM).forEach { store.put(requireNotNull(store.row(it)).edit(DETAILS, automatic(s), mapOf("title" to change.second))) }
+}
+
+/**
+ * Trashes [id] and every live page under it, with one stamp, and the tasks of those that are rows
+ * (rows as tasks, answer 17), stamped as the app's just above the trash, so a task edited after it
+ * elsewhere wins and brings the row back (answer 18).
+ */
+internal suspend fun trashPage(db: FactotumDatabase, writes: LocalWrites, id: String) {
+    val dao = db.pageDao()
+    writes.write({
+        requireNotNull(dao.pages(listOf(id)).singleOrNull()?.takeIf { it.deletedAt == null }) { "no page $id" }
+        val gone = listOf(id) + branch(id, dao.allPages()) { true }.filter { it.deletedAt == null }.map { it.id }
+        mapOf(PAGE to gone, ITEM to rowTasks(db, gone) { it.deletedAt == null })
+    }) { store, targets ->
+        val s = writes.clock.tick()
+        targets.getValue(PAGE).forEach { store.put(requireNotNull(store.row(it)).edit(GONE, s, mapOf("deleted_at" to s.hlc))) }
+        targets.getValue(ITEM).forEach { store.put(requireNotNull(store.row(it)).edit(SCHEDULE, automatic(s), mapOf("deleted_at" to s.hlc))) }
+    }
+}
+
+/**
+ * "Delete forever", from the trash: the page and the trashed pages under it, for good, with their
+ * blocks, labels and rows' tasks. A live page a sync left under them is moved to the top, not taken.
+ */
+internal suspend fun purgePage(db: FactotumDatabase, writes: LocalWrites, id: String) {
+    val dao = db.pageDao()
+    var gone = emptyList<String>()
+    var kept = emptyList<String>()
+    writes.write({
+        val pages = dao.allPages()
+        require(pages.any { it.id == id && it.deletedAt != null }) { "only a page in the trash is deleted forever" }
+        gone = listOf(id) + branch(id, pages) { it.deletedAt != null }.map { it.id }
+        val inside = gone.toSet()
+        kept = pages.filter { it.deletedAt == null && it.parentId in inside }.map { it.id }
+        mapOf(PAGE to gone + kept, ITEM to rowTasks(db, gone) { true })
+    }) { store, targets ->
+        if (kept.isNotEmpty()) {
+            val s = writes.clock.tick()
+            kept.forEach { store.put(requireNotNull(store.row(it)).edit(PLACE, s, mapOf("parent_id" to null))) }
+        }
+        // A task goes on this device alone, with no purge of its own: a page a later edit elsewhere
+        // brings back finds its task there (rows as tasks' settle does as much on every device).
+        targets.getValue(ITEM).forEach(store::remove)
+        gone.forEach { writes.merger.purge(store, it) }
+    }
+}
+
+/** The tasks of [pageIds] that are rows (rows as tasks) and pass [which]. */
+private suspend fun rowTasks(db: FactotumDatabase, pageIds: List<String>, which: (ItemEntity) -> Boolean): List<String> =
+    readChunked(pageIds.map(::rowTaskId)) { db.itemDao().items(it) }.filter(which).map { it.id }
 
 /** How [ids] read as pages a card or a link points at: live, in the Trash, deleted for good (in the purge registry), or not on this device yet. */
 internal suspend fun pageStates(db: FactotumDatabase, ids: List<String>): Map<String, PageState> {

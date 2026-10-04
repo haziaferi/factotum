@@ -213,6 +213,7 @@ internal object SchemaTriggers : RoomDatabase.Callback() {
             "AND NEW.at GLOB '[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]T[0-9][0-9]:[0-9][0-9]*', 0)",
         MASKING_ENTRY to "NEW.day GLOB '[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]' AND (NEW.masked IS NULL OR NEW.masked IN ('NONE', 'SOME', 'MOST', 'ALL_DAY')) " +
             "AND (NEW.demand IS NULL OR NEW.demand IN ('LIGHT', 'SOME', 'A_LOT', 'RELENTLESS')) AND (NEW.recovery IS NULL OR NEW.recovery IN ('NONE', 'A_LITTLE', 'ENOUGH'))",
+        PROPERTY to "NEW.task_role IS NULL OR NEW.task_role IN ('DONE', 'DATE', 'DUE', 'RECURRENCE')",
         REGULATION_EVENT to "NEW.direction IN ('UP', 'DOWN') AND NEW.outcome IN ('HELPED', 'NO_CHANGE', 'NOT_NOW')",
     )
 

@@ -25,6 +25,7 @@ import com.factotum.data.page.RelationRepository
 import com.factotum.data.page.TemplateRepository
 import com.factotum.data.page.DatabaseRepository
 import com.factotum.data.page.PageRepository
+import com.factotum.data.page.RowTaskRepository
 import com.factotum.data.label.LabelRepository
 import com.factotum.data.settings.MemorySecretStore
 import com.factotum.data.settings.SettingsRepository
@@ -98,14 +99,17 @@ internal class World(private val dir: File, seed: Int, private val segmentBytes:
         val charts = ChartRepository(db, writes, newId, settings)
         val regulation = RegulationRepository(db, writes, newId, settings)
         val ledger = LedgerRepository(db, writes, newId, settings)
+        val rowTasks = RowTaskRepository(db, writes, items, occurrences, databases, settings, now = { now })
         /** The wall clock the time rules read, as a local date-time. */
         var now = LocalDateTime(2026, 10, 5, 12, 0)
         val sync = FolderSync(db, syncthing.folder(name), id, clock, tables, segmentBytes, snapshotEvery, recovered = recovered, afterImport = {
             labels.mergeDuplicates()
             time.endFinished(now)
+            rowTasks.settleClashes()
             pages.settle()
             databases.settle()
             canvases.settle()
+            rowTasks.settle()
         })
 
         fun create(): String = runBlocking { items.createTask("$name@${syncthing.now}") }.also(::record)

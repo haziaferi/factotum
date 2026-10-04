@@ -57,6 +57,10 @@ RELS = "data/src/commonMain/kotlin/com/factotum/data/page/RelationRepository.kt"
 TEMPL = "data/src/commonMain/kotlin/com/factotum/data/page/TemplateRepository.kt"
 FORMULA = "core/src/commonMain/kotlin/com/factotum/core/formula/Formula.kt"
 CHK = "data/src/commonMain/kotlin/com/factotum/data/checklist/ChecklistRepository.kt"
+ROWT = "data/src/commonMain/kotlin/com/factotum/data/page/RowTasks.kt"
+PAGEREPO = "data/src/commonMain/kotlin/com/factotum/data/page/PageRepository.kt"
+ITEMREPO = "data/src/commonMain/kotlin/com/factotum/data/item/ItemRepository.kt"
+DBREPO = "data/src/commonMain/kotlin/com/factotum/data/page/DatabaseRepository.kt"
 BURN = "core/src/commonMain/kotlin/com/factotum/core/checkin/Burnout.kt"
 REG = "data/src/commonMain/kotlin/com/factotum/data/checkin/RegulationRepository.kt"
 REGDAO = "data/src/commonMain/kotlin/com/factotum/data/checkin/Regulation.kt"
@@ -777,6 +781,50 @@ SLICES = {
          ":data:desktopTest", {'ledgerScalesTappedOnTwoDevicesBothStandAndATapBringsBackAClearedDay'}),
         ('emptying an untouched day makes a row', LEDGER, ') return@write', ') Unit',
          ":data:desktopTest", {'emptyingAScaleOfAnUntouchedDayWritesNothingAndATrashedSleepTrackerIsNotRead'}),
+    ],
+    "s3d": [
+        ('a trash wipes the person fields', ROWT, '(listOf(a, b).singleOrNull { it.stamp.byHand } ?: later).values', 'later.values',
+         ":data:desktopTest", {'aTaskEditedAfterItsRowWasTrashedElsewhereBringsTheRowBack'}),
+        ('a trash and an edit ask a person', ROWT, '            if (mine.stamp.byHand && theirs.stamp.byHand) continue', '            continue',
+         ":data:desktopTest", {'aTaskEditedAfterItsRowWasTrashedElsewhereBringsTheRowBack'}),
+        ('a task edit does not revive its row', PAGEREPO, ' + linked[p.id].orEmpty() + tasks[p.id].orEmpty()', ' + linked[p.id].orEmpty()',
+         ":data:desktopTest", {'aTaskEditedAfterItsRowWasTrashedElsewhereBringsTheRowBack'}),
+        ('a purge of the row purges its task everywhere', PAGEREPO, '        targets.getValue(ITEM).forEach(store::remove)', '        targets.getValue(ITEM).forEach { writes.merger.purge(store, it) }',
+         ":data:desktopTest", {'aRowDeletedForGoodThatAnEditElsewhereBringsBackKeepsItsTask'}),
+        ('a let-go task is purged through its live row', ITEMREPO, "?.takeIf { db.pageDao().pages(listOf(it)).singleOrNull()?.deletedAt != null }?.let { return purgePage", '?.let { return purgePage',
+         ":data:desktopTest", {'aTaskItsRowLetGoOfIsDeletedAloneAndARestoreLeavesIt'}),
+        ('a restore brings back let-go tasks', PAGEREPO, 'rowTasks(db, back) { it.deletedAt == page.deletedAt }', 'rowTasks(db, back) { it.deletedAt != null }',
+         ":data:desktopTest", {'aTaskItsRowLetGoOfIsDeletedAloneAndARestoreLeavesIt'}),
+        ('a bind push is stamped by hand', ROWT, 'store.put(row.edit(group, automatic(s), changes))', 'store.put(row.edit(group, s, changes))',
+         ":data:desktopTest", {'bindingOnADeviceThatHadNotSeenATrashDoesNotBringTheRowBack'}),
+        ('off lets go of the latest bindings only', ROWT, 'dao.propertiesOf(databaseId).filter { it.taskRole != null }.map { it.id }', 'bindingsOf(databaseId).values.map { it.id }',
+         ":data:desktopTest", {'turningRowsAsTasksOffLetsGoOfAColumnASyncLeftBound'}),
+        ('intervals sort as text', DBREPO, '    PropertyType.INTERVAL -> compareValues(Interval.parse(a.text)?.days(), Interval.parse(b.text)?.days())\n', '',
+         ":data:desktopTest", {'anIntervalCellIsEveryNDaysWeeksOrMonths'}),
+        ('a page rename leaves its task', PAGEREPO, 'if (change.first == "title") rowTasks(db, listOf(id))', 'if (false) rowTasks(db, listOf(id))',
+         ":data:desktopTest", {'everyRowIsATaskWithOneTitleAndItsCellsShowTheTask'}),
+        ('a new row waits for settle', ROWT, '        if (liveTask(pageId) == null) settle()\n', '',
+         ":data:desktopTest", {'everyRowIsATaskWithOneTitleAndItsCellsShowTheTask'}),
+        ('bound cells read the stored value', DBREPO, '        for ((pageId, cells) in rows) bound[pageId]?.let(cells::putAll)\n', '',
+         ":data:desktopTest", {'everyRowIsATaskWithOneTitleAndItsCellsShowTheTask', 'formulasSortsAndFiltersReadTheTask'}),
+        ('a bound cell is set directly', DBREPO, 'require(bindingsOf(db, p.databaseId).values.none { it.id == propertyId })', 'require(true)',
+         ":data:desktopTest", {'everyRowIsATaskWithOneTitleAndItsCellsShowTheTask'}),
+        ('a row task offers keep both', ITEMREPO, 'require(answer != Answer.KEEP_BOTH || pageOfRowTask(id) == null)', 'require(true)',
+         ":data:desktopTest", {'twoDevicesSeedingOneRowMakeOneTaskAndADateClashOffersNoKeepBoth'}),
+        ('a resolved occurrence stays next', ROWT, '.filter { (it.original ?: it.at) !in resolved }.minByOrNull', '.minByOrNull',
+         ":data:desktopTest", {'aRepeatingRowShowsItsNextOpenOccurrenceAndTickingResolvesIt'}),
+        ('an interval with no date has no start', ROWT, '?: today.toString()))', '))',
+         ":data:desktopTest", {'aRepeatingRowShowsItsNextOpenOccurrenceAndTickingResolvesIt'}),
+        ('a page no longer a row keeps a live task', ROWT, 'retired.forEach { store.put(requireNotNull(store.row(it)).edit(SCHEDULE, s, mapOf("deleted_at" to s.hlc))) }', 'Unit',
+         ":data:desktopTest", {'aPageThatStopsBeingARowHasItsTaskTrashed'}),
+        ('off keeps the tasks live', ROWT, '            store.put(requireNotNull(store.row(shellId(databaseId))).set(TASKS, s, mapOf("tasks_on" to on)))', '            store.put(requireNotNull(store.row(shellId(databaseId))).set(TASKS, s, mapOf("tasks_on" to true)))',
+         ":data:desktopTest", {'turningRowsAsTasksOffTrashesTheTasksAndTheColumnsKeepTheirValues'}),
+        ('a rich repeat freezes as its rule', ROWT, 'TaskRole.RECURRENCE -> cell?.text?.takeIf { !cell.fixed }', 'TaskRole.RECURRENCE -> cell?.text',
+         ":data:desktopTest", {'unbindingFreezesTheValueAndARicherRepeatShowsReadOnlyAndFreezesEmpty'}),
+        ('a database trash leaves the tasks live', PAGEREPO, 'targets.getValue(ITEM).forEach { store.put(requireNotNull(store.row(it)).edit(SCHEDULE, automatic(s), mapOf("deleted_at" to s.hlc))) }', 'Unit',
+         ":data:desktopTest", {'deletingTheTaskTrashesTheRowAndTheRowCarriesItsTask'}),
+        ('an interval of 0 days', 'core/src/commonMain/kotlin/com/factotum/core/recurrence/Interval.kt', 'n.toIntOrNull()?.takeIf { it in 1..MAX_EVERY }', 'n.toIntOrNull()',
+         ":core:desktopTest", {'aZeroOrNegativeCountOrAnUnknownUnitIsNoInterval'}),
     ],
     "s3b": [
         ('a reset clears nothing', CHK, 'it.checked && Stamp(it.checkHlc, it.checkDevice) > reset', 'it.checked',

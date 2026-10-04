@@ -137,6 +137,18 @@ class Merger(private val clock: HybridClock, private val askGroups: Set<String>,
         store.clearAsk(id, group)
     }
 
+    /**
+     * Settles a clash with no person: [settled] works the group out from the two versions, mine and
+     * theirs, and must give every device the same group whichever side it holds. The base is their
+     * stamp, as for [keepMine], so a third device's version still meets this one as a clash.
+     */
+    fun settle(store: SyncStore, id: String, group: String, settled: (Group, Group) -> Group) {
+        val (local, theirs) = pending(store, id, group)
+        store.put(local.copy(groups = local.groups + (group to settled(local.groups.getValue(group), theirs))))
+        store.putBase(id, group, theirs.stamp)
+        store.clearAsk(id, group)
+    }
+
     /** "Keep both": keep mine, and their version becomes a new row with [newId] and fresh stamps. */
     fun keepBoth(store: SyncStore, id: String, group: String, newId: String): Row {
         val (local, theirs) = pending(store, id, group)

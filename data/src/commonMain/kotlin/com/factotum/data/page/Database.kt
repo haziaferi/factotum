@@ -37,9 +37,11 @@ internal const val VIEW_SORT = "view_sort"
 internal const val VIEW_FILTER = "view_filter"
 internal const val BLOCKED = "blocked"
 internal const val FORMULA = "formula"
+internal const val TASKS = "tasks"
+internal const val TASK_ROLE = "task_role"
 
-/** Tendril's property types; a COMPUTED column is a formula or a rollup, and intervals come with rows as tasks (§7 step 3). */
-enum class PropertyType { TEXT, NUMBER, CHECKBOX, SELECT, MULTI_SELECT, DATE, URL, EMAIL, PHONE, RELATION, COMPUTED }
+/** Tendril's property types; a COMPUTED column is a formula or a rollup, and an INTERVAL "every n days, weeks or months" (rows as tasks). */
+enum class PropertyType { TEXT, NUMBER, CHECKBOX, SELECT, MULTI_SELECT, DATE, URL, EMAIL, PHONE, RELATION, COMPUTED, INTERVAL }
 
 /** Tendril's view types: how a database's rows are laid out. */
 enum class ViewType { TABLE, BOARD, GALLERY, CALENDAR, TIMELINE }
@@ -74,6 +76,10 @@ internal data class PageDatabaseEntity(
     @ColumnInfo(name = "blocked_by") val blockedBy: String? = null,
     @ColumnInfo(name = "blocked_hlc") val blockedHlc: Long? = null,
     @ColumnInfo(name = "blocked_device") val blockedDevice: String? = null,
+    /** Rows as tasks (decision 14): while true, every row is a task, `rowtask:<page>`. */
+    @ColumnInfo(name = "tasks_on") val tasksOn: Boolean? = null,
+    @ColumnInfo(name = "tasks_hlc") val tasksHlc: Long? = null,
+    @ColumnInfo(name = "tasks_device") val tasksDevice: String? = null,
 )
 
 internal fun shellId(pageId: String) = "database:$pageId"
@@ -113,6 +119,10 @@ internal data class PropertyEntity(
     @ColumnInfo(name = "rollup_aggregation") val rollupAggregation: String? = null,
     @ColumnInfo(name = "formula_hlc") val formulaHlc: Long? = null,
     @ColumnInfo(name = "formula_device") val formulaDevice: String? = null,
+    /** The task field this column shows while rows are tasks ([com.factotum.data.page.TaskRole]), a group of its own; null for none. */
+    @ColumnInfo(name = "task_role") val taskRole: String? = null,
+    @ColumnInfo(name = "role_hlc") val roleHlc: Long? = null,
+    @ColumnInfo(name = "role_device") val roleDevice: String? = null,
 )
 
 /**
@@ -304,7 +314,7 @@ internal fun PageDatabaseEntity.toRow() = Row(PAGE_DATABASE, id, mapOf(
     DOORWAY to stamped(doorwayHlc, doorwayDevice, mapOf("label_id" to labelId)),
     LOOK to stamped(lookHlc, lookDevice, mapOf("hue" to hue)),
     BLOCKED to stamped(blockedHlc ?: 0, blockedDevice ?: "seed", mapOf("blocked_by" to blockedBy)),
-))
+) + listOfNotNull(tasksHlc?.let { TASKS to stamped(it, requireNotNull(tasksDevice), mapOf("tasks_on" to tasksOn)) }))
 
 internal fun Row.toDatabaseEntity(): PageDatabaseEntity {
     val made = groups.getValue(MADE)
@@ -312,9 +322,12 @@ internal fun Row.toDatabaseEntity(): PageDatabaseEntity {
     val look = groups.getValue(LOOK)
     // A line written before blocked-by has no such group: nothing blocks.
     val blocked = groups[BLOCKED]
+    // Nor one written before rows as tasks: its rows are not tasks.
+    val tasks = groups[TASKS]
     return PageDatabaseEntity(
         id, made.values["page_id"] as String, made.stamp.hlc, made.stamp.device, door.values["label_id"] as String?, door.stamp.hlc, door.stamp.device,
         look.values["hue"] as Long?, look.stamp.hlc, look.stamp.device, blocked?.values?.get("blocked_by") as String?, blocked?.stamp?.hlc, blocked?.stamp?.device,
+        tasks?.values?.get("tasks_on") as Boolean?, tasks?.stamp?.hlc, tasks?.stamp?.device,
     )
 }
 
@@ -325,7 +338,7 @@ internal fun PropertyEntity.toRow() = Row(PROPERTY, id, mapOf(
     PLACE to stamped(placeHlc, placeDevice, mapOf("sort_key" to sortKey)),
 ) + listOfNotNull(formulaHlc?.let {
     FORMULA to stamped(it, requireNotNull(formulaDevice), mapOf("expression" to formula, "rollup_relation" to rollupRelation, "rollup_target" to rollupTarget, "rollup_aggregation" to rollupAggregation))
-}))
+}, roleHlc?.let { TASK_ROLE to stamped(it, requireNotNull(roleDevice), mapOf("task_role" to taskRole)) }))
 
 internal fun Row.toPropertyEntity(): PropertyEntity {
     val made = groups.getValue(MADE)
@@ -334,6 +347,8 @@ internal fun Row.toPropertyEntity(): PropertyEntity {
     val place = groups.getValue(PLACE)
     // Only a computed column has the group, and a line written before computed columns has none.
     val formula = groups[FORMULA]
+    // Only a column ever bound to a task field has the group.
+    val role = groups[TASK_ROLE]
     return PropertyEntity(
         id, made.values["database_id"] as String, made.stamp.hlc, made.stamp.device,
         name.values["name"] as String, name.stamp.hlc, name.stamp.device,
@@ -342,7 +357,8 @@ internal fun Row.toPropertyEntity(): PropertyEntity {
         made.values["target_database_id"] as String?, made.values["pair_property_id"] as String?,
         formula?.values?.get("expression") as String?, formula?.values?.get("rollup_relation") as String?, formula?.values?.get("rollup_target") as String?,
         formula?.values?.get("rollup_aggregation") as String?, formula?.stamp?.hlc, formula?.stamp?.device,
-    ).also { p -> PropertyType.valueOf(p.type); p.rollupAggregation?.let(RollupAggregation::valueOf) }
+        role?.values?.get("task_role") as String?, role?.stamp?.hlc, role?.stamp?.device,
+    ).also { p -> PropertyType.valueOf(p.type); p.rollupAggregation?.let(RollupAggregation::valueOf); p.taskRole?.let(TaskRole::valueOf) }
 }
 
 internal fun OptionEntity.toRow() = Row(PROPERTY_OPTION, id, mapOf(

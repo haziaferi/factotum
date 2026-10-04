@@ -137,6 +137,10 @@ internal interface ItemDao {
     @Query("SELECT * FROM completion ORDER BY id")
     suspend fun allCompletions(): List<CompletionEntity>
 
+    /** The tasks rows of databases are (rows as tasks), live or not. */
+    @Query("SELECT * FROM item WHERE id LIKE 'rowtask:%'")
+    suspend fun rowTasks(): List<ItemEntity>
+
     @Query("SELECT * FROM completion WHERE item_id = :itemId AND deleted_at IS NULL ORDER BY occurrence")
     suspend fun completionsOf(itemId: String): List<CompletionEntity>
 

@@ -18,6 +18,7 @@ import com.factotum.core.formula.toCellText
 import com.factotum.core.label.LabelScope
 import com.factotum.core.page.keyAfter
 import com.factotum.core.page.keyBetween
+import com.factotum.core.recurrence.Interval
 import com.factotum.core.sync.Group
 import com.factotum.core.sync.Row
 import com.factotum.core.sync.Stamp
@@ -42,8 +43,9 @@ data class SelectOption(val id: String, val name: String, val color: Long?)
  * [text] for the text types and the names of the options, [number], [date] and [checked] when the
  * stored text reads as one, and [options] the live options picked, merged ones read as their target.
  * A relation's [pages] are the linked pages, whatever their state ([DatabaseRepository.pageStates]).
+ * A [fixed] cell is shown, not edited: a task's repeat richer than an interval (rows as tasks).
  */
-data class Cell(val text: String?, val number: Double?, val date: LocalDate?, val checked: Boolean, val options: List<String>, val pages: List<String> = emptyList())
+data class Cell(val text: String?, val number: Double?, val date: LocalDate?, val checked: Boolean, val options: List<String>, val pages: List<String> = emptyList(), val fixed: Boolean = false)
 
 data class DatabaseRow(val pageId: String, val title: String, val cells: Map<String, Cell>)
 
@@ -304,6 +306,7 @@ internal class DatabaseRepository(
         var last: String? = null
         writes.write({
             val p = property(id)
+            require(p.taskRole == null) { "${p.name} shows a task field: unbind it first" }
             require(p.type != PropertyType.RELATION.name && type != PropertyType.RELATION) { "a type never changes to or from a relation (Tendril)" }
             require(p.type != PropertyType.COMPUTED.name && type != PropertyType.COMPUTED) { "a type never changes to or from a computed column (Tendril)" }
             if (type == PropertyType.SELECT || type == PropertyType.MULTI_SELECT) {
@@ -382,6 +385,9 @@ internal class DatabaseRepository(
     suspend fun setChecked(pageId: String, propertyId: String, checked: Boolean) = setCell(pageId, propertyId, setOf(PropertyType.CHECKBOX)) { checked.toString() }
 
     suspend fun setDate(pageId: String, propertyId: String, date: LocalDate?) = setCell(pageId, propertyId, setOf(PropertyType.DATE)) { date?.toString() }
+
+    /** Sets an interval cell, "every n days, weeks or months", or clears it. */
+    suspend fun setInterval(pageId: String, propertyId: String, interval: Interval?) = setCell(pageId, propertyId, setOf(PropertyType.INTERVAL)) { interval?.stored() }
 
     /** Picks a Select's option, or none; moving a Board card is this. */
     suspend fun setOption(pageId: String, propertyId: String, optionId: String?) = setCell(pageId, propertyId, setOf(PropertyType.SELECT)) {
@@ -609,6 +615,9 @@ internal class DatabaseRepository(
                 p.id to cell.copy(pages = linked[pageId to p.id].orEmpty().sortedWith(compareBy({ it.first }, { it.second })).map { it.second }.distinct())
             }.toMutableMap()
         }
+        // A column showing a task field reads the task, so formulas, rollups, sorts and filters see it too.
+        val bound = boundCells(db, databaseId, pageIds)
+        for ((pageId, cells) in rows) bound[pageId]?.let(cells::putAll)
         val computed = properties.filter { it.type == PropertyType.COMPUTED.name }
         if (computed.isNotEmpty()) {
             val byId = properties.associateBy { it.id }
@@ -722,25 +731,12 @@ internal class DatabaseRepository(
         pages.snapshotIfDue(pageId)
         var v: String? = null
         writes.write({
-            member(pageId, property(propertyId), types)
+            val p = property(propertyId)
+            member(pageId, p, types)
+            require(bindingsOf(db, p.databaseId).values.none { it.id == propertyId }) { "a column showing a task field is set through the row's task" }
             v = value()
             mapOf(PROPERTY_VALUE to listOf(valueId(pageId, propertyId)))
-        }) { store, targets ->
-            val id = targets.getValue(PROPERTY_VALUE).single()
-            val s = clock.tick()
-            val row = store.row(id)
-            if (row == null) {
-                if (v == null) return@write
-                // No base: another device may fill this cell first, under the same id, and the two
-                // must meet as a clash, not as one side's agreed version (ADR 12's notice).
-                store.put(Row(PROPERTY_VALUE, id, mapOf(
-                    MADE to Group(s, mapOf("page_id" to pageId, "property_id" to propertyId)),
-                    CELL to Group(s, mapOf("value" to v)),
-                )))
-            } else if (row.groups.getValue(CELL).values["value"] != v) {
-                store.put(row.edit(CELL, s, mapOf("value" to v)))
-            }
-        }
+        }) { store, _ -> putCell(store, pageId, propertyId, v, clock.tick()) }
     }
 
     /**
@@ -801,6 +797,21 @@ internal class DatabaseRepository(
 }
 
 internal const val DATABASE_KIND = "DATABASE"
+
+/**
+ * Writes [pageId]'s cell of [propertyId] as [value], stamped [s], when it differs; an empty cell
+ * never written stays unwritten. A new cell has no base: another device may fill it first, under
+ * the same id, and the two must meet as a clash, not as one side's agreed version (ADR 12's notice).
+ */
+internal fun putCell(store: StagedStore, pageId: String, propertyId: String, value: String?, s: Stamp) {
+    val id = valueId(pageId, propertyId)
+    val row = store.row(id)
+    if (row == null) {
+        if (value != null) store.put(Row(PROPERTY_VALUE, id, mapOf(MADE to Group(s, mapOf("page_id" to pageId, "property_id" to propertyId)), CELL to Group(s, mapOf("value" to value)))))
+    } else if (row.groups.getValue(CELL).values["value"] != value) {
+        store.put(row.edit(CELL, s, mapOf("value" to value)))
+    }
+}
 
 private fun checkedName(name: String): String = nfc(name.trim()).also { require(it.isNotEmpty()) { "a name is needed" } }
 
@@ -870,6 +881,7 @@ private fun compare(a: Cell, b: Cell, type: PropertyType, optionOrder: Map<Strin
     PropertyType.NUMBER -> compareValues(a.number, b.number)
     PropertyType.DATE -> compareValues(a.date, b.date)
     PropertyType.CHECKBOX -> compareValues(a.checked, b.checked)
+    PropertyType.INTERVAL -> compareValues(Interval.parse(a.text)?.days(), Interval.parse(b.text)?.days())
     PropertyType.SELECT, PropertyType.MULTI_SELECT -> compareValues(a.options.firstOrNull()?.let(optionOrder::get), b.options.firstOrNull()?.let(optionOrder::get))
     else -> compareValues(a.text?.lowercase(), b.text?.lowercase())
 }

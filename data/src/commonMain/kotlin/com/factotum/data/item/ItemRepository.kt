@@ -6,6 +6,10 @@ import com.factotum.core.sync.Stamp
 import com.factotum.data.FactotumDatabase
 import com.factotum.data.LocalWrites
 import com.factotum.data.label.LABELLED
+import com.factotum.data.page.changePageTitle
+import com.factotum.data.page.pageOfRowTask
+import com.factotum.data.page.purgePage
+import com.factotum.data.page.trashPage
 import com.factotum.data.reminder.ALERT
 import com.factotum.data.reminder.REMINDER
 import com.factotum.data.time.TIME_SPAN
@@ -18,7 +22,7 @@ import kotlinx.datetime.LocalTime
 
 /** The one way the app writes items (SPEC §5.3), each write through [writes]. [newId] makes row ids (ULIDs). */
 internal class ItemRepository(
-    db: FactotumDatabase,
+    private val db: FactotumDatabase,
     private val writes: LocalWrites,
     private val newId: () -> String,
     private val now: () -> LocalDateTime = ::localNow,
@@ -66,7 +70,8 @@ internal class ItemRepository(
         return id
     }
 
-    suspend fun rename(id: String, title: String) = edit(id, DETAILS, mapOf("title" to title))
+    /** Renames [id]; a row's task is renamed through its page, which renames both (rows as tasks, answer 15). */
+    suspend fun rename(id: String, title: String) = pageOfRowTask(id)?.let { changePageTitle(db, writes, it, "title" to title) } ?: edit(id, DETAILS, mapOf("title" to title))
 
     /**
      * Moves [id]. Taking the start date away from an item with live reminders is refused, as
@@ -107,9 +112,10 @@ internal class ItemRepository(
     /**
      * Deletes [id] and its subtasks, which go with their parent (ADR 02), and stops their running
      * timers (owner, 2026-10-02); "delete forever" is [purge]. An activity is deleted with its
-     * time by `ActivityRepository`.
+     * time by `ActivityRepository`. A row's task is deleted with its row, as they are one thing
+     * (rows as tasks, answer 17).
      */
-    suspend fun delete(id: String) = writes.write({
+    suspend fun delete(id: String) = pageOfRowTask(id)?.takeIf { rowIsLive(id, it) }?.let { trashPage(db, writes, it) } ?: writes.write({
         val ids = listOf(id) + dao.liveChildren(id)
         mapOf(ITEM to ids, TIME_SPAN to times.runningOf(ids))
     }) { store, targets ->
@@ -125,6 +131,7 @@ internal class ItemRepository(
      * foreign keys. An activity is never deleted forever (owner, 2026-10-02), so no time is lost to it.
      */
     suspend fun purge(id: String) {
+        pageOfRowTask(id)?.takeIf { db.pageDao().pages(listOf(it)).singleOrNull()?.deletedAt != null }?.let { return purgePage(db, writes, it) }
         require(dao.items(listOf(id)).singleOrNull()?.kind != ItemKind.ACTIVITY.name) { "an activity is deleted, never deleted forever" }
         writes.write(mapOf(ITEM to listOf(id))) { store -> merger.purge(store, id) }
     }
@@ -134,14 +141,21 @@ internal class ItemRepository(
      * occurrence is named by the date-time the series gave it, or an added one's own, so two
      * occurrences on one day are told apart. The task's running timers stop (owner, 2026-10-02).
      */
-    suspend fun resolve(itemId: String, occurrence: LocalDateTime, outcome: Outcome): String {
+    suspend fun resolve(itemId: String, occurrence: LocalDateTime, outcome: Outcome): String = resolve(itemId, outcome) { occurrence }
+
+    /** As [resolve], the occurrence found by [occurrence] inside the write, so two taps never resolve one twice. */
+    suspend fun resolve(itemId: String, outcome: Outcome, occurrence: suspend () -> LocalDateTime): String {
         val id = newId()
-        writes.write({ mapOf(COMPLETION to listOf(id), TIME_SPAN to times.runningOf(listOf(itemId))) }) { store, targets ->
+        var at = LocalDateTime(1, 1, 1, 0, 0)
+        writes.write({
+            at = occurrence()
+            mapOf(COMPLETION to listOf(id), TIME_SPAN to times.runningOf(listOf(itemId)))
+        }) { store, targets ->
             val s = clock.tick()
             merger.created(store, Row(COMPLETION, id, mapOf(
-                WHOLE to Group(s, mapOf("item_id" to itemId, "occurrence" to occurrence.toString(), "status" to outcome.name, "deleted_at" to null)),
+                WHOLE to Group(s, mapOf("item_id" to itemId, "occurrence" to at.toString(), "status" to outcome.name, "deleted_at" to null)),
             )))
-            endRunning(store, targets.getValue(TIME_SPAN), now(), s, occurrence = occurrence.date)
+            endRunning(store, targets.getValue(TIME_SPAN), now(), s, occurrence = at.date)
         }
         return id
     }
@@ -174,6 +188,8 @@ internal class ItemRepository(
      */
     suspend fun answer(question: Question, answer: Answer) {
         val (id, group) = question
+        // A row's task is one with its row: a copy would be a task of no row (answer 21).
+        require(answer != Answer.KEEP_BOTH || pageOfRowTask(id) == null) { "a row's task keeps one date" }
         val copy = if (answer == Answer.KEEP_BOTH) newId() else null
         val copied = mutableMapOf<String, String>()
         writes.write({
@@ -200,6 +216,10 @@ internal class ItemRepository(
     }
 
     private suspend fun edit(id: String, group: String, changes: Map<String, Any?>) = writes.edit(ITEM, id, group) { changes }
+
+    /** Whether row task [id] and its page [pageId] are both live: deleting it then deletes its row; a task its row let go of is deleted alone. */
+    private suspend fun rowIsLive(id: String, pageId: String) =
+        dao.items(listOf(id)).singleOrNull()?.deletedAt == null && db.pageDao().pages(listOf(pageId)).singleOrNull()?.deletedAt == null
 
 }
 
