@@ -57,6 +57,10 @@ RELS = "data/src/commonMain/kotlin/com/factotum/data/page/RelationRepository.kt"
 TEMPL = "data/src/commonMain/kotlin/com/factotum/data/page/TemplateRepository.kt"
 FORMULA = "core/src/commonMain/kotlin/com/factotum/core/formula/Formula.kt"
 CHK = "data/src/commonMain/kotlin/com/factotum/data/checklist/ChecklistRepository.kt"
+BURN = "core/src/commonMain/kotlin/com/factotum/core/checkin/Burnout.kt"
+REG = "data/src/commonMain/kotlin/com/factotum/data/checkin/RegulationRepository.kt"
+REGDAO = "data/src/commonMain/kotlin/com/factotum/data/checkin/Regulation.kt"
+LEDGER = "data/src/commonMain/kotlin/com/factotum/data/checkin/LedgerRepository.kt"
 CHART = "data/src/commonMain/kotlin/com/factotum/data/chart/ChartRepository.kt"
 CHARTS = "core/src/commonMain/kotlin/com/factotum/core/chart/Charts.kt"
 
@@ -749,6 +753,30 @@ SLICES = {
          ":data:desktopTest", {'aRollupReadsNoRollupAndTwoDatabasesReadingEachOtherDoNotLoop'}),
         ('a text equal to a number never matches', DBS, 'if (cell.number != null && value.toDoubleOrNull() != null) value.toDouble() == cell.number else', 'if (value.toDoubleOrNull() != null) value.toDouble() == cell.number else',
          ":data:desktopTest", {'aComputedColumnOfNumbersAndTextSortsNumbersFirstAndEqualsReadsTextToo'}),
+    ],
+    "s3c": [
+        ('the index is not reweighed', BURN, '(terms.sumOf { it.first * it.second } / weight)', 'terms.sumOf { it.first * it.second }',
+         ":core:desktopTest", {"a person who tracks nothing but masking can still reach the top"}),
+        ('an undone check-in still teaches', REGDAO, 'WHERE e.deleted_at IS NULL AND c.deleted_at IS NULL AND', 'WHERE e.deleted_at IS NULL AND',
+         ":data:desktopTest", {'theEngineLearnsFromOutcomesAndAnUndoneCheckInStopsTeaching'}),
+        ('an owed outcome outlives its check-in', REG, 'dao.pending()?.takeIf { live(it.checkInId) != null }', 'dao.pending()',
+         ":data:desktopTest", {'anOutcomeOwedForACheckInUndoneIsDroppedAndOutcomesNeedBothAxes'}),
+        ('an outcome on a one-axis check-in', REG, 'live(id)?.takeIf { it.state() != null }', 'live(id)',
+         ":data:desktopTest", {'anOutcomeOwedForACheckInUndoneIsDroppedAndOutcomesNeedBothAxes'}),
+        ('an asked outcome never lapses', REG, 'resolved = step.resolved?.let', 'resolved = step.resolved?.takeIf { false }?.let',
+         ":data:desktopTest", {'anOutcomeOwedIsAskedOnceAtTheNextOpenAndLapsesAsNotNow'}),
+        ('a partly answered day counts', LEDGER, 'takeIf { it.masked != null && it.demand != null && it.recovery != null }', 'takeIf { it.masked != null }',
+         ":data:desktopTest", {'theBurnoutIndexCountsWholeLedgerDaysSleepAndEnergyOverWhatIsPresent'}),
+        ('sleep is averaged', LEDGER, 'mapValues { (_, hours) -> hours.sum() }', 'mapValues { (_, hours) -> hours.average() }',
+         ":data:desktopTest", {'theBurnoutIndexCountsWholeLedgerDaysSleepAndEnergyOverWhatIsPresent'}),
+        ('a trashed sleep tracker is read', LEDGER, '?.let { it.deletedAt == null } == true', '!= null',
+         ":data:desktopTest", {'emptyingAScaleOfAnUntouchedDayWritesNothingAndATrashedSleepTrackerIsNotRead'}),
+        ('a clearing keeps the scales', LEDGER, '.edit(MASKED, s, mapOf("masked" to null)).edit(DEMAND, s, mapOf("demand" to null))', '',
+         ":data:desktopTest", {'ledgerScalesTappedOnTwoDevicesBothStandAndATapBringsBackAClearedDay'}),
+        ('a tap leaves a cleared day cleared', LEDGER, 'if (row.groups.getValue(GONE).values["deleted_at"] != null) row =', 'if (false) row =',
+         ":data:desktopTest", {'ledgerScalesTappedOnTwoDevicesBothStandAndATapBringsBackAClearedDay'}),
+        ('emptying an untouched day makes a row', LEDGER, ') return@write', ') Unit',
+         ":data:desktopTest", {'emptyingAScaleOfAnUntouchedDayWritesNothingAndATrashedSleepTrackerIsNotRead'}),
     ],
     "s3b": [
         ('a reset clears nothing', CHK, 'it.checked && Stamp(it.checkHlc, it.checkDevice) > reset', 'it.checked',

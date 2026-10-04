@@ -47,6 +47,19 @@ object Settings {
     /** Equipoise's crisis contacts, as the person wrote them. */
     val CRISIS_CONTACTS = text("crisis_contacts", SettingScope.PERSONAL)
 
+    /** Equipoise's one onboarding answer: what usually helps in a low moment. Personal, so every device folds one recommendation. */
+    val ONBOARDING_ANSWER = Setting("onboarding_answer", SettingScope.PERSONAL, com.factotum.core.checkin.OnboardingAnswer.MIXED, { it.name }, { v ->
+        com.factotum.core.checkin.OnboardingAnswer.entries.firstOrNull { it.name == v }
+    })
+
+    /** What Mixed means: ask at every low moment, or only until the outcomes say. */
+    val MIXED_MODE = Setting("mixed_mode", SettingScope.PERSONAL, com.factotum.core.checkin.MixedMode.EVERY_TIME, { it.name }, { v ->
+        com.factotum.core.checkin.MixedMode.entries.firstOrNull { it.name == v }
+    })
+
+    /** The tracker the burnout index reads sleep from, hours as a number (owner, 2026-10-03); empty for none. */
+    val SLEEP_TRACKER = text("sleep_tracker", SettingScope.PERSONAL)
+
     /** Whether the day view shows standalone reminders (ADR 03), per device (owner, 2026-10-02). */
     val SHOW_REMINDERS_ON_DAY = flag("show_reminders_on_day", SettingScope.DEVICE_PREF, false)
 
@@ -81,7 +94,7 @@ object Settings {
     val APP_LOCK_PIN = text("app_lock_pin", SettingScope.SECRET)
 
     val all: List<Setting<*>> = listOf(
-        DAY_START, LONG_RUN, BURNOUT_THRESHOLD, CRISIS_CONTACTS, SHOW_REMINDERS_ON_DAY, DEFAULT_ALERT_MODE, APP_LOCK, APP_LOCK_GRACE,
+        DAY_START, LONG_RUN, BURNOUT_THRESHOLD, CRISIS_CONTACTS, ONBOARDING_ANSWER, MIXED_MODE, SLEEP_TRACKER, SHOW_REMINDERS_ON_DAY, DEFAULT_ALERT_MODE, APP_LOCK, APP_LOCK_GRACE,
         FIRST_RUN_DONE, SYNC_FOLDER, WINDOW_FRAME, LLM_MODEL, AI_KEY, LLM_ENDPOINT_KEY, APP_LOCK_PIN,
     )
 

@@ -1,6 +1,6 @@
 # Factotum — Product & Technical Spec
 
-**Status:** draft v0.26, seeded from the decision register · **Scope:** the merged data model, sync and behaviour rules of Factotum. Screens are not decided and are marked open (§10.1).
+**Status:** draft v0.27, seeded from the decision register · **Scope:** the merged data model, sync and behaviour rules of Factotum. Screens are not decided and are marked open (§10.1).
 **Related documents:** `decisions/`, the evidence behind §3: one ADR per decision with verified `file:line` facts, the scored options, the behaviour cases and the harness that measured them (`decisions/register.md` is the index). This spec states each decision once and points to its ADR for the evidence. It never restates the evidence.
 
 ---
@@ -9,6 +9,7 @@
 
 | Version | Summary | Sections touched |
 |---|---|---|
+| v0.27 | Step 3: Equipoise's regulation module, with the direction engine, outcomes at next open, the masking ledger, sensory logs and the burnout index worked out on demand | §3.5, §5.2, §7, §10 |
 | v0.26 | Step 3: Chronicle's checklists and saved charts, with resets as a stamp, sources as rows and personal-day series | §7, §5.2 |
 | v0.25 | Step 3 begun: formulas and rollups, Tendril's engine ported to `:core` with property ids for keys, computed columns worked out on read so views sort and filter on them | §3.12, §7 |
 | v0.24 | Slice 12d built: the journal on fixed ids, Road Map links and database relations that can be removed and made again, always two-way relations from one stored link, blocked-by, and templates that copy structure; slice 12 and the schema slices are done | §3.12, §5.2, §7 |
@@ -90,7 +91,7 @@ Everything else in this spec is filtered through these.
 |---|---|---|---|
 | Pages & canvas | page, block, property, property_value, page_database, page_database_view, page_relation, page_canvas, canvas_node, canvas_edge, page_revision | Tendril | the page-merge rule changes (§3.12) |
 | Trackers & goals | tracker, tracker_choice, tracker_reading (was `EntryEntity`), goal, saved_chart, checklist, checklist_item | Chronicle | `docs/sole-owner-probe-2026-10-01.md` |
-| Regulation | sensory_log, masking_entry, regulation_event, pending_outcome, daily_index | Equipoise | the same probe |
+| Regulation | sensory_log, masking_entry, regulation_event, pending_outcome (local), daily_index (never stored, decision 14) | Equipoise | the same probe |
 | Time blocks, calendar links | habit_block, calendar_link (device-local) | Tendril | the same probe |
 
 **Dropped as mechanisms, with their behaviour kept elsewhere:**
@@ -220,7 +221,7 @@ Every decision here was scored against its owners' behaviour cases, with a contr
 - **A check-in has three ADR 01 groups**: what it says (its moment, the day it is about, its values), written once; its note; its deletion, so a note edited on another device never brings back one undone (Tendril: delete wins). It is undone, not changed; several a day are kept.
 - **Scales:** a Tendril energy tap is (k − 0.5) / 5 with `source_levels = 5`; Equipoise's widget keeps the values it has always stored, 0.15, 0.5 and 0.85, with `source_levels = 3`. The rules (a whole mood 1–5, axes 0–1, a whole step count on an axis, a well-formed moment and day) sit on the group written once.
 - **Days:** a check-in counts for the day it is about, else the personal day it was made on; the day it is about is no later than that personal day. The engines read the moment: their history is every two-axis check-in made before the one judged, by its personal day.
-- **Ported unchanged:** Equipoise's LowMoment and StabilityTrend (said in words only, owner 2026-10-03), with their tests. Not ported yet: the check-in shapes (with the screens), BurnoutIndex (§10 item 5) and the direction engines (with regulation, §7 step 3).
+- **Ported unchanged:** Equipoise's LowMoment and StabilityTrend (said in words only, owner 2026-10-03), with their tests. Not ported yet: the check-in shapes (with the screens). BurnoutIndex and the direction engines came with regulation (§7 step 3).
 
 ### 3.6 Habits — ADR 06
 
@@ -494,7 +495,7 @@ The device id is not a setting.
 |---|---|---|
 | Items | `item` (TASK, EVENT, REMINDER, HABIT, ACTIVITY), `completion`, `reminder`, `occurrence_edit`, `time_span` | §3.2, §3.3, §3.6, §3.7, §3.11 |
 | Trackers | `tracker`, `tracker_choice`, `tracker_reading`, `goal`, `saved_chart`, `chart_source` | §2, §3.6, §7 |
-| Check-in & regulation | `check_in`, `sensory_log`, `masking_entry`, `regulation_event`, `pending_outcome`, `daily_index` | §3.5, §2 |
+| Check-in & regulation | `check_in`, `sensory_log`, `masking_entry`, `regulation_event` | §3.5, §2, §7 |
 | Pages | `page`, `block`, `page_database`, `property`, `property_option`, `property_value`, `value_pick`, `page_view`, `page_canvas`, `canvas_node`, `canvas_edge`, `page_relation`, `relation_link` | §2, §3.12 |
 | Labels | `label`, `page_label` | §3.8 |
 | Page notices | `page_notice` (the replaced-by-a-sync notice) | §3.12 |
@@ -503,6 +504,7 @@ The device id is not a setting.
 **Local only, never synced:**
 - `page_revision` and `sync_lost` (§3.12);
 - `calendar_link` (§2);
+- `pending_outcome`, the outcome this device still owes (§7 step 3);
 - `search_fts` and `search_key` (§3.10);
 - the device store for DEVICE_PREF and DEVICE_STATE keys;
 - the secret store;
@@ -534,6 +536,7 @@ The four source apps are the owner's own. The only third-party code found so far
 2. **Schema slices in ADR dependency order:** 01 → 02 → 03 → 04 → 11 → 06 → 07 → 08 → 09 → 10 → 05 → 12. Each slice is done when its ADR cases pass as tests against the real implementation (§3). Spikes 1 and 3 run with slice 10. Spike 5 needs the Android shell and a device, so it runs with the shell (step 4). **Slice 01: done 2026-10-01** (§3.1), with its folder importer and exporter (§3.13). **Slice 02: done 2026-10-01** (§3.2). **Slice 03: done 2026-10-02** (§3.3). **Slice 04: done 2026-10-02** (§3.4), except spike 5, which needs the Android shell. **Slice 11: done 2026-10-02** (§3.11). **Slice 06: done 2026-10-02** (§3.6), with PLANNED. **Slice 07: done 2026-10-02** (§3.7). **Slice 08: done 2026-10-02** (§3.8), but for its page cases, which come with slice 12. **Slice 09: done 2026-10-02** (§3.9). **Slice 10: done 2026-10-03** (§3.10), but for its page cases, which come with slice 12, and the device halves of spikes 1 and 3, which come with the Android shell. **Slice 05: done 2026-10-03** (§3.5). **Slice 12a: done 2026-10-03** (§3.12): pages, blocks, labels on pages, page search, History, the notice and revive; **Slice 12b: done 2026-10-03** (§3.12): databases. **Slice 12c: done 2026-10-03** (§3.12): the canvas. **Slice 12d: done 2026-10-03** (§3.12): the journal, links and templates. With it every schema slice is done; what remains of step 2 is the device halves of spikes 1, 3 and 5, which need the Android shell.
 3. **The sole-owner modules of §2.** Owner answers 2026-10-03 (`decisions/14-sole-owner-modules.md`): built simplest first, formulas and rollups, then checklists and saved charts, regulation, database rows as tasks, and images.
    - **Formulas and rollups: done 2026-10-03.** Tendril's formula engine (lexer, parser, type checker, dependency graph, evaluator) is in `com.factotum.core.formula`, its 73 tests ported. A COMPUTED column holds, in a group of its own taking the later stamp, a formula stored with property ids for keys (typed and shown with names, so a rename never breaks it) or a rollup (a relation of its database, a value property of the related one, an aggregation). Computed values are worked out when rows are read, so a view sorts and filters on them, numbers before dates before text; a rollup reads the live related rows only, and the related rows without their own rollups, so two databases reading each other never loop. A formula is checked with every other formula of its database when written: a name two columns share, an error, a cycle (the formula's own or one a sync made), or an edit that breaks a formula naming it is refused, the message in names and pointing at what was typed. Changed from Tendril: a box never ticked reads unchecked (Tendril read it blank), a formula may read a rollup, a rollup may not read a rollup or a relation, and a template's copy keeps its formulas working.
+   - **Regulation: done 2026-10-04** (`com.factotum.core.checkin`, `com.factotum.data.checkin`). Equipoise's direction engine, outcome at next open, masking load and burnout index are ported with their tests and simulators; the engine code is unchanged but for the burnout index, which reweighs over the terms present (a person who tracks only masking can reach the top; whoever wires the once-only alert should know one ledger day or one sensory log can cross the threshold alone). Which way to regulate is worked out on demand from the live outcomes on live two-axis check-ins, so an undone check-in stops teaching; outcomes are taken only for a check-in with both axes. The onboarding answer and Mixed mode are PERSONAL settings. A tool done away from the phone is owed on this device alone (`pending_outcome`, never synced), asked once at the next open and lapsed as "not now" after that or when another tool is chosen, each step in one transaction; one owed for a check-in since undone is dropped without a word. A ledger day is one row, `masking:<day>`, made with one fixed app stamp so two devices write one row and making it never undoes a clearing; its three scales are groups, empty until tapped; a clearing empties them, and a tap brings the day back afresh. A sensory log is five channels in 0..1, said once and undone. The burnout index is never stored: over the fourteen personal days up to now, a day's energy is the mean of its energy values (one-axis taps included), its masking load counts only when all three scales are set (a day partly answered adds nothing, provisionally: the screens may ask for all three at once), its sensory load is the mean of its logs' channel means, and its sleep is the sum of the readings that day of the live tracker named in `SLEEP_TRACKER`.
    - **Checklists and saved charts: done 2026-10-04** (`com.factotum.data.checklist`, `com.factotum.data.chart`, `com.factotum.core.chart`). A checklist's name, place, last reset and deletion are groups, and an item's text, tick, place and deletion; a reset is one stamp, and an item reads ticked only when ticked after it, so a tick made before a reset is cleared whenever it syncs. A deletion wins over an edit made apart; a list's deletion takes its items with a stamp just above each one's own, so a restore brings back exactly the items a list's deletion took, on any device, and an item deleted by hand meanwhile stays deleted; an item deleted by hand comes back from the list's Trash. Lists and charts have a manual order, a new one first; items are added last. Names and item text are never blank. Search finds a checklist by name first, then by its items, never under a deleted list. A chart's type is written once; its name, range and place are groups; its sources are rows (`chart_source:<chart>:<kind>:<source>`), so two devices adding one each keep both, and one taken off comes back when added again. A chart's series are the personal days up to the one now is in: an activity's whole minutes, each span on the day it started (§3.7; Chronicle cut sessions at midnight), 0 when none; a tracker's mean reading, none when it had no reading (how to draw that waits for the screens); a deleted source draws nothing; a live recurring goal is a daily line. Chronicle's moving average and goal line are in `:core`.
 4. **Screens**, after §10.1.
 
@@ -572,7 +575,7 @@ Status: 2, 4 and 6 are done (`docs/spikes-2026-10-01.md`). 1 and 3 ran on the de
 2. **Module layout. Decided 2026-10-01:** KMP split by layer (§5.1).
 3. **Phasing. Decided 2026-10-01:** the data layer first, with no screens (§7).
 4. **What an ALARM does on Windows** (§8).
-5. **Equipoise's burnout index isn't computed in production. Decided 2026-10-03** (`decisions/14-sole-owner-modules.md`): computed on demand, never synced; sleep from a tracker the person names; a missing input reweighs the rest; a day's sensory load and energy are means. `BurnoutIndex.compute` is called only from a test, and `sleepHours` has no source table. The work is to decide where the score is computed and where sleep comes from; a tracker is the obvious source.
+5. **Equipoise's burnout index isn't computed in production. Decided 2026-10-03** (`decisions/14-sole-owner-modules.md`): computed on demand, never synced; sleep from a tracker the person names; a missing input reweighs the rest; a day's sensory load and energy are means. **Fixed 2026-10-04** with regulation (§7 step 3): `LedgerRepository.burnout` works it out over fourteen personal days.
 6. **Occurrence-edit log growth.** A storage policy for edits on occurrences more than a year in the past (§3.11).
 7. **Checklists in search. Decided 2026-10-03:** names first, then item text (`decisions/14-sole-owner-modules.md`). Checklist text isn't indexed today (§3.10). Adding it is a feature choice.
 8. **The map's copies. Done 2026-10-01.**

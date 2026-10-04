@@ -61,6 +61,17 @@ import com.factotum.data.search.SearchDao
 import com.factotum.data.checkin.CHECK_IN
 import com.factotum.data.checkin.CheckInDao
 import com.factotum.data.checkin.CheckInEntity
+import com.factotum.data.checkin.MASKING_ENTRY
+import com.factotum.data.checkin.MaskingEntryEntity
+import com.factotum.data.checkin.PendingOutcomeEntity
+import com.factotum.data.checkin.REGULATION_EVENT
+import com.factotum.data.checkin.RegulationDao
+import com.factotum.data.checkin.RegulationEventEntity
+import com.factotum.data.checkin.SENSORY_LOG
+import com.factotum.data.checkin.SensoryLogEntity
+import com.factotum.data.checkin.maskingTable
+import com.factotum.data.checkin.regulationEventTable
+import com.factotum.data.checkin.sensoryTable
 import com.factotum.data.checkin.checkInTable
 import com.factotum.data.search.SearchKeyEntity
 import com.factotum.data.search.SearchTextEntity
@@ -146,6 +157,7 @@ import com.factotum.data.sync.LostEntity
         PageDatabaseEntity::class, PropertyEntity::class, OptionEntity::class, PropertyValueEntity::class, ValuePickEntity::class, ViewEntity::class,
         PageCanvasEntity::class, CanvasNodeEntity::class, CanvasEdgeEntity::class, PageRelationEntity::class, RelationLinkEntity::class,
         ChecklistEntity::class, ChecklistItemEntity::class, SavedChartEntity::class, ChartSourceEntity::class,
+        SensoryLogEntity::class, MaskingEntryEntity::class, RegulationEventEntity::class, PendingOutcomeEntity::class,
     ],
     version = SCHEMA_VERSION,
     exportSchema = true,
@@ -153,7 +165,7 @@ import com.factotum.data.sync.LostEntity
         AutoMigration(from = 1, to = 2), AutoMigration(from = 2, to = 3), AutoMigration(from = 3, to = 4), AutoMigration(from = 4, to = 5),
         AutoMigration(from = 5, to = 6), AutoMigration(from = 6, to = 7), AutoMigration(from = 7, to = 8, spec = SeedBlocks::class),
         AutoMigration(from = 8, to = 9), AutoMigration(from = 9, to = 10), AutoMigration(from = 10, to = 11), AutoMigration(from = 11, to = 12), AutoMigration(from = 12, to = 13),
-        AutoMigration(from = 13, to = 14), AutoMigration(from = 14, to = 15), AutoMigration(from = 15, to = 16), AutoMigration(from = 16, to = 17), AutoMigration(from = 17, to = 18), AutoMigration(from = 18, to = 19),
+        AutoMigration(from = 13, to = 14), AutoMigration(from = 14, to = 15), AutoMigration(from = 15, to = 16), AutoMigration(from = 16, to = 17), AutoMigration(from = 17, to = 18), AutoMigration(from = 18, to = 19), AutoMigration(from = 19, to = 20),
     ],
 )
 @ConstructedBy(FactotumDatabaseConstructor::class)
@@ -173,10 +185,11 @@ abstract class FactotumDatabase : RoomDatabase() {
     internal abstract fun linkDao(): LinkDao
     internal abstract fun checklistDao(): ChecklistDao
     internal abstract fun chartDao(): ChartDao
+    internal abstract fun regulationDao(): RegulationDao
 }
 
 /** The synced tables, by the name their folder records carry; [SchemaTriggers] queues writes to each for export. */
-internal val SYNCED_TABLES = listOf(SETTING, LABEL, TRACKER, TRACKER_CHOICE, HABIT_BLOCK, ITEM, TIME_SPAN, COMPLETION, REMINDER, OCCURRENCE_EDIT, TRACKER_READING, GOAL, CHECK_IN, PAGE, PAGE_DATABASE, PROPERTY, PROPERTY_OPTION, PAGE_VIEW, PAGE_CANVAS, CANVAS_NODE, CANVAS_EDGE, BLOCK, PAGE_LABEL, PAGE_NOTICE, PROPERTY_VALUE, VALUE_PICK, PAGE_RELATION, RELATION_LINK, CHECKLIST, CHECKLIST_ITEM, SAVED_CHART, CHART_SOURCE)
+internal val SYNCED_TABLES = listOf(SETTING, LABEL, TRACKER, TRACKER_CHOICE, HABIT_BLOCK, ITEM, TIME_SPAN, COMPLETION, REMINDER, OCCURRENCE_EDIT, TRACKER_READING, GOAL, CHECK_IN, PAGE, PAGE_DATABASE, PROPERTY, PROPERTY_OPTION, PAGE_VIEW, PAGE_CANVAS, CANVAS_NODE, CANVAS_EDGE, BLOCK, PAGE_LABEL, PAGE_NOTICE, PROPERTY_VALUE, VALUE_PICK, PAGE_RELATION, RELATION_LINK, CHECKLIST, CHECKLIST_ITEM, SAVED_CHART, CHART_SOURCE, SENSORY_LOG, MASKING_ENTRY, REGULATION_EVENT)
 
 /** In [SYNCED_TABLES]' order, parents before children, which is the order a snapshot is written in. */
 internal fun FactotumDatabase.syncedTables(): Map<String, RowTable> {
@@ -196,6 +209,7 @@ internal fun FactotumDatabase.syncedTables(): Map<String, RowTable> {
         BLOCK to blockTable(pages), PAGE_LABEL to pageLabelTable(pages), PAGE_NOTICE to noticeTable(pages),
         PROPERTY_VALUE to valueTable(databases), VALUE_PICK to pickTable(databases), PAGE_RELATION to relationTable(links), RELATION_LINK to linkTable(links),
         CHECKLIST to checklistTable(checklistDao()), CHECKLIST_ITEM to checklistItemTable(checklistDao()), SAVED_CHART to chartTable(chartDao()), CHART_SOURCE to chartSourceTable(chartDao()),
+        SENSORY_LOG to sensoryTable(regulationDao()), MASKING_ENTRY to maskingTable(regulationDao()), REGULATION_EVENT to regulationEventTable(regulationDao()),
     ).also { check(it.keys.toList() == SYNCED_TABLES) { "every synced table needs its export triggers" } }
 }
 
@@ -211,4 +225,4 @@ expect object FactotumDatabaseConstructor : RoomDatabaseConstructor<FactotumData
 const val DATABASE_NAME = "factotum.db"
 
 /** The schema's version; a file below it is upgraded by Room's migrations on open. */
-internal const val SCHEMA_VERSION = 19
+internal const val SCHEMA_VERSION = 20

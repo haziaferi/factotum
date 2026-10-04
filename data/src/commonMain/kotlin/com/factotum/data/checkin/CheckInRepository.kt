@@ -1,6 +1,5 @@
 package com.factotum.data.checkin
 
-import com.factotum.core.checkin.CheckIn
 import com.factotum.core.checkin.Logged
 import com.factotum.core.checkin.Stability
 import com.factotum.core.checkin.axisValue
@@ -119,9 +118,7 @@ internal class CheckInRepository(
      */
     suspend fun engineHistory(before: LocalDateTime): List<Logged> {
         val dayStart = personal.dayStart()
-        return dao.bothAxes(before.toString()).map { e ->
-            Logged(dayOf(LocalDateTime.parse(e.at), dayStart).toEpochDays().toInt(), CheckIn(requireNotNull(e.energy), requireNotNull(e.pleasantness), e.stability?.let(Stability::valueOf) ?: Stability.UNSET))
-        }
+        return dao.bothAxes(before.toString()).map { it.logged(dayStart) }
     }
 }
 

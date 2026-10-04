@@ -69,6 +69,10 @@ internal interface CheckInDao {
     )
     suspend fun around(from: String, to: String, fromDay: String, toDay: String): List<CheckInEntity>
 
+    /** Live check-ins made in `[from, to)`, in the order they were made. */
+    @Query("SELECT * FROM check_in WHERE deleted_at IS NULL AND at >= :from AND at < :to ORDER BY at, id")
+    suspend fun madeBetween(from: String, to: String): List<CheckInEntity>
+
     /** Every live check-in with both of Equipoise's axes made before [before]: what its engines read. */
     @Query("SELECT * FROM check_in WHERE deleted_at IS NULL AND energy IS NOT NULL AND pleasantness IS NOT NULL AND at < :before ORDER BY at, id")
     suspend fun bothAxes(before: String): List<CheckInEntity>

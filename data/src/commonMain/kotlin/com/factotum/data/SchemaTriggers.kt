@@ -23,6 +23,9 @@ import com.factotum.data.page.PAGE_CANVAS
 import com.factotum.data.chart.CHART_SOURCE
 import com.factotum.data.chart.SAVED_CHART
 import com.factotum.data.checklist.CHECKLIST_ITEM
+import com.factotum.data.checkin.MASKING_ENTRY
+import com.factotum.data.checkin.REGULATION_EVENT
+import com.factotum.data.checkin.SENSORY_LOG
 import com.factotum.data.page.PAGE_DATABASE
 import com.factotum.data.page.PAGE_RELATION
 import com.factotum.data.page.RELATION_LINK
@@ -206,6 +209,11 @@ internal object SchemaTriggers : RoomDatabase.Callback() {
         CHECK_IN to checkInRules,
         SAVED_CHART to "NEW.chart_type IN ('LINE', 'BAR', 'PIE') AND NEW.range_days > 0",
         CHART_SOURCE to "NEW.source_kind IN ('ACTIVITY', 'TRACKER')",
+        SENSORY_LOG to "COALESCE(NEW.sound BETWEEN 0 AND 1 AND NEW.light BETWEEN 0 AND 1 AND NEW.crowd BETWEEN 0 AND 1 AND NEW.temperature BETWEEN 0 AND 1 AND NEW.touch BETWEEN 0 AND 1 " +
+            "AND NEW.at GLOB '[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]T[0-9][0-9]:[0-9][0-9]*', 0)",
+        MASKING_ENTRY to "NEW.day GLOB '[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]' AND (NEW.masked IS NULL OR NEW.masked IN ('NONE', 'SOME', 'MOST', 'ALL_DAY')) " +
+            "AND (NEW.demand IS NULL OR NEW.demand IN ('LIGHT', 'SOME', 'A_LOT', 'RELENTLESS')) AND (NEW.recovery IS NULL OR NEW.recovery IN ('NONE', 'A_LITTLE', 'ENOUGH'))",
+        REGULATION_EVENT to "NEW.direction IN ('UP', 'DOWN') AND NEW.outcome IN ('HELPED', 'NO_CHANGE', 'NOT_NOW')",
     )
 
     private val statements: List<String> = buildList {
@@ -234,7 +242,8 @@ internal object SchemaTriggers : RoomDatabase.Callback() {
         for ((table, columns) in listOf(BLOCK to listOf("page_id"), PAGE_LABEL to listOf("page_id", "label_id"), PAGE_NOTICE to listOf("page_id", "row_id"),
             PAGE_DATABASE to listOf("page_id"), PROPERTY to listOf("database_id", "target_database_id", "pair_property_id"),
             PAGE_RELATION to listOf("page_a", "page_b"), RELATION_LINK to listOf("property_id", "page_id", "target_id"),
-            CHECKLIST_ITEM to listOf("checklist_id"), SAVED_CHART to listOf("chart_type"), CHART_SOURCE to listOf("chart_id", "source_kind", "source_id"), PROPERTY_OPTION to listOf("property_id"), PROPERTY_VALUE to listOf("page_id", "property_id"),
+            CHECKLIST_ITEM to listOf("checklist_id"), SAVED_CHART to listOf("chart_type"), CHART_SOURCE to listOf("chart_id", "source_kind", "source_id"),
+            MASKING_ENTRY to listOf("day"), PROPERTY_OPTION to listOf("property_id"), PROPERTY_VALUE to listOf("page_id", "property_id"),
             VALUE_PICK to listOf("page_id", "property_id", "option_id"), PAGE_VIEW to listOf("database_id"),
             PAGE_CANVAS to listOf("page_id"), CANVAS_NODE to listOf("page_id", "type", "page_ref"), CANVAS_EDGE to listOf("page_id", "from_node_id", "to_node_id"),
         )) {
