@@ -1,0 +1,4844 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 22,
+    "identityHash": "3c872430ef113e49808fc816c204083c",
+    "entities": [
+      {
+        "tableName": "purge_registry",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `hlc` INTEGER NOT NULL, `device` TEXT NOT NULL, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "hlc",
+            "columnName": "hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "device",
+            "columnName": "device",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        }
+      },
+      {
+        "tableName": "clock",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `last_hlc` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lastHlc",
+            "columnName": "last_hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        }
+      },
+      {
+        "tableName": "sync_base",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `grp` TEXT NOT NULL, `hlc` INTEGER NOT NULL, `device` TEXT NOT NULL, PRIMARY KEY(`id`, `grp`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "grp",
+            "columnName": "grp",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "hlc",
+            "columnName": "hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "device",
+            "columnName": "device",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id",
+            "grp"
+          ]
+        }
+      },
+      {
+        "tableName": "sync_ask",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `grp` TEXT NOT NULL, `theirs` TEXT NOT NULL, PRIMARY KEY(`id`, `grp`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "grp",
+            "columnName": "grp",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "theirs",
+            "columnName": "theirs",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id",
+            "grp"
+          ]
+        }
+      },
+      {
+        "tableName": "sync_read",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`path` TEXT NOT NULL, `read_bytes` INTEGER NOT NULL, PRIMARY KEY(`path`))",
+        "fields": [
+          {
+            "fieldPath": "path",
+            "columnName": "path",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "readBytes",
+            "columnName": "read_bytes",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "path"
+          ]
+        }
+      },
+      {
+        "tableName": "sync_outbox",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`n` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `id` TEXT NOT NULL, `tbl` TEXT)",
+        "fields": [
+          {
+            "fieldPath": "n",
+            "columnName": "n",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "table",
+            "columnName": "tbl",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "n"
+          ]
+        }
+      },
+      {
+        "tableName": "sync_tables",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `names` TEXT NOT NULL, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "names",
+            "columnName": "names",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        }
+      },
+      {
+        "tableName": "sync_waiting",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`n` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `line` TEXT NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "n",
+            "columnName": "n",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "line",
+            "columnName": "line",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "n"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_sync_waiting_line",
+            "unique": true,
+            "columnNames": [
+              "line"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_sync_waiting_line` ON `${TABLE_NAME}` (`line`)"
+          }
+        ]
+      },
+      {
+        "tableName": "item",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `kind` TEXT NOT NULL, `title` TEXT NOT NULL, `parent_id` TEXT, `tracker_id` TEXT, `block_id` TEXT, `icon` TEXT, `color` INTEGER, `sort_order` REAL, `details_hlc` INTEGER NOT NULL, `details_device` TEXT NOT NULL, `start_date` TEXT, `start_time` TEXT, `end_date` TEXT, `end_time` TEXT, `due_date` TEXT, `deleted_at` INTEGER, `pause_from` TEXT, `pause_until` TEXT, `duration_min` INTEGER, `schedule_hlc` INTEGER NOT NULL, `schedule_device` TEXT NOT NULL, `schedule_settles_hlc` INTEGER, `schedule_settles_device` TEXT, `status` TEXT, `importance` INTEGER NOT NULL, `archived` INTEGER, `capacity_rank` INTEGER, `status_hlc` INTEGER NOT NULL, `status_device` TEXT NOT NULL, `label_id` TEXT, `label_hlc` INTEGER NOT NULL DEFAULT 0, `label_device` TEXT NOT NULL DEFAULT '', `recurrence_kind` TEXT, `rrule` TEXT, `rand_min_days` INTEGER, `rand_max_days` INTEGER, `window_days` INTEGER, `window_start` TEXT, `window_end` TEXT, `roll_every` INTEGER, `roll_unit` TEXT, `plan_n` INTEGER, `plan_per` TEXT, `plan_days` INTEGER, `plan_blocks` TEXT, PRIMARY KEY(`id`), FOREIGN KEY(`parent_id`) REFERENCES `item`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED, FOREIGN KEY(`tracker_id`) REFERENCES `tracker`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "kind",
+            "columnName": "kind",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "title",
+            "columnName": "title",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "parentId",
+            "columnName": "parent_id",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "trackerId",
+            "columnName": "tracker_id",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "blockId",
+            "columnName": "block_id",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "icon",
+            "columnName": "icon",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "color",
+            "columnName": "color",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "sortOrder",
+            "columnName": "sort_order",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "detailsHlc",
+            "columnName": "details_hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "detailsDevice",
+            "columnName": "details_device",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "startDate",
+            "columnName": "start_date",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "startTime",
+            "columnName": "start_time",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "endDate",
+            "columnName": "end_date",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "endTime",
+            "columnName": "end_time",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "dueDate",
+            "columnName": "due_date",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "deletedAt",
+            "columnName": "deleted_at",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "pauseFrom",
+            "columnName": "pause_from",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "pauseUntil",
+            "columnName": "pause_until",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "durationMin",
+            "columnName": "duration_min",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "scheduleHlc",
+            "columnName": "schedule_hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "scheduleDevice",
+            "columnName": "schedule_device",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "scheduleSettlesHlc",
+            "columnName": "schedule_settles_hlc",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "scheduleSettlesDevice",
+            "columnName": "schedule_settles_device",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "status",
+            "columnName": "status",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "importance",
+            "columnName": "importance",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "archived",
+            "columnName": "archived",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "capacityRank",
+            "columnName": "capacity_rank",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "statusHlc",
+            "columnName": "status_hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "statusDevice",
+            "columnName": "status_device",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "labelId",
+            "columnName": "label_id",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "labelHlc",
+            "columnName": "label_hlc",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "0"
+          },
+          {
+            "fieldPath": "labelDevice",
+            "columnName": "label_device",
+            "affinity": "TEXT",
+            "notNull": true,
+            "defaultValue": "''"
+          },
+          {
+            "fieldPath": "repeat.kind",
+            "columnName": "recurrence_kind",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "repeat.rrule",
+            "columnName": "rrule",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "repeat.randMinDays",
+            "columnName": "rand_min_days",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "repeat.randMaxDays",
+            "columnName": "rand_max_days",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "repeat.windowDays",
+            "columnName": "window_days",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "repeat.windowStart",
+            "columnName": "window_start",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "repeat.windowEnd",
+            "columnName": "window_end",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "repeat.rollEvery",
+            "columnName": "roll_every",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "repeat.rollUnit",
+            "columnName": "roll_unit",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "repeat.planN",
+            "columnName": "plan_n",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "repeat.planPer",
+            "columnName": "plan_per",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "repeat.planDays",
+            "columnName": "plan_days",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "repeat.planBlocks",
+            "columnName": "plan_blocks",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "item_kind_date",
+            "unique": false,
+            "columnNames": [
+              "kind",
+              "start_date"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `item_kind_date` ON `${TABLE_NAME}` (`kind`, `start_date`)"
+          },
+          {
+            "name": "index_item_parent_id",
+            "unique": false,
+            "columnNames": [
+              "parent_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_item_parent_id` ON `${TABLE_NAME}` (`parent_id`)"
+          },
+          {
+            "name": "index_item_tracker_id",
+            "unique": false,
+            "columnNames": [
+              "tracker_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_item_tracker_id` ON `${TABLE_NAME}` (`tracker_id`)"
+          },
+          {
+            "name": "index_item_label_id",
+            "unique": false,
+            "columnNames": [
+              "label_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_item_label_id` ON `${TABLE_NAME}` (`label_id`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "item",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "parent_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          },
+          {
+            "table": "tracker",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "tracker_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "completion",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `item_id` TEXT NOT NULL, `occurrence` TEXT NOT NULL, `status` TEXT NOT NULL, `deleted_at` INTEGER, `hlc` INTEGER NOT NULL, `device` TEXT NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`item_id`) REFERENCES `item`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "itemId",
+            "columnName": "item_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "occurrence",
+            "columnName": "occurrence",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "status",
+            "columnName": "status",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "deletedAt",
+            "columnName": "deleted_at",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "hlc",
+            "columnName": "hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "device",
+            "columnName": "device",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_completion_item_id",
+            "unique": false,
+            "columnNames": [
+              "item_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_completion_item_id` ON `${TABLE_NAME}` (`item_id`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "item",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "item_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "reminder",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `item_id` TEXT NOT NULL, `offset_min` INTEGER NOT NULL, `anchor_time` TEXT, `alert_kind` TEXT NOT NULL, `nag_repeats` INTEGER NOT NULL, `nag_minutes` INTEGER, `sound` TEXT, `vibration` TEXT, `mode` TEXT NOT NULL, `skin` TEXT, `exact` INTEGER NOT NULL, `deleted_at` INTEGER, `alert_hlc` INTEGER NOT NULL, `alert_device` TEXT NOT NULL, `snoozed_until` TEXT, `snoozed_from` TEXT, `status_hlc` INTEGER NOT NULL, `status_device` TEXT NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`item_id`) REFERENCES `item`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "itemId",
+            "columnName": "item_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "offsetMin",
+            "columnName": "offset_min",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "anchorTime",
+            "columnName": "anchor_time",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "alertKind",
+            "columnName": "alert_kind",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nagRepeats",
+            "columnName": "nag_repeats",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nagMinutes",
+            "columnName": "nag_minutes",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "sound",
+            "columnName": "sound",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "vibration",
+            "columnName": "vibration",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "mode",
+            "columnName": "mode",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "skin",
+            "columnName": "skin",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "exact",
+            "columnName": "exact",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "deletedAt",
+            "columnName": "deleted_at",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "alertHlc",
+            "columnName": "alert_hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "alertDevice",
+            "columnName": "alert_device",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "snoozedUntil",
+            "columnName": "snoozed_until",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "snoozedFrom",
+            "columnName": "snoozed_from",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "statusHlc",
+            "columnName": "status_hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "statusDevice",
+            "columnName": "status_device",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_reminder_item_id",
+            "unique": false,
+            "columnNames": [
+              "item_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_reminder_item_id` ON `${TABLE_NAME}` (`item_id`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "item",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "item_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "occurrence_edit",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `item_id` TEXT NOT NULL, `scope` TEXT NOT NULL, `at` TEXT, `date` TEXT, `days` INTEGER NOT NULL, `changes` TEXT NOT NULL, `created_hlc` INTEGER NOT NULL, `created_device` TEXT NOT NULL, `seen` TEXT NOT NULL, `deleted_at` INTEGER, `hlc` INTEGER NOT NULL, `device` TEXT NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`item_id`) REFERENCES `item`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "itemId",
+            "columnName": "item_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "scope",
+            "columnName": "scope",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "at",
+            "columnName": "at",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "date",
+            "columnName": "date",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "days",
+            "columnName": "days",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "changes",
+            "columnName": "changes",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "createdHlc",
+            "columnName": "created_hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "createdDevice",
+            "columnName": "created_device",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "seen",
+            "columnName": "seen",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "deletedAt",
+            "columnName": "deleted_at",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "hlc",
+            "columnName": "hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "device",
+            "columnName": "device",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_occurrence_edit_item_id",
+            "unique": false,
+            "columnNames": [
+              "item_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_occurrence_edit_item_id` ON `${TABLE_NAME}` (`item_id`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "item",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "item_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "tracker",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `name` TEXT NOT NULL, `type` TEXT NOT NULL, `unit` TEXT, `unit_label` TEXT, `default_number` REAL, `default_bool` INTEGER, `default_rating` INTEGER, `polarity` TEXT NOT NULL, `archived` INTEGER NOT NULL, `sort_order` INTEGER NOT NULL, `deleted_at` INTEGER, `hlc` INTEGER NOT NULL, `device` TEXT NOT NULL, `label_id` TEXT, `label_hlc` INTEGER NOT NULL DEFAULT 0, `label_device` TEXT NOT NULL DEFAULT '', PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "type",
+            "columnName": "type",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "unit",
+            "columnName": "unit",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "unitLabel",
+            "columnName": "unit_label",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "defaultNumber",
+            "columnName": "default_number",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "defaultBool",
+            "columnName": "default_bool",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "defaultRating",
+            "columnName": "default_rating",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "polarity",
+            "columnName": "polarity",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "archived",
+            "columnName": "archived",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sortOrder",
+            "columnName": "sort_order",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "deletedAt",
+            "columnName": "deleted_at",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "hlc",
+            "columnName": "hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "device",
+            "columnName": "device",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "labelId",
+            "columnName": "label_id",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "labelHlc",
+            "columnName": "label_hlc",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "0"
+          },
+          {
+            "fieldPath": "labelDevice",
+            "columnName": "label_device",
+            "affinity": "TEXT",
+            "notNull": true,
+            "defaultValue": "''"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_tracker_label_id",
+            "unique": false,
+            "columnNames": [
+              "label_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_tracker_label_id` ON `${TABLE_NAME}` (`label_id`)"
+          }
+        ]
+      },
+      {
+        "tableName": "tracker_choice",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `tracker_id` TEXT NOT NULL, `label` TEXT NOT NULL, `color_argb` INTEGER, `sort_order` INTEGER NOT NULL, `deleted_at` INTEGER, `hlc` INTEGER NOT NULL, `device` TEXT NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`tracker_id`) REFERENCES `tracker`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "trackerId",
+            "columnName": "tracker_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "label",
+            "columnName": "label",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "colorArgb",
+            "columnName": "color_argb",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "sortOrder",
+            "columnName": "sort_order",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "deletedAt",
+            "columnName": "deleted_at",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "hlc",
+            "columnName": "hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "device",
+            "columnName": "device",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_tracker_choice_tracker_id",
+            "unique": false,
+            "columnNames": [
+              "tracker_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_tracker_choice_tracker_id` ON `${TABLE_NAME}` (`tracker_id`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "tracker",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "tracker_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "tracker_reading",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `tracker_id` TEXT NOT NULL, `at` TEXT NOT NULL, `number_value` REAL, `bool_value` INTEGER, `rating_value` INTEGER, `choice_id` TEXT, `label` TEXT, `note` TEXT, `occurrence` TEXT, `deleted_at` INTEGER, `hlc` INTEGER NOT NULL, `device` TEXT NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`tracker_id`) REFERENCES `tracker`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "trackerId",
+            "columnName": "tracker_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "at",
+            "columnName": "at",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "numberValue",
+            "columnName": "number_value",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "boolValue",
+            "columnName": "bool_value",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "ratingValue",
+            "columnName": "rating_value",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "choiceId",
+            "columnName": "choice_id",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "label",
+            "columnName": "label",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "note",
+            "columnName": "note",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "occurrence",
+            "columnName": "occurrence",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "deletedAt",
+            "columnName": "deleted_at",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "hlc",
+            "columnName": "hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "device",
+            "columnName": "device",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_tracker_reading_tracker_id_at",
+            "unique": false,
+            "columnNames": [
+              "tracker_id",
+              "at"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_tracker_reading_tracker_id_at` ON `${TABLE_NAME}` (`tracker_id`, `at`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "tracker",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "tracker_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "goal",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `target_type` TEXT NOT NULL, `target_id` TEXT NOT NULL, `period` TEXT NOT NULL, `value` REAL NOT NULL, `kind` TEXT NOT NULL, `completion_mode` TEXT NOT NULL, `achieved_at` TEXT, `deleted_at` INTEGER, `hlc` INTEGER NOT NULL, `device` TEXT NOT NULL, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "targetType",
+            "columnName": "target_type",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "targetId",
+            "columnName": "target_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "period",
+            "columnName": "period",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "value",
+            "columnName": "value",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "kind",
+            "columnName": "kind",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "completionMode",
+            "columnName": "completion_mode",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "achievedAt",
+            "columnName": "achieved_at",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "deletedAt",
+            "columnName": "deleted_at",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "hlc",
+            "columnName": "hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "device",
+            "columnName": "device",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        }
+      },
+      {
+        "tableName": "habit_block",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `name` TEXT, `start_minute` INTEGER NOT NULL, `end_minute` INTEGER NOT NULL, `position` INTEGER NOT NULL, `icon` TEXT, `hue` INTEGER, `overrides` TEXT, `deleted_at` INTEGER, `hlc` INTEGER NOT NULL, `device` TEXT NOT NULL, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "startMinute",
+            "columnName": "start_minute",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "endMinute",
+            "columnName": "end_minute",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "position",
+            "columnName": "position",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "icon",
+            "columnName": "icon",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "hue",
+            "columnName": "hue",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "overrides",
+            "columnName": "overrides",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "deletedAt",
+            "columnName": "deleted_at",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "hlc",
+            "columnName": "hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "device",
+            "columnName": "device",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        }
+      },
+      {
+        "tableName": "time_span",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `item_id` TEXT NOT NULL, `started_at` TEXT NOT NULL, `planned_run` TEXT, `start_hlc` INTEGER NOT NULL, `start_device` TEXT NOT NULL, `ended_at` TEXT, `end_hlc` INTEGER NOT NULL, `end_device` TEXT NOT NULL, `deleted_at` INTEGER, `gone_hlc` INTEGER NOT NULL, `gone_device` TEXT NOT NULL, `kept_at` TEXT, `kept_hlc` INTEGER NOT NULL, `kept_device` TEXT NOT NULL, `comment` TEXT, `note_hlc` INTEGER NOT NULL, `note_device` TEXT NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`item_id`) REFERENCES `item`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "itemId",
+            "columnName": "item_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "startedAt",
+            "columnName": "started_at",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "plannedRun",
+            "columnName": "planned_run",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "startHlc",
+            "columnName": "start_hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "startDevice",
+            "columnName": "start_device",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "endedAt",
+            "columnName": "ended_at",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "endHlc",
+            "columnName": "end_hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "endDevice",
+            "columnName": "end_device",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "deletedAt",
+            "columnName": "deleted_at",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "goneHlc",
+            "columnName": "gone_hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "goneDevice",
+            "columnName": "gone_device",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "keptAt",
+            "columnName": "kept_at",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "keptHlc",
+            "columnName": "kept_hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "keptDevice",
+            "columnName": "kept_device",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "comment",
+            "columnName": "comment",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "noteHlc",
+            "columnName": "note_hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "noteDevice",
+            "columnName": "note_device",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_time_span_item_id_started_at",
+            "unique": false,
+            "columnNames": [
+              "item_id",
+              "started_at"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_time_span_item_id_started_at` ON `${TABLE_NAME}` (`item_id`, `started_at`)"
+          },
+          {
+            "name": "index_time_span_started_at",
+            "unique": false,
+            "columnNames": [
+              "started_at"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_time_span_started_at` ON `${TABLE_NAME}` (`started_at`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "item",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "item_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "label",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `name` TEXT NOT NULL, `name_hlc` INTEGER NOT NULL, `name_device` TEXT NOT NULL, `color` INTEGER NOT NULL, `look_hlc` INTEGER NOT NULL, `look_device` TEXT NOT NULL, `applies_to` TEXT NOT NULL, `scope_hlc` INTEGER NOT NULL, `scope_device` TEXT NOT NULL, `sort_order` REAL NOT NULL, `order_hlc` INTEGER NOT NULL, `order_device` TEXT NOT NULL, `deleted_at` INTEGER, `merged_into` TEXT, `gone_hlc` INTEGER NOT NULL, `gone_device` TEXT NOT NULL, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nameHlc",
+            "columnName": "name_hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nameDevice",
+            "columnName": "name_device",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "color",
+            "columnName": "color",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lookHlc",
+            "columnName": "look_hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lookDevice",
+            "columnName": "look_device",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "appliesTo",
+            "columnName": "applies_to",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "scopeHlc",
+            "columnName": "scope_hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "scopeDevice",
+            "columnName": "scope_device",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sortOrder",
+            "columnName": "sort_order",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "orderHlc",
+            "columnName": "order_hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "orderDevice",
+            "columnName": "order_device",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "deletedAt",
+            "columnName": "deleted_at",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "mergedInto",
+            "columnName": "merged_into",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "goneHlc",
+            "columnName": "gone_hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "goneDevice",
+            "columnName": "gone_device",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        }
+      },
+      {
+        "tableName": "setting",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `value` TEXT, `hlc` INTEGER NOT NULL, `device` TEXT NOT NULL, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "value",
+            "columnName": "value",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "hlc",
+            "columnName": "hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "device",
+            "columnName": "device",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        }
+      },
+      {
+        "tableName": "device_setting",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`key` TEXT NOT NULL, `value` TEXT NOT NULL, PRIMARY KEY(`key`))",
+        "fields": [
+          {
+            "fieldPath": "key",
+            "columnName": "key",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "value",
+            "columnName": "value",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "key"
+          ]
+        }
+      },
+      {
+        "tableName": "search_fts",
+        "createSql": "CREATE VIRTUAL TABLE IF NOT EXISTS `${TABLE_NAME}` USING FTS4(`text` TEXT NOT NULL, tokenize=unicode61 `remove_diacritics=2`)",
+        "fields": [
+          {
+            "fieldPath": "text",
+            "columnName": "text",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "rowid"
+          ]
+        },
+        "ftsVersion": "FTS4",
+        "ftsOptions": {
+          "tokenizer": "unicode61",
+          "tokenizerArgs": [
+            "remove_diacritics=2"
+          ],
+          "contentTable": "",
+          "languageIdColumnName": "",
+          "matchInfo": "FTS4",
+          "notIndexedColumns": [],
+          "prefixSizes": [],
+          "preferredOrder": "ASC"
+        },
+        "contentSyncTriggers": []
+      },
+      {
+        "tableName": "search_key",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`doc` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `kind` TEXT NOT NULL, `row_key` TEXT NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "doc",
+            "columnName": "doc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "kind",
+            "columnName": "kind",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "rowKey",
+            "columnName": "row_key",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "doc"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_search_key_kind_row_key",
+            "unique": true,
+            "columnNames": [
+              "kind",
+              "row_key"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_search_key_kind_row_key` ON `${TABLE_NAME}` (`kind`, `row_key`)"
+          }
+        ]
+      },
+      {
+        "tableName": "check_in",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `at` TEXT NOT NULL, `day` TEXT, `mood` INTEGER, `energy` REAL, `pleasantness` REAL, `source_levels` INTEGER, `stability` TEXT, `said_hlc` INTEGER NOT NULL, `said_device` TEXT NOT NULL, `note` TEXT, `note_hlc` INTEGER NOT NULL, `note_device` TEXT NOT NULL, `deleted_at` INTEGER, `gone_hlc` INTEGER NOT NULL, `gone_device` TEXT NOT NULL, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "at",
+            "columnName": "at",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "day",
+            "columnName": "day",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "mood",
+            "columnName": "mood",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "energy",
+            "columnName": "energy",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "pleasantness",
+            "columnName": "pleasantness",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "sourceLevels",
+            "columnName": "source_levels",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "stability",
+            "columnName": "stability",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "saidHlc",
+            "columnName": "said_hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "saidDevice",
+            "columnName": "said_device",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "note",
+            "columnName": "note",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "noteHlc",
+            "columnName": "note_hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "noteDevice",
+            "columnName": "note_device",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "deletedAt",
+            "columnName": "deleted_at",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "goneHlc",
+            "columnName": "gone_hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "goneDevice",
+            "columnName": "gone_device",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_check_in_at",
+            "unique": false,
+            "columnNames": [
+              "at"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_check_in_at` ON `${TABLE_NAME}` (`at`)"
+          },
+          {
+            "name": "index_check_in_day",
+            "unique": false,
+            "columnNames": [
+              "day"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_check_in_day` ON `${TABLE_NAME}` (`day`)"
+          }
+        ]
+      },
+      {
+        "tableName": "page",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `kind` TEXT NOT NULL, `made_hlc` INTEGER NOT NULL, `made_device` TEXT NOT NULL, `title` TEXT NOT NULL, `icon` TEXT, `title_hlc` INTEGER NOT NULL, `title_device` TEXT NOT NULL, `parent_id` TEXT, `place_hlc` INTEGER NOT NULL, `place_device` TEXT NOT NULL, `deleted_at` INTEGER, `gone_hlc` INTEGER NOT NULL, `gone_device` TEXT NOT NULL, `is_template` INTEGER, PRIMARY KEY(`id`), FOREIGN KEY(`parent_id`) REFERENCES `page`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "kind",
+            "columnName": "kind",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "madeHlc",
+            "columnName": "made_hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "madeDevice",
+            "columnName": "made_device",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "title",
+            "columnName": "title",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "icon",
+            "columnName": "icon",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "titleHlc",
+            "columnName": "title_hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "titleDevice",
+            "columnName": "title_device",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "parentId",
+            "columnName": "parent_id",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "placeHlc",
+            "columnName": "place_hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "placeDevice",
+            "columnName": "place_device",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "deletedAt",
+            "columnName": "deleted_at",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "goneHlc",
+            "columnName": "gone_hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "goneDevice",
+            "columnName": "gone_device",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isTemplate",
+            "columnName": "is_template",
+            "affinity": "INTEGER"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_page_parent_id",
+            "unique": false,
+            "columnNames": [
+              "parent_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_page_parent_id` ON `${TABLE_NAME}` (`parent_id`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "page",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "parent_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "block",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `page_id` TEXT NOT NULL, `made_hlc` INTEGER NOT NULL, `made_device` TEXT NOT NULL, `type` TEXT NOT NULL, `type_hlc` INTEGER NOT NULL, `type_device` TEXT NOT NULL, `content` TEXT NOT NULL, `spans` TEXT, `text_hlc` INTEGER NOT NULL, `text_device` TEXT NOT NULL, `parent_block_id` TEXT, `sort_key` TEXT NOT NULL, `place_hlc` INTEGER NOT NULL, `place_device` TEXT NOT NULL, `checked` INTEGER, `code_language` TEXT, `callout_icon` TEXT, `callout_color` INTEGER, `mentioned_page_id` TEXT, `referenced_block_id` TEXT, `toggle_expanded` INTEGER, `attrs_hlc` INTEGER NOT NULL, `attrs_device` TEXT NOT NULL, `deleted_at` INTEGER, `gone_hlc` INTEGER NOT NULL, `gone_device` TEXT NOT NULL, `image` TEXT, `image_width` INTEGER, `image_height` INTEGER, `image_hlc` INTEGER, `image_device` TEXT, PRIMARY KEY(`id`), FOREIGN KEY(`page_id`) REFERENCES `page`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "pageId",
+            "columnName": "page_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "madeHlc",
+            "columnName": "made_hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "madeDevice",
+            "columnName": "made_device",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "type",
+            "columnName": "type",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "typeHlc",
+            "columnName": "type_hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "typeDevice",
+            "columnName": "type_device",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "content",
+            "columnName": "content",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "spans",
+            "columnName": "spans",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "textHlc",
+            "columnName": "text_hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "textDevice",
+            "columnName": "text_device",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "parentBlockId",
+            "columnName": "parent_block_id",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "sortKey",
+            "columnName": "sort_key",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "placeHlc",
+            "columnName": "place_hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "placeDevice",
+            "columnName": "place_device",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "checked",
+            "columnName": "checked",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "codeLanguage",
+            "columnName": "code_language",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "calloutIcon",
+            "columnName": "callout_icon",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "calloutColor",
+            "columnName": "callout_color",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "mentionedPageId",
+            "columnName": "mentioned_page_id",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "referencedBlockId",
+            "columnName": "referenced_block_id",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "toggleExpanded",
+            "columnName": "toggle_expanded",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "attrsHlc",
+            "columnName": "attrs_hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "attrsDevice",
+            "columnName": "attrs_device",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "deletedAt",
+            "columnName": "deleted_at",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "goneHlc",
+            "columnName": "gone_hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "goneDevice",
+            "columnName": "gone_device",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "image",
+            "columnName": "image",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "imageWidth",
+            "columnName": "image_width",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "imageHeight",
+            "columnName": "image_height",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "imageHlc",
+            "columnName": "image_hlc",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "imageDevice",
+            "columnName": "image_device",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_block_page_id",
+            "unique": false,
+            "columnNames": [
+              "page_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_block_page_id` ON `${TABLE_NAME}` (`page_id`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "page",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "page_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "page_label",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `page_id` TEXT NOT NULL, `label_id` TEXT NOT NULL, `made_hlc` INTEGER NOT NULL, `made_device` TEXT NOT NULL, `deleted_at` INTEGER, `gone_hlc` INTEGER NOT NULL, `gone_device` TEXT NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`page_id`) REFERENCES `page`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "pageId",
+            "columnName": "page_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "labelId",
+            "columnName": "label_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "madeHlc",
+            "columnName": "made_hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "madeDevice",
+            "columnName": "made_device",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "deletedAt",
+            "columnName": "deleted_at",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "goneHlc",
+            "columnName": "gone_hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "goneDevice",
+            "columnName": "gone_device",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_page_label_page_id",
+            "unique": false,
+            "columnNames": [
+              "page_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_page_label_page_id` ON `${TABLE_NAME}` (`page_id`)"
+          },
+          {
+            "name": "index_page_label_label_id",
+            "unique": false,
+            "columnNames": [
+              "label_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_page_label_label_id` ON `${TABLE_NAME}` (`label_id`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "page",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "page_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "page_notice",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `page_id` TEXT NOT NULL, `row_id` TEXT NOT NULL, `lost_text` TEXT NOT NULL, `lost_spans` TEXT, `made_hlc` INTEGER NOT NULL, `made_device` TEXT NOT NULL, `dismissed_at` INTEGER, `dismissed_hlc` INTEGER NOT NULL, `dismissed_device` TEXT NOT NULL, `lost_image` TEXT, `lost_image_width` INTEGER, `lost_image_height` INTEGER, PRIMARY KEY(`id`), FOREIGN KEY(`page_id`) REFERENCES `page`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "pageId",
+            "columnName": "page_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "rowId",
+            "columnName": "row_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lostText",
+            "columnName": "lost_text",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lostSpans",
+            "columnName": "lost_spans",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "madeHlc",
+            "columnName": "made_hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "madeDevice",
+            "columnName": "made_device",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "dismissedAt",
+            "columnName": "dismissed_at",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "dismissedHlc",
+            "columnName": "dismissed_hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "dismissedDevice",
+            "columnName": "dismissed_device",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lostImage",
+            "columnName": "lost_image",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "lostImageWidth",
+            "columnName": "lost_image_width",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "lostImageHeight",
+            "columnName": "lost_image_height",
+            "affinity": "INTEGER"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_page_notice_page_id",
+            "unique": false,
+            "columnNames": [
+              "page_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_page_notice_page_id` ON `${TABLE_NAME}` (`page_id`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "page",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "page_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "page_revision",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `page_id` TEXT NOT NULL, `reason` TEXT NOT NULL, `title` TEXT NOT NULL, `blocks_json` TEXT NOT NULL, `block_count` INTEGER NOT NULL, `at` INTEGER NOT NULL, `notice_id` TEXT, `cells_json` TEXT, `canvas_json` TEXT, FOREIGN KEY(`page_id`) REFERENCES `page`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "pageId",
+            "columnName": "page_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "reason",
+            "columnName": "reason",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "title",
+            "columnName": "title",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "blocksJson",
+            "columnName": "blocks_json",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "blockCount",
+            "columnName": "block_count",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "at",
+            "columnName": "at",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "noticeId",
+            "columnName": "notice_id",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "cellsJson",
+            "columnName": "cells_json",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "canvasJson",
+            "columnName": "canvas_json",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_page_revision_page_id",
+            "unique": false,
+            "columnNames": [
+              "page_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_page_revision_page_id` ON `${TABLE_NAME}` (`page_id`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "page",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "page_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "sync_lost",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `row_id` TEXT NOT NULL, `tbl` TEXT NOT NULL, `grp` TEXT NOT NULL, `group_json` TEXT NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "rowId",
+            "columnName": "row_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "tbl",
+            "columnName": "tbl",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "grp",
+            "columnName": "grp",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "groupJson",
+            "columnName": "group_json",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        }
+      },
+      {
+        "tableName": "page_database",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `page_id` TEXT NOT NULL, `made_hlc` INTEGER NOT NULL, `made_device` TEXT NOT NULL, `label_id` TEXT, `doorway_hlc` INTEGER NOT NULL, `doorway_device` TEXT NOT NULL, `hue` INTEGER, `look_hlc` INTEGER NOT NULL, `look_device` TEXT NOT NULL, `blocked_by` TEXT, `blocked_hlc` INTEGER, `blocked_device` TEXT, `tasks_on` INTEGER, `tasks_hlc` INTEGER, `tasks_device` TEXT, PRIMARY KEY(`id`), FOREIGN KEY(`page_id`) REFERENCES `page`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "pageId",
+            "columnName": "page_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "madeHlc",
+            "columnName": "made_hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "madeDevice",
+            "columnName": "made_device",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "labelId",
+            "columnName": "label_id",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "doorwayHlc",
+            "columnName": "doorway_hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "doorwayDevice",
+            "columnName": "doorway_device",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "hue",
+            "columnName": "hue",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "lookHlc",
+            "columnName": "look_hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lookDevice",
+            "columnName": "look_device",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "blockedBy",
+            "columnName": "blocked_by",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "blockedHlc",
+            "columnName": "blocked_hlc",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "blockedDevice",
+            "columnName": "blocked_device",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "tasksOn",
+            "columnName": "tasks_on",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "tasksHlc",
+            "columnName": "tasks_hlc",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "tasksDevice",
+            "columnName": "tasks_device",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_page_database_page_id",
+            "unique": true,
+            "columnNames": [
+              "page_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_page_database_page_id` ON `${TABLE_NAME}` (`page_id`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "page",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "page_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "property",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `database_id` TEXT NOT NULL, `made_hlc` INTEGER NOT NULL, `made_device` TEXT NOT NULL, `name` TEXT NOT NULL, `name_hlc` INTEGER NOT NULL, `name_device` TEXT NOT NULL, `type` TEXT NOT NULL, `type_hlc` INTEGER NOT NULL, `type_device` TEXT NOT NULL, `sort_key` TEXT NOT NULL, `place_hlc` INTEGER NOT NULL, `place_device` TEXT NOT NULL, `target_database_id` TEXT, `pair_property_id` TEXT, `formula` TEXT, `rollup_relation` TEXT, `rollup_target` TEXT, `rollup_aggregation` TEXT, `formula_hlc` INTEGER, `formula_device` TEXT, `task_role` TEXT, `role_hlc` INTEGER, `role_device` TEXT, PRIMARY KEY(`id`), FOREIGN KEY(`database_id`) REFERENCES `page`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "databaseId",
+            "columnName": "database_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "madeHlc",
+            "columnName": "made_hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "madeDevice",
+            "columnName": "made_device",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nameHlc",
+            "columnName": "name_hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nameDevice",
+            "columnName": "name_device",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "type",
+            "columnName": "type",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "typeHlc",
+            "columnName": "type_hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "typeDevice",
+            "columnName": "type_device",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sortKey",
+            "columnName": "sort_key",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "placeHlc",
+            "columnName": "place_hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "placeDevice",
+            "columnName": "place_device",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "targetDatabaseId",
+            "columnName": "target_database_id",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "pairPropertyId",
+            "columnName": "pair_property_id",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "formula",
+            "columnName": "formula",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "rollupRelation",
+            "columnName": "rollup_relation",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "rollupTarget",
+            "columnName": "rollup_target",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "rollupAggregation",
+            "columnName": "rollup_aggregation",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "formulaHlc",
+            "columnName": "formula_hlc",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "formulaDevice",
+            "columnName": "formula_device",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "taskRole",
+            "columnName": "task_role",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "roleHlc",
+            "columnName": "role_hlc",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "roleDevice",
+            "columnName": "role_device",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_property_database_id",
+            "unique": false,
+            "columnNames": [
+              "database_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_property_database_id` ON `${TABLE_NAME}` (`database_id`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "page",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "database_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "property_option",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `property_id` TEXT NOT NULL, `made_hlc` INTEGER NOT NULL, `made_device` TEXT NOT NULL, `name` TEXT NOT NULL, `name_hlc` INTEGER NOT NULL, `name_device` TEXT NOT NULL, `color` INTEGER, `look_hlc` INTEGER NOT NULL, `look_device` TEXT NOT NULL, `sort_key` TEXT NOT NULL, `place_hlc` INTEGER NOT NULL, `place_device` TEXT NOT NULL, `deleted_at` INTEGER, `merged_into` TEXT, `gone_hlc` INTEGER NOT NULL, `gone_device` TEXT NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`property_id`) REFERENCES `property`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "propertyId",
+            "columnName": "property_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "madeHlc",
+            "columnName": "made_hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "madeDevice",
+            "columnName": "made_device",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nameHlc",
+            "columnName": "name_hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nameDevice",
+            "columnName": "name_device",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "color",
+            "columnName": "color",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "lookHlc",
+            "columnName": "look_hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lookDevice",
+            "columnName": "look_device",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sortKey",
+            "columnName": "sort_key",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "placeHlc",
+            "columnName": "place_hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "placeDevice",
+            "columnName": "place_device",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "deletedAt",
+            "columnName": "deleted_at",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "mergedInto",
+            "columnName": "merged_into",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "goneHlc",
+            "columnName": "gone_hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "goneDevice",
+            "columnName": "gone_device",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_property_option_property_id",
+            "unique": false,
+            "columnNames": [
+              "property_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_property_option_property_id` ON `${TABLE_NAME}` (`property_id`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "property",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "property_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "property_value",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `page_id` TEXT NOT NULL, `property_id` TEXT NOT NULL, `made_hlc` INTEGER NOT NULL, `made_device` TEXT NOT NULL, `value` TEXT, `cell_hlc` INTEGER NOT NULL, `cell_device` TEXT NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`page_id`) REFERENCES `page`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED, FOREIGN KEY(`property_id`) REFERENCES `property`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "pageId",
+            "columnName": "page_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "propertyId",
+            "columnName": "property_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "madeHlc",
+            "columnName": "made_hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "madeDevice",
+            "columnName": "made_device",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "value",
+            "columnName": "value",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "cellHlc",
+            "columnName": "cell_hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "cellDevice",
+            "columnName": "cell_device",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_property_value_page_id",
+            "unique": false,
+            "columnNames": [
+              "page_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_property_value_page_id` ON `${TABLE_NAME}` (`page_id`)"
+          },
+          {
+            "name": "index_property_value_property_id",
+            "unique": false,
+            "columnNames": [
+              "property_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_property_value_property_id` ON `${TABLE_NAME}` (`property_id`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "page",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "page_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          },
+          {
+            "table": "property",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "property_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "value_pick",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `page_id` TEXT NOT NULL, `property_id` TEXT NOT NULL, `option_id` TEXT NOT NULL, `made_hlc` INTEGER NOT NULL, `made_device` TEXT NOT NULL, `deleted_at` INTEGER, `gone_hlc` INTEGER NOT NULL, `gone_device` TEXT NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`page_id`) REFERENCES `page`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED, FOREIGN KEY(`property_id`) REFERENCES `property`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "pageId",
+            "columnName": "page_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "propertyId",
+            "columnName": "property_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "optionId",
+            "columnName": "option_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "madeHlc",
+            "columnName": "made_hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "madeDevice",
+            "columnName": "made_device",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "deletedAt",
+            "columnName": "deleted_at",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "goneHlc",
+            "columnName": "gone_hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "goneDevice",
+            "columnName": "gone_device",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_value_pick_page_id",
+            "unique": false,
+            "columnNames": [
+              "page_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_value_pick_page_id` ON `${TABLE_NAME}` (`page_id`)"
+          },
+          {
+            "name": "index_value_pick_property_id",
+            "unique": false,
+            "columnNames": [
+              "property_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_value_pick_property_id` ON `${TABLE_NAME}` (`property_id`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "page",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "page_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          },
+          {
+            "table": "property",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "property_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "page_view",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `database_id` TEXT NOT NULL, `made_hlc` INTEGER NOT NULL, `made_device` TEXT NOT NULL, `name` TEXT NOT NULL, `name_hlc` INTEGER NOT NULL, `name_device` TEXT NOT NULL, `view_type` TEXT NOT NULL, `group_by` TEXT, `date_property` TEXT, `end_date_property` TEXT, `kind_hlc` INTEGER NOT NULL, `kind_device` TEXT NOT NULL, `shown` TEXT, `show_hlc` INTEGER NOT NULL, `show_device` TEXT NOT NULL, `sort_property` TEXT, `sort_descending` INTEGER NOT NULL, `sort_hlc` INTEGER NOT NULL, `sort_device` TEXT NOT NULL, `filter_property` TEXT, `filter_op` TEXT, `filter_value` TEXT, `filter_hlc` INTEGER NOT NULL, `filter_device` TEXT NOT NULL, `sort_key` TEXT NOT NULL, `place_hlc` INTEGER NOT NULL, `place_device` TEXT NOT NULL, `deleted_at` INTEGER, `gone_hlc` INTEGER NOT NULL, `gone_device` TEXT NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`database_id`) REFERENCES `page`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "databaseId",
+            "columnName": "database_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "madeHlc",
+            "columnName": "made_hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "madeDevice",
+            "columnName": "made_device",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nameHlc",
+            "columnName": "name_hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nameDevice",
+            "columnName": "name_device",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "viewType",
+            "columnName": "view_type",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "groupBy",
+            "columnName": "group_by",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "dateProperty",
+            "columnName": "date_property",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "endDateProperty",
+            "columnName": "end_date_property",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "kindHlc",
+            "columnName": "kind_hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "kindDevice",
+            "columnName": "kind_device",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "shown",
+            "columnName": "shown",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "showHlc",
+            "columnName": "show_hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "showDevice",
+            "columnName": "show_device",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sortProperty",
+            "columnName": "sort_property",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "sortDescending",
+            "columnName": "sort_descending",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sortHlc",
+            "columnName": "sort_hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sortDevice",
+            "columnName": "sort_device",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "filterProperty",
+            "columnName": "filter_property",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "filterOp",
+            "columnName": "filter_op",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "filterValue",
+            "columnName": "filter_value",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "filterHlc",
+            "columnName": "filter_hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "filterDevice",
+            "columnName": "filter_device",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sortKey",
+            "columnName": "sort_key",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "placeHlc",
+            "columnName": "place_hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "placeDevice",
+            "columnName": "place_device",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "deletedAt",
+            "columnName": "deleted_at",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "goneHlc",
+            "columnName": "gone_hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "goneDevice",
+            "columnName": "gone_device",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_page_view_database_id",
+            "unique": false,
+            "columnNames": [
+              "database_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_page_view_database_id` ON `${TABLE_NAME}` (`database_id`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "page",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "database_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "page_canvas",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `page_id` TEXT NOT NULL, `made_hlc` INTEGER NOT NULL, `made_device` TEXT NOT NULL, `structure` TEXT NOT NULL, `layout_hlc` INTEGER NOT NULL, `layout_device` TEXT NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`page_id`) REFERENCES `page`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "pageId",
+            "columnName": "page_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "madeHlc",
+            "columnName": "made_hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "madeDevice",
+            "columnName": "made_device",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "structure",
+            "columnName": "structure",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "layoutHlc",
+            "columnName": "layout_hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "layoutDevice",
+            "columnName": "layout_device",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_page_canvas_page_id",
+            "unique": true,
+            "columnNames": [
+              "page_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_page_canvas_page_id` ON `${TABLE_NAME}` (`page_id`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "page",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "page_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "canvas_node",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `page_id` TEXT NOT NULL, `type` TEXT NOT NULL, `page_ref` TEXT, `made_hlc` INTEGER NOT NULL, `made_device` TEXT NOT NULL, `x` REAL NOT NULL, `y` REAL NOT NULL, `at_hlc` INTEGER NOT NULL, `at_device` TEXT NOT NULL, `width` REAL, `height` REAL, `size_hlc` INTEGER NOT NULL, `size_device` TEXT NOT NULL, `text` TEXT NOT NULL, `text_hlc` INTEGER NOT NULL, `text_device` TEXT NOT NULL, `hue` INTEGER, `look_hlc` INTEGER NOT NULL, `look_device` TEXT NOT NULL, `parent_id` TEXT, `tree_hlc` INTEGER NOT NULL, `tree_device` TEXT NOT NULL, `folded` INTEGER NOT NULL, `fold_hlc` INTEGER NOT NULL, `fold_device` TEXT NOT NULL, `structure` TEXT, `structure_hlc` INTEGER NOT NULL, `structure_device` TEXT NOT NULL, `z_key` TEXT NOT NULL, `z_hlc` INTEGER NOT NULL, `z_device` TEXT NOT NULL, `deleted_at` INTEGER, `gone_hlc` INTEGER NOT NULL, `gone_device` TEXT NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`page_id`) REFERENCES `page`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "pageId",
+            "columnName": "page_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "type",
+            "columnName": "type",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "pageRef",
+            "columnName": "page_ref",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "madeHlc",
+            "columnName": "made_hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "madeDevice",
+            "columnName": "made_device",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "x",
+            "columnName": "x",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "y",
+            "columnName": "y",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "atHlc",
+            "columnName": "at_hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "atDevice",
+            "columnName": "at_device",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "width",
+            "columnName": "width",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "height",
+            "columnName": "height",
+            "affinity": "REAL"
+          },
+          {
+            "fieldPath": "sizeHlc",
+            "columnName": "size_hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sizeDevice",
+            "columnName": "size_device",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "text",
+            "columnName": "text",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "textHlc",
+            "columnName": "text_hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "textDevice",
+            "columnName": "text_device",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "hue",
+            "columnName": "hue",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "lookHlc",
+            "columnName": "look_hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lookDevice",
+            "columnName": "look_device",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "parentId",
+            "columnName": "parent_id",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "treeHlc",
+            "columnName": "tree_hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "treeDevice",
+            "columnName": "tree_device",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "folded",
+            "columnName": "folded",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "foldHlc",
+            "columnName": "fold_hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "foldDevice",
+            "columnName": "fold_device",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "structure",
+            "columnName": "structure",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "structureHlc",
+            "columnName": "structure_hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "structureDevice",
+            "columnName": "structure_device",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "zKey",
+            "columnName": "z_key",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "zHlc",
+            "columnName": "z_hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "zDevice",
+            "columnName": "z_device",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "deletedAt",
+            "columnName": "deleted_at",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "goneHlc",
+            "columnName": "gone_hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "goneDevice",
+            "columnName": "gone_device",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_canvas_node_page_id",
+            "unique": false,
+            "columnNames": [
+              "page_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_canvas_node_page_id` ON `${TABLE_NAME}` (`page_id`)"
+          },
+          {
+            "name": "index_canvas_node_deleted_at",
+            "unique": false,
+            "columnNames": [
+              "deleted_at"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_canvas_node_deleted_at` ON `${TABLE_NAME}` (`deleted_at`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "page",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "page_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "canvas_edge",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `page_id` TEXT NOT NULL, `from_node_id` TEXT NOT NULL, `to_node_id` TEXT NOT NULL, `made_hlc` INTEGER NOT NULL, `made_device` TEXT NOT NULL, `direction` TEXT NOT NULL, `arrow_hlc` INTEGER NOT NULL, `arrow_device` TEXT NOT NULL, `label` TEXT, `label_hlc` INTEGER NOT NULL, `label_device` TEXT NOT NULL, `deleted_at` INTEGER, `gone_hlc` INTEGER NOT NULL, `gone_device` TEXT NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`page_id`) REFERENCES `page`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "pageId",
+            "columnName": "page_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "fromNodeId",
+            "columnName": "from_node_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "toNodeId",
+            "columnName": "to_node_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "madeHlc",
+            "columnName": "made_hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "madeDevice",
+            "columnName": "made_device",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "direction",
+            "columnName": "direction",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "arrowHlc",
+            "columnName": "arrow_hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "arrowDevice",
+            "columnName": "arrow_device",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "label",
+            "columnName": "label",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "labelHlc",
+            "columnName": "label_hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "labelDevice",
+            "columnName": "label_device",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "deletedAt",
+            "columnName": "deleted_at",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "goneHlc",
+            "columnName": "gone_hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "goneDevice",
+            "columnName": "gone_device",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_canvas_edge_page_id",
+            "unique": false,
+            "columnNames": [
+              "page_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_canvas_edge_page_id` ON `${TABLE_NAME}` (`page_id`)"
+          },
+          {
+            "name": "index_canvas_edge_deleted_at",
+            "unique": false,
+            "columnNames": [
+              "deleted_at"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_canvas_edge_deleted_at` ON `${TABLE_NAME}` (`deleted_at`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "page",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "page_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "page_relation",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `page_a` TEXT NOT NULL, `page_b` TEXT NOT NULL, `made_hlc` INTEGER NOT NULL, `made_device` TEXT NOT NULL, `deleted_at` INTEGER, `gone_hlc` INTEGER NOT NULL, `gone_device` TEXT NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`page_a`) REFERENCES `page`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED, FOREIGN KEY(`page_b`) REFERENCES `page`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "pageA",
+            "columnName": "page_a",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "pageB",
+            "columnName": "page_b",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "madeHlc",
+            "columnName": "made_hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "madeDevice",
+            "columnName": "made_device",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "deletedAt",
+            "columnName": "deleted_at",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "goneHlc",
+            "columnName": "gone_hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "goneDevice",
+            "columnName": "gone_device",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_page_relation_page_a",
+            "unique": false,
+            "columnNames": [
+              "page_a"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_page_relation_page_a` ON `${TABLE_NAME}` (`page_a`)"
+          },
+          {
+            "name": "index_page_relation_page_b",
+            "unique": false,
+            "columnNames": [
+              "page_b"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_page_relation_page_b` ON `${TABLE_NAME}` (`page_b`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "page",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "page_a"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          },
+          {
+            "table": "page",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "page_b"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "relation_link",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `property_id` TEXT NOT NULL, `page_id` TEXT NOT NULL, `target_id` TEXT NOT NULL, `made_hlc` INTEGER NOT NULL, `made_device` TEXT NOT NULL, `deleted_at` INTEGER, `gone_hlc` INTEGER NOT NULL, `gone_device` TEXT NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`property_id`) REFERENCES `property`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "propertyId",
+            "columnName": "property_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "pageId",
+            "columnName": "page_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "targetId",
+            "columnName": "target_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "madeHlc",
+            "columnName": "made_hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "madeDevice",
+            "columnName": "made_device",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "deletedAt",
+            "columnName": "deleted_at",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "goneHlc",
+            "columnName": "gone_hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "goneDevice",
+            "columnName": "gone_device",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_relation_link_page_id",
+            "unique": false,
+            "columnNames": [
+              "page_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_relation_link_page_id` ON `${TABLE_NAME}` (`page_id`)"
+          },
+          {
+            "name": "index_relation_link_property_id",
+            "unique": false,
+            "columnNames": [
+              "property_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_relation_link_property_id` ON `${TABLE_NAME}` (`property_id`)"
+          },
+          {
+            "name": "index_relation_link_target_id",
+            "unique": false,
+            "columnNames": [
+              "target_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_relation_link_target_id` ON `${TABLE_NAME}` (`target_id`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "property",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "property_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "checklist",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `name` TEXT NOT NULL, `name_hlc` INTEGER NOT NULL, `name_device` TEXT NOT NULL, `sort_key` TEXT NOT NULL, `order_hlc` INTEGER NOT NULL, `order_device` TEXT NOT NULL, `run_hlc` INTEGER NOT NULL, `run_device` TEXT NOT NULL, `deleted_at` INTEGER, `gone_hlc` INTEGER NOT NULL, `gone_device` TEXT NOT NULL, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nameHlc",
+            "columnName": "name_hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nameDevice",
+            "columnName": "name_device",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sortKey",
+            "columnName": "sort_key",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "orderHlc",
+            "columnName": "order_hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "orderDevice",
+            "columnName": "order_device",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "runHlc",
+            "columnName": "run_hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "runDevice",
+            "columnName": "run_device",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "deletedAt",
+            "columnName": "deleted_at",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "goneHlc",
+            "columnName": "gone_hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "goneDevice",
+            "columnName": "gone_device",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        }
+      },
+      {
+        "tableName": "checklist_item",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `checklist_id` TEXT NOT NULL, `made_hlc` INTEGER NOT NULL, `made_device` TEXT NOT NULL, `text` TEXT NOT NULL, `text_hlc` INTEGER NOT NULL, `text_device` TEXT NOT NULL, `checked` INTEGER NOT NULL, `check_hlc` INTEGER NOT NULL, `check_device` TEXT NOT NULL, `sort_key` TEXT NOT NULL, `order_hlc` INTEGER NOT NULL, `order_device` TEXT NOT NULL, `deleted_at` INTEGER, `gone_hlc` INTEGER NOT NULL, `gone_device` TEXT NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`checklist_id`) REFERENCES `checklist`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "checklistId",
+            "columnName": "checklist_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "madeHlc",
+            "columnName": "made_hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "madeDevice",
+            "columnName": "made_device",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "text",
+            "columnName": "text",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "textHlc",
+            "columnName": "text_hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "textDevice",
+            "columnName": "text_device",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "checked",
+            "columnName": "checked",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "checkHlc",
+            "columnName": "check_hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "checkDevice",
+            "columnName": "check_device",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sortKey",
+            "columnName": "sort_key",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "orderHlc",
+            "columnName": "order_hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "orderDevice",
+            "columnName": "order_device",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "deletedAt",
+            "columnName": "deleted_at",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "goneHlc",
+            "columnName": "gone_hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "goneDevice",
+            "columnName": "gone_device",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_checklist_item_checklist_id",
+            "unique": false,
+            "columnNames": [
+              "checklist_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_checklist_item_checklist_id` ON `${TABLE_NAME}` (`checklist_id`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "checklist",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "checklist_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "saved_chart",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `chart_type` TEXT NOT NULL, `made_hlc` INTEGER NOT NULL, `made_device` TEXT NOT NULL, `name` TEXT, `name_hlc` INTEGER NOT NULL, `name_device` TEXT NOT NULL, `range_days` INTEGER NOT NULL, `range_hlc` INTEGER NOT NULL, `range_device` TEXT NOT NULL, `sort_key` TEXT NOT NULL, `order_hlc` INTEGER NOT NULL, `order_device` TEXT NOT NULL, `deleted_at` INTEGER, `gone_hlc` INTEGER NOT NULL, `gone_device` TEXT NOT NULL, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "chartType",
+            "columnName": "chart_type",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "madeHlc",
+            "columnName": "made_hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "madeDevice",
+            "columnName": "made_device",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "nameHlc",
+            "columnName": "name_hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "nameDevice",
+            "columnName": "name_device",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "rangeDays",
+            "columnName": "range_days",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "rangeHlc",
+            "columnName": "range_hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "rangeDevice",
+            "columnName": "range_device",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sortKey",
+            "columnName": "sort_key",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "orderHlc",
+            "columnName": "order_hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "orderDevice",
+            "columnName": "order_device",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "deletedAt",
+            "columnName": "deleted_at",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "goneHlc",
+            "columnName": "gone_hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "goneDevice",
+            "columnName": "gone_device",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        }
+      },
+      {
+        "tableName": "chart_source",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `chart_id` TEXT NOT NULL, `source_kind` TEXT NOT NULL, `source_id` TEXT NOT NULL, `made_hlc` INTEGER NOT NULL, `made_device` TEXT NOT NULL, `sort_key` TEXT NOT NULL, `order_hlc` INTEGER NOT NULL, `order_device` TEXT NOT NULL, `deleted_at` INTEGER, `gone_hlc` INTEGER NOT NULL, `gone_device` TEXT NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`chart_id`) REFERENCES `saved_chart`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "chartId",
+            "columnName": "chart_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sourceKind",
+            "columnName": "source_kind",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sourceId",
+            "columnName": "source_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "madeHlc",
+            "columnName": "made_hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "madeDevice",
+            "columnName": "made_device",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sortKey",
+            "columnName": "sort_key",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "orderHlc",
+            "columnName": "order_hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "orderDevice",
+            "columnName": "order_device",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "deletedAt",
+            "columnName": "deleted_at",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "goneHlc",
+            "columnName": "gone_hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "goneDevice",
+            "columnName": "gone_device",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_chart_source_chart_id",
+            "unique": false,
+            "columnNames": [
+              "chart_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_chart_source_chart_id` ON `${TABLE_NAME}` (`chart_id`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "saved_chart",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "chart_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "sensory_log",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `at` TEXT NOT NULL, `sound` REAL NOT NULL, `light` REAL NOT NULL, `crowd` REAL NOT NULL, `temperature` REAL NOT NULL, `touch` REAL NOT NULL, `said_hlc` INTEGER NOT NULL, `said_device` TEXT NOT NULL, `deleted_at` INTEGER, `gone_hlc` INTEGER NOT NULL, `gone_device` TEXT NOT NULL, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "at",
+            "columnName": "at",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sound",
+            "columnName": "sound",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "light",
+            "columnName": "light",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "crowd",
+            "columnName": "crowd",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "temperature",
+            "columnName": "temperature",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "touch",
+            "columnName": "touch",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "saidHlc",
+            "columnName": "said_hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "saidDevice",
+            "columnName": "said_device",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "deletedAt",
+            "columnName": "deleted_at",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "goneHlc",
+            "columnName": "gone_hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "goneDevice",
+            "columnName": "gone_device",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        }
+      },
+      {
+        "tableName": "masking_entry",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `day` TEXT NOT NULL, `made_hlc` INTEGER NOT NULL, `made_device` TEXT NOT NULL, `masked` TEXT, `masked_hlc` INTEGER NOT NULL, `masked_device` TEXT NOT NULL, `demand` TEXT, `demand_hlc` INTEGER NOT NULL, `demand_device` TEXT NOT NULL, `recovery` TEXT, `recovery_hlc` INTEGER NOT NULL, `recovery_device` TEXT NOT NULL, `deleted_at` INTEGER, `gone_hlc` INTEGER NOT NULL, `gone_device` TEXT NOT NULL, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "day",
+            "columnName": "day",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "madeHlc",
+            "columnName": "made_hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "madeDevice",
+            "columnName": "made_device",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "masked",
+            "columnName": "masked",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "maskedHlc",
+            "columnName": "masked_hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "maskedDevice",
+            "columnName": "masked_device",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "demand",
+            "columnName": "demand",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "demandHlc",
+            "columnName": "demand_hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "demandDevice",
+            "columnName": "demand_device",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "recovery",
+            "columnName": "recovery",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "recoveryHlc",
+            "columnName": "recovery_hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "recoveryDevice",
+            "columnName": "recovery_device",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "deletedAt",
+            "columnName": "deleted_at",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "goneHlc",
+            "columnName": "gone_hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "goneDevice",
+            "columnName": "gone_device",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        }
+      },
+      {
+        "tableName": "regulation_event",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `at` TEXT NOT NULL, `check_in_id` TEXT NOT NULL, `direction` TEXT NOT NULL, `tool_key` TEXT, `outcome` TEXT NOT NULL, `said_hlc` INTEGER NOT NULL, `said_device` TEXT NOT NULL, `deleted_at` INTEGER, `gone_hlc` INTEGER NOT NULL, `gone_device` TEXT NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`check_in_id`) REFERENCES `check_in`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE DEFERRABLE INITIALLY DEFERRED)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "at",
+            "columnName": "at",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "checkInId",
+            "columnName": "check_in_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "direction",
+            "columnName": "direction",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "toolKey",
+            "columnName": "tool_key",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "outcome",
+            "columnName": "outcome",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "saidHlc",
+            "columnName": "said_hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "saidDevice",
+            "columnName": "said_device",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "deletedAt",
+            "columnName": "deleted_at",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "goneHlc",
+            "columnName": "gone_hlc",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "goneDevice",
+            "columnName": "gone_device",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_regulation_event_check_in_id",
+            "unique": false,
+            "columnNames": [
+              "check_in_id"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_regulation_event_check_in_id` ON `${TABLE_NAME}` (`check_in_id`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "check_in",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "check_in_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "pending_outcome",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `check_in_id` TEXT NOT NULL, `direction` TEXT NOT NULL, `tool_key` TEXT, `asked` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "checkInId",
+            "columnName": "check_in_id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "direction",
+            "columnName": "direction",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "toolKey",
+            "columnName": "tool_key",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "asked",
+            "columnName": "asked",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        }
+      },
+      {
+        "tableName": "blob_seen",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`name` TEXT NOT NULL, `folder_since` INTEGER, `local_since` INTEGER, PRIMARY KEY(`name`))",
+        "fields": [
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "folderSince",
+            "columnName": "folder_since",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "localSince",
+            "columnName": "local_since",
+            "affinity": "INTEGER"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "name"
+          ]
+        }
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '3c872430ef113e49808fc816c204083c')"
+    ]
+  }
+}

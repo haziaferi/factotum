@@ -318,10 +318,6 @@ private fun Row.intervalValues(interval: Interval, today: LocalDate): Map<String
 
 private fun Row.repeats() = groups.getValue(SCHEDULE).values["recurrence_kind"] != null
 
-/** [group] set to [values]: edited when the row has it, added when a version before it wrote none. */
-private fun Row.set(group: String, s: Stamp, values: Map<String, Any?>): Row =
-    if (group in groups) edit(group, s, values) else copy(groups = groups + (group to Group(s, values)))
-
 internal suspend fun bindingsOf(db: FactotumDatabase, databaseId: String): Map<TaskRole, PropertyEntity> {
     val dao = db.databaseDao()
     if (dao.databases(listOf(shellId(databaseId))).singleOrNull()?.tasksOn != true) return emptyMap()

@@ -26,6 +26,10 @@ import com.factotum.data.page.TemplateRepository
 import com.factotum.data.page.DatabaseRepository
 import com.factotum.data.page.PageRepository
 import com.factotum.data.page.RowTaskRepository
+import com.factotum.data.image.BlobSync
+import com.factotum.data.image.DesktopImageScaler
+import com.factotum.data.image.ImageRepository
+import com.factotum.data.image.MemoryBlobStore
 import com.factotum.data.label.LabelRepository
 import com.factotum.data.settings.MemorySecretStore
 import com.factotum.data.settings.SettingsRepository
@@ -100,6 +104,9 @@ internal class World(private val dir: File, seed: Int, private val segmentBytes:
         val regulation = RegulationRepository(db, writes, newId, settings)
         val ledger = LedgerRepository(db, writes, newId, settings)
         val rowTasks = RowTaskRepository(db, writes, items, occurrences, databases, settings, now = { now })
+        val blobs = MemoryBlobStore()
+        val images = ImageRepository(pages, blobs, DesktopImageScaler())
+        val blobSync = BlobSync(db, syncthing.folder(name), blobs, { syncthing.now })
         /** The wall clock the time rules read, as a local date-time. */
         var now = LocalDateTime(2026, 10, 5, 12, 0)
         val sync = FolderSync(db, syncthing.folder(name), id, clock, tables, segmentBytes, snapshotEvery, recovered = recovered, afterImport = {
@@ -135,8 +142,9 @@ internal class World(private val dir: File, seed: Int, private val segmentBytes:
 
         fun rows(): Map<String, Row> = runBlocking { tables.getValue(ITEM).all() }.associateBy { it.id }
 
-        fun import() = runBlocking { sync.import() }
-        fun export() = runBlocking { sync.export() }
+        /** Reads the logs, then fetches and collects pictures; a picture is published before the logs are written. */
+        fun import() = runBlocking { sync.import().also { blobSync.exchange() } }
+        fun export() = runBlocking { blobSync.exchange(); sync.export() }
 
         fun held(): Map<Pair<String, String>, Group> =
             rows().values.flatMap { r -> r.groups.map { (g, v) -> (r.id to g) to v } }.toMap()

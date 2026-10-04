@@ -31,4 +31,8 @@ data class Row(val table: String, val id: String, val groups: Map<String, Group>
         require(changes.keys.all { it in old.values }) { "fields outside group $group: ${changes.keys - old.values.keys}" }
         return copy(groups = groups + (group to Group(stamp, old.values + changes)))
     }
+
+    /** [group] set to [values] with [stamp]: edited when the row has it, added when the line that wrote the row is older than the group. */
+    fun set(group: String, stamp: Stamp, values: Map<String, Any?>): Row =
+        if (group in groups) edit(group, stamp, values) else copy(groups = groups + (group to Group(stamp, values)))
 }

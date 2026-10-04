@@ -43,6 +43,15 @@ class Merger(private val clock: HybridClock, private val askGroups: Set<String>,
         baseGroups.forEach { g -> row.groups[g]?.let { store.putBase(row.id, g, it.stamp) } }
     }
 
+    /**
+     * A group added on this device to a row made before the group existed (or without it): its
+     * first version is the base, as [created] makes one, so a later version from a peer that has
+     * seen it is no clash.
+     */
+    fun added(store: SyncStore, id: String, group: String) {
+        if (group in baseGroups) requireNotNull(store.row(id)?.groups?.get(group)) { "row $id has no group $group" }.let { store.putBase(id, group, it.stamp) }
+    }
+
     /** "Delete forever": the row goes, and its purge travels so no peer brings it back. */
     fun purge(store: SyncStore, id: String) {
         store.putPurge(id, clock.tick())
@@ -81,7 +90,9 @@ class Merger(private val clock: HybridClock, private val askGroups: Set<String>,
         for ((name, theirs) in incoming.groups) {
             val mine = merged[name]
             if (mine == null) {
+                // A group newer than the line that made the row here: theirs is where both start from.
                 merged[name] = theirs
+                if (name in baseGroups) store.putBase(local.id, name, theirs.stamp)
                 continue
             }
             if (name !in baseGroups) {

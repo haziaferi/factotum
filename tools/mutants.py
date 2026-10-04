@@ -57,6 +57,10 @@ RELS = "data/src/commonMain/kotlin/com/factotum/data/page/RelationRepository.kt"
 TEMPL = "data/src/commonMain/kotlin/com/factotum/data/page/TemplateRepository.kt"
 FORMULA = "core/src/commonMain/kotlin/com/factotum/core/formula/Formula.kt"
 CHK = "data/src/commonMain/kotlin/com/factotum/data/checklist/ChecklistRepository.kt"
+PAGE_KT = "data/src/commonMain/kotlin/com/factotum/data/page/Page.kt"
+MERGE = "core/src/commonMain/kotlin/com/factotum/core/sync/Merge.kt"
+IMG = "data/src/commonMain/kotlin/com/factotum/data/image/Images.kt"
+DESKSCALE = "data/src/desktopMain/kotlin/com/factotum/data/image/DesktopImageScaler.kt"
 ROWT = "data/src/commonMain/kotlin/com/factotum/data/page/RowTasks.kt"
 PAGEREPO = "data/src/commonMain/kotlin/com/factotum/data/page/PageRepository.kt"
 ITEMREPO = "data/src/commonMain/kotlin/com/factotum/data/item/ItemRepository.kt"
@@ -825,6 +829,46 @@ SLICES = {
          ":data:desktopTest", {'deletingTheTaskTrashesTheRowAndTheRowCarriesItsTask'}),
         ('an interval of 0 days', 'core/src/commonMain/kotlin/com/factotum/core/recurrence/Interval.kt', 'n.toIntOrNull()?.takeIf { it in 1..MAX_EVERY }', 'n.toIntOrNull()',
          ":core:desktopTest", {'aZeroOrNegativeCountOrAnUnknownUnitIsNoInterval'}),
+    ],
+    "s3e": [
+        ('a picture is not kept when replaced', PAGE_KT, 'setOf(PAGE_TITLE, BLOCK_TEXT, BLOCK_IMAGE, CELL, NODE_TEXT, EDGE_LABEL)', 'setOf(PAGE_TITLE, BLOCK_TEXT, CELL, NODE_TEXT, EDGE_LABEL)',
+         ":data:desktopTest", {'aPictureReplacedOnTwoDevicesKeepsTheLaterAndTheEarlierGoesToHistoryWithANotice'}),
+        ('a group new here has no base', MERGE, '                if (name in baseGroups) store.putBase(local.id, name, theirs.stamp)\n', '',
+         ":data:desktopTest", {'aPictureReadOnceIsTheBaseSoACopyPassedOnLaterIsNoClash'}),
+        ('a group added here has no base', PAGEREPO, '            if (BLOCK_IMAGE !in row.groups) writes.merger.added(store, id, BLOCK_IMAGE)\n', '',
+         ":data:desktopTest", {'aPictureGivenToABlockMadeWithoutOneThenReplacedInTurnLeavesNoNotice'}),
+        ('a removed picture leaves an empty notice', PAGEREPO, ' || isImage && raw == null) return@write emptyMap()', ') return@write emptyMap()',
+         ":data:desktopTest", {'aPictureGivenToABlockMadeWithoutOneThenReplacedInTurnLeavesNoNotice'}),
+        ('a damaged folder copy is fetched', IMG, '?.takeIf { sha256Hex(it) == BlobName.hashOf(name) } ?: continue', ' ?: continue',
+         ":data:desktopTest", {'aPictureWhoseBytesHaveNotArrivedReadsAsWaitingAndDamagedBytesAreNotTaken'}),
+        ('a damaged folder copy stays', IMG, 'if (name in inFolder && folder.size("$BLOBS/$name") == bytes.size.toLong()) continue', 'if (name in inFolder) continue',
+         ":data:desktopTest", {'aPictureWhoseBytesHaveNotArrivedReadsAsWaitingAndDamagedBytesAreNotTaken'}),
+        ('a damaged copy here stays', IMG, '    blobs.delete(name)\n    return null\n', '    return null\n',
+         ":data:desktopTest", {'aDamagedCopyHereIsDroppedAndFetchedAgainAndAConflictCopyIsCollected'}),
+        ('a conflict copy stays', IMG, 'listed.filter(FolderLayout::isConflictCopy).forEach { folder.delete("$BLOBS/$it") }', 'Unit',
+         ":data:desktopTest", {'aDamagedCopyHereIsDroppedAndFetchedAgainAndAConflictCopyIsCollected'}),
+        ('the folder copy is never collected', IMG, 'if (folderSince != null && now - folderSince >= GRACE_MS)', 'if (false)',
+         ":data:desktopTest", {'aDeletedBlocksPictureLeavesTheFolderAfter30DaysButARevivalWithinThemKeepsIt'}),
+        ('a deleted block keeps its folder copy', IMG, '(pictured.filter { it.deletedAt == null }.mapNotNull { it.image }', '(pictured.mapNotNull { it.image }',
+         ":data:desktopTest", {'aDeletedBlocksPictureLeavesTheFolderAfter30DaysButARevivalWithinThemKeepsIt'}),
+        ('the folder copy goes at once', IMG, 'now - folderSince >= GRACE_MS', 'now - folderSince >= 0',
+         ":data:desktopTest", {'aDeletedBlocksPictureLeavesTheFolderAfter30DaysButARevivalWithinThemKeepsIt'}),
+        ('History does not keep its pictures', IMG, ' + pageDao.revisionBlocks().flatMap(::revisionImages)', '',
+         ":data:desktopTest", {'aPictureReplacedOnTwoDevicesKeepsTheLaterAndTheEarlierGoesToHistoryWithANotice'}),
+        ('a bomb is decoded', DESKSCALE, '                require(width.toLong() * height <= MAX_PIXELS)', '                require(true)',
+         ":data:desktopTest", {'aPictureClaimingMoreThan100MillionPixelsIsRefusedBeforeItsPixelsAreRead'}),
+        ('an opaque RGBA picture stays PNG', DESKSCALE, 'source.colorModel.hasAlpha() && transparent(source)', 'source.colorModel.hasAlpha()',
+         ":data:desktopTest", {'aPictureIsScaledToAt2048TurnedUprightAndStrippedOfItsMetadata'}),
+        ('a transverse turn is a transpose', DESKSCALE, '                7 -> w - 1 - y to h - 1 - x\n', '                7 -> y to x\n',
+         ":data:desktopTest", {'everyExifOrientationShowsThePictureUpright'}),
+        ('a sideways photo is not turned', DESKSCALE, '        val scaled = turn(resize(source, w, h, alpha), orientation, alpha)', '        val scaled = resize(source, w, h, alpha)',
+         ":data:desktopTest", {'aPictureIsScaledToAt2048TurnedUprightAndStrippedOfItsMetadata', 'everyExifOrientationShowsThePictureUpright'}),
+        ('a picture with no size is read', PAGE_KT, 'width != null && width > 0 && height != null && height > 0', 'true',
+         ":data:desktopTest", {'aLineNamingAPictureWithNoSizeOrABadNameIsRefused'}),
+        ('a picture is stored full size', 'core/src/commonMain/kotlin/com/factotum/core/image/Images.kt', '    if (longest <= max) return width to height\n', '    return width to height\n',
+         ":core:desktopTest", {'anImageIsStoredWithItsLongestEdgeAt2048AndNeverEnlarged'}),
+        ('the EXIF byte order is ignored', 'core/src/commonMain/kotlin/com/factotum/core/image/Images.kt', 'val big = u16(tiff, true) == 0x4D4D', 'val big = true',
+         ":core:desktopTest", {'theExifOrientationIsReadFromEitherByteOrder'}),
     ],
     "s3b": [
         ('a reset clears nothing', CHK, 'it.checked && Stamp(it.checkHlc, it.checkDevice) > reset', 'it.checked',

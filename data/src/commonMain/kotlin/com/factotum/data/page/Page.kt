@@ -9,6 +9,7 @@ import androidx.room.Insert
 import androidx.room.PrimaryKey
 import androidx.room.Query
 import androidx.room.Upsert
+import com.factotum.core.image.BlobName
 import com.factotum.core.sync.Group
 import com.factotum.core.sync.Row
 import com.factotum.core.sync.Stamp
@@ -31,13 +32,17 @@ internal const val PLACE = "place"
 internal const val BLOCK_TYPE = "block_type"
 internal const val BLOCK_TEXT = "block_text"
 internal const val ATTRS = "attrs"
+internal const val BLOCK_IMAGE = "block_image"
 internal const val GONE = "gone"
 internal const val DISMISSED = "dismissed"
 
-/** The groups whose replaced version is kept for the person (ADR 12): a page's title, a block's text, a database cell, a card's text and a line's label. */
-internal val KEEP_LOSER_GROUPS = setOf(PAGE_TITLE, BLOCK_TEXT, CELL, NODE_TEXT, EDGE_LABEL)
+/**
+ * The groups whose replaced version is kept for the person (ADR 12): a page's title, a block's text
+ * and picture (decision 14, answer 25), a database cell, a card's text and a line's label.
+ */
+internal val KEEP_LOSER_GROUPS = setOf(PAGE_TITLE, BLOCK_TEXT, BLOCK_IMAGE, CELL, NODE_TEXT, EDGE_LABEL)
 
-/** Tendril's block types; an image's bytes and a canvas come with later slices (ADR 12, 12c and §7 step 3). */
+/** Tendril's block types; an IMAGE block's caption is its text, and its picture a group of its own. */
 enum class BlockType {
     PARAGRAPH, HEADING_1, HEADING_2, HEADING_3, BULLETED, NUMBERED, TODO, QUOTE, CODE, DIVIDER, IMAGE, TOGGLE, CALLOUT,
     PAGE_MENTION, CANVAS, BLOCK_REFERENCE,
@@ -110,6 +115,16 @@ internal data class BlockEntity(
     @ColumnInfo(name = "deleted_at") val deletedAt: Long?,
     @ColumnInfo(name = "gone_hlc") val goneHlc: Long,
     @ColumnInfo(name = "gone_device") val goneDevice: String,
+    /**
+     * An image block's picture: its blob's name ([com.factotum.core.image.BlobName]) and size, a
+     * group of its own, so a picture replaced on two devices keeps the later and puts the earlier in
+     * History (answer 25), and a toggle or a caption changed apart never touches it. Null for none.
+     */
+    val image: String? = null,
+    @ColumnInfo(name = "image_width") val imageWidth: Long? = null,
+    @ColumnInfo(name = "image_height") val imageHeight: Long? = null,
+    @ColumnInfo(name = "image_hlc") val imageHlc: Long? = null,
+    @ColumnInfo(name = "image_device") val imageDevice: String? = null,
 )
 
 /**
@@ -158,6 +173,10 @@ internal data class PageNoticeEntity(
     @ColumnInfo(name = "dismissed_at") val dismissedAt: Long?,
     @ColumnInfo(name = "dismissed_hlc") val dismissedHlc: Long,
     @ColumnInfo(name = "dismissed_device") val dismissedDevice: String,
+    /** A replaced picture (answer 25): its blob's name and size; [lostText] is then empty. */
+    @ColumnInfo(name = "lost_image") val lostImage: String? = null,
+    @ColumnInfo(name = "lost_image_width") val lostImageWidth: Long? = null,
+    @ColumnInfo(name = "lost_image_height") val lostImageHeight: Long? = null,
 )
 
 internal fun noticeId(rowId: String, lost: Stamp) = "notice:$rowId:${lost.hlc}:${lost.device}"
@@ -213,6 +232,9 @@ internal interface PageDao {
     /** Every page, live or trashed: the tree and the revive pass read it whole. */
 
     @Query("SELECT * FROM block WHERE deleted_at IS NOT NULL") suspend fun deletedBlocks(): List<BlockEntity>
+    @Query("SELECT * FROM block WHERE image IS NOT NULL") suspend fun pictured(): List<BlockEntity>
+    @Query("SELECT lost_image FROM page_notice WHERE lost_image IS NOT NULL AND dismissed_at IS NULL") suspend fun lostImages(): List<String>
+    @Query("SELECT blocks_json FROM page_revision") suspend fun revisionBlocks(): List<String>
     @Query("SELECT * FROM page WHERE parent_id = :parentId") suspend fun childrenOf(parentId: String): List<PageEntity>
     @Query("SELECT * FROM block WHERE page_id = :pageId") suspend fun blocksOf(pageId: String): List<BlockEntity>
     @Query("SELECT * FROM block WHERE page_id IN (:pageIds)") suspend fun blocksOfPages(pageIds: List<String>): List<BlockEntity>
@@ -278,7 +300,7 @@ internal fun BlockEntity.toRow() = Row(BLOCK, id, mapOf(
         "mentioned_page_id" to mentionedPageId, "referenced_block_id" to referencedBlockId, "toggle_expanded" to toggleExpanded,
     )),
     GONE to stamped(goneHlc, goneDevice, mapOf("deleted_at" to deletedAt)),
-))
+) + listOfNotNull(imageHlc?.let { BLOCK_IMAGE to stamped(it, requireNotNull(imageDevice), mapOf("image" to image, "width" to imageWidth, "height" to imageHeight)) }))
 
 internal fun Row.toBlockEntity(): BlockEntity {
     val made = groups.getValue(MADE)
@@ -287,6 +309,8 @@ internal fun Row.toBlockEntity(): BlockEntity {
     val place = groups.getValue(PLACE)
     val a = groups.getValue(ATTRS)
     val gone = groups.getValue(GONE)
+    // Only a block ever given a picture has the group, and a line written before pictures has none.
+    val image = groups[BLOCK_IMAGE]
     return BlockEntity(
         id, made.values["page_id"] as String, made.stamp.hlc, made.stamp.device,
         type.values["type"] as String, type.stamp.hlc, type.stamp.device,
@@ -296,7 +320,14 @@ internal fun Row.toBlockEntity(): BlockEntity {
         a.values["mentioned_page_id"] as String?, a.values["referenced_block_id"] as String?, a.values["toggle_expanded"] as Boolean?,
         a.stamp.hlc, a.stamp.device,
         gone.values["deleted_at"] as Long?, gone.stamp.hlc, gone.stamp.device,
-    ).also { BlockType.valueOf(it.type) }
+        image?.values?.get("image") as String?, image?.values?.get("width") as Long?, image?.values?.get("height") as Long?, image?.stamp?.hlc, image?.stamp?.device,
+    ).also { b -> BlockType.valueOf(b.type); checkPicture(b.image, b.imageWidth, b.imageHeight) }
+}
+
+/** A picture a line names is a blob name this app writes, with a size; a line that says otherwise is refused, not shown. */
+private fun checkPicture(name: String?, width: Long?, height: Long?) {
+    if (name == null) return
+    require(BlobName.isValid(name) && width != null && width > 0 && height != null && height > 0) { "not a picture: $name ${width}x$height" }
 }
 
 internal fun PageLabelEntity.toRow() = Row(PAGE_LABEL, id, mapOf(
@@ -314,7 +345,8 @@ internal fun Row.toPageLabelEntity(): PageLabelEntity {
 }
 
 internal fun PageNoticeEntity.toRow() = Row(PAGE_NOTICE, id, mapOf(
-    MADE to stamped(madeHlc, madeDevice, mapOf("page_id" to pageId, "row_id" to rowId, "lost_text" to lostText, "lost_spans" to lostSpans)),
+    MADE to stamped(madeHlc, madeDevice, mapOf("page_id" to pageId, "row_id" to rowId, "lost_text" to lostText, "lost_spans" to lostSpans) +
+        (if (lostImage != null) mapOf("lost_image" to lostImage, "lost_image_width" to lostImageWidth, "lost_image_height" to lostImageHeight) else emptyMap())),
     DISMISSED to stamped(dismissedHlc, dismissedDevice, mapOf("dismissed_at" to dismissedAt)),
 ))
 
@@ -324,5 +356,6 @@ internal fun Row.toNoticeEntity(): PageNoticeEntity {
     return PageNoticeEntity(
         id, made.values["page_id"] as String, made.values["row_id"] as String, made.values["lost_text"] as String, made.values["lost_spans"] as String?,
         made.stamp.hlc, made.stamp.device, d.values["dismissed_at"] as Long?, d.stamp.hlc, d.stamp.device,
-    )
+        made.values["lost_image"] as String?, made.values["lost_image_width"] as Long?, made.values["lost_image_height"] as Long?,
+    ).also { checkPicture(it.lostImage, it.lostImageWidth, it.lostImageHeight) }
 }

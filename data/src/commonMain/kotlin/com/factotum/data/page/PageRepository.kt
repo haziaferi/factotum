@@ -40,13 +40,16 @@ data class BlockAttrs(
     val toggleExpanded: Boolean? = null,
 )
 
+/** An image block's picture: its stored blob ([com.factotum.core.image.BlobName]) and its size, so a placeholder can be laid out before the bytes arrive. */
+data class BlockImage(val name: String, val width: Int, val height: Int)
+
 /** One block as drawn: [depth] under its parents, in outline order. */
-data class BlockView(val id: String, val depth: Int, val type: BlockType, val content: String, val spans: String?, val parentId: String?, val attrs: BlockAttrs)
+data class BlockView(val id: String, val depth: Int, val type: BlockType, val content: String, val spans: String?, val parentId: String?, val attrs: BlockAttrs, val image: BlockImage? = null)
 
 data class Revision(val id: Long, val reason: String, val title: String, val blockCount: Int, val at: Long, val noticeId: String?)
 
 /** "Replaced by a sync" on [pageId]: [rowId] is the page (its title), a block (its text), a database cell, a canvas card (its text) or a line (its label), and [lostText] what it said (a Select's option by name). */
-data class Notice(val id: String, val pageId: String, val rowId: String, val lostText: String, val lostSpans: String?)
+data class Notice(val id: String, val pageId: String, val rowId: String, val lostText: String, val lostSpans: String?, val lostImage: BlockImage? = null)
 
 /**
  * Pages and their blocks (Tendril's, ADR 12, per-row+revive): one row per block, ordered by a
@@ -142,7 +145,7 @@ internal class PageRepository(
     }
 
     /** Adds a block to [pageId] after its sibling [after] (first when null), under the block [parent]. */
-    suspend fun addBlock(pageId: String, after: String? = null, parent: String? = null, type: BlockType = BlockType.PARAGRAPH, content: String = "", spans: String? = null): String {
+    suspend fun addBlock(pageId: String, after: String? = null, parent: String? = null, type: BlockType = BlockType.PARAGRAPH, content: String = "", spans: String? = null, image: BlockImage? = null): String {
         val id = newId()
         snapshotIfDue(pageId)
         var key = ""
@@ -161,9 +164,23 @@ internal class PageRepository(
                 PLACE to Group(s, mapOf("parent_block_id" to parent, "sort_key" to key)),
                 ATTRS to Group(s, attrValues(BlockAttrs())),
                 GONE to Group(s, mapOf("deleted_at" to null)),
-            )))
+            ) + listOfNotNull(image?.let { BLOCK_IMAGE to Group(s, imageValues(it)) })))
         }
         return id
+    }
+
+    /** Gives image block [id] the picture [image], or takes its picture away; the one it replaces stays in History. */
+    suspend fun setImage(id: String, image: BlockImage?) {
+        snapshotIfDue(block(id).pageId)
+        writes.write({
+            val b = block(id)
+            require(b.deletedAt == null && b.type == BlockType.IMAGE.name) { "block $id is not a live image block" }
+            mapOf(BLOCK to listOf(id))
+        }) { store, _ ->
+            val row = requireNotNull(store.row(id))
+            store.put(row.set(BLOCK_IMAGE, clock.tick(), imageValues(image)))
+            if (BLOCK_IMAGE !in row.groups) writes.merger.added(store, id, BLOCK_IMAGE)
+        }
     }
 
     suspend fun setText(id: String, content: String, spans: String? = null) {
@@ -204,7 +221,7 @@ internal class PageRepository(
         val blocks = dao.blocksOf(pageId).filter { it.deletedAt == null }.associateBy { it.id }
         return outlineOf(blocks.values.map { Placed(it.id, it.parentBlockId, it.sortKey) }).map { e ->
             val b = blocks.getValue(e.id)
-            BlockView(b.id, e.depth, BlockType.valueOf(b.type), b.content, b.spans, b.parentBlockId, b.attrs())
+            BlockView(b.id, e.depth, BlockType.valueOf(b.type), b.content, b.spans, b.parentBlockId, b.attrs(), b.picture())
         }
     }
 
@@ -285,13 +302,20 @@ internal class PageRepository(
                 set(BLOCK_TEXT, mapOf("content" to b.text("content"), "spans" to b.text("spans")))
                 set(PLACE, mapOf("parent_block_id" to b.text("parent"), "sort_key" to b.text("key")))
                 set(ATTRS, attrValues(b.attrs()))
+                // A picture as it was, the group made for a block that had none (History keeps its blob, answer 32).
+                val was = b.image()
+                val adds = BLOCK_IMAGE !in r.groups && was != null
+                if (BLOCK_IMAGE in r.groups) set(BLOCK_IMAGE, imageValues(was)) else if (was != null) r = r.set(BLOCK_IMAGE, s, imageValues(was))
                 set(GONE, mapOf("deleted_at" to null))
                 store.put(r)
+                if (adds) writes.merger.added(store, id, BLOCK_IMAGE)
             }
         }
     }
 
-    suspend fun notices(pageId: String): List<Notice> = dao.openNotices(pageId).map { Notice(it.id, it.pageId, it.rowId, it.lostText, it.lostSpans) }
+    suspend fun notices(pageId: String): List<Notice> = dao.openNotices(pageId).map { n ->
+        Notice(n.id, n.pageId, n.rowId, n.lostText, n.lostSpans, n.lostImage?.let { BlockImage(it, requireNotNull(n.lostImageWidth).toInt(), requireNotNull(n.lostImageHeight).toInt()) })
+    }
 
     /** Dismisses [noticeId], on every device (owner, 2026-10-03). */
     suspend fun dismiss(noticeId: String) = writes.edit(PAGE_NOTICE, noticeId, DISMISSED) { s -> mapOf("dismissed_at" to s.hlc) }
@@ -318,29 +342,38 @@ internal class PageRepository(
             sync.clearLost(listOf(lostId))
             val loser = RecordCodec.decodeGroup(lost.groupJson)
             val isTitle = lost.tbl == PAGE
+            val isImage = lost.grp == BLOCK_IMAGE
             val cell = if (lost.tbl == PROPERTY_VALUE) databases.values(listOf(lost.rowId)).singleOrNull() else null
             val block = if (lost.tbl == BLOCK) dao.blocks(listOf(lost.rowId)).singleOrNull() else null
             val card = if (lost.tbl == CANVAS_NODE) canvases.nodes(listOf(lost.rowId)).singleOrNull() else null
             val line = if (lost.tbl == CANVAS_EDGE) canvases.edges(listOf(lost.rowId)).singleOrNull() else null
             // A cleared cell's text is empty: what the notice offers back is the clearing.
-            val field = when (lost.tbl) { PAGE -> "title"; BLOCK -> "content"; CANVAS_NODE -> "text"; CANVAS_EDGE -> "label"; else -> "value" }
+            val field = when (lost.grp) { PAGE_TITLE -> "title"; BLOCK_TEXT -> "content"; BLOCK_IMAGE -> "image"; NODE_TEXT -> "text"; EDGE_LABEL -> "label"; else -> "value" }
             val raw = loser.values[field] as String?
-            val text = cell?.let { c -> raw?.let { r -> databases.options(listOf(r)).singleOrNull()?.takeIf { it.propertyId == c.propertyId }?.name } } ?: raw.orEmpty()
-            val spans = if (lost.tbl == BLOCK) loser.values["spans"] as String? else null
+            val text = if (isImage) "" else cell?.let { c -> raw?.let { r -> databases.options(listOf(r)).singleOrNull()?.takeIf { it.propertyId == c.propertyId }?.name } } ?: raw.orEmpty()
+            val picture = if (isImage) raw?.let { BlockImage(it, (loser.values["width"] as Long).toInt(), (loser.values["height"] as Long).toInt()) } else null
+            val spans = if (lost.grp == BLOCK_TEXT) loser.values["spans"] as String? else null
             val page = dao.pages(listOf(block?.pageId ?: cell?.pageId ?: card?.pageId ?: line?.pageId ?: lost.rowId)).singleOrNull()
-            val current = when (lost.tbl) { PAGE -> page?.title; BLOCK -> block?.content; CANVAS_NODE -> card?.text; CANVAS_EDGE -> line?.label.orEmpty(); else -> cell?.value }
-            if (lost.tbl == PROPERTY_VALUE && current == raw) return@write emptyMap()
+            val current = when (lost.grp) { PAGE_TITLE -> page?.title; BLOCK_TEXT -> block?.content; BLOCK_IMAGE -> block?.image; NODE_TEXT -> card?.text; EDGE_LABEL -> line?.label.orEmpty(); else -> cell?.value }
+            // A picture taken away that lost to one put back offers nothing to bring back.
+            if ((lost.tbl == PROPERTY_VALUE || isImage) && current == raw || isImage && raw == null) return@write emptyMap()
             val notice = noticeId(lost.rowId, loser.stamp)
-            if (page == null || (lost.tbl != PROPERTY_VALUE && current == text) || dao.revisionsOf(page.id).any { it.noticeId == notice }) return@write emptyMap()
-            val blocks = dao.blocksOf(page.id).filter { it.deletedAt == null || it.id == lost.rowId }
-                .map { if (it.id == lost.rowId) it.copy(content = text, spans = spans, deletedAt = null) else it }
+            if (page == null || (lost.tbl != PROPERTY_VALUE && !isImage && current == text) || dao.revisionsOf(page.id).any { it.noticeId == notice }) return@write emptyMap()
+            val blocks = dao.blocksOf(page.id).filter { it.deletedAt == null || it.id == lost.rowId }.map {
+                when {
+                    it.id != lost.rowId -> it
+                    isImage -> it.copy(image = picture?.name, imageWidth = picture?.width?.toLong(), imageHeight = picture?.height?.toLong(), deletedAt = null)
+                    else -> it.copy(content = text, spans = spans, deletedAt = null)
+                }
+            }
             val cells = databases.valuesOfPages(listOf(page.id)).associate { it.propertyId to if (it.id == lost.rowId) raw else it.value }
             dao.addRevision(PageRevisionEntity(0, page.id, "MERGE", if (isTitle) text else page.title, JsonArray(blocks.map { it.json() }).toString(), blocks.size.toLong(), wallMillis(), notice, cellsJson(cells, picksOf(page.id)), canvasJson(page.id, lost.rowId, lost.grp, loser)))
             dao.keepRevisions(page.id, KEPT)
             // Stamped with the lost version's own stamp: two devices write the same notice, and a
             // copy written late never undoes a dismissal the other has made since.
             create = Row(PAGE_NOTICE, notice, mapOf(
-                MADE to Group(loser.stamp, mapOf("page_id" to page.id, "row_id" to lost.rowId, "lost_text" to text, "lost_spans" to spans)),
+                MADE to Group(loser.stamp, mapOf("page_id" to page.id, "row_id" to lost.rowId, "lost_text" to text, "lost_spans" to spans) +
+                    (picture?.let { mapOf("lost_image" to it.name, "lost_image_width" to it.width.toLong(), "lost_image_height" to it.height.toLong()) } ?: emptyMap())),
                 DISMISSED to Group(loser.stamp, mapOf("dismissed_at" to null)),
             ))
             mapOf(PAGE_NOTICE to listOf(notice))
@@ -635,7 +668,13 @@ private fun onCycle(page: PageEntity, pages: Map<String, PageEntity>) = cycleOf(
 private fun shownUnder(page: PageEntity, pages: Map<String, PageEntity>): String? =
     page.parentId?.takeIf { pages[it]?.deletedAt == null && it in pages && !onCycle(page, pages) }
 
-private fun BlockEntity.edits() = listOf(Stamp(typeHlc, typeDevice), Stamp(textHlc, textDevice), Stamp(placeHlc, placeDevice), Stamp(attrsHlc, attrsDevice))
+private fun BlockEntity.edits() = listOfNotNull(
+    Stamp(typeHlc, typeDevice), Stamp(textHlc, textDevice), Stamp(placeHlc, placeDevice), Stamp(attrsHlc, attrsDevice), imageHlc?.let { Stamp(it, requireNotNull(imageDevice)) },
+)
+
+private fun BlockEntity.picture() = image?.let { BlockImage(it, requireNotNull(imageWidth).toInt(), requireNotNull(imageHeight).toInt()) }
+
+private fun imageValues(image: BlockImage?) = mapOf("image" to image?.name, "width" to image?.width?.toLong(), "height" to image?.height?.toLong())
 
 private fun PageEntity.toPage() = Page(id, title, icon, parentId, deletedAt != null)
 
@@ -654,11 +693,18 @@ private fun BlockEntity.json() = JsonObject(mapOf(
     "code_language" to codeLanguage.json(), "callout_icon" to calloutIcon.json(), "callout_color" to (calloutColor?.let(::JsonPrimitive) ?: JsonNull),
     "mentioned_page_id" to mentionedPageId.json(), "referenced_block_id" to referencedBlockId.json(),
     "toggle_expanded" to (toggleExpanded?.let(::JsonPrimitive) ?: JsonNull),
+    "image" to image.json(), "image_width" to (imageWidth?.let(::JsonPrimitive) ?: JsonNull), "image_height" to (imageHeight?.let(::JsonPrimitive) ?: JsonNull),
 ))
 
 private fun decodeBlocks(text: String): List<JsonObject> = Json.parseToJsonElement(text).jsonArray.map { it.jsonObject }
 
 private fun JsonObject.text(key: String) = this[key]?.jsonPrimitive?.contentOrNull
+
+/** A kept block's picture, or none (one kept before pictures has no such keys). */
+private fun JsonObject.image() = text("image")?.let { BlockImage(it, requireNotNull(this["image_width"]?.jsonPrimitive?.longOrNull).toInt(), requireNotNull(this["image_height"]?.jsonPrimitive?.longOrNull).toInt()) }
+
+/** The pictures History keeps on this device (answer 32): every one its kept blocks name. */
+internal fun revisionImages(blocksJson: String): List<String> = decodeBlocks(blocksJson).mapNotNull { it.text("image") }
 
 private fun JsonObject.attrs() = BlockAttrs(
     this["checked"]?.jsonPrimitive?.booleanOrNull, text("code_language"), text("callout_icon"), this["callout_color"]?.jsonPrimitive?.longOrNull,
