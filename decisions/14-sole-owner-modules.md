@@ -57,6 +57,14 @@ The owner answered:
 22. **A repeating row shows its next open occurrence**: ticking it resolves the current one.
 23. **A Recurrence column is edited as "every n days, weeks or months"**; a richer rule from the task side is shown read-only.
 
+**Database rows as tasks, second round (owner, 2026-10-04)**, after the Tendril survey:
+
+26. **Editing a repeating row's Date cell asks every time** whether it moves the whole series or only the next open occurrence (an occurrence move, ADR 11). The data layer offers both; the question waits for the screens.
+27. **Unbinding a Recurrence column while the task carries a richer rule leaves the cell empty**; the task keeps its rule.
+28. **Setting an interval on a row with no Date starts the task today**, and the Date cell shows it.
+29. **Keeping both for one occurrence of a repeating row-task is allowed**: it adds an occurrence to the same task, never a second row or task. Answer 21 covers only the task's own date clash.
+30. **A page that stops being a row of any database with rows as tasks has its task trashed** (Tendril's rule; it follows from answers 16 and 17).
+
 **Images**
 24. **An inserted image is scaled to about 2048 px on its longest edge.**
 25. **An image replaced on two devices keeps the later one**, and the earlier goes to History with a notice, as text does.
