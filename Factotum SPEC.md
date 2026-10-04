@@ -1,6 +1,6 @@
 # Factotum — Product & Technical Spec
 
-**Status:** draft v0.30, seeded from the decision register · **Scope:** the merged data model, sync and behaviour rules of Factotum. Screens are not decided and are marked open (§10.1).
+**Status:** draft v0.31, seeded from the decision register · **Scope:** the merged data model, sync and behaviour rules of Factotum. Screens are not decided and are marked open (§10.1).
 **Related documents:** `decisions/`, the evidence behind §3: one ADR per decision with verified `file:line` facts, the scored options, the behaviour cases and the harness that measured them (`decisions/register.md` is the index). This spec states each decision once and points to its ADR for the evidence. It never restates the evidence.
 
 ---
@@ -9,6 +9,7 @@
 
 | Version | Summary | Sections touched |
 |---|---|---|
+| v0.31 | Owner's answers on §10.4 (an ALARM on Windows rings from the tray app; missed ones shown once at the next start) and §10.6 (occurrence edits are all kept) | §8, §10 |
 | v0.30 | The composition root (`Factotum`): every repository and sync wired once, in the order the rules need, and used by the tests; a row trashed from the page side stops its task's timer | §7 |
 | v0.29 | Step 3 done: images in pages, stored by hash, carried through `blobs/` in the folder, scaled and stripped on insert, kept in History, collected 30 days after the last live use; owner's answers 31-34 | §3.12, §3.13, §7 |
 | v0.28 | Step 3: Tendril's database rows as tasks, one task per row page with its title and life, bound columns showing the task, intervals, and the owner's second-round answers 26-30 | §3.12, §7 |
@@ -554,7 +555,7 @@ The four source apps are the owner's own. The only third-party code found so far
 
 ## 8. Risks
 
-- **Windows parity for alerts.** §3.4's ALARM relies on Android's `setAlarmClock`, and Windows has no equivalent held by the OS. What an ALARM does on Windows is open (§10.4).
+- **Windows parity for alerts.** §3.4's ALARM relies on Android's `setAlarmClock`, and Windows has no equivalent held by the OS. Decided (§10.4): the tray app rings it while running, and shows one missed while it was not at the next start.
 - **The on-device LLM on Windows.** Equipoise runs llama.cpp on Android only, and today only in the foreground.
 - **Database corruption recovery.** Room's corruption handler deletes the database file before any recovery code runs. **[Verified]** All three syncing apps guard against this: Tendril with `shared/src/androidMain/.../KeepFileOnCorruptionDriver.kt`, and Chronicle and Mnemo each with a `DatabaseRecovery.kt`. Factotum must carry one of these guards onto both its drivers. Tendril's is the natural starting point, because it is already KMP.
 - **Room triggers in common code.** §3.10 and §3.7 install triggers from a database callback, as Chronicle does on Android. **[Assumed]** The same callback works on the Windows (JVM) driver. See §9.3.
@@ -579,9 +580,9 @@ Status: 2, 4 and 6 are done (`docs/spikes-2026-10-01.md`). 1 and 3 ran on the de
 1. **Screens, navigation and wording.** None are decided (§0.1.6). The only fixed words are "Label" (§3.8), "Log" for a habit (§3.6) and "check-in" for mood, energy and pleasantness (§3.5). The settings screen's marker for "follows you across devices" is also open (§3.9).
 2. **Module layout. Decided 2026-10-01:** KMP split by layer (§5.1).
 3. **Phasing. Decided 2026-10-01:** the data layer first, with no screens (§7).
-4. **What an ALARM does on Windows** (§8).
+4. **What an ALARM does on Windows. Decided 2026-10-04 (owner):** as Tendril's desktop does, the app lives in the tray; an ALARM shows a toast and keeps ringing, as its nag settings say, until it is dismissed. Nothing on Windows holds an alarm while the app is not running, so an alarm missed then is shown once at the next start. Built with the Windows shell.
 5. **Equipoise's burnout index isn't computed in production. Decided 2026-10-03** (`decisions/14-sole-owner-modules.md`): computed on demand, never synced; sleep from a tracker the person names; a missing input reweighs the rest; a day's sensory load and energy are means. **Fixed 2026-10-04** with regulation (§7 step 3): `LedgerRepository.burnout` works it out over fourteen personal days.
-6. **Occurrence-edit log growth.** A storage policy for edits on occurrences more than a year in the past (§3.11).
+6. **Occurrence-edit log growth. Decided 2026-10-04 (owner):** every edit is kept, however old, so past days keep showing what happened; a policy waits for a measurement that the log has grown too large (§3.11).
 7. **Checklists in search. Decided 2026-10-03:** names first, then item text (`decisions/14-sole-owner-modules.md`). **Done 2026-10-04** with checklists (§7 step 3).
 8. **The map's copies. Done 2026-10-01.**
    - The `.md` table and its count line now read 10 contested, 0 duplicated and 1 name collision.
