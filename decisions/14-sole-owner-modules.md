@@ -69,6 +69,13 @@ The owner answered:
 24. **An inserted image is scaled to about 2048 px on its longest edge.**
 25. **An image replaced on two devices keeps the later one**, and the earlier goes to History with a notice, as text does.
 
+**Images, second round (owner, 2026-10-04)**, after the Tendril survey:
+
+31. **A deleted block's picture stays in the sync folder for 30 days**, then is collected when nothing refers to it; a block revived within that time keeps its picture.
+32. **Page History keeps its pictures**, so restoring an old version brings the picture back.
+33. **Every inserted image is scaled and re-encoded**: longest edge at most 2048 px; photos as JPEG at about quality 85, images with transparency as PNG; an animated GIF or WebP keeps its first frame.
+34. **Photo metadata is stripped on insert**: rotation is applied to the pixels, then camera details and location are removed before the picture syncs.
+
 **Waiting for the screens:**
 - automatic checklist resets;
 - run history;
