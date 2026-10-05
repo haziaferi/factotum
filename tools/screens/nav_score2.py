@@ -111,33 +111,111 @@ WINDOWS = {
 
 MANAGE = ["manage habits", "manage trackers", "manage activities", "manage checklists"]
 SYSTEM_LIST = ["labels", "trash", "settings", "about"]
-# Screens a candidate's hub lists as entries of their own (a drawer, a Browse page, a module tab, the
-# account menu): (hub cost, from anywhere, names). Such a screen costs hub + 1, as its mockup draws it.
+ALL_NAMES = [s[0] for s in SCREENS]
+
+# Named surfaces a candidate offers besides its areas (a drawer, a Browse page, a module's top row, the
+# account menu, the ⊞ sheet, a pinned bar slot): (cost to open it, from anywhere, names it lists).
+# A screen listed there costs open + 1, as its mockup draws it; the cheaper of that and its area wins.
 HUBS = {
-    "G (as mocked)": (1, 1, SYSTEM_LIST), "G+ (manage from Today)": (1, 1, SYSTEM_LIST), "B. Today hub": (1, 1, SYSTEM_LIST),
-    "A. Module tabs": (1, 1, MANAGE), "P7. Home grid": (1, 0, MANAGE),
-    "P6. Bar + drawer": (1, 1, MANAGE + SYSTEM_LIST + ["templates", "Road Map", "ledger (masking)", "sensory log"]),
-    "P4. Drawer only": (1, 1, MANAGE + SYSTEM_LIST + ["templates", "Road Map", "ledger (masking)", "sensory log"]),
-    "P5. Bar + Browse hub": (1, 1, MANAGE + SYSTEM_LIST + ["templates", "Road Map", "ledger/sensory history"]),
+    "G (as mocked)": [(1, 1, SYSTEM_LIST)], "G+ (manage from Today)": [(1, 1, SYSTEM_LIST)], "B. Today hub": [(1, 1, SYSTEM_LIST)],
+    "A. Module tabs": [(1, 1, MANAGE)], "P7. Home grid": [(1, 0, MANAGE)],
+    "P6. Bar + drawer": [(1, 1, MANAGE + SYSTEM_LIST + ["templates", "Road Map", "ledger (masking)", "sensory log"])],
+    "P4. Drawer only": [(1, 1, MANAGE + SYSTEM_LIST + ["templates", "Road Map", "ledger (masking)", "sensory log"])],
+    "P5. Bar + Browse hub": [(1, 1, MANAGE + SYSTEM_LIST + ["templates", "Road Map", "ledger/sensory history"])],
 }
-for _name, _hub in HUBS.items():
-    PHONE[_name]["hub_direct"] = _hub
+for _name, _hubs in HUBS.items():
+    PHONE[_name]["hubs"] = _hubs
+
+# ---- improved candidates (owner, 2026-10-05) -------------------------------------------------------
+TODAY_ROW = ["calendar day/week/month", "confirm the week (planner)"]
+ROUTINES_ROW = MANAGE + ["tracker detail and charts", "build a saved chart", "goals", "time totals"]
+CHECKIN_ROW = ["check-in", "ledger (masking)", "sensory log", "stability trend", "ledger/sensory history"]
+PAGES_ROW = ["today's journal", "past journal days", "database view", "templates", "Road Map"]
+LAUNCHER = [n for n in ALL_NAMES if n not in ("capture", "search", "tick a task", "today's agenda", "edit an item",
+            "edit one occurrence", "page History", "sync folder", "backup", "app lock", "open a page", "canvas",
+            "Log a habit", "start/stop a timer", "tracker reading", "tick a checklist")]
+
+PHONE["A+. Modules + top rows + ⊞"] = dict(
+    note="Bar: Today · Routines · check-in · Pages · ⊞. Each module opens on a top row of its own screens. ⊞ is a sheet over the current screen: the natural-language capture line, pinned and recent, then every feature as a grid under module headings. Long-press ⊞ = capture.",
+    areas=A(capture=(1, 1), search=(1, 1), today=(0, 0), due=(0, 0), calendar=(1, 0), checkin=(1, 1), journal=(1, 1),
+            pages=(1, 1), review=(1, 1), manage=(1, 1), system=(1, 1)),
+    hubs=[(1, 0, TODAY_ROW), (1, 1, ROUTINES_ROW), (1, 1, CHECKIN_ROW), (1, 1, PAGES_ROW), (1, 1, LAUNCHER)],
+    visible=11, hub=len(LAUNCHER), start_load=2, register=0.9, named1=["today's agenda", "check-in"],
+    module_areas=["today", "due", "checkin", "pages", "manage"])
+
+# A++ = Today and ⊞ fixed, three slots the owner pins. A pin is a module (it opens with its top row) or a
+# single screen. The default pins are chosen by enumerating every combination against the weights.
+MODULE_PINS = {
+    "Routines (module)": dict(areas=dict(manage=(1, 1), review=(1, 1)), hub=(1, 1, ROUTINES_ROW)),
+    "check-in (module)": dict(areas=dict(checkin=(1, 1)), hub=(1, 1, CHECKIN_ROW)),
+    "Pages (module)": dict(areas=dict(pages=(1, 1), journal=(1, 1)), hub=(1, 1, PAGES_ROW)),
+    "Week (module)": dict(areas=dict(calendar=(1, 1)), hub=(1, 1, ["confirm the week (planner)"])),
+}
+SCREEN_PINS = ["today's journal", "calendar day/week/month", "database view", "check-in", "ledger (masking)",
+               "manage habits", "manage trackers", "tracker detail and charts", "time totals"]
+
+
+def a_plus_plus(pins):
+    base_areas = dict(capture=(1, 1), search=(1, 1), today=(0, 0), due=(0, 0), calendar=(2, 1), checkin=(2, 1),
+                      journal=(2, 1), pages=(2, 1), review=(2, 1), manage=(2, 1), system=(1, 1))
+    hubs = [(1, 1, LAUNCHER)]
+    named = ["today's agenda"]
+    for p in pins:
+        if p in MODULE_PINS:
+            base_areas.update(MODULE_PINS[p]["areas"])
+            hubs.append(MODULE_PINS[p]["hub"])
+        else:
+            hubs.append((0, 1, [p]))
+            named.append(p)
+    return dict(note="Bar: Today · three pinned slots · ⊞. A slot holds a module (with its top row) or one screen. Pinned here: %s." % ", ".join(pins),
+                areas=base_areas, hubs=hubs, visible=11, hub=len(LAUNCHER), start_load=2, register=0.9, named1=named,
+                module_areas=["today", "due"] + [k for p in pins if p in MODULE_PINS for k in MODULE_PINS[p]["areas"]])
+
+
+WINDOWS["W3. Module rail + bounded panel"] = dict(
+    note="Rail: Today · Week · Routines · check-in · Pages · Review, plus pinned features and ⊞ (Ctrl+1-6, Ctrl+K search, the system-wide quick add). A panel beside the rail lists only the active module's screens (4-9); nothing more is visible at once.",
+    areas=A(capture=(1, 1), search=(1, 1), today=(1, 1), due=(1, 1), calendar=(1, 1), checkin=(1, 1), journal=(1, 1),
+            pages=(1, 1), review=(1, 1), manage=(1, 1), system=(1, 1)),
+    hubs=[(1, 1, ROUTINES_ROW), (1, 1, CHECKIN_ROW), (1, 1, PAGES_ROW), (1, 1, TODAY_ROW), (1, 1, LAUNCHER)],
+    visible=15, hub=9, start_load=2, register=0.9,
+    named1=["today's agenda", "calendar day/week/month", "manage habits", "manage trackers", "manage activities", "manage checklists", "tracker detail and charts"],
+    module_areas=["today", "calendar", "manage", "checkin", "pages", "review"])
+
+# Names on the always-visible navigation, for the earlier candidates (a module or hub label names no single screen).
+for _n, _named in {
+    "G (as mocked)": ["today's agenda", "calendar day/week/month"], "G+ (manage from Today)": ["today's agenda", "calendar day/week/month"],
+    "B. Today hub": ["today's agenda", "calendar day/week/month"], "A. Module tabs": ["today's agenda", "check-in"],
+    "P6. Bar + drawer": ["today's agenda", "calendar day/week/month"], "P5. Bar + Browse hub": ["today's agenda", "calendar day/week/month"],
+    "P4. Drawer only": ["today's agenda"], "P7. Home grid": [], "P8. Search first (tree)": [],
+}.items():
+    PHONE[_n]["named1"] = _named
+WINDOWS["W1. Rail mirrors G+"]["named1"] = ["today's agenda", "calendar day/week/month"]
+WINDOWS["W2. Full sidebar"]["named1"] = [n for n in ALL_NAMES if n not in ("capture", "search", "tick a task", "edit an item",
+                                         "edit one occurrence", "page History", "Log a habit", "start/stop a timer",
+                                         "tracker reading", "tick a checklist", "open a page", "canvas")]
+WINDOWS["W2. Full sidebar"]["hubs"] = [(0, 1, WINDOWS["W2. Full sidebar"]["named1"])]
+WINDOWS["W1. Rail mirrors G+"]["hubs"] = [(1, 1, SYSTEM_LIST)]
+MAIN_AREAS = ["today", "calendar", "due", "checkin", "journal", "pages", "review", "manage"]
 
 
 def steps_for(cand, name, area, depth):
-    """(steps, from anywhere, search only?) for one screen in one candidate."""
-    hub_cost, hub_any, direct = cand.get("hub_direct", (0, 0, []))
+    """(steps, from anywhere, search only?) for one screen: the cheapest of its area path and any hub listing it."""
+    options = []
     path = cand["areas"][area]
-    if name in direct:
-        return hub_cost + 1, bool(hub_any), False
-    if path is None:
+    if path is not None:
+        options.append((path[0] + depth, bool(path[1])))
+    for cost, anywhere, names in cand.get("hubs", []):
+        if name in names:
+            options.append((cost + 1, bool(anywhere)))
+    if not options:
         return cand["areas"]["search"][0] + 1, True, True
-    return path[0] + depth, bool(path[1]), False
+    steps, anywhere = min(options, key=lambda o: o[0] + (0 if o[1] else 0.5))
+    return steps, anywhere, False
 
 
 def evaluate(cand):
     total = tail = 0.0
-    depths, search_only = [], []
+    depths, search_only, reach2 = [], [], 0
     for name, w, _, area, depth in SCREENS:
         steps, anywhere, only_search = steps_for(cand, name, area, depth)
         if only_search:
@@ -147,20 +225,42 @@ def evaluate(cand):
         total += w * exp
         if w <= 1:
             tail += w * exp
+        if not only_search and anywhere and steps <= 2:
+            reach2 += 1
         depths.append((steps, name))
+    # Switching module: from a screen inside one module to the start of another. An area reachable from
+    # anywhere costs its own steps; one that is not costs a step back first.
+    sw = []
+    for a in MAIN_AREAS:
+        p = cand["areas"][a]
+        sw.append(cand["areas"]["search"][0] + 1 if p is None else max(p[0], 1) + (0 if p[1] else 1))
     return {"cost": total, "tail": tail, "max_depth": max(depths)[0], "deepest": max(depths)[1],
             "search_only": search_only, "visible": cand["visible"], "hub": cand["hub"],
-            "start_load": cand["start_load"], "register": cand["register"]}
+            "start_load": cand["start_load"], "register": cand["register"], "reach2": reach2,
+            "named1": len(cand.get("named1", [])), "switch": sum(sw) / len(sw)}
 
 
-LOW = ("cost", "tail", "max_depth", "visible", "hub", "start_load")
+LOW = ("cost", "tail", "max_depth", "visible", "hub", "start_load", "switch")
+HIGH = ("register", "reach2", "named1")
 
 
 def dominates(a, b):
     sa, sb = len(a["search_only"]), len(b["search_only"])
-    no_worse = all(a[k] <= b[k] for k in LOW) and sa <= sb and a["register"] >= b["register"]
-    better = any(a[k] < b[k] for k in LOW) or sa < sb or a["register"] > b["register"]
+    no_worse = all(a[k] <= b[k] for k in LOW) and sa <= sb and all(a[k] >= b[k] for k in HIGH)
+    better = any(a[k] < b[k] for k in LOW) or sa < sb or any(a[k] > b[k] for k in HIGH)
     return no_worse and better
+
+
+# A++'s default pins: every combination of three, by weekly cost (reach and names broken ties).
+import itertools
+_combos = []
+for combo in itertools.combinations(list(MODULE_PINS) + SCREEN_PINS, 3):
+    r = evaluate(a_plus_plus(list(combo)))
+    _combos.append((r["cost"], -r["reach2"], -r["named1"], combo))
+_combos.sort()
+PIN_SEARCH = {"combinations": len(_combos), "best": _combos[:5],
+              "modules_as_A+": evaluate(a_plus_plus(["Routines (module)", "check-in (module)", "Pages (module)"]))["cost"]}
+PHONE["A++. Today · 3 pins · ⊞"] = a_plus_plus(list(_combos[0][3]))
 
 
 def table(cands, title):
@@ -168,12 +268,13 @@ def table(cands, title):
     for n, r in rows.items():
         r["by"] = [m for m, o in rows.items() if m != n and dominates(o, r)]
     out = ["## " + title, "",
-           "| Candidate | Cost (all) | Long tail | Max depth | Search only | Visible | Largest hub | Start load | Register | Dominated by |",
-           "|---|---|---|---|---|---|---|---|---|---|"]
+           "| Candidate | Cost | Long tail | Max depth | Search only | Reach in 2 | Named in 1 | Switch | Visible | Largest list | Start load | Register | Dominated by |",
+           "|---|---|---|---|---|---|---|---|---|---|---|---|---|"]
     for n, r in sorted(rows.items(), key=lambda kv: kv[1]["cost"]):
-        out.append("| %s | %.0f | %.1f | %d (%s) | %d | %d | %d | %d | %.2f | %s |" % (
-            n, r["cost"], r["tail"], r["max_depth"], r["deepest"], len(r["search_only"]), r["visible"], r["hub"],
-            r["start_load"], r["register"], ", ".join(m.split(" ")[0] for m in r["by"]) or "**front**"))
+        out.append("| %s | %.0f | %.1f | %d | %d | %d/%d | %d | %.2f | %d | %d | %d | %.2f | %s |" % (
+            n, r["cost"], r["tail"], r["max_depth"], len(r["search_only"]), r["reach2"], len(SCREENS), r["named1"],
+            r["switch"], r["visible"], r["hub"], r["start_load"], r["register"],
+            ", ".join(m.split(" ")[0] for m in r["by"]) or "**front**"))
     out += [""] + ["- **%s**: %s%s" % (n, c["note"], (" Search only: " + ", ".join(rows[n]["search_only"]) + ".") if rows[n]["search_only"] else "")
                    for n, c in cands.items()] + [""]
     return out, rows
@@ -181,29 +282,42 @@ def table(cands, title):
 
 lines = ["# Navigation, re-scored with every screen",
          "",
-         "Generated by `tools/screens/nav_score2.py`. It answers the owner's question of 2026-10-05: five bar slots against about 40 screens.",
+         "Generated by `tools/screens/nav_score2.py`. It answers two questions from the owner (2026-10-05):",
+         "",
+         "- five bar slots against about 40 screens;",
+         "- how the candidates can be improved: pick a feature by its name, no back and forth, no endless list.",
          "",
          "**What is scored**",
          "",
-         "- Every one of the %d sought screens has a home area and a depth inside it. A candidate states only what reaching each area costs, so every screen's cost is derived." % len(SCREENS),
+         "- Every one of the %d sought screens has a home area and a depth inside it. A candidate states what reaching each area costs, and which named surfaces list which screens: a drawer, a Browse page, a module's top row, the ⊞ sheet or a pinned slot. A screen takes the cheaper of the two." % len(SCREENS),
          "- An area a candidate never reaches is **search only**: it costs a search plus one step, and it is counted.",
          "- **Cost** is Σ weight × steps, with half a step added when a screen is not reachable from anywhere.",
          "- **Long tail** is the same sum over the screens weighing 1 or less a week.",
-         "- **Largest hub** is the longest single list of entries: a bar, a drawer, a Browse page or a menu.",
+         "- **Reach in 2** counts the screens reachable in two steps or fewer from anywhere, without search.",
+         "- **Named in 1** counts the screens whose own name is always on screen. A module label such as \"Routines\" names no single screen.",
+         "- **Switch** is the mean number of steps from inside one module to the start of another.",
+         "- **Largest list** is the most entries a single surface shows.",
          "",
          "**Weights per week**",
          "",
          "- The owner's: 35 for several a day, 7 for daily, 2 for when noticed, 1 for weekly.",
          "- **Assumed**, not set by the owner: occasional editing and management count as 1, setup and system screens as 0.25.",
          "",
-         "Phone and Windows are scored separately: the five-slot limit binds only the phone.",
+         "Phone and Windows are scored separately.",
          ""]
 pl, prow = table(PHONE, "Phone")
 wl, wrow = table(WINDOWS, "Windows")
 lines += pl + wl
+lines += ["## A++: how its default pins were chosen", "",
+          "Every combination of three pins was scored: %d of them, drawn from 4 modules and %d single screens. The five cheapest:" % (PIN_SEARCH["combinations"], len(SCREEN_PINS)), "",
+          "| Cost | Reach in 2 | Named in 1 | Pins |", "|---|---|---|---|"]
+lines += ["| %.0f | %d | %d | %s |" % (c, -r2, -n1, " · ".join(p)) for c, r2, n1, p in PIN_SEARCH["best"]]
+lines += ["", "Pinning the three modules, which makes A++ the same as A+, would cost %.0f." % PIN_SEARCH["modules_as_A+"], ""]
 lines += ["## Screens and their areas", "", "| Screen | Weight | Area | Depth in area |", "|---|---|---|---|"]
 lines += ["| %s | %s (%s) | %s | %d |" % (n, w, src, a, d) for n, w, src, a, d in SCREENS]
 with open(OUT, "w", encoding="utf-8", newline="\n") as fh:
     fh.write("\n".join(lines) + "\n")
-print("\n".join(pl[:len(PHONE) + 4]))
-print("\n".join(wl[:len(WINDOWS) + 4]))
+if __name__ == "__main__":
+    print("\n".join(pl[:len(PHONE) + 4]))
+    print("\n".join(wl[:len(WINDOWS) + 4]))
+    print("A++ pins:", PIN_SEARCH["best"][:3])

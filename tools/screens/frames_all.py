@@ -73,6 +73,24 @@ def tree():
                      "Review"])
 
 G_BAR = [("◷", "Today"), ("▦", "Week"), ("☰", "Library"), ("↗", "Review")]
+A_BAR = [("◷", "Today"), ("↻", "Routines"), ("◎", "check-in"), ("☰", "Pages"), ("⊞", "All")]
+PIN_BAR = [("◷", "Today"), ("☰", "Pages"), ("▦", "Week"), ("▤", "Databases"), ("⊞", "All")]
+
+
+def TOPROW(names):
+    return '<div class="tabs">%s</div>' % "".join(
+        '<span%s>%s</span>' % (' class="on"' if i == 0 else "", e(n)) for i, n in enumerate(names))
+
+
+LAUNCHER_SHEET = ('<div class="drawer bottom tall"><div class="nl">Dentist tomorrow 9am every 6 months</div>'
+                  '<div class="grp">Pinned and recent</div><div class="tiles">%s</div>%s</div>') % (
+    "".join('<span>%s</span>' % e(t) for t in ["Journal", "Ledger", "Trackers", "Week"]),
+    "".join('<div class="grp">%s</div><div class="tiles">%s</div>' % (e(g), "".join('<span>%s</span>' % e(t) for t in ts)) for g, ts in [
+        ("Today", ["Day", "Week", "Month", "Planner"]),
+        ("Routines", ["Habits", "Trackers", "Activities", "Checklists", "Charts", "Goals"]),
+        ("check-in", ["check-in", "Ledger", "Sensory", "Trend"]),
+        ("Pages", ["Journal", "Databases", "Templates", "Road Map"]),
+        ("App", ["Labels", "Time blocks", "Calendars", "Settings", "Trash", "About"])]))
 ALL_PLACES = ["§Places", "Today", "Week", "Library", "Review", "§Routines", "Habits", "Trackers", "Activities",
               "Checklists", "§check-in", "check-in", "Ledger", "Sensory", "§System", "Labels", "Templates", "Road Map",
               "Trash", "Settings"]
@@ -130,6 +148,26 @@ SCREENS = {
         ("Each module is one tap, but switching goes back through the grid", phone(hdr("Routines", "‹"), zone("Due today", ROUTINES[:3]) +
             listpage(["§Manage", "Habits", "Trackers", "Activities", "Checklists"]))),
     ],
+    "A+. Modules + top rows + ⊞": [
+        ("Start: Today, with its own top row (Agenda · Day · Week · Month · Planner)", phone(hdr("Today · Mon 5 Oct"),
+            TOPROW(["Agenda", "Day", "Week", "Month", "Planner"]) + zone("Agenda", AGENDA[:3]) + zone("Routines", ROUTINES[:4]),
+            bar(A_BAR, "Today"))),
+        ("⊞ from anywhere: the capture line, pinned and recent, then every feature by name", phone(hdr("Today · Mon 5 Oct"),
+            zone("Agenda", AGENDA[:2]), bar(A_BAR, "All"), overlay=LAUNCHER_SHEET)),
+        ("A module opens on its own screens: Routines → Habits · Trackers · Activities · Checklists · Charts", phone(hdr("Routines"),
+            TOPROW(["Habits", "Trackers", "Activities", "Checklists", "Charts"]) +
+            listpage(["Walk · every day", "Water · 8 a day in blocks", "Gym · Mon Wed Fri", "Read · rolling, every 2 days", "+ New habit"]),
+            bar(A_BAR, "Routines"))),
+    ],
+    "A++. Today · 3 pins · ⊞": [
+        ("Start: Today and ⊞ fixed; the three middle slots are pinned (default found by enumeration)", phone(hdr("Today · Mon 5 Oct"),
+            TOPROW(["Agenda", "Day", "Week", "Month", "Planner"]) + zone("Agenda", AGENDA[:3]) + zone("Routines", ROUTINES[:4]),
+            bar(PIN_BAR, "Today"))),
+        ("Pin to the bar: a module (opens with its top row) or a single screen", phone(hdr("Pin to the bar", "‹"),
+            zone("Slots", [it("1 · Pages", "module"), it("2 · Week", "module"), it("3 · Databases", "screen")]) +
+            listpage(["§Modules", "Routines", "check-in", "Pages", "Week", "§Screens", "Journal", "Databases", "Habits", "Trackers",
+                      "Ledger", "Charts"]), bar(PIN_BAR, "All"))),
+    ],
     "P8. Search first (tree)": [
         ("Start: the tree, Today pinned; the bar is Search, Capture, Menu", phone(hdr("Factotum"), tree(),
             bar([("⌕", "Search"), ("+", "Capture"), ("≡", "Menu")], ""))),
@@ -152,9 +190,18 @@ SIDEBAR = '<div class="side">%s</div>' % "".join(
      "§check-in", "check-in", "Ledger", "Sensory", "§Library", "Journal", "Pages", "Templates", "Road Map", "§Review", "This week",
      "Charts and goals", "§", "Trash", "Settings"])
 TODAY_COLS = zone("Agenda", AGENDA) + zone("Routines", ROUTINES, "All routines")
+RAIL3 = ('<div class="rail">%s<div class="sp"></div><div><i>⊞</i>All</div><div><i>◐</i>Account</div></div>' % "".join(
+    '<div%s><i>%s</i>%s<br><span class="kbd">Ctrl+%d</span></div>' % (' class="on"' if t == "Routines" else "", g, t, i + 1)
+    for i, (g, t) in enumerate([("◷", "Today"), ("▦", "Week"), ("↻", "Routines"), ("◎", "check-in"), ("☰", "Pages"), ("↗", "Review")])))
+PANEL3 = '<div class="side panel">%s</div>' % "".join(
+    '<div%s>%s</div>' % (' class="grp"' if x.startswith("§") else (' class="on"' if x == "Habits" else ""), e(x.lstrip("§")))
+    for x in ["§Routines", "Habits", "Trackers", "Activities", "Checklists", "Charts", "Goals", "§", "+ New habit"])
+HABITS_COLS = listpage(["Walk · every day", "Water · 8 a day in blocks", "Gym · Mon Wed Fri", "Read · rolling, every 2 days"]) + zone(
+    "Walk", [it("Repeats", "every day"), it("Tracker", "yes / no"), it("Reminder", "08:00"), it("Label", "health")])
 WIN = {
     "W1. Rail mirrors G+": desk(RAIL, "Today · Mon 5 Oct", TODAY_COLS),
     "W2. Full sidebar": desk(SIDEBAR, "Today · Mon 5 Oct", TODAY_COLS),
+    "W3. Module rail + bounded panel": desk(RAIL3 + PANEL3, "Routines · Habits", HABITS_COLS),
 }
 
 # ---- page ---------------------------------------------------------------------------------------
@@ -187,7 +234,10 @@ nav.toc{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0}nav.toc a{border:1px s
 .drawer{position:absolute;top:0;bottom:0;width:250px;background:var(--zone);border-right:1px solid var(--line);padding:12px;overflow:hidden}.drawer.left{left:0}
 .drawer.right{right:0;left:auto;top:52px;bottom:auto;border:1px solid var(--line);border-radius:10px;margin:4px}
 .drawer.bottom{left:0;right:0;width:auto;top:auto;bottom:62px;border-radius:16px 16px 0 0;border:1px solid var(--line)}
-.drawer div{padding:6px 2px}
+.drawer div{padding:6px 2px}.drawer.tall{top:70px;overflow:hidden}
+.nl{border:1.5px solid var(--fg);border-radius:10px;padding:8px 10px;font-size:14px;margin-bottom:4px}
+.tiles{display:flex;flex-wrap:wrap;gap:5px;padding:2px 0 4px!important}.tiles span{border:1px solid var(--line);border-radius:8px;padding:5px 8px;font-size:12px;background:var(--zone2)}
+.tabs{flex-wrap:nowrap;overflow-x:auto;flex:none;scrollbar-width:none}.side.panel{width:170px;background:var(--zone)}
 .tabs{display:flex;gap:6px}.tabs span{border:1px solid var(--line);border-radius:999px;padding:3px 10px;font-size:12px}.tabs .on{background:var(--hi);font-weight:600}
 .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.grid div{background:var(--zone);border:1px solid var(--line);border-radius:12px;height:92px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:12px;gap:4px}.grid i{font-style:normal;font-size:20px}
 .desk{width:1100px;height:640px;border:1px solid var(--line);border-radius:10px;display:flex;overflow:hidden;background:var(--bg);flex:none}
@@ -210,9 +260,11 @@ def score_table(cand):
         n, _, only_search = n2.steps_for(cand, name, area, depth)
         steps = "search only" if only_search else str(n)
         tail.append("<td>%s</td>" % steps)
-    head = ("<table><tr><th>Cost</th><th>Long tail</th><th>Max depth</th><th>Search only</th><th>Visible</th><th>Largest hub</th>"
-            "<th>Start load</th><th>Register</th></tr><tr><td>%.0f</td><td>%.1f</td><td>%d</td><td>%d</td><td>%d</td><td>%d</td><td>%d</td><td>%.2f</td></tr></table>") % (
-        r["cost"], r["tail"], r["max_depth"], len(r["search_only"]), r["visible"], r["hub"], r["start_load"], r["register"])
+    head = ("<table><tr><th>Cost</th><th>Long tail</th><th>Max depth</th><th>Search only</th><th>Reach in 2</th><th>Named in 1</th>"
+            "<th>Switch</th><th>Visible</th><th>Largest list</th><th>Start load</th><th>Register</th></tr><tr><td>%.0f</td><td>%.1f</td><td>%d</td>"
+            "<td>%d</td><td>%d/%d</td><td>%d</td><td>%.2f</td><td>%d</td><td>%d</td><td>%d</td><td>%.2f</td></tr></table>") % (
+        r["cost"], r["tail"], r["max_depth"], len(r["search_only"]), r["reach2"], len(n2.SCREENS), r["named1"], r["switch"],
+        r["visible"], r["hub"], r["start_load"], r["register"])
     tails = "<table><tr>%s</tr><tr>%s</tr></table>" % ("".join("<th>%s</th>" % e(t) for t in TAIL), "".join(tail))
     return head + '<p class="dim" style="margin:0">Steps to some long-tail screens:</p>' + tails
 
@@ -250,6 +302,7 @@ parts.append("""<h2>What these mockups leave out</h2><ul>
 <li><b>The on-device LLM</b> is not placed in any candidate.</li>
 <li><b>The source screenshots</b> are on <code>frame.html</code>, so they are not repeated here.</li>
 </ul></body></html>""")
+assert set(n2.PIN_SEARCH["best"][0][3]) == {"Pages (module)", "Week (module)", "database view"}, "A++ mockup pins differ from the enumerated best: %s" % (n2.PIN_SEARCH["best"][0][3],)
 with open(OUT, "w", encoding="utf-8", newline="\n") as fh:
     fh.write("\n".join(parts))
 print(OUT, "| phone front:", sorted(pf), "| windows front:", sorted(wf))
