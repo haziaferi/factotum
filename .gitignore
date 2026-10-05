@@ -18,6 +18,8 @@ output-metadata.json
 # Signing and secrets: never public
 *.jks
 *.keystore
+# ...except the shared debug key: personal sideloaded app, committed on purpose (android/build.gradle.kts)
+!keystores/my-shared-debug.keystore
 keystore.properties
 signing.properties
 google-services.json

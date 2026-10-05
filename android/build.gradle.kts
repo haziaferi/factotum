@@ -14,9 +14,23 @@ android {
         versionName = "0.0.1"
     }
 
+    // Personal use only, sideloaded, never distributed (owner, 2026-10-05): every build is signed with
+    // Tendril's shared debug key, committed on purpose so any checkout can update the installed app.
+    // Its password is public, so anyone could sign an update to this package; that is accepted here.
+    // The key can never change without an uninstall, which loses the app's data.
+    signingConfigs {
+        getByName("debug") {
+            storeFile = rootProject.file("keystores/my-shared-debug.keystore")
+            storePassword = "android"
+            keyAlias = "androiddebugkey"
+            keyPassword = "android"
+        }
+    }
+
     buildTypes {
-        debug {
-            applicationIdSuffix = ".debug"
+        // No applicationIdSuffix: only debug builds are installed, and the installed id is com.hazia.factotum.
+        release {
+            signingConfig = signingConfigs.getByName("debug")
         }
     }
 

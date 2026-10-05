@@ -1,6 +1,6 @@
 # Factotum — Product & Technical Spec
 
-**Status:** draft v0.32, seeded from the decision register · **Scope:** the merged data model, sync and behaviour rules of Factotum. Screens are not decided and are marked open (§10.1).
+**Status:** draft v0.34, seeded from the decision register · **Scope:** the merged data model, sync and behaviour rules of Factotum. Screens are not decided and are marked open (§10.1).
 **Related documents:** `decisions/`, the evidence behind §3: one ADR per decision with verified `file:line` facts, the scored options, the behaviour cases and the harness that measured them (`decisions/register.md` is the index). This spec states each decision once and points to its ADR for the evidence. It never restates the evidence.
 
 ---
@@ -9,6 +9,8 @@
 
 | Version | Summary | Sections touched |
 |---|---|---|
+| v0.34 | §10.1 T0 answers: tiers, dark mode with OLED, settings in two sections (settles §3.9's marker), a register per screen cluster; navigation, palette, type, shapes and density to be scored | §10 |
+| v0.33 | Owner: personal use only, never distributed; every APK is signed with Tendril's shared debug key (committed in `keystores/`) and installs as `com.hazia.factotum`, no `.debug` suffix | §0.1 |
 | v0.32 | Owner's correction: the app id and every package are `com.hazia.factotum` (the skeleton had set `com.factotum` without asking, against §0.1.6); the Room schema folder moved unchanged | §0.1, §3, §7 |
 | v0.31 | Owner's answers on §10.4 (an ALARM on Windows rings from the tray app; missed ones shown once at the next start) and §10.6 (occurrence edits are all kept) | §8, §10 |
 | v0.30 | The composition root (`Factotum`): every repository and sync wired once, in the order the rules need, and used by the tests; a row trashed from the page side stops its task's timer | §7 |
@@ -58,6 +60,7 @@ Everything else in this spec is filtered through these.
 | 0.1.4 | **Platforms: Android and Windows**, as Tendril ships now. | 2026-10-01 |
 | 0.1.5 | **Every sole-owner module moves across.** No single-app feature is dropped. | 2026-10-01 |
 | 0.1.6 | **Every visible choice is the owner's.** Layout, wording, navigation and palette are settled with the owner before they are built (§10.1). So are names that outlive a build: the app id and package are `com.hazia.factotum`. | standing practice; name 2026-10-05 |
+| 0.1.7 | **Personal use, never distributed.** Every Android build is signed with Tendril's shared debug key (`keystores/my-shared-debug.keystore`, SHA-256 `20:FB:3E:76…`), committed on purpose, and installs as `com.hazia.factotum`. The key can never change without an uninstall, which loses the app's data. No store, release-signing or distribution concerns apply. | 2026-10-05 |
 
 ### 0.2 Source apps
 
@@ -578,7 +581,7 @@ Status: 2, 4 and 6 are done (`docs/spikes-2026-10-01.md`). 1 and 3 ran on the de
 
 ## 10. Open Items
 
-1. **Screens, navigation and wording.** None are decided (§0.1.6). The only fixed words are "Label" (§3.8), "Log" for a habit (§3.6) and "check-in" for mood, energy and pleasantness (§3.5). The settings screen's marker for "follows you across devices" is also open (§3.9).
+1. **Screens, navigation and wording. T0 answered 2026-10-05** (`decisions/15-screens.md`, brief `docs/screens-workflow-prompt.md`). Screens are settled tier by tier (T0 frame to T6), mocked in HTML beside the source apps and built only once agreed. Decided: dark mode is System, Light or Dark plus a phone-only OLED option; settings that follow you are one section ("On every device") and this device's another ("On this device"), which settles §3.9's marker; each cluster of screens gets its own wording register, set in its tier. Open: the navigation pattern and its destinations and icons, the palette, type, shapes and density, each to be scored with the design skills against real-world examples before the frame is mocked. The only fixed words are still "Label" (§3.8), "Log" for a habit (§3.6) and "check-in" (§3.5).
 2. **Module layout. Decided 2026-10-01:** KMP split by layer (§5.1).
 3. **Phasing. Decided 2026-10-01:** the data layer first, with no screens (§7).
 4. **What an ALARM does on Windows. Decided 2026-10-04 (owner):** as Tendril's desktop does, the app lives in the tray; an ALARM shows a toast and keeps ringing, as its nag settings say, until it is dismissed. Nothing on Windows holds an alarm while the app is not running, so an alarm missed then is shown once at the next start. Built with the Windows shell.
