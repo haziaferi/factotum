@@ -5,6 +5,7 @@ so only use it on debug builds that start empty.
     python tools/screens/adb_walk.py launch <package>
     python tools/screens/adb_walk.py shot <app> <name>        # PNG into _screens-sources/<app>/<name>.png
     python tools/screens/adb_walk.py texts                    # visible texts and content descriptions, with centres
+    python tools/screens/adb_walk.py controls                 # clickable controls' accessibility names only (owner's apps)
     python tools/screens/adb_walk.py tap "<text>" [nth]       # tap the nth element whose text or description equals <text>
     python tools/screens/adb_walk.py type "<text>"
     python tools/screens/adb_walk.py key BACK|ENTER|HOME
@@ -48,6 +49,12 @@ def main(cmd, *args):
         for label, (x, y), _ in nodes():
             if label.strip():
                 print("%4d,%4d  %s" % (x, y, label.replace("\n", " ")[:80]))
+    elif cmd == "controls":
+        # Clickable controls by their accessibility name only: for measuring an app that holds the
+        # owner's own data, where item text must not be read out.
+        for _, (x, y), n in nodes():
+            if n.get("clickable") == "true" and n.get("content-desc"):
+                print("%4d,%4d  %s" % (x, y, n.get("content-desc")[:60]))
     elif cmd == "tap":
         nth = int(args[1]) if len(args) > 1 else 0
         hits = [c for label, c, _ in nodes() if label == args[0]]

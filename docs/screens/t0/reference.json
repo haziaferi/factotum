@@ -419,6 +419,106 @@
     }
    },
    "notes": "Phone and desktop share one model: the desktop ribbon becomes a bottom-toolbar menu, the side pane becomes a slide-in sidebar. Toolbar is persistent on every screen, so every job keeps the same cost from anywhere."
+  },
+  {
+   "app": "Fossify Calendar",
+   "form": "phone",
+   "account": "owner's own install (controls only, no event text read)",
+   "date": "2026-10-05",
+   "pattern": "one screen in a chosen view (month by default); top actions Search, Change view, Filter by calendar, More; FAB New event; no bottom bar",
+   "destinations": {
+    "top": [
+     "Search",
+     "Change view",
+     "Filter by calendar",
+     "More"
+    ],
+    "fab": "New event"
+   },
+   "jobs": {
+    "J1": {
+     "cost": 1,
+     "how": "FAB New event",
+     "from_anywhere": false,
+     "measured": "affordance"
+    },
+    "J2": {
+     "cost": 2,
+     "how": "Change view, then day or list (month is the start)",
+     "from_anywhere": false,
+     "measured": "affordance"
+    },
+    "J4": "n/a",
+    "J5": "n/a",
+    "J6": {
+     "cost": 2,
+     "how": "Change view, Week; repeat in the event editor (FAB, then Repeat)",
+     "from_anywhere": false,
+     "measured": "affordance"
+    },
+    "J7": "n/a",
+    "J8": {
+     "cost": 1,
+     "how": "Search",
+     "from_anywhere": false,
+     "measured": "affordance"
+    },
+    "J9": "n/a",
+    "J10": {
+     "cost": 2,
+     "how": "More, Settings",
+     "from_anywhere": false,
+     "measured": "affordance"
+    }
+   },
+   "notes": "Views of one dataset are a switch on one screen, not destinations."
+  },
+  {
+   "app": "How We Feel",
+   "form": "phone",
+   "account": "none (fresh install; data on device; setup skipped; terms accepted per owner 2026-10-05)",
+   "date": "2026-10-05",
+   "pattern": "bottom bar of 4 icons (Check in, Calendar, Friends, Tools); the start screen is the check-in prompt with one + and a week strip",
+   "destinations": {
+    "bottom_bar": [
+     "Check in",
+     "Calendar",
+     "Friends",
+     "Tools"
+    ]
+   },
+   "jobs": {
+    "J1": "n/a",
+    "J2": "n/a",
+    "J4": "n/a",
+    "J5": {
+     "cost": 1,
+     "how": "the + on the start screen",
+     "from_anywhere": true,
+     "measured": "affordance"
+    },
+    "J6": "n/a",
+    "J7": {
+     "cost": 2,
+     "how": "+ then the note step of the check-in",
+     "from_anywhere": true,
+     "measured": "affordance"
+    },
+    "J8": "n/a",
+    "J9": {
+     "cost": 1,
+     "how": "Calendar: the week's check-in breakdown",
+     "from_anywhere": true,
+     "measured": "tapped"
+    },
+    "J10": {
+     "cost": null,
+     "how": "no settings control on the three tabs visited; not found",
+     "from_anywhere": false,
+     "measured": "not found"
+    }
+   },
+   "notes": "The app opens on the one question it exists for; the bar carries only four peers. Friends is a social-peer surface Factotum has no use for."
   }
  ]
 }
