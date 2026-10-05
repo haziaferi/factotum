@@ -519,6 +519,607 @@
     }
    },
    "notes": "The app opens on the one question it exists for; the bar carries only four peers. Friends is a social-peer surface Factotum has no use for."
+  },
+  {
+   "app": "Todoist",
+   "form": "phone",
+   "account": "owner signed in (geometry only)",
+   "date": "2026-10-05",
+   "pattern": "bottom bar of 4 (Inbox, Today, Upcoming, Browse) + Quick add FAB on every bar destination; Browse is the hub for Search, Filters & Labels, projects, settings",
+   "destinations": {
+    "bottom_bar": [
+     "Inbox",
+     "Today",
+     "Upcoming",
+     "Browse"
+    ],
+    "fab": "Quick add",
+    "browse": [
+     "Search",
+     "Filters & labels",
+     "My projects",
+     "Notifications",
+     "Settings"
+    ]
+   },
+   "jobs": {
+    "J1": {
+     "cost": 1,
+     "how": "Quick add FAB (natural language)",
+     "from_anywhere": true,
+     "measured": "affordance"
+    },
+    "J2": {
+     "cost": 1,
+     "how": "Today",
+     "from_anywhere": true,
+     "measured": "affordance"
+    },
+    "J4": {
+     "cost": 2,
+     "how": "Today, the task's circle",
+     "from_anywhere": true,
+     "measured": "affordance"
+    },
+    "J5": "n/a",
+    "J6": {
+     "cost": 1,
+     "how": "Upcoming (week strip); recurrence typed in the quick-add line",
+     "from_anywhere": true,
+     "measured": "affordance"
+    },
+    "J7": "n/a",
+    "J8": {
+     "cost": 2,
+     "how": "Browse, Search",
+     "from_anywhere": true,
+     "measured": "tapped (Browse)"
+    },
+    "J9": "n/a on phone (reporting not in the bar)",
+    "J10": {
+     "cost": 2,
+     "how": "Browse, gear",
+     "from_anywhere": true,
+     "measured": "tapped (Browse)"
+    }
+   },
+   "notes": "Desktop's sidebar becomes 3 time views + a Browse hub on the phone; search drops from 1 step (desktop) to 2. A Pro upsell sheet on first Browse."
+  },
+  {
+   "app": "TickTick",
+   "form": "phone",
+   "account": "owner's placeholder account",
+   "date": "2026-10-05",
+   "pattern": "bottom bar of 4 unlabelled icons by module (Tasks, Calendar, Habits, Settings/profile) + FAB on Tasks; a drawer on Tasks holds the list views (Today, Inbox, custom) with search, notifications and settings in its header",
+   "destinations": {
+    "bottom_bar": [
+     "Tasks",
+     "Calendar",
+     "Habits",
+     "Settings"
+    ],
+    "drawer": [
+     "Today",
+     "Inbox",
+     "custom lists",
+     "Add"
+    ],
+    "drawer_header": [
+     "Search",
+     "Notifications",
+     "Settings"
+    ]
+   },
+   "jobs": {
+    "J1": {
+     "cost": 1,
+     "how": "FAB on Tasks",
+     "from_anywhere": false,
+     "measured": "affordance"
+    },
+    "J2": {
+     "cost": 2,
+     "how": "drawer, Today",
+     "from_anywhere": false,
+     "measured": "tapped"
+    },
+    "J4": {
+     "cost": 3,
+     "how": "drawer, Today, checkbox (1 if the start list holds it)",
+     "from_anywhere": false,
+     "measured": "tapped"
+    },
+    "J5": "n/a",
+    "J6": {
+     "cost": 1,
+     "how": "Calendar tab",
+     "from_anywhere": true,
+     "measured": "tapped"
+    },
+    "J7": "n/a",
+    "J8": {
+     "cost": 2,
+     "how": "drawer, search",
+     "from_anywhere": false,
+     "measured": "tapped"
+    },
+    "J9": "habit statistics inside Habits (not measured)",
+    "J10": {
+     "cost": 1,
+     "how": "Settings tab",
+     "from_anywhere": true,
+     "measured": "tapped"
+    },
+    "habit_log": {
+     "cost": 2,
+     "how": "Habits tab, tick the habit",
+     "from_anywhere": true,
+     "measured": "tapped"
+    }
+   },
+   "notes": "The all-in-one shape: modules are bar tabs (tasks, calendar, habits), each with its own inner navigation; Today is two taps deep inside Tasks. Icons carry no labels."
+  },
+  {
+   "app": "Bearable",
+   "form": "phone",
+   "account": "owner's placeholder account (setup skipped)",
+   "date": "2026-10-05",
+   "pattern": "bottom bar of 5 labelled tabs (Home, Impacts, Trends, Reports, Bear); Home is today: week strip + a stack of tracking cards (Mood, Sleep, Gratitude, ...) + 'Mark day complete'; settings gear and the day picker in Home's header",
+   "destinations": {
+    "bottom_bar": [
+     "Home",
+     "Impacts",
+     "Trends",
+     "Reports",
+     "Bear (profile + what helps)"
+    ],
+    "home_header": [
+     "Settings",
+     "Day picker",
+     "Experiments",
+     "Menu"
+    ]
+   },
+   "jobs": {
+    "J1": "n/a",
+    "J2": {
+     "cost": 0,
+     "how": "Home is today",
+     "from_anywhere": true,
+     "measured": "tapped"
+    },
+    "J4": {
+     "cost": 1,
+     "how": "a card on Home (sleep, symptoms, habits)",
+     "from_anywhere": true,
+     "measured": "affordance"
+    },
+    "J5": {
+     "cost": 1,
+     "how": "the Mood card on Home",
+     "from_anywhere": true,
+     "measured": "affordance"
+    },
+    "J6": "n/a",
+    "J7": {
+     "cost": 1,
+     "how": "the Gratitude/notes card on Home",
+     "from_anywhere": true,
+     "measured": "affordance"
+    },
+    "J8": "n/a",
+    "J9": {
+     "cost": 1,
+     "how": "Trends or Reports or Impacts (three look-back tabs)",
+     "from_anywhere": true,
+     "measured": "affordance"
+    },
+    "J10": {
+     "cost": 1,
+     "how": "gear in Home's header (2 from another tab)",
+     "from_anywhere": false,
+     "measured": "affordance"
+    }
+   },
+   "notes": "Today-first composite for tracking: every daily input is a card on one Home, and three of five tabs are look-back. 'What helps my mood' (Bear tab) is the regulation analogue. Gamified bear profile."
+  },
+  {
+   "app": "Anytype",
+   "form": "phone",
+   "account": "owner's placeholder vault",
+   "date": "2026-10-05",
+   "pattern": "start = list of spaces ('Channels') with profile, + and a Quick capture FAB; a space opens on its home object; inside, a bottom bar of Search, Discussion, Create object",
+   "destinations": {
+    "start": [
+     "Profile",
+     "Spaces list",
+     "+ (new space)",
+     "Quick capture"
+    ],
+    "in_space_bar": [
+     "Search",
+     "Discussion",
+     "Create object"
+    ]
+   },
+   "jobs": {
+    "J1": {
+     "cost": 1,
+     "how": "Quick capture (spaces list)",
+     "from_anywhere": false,
+     "measured": "affordance"
+    },
+    "J2": "n/a",
+    "J4": "n/a",
+    "J5": "n/a",
+    "J6": "n/a",
+    "J7": {
+     "cost": 2,
+     "how": "open the space, Create object",
+     "from_anywhere": false,
+     "measured": "tapped (space)"
+    },
+    "J8": {
+     "cost": 2,
+     "how": "open the space, Search",
+     "from_anywhere": false,
+     "measured": "tapped (space)"
+    },
+    "J9": "n/a",
+    "J10": {
+     "cost": 2,
+     "how": "profile, settings",
+     "from_anywhere": false,
+     "measured": "affordance"
+    }
+   },
+   "notes": "Object-graph app: no fixed destinations below the space; search and create are the navigation."
+  },
+  {
+   "app": "TickTick",
+   "form": "windows",
+   "account": "owner's placeholder account",
+   "date": "2026-10-05",
+   "pattern": "slim icon rail of modules with Ctrl+1..4 (Task, Calendar, Pomodoro, Habit Tracker) + Search (Ctrl+F); Task module has a list sidebar (Today, Next 7 Days, Inbox, Lists, Tags, Filters, Completed, Trash); avatar menu holds settings",
+   "destinations": {
+    "rail": [
+     "Task",
+     "Calendar",
+     "Pomodoro",
+     "Habit Tracker",
+     "Search"
+    ],
+    "rail_foot": [
+     "Sync",
+     "Notifications",
+     "Help"
+    ],
+    "task_sidebar": [
+     "Today",
+     "Next 7 Days",
+     "Inbox",
+     "Lists",
+     "Tags",
+     "Filters",
+     "Completed",
+     "Trash"
+    ]
+   },
+   "jobs": {
+    "J1": {
+     "cost": 1,
+     "how": "'Add Task' line at the top of every list",
+     "from_anywhere": false,
+     "measured": "affordance"
+    },
+    "J2": {
+     "cost": 1,
+     "how": "Today in the sidebar",
+     "from_anywhere": false,
+     "measured": "affordance"
+    },
+    "J4": {
+     "cost": 2,
+     "how": "Today, the task's circle",
+     "from_anywhere": false,
+     "measured": "affordance"
+    },
+    "J5": "n/a",
+    "J6": {
+     "cost": 1,
+     "how": "Calendar (Ctrl+2)",
+     "from_anywhere": true,
+     "measured": "affordance"
+    },
+    "J7": "n/a",
+    "J8": {
+     "cost": 1,
+     "how": "Search (Ctrl+F)",
+     "from_anywhere": true,
+     "measured": "affordance"
+    },
+    "J9": "habit statistics inside Habit Tracker",
+    "J10": {
+     "cost": 2,
+     "how": "avatar, Settings",
+     "from_anywhere": true,
+     "measured": "affordance"
+    },
+    "habit_log": {
+     "cost": 2,
+     "how": "Habit Tracker (Ctrl+4), tick",
+     "from_anywhere": true,
+     "measured": "affordance"
+    }
+   },
+   "notes": "Same modules as the phone's bar, plus Pomodoro and Search on the rail; Settings leaves the rail for the avatar. Modules have numeric hotkeys, as Tendril has."
+  },
+  {
+   "app": "Sunsama",
+   "form": "windows",
+   "account": "owner's placeholder account; onboarding filled with neutral placeholders",
+   "date": "2026-10-05",
+   "pattern": "left sidebar of places (Home, Today, Focus) and RITUALS (Daily planning, Daily shutdown, Daily highlights; Weekly planning, Weekly review) + Backlog; centre = days as columns; right = a calendar panel and a rail of panel toggles (icons without tooltips: calendar, search, AI, add, others)",
+   "destinations": {
+    "places": [
+     "Home",
+     "Today",
+     "Focus"
+    ],
+    "daily_rituals": [
+     "Daily planning",
+     "Daily shutdown",
+     "Daily highlights"
+    ],
+    "weekly_rituals": [
+     "Weekly planning",
+     "Weekly review"
+    ],
+    "other": [
+     "Backlog",
+     "folders"
+    ],
+    "right_rail": "panel toggles (labels not verified)"
+   },
+   "jobs": {
+    "J1": {
+     "cost": 1,
+     "how": "'+ Add task' at the top of a day column",
+     "from_anywhere": false,
+     "measured": "affordance"
+    },
+    "J2": {
+     "cost": 1,
+     "how": "Today",
+     "from_anywhere": true,
+     "measured": "affordance"
+    },
+    "J4": {
+     "cost": 2,
+     "how": "Today, the task's check",
+     "from_anywhere": true,
+     "measured": "affordance"
+    },
+    "J5": "n/a",
+    "J6": {
+     "cost": 1,
+     "how": "Daily planning or Weekly planning (a guided ritual), or Home's day columns",
+     "from_anywhere": true,
+     "measured": "walked (first-run ritual: 6 steps)"
+    },
+    "J7": {
+     "cost": 1,
+     "how": "Daily highlights / the ritual's 'Document' step",
+     "from_anywhere": true,
+     "measured": "walked"
+    },
+    "J8": {
+     "cost": 1,
+     "how": "search icon in the right rail",
+     "from_anywhere": true,
+     "measured": "affordance"
+    },
+    "J9": {
+     "cost": 1,
+     "how": "Weekly review (ritual)",
+     "from_anywhere": true,
+     "measured": "affordance"
+    },
+    "J10": {
+     "cost": 2,
+     "how": "workspace menu (top left), Settings",
+     "from_anywhere": true,
+     "measured": "affordance"
+    }
+   },
+   "notes": "Navigation by cadence: the sidebar names rituals by when they happen (daily, weekly) rather than by module. Planning and review are guided step sequences (add, estimate, fit, prioritise, schedule, document) - the closest reference to a planner that confirms a week (Factotum §3.6b)."
+  },
+  {
+   "app": "Anytype",
+   "form": "windows",
+   "account": "owner's placeholder vault",
+   "date": "2026-10-05",
+   "pattern": "left sidebar per space: space header with Search and New object; pinned objects as widgets; a 'Types' section listing object types (Pages, Tasks, Collections, Bookmarks, Images); top bar back/forward, history, graph",
+   "destinations": {
+    "sidebar": [
+     "Search",
+     "New object",
+     "pinned objects",
+     "Types: Pages, Tasks, Collections, Bookmarks, Images"
+    ],
+    "top": [
+     "Back",
+     "Forward",
+     "History",
+     "Graph"
+    ]
+   },
+   "jobs": {
+    "J1": {
+     "cost": 1,
+     "how": "New object (sidebar header)",
+     "from_anywhere": true,
+     "measured": "affordance"
+    },
+    "J2": "n/a",
+    "J4": {
+     "cost": 2,
+     "how": "Types: Tasks, then the task's checkbox",
+     "from_anywhere": true,
+     "measured": "affordance"
+    },
+    "J5": "n/a",
+    "J6": "n/a",
+    "J7": {
+     "cost": 1,
+     "how": "New object",
+     "from_anywhere": true,
+     "measured": "affordance"
+    },
+    "J8": {
+     "cost": 1,
+     "how": "Search (sidebar header)",
+     "from_anywhere": true,
+     "measured": "affordance"
+    },
+    "J9": "n/a",
+    "J10": {
+     "cost": 2,
+     "how": "space/app menu, Settings",
+     "from_anywhere": true,
+     "measured": "affordance"
+    }
+   },
+   "notes": "Navigation by TYPE: the sidebar lists kinds of object (pages, tasks, collections), a model that maps onto Factotum's item kinds. Phone hides the type list behind the space; desktop shows it."
+  },
+  {
+   "app": "Logseq",
+   "form": "windows",
+   "account": "none (fresh install, demo graph)",
+   "date": "2026-10-05",
+   "pattern": "opens on TODAY'S JOURNAL page; a collapsible left sidebar: graph switcher, Navigation (Journals, Flashcards, All pages, Graph view), Favorites, Recent; search icon top-left; right sidebar toggle top-right",
+   "destinations": {
+    "navigation": [
+     "Journals",
+     "Flashcards",
+     "All pages",
+     "Graph view"
+    ],
+    "user": [
+     "Favorites",
+     "Recent"
+    ],
+    "top": [
+     "Sidebar",
+     "Search",
+     "Right sidebar",
+     "More"
+    ]
+   },
+   "jobs": {
+    "J1": {
+     "cost": 0,
+     "how": "type on today's journal page (the start screen)",
+     "from_anywhere": false,
+     "measured": "seen"
+    },
+    "J2": "n/a (tasks are blocks; queries list them)",
+    "J4": {
+     "cost": 1,
+     "how": "a TODO block's checkbox in the journal",
+     "from_anywhere": false,
+     "measured": "affordance"
+    },
+    "J5": "n/a",
+    "J6": "n/a",
+    "J7": {
+     "cost": 0,
+     "how": "the start screen IS today's journal",
+     "from_anywhere": true,
+     "measured": "seen"
+    },
+    "J8": {
+     "cost": 1,
+     "how": "search icon (Ctrl+K)",
+     "from_anywhere": true,
+     "measured": "affordance"
+    },
+    "J9": "n/a",
+    "J10": {
+     "cost": 2,
+     "how": "More, Settings",
+     "from_anywhere": true,
+     "measured": "affordance"
+    }
+   },
+   "notes": "Journal-first: the daily page is the home and the capture surface; everything else is reached from the sidebar or search. Sidebar collapses away, leaving only the day."
+  },
+  {
+   "app": "Joplin",
+   "form": "windows",
+   "account": "none (fresh install, welcome notebook)",
+   "date": "2026-10-05",
+   "pattern": "classic three panes: sidebar (Notebooks: All notes, notebooks, Trash; Tags; Sync button) | note list (search field, New note, New to-do) | editor with a split preview; full menu bar (File, Edit, View, Go, Note, Tools, Help)",
+   "destinations": {
+    "sidebar": [
+     "All notes",
+     "Notebooks",
+     "Trash",
+     "Tags",
+     "Synchronise"
+    ],
+    "list_header": [
+     "Search",
+     "New note",
+     "New to-do"
+    ],
+    "menu_bar": [
+     "File",
+     "Edit",
+     "View",
+     "Go",
+     "Note",
+     "Tools",
+     "Help"
+    ]
+   },
+   "jobs": {
+    "J1": {
+     "cost": 1,
+     "how": "New note / New to-do (Ctrl+N)",
+     "from_anywhere": true,
+     "measured": "affordance"
+    },
+    "J2": "n/a",
+    "J4": {
+     "cost": 1,
+     "how": "a to-do's checkbox in the note list",
+     "from_anywhere": false,
+     "measured": "affordance"
+    },
+    "J5": "n/a",
+    "J6": "n/a",
+    "J7": {
+     "cost": 1,
+     "how": "New note; no journal",
+     "from_anywhere": true,
+     "measured": "affordance"
+    },
+    "J8": {
+     "cost": 1,
+     "how": "search field above the note list",
+     "from_anywhere": true,
+     "measured": "affordance"
+    },
+    "J9": "n/a",
+    "J10": {
+     "cost": 2,
+     "how": "Tools, Options",
+     "from_anywhere": true,
+     "measured": "affordance"
+    }
+   },
+   "notes": "The densest and oldest pattern: everything visible at once, no destinations to switch between; the menu bar holds the rest."
   }
  ]
 }
