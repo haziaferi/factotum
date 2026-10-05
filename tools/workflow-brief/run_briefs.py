@@ -4,7 +4,7 @@ promptlab-compatible results file (one promptlab case per check, sharing one out
 promptlab's own `run` is sequential with a 120 s timeout, too short for a model that
 reads source; scoring and the frontier still go through promptlab.
 
-    python run_briefs.py [--model claude-sonnet-5-5] [--jobs 6]
+    python run_briefs.py [--model claude-sonnet-5-5] [--jobs 6] [--prompts F --cases F --out F]
     python promptlab.py score results.json
     python promptlab.py frontier results.json
 """
@@ -37,12 +37,15 @@ def main():
     ap.add_argument("--model", default="claude-sonnet-5-5")
     ap.add_argument("--jobs", type=int, default=6)
     ap.add_argument("--only", default="", help="comma-separated prompt ids")
+    ap.add_argument("--prompts", default="prompts.json")
+    ap.add_argument("--cases", default="cases.json")
+    ap.add_argument("--out", default="results.json")
     args = ap.parse_args()
-    with open(os.path.join(HERE, "prompts.json"), encoding="utf-8") as fh:
+    with open(os.path.join(HERE, args.prompts), encoding="utf-8") as fh:
         prompts = json.load(fh)
     if args.only:
         prompts = {k: v for k, v in prompts.items() if k in args.only.split(",")}
-    with open(os.path.join(HERE, "cases.json"), encoding="utf-8") as fh:
+    with open(os.path.join(HERE, args.cases), encoding="utf-8") as fh:
         cases = json.load(fh)
 
     jobs = [(pid, p, c) for pid, p in prompts.items() for c in cases]
@@ -74,7 +77,7 @@ def main():
             for chk_id in c["checks"]:
                 entry["outputs"]["%s/%s" % (c["id"], chk_id)] = out
         results["prompts"].append(entry)
-    path = os.path.join(HERE, "results.json")
+    path = os.path.join(HERE, args.out)
     with open(path, "w", encoding="utf-8", newline="") as fh:
         json.dump(results, fh, indent=2)
     print("wrote", path)
