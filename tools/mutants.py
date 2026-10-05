@@ -1,5 +1,6 @@
 """Fail-before check: each mutant breaks one decided rule and must be killed by the tests named for
 it; the restored tree must pass. Run from the repo root:  python tools/mutants.py [slice]
+(`--check` builds nothing and only confirms every pattern is still found exactly once.)
 
 A mutant counts as killed only when a named test appears as a failure in the JUnit XML, never on a
 bare non-zero exit (a build that did not run would otherwise look like a kill).
@@ -370,7 +371,7 @@ SLICES = {
          ":data:desktopTest", {"finishingOrDeletingATaskOrHabitStopsItsTimerAndALogDoesNot"}),
         ("deleting a task leaves its timer", REPO, "mapOf(ITEM to ids, TIME_SPAN to times.runningOf(ids))", "mapOf(ITEM to ids, TIME_SPAN to emptyList())",
          ":data:desktopTest", {"finishingOrDeletingATaskOrHabitStopsItsTimerAndALogDoesNot"}),
-        ("resolving any occurrence stops today's timer", REPO, ", occurrence = occurrence.date)", ")",
+        ("resolving any occurrence stops today's timer", REPO, ", occurrence = at.date)", ")",
          ":data:desktopTest", {"resolvingAPastOccurrenceLeavesTodaysTimerRunning"}),
         ("deleting a tracker leaves its habits' timers", TRACKERS, "TIME_SPAN to times.runningOf(habits))", "TIME_SPAN to emptyList())",
          ":data:desktopTest", {"finishingOrDeletingATaskOrHabitStopsItsTimerAndALogDoesNot"}),
@@ -543,7 +544,7 @@ SLICES = {
          ":data:desktopTest", {"noMidline_theEnginesReadOnlyTwoAxisCheckInsAndAStepValueIsMarked"}),
         ("the engines read the judged check-in", CHECKINDAO, " AND at < :before ORDER BY at, id", " AND at <= :before ORDER BY at, id",
          ":data:desktopTest", {"theEnginesReadOnlyCheckInsMadeBeforeTheOneJudged"}),
-        ("the engines read the day it is about", CHECKINS, "Logged(dayOf(LocalDateTime.parse(e.at), dayStart).toEpochDays().toInt()", "Logged((e.day?.let(LocalDate::parse) ?: dayOf(LocalDateTime.parse(e.at), dayStart)).toEpochDays().toInt()",
+        ("the engines read the day it is about", REG, "Logged(dayOf(LocalDateTime.parse(at), dayStart).toEpochDays().toInt()", "Logged((day?.let(kotlinx.datetime.LocalDate::parse) ?: dayOf(LocalDateTime.parse(at), dayStart)).toEpochDays().toInt()",
          ":data:desktopTest", {"aCheckInMayBeAboutAPastDayButNotAFutureOneAndTheEnginesReadTheMoment"}),
         ("the day it is about is ignored", CHECKINS, "id, made, day?.let(LocalDate::parse) ?: dayOf(made, dayStart),", "id, made, dayOf(made, dayStart),",
          ":data:desktopTest", {"aCheckInMayBeAboutAPastDayButNotAFutureOneAndTheEnginesReadTheMoment"}),
@@ -563,7 +564,7 @@ SLICES = {
          ":data:desktopTest", {"aCheckInOutsideItsScalesIsRefused"}),
     ],
     "12a": [
-        ("a winning local text looks agreed", MERGE, "store.putBase(local.id, name, theirs.stamp)", "store.putBase(local.id, name, winner.stamp)",
+        ("a winning local text looks agreed", MERGE, "clash.\n                store.putBase(local.id, name, theirs.stamp)", "clash.\n                store.putBase(local.id, name, winner.stamp)",
          ":core:desktopTest", {"withThreeDevicesEveryReplacedTextIsLostSomewhereWhateverTheOrder"}),
         ("the replaced text is dropped", STAGED, "        if (lostOnes.isNotEmpty()) dao.addLost(lostOnes)\n", "",
          ":data:desktopTest", {"theLaterTextWinsAndTheEarlierIsKeptInHistoryWithOneNoticeDismissedEverywhere"}),
@@ -585,7 +586,7 @@ SLICES = {
          ":data:desktopTest", {"twoPagesMovedUnderEachOtherApartAreBothShownAtTheTop"}),
         ("delete forever takes a live page", PAGES, 'kept.forEach { store.put(requireNotNull(store.row(it)).edit(PLACE, s, mapOf("parent_id" to null))) }', "",
          ":data:desktopTest", {"aLivePageUnderATrashedOneIsShownAtTheTopAndADeleteForeverLeavesIt"}),
-        ("an icon clash raises a notice", PAGES, "if (page == null || (lost.tbl != PROPERTY_VALUE && current == text) || ", "if (page == null || ",
+        ("an icon clash raises a notice", PAGES, "if (page == null || (lost.tbl != PROPERTY_VALUE && !isImage && current == text) || ", "if (page == null || ",
          ":data:desktopTest", {"aRenameKeepsTheIconAndAnIconOrFormatChangedApartRaisesNoNotice"}),
         ("a late notice undoes a dismissal", PAGES, 'DISMISSED to Group(loser.stamp, mapOf("dismissed_at" to null)),', 'DISMISSED to Group(clock.tick(), mapOf("dismissed_at" to null)),',
          ":data:desktopTest", {"aNoticeWrittenLateByTheOtherDeviceDoesNotUndoADismissal"}),
@@ -627,13 +628,15 @@ SLICES = {
          ":data:desktopTest", {"picksReadFromAnotherTypesValueCanBeTakenOutAndAMultiSelectReadsAsASelect"}),
         ("unpick leaves the text", DBS, "val kept = tokens.filter { optionOfToken(it, options, r) != optionId }", "val kept = tokens",
          ":data:desktopTest", {"picksReadFromAnotherTypesValueCanBeTakenOutAndAMultiSelectReadsAsASelect"}),
-        ("a cell clash is silent", PAGE, "setOf(PAGE_TITLE, BLOCK_TEXT, CELL, NODE_TEXT, EDGE_LABEL)", "setOf(PAGE_TITLE, BLOCK_TEXT, NODE_TEXT, EDGE_LABEL)",
+        ("a cell clash is silent", PAGE, "setOf(PAGE_TITLE, BLOCK_TEXT, BLOCK_IMAGE, CELL, NODE_TEXT, EDGE_LABEL)", "setOf(PAGE_TITLE, BLOCK_TEXT, BLOCK_IMAGE, NODE_TEXT, EDGE_LABEL)",
          ":data:desktopTest", {"aCellSetApartKeepsTheLaterAndTheEarlierIsInHistoryWithANotice"}),
-        ("a new cell gets a base", DBS, "                store.put(Row(PROPERTY_VALUE, id, mapOf(", "                writes.merger.created(store, Row(PROPERTY_VALUE, id, mapOf(",
+        # putCell has no Merger; Merger.created is store.put plus a base for each base group, so the
+        # same bug is the put followed by the CELL base.
+        ("a new cell gets a base", DBS, "CELL to Group(s, mapOf(\"value\" to value)))))\n", "CELL to Group(s, mapOf(\"value\" to value))))).also { store.putBase(id, CELL, s) }\n",
          ":data:desktopTest", {"aCellSetApartKeepsTheLaterAndTheEarlierIsInHistoryWithANotice"}),
-        ("a notice shows an option id", PAGES, "val text = cell?.let { c -> raw?.let { r -> databases.options(listOf(r)).singleOrNull()?.takeIf { it.propertyId == c.propertyId }?.name } } ?: raw.orEmpty()",
-         "val text = raw.orEmpty()", ":data:desktopTest", {"aCellSetApartKeepsTheLaterAndTheEarlierIsInHistoryWithANotice"}),
-        ("an empty cell is written", DBS, "                if (v == null) return@write\n", "",
+        ("a notice shows an option id", PAGES, "else cell?.let { c -> raw?.let { r -> databases.options(listOf(r)).singleOrNull()?.takeIf { it.propertyId == c.propertyId }?.name } } ?: raw.orEmpty()",
+         "else raw.orEmpty()", ":data:desktopTest", {"aCellSetApartKeepsTheLaterAndTheEarlierIsInHistoryWithANotice"}),
+        ("an empty cell is written", DBS, "if (value != null) store.put(Row(PROPERTY_VALUE, id,", "store.put(Row(PROPERTY_VALUE, id,",
          ":data:desktopTest", {"clearingACellNoOneFilledHereWritesNothingOverAValueFilledElsewhere"}),
         ("labelled pages are no rows", DBS, "        val labelled = if (doorway == null) emptyList() else {", "        val labelled = if (true) emptyList<String>() else {",
          ":data:desktopTest", {"theRowsAreThePagesMadeInItAndThePagesCarryingItsLabel"}),
@@ -689,7 +692,7 @@ SLICES = {
          ":data:desktopTest", {'aPageCardWhosePageIsNotHereYetIsNotADeletedPage'}),
         ('a canvas edit leaves the trash', PAGES, ' + board[p.id].orEmpty()', '',
          ":data:desktopTest", {'aCanvasEditAfterTheTrashBringsTheCanvasBack'}),
-        ("a card's text clash is silent", PAGE, 'setOf(PAGE_TITLE, BLOCK_TEXT, CELL, NODE_TEXT, EDGE_LABEL)', 'setOf(PAGE_TITLE, BLOCK_TEXT, CELL, EDGE_LABEL)',
+        ("a card's text clash is silent", PAGE, 'setOf(PAGE_TITLE, BLOCK_TEXT, BLOCK_IMAGE, CELL, NODE_TEXT, EDGE_LABEL)', 'setOf(PAGE_TITLE, BLOCK_TEXT, BLOCK_IMAGE, CELL, EDGE_LABEL)',
          ":data:desktopTest", {'aCardsTextAndALinesLabelChangedApartKeepTheEarlierInHistoryWithANotice'}),
         ('History forgets the canvas', PAGES, 'notice, cellsJson(cells, picksOf(pageId)), canvasJson(pageId)))', 'notice, cellsJson(cells, picksOf(pageId))))',
          ":data:desktopTest", {'historyGivesBackACanvasAsItWas'}),
@@ -915,14 +918,24 @@ def run(task):
     return code, failed
 
 
-def main(slices):
+def stale(slices):
+    """Mutants whose pattern is not in their file exactly once: a later change moved the code they guard."""
+    return ["%s | %s: found %d times in %s" % (key, name, open(path, encoding="utf-8").read().count(old), path)
+            for key in slices for name, path, old, *_ in SLICES[key]
+            if open(path, encoding="utf-8").read().count(old) != 1]
+
+
+def main(slices, only=None):
     # Every pattern first: a stale one should stop the run before any build, not halfway through.
-    for key in slices:
-        for name, path, old, *_ in SLICES[key]:
-            assert open(path, encoding="utf-8").read().count(old) == 1, "%s: pattern not found once in %s" % (name, path)
+    bad = stale(slices)
+    assert not bad, "stale patterns:\n" + "\n".join(bad)
+    unknown = (only or set()) - {m[0] for key in slices for m in SLICES[key]}
+    assert not unknown, "no such mutant in these slices: %s" % unknown
     survivors = []
     for key in slices:
         for name, path, old, new, task, expected in SLICES[key]:
+            if only and name not in only:
+                continue
             original = open(path, "rb").read()
             text = original.decode("utf-8")
             try:
@@ -935,7 +948,7 @@ def main(slices):
                                                   "  MISSED: " + ", ".join(sorted(missed)) if missed else ""))
             if missed:
                 survivors.append(name)
-    for task in sorted({m[4] for key in slices for m in SLICES[key]}):
+    for task in sorted({m[4] for key in slices for m in SLICES[key] if not only or m[0] in only}):
         code, failed = run(task)
         print("%-36s exit=%d failures: %s" % ("control " + task, code, ", ".join(sorted(failed)) or "none"))
         assert code == 0 and not failed, "control must pass, or no kill above means anything"
@@ -944,4 +957,16 @@ def main(slices):
 
 
 if __name__ == "__main__":
-    main(sys.argv[1:] or sorted(SLICES))
+    # --only "name|name" runs just those mutants (and their controls), e.g. after re-targeting them.
+    only = None
+    if "--only" in sys.argv:
+        i = sys.argv.index("--only")
+        only = set(sys.argv[i + 1].split("|"))
+        del sys.argv[i:i + 2]
+    args = [a for a in sys.argv[1:] if a != "--check"]
+    if "--check" in sys.argv:
+        # No build: only that every pattern still resolves once. Cheap enough to run after any commit.
+        bad = stale(args or sorted(SLICES))
+        print("\n".join(bad) or "%d mutants: every pattern found once" % sum(len(SLICES[k]) for k in args or SLICES))
+        sys.exit(1 if bad else 0)
+    main(args or sorted(SLICES), only)
