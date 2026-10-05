@@ -1,0 +1,424 @@
+{
+ "_meta": {
+  "protocol": "reference-protocol.md",
+  "note": "cost = clicks/taps/chords from the app's start screen; 'affordance' = read from a one-step control without triggering it (it would write into the owner's data)"
+ },
+ "records": [
+  {
+   "app": "Obsidian",
+   "form": "windows",
+   "account": "owner's own vault (geometry only)",
+   "date": "2026-10-05",
+   "pattern": "left ribbon of actions + side pane with tabs + editor tabs + command palette",
+   "destinations": {
+    "ribbon": [
+     "Open quick switcher",
+     "Open graph view",
+     "Create new canvas",
+     "Open today's daily note",
+     "Insert template",
+     "Open command palette",
+     "Create new Base"
+    ],
+    "side_tabs": [
+     "Files",
+     "Search",
+     "Bookmarks"
+    ]
+   },
+   "jobs": {
+    "J1": {
+     "cost": 1,
+     "how": "Ctrl+N or the new-note icon",
+     "from_anywhere": true,
+     "measured": "affordance"
+    },
+    "J2": "n/a",
+    "J4": "n/a",
+    "J5": "n/a",
+    "J6": "n/a",
+    "J7": {
+     "cost": 1,
+     "how": "ribbon: Open today's daily note",
+     "from_anywhere": true,
+     "measured": "affordance"
+    },
+    "J8": {
+     "cost": 1,
+     "how": "Ctrl+O quick switcher, or the Search tab",
+     "from_anywhere": true,
+     "measured": "affordance"
+    },
+    "J9": "n/a",
+    "J10": {
+     "cost": 1,
+     "how": "gear at the side pane's foot",
+     "from_anywhere": true,
+     "measured": "affordance"
+    }
+   },
+   "notes": "Everything is one step: actions live on the ribbon and in the command palette rather than in destinations; no notion of 'screens' beyond notes, canvases and bases."
+  },
+  {
+   "app": "Todoist",
+   "form": "windows",
+   "account": "owner's own (geometry only)",
+   "date": "2026-10-05",
+   "pattern": "left sidebar: global actions (Add task, Search) above fixed views (Inbox, Today, Upcoming, Filters & Labels, Reporting) above user projects; account menu holds settings",
+   "destinations": {
+    "actions": [
+     "Add task",
+     "Search"
+    ],
+    "views": [
+     "Inbox",
+     "Today",
+     "Upcoming",
+     "Filters & Labels",
+     "Reporting"
+    ],
+    "user": [
+     "My Projects (expandable)"
+    ]
+   },
+   "jobs": {
+    "J1": {
+     "cost": 1,
+     "how": "Add task (Q from anywhere); natural-language dates typed in the same line",
+     "from_anywhere": true,
+     "measured": "affordance"
+    },
+    "J2": {
+     "cost": 1,
+     "how": "Today",
+     "from_anywhere": true,
+     "measured": "affordance"
+    },
+    "J4": {
+     "cost": 2,
+     "how": "Today, then the task's circle",
+     "from_anywhere": false,
+     "measured": "affordance"
+    },
+    "J5": "n/a",
+    "J6": {
+     "cost": 1,
+     "how": "Upcoming (week strip); recurrence typed in natural language in the task line ('every day')",
+     "from_anywhere": true,
+     "measured": "affordance"
+    },
+    "J7": "n/a",
+    "J8": {
+     "cost": 1,
+     "how": "Search (sidebar)",
+     "from_anywhere": true,
+     "measured": "affordance"
+    },
+    "J9": {
+     "cost": 1,
+     "how": "Reporting (sidebar); also in the account menu",
+     "from_anywhere": true,
+     "measured": "affordance"
+    },
+    "J10": {
+     "cost": 2,
+     "how": "account menu, Settings (or the sequence O then S)",
+     "from_anywhere": true,
+     "measured": "clicked (menu opened and closed)"
+    }
+   },
+   "notes": "Every account-menu entry carries a two-key sequence (G then A, O then S, O then P). Natural-language entry is the J1/J6 mechanism."
+  },
+  {
+   "app": "Notion",
+   "form": "windows",
+   "account": "owner's own (geometry only; no page names recorded)",
+   "date": "2026-10-05",
+   "pattern": "left sidebar: workspace + Inbox + New page; 'Search or ask' (Ctrl+K); fixed tabs Home / Chat / Meetings; then user sections Favorites, Shared, Private (the page tree); workspace menu at the foot",
+   "destinations": {
+    "actions": [
+     "Inbox",
+     "New page",
+     "Search or ask (Ctrl+K)"
+    ],
+    "fixed": [
+     "Home",
+     "Chat (AI)",
+     "Meetings"
+    ],
+    "user_sections": [
+     "Favorites",
+     "Shared",
+     "Private"
+    ]
+   },
+   "jobs": {
+    "J1": {
+     "cost": 1,
+     "how": "New page (Ctrl+N)",
+     "from_anywhere": true,
+     "measured": "affordance"
+    },
+    "J2": "n/a (Home only lists recent pages unless a calendar is connected)",
+    "J4": "n/a",
+    "J5": "n/a",
+    "J6": "n/a",
+    "J7": {
+     "cost": 1,
+     "how": "New page; no built-in journal (a template or a database)",
+     "from_anywhere": true,
+     "measured": "affordance"
+    },
+    "J8": {
+     "cost": 1,
+     "how": "Search or ask (Ctrl+K)",
+     "from_anywhere": true,
+     "measured": "affordance"
+    },
+    "J9": "n/a",
+    "J10": {
+     "cost": 2,
+     "how": "workspace menu, then Settings",
+     "from_anywhere": true,
+     "measured": "affordance"
+    }
+   },
+   "notes": "Navigation is the user's own page tree under three fixed sections; the fixed part is small (3 tabs). The tree is the destination list."
+  },
+  {
+   "app": "Tasks.org",
+   "form": "phone",
+   "account": "none (fresh install, no sync)",
+   "date": "2026-10-05",
+   "pattern": "single list screen; bottom app bar (menu, search, sort, more) + FAB; navigation drawer as a bottom sheet holding lists and filters; settings in the top overflow",
+   "destinations": {
+    "drawer": [
+     "My tasks",
+     "Filters: Today, Recently modified",
+     "Labels",
+     "Places",
+     "Local lists"
+    ],
+    "bottom_bar": [
+     "Menu",
+     "Search",
+     "Sort",
+     "More"
+    ],
+    "fab": "New task"
+   },
+   "jobs": {
+    "J1": {
+     "cost": 1,
+     "how": "FAB",
+     "from_anywhere": false,
+     "measured": "tapped"
+    },
+    "J2": {
+     "cost": 2,
+     "how": "menu, Today",
+     "from_anywhere": false,
+     "measured": "tapped"
+    },
+    "J4": {
+     "cost": 1,
+     "how": "checkbox on the start list",
+     "from_anywhere": false,
+     "measured": "affordance"
+    },
+    "J5": "n/a",
+    "J6": {
+     "cost": 2,
+     "how": "FAB, then the repeat field; no week view",
+     "from_anywhere": false,
+     "measured": "affordance"
+    },
+    "J7": "n/a",
+    "J8": {
+     "cost": 1,
+     "how": "Search in the bottom bar",
+     "from_anywhere": false,
+     "measured": "tapped"
+    },
+    "J9": "n/a",
+    "J10": {
+     "cost": 2,
+     "how": "top overflow, App settings",
+     "from_anywhere": false,
+     "measured": "tapped"
+    }
+   },
+   "notes": "Lists and filters are destinations inside a drawer, not a bar: one fixed screen whose content the drawer swaps."
+  },
+  {
+   "app": "Loop Habit Tracker",
+   "form": "phone",
+   "account": "none (fresh install)",
+   "date": "2026-10-05",
+   "pattern": "one list of habits with the last days as tick columns; toolbar actions (Add, Filter, More); a habit opens its own detail with charts",
+   "destinations": {
+    "toolbar": [
+     "Add habit",
+     "Filter",
+     "More: Night mode, Settings, Help, About"
+    ]
+   },
+   "jobs": {
+    "J1": {
+     "cost": 1,
+     "how": "Add habit (toolbar)",
+     "from_anywhere": false,
+     "measured": "tapped"
+    },
+    "J2": {
+     "cost": 0,
+     "how": "the start screen is today's habits",
+     "from_anywhere": false,
+     "measured": "tapped"
+    },
+    "J4": {
+     "cost": 1,
+     "how": "today's tick box on the habit row",
+     "from_anywhere": false,
+     "measured": "affordance"
+    },
+    "J5": "n/a",
+    "J6": "n/a",
+    "J7": "n/a",
+    "J8": "n/a",
+    "J9": {
+     "cost": 1,
+     "how": "tap a habit: score, history, charts",
+     "from_anywhere": false,
+     "measured": "tapped"
+    },
+    "J10": {
+     "cost": 2,
+     "how": "More, Settings",
+     "from_anywhere": false,
+     "measured": "tapped"
+    }
+   },
+   "notes": "No navigation structure at all: the job is the start screen, logging is in place, review is one tap into the item. Shows a score (%) on detail, which Factotum's Habits must not (no streaks, 0.1.3)."
+  },
+  {
+   "app": "Daylio",
+   "form": "phone",
+   "account": "none (fresh install; ad ID declined; free tier, no trial)",
+   "date": "2026-10-05",
+   "pattern": "bottom bar of 4 destinations split by a centre + (new entry); month header with search; premium upsell banner",
+   "destinations": {
+    "bottom_bar": [
+     "Entries",
+     "Stats",
+     "+ (new entry)",
+     "Calendar",
+     "More"
+    ],
+    "top": [
+     "Search"
+    ]
+   },
+   "jobs": {
+    "J1": {
+     "cost": 1,
+     "how": "centre +",
+     "from_anywhere": true,
+     "measured": "affordance"
+    },
+    "J2": "n/a",
+    "J4": "n/a (goals are premium)",
+    "J5": {
+     "cost": 1,
+     "how": "centre +, then the mood row (first run lands on it with 0)",
+     "from_anywhere": true,
+     "measured": "tapped"
+    },
+    "J6": "n/a",
+    "J7": {
+     "cost": 2,
+     "how": "+ then 'Open the full note' (a note belongs to an entry)",
+     "from_anywhere": true,
+     "measured": "affordance"
+    },
+    "J8": {
+     "cost": 1,
+     "how": "search icon in the header",
+     "from_anywhere": false,
+     "measured": "affordance"
+    },
+    "J9": {
+     "cost": 1,
+     "how": "Stats",
+     "from_anywhere": true,
+     "measured": "affordance"
+    },
+    "J10": {
+     "cost": 2,
+     "how": "More, Settings",
+     "from_anywhere": true,
+     "measured": "affordance"
+    }
+   },
+   "notes": "The check-in is the centre action of the bar, one tap from every destination. Achievement popups and a paywall after the first entry: engagement framing Factotum avoids (purpose-integrity check)."
+  },
+  {
+   "app": "Obsidian",
+   "form": "phone",
+   "account": "none (new local vault 'Survey', app storage, sync skipped)",
+   "date": "2026-10-05",
+   "pattern": "top bar (sidebar toggle, tab title, more) + bottom toolbar (back, forward, search, new, tabs, menu); the menu is the desktop ribbon as a list; sidebar holds files/search/bookmarks and settings",
+   "destinations": {
+    "bottom_toolbar": [
+     "Back",
+     "Forward",
+     "Search",
+     "New note",
+     "Tabs",
+     "Menu (ribbon)"
+    ],
+    "menu": [
+     "Quick switcher",
+     "Graph view",
+     "New canvas",
+     "Today's daily note",
+     "Insert template",
+     "Command palette",
+     "New Base"
+    ]
+   },
+   "jobs": {
+    "J1": {
+     "cost": 1,
+     "how": "+ in the bottom toolbar",
+     "from_anywhere": true,
+     "measured": "affordance"
+    },
+    "J2": "n/a",
+    "J4": "n/a",
+    "J5": "n/a",
+    "J6": "n/a",
+    "J7": {
+     "cost": 2,
+     "how": "menu, Today's daily note",
+     "from_anywhere": true,
+     "measured": "tapped (menu)"
+    },
+    "J8": {
+     "cost": 1,
+     "how": "search in the bottom toolbar",
+     "from_anywhere": true,
+     "measured": "affordance"
+    },
+    "J9": "n/a",
+    "J10": {
+     "cost": 2,
+     "how": "sidebar, gear",
+     "from_anywhere": true,
+     "measured": "affordance"
+    }
+   },
+   "notes": "Phone and desktop share one model: the desktop ribbon becomes a bottom-toolbar menu, the side pane becomes a slide-in sidebar. Toolbar is persistent on every screen, so every job keeps the same cost from anywhere."
+  }
+ ]
+}
