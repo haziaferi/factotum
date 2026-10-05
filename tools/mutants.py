@@ -12,65 +12,65 @@ import subprocess
 import sys
 
 GRADLEW = os.path.abspath("gradlew.bat" if os.name == "nt" else "gradlew")
-MERGE = "core/src/commonMain/kotlin/com/factotum/core/sync/Merge.kt"
-OPEN = "data/src/jvmCommon/kotlin/com/factotum/data/OpenDatabase.kt"
-FOLDER = "data/src/commonMain/kotlin/com/factotum/data/sync/FolderSync.kt"
-STAGED = "data/src/commonMain/kotlin/com/factotum/data/sync/StagedStore.kt"
-CODEC = "data/src/commonMain/kotlin/com/factotum/data/sync/Records.kt"
-TRIGGERS = "data/src/commonMain/kotlin/com/factotum/data/SchemaTriggers.kt"
-REPO = "data/src/commonMain/kotlin/com/factotum/data/item/ItemRepository.kt"
-ITEMDAO = "data/src/commonMain/kotlin/com/factotum/data/item/ItemDao.kt"
-WRITES = "data/src/commonMain/kotlin/com/factotum/data/LocalWrites.kt"
-REMREPO = "data/src/commonMain/kotlin/com/factotum/data/reminder/ReminderRepository.kt"
-REMDAO = "data/src/commonMain/kotlin/com/factotum/data/reminder/ReminderDao.kt"
-RRULE = "core/src/commonMain/kotlin/com/factotum/core/recurrence/RRule.kt"
-RECUR = "core/src/commonMain/kotlin/com/factotum/core/recurrence/Recurrence.kt"
-CRON = "core/src/commonMain/kotlin/com/factotum/core/recurrence/Cron.kt"
-EDITS = "core/src/commonMain/kotlin/com/factotum/core/recurrence/OccurrenceEdits.kt"
-OCCREPO = "data/src/commonMain/kotlin/com/factotum/data/item/OccurrenceRepository.kt"
-PRESENCE = "core/src/commonMain/kotlin/com/factotum/core/habit/HabitPresence.kt"
-HABITS = "data/src/commonMain/kotlin/com/factotum/data/item/HabitRepository.kt"
-TRACKERS = "data/src/commonMain/kotlin/com/factotum/data/tracker/TrackerRepository.kt"
-PLANNER = "core/src/commonMain/kotlin/com/factotum/core/plan/Planner.kt"
-DATABASE = "data/src/commonMain/kotlin/com/factotum/data/FactotumDatabase.kt"
-EDITCODEC = "data/src/commonMain/kotlin/com/factotum/data/item/OccurrenceEditTable.kt"
-TOTALS = "core/src/commonMain/kotlin/com/factotum/core/time/TimeTotals.kt"
-TIMEREPO = "data/src/commonMain/kotlin/com/factotum/data/time/TimeRepository.kt"
-TIMESPAN = "data/src/commonMain/kotlin/com/factotum/data/time/TimeSpan.kt"
-ACTIVITIES = "data/src/commonMain/kotlin/com/factotum/data/time/ActivityRepository.kt"
-LABELKEY = "core/src/commonMain/kotlin/com/factotum/core/label/Labels.kt"
-LABELS = "data/src/commonMain/kotlin/com/factotum/data/label/LabelRepository.kt"
-REGISTRY = "core/src/commonMain/kotlin/com/factotum/core/settings/Settings.kt"
-SETTINGS = "data/src/commonMain/kotlin/com/factotum/data/settings/SettingsRepository.kt"
-STORES = "data/src/commonMain/kotlin/com/factotum/data/settings/SettingStores.kt"
-SEARCHINDEX = "data/src/commonMain/kotlin/com/factotum/data/search/SearchIndex.kt"
-SEARCH = "data/src/commonMain/kotlin/com/factotum/data/search/SearchRepository.kt"
-SCALES = "core/src/commonMain/kotlin/com/factotum/core/checkin/CheckIns.kt"
-CHECKINS = "data/src/commonMain/kotlin/com/factotum/data/checkin/CheckInRepository.kt"
-CHECKINDAO = "data/src/commonMain/kotlin/com/factotum/data/checkin/CheckIn.kt"
-PAGES = "data/src/commonMain/kotlin/com/factotum/data/page/PageRepository.kt"
-PAGE = "data/src/commonMain/kotlin/com/factotum/data/page/Page.kt"
-DBS = "data/src/commonMain/kotlin/com/factotum/data/page/DatabaseRepository.kt"
-CANVAS = "data/src/commonMain/kotlin/com/factotum/data/page/CanvasRepository.kt"
-JOURNAL = "data/src/commonMain/kotlin/com/factotum/data/page/JournalRepository.kt"
-RELS = "data/src/commonMain/kotlin/com/factotum/data/page/RelationRepository.kt"
-TEMPL = "data/src/commonMain/kotlin/com/factotum/data/page/TemplateRepository.kt"
-FORMULA = "core/src/commonMain/kotlin/com/factotum/core/formula/Formula.kt"
-CHK = "data/src/commonMain/kotlin/com/factotum/data/checklist/ChecklistRepository.kt"
-PAGE_KT = "data/src/commonMain/kotlin/com/factotum/data/page/Page.kt"
-MERGE = "core/src/commonMain/kotlin/com/factotum/core/sync/Merge.kt"
-IMG = "data/src/commonMain/kotlin/com/factotum/data/image/Images.kt"
-DESKSCALE = "data/src/desktopMain/kotlin/com/factotum/data/image/DesktopImageScaler.kt"
-ROWT = "data/src/commonMain/kotlin/com/factotum/data/page/RowTasks.kt"
-PAGEREPO = "data/src/commonMain/kotlin/com/factotum/data/page/PageRepository.kt"
-ITEMREPO = "data/src/commonMain/kotlin/com/factotum/data/item/ItemRepository.kt"
-DBREPO = "data/src/commonMain/kotlin/com/factotum/data/page/DatabaseRepository.kt"
-BURN = "core/src/commonMain/kotlin/com/factotum/core/checkin/Burnout.kt"
-REG = "data/src/commonMain/kotlin/com/factotum/data/checkin/RegulationRepository.kt"
-REGDAO = "data/src/commonMain/kotlin/com/factotum/data/checkin/Regulation.kt"
-LEDGER = "data/src/commonMain/kotlin/com/factotum/data/checkin/LedgerRepository.kt"
-CHART = "data/src/commonMain/kotlin/com/factotum/data/chart/ChartRepository.kt"
-CHARTS = "core/src/commonMain/kotlin/com/factotum/core/chart/Charts.kt"
+MERGE = "core/src/commonMain/kotlin/com/hazia/factotum/core/sync/Merge.kt"
+OPEN = "data/src/jvmCommon/kotlin/com/hazia/factotum/data/OpenDatabase.kt"
+FOLDER = "data/src/commonMain/kotlin/com/hazia/factotum/data/sync/FolderSync.kt"
+STAGED = "data/src/commonMain/kotlin/com/hazia/factotum/data/sync/StagedStore.kt"
+CODEC = "data/src/commonMain/kotlin/com/hazia/factotum/data/sync/Records.kt"
+TRIGGERS = "data/src/commonMain/kotlin/com/hazia/factotum/data/SchemaTriggers.kt"
+REPO = "data/src/commonMain/kotlin/com/hazia/factotum/data/item/ItemRepository.kt"
+ITEMDAO = "data/src/commonMain/kotlin/com/hazia/factotum/data/item/ItemDao.kt"
+WRITES = "data/src/commonMain/kotlin/com/hazia/factotum/data/LocalWrites.kt"
+REMREPO = "data/src/commonMain/kotlin/com/hazia/factotum/data/reminder/ReminderRepository.kt"
+REMDAO = "data/src/commonMain/kotlin/com/hazia/factotum/data/reminder/ReminderDao.kt"
+RRULE = "core/src/commonMain/kotlin/com/hazia/factotum/core/recurrence/RRule.kt"
+RECUR = "core/src/commonMain/kotlin/com/hazia/factotum/core/recurrence/Recurrence.kt"
+CRON = "core/src/commonMain/kotlin/com/hazia/factotum/core/recurrence/Cron.kt"
+EDITS = "core/src/commonMain/kotlin/com/hazia/factotum/core/recurrence/OccurrenceEdits.kt"
+OCCREPO = "data/src/commonMain/kotlin/com/hazia/factotum/data/item/OccurrenceRepository.kt"
+PRESENCE = "core/src/commonMain/kotlin/com/hazia/factotum/core/habit/HabitPresence.kt"
+HABITS = "data/src/commonMain/kotlin/com/hazia/factotum/data/item/HabitRepository.kt"
+TRACKERS = "data/src/commonMain/kotlin/com/hazia/factotum/data/tracker/TrackerRepository.kt"
+PLANNER = "core/src/commonMain/kotlin/com/hazia/factotum/core/plan/Planner.kt"
+DATABASE = "data/src/commonMain/kotlin/com/hazia/factotum/data/FactotumDatabase.kt"
+EDITCODEC = "data/src/commonMain/kotlin/com/hazia/factotum/data/item/OccurrenceEditTable.kt"
+TOTALS = "core/src/commonMain/kotlin/com/hazia/factotum/core/time/TimeTotals.kt"
+TIMEREPO = "data/src/commonMain/kotlin/com/hazia/factotum/data/time/TimeRepository.kt"
+TIMESPAN = "data/src/commonMain/kotlin/com/hazia/factotum/data/time/TimeSpan.kt"
+ACTIVITIES = "data/src/commonMain/kotlin/com/hazia/factotum/data/time/ActivityRepository.kt"
+LABELKEY = "core/src/commonMain/kotlin/com/hazia/factotum/core/label/Labels.kt"
+LABELS = "data/src/commonMain/kotlin/com/hazia/factotum/data/label/LabelRepository.kt"
+REGISTRY = "core/src/commonMain/kotlin/com/hazia/factotum/core/settings/Settings.kt"
+SETTINGS = "data/src/commonMain/kotlin/com/hazia/factotum/data/settings/SettingsRepository.kt"
+STORES = "data/src/commonMain/kotlin/com/hazia/factotum/data/settings/SettingStores.kt"
+SEARCHINDEX = "data/src/commonMain/kotlin/com/hazia/factotum/data/search/SearchIndex.kt"
+SEARCH = "data/src/commonMain/kotlin/com/hazia/factotum/data/search/SearchRepository.kt"
+SCALES = "core/src/commonMain/kotlin/com/hazia/factotum/core/checkin/CheckIns.kt"
+CHECKINS = "data/src/commonMain/kotlin/com/hazia/factotum/data/checkin/CheckInRepository.kt"
+CHECKINDAO = "data/src/commonMain/kotlin/com/hazia/factotum/data/checkin/CheckIn.kt"
+PAGES = "data/src/commonMain/kotlin/com/hazia/factotum/data/page/PageRepository.kt"
+PAGE = "data/src/commonMain/kotlin/com/hazia/factotum/data/page/Page.kt"
+DBS = "data/src/commonMain/kotlin/com/hazia/factotum/data/page/DatabaseRepository.kt"
+CANVAS = "data/src/commonMain/kotlin/com/hazia/factotum/data/page/CanvasRepository.kt"
+JOURNAL = "data/src/commonMain/kotlin/com/hazia/factotum/data/page/JournalRepository.kt"
+RELS = "data/src/commonMain/kotlin/com/hazia/factotum/data/page/RelationRepository.kt"
+TEMPL = "data/src/commonMain/kotlin/com/hazia/factotum/data/page/TemplateRepository.kt"
+FORMULA = "core/src/commonMain/kotlin/com/hazia/factotum/core/formula/Formula.kt"
+CHK = "data/src/commonMain/kotlin/com/hazia/factotum/data/checklist/ChecklistRepository.kt"
+PAGE_KT = "data/src/commonMain/kotlin/com/hazia/factotum/data/page/Page.kt"
+MERGE = "core/src/commonMain/kotlin/com/hazia/factotum/core/sync/Merge.kt"
+IMG = "data/src/commonMain/kotlin/com/hazia/factotum/data/image/Images.kt"
+DESKSCALE = "data/src/desktopMain/kotlin/com/hazia/factotum/data/image/DesktopImageScaler.kt"
+ROWT = "data/src/commonMain/kotlin/com/hazia/factotum/data/page/RowTasks.kt"
+PAGEREPO = "data/src/commonMain/kotlin/com/hazia/factotum/data/page/PageRepository.kt"
+ITEMREPO = "data/src/commonMain/kotlin/com/hazia/factotum/data/item/ItemRepository.kt"
+DBREPO = "data/src/commonMain/kotlin/com/hazia/factotum/data/page/DatabaseRepository.kt"
+BURN = "core/src/commonMain/kotlin/com/hazia/factotum/core/checkin/Burnout.kt"
+REG = "data/src/commonMain/kotlin/com/hazia/factotum/data/checkin/RegulationRepository.kt"
+REGDAO = "data/src/commonMain/kotlin/com/hazia/factotum/data/checkin/Regulation.kt"
+LEDGER = "data/src/commonMain/kotlin/com/hazia/factotum/data/checkin/LedgerRepository.kt"
+CHART = "data/src/commonMain/kotlin/com/hazia/factotum/data/chart/ChartRepository.kt"
+CHARTS = "core/src/commonMain/kotlin/com/hazia/factotum/core/chart/Charts.kt"
 
 # slice -> [(name, file, old, new, test task, tests that must fail)]
 SLICES = {
@@ -492,7 +492,7 @@ SLICES = {
          ":data:desktopTest", {"tendrilSecretNeverLeaves_theAiKeyIsInNoFolderBackupOrOtherDevice"}),
         ("totals ignore the day-start setting", TIMEREPO, "        val dayStart = personal.dayStart()\n", "        val dayStart = MIDNIGHT\n",
          ":data:desktopTest", {"theDayStartSetOnOneDeviceDecidesTheDayOnAnotherAtOnce"}),
-        ("timers ignore the limit setting", TIMEREPO, "        val limit = personal.longRun()\n", "        val limit = com.factotum.core.time.LONG_RUN\n",
+        ("timers ignore the limit setting", TIMEREPO, "        val limit = personal.longRun()\n", "        val limit = com.hazia.factotum.core.time.LONG_RUN\n",
          ":data:desktopTest", {"theLongTimerLimitIsOneSettingForEveryDevice"}),
         ("a recovered device skips its own files", FOLDER, "(owner != device || readOwn)", "owner != device",
          ":data:desktopTest", {"aDeviceWhoseDatabaseWasRecoveredGetsItsSettingsBackFromItsOwnFiles"}),
@@ -829,7 +829,7 @@ SLICES = {
          ":data:desktopTest", {'deletingTheTaskTrashesTheRowAndTheRowCarriesItsTask'}),
         ('a database trash leaves the tasks live', PAGEREPO, 'targets.getValue(ITEM).forEach { store.put(requireNotNull(store.row(it)).edit(SCHEDULE, automatic(s), mapOf("deleted_at" to s.hlc))) }', 'Unit',
          ":data:desktopTest", {'deletingTheTaskTrashesTheRowAndTheRowCarriesItsTask'}),
-        ('an interval of 0 days', 'core/src/commonMain/kotlin/com/factotum/core/recurrence/Interval.kt', 'n.toIntOrNull()?.takeIf { it in 1..MAX_EVERY }', 'n.toIntOrNull()',
+        ('an interval of 0 days', 'core/src/commonMain/kotlin/com/hazia/factotum/core/recurrence/Interval.kt', 'n.toIntOrNull()?.takeIf { it in 1..MAX_EVERY }', 'n.toIntOrNull()',
          ":core:desktopTest", {'aZeroOrNegativeCountOrAnUnknownUnitIsNoInterval'}),
     ],
     "s3e": [
@@ -867,9 +867,9 @@ SLICES = {
          ":data:desktopTest", {'aPictureIsScaledToAt2048TurnedUprightAndStrippedOfItsMetadata', 'everyExifOrientationShowsThePictureUpright'}),
         ('a picture with no size is read', PAGE_KT, 'width != null && width > 0 && height != null && height > 0', 'true',
          ":data:desktopTest", {'aLineNamingAPictureWithNoSizeOrABadNameIsRefused'}),
-        ('a picture is stored full size', 'core/src/commonMain/kotlin/com/factotum/core/image/Images.kt', '    if (longest <= max) return width to height\n', '    return width to height\n',
+        ('a picture is stored full size', 'core/src/commonMain/kotlin/com/hazia/factotum/core/image/Images.kt', '    if (longest <= max) return width to height\n', '    return width to height\n',
          ":core:desktopTest", {'anImageIsStoredWithItsLongestEdgeAt2048AndNeverEnlarged'}),
-        ('the EXIF byte order is ignored', 'core/src/commonMain/kotlin/com/factotum/core/image/Images.kt', 'val big = u16(tiff, true) == 0x4D4D', 'val big = true',
+        ('the EXIF byte order is ignored', 'core/src/commonMain/kotlin/com/hazia/factotum/core/image/Images.kt', 'val big = u16(tiff, true) == 0x4D4D', 'val big = true',
          ":core:desktopTest", {'theExifOrientationIsReadFromEitherByteOrder'}),
     ],
     "s3b": [

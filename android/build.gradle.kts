@@ -3,11 +3,11 @@ plugins {
 }
 
 android {
-    namespace = "com.factotum"
+    namespace = "com.hazia.factotum"
     compileSdk = libs.versions.compileSdk.get().toInt()
 
     defaultConfig {
-        applicationId = "com.factotum"
+        applicationId = "com.hazia.factotum"
         minSdk = libs.versions.minSdk.get().toInt()
         targetSdk = libs.versions.targetSdk.get().toInt()
         versionCode = 1

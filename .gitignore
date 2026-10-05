@@ -48,3 +48,6 @@ desktop.ini
 
 # Audit working sets (kept locally; they hold deliberately planted defects)
 _fresh-eyes-*/
+
+# Source-app screenshots for the screens phase (debug builds with seed data; never committed, the repo is public)
+_screens-sources/

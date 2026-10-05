@@ -7,7 +7,7 @@ kotlin {
     jvmToolchain(21)
 
     android {
-        namespace = "com.factotum.core"
+        namespace = "com.hazia.factotum.core"
         compileSdk = libs.versions.compileSdk.get().toInt()
         minSdk = libs.versions.minSdk.get().toInt()
         withHostTest {}

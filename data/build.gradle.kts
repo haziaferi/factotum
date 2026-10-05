@@ -13,7 +13,7 @@ kotlin {
     }
 
     android {
-        namespace = "com.factotum.data"
+        namespace = "com.hazia.factotum.data"
         compileSdk = libs.versions.compileSdk.get().toInt()
         minSdk = libs.versions.minSdk.get().toInt()
         withHostTest {}
