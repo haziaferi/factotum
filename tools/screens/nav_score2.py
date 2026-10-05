@@ -109,17 +109,39 @@ WINDOWS = {
 # a screen's 'depth inside the area' is the one click (check-in, Habits, Settings...).
 
 
+MANAGE = ["manage habits", "manage trackers", "manage activities", "manage checklists"]
+SYSTEM_LIST = ["labels", "trash", "settings", "about"]
+# Screens a candidate's hub lists as entries of their own (a drawer, a Browse page, a module tab, the
+# account menu): (hub cost, from anywhere, names). Such a screen costs hub + 1, as its mockup draws it.
+HUBS = {
+    "G (as mocked)": (1, 1, SYSTEM_LIST), "G+ (manage from Today)": (1, 1, SYSTEM_LIST), "B. Today hub": (1, 1, SYSTEM_LIST),
+    "A. Module tabs": (1, 1, MANAGE), "P7. Home grid": (1, 0, MANAGE),
+    "P6. Bar + drawer": (1, 1, MANAGE + SYSTEM_LIST + ["templates", "Road Map", "ledger (masking)", "sensory log"]),
+    "P4. Drawer only": (1, 1, MANAGE + SYSTEM_LIST + ["templates", "Road Map", "ledger (masking)", "sensory log"]),
+    "P5. Bar + Browse hub": (1, 1, MANAGE + SYSTEM_LIST + ["templates", "Road Map", "ledger/sensory history"]),
+}
+for _name, _hub in HUBS.items():
+    PHONE[_name]["hub_direct"] = _hub
+
+
+def steps_for(cand, name, area, depth):
+    """(steps, from anywhere, search only?) for one screen in one candidate."""
+    hub_cost, hub_any, direct = cand.get("hub_direct", (0, 0, []))
+    path = cand["areas"][area]
+    if name in direct:
+        return hub_cost + 1, bool(hub_any), False
+    if path is None:
+        return cand["areas"]["search"][0] + 1, True, True
+    return path[0] + depth, bool(path[1]), False
+
+
 def evaluate(cand):
     total = tail = 0.0
     depths, search_only = [], []
     for name, w, _, area, depth in SCREENS:
-        path = cand["areas"][area]
-        if path is None:
-            cost_area, anywhere = cand["areas"]["search"]
-            steps, anywhere = cost_area + 1, True
+        steps, anywhere, only_search = steps_for(cand, name, area, depth)
+        if only_search:
             search_only.append(name)
-        else:
-            steps, anywhere = path[0] + depth, bool(path[1])
         steps = max(steps, 0)
         exp = steps + (0 if anywhere else 0.5)
         total += w * exp

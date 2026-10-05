@@ -21,14 +21,14 @@ Phone and Windows are scored separately: the five-slot limit binds only the phon
 
 | Candidate | Cost (all) | Long tail | Max depth | Search only | Visible | Largest hub | Start load | Register | Dominated by |
 |---|---|---|---|---|---|---|---|---|---|
-| B. Today hub | 282 | 37.8 | 3 (time blocks) | 4 | 6 | 8 | 4 | 0.70 | **front** |
-| G (as mocked) | 291 | 38.2 | 3 (time blocks) | 4 | 7 | 9 | 2 | 0.90 | **front** |
-| G+ (manage from Today) | 292 | 39.2 | 3 (time blocks) | 0 | 7 | 9 | 2 | 0.90 | **front** |
-| P6. Bar + drawer | 296 | 43.5 | 4 (time blocks) | 0 | 8 | 12 | 2 | 0.90 | G+ |
-| P5. Bar + Browse hub | 302 | 49.5 | 4 (time blocks) | 0 | 7 | 10 | 2 | 0.90 | G+ |
-| A. Module tabs | 326 | 38.2 | 3 (time blocks) | 0 | 6 | 8 | 1 | 1.00 | **front** |
-| P4. Drawer only | 363 | 53.8 | 4 (time blocks) | 0 | 3 | 12 | 2 | 0.90 | **front** |
-| P7. Home grid | 402 | 46.0 | 3 (time blocks) | 0 | 12 | 10 | 10 | 1.00 | A. |
+| B. Today hub | 282 | 37.5 | 3 (time blocks) | 4 | 6 | 8 | 4 | 0.70 | **front** |
+| G (as mocked) | 291 | 38.0 | 3 (time blocks) | 4 | 7 | 9 | 2 | 0.90 | **front** |
+| G+ (manage from Today) | 292 | 39.0 | 3 (time blocks) | 0 | 7 | 9 | 2 | 0.90 | **front** |
+| P6. Bar + drawer | 292 | 39.2 | 4 (time blocks) | 0 | 8 | 12 | 2 | 0.90 | G+ |
+| P5. Bar + Browse hub | 297 | 44.2 | 4 (time blocks) | 0 | 7 | 10 | 2 | 0.90 | G+ |
+| A. Module tabs | 327 | 39.2 | 3 (time blocks) | 0 | 6 | 8 | 1 | 1.00 | **front** |
+| P4. Drawer only | 348 | 47.5 | 4 (time blocks) | 0 | 3 | 12 | 2 | 0.90 | **front** |
+| P7. Home grid | 404 | 47.0 | 3 (time blocks) | 0 | 12 | 10 | 10 | 1.00 | A. |
 | P8. Search first (tree) | 415 | 59.6 | 4 (time blocks) | 0 | 3 | 11 | 1 | 1.00 | **front** |
 
 - **G (as mocked)**: Bar: Today · Week · [+] · Library · Review; account menu in the header. No place to manage routines. Search only: manage habits, manage trackers, manage activities, manage checklists.
