@@ -58,6 +58,20 @@ The owner decided this on 2026-10-05.
 - Mnemo's default primary on its background is 2.0:1 in light and 2.9:1 in dark, under the 3:1 a control needs.
 - Tendril's outline is about 1.2:1 in light and 1.4:1 in dark. Tendril uses it as a hairline divider.
 
+**Use by purpose** (`docs/screens/t0/jobs.md`, owner 2026-10-05). The design fixes these cadences:
+- **Daily:** the journal, agenda and calendar, habits, checklists, the ledger and readings.
+- **Several times a day:** tasks, "n a day" habits and search.
+- **Weekly:** the planner.
+
+The owner set the rest:
+- pages, databases and canvas are **daily on both devices**;
+- looking back is a **weekly review**;
+- a check-in happens **when something is noticed**.
+
+Prompts that arrive (alarms, clashes, outcome questions) cost navigation nothing.
+
+**Features (owner, 2026-10-05).** These move across: Android widgets, the on-device LLM, a Windows global quick-add, and natural-language input where appropriate. **Tendril's opt-in Claude text verbs are dropped**, an owner-accepted exception to §0.1.5.
+
 **Next, in dependency order:**
 1. Score the navigation pattern: Q2, with Q8 and then Q3.
 2. Then the palette (Q4).

@@ -1,6 +1,6 @@
 # Factotum — Product & Technical Spec
 
-**Status:** draft v0.34, seeded from the decision register · **Scope:** the merged data model, sync and behaviour rules of Factotum. Screens are not decided and are marked open (§10.1).
+**Status:** draft v0.35, seeded from the decision register · **Scope:** the merged data model, sync and behaviour rules of Factotum. Screens are not decided and are marked open (§10.1).
 **Related documents:** `decisions/`, the evidence behind §3: one ADR per decision with verified `file:line` facts, the scored options, the behaviour cases and the harness that measured them (`decisions/register.md` is the index). This spec states each decision once and points to its ADR for the evidence. It never restates the evidence.
 
 ---
@@ -9,6 +9,7 @@
 
 | Version | Summary | Sections touched |
 |---|---|---|
+| v0.35 | Owner: Tendril's Claude text verbs dropped (an exception to §0.1.5); widgets, the on-device LLM, a Windows global quick-add and natural-language input move across; use cadences in decision 15 | §0.1, §10 |
 | v0.34 | §10.1 T0 answers: tiers, dark mode with OLED, settings in two sections (settles §3.9's marker), a register per screen cluster; navigation, palette, type, shapes and density to be scored | §10 |
 | v0.33 | Owner: personal use only, never distributed; every APK is signed with Tendril's shared debug key (committed in `keystores/`) and installs as `com.hazia.factotum`, no `.debug` suffix | §0.1 |
 | v0.32 | Owner's correction: the app id and every package are `com.hazia.factotum` (the skeleton had set `com.factotum` without asking, against §0.1.6); the Room schema folder moved unchanged | §0.1, §3, §7 |
@@ -58,7 +59,7 @@ Everything else in this spec is filtered through these.
 | 0.1.2 | **Folder sync, no server.** One person, several devices, one folder they choose. No compatibility with the source apps' sync files. | 2026-09-30 |
 | 0.1.3 | **Constraint 0.14 applies to Habits only.** Inside Habits, nothing stores or shows a streak or a missed-day count. Nothing outside Habits inherits the rule. | 2026-09-30 |
 | 0.1.4 | **Platforms: Android and Windows**, as Tendril ships now. | 2026-10-01 |
-| 0.1.5 | **Every sole-owner module moves across.** No single-app feature is dropped. | 2026-10-01 |
+| 0.1.5 | **Every sole-owner module moves across.** No single-app feature is dropped, except Tendril's opt-in Claude text verbs (owner, 2026-10-05, decision 15). | 2026-10-01 |
 | 0.1.6 | **Every visible choice is the owner's.** Layout, wording, navigation and palette are settled with the owner before they are built (§10.1). So are names that outlive a build: the app id and package are `com.hazia.factotum`. | standing practice; name 2026-10-05 |
 | 0.1.7 | **Personal use, never distributed.** Every Android build is signed with Tendril's shared debug key (`keystores/my-shared-debug.keystore`, SHA-256 `20:FB:3E:76…`), committed on purpose, and installs as `com.hazia.factotum`. The key can never change without an uninstall, which loses the app's data. No store, release-signing or distribution concerns apply. | 2026-10-05 |
 
