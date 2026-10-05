@@ -72,6 +72,12 @@ Prompts that arrive (alarms, clashes, outcome questions) cost navigation nothing
 
 **Features (owner, 2026-10-05).** These move across: Android widgets, the on-device LLM, a Windows global quick-add, and natural-language input where appropriate. **Tendril's opt-in Claude text verbs are dropped**, an owner-accepted exception to §0.1.5.
 
+**Navigation at a glance (2026-10-05).** The owner found A+ and A++ crowded: "good for clarity of choice, difficult to parse through at a glance". They asked whether colour and depth help, and whether A+ can be combined with P7. `tools/screens/nav_glance.py` tries every combination of four levers, 144 variants: the bar, the ⊞ form (including P7's grid inside ⊞), the top row, and the coding (plain, hue, or depth). Each variant is rendered in light and dark and its clutter measured from pixels; the step costs come from `nav_score2`. The tables are in `docs/screens/t0/nav-glance.md` and the mockups in `nav-glance.html`. The findings:
+- **Depth carries it.** Depth means tonal surfaces instead of rules, with inactive items receded. For the same structure it cuts measured clutter by about 40% (0.063 to 0.038 for A+), and it does so in 48 of 48 pairs at all four edge thresholds tried. It also brings the elements at full contrast down from 12 to 3, at no step cost.
+- **Hue alone does nothing** measurable. It pays only inside ⊞, when each module is a filled card in its own hue (6.0 to 4.0 items inspected, in the search model). It constrains Q4: equal-lightness module hues, at most 6.
+- **P7 inside ⊞ trades reach for calm.** The module grid is the least cluttered but reaches 25 screens in two taps, not 29. Folders (3 shortcuts per module) sit between. **P7 as a tab** costs 59 more steps a week than A+ and reaches only 7 screens in two taps: P7's back and forth, measured.
+- **The top row** trades taps for elements. Trimming it to 3 plus More saves one element and costs half a tap per sibling switch.
+
 **Next, in dependency order:**
 1. Score the navigation pattern: Q2, with Q8 and then Q3.
 2. Then the palette (Q4).

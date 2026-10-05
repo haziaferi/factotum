@@ -274,27 +274,28 @@ def front_of(cands):
     return {n for n, r in rows.items() if not any(n2.dominates(o, r) for m, o in rows.items() if m != n)}
 
 
-pf, wf = front_of(n2.PHONE), front_of(n2.WINDOWS)
-order = sorted(n2.PHONE, key=lambda n: n2.evaluate(n2.PHONE[n])["cost"])
-parts = ['<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">',
-         '<title>Factotum navigation mockups</title><style>%s</style></head><body>' % CSS,
-         '<h1>Factotum navigation: every candidate</h1>',
-         '<p class="dim">These are structure mockups for decision 15, Q2. They show where things live and how many steps they cost, not how they look. '
-         'Greys, the system font and the glyphs are placeholders, because the palette, type, icons and wording are still to be scored. '
-         'Every candidate uses the same invented sample data. The numbers come from <code>tools/screens/nav_score2.py</code>, '
-         '"front" marks the Pareto front, and the candidates are ordered by total weekly cost.</p>',
-         '<nav class="toc">%s</nav>' % "".join('<a href="#c%d">%s</a>' % (i, e(n.split(" (")[0])) for i, n in enumerate(order + list(n2.WINDOWS)))]
-for i, name in enumerate(order):
-    cand = n2.PHONE[name]
-    parts.append('<h2 id="c%d">Phone: %s%s</h2><p>%s</p>' % (i, e(name), '<span class="front">front</span>' if name in pf else "", e(cand["note"])))
-    parts.append(score_table(cand))
-    parts.append('<div class="wrap"><div class="row">%s</div></div>' % "".join(
-        '<div>%s<p class="cap">%s</p></div>' % (ph, e(cap)) for cap, ph in SCREENS[name]))
-for j, (name, cand) in enumerate(n2.WINDOWS.items()):
-    parts.append('<h2 id="c%d">Windows: %s%s</h2><p>%s</p>' % (len(order) + j, e(name), '<span class="front">front</span>' if name in wf else "", e(cand["note"])))
-    parts.append(score_table(cand))
-    parts.append('<div class="wrap">%s</div>' % WIN[name])
-parts.append("""<h2>What these mockups leave out</h2><ul>
+def main():
+    pf, wf = front_of(n2.PHONE), front_of(n2.WINDOWS)
+    order = sorted(n2.PHONE, key=lambda n: n2.evaluate(n2.PHONE[n])["cost"])
+    parts = ['<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">',
+             '<title>Factotum navigation mockups</title><style>%s</style></head><body>' % CSS,
+             '<h1>Factotum navigation: every candidate</h1>',
+             '<p class="dim">These are structure mockups for decision 15, Q2. They show where things live and how many steps they cost, not how they look. '
+             'Greys, the system font and the glyphs are placeholders, because the palette, type, icons and wording are still to be scored. '
+             'Every candidate uses the same invented sample data. The numbers come from <code>tools/screens/nav_score2.py</code>, '
+             '"front" marks the Pareto front, and the candidates are ordered by total weekly cost.</p>',
+             '<nav class="toc">%s</nav>' % "".join('<a href="#c%d">%s</a>' % (i, e(n.split(" (")[0])) for i, n in enumerate(order + list(n2.WINDOWS)))]
+    for i, name in enumerate(order):
+        cand = n2.PHONE[name]
+        parts.append('<h2 id="c%d">Phone: %s%s</h2><p>%s</p>' % (i, e(name), '<span class="front">front</span>' if name in pf else "", e(cand["note"])))
+        parts.append(score_table(cand))
+        parts.append('<div class="wrap"><div class="row">%s</div></div>' % "".join(
+            '<div>%s<p class="cap">%s</p></div>' % (ph, e(cap)) for cap, ph in SCREENS[name]))
+    for j, (name, cand) in enumerate(n2.WINDOWS.items()):
+        parts.append('<h2 id="c%d">Windows: %s%s</h2><p>%s</p>' % (len(order) + j, e(name), '<span class="front">front</span>' if name in wf else "", e(cand["note"])))
+        parts.append(score_table(cand))
+        parts.append('<div class="wrap">%s</div>' % WIN[name])
+    parts.append("""<h2>What these mockups leave out</h2><ul>
 <li><b>Look:</b> the palette, type, shapes, density and icons (Q4–Q8). Every grey, size and glyph is a placeholder.</li>
 <li><b>Wording:</b> registers are per cluster and set in their tiers (Q9). The words here are placeholders, except "Label", "Log" and "check-in".</li>
 <li><b>Prompts that arrive:</b> alarms, clashes, the outcome question, the timer question, burnout.</li>
@@ -302,7 +303,11 @@ parts.append("""<h2>What these mockups leave out</h2><ul>
 <li><b>The on-device LLM</b> is not placed in any candidate.</li>
 <li><b>The source screenshots</b> are on <code>frame.html</code>, so they are not repeated here.</li>
 </ul></body></html>""")
-assert set(n2.PIN_SEARCH["best"][0][3]) == {"Pages (module)", "Week (module)", "ledger (masking)"}, "A++ mockup pins differ from the enumerated best: %s" % (n2.PIN_SEARCH["best"][0][3],)
-with open(OUT, "w", encoding="utf-8", newline="\n") as fh:
-    fh.write("\n".join(parts))
-print(OUT, "| phone front:", sorted(pf), "| windows front:", sorted(wf))
+    assert set(n2.PIN_SEARCH["best"][0][3]) == {"Pages (module)", "Week (module)", "ledger (masking)"}, "A++ mockup pins differ from the enumerated best: %s" % (n2.PIN_SEARCH["best"][0][3],)
+    with open(OUT, "w", encoding="utf-8", newline="\n") as fh:
+        fh.write("\n".join(parts))
+    print(OUT, "| phone front:", sorted(pf), "| windows front:", sorted(wf))
+
+
+if __name__ == "__main__":
+    main()
