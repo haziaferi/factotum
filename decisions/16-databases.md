@@ -1,6 +1,6 @@
 # 16. Databases in pages
 
-Status: **scored 2026-10-05; the owner chooses.** The owner asked: "What would score as an improvement upon Notion's or other apps' current model?"
+Status: **decided 2026-10-05: O6, hybrid with items** (the owner's choice, the recommended option). The owner asked: "What would score as an improvement upon Notion's or other apps' current model?"
 
 ## Why it came up
 
@@ -71,6 +71,14 @@ There's a precedent for the new blocks. Factotum already has `CANVAS`, a canvas 
 - A **view over items** (O6) overlaps with Today and the agenda. Where such a view sits among the screens is a T5 question.
 - The **"this page"** filter needs a field naming the project page. A relation column (`relation_link`, built) or a page mention would do. Which of the two counts is a T5 detail.
 
-## Owner's choice
+## Owner's choice (2026-10-05)
 
-*Pending.*
+**O6, hybrid with items.** Factotum keeps what is built, a database page whose rows are its sub-pages plus the pages carrying its doorway label, and adds four things:
+- **A DATABASE block:** a database made inside a page is that page's sub-page, shown in place. It moves and trashes with the page.
+- **A VIEW block:** a view of any database, owning its own layout, sort and filter, including *this page*. Removing the block never touches the pages it showed.
+- **A saved query on properties**, beside the doorway label. A page matching it is a row wherever it lives.
+- **Views over items** (tasks, events, habits) by label, so a page can list its project's real tasks.
+
+**Growth:** 2 block kinds and 3 columns (`page_view`'s owning block, its source as pages or items, and the database's query). Nothing built is reworked.
+
+**When:** the data layer is built before T5 (pages and databases), as its own slice.

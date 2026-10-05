@@ -1,6 +1,6 @@
 # Factotum — Product & Technical Spec
 
-**Status:** draft v0.35, seeded from the decision register · **Scope:** the merged data model, sync and behaviour rules of Factotum. Screens are not decided and are marked open (§10.1).
+**Status:** draft v0.36, seeded from the decision register · **Scope:** the merged data model, sync and behaviour rules of Factotum. Screens are not decided and are marked open (§10.1).
 **Related documents:** `decisions/`, the evidence behind §3: one ADR per decision with verified `file:line` facts, the scored options, the behaviour cases and the harness that measured them (`decisions/register.md` is the index). This spec states each decision once and points to its ADR for the evidence. It never restates the evidence.
 
 ---
@@ -9,6 +9,7 @@
 
 | Version | Summary | Sections touched |
 |---|---|---|
+| v0.36 | Decision 16: databases in pages, O6 (DATABASE and VIEW blocks, a saved query beside the doorway, views over items); a data-layer slice owed before T5 | §3.12, §10 |
 | v0.35 | Owner: Tendril's Claude text verbs dropped (an exception to §0.1.5); widgets, the on-device LLM, a Windows global quick-add and natural-language input move across; use cadences in decision 15 | §0.1, §10 |
 | v0.34 | §10.1 T0 answers: tiers, dark mode with OLED, settings in two sections (settles §3.9's marker), a register per screen cluster; navigation, palette, type, shapes and density to be scored | §10 |
 | v0.33 | Owner: personal use only, never distributed; every APK is signed with Tendril's shared debug key (committed in `keystores/`) and installs as `com.hazia.factotum`, no `.debug` suffix | §0.1 |
@@ -402,6 +403,7 @@ The device id is not a setting.
 - **Options.** A deleted option reads as none and keeps its picks; a later pick of it, or of an option merged into it, brings it back. Options of one property with one name merge into the lowest id, the one made first; a merge or a revival is stamped just above the option's own stamps, so it is never an edit that brings back a trashed database.
 - **Rows** are the database page's sub-pages and the live pages carrying its doorway label. Trashing a database trashes its rows; a revived page brings back the pages trashed with it; a cell, a pick, or an edit to the database's schema counts as an edit to its page. A trashed database's schema is not edited.
 - **Views** keep Tendril's single sort and single filter, compared by type: numbers as numbers, dates as dates, a Select by its options' order, an empty cell last either way. A filter naming an option merged since reads as the option it went into; a setting naming a deleted property reads as none. A Board shows a column for no option first, then the live options in order, and is empty without a Select to group by. A database keeps at least one view.
+- **Decided 2026-10-05 (owner, decision 16): databases in pages, O6.** Besides the database page: a DATABASE block (a database made inside a page is its sub-page, shown in place, moving and trashing with it); a VIEW block (a view of any database owned by the block, with its own layout, sort and filter, including *this page*; removing it never touches its pages); a saved query on properties beside the doorway label; and views over items (tasks, events, habits) by label. Growth: 2 block kinds, 3 columns; nothing built changes. **Not built yet**: a data-layer slice before T5.
 
 **Built, slice 12c (2026-10-03):** the canvas, in `com.hazia.factotum.data.page` (`CanvasRepository`). `shared-canvas-nodes` passes as a test (`CanvasCasesTest`), with the owner's answers on the canvas. What the build settled, none of which changes the decision:
 - **Tables.** `page_canvas` makes a page a canvas (id `canvas:<page>`, the board's layout). `canvas_node` is a card: a text card, a page card or a frame, with its position, size (a card's width only; its height follows its text), text, hue, mind-map parent, fold, layout and stacking key each a group. `canvas_edge` is a line with an id of its own, its direction and its label. Neither a page card's page nor a card's parent has a foreign key: a purge never deletes a card, and a card read under a missing, deleted or cycled parent is a root.
@@ -598,6 +600,7 @@ Status: 2, 4 and 6 are done (`docs/spikes-2026-10-01.md`). 1 and 3 ran on the de
 10. **A habit whose tracker is deleted. Decided 2026-10-02:** the habit goes with it; the tracker is created with the habit (§3.6).
 11. **Reminders on an "n a day" habit. Decided 2026-10-02:** each occurrence reminds at the start of its block (§3.6, part b). Tendril gave such habits no reminder at all.
 12. **A purge undone by a later edit leaves its children behind** (a fix, not an owner choice). ADR 01 lets a row edited after its purge come back, but the device that purged it also lost, through foreign-key cascades, the rows under it: a page's blocks, a database's schema and cells, a canvas's cards, a task's completions. The peer that edited keeps them and never sends them again, since they did not change, so the two devices differ until a snapshot carries them. Found by the slice 12c review. **Fixed 2026-10-03:** an import that takes back a purge reads every file again from its start, this device's own too (§3.13); the merge takes what it already holds without change, and the rows under the purged one come back.
+13. **Databases in pages. Decided 2026-10-05 (owner, decision 16): O6.** The DATABASE and VIEW blocks, the saved query and views over items are a data-layer slice still to build, before T5 (pages and databases).
 
 ## 11. Next Steps
 
