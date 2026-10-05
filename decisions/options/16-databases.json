@@ -1,0 +1,19 @@
+{"contest": "16-databases",
+ "growth_note": "counted against Factotum's built schema after slice 12b (2026-10-05): page_database, property, property_option, property_value, value_pick, page_view; BlockType already has CANVAS (a page shown in a page) and BLOCK_REFERENCE. A new block kind is one enum case; a block naming a page reuses the block's existing page reference, as CANVAS does. Rework of built code is not growth and is listed in each summary.",
+ "options": [
+  {"id": "O1-full-page", "summary": "As built: a page made into a database; rows are its sub-pages plus pages carrying its doorway label. No database inside a page.",
+   "growth": {"tables": 0, "columns": 0, "enum_cases": 0}},
+  {"id": "O2-inline-owned", "summary": "O1 plus a DATABASE block: a database made inside a page is that page's sub-page, shown in place (Notion inline). Rework: none.",
+   "growth": {"tables": 0, "columns": 0, "enum_cases": 1}},
+  {"id": "O3-linked-views", "summary": "O2 plus a VIEW block: a view of any database, with its own layout, sort and filter, including 'the page this block is on' (Notion linked view; Obsidian `this`). page_view gains the block that owns it. Rework: none.",
+   "growth": {"tables": 0, "columns": 1, "enum_cases": 2}},
+  {"id": "O4-query-only", "summary": "A database is a saved query over all pages (by label, property, type); no owned rows (Obsidian Bases, Logseq). Rework: slice 12b membership, rows as tasks and 'trashing a database trashes its rows' rewritten.",
+   "growth": {"tables": 0, "columns": 2, "enum_cases": 2}},
+  {"id": "O5-hybrid", "summary": "O3 plus a query: rows are owned sub-pages, doorway-label pages, and pages matching a saved filter on properties (Anytype: Types + Sets + Collections). Rework: none; the query extends the doorway.",
+   "growth": {"tables": 0, "columns": 2, "enum_cases": 2}},
+  {"id": "O6-hybrid-items", "summary": "O5 plus views over Factotum items (tasks, events, habits) by label, so a project page lists its tasks without making them pages. page_view gains a source (pages or items). Rework: none.",
+   "growth": {"tables": 0, "columns": 3, "enum_cases": 2}},
+  {"id": "C0-copy-per-place", "summary": "Control: a page shown in a database is copied into it, one copy per place. Must lose every case about one record in two places and about sync.",
+   "growth": {"tables": 0, "columns": 1, "enum_cases": 2}, "control": true,
+   "expect_fail": ["owner-same-page-two-places", "factotum-concurrent-join", "factotum-leave-while-edited", "factotum-one-label-vocab"]}
+ ]}
