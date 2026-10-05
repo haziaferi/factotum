@@ -17,6 +17,7 @@ The contests are taken in dependency order. There is one row per contest.
 | 11 | Occurrence edits (sole-owner probe) | decided | edit-log+move; a clash on one occurrence asks; ADR 02 and 04 amended | 10 | [11-occurrence-edits.md](11-occurrence-edits.md) |
 | 12 | Page merge granularity (sole-owner probe) | decided | per-row+revive; same-paragraph clash: later wins, with a notice | 8 | [12-page-merge.md](12-page-merge.md) |
 | 13 | Sync folder layout (SPEC §10.9) | decided | device-log+copies: per-device 16 KiB log segments, snapshot every 64, conflict copies merged | 4 | [13-folder.md](13-folder.md) |
+| 15 | Screens, navigation and wording (SPEC §10.1) | T0 answered | tiers T0-T6; navigation, palette, type, shapes and density to be scored with the design skills; one register per screen cluster; System/Light/Dark + OLED; settings in two sections | 1 | [15-screens.md](15-screens.md) |
 
 Standing owner answers (2026-09-30):
 - Fresh start.
