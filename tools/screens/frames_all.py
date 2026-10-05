@@ -74,7 +74,7 @@ def tree():
 
 G_BAR = [("◷", "Today"), ("▦", "Week"), ("☰", "Library"), ("↗", "Review")]
 A_BAR = [("◷", "Today"), ("↻", "Routines"), ("◎", "check-in"), ("☰", "Pages"), ("⊞", "All")]
-PIN_BAR = [("◷", "Today"), ("☰", "Pages"), ("▦", "Week"), ("▤", "Databases"), ("⊞", "All")]
+PIN_BAR = [("◷", "Today"), ("☰", "Pages"), ("▦", "Week"), ("◇", "Ledger"), ("⊞", "All")]
 
 
 def TOPROW(names):
@@ -89,7 +89,7 @@ LAUNCHER_SHEET = ('<div class="drawer bottom tall"><div class="nl">Dentist tomor
         ("Today", ["Day", "Week", "Month", "Planner"]),
         ("Routines", ["Habits", "Trackers", "Activities", "Checklists", "Charts", "Goals"]),
         ("check-in", ["check-in", "Ledger", "Sensory", "Trend"]),
-        ("Pages", ["Journal", "Databases", "Templates", "Road Map"]),
+        ("Pages", ["Journal", "Tree", "Templates", "Road Map"]),
         ("App", ["Labels", "Time blocks", "Calendars", "Settings", "Trash", "About"])]))
 ALL_PLACES = ["§Places", "Today", "Week", "Library", "Review", "§Routines", "Habits", "Trackers", "Activities",
               "Checklists", "§check-in", "check-in", "Ledger", "Sensory", "§System", "Labels", "Templates", "Road Map",
@@ -164,9 +164,9 @@ SCREENS = {
             TOPROW(["Agenda", "Day", "Week", "Month", "Planner"]) + zone("Agenda", AGENDA[:3]) + zone("Routines", ROUTINES[:4]),
             bar(PIN_BAR, "Today"))),
         ("Pin to the bar: a module (opens with its top row) or a single screen", phone(hdr("Pin to the bar", "‹"),
-            zone("Slots", [it("1 · Pages", "module"), it("2 · Week", "module"), it("3 · Databases", "screen")]) +
-            listpage(["§Modules", "Routines", "check-in", "Pages", "Week", "§Screens", "Journal", "Databases", "Habits", "Trackers",
-                      "Ledger", "Charts"]), bar(PIN_BAR, "All"))),
+            zone("Slots", [it("1 · Pages", "module"), it("2 · Week", "module"), it("3 · Ledger", "screen")]) +
+            listpage(["§Modules", "Routines", "check-in", "Pages", "Week", "§Screens", "Journal", "Ledger", "Habits", "Trackers", "Charts",
+                      "§Pages", "Pin a page from the tree…"]), bar(PIN_BAR, "All"))),
     ],
     "P8. Search first (tree)": [
         ("Start: the tree, Today pinned; the bar is Search, Capture, Menu", phone(hdr("Factotum"), tree(),
@@ -302,7 +302,7 @@ parts.append("""<h2>What these mockups leave out</h2><ul>
 <li><b>The on-device LLM</b> is not placed in any candidate.</li>
 <li><b>The source screenshots</b> are on <code>frame.html</code>, so they are not repeated here.</li>
 </ul></body></html>""")
-assert set(n2.PIN_SEARCH["best"][0][3]) == {"Pages (module)", "Week (module)", "database view"}, "A++ mockup pins differ from the enumerated best: %s" % (n2.PIN_SEARCH["best"][0][3],)
+assert set(n2.PIN_SEARCH["best"][0][3]) == {"Pages (module)", "Week (module)", "ledger (masking)"}, "A++ mockup pins differ from the enumerated best: %s" % (n2.PIN_SEARCH["best"][0][3],)
 with open(OUT, "w", encoding="utf-8", newline="\n") as fh:
     fh.write("\n".join(parts))
 print(OUT, "| phone front:", sorted(pf), "| windows front:", sorted(wf))

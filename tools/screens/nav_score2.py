@@ -130,9 +130,10 @@ for _name, _hubs in HUBS.items():
 TODAY_ROW = ["calendar day/week/month", "confirm the week (planner)"]
 ROUTINES_ROW = MANAGE + ["tracker detail and charts", "build a saved chart", "goals", "time totals"]
 CHECKIN_ROW = ["check-in", "ledger (masking)", "sensory log", "stability trend", "ledger/sensory history"]
-PAGES_ROW = ["today's journal", "past journal days", "database view", "templates", "Road Map"]
+# A database is a page made into one (§3.12): it lives in the tree, so no row or sheet lists "databases".
+PAGES_ROW = ["today's journal", "past journal days", "templates", "Road Map"]
 LAUNCHER = [n for n in ALL_NAMES if n not in ("capture", "search", "tick a task", "today's agenda", "edit an item",
-            "edit one occurrence", "page History", "sync folder", "backup", "app lock", "open a page", "canvas",
+            "edit one occurrence", "page History", "sync folder", "backup", "app lock", "open a page", "canvas", "database view",
             "Log a habit", "start/stop a timer", "tracker reading", "tick a checklist")]
 
 PHONE["A+. Modules + top rows + ⊞"] = dict(
@@ -151,7 +152,7 @@ MODULE_PINS = {
     "Pages (module)": dict(areas=dict(pages=(1, 1), journal=(1, 1)), hub=(1, 1, PAGES_ROW)),
     "Week (module)": dict(areas=dict(calendar=(1, 1)), hub=(1, 1, ["confirm the week (planner)"])),
 }
-SCREEN_PINS = ["today's journal", "calendar day/week/month", "database view", "check-in", "ledger (masking)",
+SCREEN_PINS = ["today's journal", "calendar day/week/month", "check-in", "ledger (masking)",
                "manage habits", "manage trackers", "tracker detail and charts", "time totals"]
 
 
@@ -192,7 +193,7 @@ for _n, _named in {
 WINDOWS["W1. Rail mirrors G+"]["named1"] = ["today's agenda", "calendar day/week/month"]
 WINDOWS["W2. Full sidebar"]["named1"] = [n for n in ALL_NAMES if n not in ("capture", "search", "tick a task", "edit an item",
                                          "edit one occurrence", "page History", "Log a habit", "start/stop a timer",
-                                         "tracker reading", "tick a checklist", "open a page", "canvas")]
+                                         "tracker reading", "tick a checklist", "open a page", "canvas", "database view")]
 WINDOWS["W2. Full sidebar"]["hubs"] = [(0, 1, WINDOWS["W2. Full sidebar"]["named1"])]
 WINDOWS["W1. Rail mirrors G+"]["hubs"] = [(1, 1, SYSTEM_LIST)]
 MAIN_AREAS = ["today", "calendar", "due", "checkin", "journal", "pages", "review", "manage"]

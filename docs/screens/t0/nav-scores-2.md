@@ -27,9 +27,9 @@ Phone and Windows are scored separately.
 
 | Candidate | Cost | Long tail | Max depth | Search only | Reach in 2 | Named in 1 | Switch | Visible | Largest list | Start load | Register | Dominated by |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
-| A++. Today · 3 pins · ⊞ | 278 | 38.5 | 3 | 0 | 30/42 | 2 | 1.62 | 11 | 26 | 2 | 0.90 | **front** |
+| A++. Today · 3 pins · ⊞ | 278 | 38.5 | 3 | 0 | 30/42 | 2 | 1.62 | 11 | 25 | 2 | 0.90 | **front** |
 | B. Today hub | 282 | 37.5 | 3 | 4 | 19/42 | 2 | 1.62 | 6 | 8 | 4 | 0.70 | **front** |
-| A+. Modules + top rows + ⊞ | 286 | 36.0 | 3 | 0 | 29/42 | 2 | 1.38 | 11 | 26 | 2 | 0.90 | **front** |
+| A+. Modules + top rows + ⊞ | 286 | 36.0 | 3 | 0 | 29/42 | 2 | 1.38 | 11 | 25 | 2 | 0.90 | **front** |
 | G (as mocked) | 291 | 38.0 | 3 | 4 | 23/42 | 2 | 1.50 | 7 | 9 | 2 | 0.90 | **front** |
 | G+ (manage from Today) | 292 | 39.0 | 3 | 0 | 23/42 | 2 | 1.50 | 7 | 9 | 2 | 0.90 | **front** |
 | P6. Bar + drawer | 292 | 39.2 | 4 | 0 | 27/42 | 2 | 1.50 | 8 | 12 | 2 | 0.90 | **front** |
@@ -49,13 +49,13 @@ Phone and Windows are scored separately.
 - **P7. Home grid**: Start = a grid of ~10 module tiles; each module one tap; back to the grid to switch.
 - **P8. Search first (tree)**: Obsidian/Notion: Search · Capture · Menu; the tree is the start, Today pinned.
 - **A+. Modules + top rows + ⊞**: Bar: Today · Routines · check-in · Pages · ⊞. Each module opens on a top row of its own screens. ⊞ is a sheet over the current screen: the natural-language capture line, pinned and recent, then every feature as a grid under module headings. Long-press ⊞ = capture.
-- **A++. Today · 3 pins · ⊞**: Bar: Today · three pinned slots · ⊞. A slot holds a module (with its top row) or one screen. Pinned here: Pages (module), Week (module), database view.
+- **A++. Today · 3 pins · ⊞**: Bar: Today · three pinned slots · ⊞. A slot holds a module (with its top row) or one screen. Pinned here: Pages (module), Week (module), ledger (masking).
 
 ## Windows
 
 | Candidate | Cost | Long tail | Max depth | Search only | Reach in 2 | Named in 1 | Switch | Visible | Largest list | Start load | Register | Dominated by |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
-| W2. Full sidebar | 284 | 21.0 | 3 | 0 | 40/42 | 30 | 1.00 | 22 | 22 | 2 | 0.90 | **front** |
+| W2. Full sidebar | 291 | 21.0 | 3 | 0 | 40/42 | 29 | 1.00 | 22 | 22 | 2 | 0.90 | **front** |
 | W3. Module rail + bounded panel | 317 | 36.0 | 3 | 0 | 37/42 | 7 | 1.00 | 15 | 9 | 2 | 0.90 | **front** |
 | W1. Rail mirrors G+ | 330 | 41.5 | 3 | 0 | 31/42 | 2 | 1.25 | 7 | 9 | 2 | 0.90 | **front** |
 
@@ -65,15 +65,15 @@ Phone and Windows are scored separately.
 
 ## A++: how its default pins were chosen
 
-Every combination of three pins was scored: 286 of them, drawn from 4 modules and 9 single screens. The five cheapest:
+Every combination of three pins was scored: 220 of them, drawn from 4 modules and 8 single screens. The five cheapest:
 
 | Cost | Reach in 2 | Named in 1 | Pins |
 |---|---|---|---|
-| 278 | 30 | 2 | Pages (module) · Week (module) · database view |
 | 278 | 30 | 2 | Pages (module) · Week (module) · ledger (masking) |
-| 278 | 30 | 3 | Pages (module) · calendar day/week/month · database view |
 | 278 | 30 | 3 | Pages (module) · calendar day/week/month · ledger (masking) |
-| 278 | 30 | 3 | Pages (module) · database view · ledger (masking) |
+| 282 | 30 | 1 | Routines (module) · Pages (module) · Week (module) |
+| 282 | 30 | 2 | Pages (module) · Week (module) · check-in |
+| 282 | 30 | 2 | Routines (module) · Pages (module) · calendar day/week/month |
 
 Pinning the three modules, which makes A++ the same as A+, would cost 290.
 
