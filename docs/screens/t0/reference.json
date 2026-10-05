@@ -1120,6 +1120,53 @@
     }
    },
    "notes": "The densest and oldest pattern: everything visible at once, no destinations to switch between; the menu bar holds the rest."
+  },
+  {
+   "app": "Notion",
+   "form": "phone",
+   "account": "owner's real workspace (bottom bar only captured; crop deleted; no titles recorded)",
+   "date": "2026-10-05",
+   "pattern": "start = the sidebar's page list as a full screen; a floating bottom bar: Search (circle), an 'Ask AI' field, New page (compose)",
+   "destinations": {
+    "bottom_bar": [
+     "Search",
+     "Ask AI",
+     "New page"
+    ],
+    "list": "the user's page tree (Favorites, Shared, Private)"
+   },
+   "jobs": {
+    "J1": {
+     "cost": 1,
+     "how": "New page (compose)",
+     "from_anywhere": true,
+     "measured": "affordance"
+    },
+    "J2": "n/a",
+    "J4": "n/a",
+    "J5": "n/a",
+    "J6": "n/a",
+    "J7": {
+     "cost": 1,
+     "how": "New page",
+     "from_anywhere": true,
+     "measured": "affordance"
+    },
+    "J8": {
+     "cost": 1,
+     "how": "Search",
+     "from_anywhere": true,
+     "measured": "affordance"
+    },
+    "J9": "n/a",
+    "J10": {
+     "cost": 2,
+     "how": "workspace menu, Settings",
+     "from_anywhere": false,
+     "measured": "affordance"
+    }
+   },
+   "notes": "Phone drops the desktop's fixed tabs (Home, Chat, Meetings): the bar is three actions (find, ask, create) and the tree is the screen. The AI field is the widest control on the bar."
   }
  ]
 }
