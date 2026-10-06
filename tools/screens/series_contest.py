@@ -48,9 +48,9 @@ spec.loader.exec_module(pg)
 cs = pg.cs
 
 CARD = {"light": pg.GROUND["light"]["zone"], "dark": pg.GROUND["dark"]["zone"]}
-# The default state set (states.md): due soon ochre, attention magenta; done and skipped are ink.
-RESERVED = {"light": [pg.solve_accent(85, 0.11, "light", 4.5), pg.solve_accent(335, 0.15, "light", 4.5)],
-            "dark": [pg.solve_accent(85, 0.11, "dark", 4.5), pg.solve_accent(335, 0.15, "dark", 4.5)]}
+# The state set module_palettes.py uses (chosen there by how many groups it leaves): attention magenta;
+# done, skipped and due soon are ink, so only magenta is reserved.
+RESERVED = {"light": [pg.solve_accent(335, 0.15, "light", 4.5)], "dark": [pg.solve_accent(335, 0.15, "dark", 4.5)]}
 NS = (6, 8, 12, 16, 24)
 TRIALS = 40
 rng = random.Random(7)

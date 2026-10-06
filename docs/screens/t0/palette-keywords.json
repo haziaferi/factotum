@@ -1,43 +1,398 @@
 {
- "about": "Keyword picks for decision 15, Q4 (module palettes). Each pick names a design-lexicon entry and the pairs used; 'oblique' picks name the move from the oblique skill that produced them. Purposes are the modules of inventory.md (Step 0.5). Colours come from palette-sources.json (extracted by tools/screens/lexicon_pairs.py) or, for the three entries that have no numbered pairs, from the hex the entry itself documents, quoted in 'cited'.",
+ "about": "Keyword picks for decision 15, Q4 (module palettes). Each pick names a design-lexicon entry and the pairs used; 'oblique' picks name the move from the oblique skill that produced them. Purposes are the modules of inventory.md (Step 0.5). Colours come from palette-sources.json (extracted by tools/screens/lexicon_pairs.py) or, for the three entries that have no numbered pairs, from the hex the entry itself documents, quoted in 'cited'. 'fresh' picks (2026-10-06) were added for full palettes: entries whose lexicon pairs already define several colours.",
  "modules": {
   "calendar": {
    "purpose": "M1 Plan and do: commitments, deadlines, time. The firmest module, kept calm.",
    "picks": [
-    {"entry": "Civic / Government", "pairs": ["Statute", "Municipal"], "how": "direct", "why": "Public clarity: timetables and notices that must be read correctly at a glance."},
-    {"entry": "Scholastic", "pairs": ["Navy Scholastic", "Slate Scholastic", "Graphite Scholastic"], "how": "direct", "why": "Term calendars and timetables; dependable, not loud."},
-    {"entry": "Clinical / Medical", "pairs": ["Clinical Teal"], "how": "direct", "why": "Appointments: precise without alarm."},
-    {"entry": "Medieval", "pairs": ["Tidal Keep"], "how": "oblique", "move": "Cross-Domain Raid", "why": "The Book of Hours was the first calendar app. Tidal Keep's teal, because tides were the oldest timetable."},
-    {"entry": "Ming Dynasty Porcelain (Blue-and-White)", "cited": {"name": "Mohammedan cobalt", "light": {"primary": "#17488C"}}, "how": "oblique", "move": "Peripheral Glance", "why": "A plate's rim is a band painted once around a circle, like a week."},
-    {"entry": "Hellenic", "pairs": ["Cycladic"], "how": "oblique", "move": "The Wrong Answer", "why": "Marble and sea for something as dry as a schedule; the dryness is what it softens."},
-    {"entry": "Developer Tools", "pairs": ["Console"], "how": "oblique", "move": "Inversion", "why": "A calendar read as a cron table: exact, quiet, indigo."},
-    {"entry": "Absurd / Surreal", "pairs": ["Straight Face"], "how": "oblique", "move": "Ask the Opposite Question", "why": "What makes a schedule bearable? A straight face: the deadpan half of the surreal entry."}
+    {
+     "entry": "Civic / Government",
+     "pairs": [
+      "Statute",
+      "Municipal"
+     ],
+     "how": "direct",
+     "why": "Public clarity: timetables and notices that must be read correctly at a glance."
+    },
+    {
+     "entry": "Scholastic",
+     "pairs": [
+      "Navy Scholastic",
+      "Slate Scholastic",
+      "Graphite Scholastic"
+     ],
+     "how": "direct",
+     "why": "Term calendars and timetables; dependable, not loud."
+    },
+    {
+     "entry": "Clinical / Medical",
+     "pairs": [
+      "Clinical Teal"
+     ],
+     "how": "direct",
+     "why": "Appointments: precise without alarm."
+    },
+    {
+     "entry": "Medieval",
+     "pairs": [
+      "Tidal Keep"
+     ],
+     "how": "oblique",
+     "move": "Cross-Domain Raid",
+     "why": "The Book of Hours was the first calendar app. Tidal Keep's teal, because tides were the oldest timetable."
+    },
+    {
+     "entry": "Ming Dynasty Porcelain (Blue-and-White)",
+     "cited": {
+      "name": "Mohammedan cobalt",
+      "light": {
+       "primary": "#17488C"
+      }
+     },
+     "how": "oblique",
+     "move": "Peripheral Glance",
+     "why": "A plate's rim is a band painted once around a circle, like a week."
+    },
+    {
+     "entry": "Hellenic",
+     "pairs": [
+      "Cycladic"
+     ],
+     "how": "oblique",
+     "move": "The Wrong Answer",
+     "why": "Marble and sea for something as dry as a schedule; the dryness is what it softens."
+    },
+    {
+     "entry": "Developer Tools",
+     "pairs": [
+      "Console"
+     ],
+     "how": "oblique",
+     "move": "Inversion",
+     "why": "A calendar read as a cron table: exact, quiet, indigo."
+    },
+    {
+     "entry": "Absurd / Surreal",
+     "pairs": [
+      "Straight Face"
+     ],
+     "how": "oblique",
+     "move": "Ask the Opposite Question",
+     "why": "What makes a schedule bearable? A straight face: the deadpan half of the surreal entry."
+    },
+    {
+     "entry": "Academic / Research",
+     "pairs": [
+      "Institutional Blue"
+     ],
+     "how": "direct",
+     "why": "Two documented blues for the firmest module: the timetable office.",
+     "set": "fresh"
+    },
+    {
+     "entry": "Clinical / Medical",
+     "pairs": [
+      "Clinical Blue"
+     ],
+     "how": "direct",
+     "why": "Three cool roles already defined: appointments, precise and unalarmed.",
+     "set": "fresh"
+    },
+    {
+     "entry": "Finance / Fintech",
+     "pairs": [
+      "Ledger Blue"
+     ],
+     "how": "oblique",
+     "move": "Cross-Domain Raid",
+     "why": "A calendar is a ledger of time; its gain green becomes the planner's confirmed week.",
+     "set": "fresh"
+    },
+    {
+     "entry": "Fairy-tale-whimsical / Dark Fantasy",
+     "pairs": [
+      "Shadow & Frost"
+     ],
+     "how": "oblique",
+     "move": "The Wrong Answer",
+     "why": "Frost for deadlines: cold, still, and readable in the dark.",
+     "set": "fresh"
+    },
+    {
+     "entry": "Art Nouveau",
+     "pairs": [
+      "Nuit de Nacre"
+     ],
+     "how": "oblique",
+     "move": "Peripheral Glance",
+     "why": "Mother-of-pearl, the inlay at the edge of a clock face.",
+     "set": "fresh"
+    },
+    {
+     "entry": "Pixelscape",
+     "pairs": [
+      "Game Boy DMG"
+     ],
+     "how": "oblique",
+     "move": "Inversion",
+     "why": "The week drawn in four shades of one green, like a handheld's screen.",
+     "set": "fresh"
+    }
    ]
   },
   "routines": {
    "purpose": "M2 Routines and tracking: doing things regularly, self-paced. No streaks; continuity, not a score.",
    "picks": [
-    {"entry": "Naturecore", "pairs": ["Mossland", "Stone & Sage", "Forest Scholastic"], "how": "direct", "why": "Growth and seasons: the obvious register for habits."},
-    {"entry": "Health / Consumer Wellbeing", "pairs": ["Daylight", "Linen"], "how": "direct", "why": "Care for the body, the purpose behind most routines."},
-    {"entry": "Cozy", "pairs": ["Rosewood & Clay", "Cozy Cocoa"], "how": "direct", "why": "The home-made comfort of doing the same small thing each day."},
-    {"entry": "Wabi Sabi", "pairs": ["Clay & Umber", "Sun-bleached Bark"], "how": "oblique", "move": "Build From the Defect", "why": "A missed day is the defect; wabi sabi makes the gap part of the piece, which is the no-streaks rule in colour."},
-    {"entry": "Craft / Artisan", "pairs": ["Sage & Clay", "Dusty Bloom"], "how": "oblique", "move": "Peripheral Glance", "why": "The loom at the edge of the frame: repetition as making something, not scoring it."},
-    {"entry": "Sacred / Reverent", "pairs": ["Vault"], "how": "oblique", "move": "Cross-Domain Raid", "why": "The liturgy of the hours, the oldest routine, kept without a counter."},
-    {"entry": "Music / Festival", "pairs": ["Night Set"], "how": "oblique", "move": "Cross-Domain Raid", "why": "A routine as a rhythm returned to, not a chain to keep unbroken."},
-    {"entry": "Kids / Education", "pairs": ["Chalk and Card", "Playground"], "how": "oblique", "move": "Inversion", "why": "The classroom chart, with its gold stars taken away."}
+    {
+     "entry": "Naturecore",
+     "pairs": [
+      "Mossland",
+      "Stone & Sage",
+      "Forest Scholastic"
+     ],
+     "how": "direct",
+     "why": "Growth and seasons: the obvious register for habits."
+    },
+    {
+     "entry": "Health / Consumer Wellbeing",
+     "pairs": [
+      "Daylight",
+      "Linen"
+     ],
+     "how": "direct",
+     "why": "Care for the body, the purpose behind most routines."
+    },
+    {
+     "entry": "Cozy",
+     "pairs": [
+      "Rosewood & Clay",
+      "Cozy Cocoa"
+     ],
+     "how": "direct",
+     "why": "The home-made comfort of doing the same small thing each day."
+    },
+    {
+     "entry": "Wabi Sabi",
+     "pairs": [
+      "Clay & Umber",
+      "Sun-bleached Bark"
+     ],
+     "how": "oblique",
+     "move": "Build From the Defect",
+     "why": "A missed day is the defect; wabi sabi makes the gap part of the piece, which is the no-streaks rule in colour."
+    },
+    {
+     "entry": "Craft / Artisan",
+     "pairs": [
+      "Sage & Clay",
+      "Dusty Bloom"
+     ],
+     "how": "oblique",
+     "move": "Peripheral Glance",
+     "why": "The loom at the edge of the frame: repetition as making something, not scoring it."
+    },
+    {
+     "entry": "Sacred / Reverent",
+     "pairs": [
+      "Vault"
+     ],
+     "how": "oblique",
+     "move": "Cross-Domain Raid",
+     "why": "The liturgy of the hours, the oldest routine, kept without a counter."
+    },
+    {
+     "entry": "Music / Festival",
+     "pairs": [
+      "Night Set"
+     ],
+     "how": "oblique",
+     "move": "Cross-Domain Raid",
+     "why": "A routine as a rhythm returned to, not a chain to keep unbroken."
+    },
+    {
+     "entry": "Kids / Education",
+     "pairs": [
+      "Chalk and Card",
+      "Playground"
+     ],
+     "how": "oblique",
+     "move": "Inversion",
+     "why": "The classroom chart, with its gold stars taken away."
+    },
+    {
+     "entry": "Baroque",
+     "pairs": [
+      "Nocturne Amethyst"
+     ],
+     "how": "oblique",
+     "move": "Cross-Domain Raid",
+     "why": "A fugue's returning subject: repetition as structure. Its purple stays an accent unless chosen.",
+     "set": "fresh"
+    },
+    {
+     "entry": "Memphis / Postmodern",
+     "pairs": [
+      "Sunbaked Riviera"
+     ],
+     "how": "oblique",
+     "move": "The Wrong Answer",
+     "why": "Holiday pastel for daily chores; only its teal survives the hue rules.",
+     "set": "fresh"
+    },
+    {
+     "entry": "Vaporwave / Synthwave",
+     "pairs": [
+      "Aurora Drift"
+     ],
+     "how": "oblique",
+     "move": "Inversion",
+     "why": "Neon toned down for slow habits: the aurora, not the club.",
+     "set": "fresh"
+    },
+    {
+     "entry": "Playful",
+     "pairs": [
+      "Electric Tropics"
+     ],
+     "how": "oblique",
+     "move": "Expand Before Collapsing",
+     "why": "The one playful pair the rules allow: a bright blue with a pink spark.",
+     "set": "fresh"
+    },
+    {
+     "entry": "Startup / Tech Product",
+     "pairs": [
+      "Navy + Accent"
+     ],
+     "how": "direct",
+     "why": "A green that means 'done, keep going' without a score.",
+     "set": "fresh"
+    }
    ]
   },
   "checkin": {
    "purpose": "M3 Check-in and regulation: noticing how I am, without judgement. The most ambient module.",
    "picks": [
-    {"entry": "Serene / Calm", "pairs": ["Still Water", "Chalk"], "how": "direct", "why": "The lexicon's own register for wellbeing: one thing at a time."},
-    {"entry": "Ethereal / Dreamlike", "pairs": ["Sky Veil", "Lavender Mist", "Rose Haze"], "how": "direct", "why": "Weightless, unhurried; nothing to get right."},
-    {"entry": "Extroverted-sunny / Introverted-rainy", "cited": {"name": "Introverted-rainy", "light": {"primary": "#7889A1", "accent": "#506786"}}, "how": "direct", "why": "The cloudy sky before rain: a mood named without a verdict."},
-    {"entry": "Gloomcore / Moody", "pairs": ["Mossbound", "Fen & Fog"], "how": "oblique", "move": "Inversion", "why": "A check-in that does not demand cheer: low days get colours that sit with them."},
-    {"entry": "Ancient Occult / Modern Mysticism", "pairs": ["Engraved Vision"], "how": "oblique", "move": "Cross-Domain Raid", "why": "Divination as noticing: the reading, never the prediction."},
-    {"entry": "Rococo", "pairs": ["La Marquise / La Nuit Rose", "Le Printemps / L'Heure Bleue"], "how": "oblique", "move": "The Wrong Answer", "why": "Frivolous pastel for feelings; its softness turns out to be the point."},
-    {"entry": "Melancholic", "pairs": ["Long Light", "Rain Glass"], "how": "oblique", "move": "Peripheral Glance", "why": "Feelings noticed at the edge, like weather on a window."},
-    {"entry": "Goryeo Celadon", "cited": {"name": "Bisaek celadon", "light": {"primary": "#A2CDC5"}}, "how": "oblique", "move": "The Arbitrary Constraint", "why": "One glaze, nothing else: a check-in in a single colour."}
+    {
+     "entry": "Serene / Calm",
+     "pairs": [
+      "Still Water",
+      "Chalk"
+     ],
+     "how": "direct",
+     "why": "The lexicon's own register for wellbeing: one thing at a time."
+    },
+    {
+     "entry": "Ethereal / Dreamlike",
+     "pairs": [
+      "Sky Veil",
+      "Lavender Mist",
+      "Rose Haze"
+     ],
+     "how": "direct",
+     "why": "Weightless, unhurried; nothing to get right."
+    },
+    {
+     "entry": "Extroverted-sunny / Introverted-rainy",
+     "cited": {
+      "name": "Introverted-rainy",
+      "light": {
+       "primary": "#7889A1",
+       "accent": "#506786"
+      }
+     },
+     "how": "direct",
+     "why": "The cloudy sky before rain: a mood named without a verdict."
+    },
+    {
+     "entry": "Gloomcore / Moody",
+     "pairs": [
+      "Mossbound",
+      "Fen & Fog"
+     ],
+     "how": "oblique",
+     "move": "Inversion",
+     "why": "A check-in that does not demand cheer: low days get colours that sit with them."
+    },
+    {
+     "entry": "Ancient Occult / Modern Mysticism",
+     "pairs": [
+      "Engraved Vision"
+     ],
+     "how": "oblique",
+     "move": "Cross-Domain Raid",
+     "why": "Divination as noticing: the reading, never the prediction."
+    },
+    {
+     "entry": "Rococo",
+     "pairs": [
+      "La Marquise / La Nuit Rose",
+      "Le Printemps / L'Heure Bleue"
+     ],
+     "how": "oblique",
+     "move": "The Wrong Answer",
+     "why": "Frivolous pastel for feelings; its softness turns out to be the point."
+    },
+    {
+     "entry": "Melancholic",
+     "pairs": [
+      "Long Light",
+      "Rain Glass"
+     ],
+     "how": "oblique",
+     "move": "Peripheral Glance",
+     "why": "Feelings noticed at the edge, like weather on a window."
+    },
+    {
+     "entry": "Goryeo Celadon",
+     "cited": {
+      "name": "Bisaek celadon",
+      "light": {
+       "primary": "#A2CDC5"
+      }
+     },
+     "how": "oblique",
+     "move": "The Arbitrary Constraint",
+     "why": "One glaze, nothing else: a check-in in a single colour."
+    },
+    {
+     "entry": "Ancient Occult / Modern Mysticism",
+     "pairs": [
+      "Ritual Contrast"
+     ],
+     "how": "oblique",
+     "move": "Cross-Domain Raid",
+     "why": "Candle and ash: a dark plum with a blush, for noticing at night.",
+     "set": "fresh"
+    },
+    {
+     "entry": "Fairy-tale-whimsical / Dark Fantasy",
+     "pairs": [
+      "Moonflower Meadow"
+     ],
+     "how": "oblique",
+     "move": "Peripheral Glance",
+     "why": "Night flowers open when looked at; lavender with a mint edge.",
+     "set": "fresh"
+    },
+    {
+     "entry": "Naturecore",
+     "pairs": [
+      "Stone & Sage"
+     ],
+     "how": "direct",
+     "why": "Sage with a lilac accent: calm and grounded.",
+     "set": "fresh"
+    },
+    {
+     "entry": "Clinical / Medical",
+     "pairs": [
+      "Clinical Teal"
+     ],
+     "how": "oblique",
+     "move": "Inversion",
+     "why": "The clinic's teal, used for the opposite: a check-in that is never an examination.",
+     "set": "fresh"
+    }
    ]
   }
  }

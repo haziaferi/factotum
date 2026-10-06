@@ -151,6 +151,21 @@ How they were made:
 
 **Not yet discussed with the owner.**
 
+**Palettes (Q4), second slate (2026-10-06).** The owner clarified that a palette is a full set used across a module's screens, not a few accents for Today.
+
+The owner's answers:
+- Roles are primary, secondary and tertiary, a container for each, and chart colours. Grounds stay neutral.
+- One shared state set covers done, skipped, due soon and attention. Its colours appear nowhere else.
+- Chart colours are scored: fixed lists against Chronicle's picker, keeping in mind that there are more than 8 activities. The Notion problem must be avoided.
+- The keywords are the old picks plus fresh ones, up to 50 groups.
+- Purples and indigos are tertiary, except in a few groups.
+- The groups are shown as an overview with expandable screens.
+
+What was measured:
+- **Chart colours** (`series.md`, `tools/screens/series_contest.py`). A guided picker beats fixed lists of 3 to 8 and Chronicle's picker as built. Its colours sit at two lightness tiers, readable in each theme, with reserved and forbidden hues removed. It suggests the colour farthest from every colour in use, marks colours already taken, and labels chart lines directly. With 24 activities it keeps every colour unique, readable and colour-blind-legible when the suggestions are accepted. So module palettes carry only a chart scale; item colours come from the picker.
+- **State set** (`states.md`, plus a sweep in `module-palettes.md`). Done, skipped and due soon are drawn in ink, and attention in magenta. The ochre first proposed for due soon took away the clay and sand family that keeps routines apart from blue calendars.
+- **Module palettes** (`module-palettes.md` / `.html`, `tools/screens/module_palettes.py`). 50 palettes pass (Calendar 17, Routines 17, check-in 16); 145 groups are feasible; **12 can be chosen under the owner's caps**. Most feasible groups contain a pink-led or purple-led palette. The sweep table shows how many groups each relaxation would allow. **Open: whether to relax a cap, and the shortlist.**
+
 **Next, in dependency order:**
 1. Score the navigation pattern: Q2, with Q8 and then Q3.
 2. Then the palette (Q4).
