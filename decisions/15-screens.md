@@ -113,6 +113,13 @@ The second batch (2026-10-06):
 
 **Correction (owner, same day): the keywords are single candidates to discuss, not a solution.** The first study (`palette_t0.py`, `palette.html`) blended each module's keywords into one hue on three shells. That was premature, and it is kept only as a record. The candidates are now shown one keyword at a time, each with the lexicon's own named pairs, unblended, on a snippet of its module, by `tools/screens/palette_candidates.py` (`docs/screens/t0/palette-candidates.html` and `.md`). The script refuses to run if a hex is missing from its attributed shard, and designkit measures the ratios. **Open: which candidates the owner keeps, per module.**
 
+**Adapted to the shared ground (owner, same day).** The owner asked to keep the mockups' ground, `#F4F4F2` light and `#17181A` dark, and to adapt every other colour to it with color-optimization-core. `tools/screens/palette_adapt.py` writes `palette-adapted.html` and `.md`. Each lexicon pair runs through designkit's refine search with the ground pinned, on the optimization-engines portfolio. Three spec patches are stated in its docstring:
+- the pinned ground gets a 0.01 width, because the portfolio refuses a zero-width range;
+- the fill envelopes are widened to include each keyword's own colours;
+- roles the keyword does not declare are left out of the fidelity budget.
+
+A minimal repair gives the portfolio a feasible seed, lightness first. Hue moves only where designkit's accent_distinct asks for it, split between primary and accent. Results: **52 of 52** palettes meet every constraint (text ≥ 4.5:1, fills carry a label at 4.5:1 and stand dE ≥ 10 off the ground, drift ≤ dE 15 from the lexicon). Each keyword stays a separate candidate.
+
 **Next, in dependency order:**
 1. Score the navigation pattern: Q2, with Q8 and then Q3.
 2. Then the palette (Q4).
