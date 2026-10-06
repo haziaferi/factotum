@@ -166,6 +166,28 @@ What was measured:
 - **State set** (`states.md`, plus a sweep in `module-palettes.md`). Done, skipped and due soon are drawn in ink, and attention in magenta. The ochre first proposed for due soon took away the clay and sand family that keeps routines apart from blue calendars.
 - **Module palettes** (`module-palettes.md` / `.html`, `tools/screens/module_palettes.py`). 50 palettes pass (Calendar 17, Routines 17, check-in 16); 145 groups are feasible; **12 can be chosen under the owner's caps**. Most feasible groups contain a pink-led or purple-led palette. The sweep table shows how many groups each relaxation would allow. **Open: whether to relax a cap, and the shortlist.**
 
+**Colour roles and module personalities, third slate (2026-10-07).** The owner set where each colour goes (`colour-roles.html`): palette roles for chrome, the user's colour for events, habits, timers, tracker lines and labels, states for done, skipped, due soon and attention. They asked for palettes that give each module a personality instead of only colour.
+
+The owner's answers:
+- Personalities: Calendar **Composed**, Routines **Steady**, check-in **Gentle** (register tone 0.55, 0.45, 0.15).
+- Four levers carry them beyond hue: chroma, lightness spread, the tertiary's relation, the scale's character.
+- Secondary is kept and assigned. No purple primaries; pinks in at most a third of the groups; up to 30 groups, better rather than more.
+- Mockups show no user-chosen colours. Add Today, Day, Month, Planner, Trackers and Charts, and show how check-in holds all of Equipoise on one screen.
+- The attention colour may change.
+
+What was built and measured (`module-personalities.md` / `.html`, `tools/screens/module_personality.py`):
+- **One grammar for the roles.** Primary is what acts now; secondary is the plan (Planner blocks, checklist progress, the regulation suggestion); tertiary is the comparison (Charts' previous period, check-in's comparison line). Changed from the owner's map: Planner blocks scale → secondary, checklist progress primary → secondary, the burnout notice becomes a banner. Calendar uses neither its tertiary nor its scale on any screen.
+- **check-in on one screen.** Check-in, regulation (suggestion, Mixed ask, outcome tap), ledger, sensory log, and steadiness in words. The burnout notice is a banner; the onboarding question is a one-time sheet; Mixed mode and the threshold live in Settings.
+- **Personality is applied, then measured.** All 111 lexicon pairs give hues only. Chroma (.092 / .070 / .057), accent lightness spread (.165 / .103 / .087), tertiary gap (103° / 57° / 36°) and scale (tonal / 42° shift / 4 soft steps) come out in the intended order.
+- **Attention moves to hue 320** (#9b53ab light, #a961b9 dark). At 335 no blush could pass; at 305–320 one blush palette passes and feasible groups go from 39 to 81.
+- **Red edge moved to 38.** Clays at hue 28–34 read as dusty rose; warm containers are capped so a scale never starts on peach.
+- **7 groups (2 with a pink) out of 81 feasible.** Only 3 check-in palettes form any group: at Gentle's low chroma, sages and mists fall under protan/deutan 10 against Routines' greens. Splitting the cool band between Calendar and check-in gains nothing (measured).
+
+**Open:**
+- the Look back sheet: trend and comparison lines kept off the check-in screen by SPEC §3.5;
+- the shortlist;
+- whether Gentle may take a little more chroma to admit more check-in palettes.
+
 **Next, in dependency order:**
 1. Score the navigation pattern: Q2, with Q8 and then Q3.
 2. Then the palette (Q4).
