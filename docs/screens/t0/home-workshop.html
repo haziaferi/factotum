@@ -70,6 +70,11 @@ textarea{width:100%;min-height:150px;font:12px ui-monospace,monospace;background
 .bar div i{font-style:normal;font-size:16px;padding:2px 16px;border-radius:999px}
 .bar div.on{opacity:1;color:var(--fg);font-weight:600}.bar div.on i{background:var(--gt);color:var(--g)}
 .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+/* two columns: each half is a tile, so a line's subtitle wraps to two lines at most and its chevron stays put */
+.two{display:grid;grid-template-columns:1fr 1fr;gap:8px}.two>*{min-width:0}
+.two .line,.two .fold{align-items:flex-start;min-height:62px;padding:10px}
+.two small{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.el .mv.pon{background:var(--fg);color:var(--bg)}
 
 /* ---- launcher (for the widget position) ---- */
 .launcher{width:360px;max-width:100%;height:740px;border-radius:22px;flex:none;padding:40px 16px;display:flex;flex-direction:column;gap:16px;
@@ -132,21 +137,25 @@ const ROUTINES = [
   {t:"Sleep", s:"reading due", b:"Add", blk:"Evening"}];
 
 /* ---- elements: id, label, weekly weight, on by default, module, short description ---- */
+/* Defaults are the owner's choices of 2026-10-06. `pair` marks an element drawn beside the next one shown (two columns). */
 const ELEMENTS = [
   {id:"capture", label:"Capture line (natural language)", w:"35", on:true, mod:"today"},
-  {id:"week", label:"Week strip (7 days, dots for busy days)", w:"7", on:false, mod:"today"},
   {id:"timers", label:"Running timers", w:"7", on:true, mod:"routines"},
   {id:"open", label:"Still open from earlier days", w:"35", on:true, mod:"today"},
   {id:"agenda", label:"Agenda: tasks, events, reminders due today", w:"35", on:true, mod:"today"},
   {id:"routines", label:"Routines due: habits, checklists, readings", w:"7", on:true, mod:"routines"},
-  {id:"ledger", label:"Ledger (once a day)", w:"7", on:false, mod:"checkin"},
-  {id:"checkin", label:"Check-in (position set above)", w:"2", on:true, mod:"checkin", fixed:true},
-  {id:"journal", label:"Today's journal", w:"7", on:true, mod:"pages"},
+  {id:"checkin", label:"Check-in (position set above)", w:"2", on:true, mod:"checkin", fixed:true, pair:true},
+  {id:"ledger", label:"Ledger (once a day)", w:"7", on:true, mod:"checkin"},
+  {id:"journal", label:"Today's journal", w:"7", on:true, mod:"pages", pair:true},
   {id:"pinned", label:"Pinned pages (folded list)", w:"7", on:true, mod:"pages"},
+  {id:"week", label:"Week strip (7 days, dots for busy days)", w:"7", on:false, mod:"today"},
   {id:"tomorrow", label:"Tomorrow, folded", w:"–", on:false, mod:"today"},
 ];
-let state = {layout:"zones", checkin:"line", order:ELEMENTS.map(e=>e.id), on:Object.fromEntries(ELEMENTS.map(e=>[e.id,e.on]))};
-try { const s = JSON.parse(localStorage.getItem("factotum-home-ws")); if (s && s.order && s.order.length === ELEMENTS.length) state = s; } catch (e) {}
+const DEFAULT = () => ({layout:"zones", checkin:"widget", order:ELEMENTS.map(e=>e.id),
+  on:Object.fromEntries(ELEMENTS.map(e=>[e.id,e.on])), pair:Object.fromEntries(ELEMENTS.map(e=>[e.id,!!e.pair]))});
+const STORE = "factotum-home-ws-2";
+let state = DEFAULT();
+try { const s = JSON.parse(localStorage.getItem(STORE)); if (s && s.order && s.order.length === ELEMENTS.length && s.pair) state = s; } catch (e) {}
 const byId = Object.fromEntries(ELEMENTS.map(e=>[e.id,e]));
 const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 
@@ -181,19 +190,35 @@ function dayNow() {
   return zone("today", "Now · morning", now) + `<div class="fold m today"><span class="t">Later today <span class="dim">· ${later}</span></span><span class="go">▸</span></div>`;
 }
 
-function homeBody() {
+/* Elements shown, in order, each with its HTML; an element that draws nothing (check-in off home) is dropped. */
+function shown() {
   const out = []; let dayDone = false;
   for (const id of state.order) {
     if (!state.on[id]) continue;
     if ((id === "agenda" || id === "routines") && state.layout !== "zones") {
-      if (!dayDone && (state.on.agenda || state.on.routines)) out.push(state.layout === "blocks" ? dayBlocks() : dayNow());
+      if (!dayDone) out.push({id:"day", html: state.layout === "blocks" ? dayBlocks() : dayNow()});
       dayDone = true; continue;
     }
-    if (id === "timers" && state.layout === "now") continue; // timers are drawn inside "Now"
-    out.push(PARTS[id]());
+    if (id === "timers" && state.layout === "now") continue; // drawn at the top of "Now" below
+    const html = PARTS[id]();
+    if (html) out.push({id, html});
   }
-  if (state.layout === "now" && state.on.timers) out.unshift(PARTS.timers());
-  return out.join("");
+  if (state.layout === "now" && state.on.timers) out.unshift({id:"timers", html: PARTS.timers()});
+  return out;
+}
+/* Pairs an element marked `pair` with the next one shown, as two columns. Whole zones (agenda, routines, the day) never pair. */
+const PAIRABLE = id => !["agenda", "routines", "day"].includes(id);
+function rowsOf(items) {
+  const rows = [];
+  for (let i = 0; i < items.length; i++) {
+    const a = items[i], b = items[i + 1];
+    if (state.pair[a.id] && b && PAIRABLE(a.id) && PAIRABLE(b.id)) { rows.push({two:[a, b]}); i++; }
+    else rows.push({one:a});
+  }
+  return rows;
+}
+function homeBody() {
+  return rowsOf(shown()).map(r => r.two ? `<div class="two">${r.two[0].html}${r.two[1].html}</div>` : r.one.html).join("");
 }
 const BAR = (on, items) => `<div class="bar">${items.map(([g,l])=>`<div class="${l===on?"on":""} m ${({Today:"today",Routines:"routines","check-in":"checkin",Pages:"pages"})[l]||""}"><i>${g}</i>${l}</div>`).join("")}</div>`;
 const A_BAR = [["◷","Today"],["↻","Routines"],["◎","check-in"],["☰","Pages"],["⊞","All"]];
@@ -203,7 +228,7 @@ function render() {
   const els = document.getElementById("elements");
   els.innerHTML = state.order.map((id,i) => { const e = byId[id];
     return `<div class="el ${state.on[id]?"":"off"}"><label><input type="checkbox" data-id="${id}" ${state.on[id]?"checked":""} ${e.fixed?"disabled":""}> ${esc(e.label)}</label>
-    <span class="w">${e.w}/wk</span><button class="mv" data-up="${i}" ${i===0?"disabled":""}>↑</button><button class="mv" data-dn="${i}" ${i===state.order.length-1?"disabled":""}>↓</button></div>`; }).join("");
+    <span class="w">${e.w}/wk</span><button class="mv ${state.pair[id]?"pon":""}" data-pair="${id}" title="Side by side with the next element" ${PAIRABLE(id)?"":"disabled"}>⇆</button><button class="mv" data-up="${i}" ${i===0?"disabled":""}>↑</button><button class="mv" data-dn="${i}" ${i===state.order.length-1?"disabled":""}>↓</button></div>`; }).join("");
   const pv = [phone("Today · Mon 5 Oct", homeBody(), BAR("Today", A_BAR))];
   if (state.checkin === "widget") pv.push(`<div><div class="launcher"><div style="font-size:42px;font-weight:300">10:24</div>
     <div class="wdg"><h5>Factotum</h5><div style="display:flex;justify-content:space-between;align-items:center;font-size:15px">How are things?<span class="faces"><span>›</span></span></div></div>
@@ -215,19 +240,21 @@ function render() {
   document.getElementById("previews").innerHTML = pv.join("");
   document.querySelectorAll("input[name=layout]").forEach(r => r.checked = r.value === state.layout);
   document.querySelectorAll("input[name=checkin]").forEach(r => r.checked = r.value === state.checkin);
-  const on = state.order.filter(id => state.on[id]).map(id => byId[id].label);
+  const name = it => it.id === "day" ? "Agenda and routines (" + state.layout + ")" : byId[it.id].label;
+  const on = rowsOf(shown()).map(r => r.two ? name(r.two[0]) + "  |  " + name(r.two[1]) + "   (two columns)" : name(r.one));
   const off = state.order.filter(id => !state.on[id]).map(id => byId[id].label);
   document.getElementById("summary").value =
     `Home workshop choices\nDay layout: ${document.querySelector("input[name=layout]:checked").parentElement.querySelector("b").textContent}\n` +
     `Check-in: ${document.querySelector("input[name=checkin]:checked").parentElement.querySelector("b").textContent}\n` +
     `On home, top to bottom:\n${on.map((l,i)=>`  ${i+1}. ${l}`).join("\n")}\nLeft off:\n${off.map(l=>"  - "+l).join("\n") || "  (none)"}`;
-  try { localStorage.setItem("factotum-home-ws", JSON.stringify(state)); } catch (e) {}
+  try { localStorage.setItem(STORE, JSON.stringify(state)); } catch (e) {}
 }
 
 document.getElementById("elements").addEventListener("click", ev => {
   const t = ev.target, o = state.order;
   if (t.dataset.up !== undefined) { const i = +t.dataset.up; [o[i-1], o[i]] = [o[i], o[i-1]]; render(); }
   if (t.dataset.dn !== undefined) { const i = +t.dataset.dn; [o[i+1], o[i]] = [o[i], o[i+1]]; render(); }
+  if (t.dataset.pair !== undefined) { state.pair[t.dataset.pair] = !state.pair[t.dataset.pair]; render(); }
 });
 document.getElementById("elements").addEventListener("change", ev => { if (ev.target.dataset.id) { state.on[ev.target.dataset.id] = ev.target.checked; render(); } });
 document.querySelectorAll("input[name=layout]").forEach(r => r.addEventListener("change", () => { state.layout = r.value; render(); }));

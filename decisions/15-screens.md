@@ -78,6 +78,22 @@ Prompts that arrive (alarms, clashes, outcome questions) cost navigation nothing
 - **P7 inside ⊞ trades reach for calm.** The module grid is the least cluttered but reaches 25 screens in two taps, not 29. Folders (3 shortcuts per module) sit between. **P7 as a tab** costs 59 more steps a week than A+ and reaches only 7 screens in two taps: P7's back and forth, measured.
 - **The top row** trades taps for elements. Trimming it to 3 plus More saves one element and costs half a tap per sibling switch.
 
+**Home screen, workshopped (2026-10-06, `docs/screens/t0/home-workshop.html`).** The owner chose **today's plan, mixed**: one view of the day across modules. Its terms:
+- **Today** is the home screen.
+- **Agenda** is one zone of it.
+- **Day** is a calendar view, beside Week and Month. So Today's top row is Day · Week · Month · Planner, never "Agenda".
+
+The owner's layout, top to bottom (separate zones, not one timeline by time block):
+1. the capture line, in natural language;
+2. running timers;
+3. still open from earlier days, folded and neutral;
+4. the agenda;
+5. routines due;
+6. **two columns:** check-in beside the ledger;
+7. **two columns:** today's journal beside pinned pages (a folded list).
+
+Check-in is **a quiet line on home plus a phone widget** that opens it. Left off home: the week strip, and tomorrow folded.
+
 **Next, in dependency order:**
 1. Score the navigation pattern: Q2, with Q8 and then Q3.
 2. Then the palette (Q4).
