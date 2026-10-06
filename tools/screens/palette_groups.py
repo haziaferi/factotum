@@ -395,7 +395,8 @@ h1{font-size:21px;margin:0 0 4px}h2{font-size:16px;margin:0}p{max-width:90ch}.di
 .two{display:grid;grid-template-columns:1fr 1fr;gap:6px}.tile{border-radius:9px;padding:7px 8px;min-height:40px}
 .timer{align-self:flex-start;border-radius:999px;padding:2px 8px;display:flex;gap:5px;align-items:center}
 .bar{height:44px;display:flex;background:var(--zone2)}.bar div{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:9px;color:var(--dim);gap:1px}
-.bar i{font-style:normal;font-size:12px;padding:1px 10px;border-radius:999px}.bar .on{color:var(--ink);font-weight:600}
+.bar i{font-style:normal;font-size:12px;padding:1px 10px;border-radius:999px;color:var(--ink)}.bar .on{color:var(--ink);font-weight:600}.bar .on i{background:var(--zone)}
+.ico{color:var(--ink);opacity:.7}
 """
 
 
@@ -427,12 +428,13 @@ def group_html(i, c):
             '<div class="z"><h4><span class="dot" style="background:var(--rou-a)"></span>Routines</h4>' +
             "".join('<div class="row"><span class="sq" style="border:1.4px solid var(--rou-a)"></span><span class="t">%s</span><span class="pill" style="background:var(--rou-t)">%s</span></div>' % (a, b)
                     for a, b in (("Walk", "Log"), ("Water · 3 of 8", "Log"), ("Morning routine", "Open"))) + '</div>'
-            '<div class="two"><div class="tile" style="background:var(--chk-t)">How are things? <span style="color:var(--chk-a)">›</span></div>'
-            '<div class="tile" style="background:var(--chk-t)">Today\'s ledger <span style="color:var(--chk-a)">›</span></div>'
-            '<div class="tile" style="background:var(--pg-t)">Journal <span style="color:var(--pg-a)">›</span></div>'
+            # Owner, 2026-10-06: every icon one neutral colour for now, and the Journal card grey-ish off-white.
+            '<div class="two"><div class="tile" style="background:var(--chk-t)">How are things? <span class="ico">›</span></div>'
+            '<div class="tile" style="background:var(--chk-t)">Today\'s ledger <span class="ico">›</span></div>'
+            '<div class="tile" style="background:var(--zone2)">Journal <span class="ico">›</span></div>'
             '<div class="tile" style="background:var(--zone)">Pinned pages · 4</div></div></div>'
-            '<div class="bar"><div class="on"><i style="background:var(--cal-t);color:var(--cal-a)">◷</i>Today</div><div><i>▦</i>Week</div>'
-            '<div><i>✱</i>Hub</div><div><i style="color:var(--rou-a)">↻</i>Routines</div><div><i style="color:var(--pg-a)">☰</i>Pages</div></div></div>')
+            '<div class="bar"><div class="on"><i>◷</i>Today</div><div><i>▦</i>Week</div>'
+            '<div><i>✱</i>Hub</div><div><i>↻</i>Routines</div><div><i>☰</i>Pages</div></div></div>')
     return '<section class="grp" style="%s"><div class="info"><h2>Group %d</h2><div class="mods">%s</div><div class="figs">%s</div></div>%s</section>' % (
         style, i, mods, figs, home)
 
