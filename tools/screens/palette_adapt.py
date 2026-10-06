@@ -210,6 +210,8 @@ def write(data, rows):
             module, kw, name.split(" (")[0], mode, t, p, sep, worst[0], worst[1], fit, ", ".join(violated) or "all met", started or ""))
     with open(OUT_MD, "w", encoding="utf-8", newline="\n") as fh:
         fh.write("\n".join(out) + "\n")
+    with open(OUT_HTML.replace(".html", ".json"), "w", encoding="utf-8", newline="\n") as fh:
+        json.dump(data, fh, ensure_ascii=False, indent=1)  # read by palette_groups.py
     with open(OUT_HTML.replace(".html", ".template.html"), encoding="utf-8") as fh:
         page = fh.read()
     with open(OUT_HTML, "w", encoding="utf-8", newline="\n") as fh:

@@ -120,6 +120,16 @@ The second batch (2026-10-06):
 
 A minimal repair gives the portfolio a feasible seed, lightness first. Hue moves only where designkit's accent_distinct asks for it, split between primary and accent. Results: **52 of 52** palettes meet every constraint (text ≥ 4.5:1, fills carry a label at 4.5:1 and stand dE ≥ 10 off the ground, drift ≤ dE 15 from the lexicon). Each keyword stays a separate candidate.
 
+**Compatible groups (owner, same day, Pages left out).** `tools/screens/palette_groups.py` scores all 180 groups of one adapted pair per module, writing `palette-groups.html` and `.md`. Each module is identified by its palette's primary, judged on the shared ground in both modes.
+- **The floor:** CIEDE2000 ≥ 10 between the three module colours, with normal vision and under simulated deuteranopia, protanopia and tritanopia (color-optimization-core's floor, calibrated on Okabe–Ito). **58 groups pass.**
+- **The ranking:** designkit's harmony-template fit, the balance of the three against the ground, and the colour-blind margin. **5 groups are on the front.** Four of them pair ★Wabi Sabi routines with ★Ming or Swiss calendars. The fifth is Swiss · Health Linen · Serene Still Water, the evenest of the five.
+- **How easily each candidate combines:**
+  - Calendar: Ming 18 of 36 groups.
+  - Routines: Wabi Sabi 14 of 20 for either pair. Health Daylight and Craft Sage & Clay manage only 1 of 20.
+  - Check-in: Celadon 20 of 45.
+
+**Open: the owner's pick among the groups.**
+
 **Next, in dependency order:**
 1. Score the navigation pattern: Q2, with Q8 and then Q3.
 2. Then the palette (Q4).
