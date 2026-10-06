@@ -97,8 +97,9 @@ Check-in is **a quiet line on home plus a phone widget** that opens it. Left off
 The second batch (2026-10-06):
 - **Done or skipped items** fold into "Done today · n" at the end of their zone.
 - **Edit home** lets the owner reorder, hide and pair elements (per device).
-- **A morning plan and an evening wrap-up** are opt-in choices in Edit home, off by default. Both are mocked in the workshop's section 3; the hours are placeholders.
-- **Windows:** the owner asked for mockups of two options (section 4): the same home in three columns, or home as a narrow column beside today's journal. **Open.**
+- **A morning plan and an evening wrap-up** are opt-in choices in Edit home, off by default. **The owner sets their hours in Edit home.**
+- **Windows opens on home beside the last page opened** (owner's choice; it varies option 2, which put today's journal beside home). The phone's home, as set, is a narrow column on the left. The last page opened on either device sits beside it, so the desktop resumes where the owner was. The journal tile stays on home. Three columns was not chosen.
+- **The default home stays as set above.**
 
 **Next, in dependency order:**
 1. Score the navigation pattern: Q2, with Q8 and then Q3.

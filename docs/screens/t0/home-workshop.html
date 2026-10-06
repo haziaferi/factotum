@@ -289,7 +289,7 @@ function render() {
     `Home workshop choices\nDay layout: ${document.querySelector("input[name=layout]:checked").parentElement.querySelector("b").textContent}\n` +
     `Check-in: ${document.querySelector("input[name=checkin]:checked").parentElement.querySelector("b").textContent}\n` +
     `On home, top to bottom:\n${on.map((l,i)=>`  ${i+1}. ${l}`).join("\n")}\nLeft off:\n${off.map(l=>"  - "+l).join("\n") || "  (none)"}`;
-  renderDaytime();
+  renderDaytime(); renderWindows();
   try { localStorage.setItem(STORE, JSON.stringify(state)); } catch (e) {}
 }
 
@@ -329,8 +329,9 @@ function editHome() {
     state.order.filter(id => !state.on[id]).map(id => `<div class="erow off"><span class="dim">≡</span><span class="t">${esc(byId[id].label.split(" (")[0])}</span>${sw(false)}</div>`).join("");
   return phone("Edit home", `<div class="zone m today"><h4><span class="dot"></span>On home, top to bottom</h4>${list}</div>
     <div class="zone m today"><h4><span class="dot"></span>Through the day</h4>
-      <div class="erow"><span class="t">Morning plan <small class="dim">until 10:00</small></span>${sw(false)}</div>
-      <div class="erow"><span class="t">Evening wrap-up <small class="dim">from 20:00</small></span>${sw(false)}</div></div>
+      <div class="erow"><span class="t">Morning plan</span><span class="chip dim">until 10:00 ▾</span>${sw(false)}</div>
+      <div class="erow"><span class="t">Evening wrap-up</span><span class="chip dim">from 20:00 ▾</span>${sw(false)}</div>
+      <p class="note">You set the hours here (owner, 2026-10-06).</p></div>
     <p class="note">Drag ≡ to reorder, ⇆ to put two side by side. Changes apply to this device's home.</p>`, BAR("Today", A_BAR));
 }
 function morning() {
@@ -368,22 +369,22 @@ function win1() {
 }
 function win2() {
   return desk(`<div class="dcols2">
-    <div class="dcol narrow">${PARTS.capture()}${PARTS.timers()}${PARTS.open()}${PARTS.agenda()}${PARTS.routines()}<div class="two">${PARTS.checkin()}${PARTS.ledger()}</div>${PARTS.pinned()}</div>
-    <div class="page m pages"><div class="crumb dim">Journal › Mon 5 Oct</div><h3>Mon 5 Oct</h3>
-      <p>Slept badly, but the walk helped. The dentist was quick.</p><p class="dim">Type / for blocks…</p>
-      <div class="zone m today" style="margin-top:14px"><h4><span class="dot"></span>Linked today</h4><div class="it"><span class="t">Dentist <small class="dim">event · 09:00</small></span></div></div></div></div>`);
+    <div class="dcol narrow">${homeBody()}</div>
+    <div class="page m pages"><div class="crumb dim">Pages › Garden plan · last opened yesterday on the phone</div><h3>Garden plan</h3>
+      <p>Raised beds go along the south fence; the shed side stays for compost.</p><p class="dim">Type / for blocks…</p>
+      <div class="zone m pages" style="margin-top:14px"><h4><span class="dot"></span>Seeds (database)</h4>
+        <div class="it"><span class="t">Tomatoes <small class="dim">sow in March</small></span></div><div class="it"><span class="t">Basil <small class="dim">sow in April</small></span></div></div></div></div>`);
 }
 function renderWindows() {
   document.getElementById("windows").innerHTML =
-    `<h3>Option 1. The same home, in columns</h3>${win1()}<p class="cap2" style="max-width:none">Three columns. The left holds capture, still open and the agenda. The middle holds timers and routines. The right holds check-in, the ledger, the journal and pinned pages, unfolded because there is room.</p>` +
-    `<h3>Option 2. Home beside today's journal</h3>${win2()}<p class="cap2" style="max-width:none">The phone's home as a narrow column on the left, with today's journal page open beside it, ready to write in (as Logseq opens). The journal tile leaves home because the page itself is open.</p>`;
+    `<h3>Chosen (owner, 2026-10-06): home beside the last page opened</h3>${win2()}<p class="cap2" style="max-width:none">Your phone home, exactly as set in the builder, as a narrow column on the left. Beside it is the last page you opened, on either device, so the desktop resumes where you were. The journal tile stays on home because the open page is not always the journal.</p>` +
+    `<h3>Not chosen: the same home, in columns</h3>${win1()}<p class="cap2" style="max-width:none">Three columns. The left holds capture, still open and the agenda. The middle holds timers and routines. The right holds check-in, the ledger, the journal and pinned pages, unfolded because there is room.</p>`;
 }
 
 function theme(dark) { document.documentElement.dataset.theme = dark ? "dark" : "light"; }
 let dark = matchMedia("(prefers-color-scheme: dark)").matches; theme(dark);
 document.getElementById("themeBtn").addEventListener("click", () => { dark = !dark; theme(dark); });
 render();
-renderWindows();
 </script>
 </body>
 </html>
