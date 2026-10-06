@@ -50,6 +50,10 @@ SCREENS = [
     ("app lock", 0.25, "assumed", "system", 2), ("about", 0.25, "assumed", "system", 1),
 ]
 
+# Steps added when a screen's cheapest route works from one place only (an ASSUMPTION, not a measurement;
+# nav_home.py reports how its results move with it).
+NOT_ANYWHERE = 0.5
+
 AREAS = ["capture", "search", "today", "due", "calendar", "checkin", "journal", "pages", "review", "manage", "system"]
 
 # area -> (cost to reach, from anywhere?); None = no browsable path (search only).
@@ -210,8 +214,21 @@ def steps_for(cand, name, area, depth):
             options.append((cost + 1, bool(anywhere)))
     if not options:
         return cand["areas"]["search"][0] + 1, True, True
-    steps, anywhere = min(options, key=lambda o: o[0] + (0 if o[1] else 0.5))
+    steps, anywhere = min(options, key=lambda o: o[0] + (0 if o[1] else NOT_ANYWHERE))
     return steps, anywhere, False
+
+
+def reach_anywhere(cand, name, area, depth):
+    """Fewest steps to a screen by a route that works from anywhere (None if there is none). Kept apart from
+    steps_for: a cheaper route that works only from one screen must not hide a 2-step route from anywhere."""
+    best = None
+    path = cand["areas"][area]
+    if path is not None and path[1]:
+        best = path[0] + depth
+    for cost, anywhere, names in cand.get("hubs", []):
+        if anywhere and name in names and (best is None or cost + 1 < best):
+            best = cost + 1
+    return best
 
 
 def evaluate(cand):
@@ -222,11 +239,12 @@ def evaluate(cand):
         if only_search:
             search_only.append(name)
         steps = max(steps, 0)
-        exp = steps + (0 if anywhere else 0.5)
+        exp = steps + (0 if anywhere else NOT_ANYWHERE)
         total += w * exp
         if w <= 1:
             tail += w * exp
-        if not only_search and anywhere and steps <= 2:
+        far = reach_anywhere(cand, name, area, depth)
+        if far is not None and far <= 2:
             reach2 += 1
         depths.append((steps, name))
     # Switching module: from a screen inside one module to the start of another. An area reachable from

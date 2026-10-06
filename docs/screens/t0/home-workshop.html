@@ -98,6 +98,14 @@ textarea{width:100%;min-height:150px;font:12px ui-monospace,monospace;background
 .dcol{display:flex;flex-direction:column;gap:8px;min-width:0}.dcol.narrow{overflow-y:auto;scrollbar-width:thin}
 .page{background:var(--zone);border-radius:12px;padding:16px 28px}.page h3{font-size:22px;margin:4px 0 10px}.crumb{font-size:12px}
 .wrap{overflow-x:auto;padding-bottom:6px}
+/* section 5 */
+.scrim{position:absolute;inset:0;background:var(--scrim)}
+.sheet{position:absolute;left:0;right:0;bottom:62px;top:96px;background:var(--bg);border-radius:18px 18px 0 0;padding:12px;overflow:hidden;box-shadow:0 -8px 28px rgba(0,0,0,.18)}
+.tiles{display:flex;flex-wrap:wrap;gap:5px;padding:2px 0 4px}.tiles span{border-radius:8px;padding:5px 8px;font-size:12px;background:var(--zone2)}
+.card2{background:var(--gt);margin:6px 0;padding:6px 8px}.card2 .tiles span{background:var(--bg)}
+.fold2{display:grid;grid-template-columns:1fr 1fr;gap:6px}.fold2 .card2{margin:0}
+.tabs3{display:flex;gap:6px}.tabs3 span{font-size:12px;padding:3px 10px;border-radius:999px;color:var(--dim)}.tabs3 .on{background:var(--gt);color:var(--fg);font-weight:600}
+table{border-collapse:collapse;font-size:13px;margin:6px 0 12px}td,th{padding:4px 10px;text-align:left;border-top:1px solid var(--line)}th{color:var(--dim);font-weight:600}
 
 /* ---- launcher (for the widget position) ---- */
 .launcher{width:360px;max-width:100%;height:740px;border-radius:22px;flex:none;padding:40px 16px;display:flex;flex-direction:column;gap:16px;
@@ -160,6 +168,9 @@ When it looks right, copy the summary at the bottom and paste it back to me.</p>
 <p>Options 1 and 2, as asked. Both use the module rail on the left (W3's rail; whether Windows keeps W3 is still the navigation choice) and the same elements as the phone's home.
 A window of 1100 × 660 is drawn; scroll sideways on a narrow screen.</p>
 <div id="windows"></div>
+
+<h2>5. The bar and ⊞ around this home</h2>
+<div id="navhome"></div>
 
 <script>
 /* ---- sample data ---- */
@@ -289,7 +300,7 @@ function render() {
     `Home workshop choices\nDay layout: ${document.querySelector("input[name=layout]:checked").parentElement.querySelector("b").textContent}\n` +
     `Check-in: ${document.querySelector("input[name=checkin]:checked").parentElement.querySelector("b").textContent}\n` +
     `On home, top to bottom:\n${on.map((l,i)=>`  ${i+1}. ${l}`).join("\n")}\nLeft off:\n${off.map(l=>"  - "+l).join("\n") || "  (none)"}`;
-  renderDaytime(); renderWindows();
+  renderDaytime(); renderWindows(); renderNavHome();
   try { localStorage.setItem(STORE, JSON.stringify(state)); } catch (e) {}
 }
 
@@ -379,6 +390,59 @@ function renderWindows() {
   document.getElementById("windows").innerHTML =
     `<h3>Chosen (owner, 2026-10-06): home beside the last page opened</h3>${win2()}<p class="cap2" style="max-width:none">Your phone home, exactly as set in the builder, as a narrow column on the left. Beside it is the last page you opened, on either device, so the desktop resumes where you were. The journal tile stays on home because the open page is not always the journal.</p>` +
     `<h3>Not chosen: the same home, in columns</h3>${win1()}<p class="cap2" style="max-width:none">Three columns. The left holds capture, still open and the agenda. The middle holds timers and routines. The right holds check-in, the ledger, the journal and pinned pages, unfolded because there is room.</p>`;
+}
+
+/* ---- section 5: navigation around this home. Numbers come from tools/screens/nav_home.py, injected below. ---- */
+/* NAV_HOME */ const NAV_HOME = {"best": {"flat": {"pins": ["Pages (module)", "Week (module)", "ledger (masking)"], "cost": 276.0, "reach2": 30, "named1": 2, "find": 6.0, "clutter": 0.051413288288288284}, "cards": {"pins": ["Pages (module)", "Week (module)", "ledger (masking)"], "cost": 276.0, "reach2": 30, "named1": 2, "find": 4.0, "clutter": 0.0681081081081081}, "folders": {"pins": ["Routines (module)", "Pages (module)", "Week (module)"], "cost": 276.5, "reach2": 30, "named1": 1, "find": 4.9375, "clutter": 0.05463963963963964}, "grid": {"pins": ["Routines (module)", "Pages (module)", "Week (module)"], "cost": 279.25, "reach2": 24, "named1": 1, "find": 5.0, "clutter": 0.037179054054054056}}, "aplus": {"pins": ["Routines (module)", "check-in (module)", "Pages (module)"], "cost": 281.0, "reach2": 30, "named1": 1, "find": 6.0, "clutter": 0.051413288288288284}}; /* END NAV_HOME */
+const H_BAR = [["◷","Today"],["▦","Week"],["↻","Routines"],["☰","Pages"],["⊞","All"]];
+const BAR_MOD = {Today:"today", Week:"today", Routines:"routines", "check-in":"checkin", Pages:"pages"};
+const BARH = on => `<div class="bar">${H_BAR.map(([g,l])=>`<div class="${l===on?"on":""} m ${BAR_MOD[l]||""}"><i>${g}</i>${l}</div>`).join("")}</div>`;
+const SHEET_GROUPS = [["Week","▦","today",["Day","Week","Month","Planner"],["Day","Week","Planner"]],
+  ["Routines","↻","routines",["Habits","Trackers","Activities","Checklists","Charts","Goals"],["Habits","Trackers","Charts"]],
+  ["check-in","◎","checkin",["check-in","Ledger","Sensory","Trend"],["Ledger","check-in","Sensory"]],
+  ["Pages","☰","pages",["Journal","Tree","Templates","Road Map"],["Journal","Tree","Templates"]],
+  ["App","⚙","",["Labels","Time blocks","Calendars","Settings","Trash","About"],["Settings","Trash","Labels"]]];
+const chips = list => `<div class="tiles">${list.map(t=>`<span>${t}</span>`).join("")}</div>`;
+function sheet(form) {
+  const head = `<div class="cap" style="margin-bottom:6px"><span>+</span><span>Add… <b>water plants every 3 days</b></span></div><div class="note">Pinned and recent</div>${chips(["Journal","Ledger","Trackers","Garden plan"])}`;
+  let body;
+  if (form === "flat") body = SHEET_GROUPS.map(([m,,, all]) => `<div class="note" style="margin-top:6px">${m}</div>${chips(all)}`).join("");
+  else if (form === "cards") body = SHEET_GROUPS.map(([m,g,c,all]) => `<div class="zone m ${c} card2"><h4><span class="dot"></span>${g} ${m}<span class="lk">›</span></h4>${chips(all)}</div>`).join("");
+  else body = `<div class="fold2">${SHEET_GROUPS.map(([m,g,c,all,top]) => `<div class="zone m ${c} card2"><h4><span class="dot"></span>${g} ${m}<span class="lk">${all.length} ›</span></h4>${chips(top)}</div>`).join("")}</div>`;
+  return `<div class="sheet">${head}${body}</div>`;
+}
+function phoneOver(overlay, on) {
+  return `<div class="phone m today"><div class="hdr"><b>Today · Mon 5 Oct</b><span class="ic">⌕</span><span class="ic">◐</span></div><div class="body">${homeBody()}</div>${BARH(on)}${overlay ? '<div class="scrim"></div>' + overlay : ""}</div>`;
+}
+function weekScreen() {
+  const days = ["Mon 5","Tue 6","Wed 7","Thu 8","Fri 9"];
+  const ev = {"Mon 5":["09:00 Dentist","15:00 Call the bank"],"Tue 6":["Bins out"],"Thu 8":["10:00 Team call","Gym"]};
+  return `<div class="phone m today"><div class="hdr"><b>Week · 5–11 Oct</b><span class="ic">⌕</span><span class="ic">◐</span></div><div class="body">
+    <div class="tabs3"><span>Day</span><span class="on">Week</span><span>Month</span><span>Planner</span></div>
+    ${days.map(d=>`<div class="zone m today"><h4><span class="dot"></span>${d}</h4>${(ev[d]||[]).map(x=>`<div class="it"><span class="t">${x}</span></div>`).join("") || '<div class="note">Nothing planned</div>'}</div>`).join("")}
+    </div>${BARH("Week")}</div>`;
+}
+function renderNavHome() {
+  const el = document.getElementById("navhome");
+  if (!NAV_HOME) { el.innerHTML = '<p class="dim">Run <code>NAV_HOME_INJECT=1 python tools/screens/nav_home.py</code> to fill this section.</p>'; return; }
+  const b = NAV_HOME.best, f = x => x.toFixed(2), slots = r => r.pins.map(p => p.replace(" (module)", "")).join(" · ");
+  el.innerHTML = `<p>Every bar of Today, three slots and ⊞ was scored against this home, with all four forms of ⊞: 1,144 combinations (<code>nav-home.md</code>).</p>
+    <ul>
+    <li><b>Check-in leaves the bar.</b> Home and the widget carry it.</li>
+    <li><b>Pages and Week are in every top result.</b> Week on the bar means home needs no Day · Week · Month · Planner row, so there is one less row on home.</li>
+    <li><b>The third slot is contested.</b> It is Routines (${slots(b.folders)}: ${b.folders.cost.toFixed(1)} steps a week) or a ledger pin (${slots(b.flat)}: ${b.flat.cost.toFixed(1)}). The order swaps with how much "reachable only from home" is assumed to cost. Drawn here: <b>Routines by default, and the slot can be pinned</b>, so the ledger can go there instead.</li>
+    <li>A+ with this home costs ${NAV_HOME.aplus.cost.toFixed(1)} a week. Its check-in slot is now spent on something home already does.</li>
+    </ul>
+    <p>⊞ costs the same steps in all three forms below; they differ in how quickly a feature is found and how busy the sheet is:</p>
+    <table><tr><th>⊞ form</th><th>Items scanned to find a feature</th><th>Clutter of the ⊞ screen (measured)</th></tr>
+    ${["flat","cards","folders"].map(s=>`<tr><td>${s}</td><td>${f(b[s].find)}</td><td>${b[s].clutter.toFixed(3)}</td></tr>`).join("")}</table>
+    <div class="three">${[
+      [phoneOver("", "Today"), "Home with the bar Today · Week · Routines · Pages · ⊞. The third slot (Routines) can be pinned to something else."],
+      [weekScreen(), "Week: Day · Week · Month · Planner live here now, not on home."],
+      [phoneOver(sheet("flat"), "All"), "⊞, flat: every feature by name under its module. The least to draw; the slowest to scan."],
+      [phoneOver(sheet("cards"), "All"), "⊞, cards: each module a card in its hue, every feature shown. The quickest to scan; the busiest."],
+      [phoneOver(sheet("folders"), "All"), "⊞, folders: each module a card with its three most used features and a count; the rest are one tap further."],
+    ].map(([p,c]) => `<div>${p}<p class="cap2">${c}</p></div>`).join("")}</div>`;
 }
 
 function theme(dark) { document.documentElement.dataset.theme = dark ? "dark" : "light"; }
