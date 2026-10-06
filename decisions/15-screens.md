@@ -94,6 +94,12 @@ The owner's layout, top to bottom (separate zones, not one timeline by time bloc
 
 Check-in is **a quiet line on home plus a phone widget** that opens it. Left off home: the week strip, and tomorrow folded.
 
+The second batch (2026-10-06):
+- **Done or skipped items** fold into "Done today · n" at the end of their zone.
+- **Edit home** lets the owner reorder, hide and pair elements (per device).
+- **A morning plan and an evening wrap-up** are opt-in choices in Edit home, off by default. Both are mocked in the workshop's section 3; the hours are placeholders.
+- **Windows:** the owner asked for mockups of two options (section 4): the same home in three columns, or home as a narrow column beside today's journal. **Open.**
+
 **Next, in dependency order:**
 1. Score the navigation pattern: Q2, with Q8 and then Q3.
 2. Then the palette (Q4).
