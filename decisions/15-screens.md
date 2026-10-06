@@ -101,6 +101,10 @@ The second batch (2026-10-06):
 - **Windows opens on home beside the last page opened** (owner's choice; it varies option 2, which put today's journal beside home). The phone's home, as set, is a narrow column on the left. The last page opened on either device sits beside it, so the desktop resumes where the owner was. The journal tile stays on home. Three columns was not chosen.
 - **The default home stays as set above.**
 
+**Navigation around this home (2026-10-06, `tools/screens/nav_home.py`, `docs/screens/t0/nav-home.md`, the workshop's sections 5 and 6).**
+- **The re-score.** Check-in leaves the bar, because home and the widget carry it. Pages and Week are in every top result. The remaining slot is Routines or a ledger pin, depending on the assumed `NOT_ANYWHERE` penalty; it is drawn as Routines and can be pinned. **Open: that slot, and the form of the Hub sheet (flat, cards or folders).**
+- **The owner's renaming.** "All" is renamed **Hub** and sits at the **centre** of the bar: Today · Week · Hub · Routines · Pages. Position costs no steps in the model, so no score changes. **Open: the symbol and the slot style.** Five symbols and three styles are drawn. Proposed: hub and spokes, on a tonal circle.
+
 **Next, in dependency order:**
 1. Score the navigation pattern: Q2, with Q8 and then Q3.
 2. Then the palette (Q4).
