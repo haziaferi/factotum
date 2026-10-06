@@ -105,6 +105,14 @@ The second batch (2026-10-06):
 - **The re-score.** Check-in leaves the bar, because home and the widget carry it. Pages and Week are in every top result. The remaining slot is Routines or a ledger pin, depending on the assumed `NOT_ANYWHERE` penalty; it is drawn as Routines and can be pinned. **Open: that slot, and the form of the Hub sheet (flat, cards or folders).**
 - **The owner's renaming.** "All" is renamed **Hub** and sits at the **centre** of the bar: Today · Week · Hub · Routines · Pages. Position costs no steps in the model, so no score changes. **Open: the symbol and the slot style.** Five symbols and three styles are drawn. Proposed: hub and spokes, on a tonal circle.
 
+**Palette (Q4), started 2026-10-06.** The owner put it before the choice between cards and folders, and asked for keywords from visual-craft's design lexicon: up to 4 per module, at least half picked with the oblique skill. `tools/screens/palette_t0.py` writes `docs/screens/t0/palette.md` and `palette.html`. ★ marks the oblique picks:
+- **Calendar:** Swiss, ★Civic/Government, ★Ming Blue-and-White. Hue from Ming cobalt.
+- **Routines:** Naturecore, Health/Wellbeing, ★Wabi Sabi, ★Craft/Artisan. Hue from Naturecore moss.
+- **Check-in:** Serene/Calm, ★Introverted-rainy, ★Goryeo Celadon. Hue from bisaek.
+- **Pages:** Editorial, Light/Dark Academia, ★Medieval, ★Developer Tools. Hue from Medieval gold leaf.
+
+Each module keeps its hue; lightness and chroma are shared, as nav-glance asked. There are three shells: Porcelain, Linen and Rain, each in light, dark and OLED. All 135 pairings clear their floors (designkit). Under simulated red-green colour blindness, routines and pages come close (CIEDE2000 2.5–5.1). Under simulated blue-yellow colour blindness, calendar and check-in do (1.8–4.4). Icons and names carry the module anyway. **Open: the keywords, the shell, and whether to re-separate those pairs.**
+
 **Next, in dependency order:**
 1. Score the navigation pattern: Q2, with Q8 and then Q3.
 2. Then the palette (Q4).
