@@ -111,7 +111,7 @@ The second batch (2026-10-06):
 - **Check-in:** Serene/Calm, ★Introverted-rainy, ★Goryeo Celadon. Hue from bisaek.
 - **Pages:** Editorial, Light/Dark Academia, ★Medieval, ★Developer Tools. Hue from Medieval gold leaf.
 
-Each module keeps its hue; lightness and chroma are shared, as nav-glance asked. There are three shells: Porcelain, Linen and Rain, each in light, dark and OLED. All 135 pairings clear their floors (designkit). Under simulated red-green colour blindness, routines and pages come close (CIEDE2000 2.5–5.1). Under simulated blue-yellow colour blindness, calendar and check-in do (1.8–4.4). Icons and names carry the module anyway. **Open: the keywords, the shell, and whether to re-separate those pairs.**
+**Correction (owner, same day): the keywords are single candidates to discuss, not a solution.** The first study (`palette_t0.py`, `palette.html`) blended each module's keywords into one hue on three shells. That was premature, and it is kept only as a record. The candidates are now shown one keyword at a time, each with the lexicon's own named pairs, unblended, on a snippet of its module, by `tools/screens/palette_candidates.py` (`docs/screens/t0/palette-candidates.html` and `.md`). The script refuses to run if a hex is missing from its attributed shard, and designkit measures the ratios. **Open: which candidates the owner keeps, per module.**
 
 **Next, in dependency order:**
 1. Score the navigation pattern: Q2, with Q8 and then Q3.
