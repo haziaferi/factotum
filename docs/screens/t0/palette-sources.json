@@ -1,0 +1,2186 @@
+{
+ "source": "visual-craft references/lexicon (creative-design-suite)",
+ "entries": [
+  {
+   "entry": "Academic / Research",
+   "shard": "contexts.md",
+   "pairs": [
+    {
+     "name": "Burgundy",
+     "character": "near-complementary leaning monochromatic, hues clustered 345–354° (single institutional-red family), oxblood/cranberry o",
+     "light": {
+      "primary": "#6D0D25",
+      "secondary": "#B02836",
+      "accent": "#E9E1E1",
+      "surface": "#FBFBFB",
+      "text": "#3F1F1F"
+     },
+     "dark": {
+      "primary": "#6D0D25",
+      "secondary": "#B02836",
+      "accent": "#DEB2B9",
+      "surface": "#3F1F1F",
+      "text": "#FBFBFB"
+     }
+    },
+    {
+     "name": "Institutional Blue",
+     "character": "monochromatic H≈210°, built from this entry's own named example `#003366` via color-optimization-core (Generative path)",
+     "light": {
+      "primary": "#003366",
+      "secondary": "#2E669E",
+      "accent": "#E0E6EB",
+      "surface": "#FBFBFB",
+      "text": "#0E2439"
+     },
+     "dark": {
+      "primary": "#6494C4",
+      "lightened from the light-mode primary since": "#003366",
+      "secondary": "#366BA1",
+      "accent": "#E0E6EB",
+      "surface": "#142434",
+      "text": "#FBFBFB"
+     }
+    }
+   ]
+  },
+  {
+   "entry": "Scholastic",
+   "shard": "contexts.md",
+   "pairs": [
+    {
+     "name": "Navy Scholastic",
+     "character": "monochromatic ink-and-library blue, H 223–231°",
+     "light": {
+      "primary": "#122964",
+      "secondary": "#6571B4",
+      "accent": "#C4D4E0",
+      "surface": "#EEEBEF",
+      "text": "#1C2532"
+     },
+     "dark": {
+      "primary": "#122964",
+      "secondary": "#6571B4",
+      "accent": "#B2C4DA",
+      "surface": "#1C2532",
+      "text": "#FBFBFB"
+     }
+    },
+    {
+     "name": "Slate Scholastic",
+     "character": "monochromatic, H≈197°, cyan-leaning steel-blue, cooler/greyer than the base celeste",
+     "light": {
+      "surface": "#EEF4F6",
+      "primary": "#2D6276",
+      "secondary": "#7099A9",
+      "accent": "#B33A3A",
+      "text": "#19282E"
+     },
+     "dark": {
+      "surface": "#152328",
+      "primary": "#35748D",
+      "secondary": "#7596A3",
+      "accent": "#B33A3A",
+      "text": "#F3F5F6"
+     }
+    },
+    {
+     "name": "Graphite Scholastic",
+     "character": "monochromatic, H≈232°, same hue neighborhood as Navy but desaturated to S15–32% (vs Navy's 34–69%) — reads as pencil/gra",
+     "light": {
+      "surface": "#F0F1F4",
+      "primary": "#343B65",
+      "secondary": "#787DA1",
+      "accent": "#B33A3A",
+      "text": "#1F212E"
+     },
+     "dark": {
+      "surface": "#1B1D27",
+      "primary": "#3E4674",
+      "secondary": "#7B809D",
+      "accent": "#B33A3A",
+      "text": "#F4F4F6"
+     }
+    }
+   ]
+  },
+  {
+   "entry": "Luxury / Premium",
+   "shard": "contexts.md",
+   "pairs": [
+    {
+     "name": "Noir & Gold",
+     "character": "black/white/gold",
+     "light": {
+      "surface": "#FAFAF8",
+      "text": "#0A0A0A",
+      "primary": "#B8975A",
+      "secondary": "#CFCFCF"
+     },
+     "dark": {
+      "surface": "#0A0A0A",
+      "text": "#FAFAF8",
+      "primary": "#C9A96E",
+      "secondary": "#2A2A2A"
+     }
+    },
+    {
+     "name": "Cream & Umber",
+     "character": "cream/beige/dark, warmer and quieter than Noir & Gold",
+     "light": {
+      "surface": "#F2ECE0",
+      "text": "#2B2115",
+      "primary": "#6B4A2F",
+      "secondary": "#D8CDB8"
+     },
+     "dark": {
+      "surface": "#1C1610",
+      "text": "#F2ECE0",
+      "primary": "#8A6A45",
+      "secondary": "#3A2F22"
+     }
+    }
+   ]
+  },
+  {
+   "entry": "Startup / Tech Product",
+   "shard": "contexts.md",
+   "pairs": [
+    {
+     "name": "Deep Gray + Electric",
+     "character": "the dark-mode-preferred register, a single bright accent against near-black",
+     "light": {
+      "surface": "#FFFFFF",
+      "text": "#0F0F0F",
+      "primary": "#5B8DEF",
+      "secondary": "#ECECEC"
+     },
+     "dark": {
+      "surface": "#0F0F0F",
+      "text": "#F5F5F5",
+      "primary": "#5B8DEF"
+     }
+    },
+    {
+     "name": "Navy + Accent",
+     "character": "white-with-dark-navy structure, accent shifted to a startup-green instead of blue for a distinct second family",
+     "light": {
+      "surface": "#FFFFFF",
+      "text": "#0A0F2C",
+      "primary": "#00A868",
+      "secondary": "#E6E8EE"
+     },
+     "dark": {
+      "surface": "#0A0F2C",
+      "text": "#F5F6FA",
+      "primary": "#00D084",
+      "secondary": "#1A2140"
+     }
+    }
+   ]
+  },
+  {
+   "entry": "Craft / Artisan",
+   "shard": "contexts.md",
+   "pairs": [
+    {
+     "name": "Dusty Bloom",
+     "character": "analogous, pink-mauve-purple (267–336°) with a terracotta/rust complement (~8–27°) for warmth; softened saturation, stil",
+     "light": {
+      "primary": "#DDA5CB",
+      "secondary": "#8568A9",
+      "accent": "#EBAC78",
+      "surface": "#EADAD6",
+      "text": "#7C3B30"
+     },
+     "dark": {
+      "primary": "#E6B7CF",
+      "secondary": "#C398A2",
+      "accent": "#F39A6C",
+      "surface": "#7C3B30",
+      "text": "#EADAD6"
+     }
+    },
+    {
+     "name": "Sage & Clay",
+     "character": "complementary-adjacent, sage-teal (171°) vs",
+     "light": {
+      "primary": "#32625B",
+      "secondary": "#A17024",
+      "accent": "#AC858D",
+      "surface": "#E4E1DF",
+      "text": "#1C4650"
+     },
+     "dark": {
+      "primary": "#51BCA9",
+      "secondary": "#C2A526",
+      "accent": "#9A6371",
+      "surface": "#32625B",
+      "text": "#E4E1DF"
+     }
+    }
+   ]
+  },
+  {
+   "entry": "Underground / Alternative",
+   "shard": "contexts.md",
+   "pairs": [
+    {
+     "name": "Black + Fluorescent",
+     "character": "the loudest of the two, acid-yellow against near-black",
+     "light": {
+      "surface": "#F5F5F0",
+      "text": "#0A0A0A",
+      "primary": "#7A8A00",
+      "s fluorescent yellow since pure": "#E8FF00",
+      "secondary": "#1A1A1A"
+     },
+     "dark": {
+      "surface": "#0A0A0A",
+      "text": "#F5F5F0",
+      "primary": "#E8FF00",
+      "secondary": "#2B2B2B"
+     }
+    },
+    {
+     "name": "White + Deep Burgundy",
+     "character": "quieter, more coherent unexpected pairing; still \"never safe\" but reads as intentional rather than clashing",
+     "light": {
+      "surface": "#FFFFFF",
+      "text": "#0A0A0A",
+      "primary": "#5C0A1E",
+      "secondary": "#CFC9C9"
+     },
+     "dark": {
+      "surface": "#0A0A0A",
+      "text": "#F5F5F0",
+      "primary": "#8C1030",
+      "secondary": "#2B2B2B"
+     }
+    }
+   ]
+  },
+  {
+   "entry": "Finance / Fintech",
+   "shard": "contexts.md",
+   "pairs": [
+    {
+     "name": "Ledger Blue",
+     "character": "the working pair, with its semantic up/down system separate from the accent",
+     "light": {
+      "surface": "#F7F8FA",
+      "text": "#12161C",
+      "primary": "#14477D",
+      "up/gain": "#0E6B47",
+      "down/loss": "#A32014"
+     },
+     "dark": {
+      "surface": "#0E1116",
+      "text": "#E4E8EE",
+      "primary": "#6FA3E0",
+      "up/gain": "#4FBF8F",
+      "down/loss": "#E8705C"
+     }
+    },
+    {
+     "name": "Private Bank",
+     "character": "the wealth-management register — warmer, greener, quieter",
+     "light": {
+      "surface": "#F6F4EF",
+      "text": "#1A1814",
+      "primary": "#2A4438"
+     },
+     "dark": {
+      "surface": "#14130F",
+      "text": "#E6E2D8",
+      "primary": "#7FB79E"
+     }
+    }
+   ]
+  },
+  {
+   "entry": "Gaming / Esports",
+   "shard": "contexts.md",
+   "pairs": [
+    {
+     "name": "Broadcast",
+     "character": "dark-first, violet identity with a reserved live-state hot colour",
+     "light": {
+      "surface": "#EEEFF2",
+      "text": "#14161C",
+      "primary": "#7A26C0"
+     },
+     "dark": {
+      "surface": "#0B0D12",
+      "text": "#E6E9F0",
+      "primary": "#B87CF0",
+      "live state": "#FF4D6D"
+     }
+    },
+    {
+     "name": "Arena",
+     "character": "the cooler cyan alternative when violet clashes with team colours",
+     "light": {
+      "surface": "#F0F0EE",
+      "text": "#16181A",
+      "primary": "#0D5C79"
+     },
+     "dark": {
+      "surface": "#0A0C0E",
+      "text": "#E4E7E9",
+      "primary": "#38C6E8"
+     }
+    }
+   ]
+  },
+  {
+   "entry": "Civic / Government",
+   "shard": "contexts.md",
+   "pairs": [
+    {
+     "name": "Statute",
+     "character": "maximum-legibility default: pure white, near-black, one blue",
+     "light": {
+      "surface": "#FFFFFF",
+      "text": "#1B1B1B",
+      "primary": "#1668B0"
+     },
+     "dark": {
+      "surface": "#121417",
+      "text": "#EDEFF2",
+      "primary": "#8FC2F0"
+     }
+    },
+    {
+     "name": "Municipal",
+     "character": "a green institutional variant for local and environmental services",
+     "light": {
+      "surface": "#F7F6F3",
+      "text": "#1C1B19",
+      "primary": "#245039"
+     },
+     "dark": {
+      "surface": "#131513",
+      "text": "#E9EAE5",
+      "primary": "#77B894"
+     }
+    }
+   ]
+  },
+  {
+   "entry": "News / Journalism",
+   "shard": "contexts.md",
+   "pairs": [
+    {
+     "name": "Broadsheet",
+     "character": "warm paper with a breaking-news red held in reserve",
+     "light": {
+      "surface": "#FBFAF7",
+      "text": "#14140F",
+      "primary": "#9A1D12"
+     },
+     "dark": {
+      "surface": "#121210",
+      "text": "#E8E7E1",
+      "primary": "#E8705C"
+     }
+    },
+    {
+     "name": "Wire",
+     "character": "cooler and more neutral, for agency and aggregation layouts",
+     "light": {
+      "surface": "#F4F5F6",
+      "text": "#16181A",
+      "primary": "#14507F"
+     },
+     "dark": {
+      "surface": "#0F1113",
+      "text": "#E3E6E8",
+      "primary": "#74AADC"
+     }
+    }
+   ]
+  },
+  {
+   "entry": "Kids / Education",
+   "shard": "contexts.md",
+   "pairs": [
+    {
+     "name": "Playground",
+     "character": "warm ground, blue primary with a warm secondary for a second meaning channel",
+     "light": {
+      "surface": "#FFFDF6",
+      "text": "#22201A",
+      "primary": "#0E6E82",
+      "warm secondary": "#B24A16"
+     },
+     "dark": {
+      "surface": "#1B1913",
+      "text": "#F2EFE4",
+      "primary": "#5FC8DE",
+      "warm secondary": "#F0A06A"
+     }
+    },
+    {
+     "name": "Chalk and Card",
+     "character": "a green register for younger years and outdoor/nature subjects",
+     "light": {
+      "surface": "#F4F7F2",
+      "text": "#1E2320",
+      "primary": "#256841"
+     },
+     "dark": {
+      "surface": "#131711",
+      "text": "#E7EBE3",
+      "primary": "#74C48E"
+     }
+    }
+   ]
+  },
+  {
+   "entry": "E-commerce / Retail",
+   "shard": "contexts.md",
+   "pairs": [
+    {
+     "name": "Shopfront",
+     "character": "genuinely neutral chrome so product colour rules, with a separate sale colour",
+     "light": {
+      "surface": "#FFFFFF",
+      "text": "#1A1A1A",
+      "primary": "#6B2A7C",
+      "reduced price": "#A81E18"
+     },
+     "dark": {
+      "surface": "#131215",
+      "text": "#EBE9EC",
+      "primary": "#C48CD4",
+      "reduced price": "#F07A6E"
+     }
+    },
+    {
+     "name": "Market",
+     "character": "a warm artisanal variant for food, craft and independent retail",
+     "light": {
+      "surface": "#FAF7F2",
+      "text": "#1C1A16",
+      "primary": "#0F5240"
+     },
+     "dark": {
+      "surface": "#14130F",
+      "text": "#E9E6DE",
+      "primary": "#63BC9B"
+     }
+    }
+   ]
+  },
+  {
+   "entry": "Developer Tools",
+   "shard": "contexts.md",
+   "pairs": [
+    {
+     "name": "Console",
+     "character": "the docs default, with a code surface a hair off the page ground",
+     "light": {
+      "surface": "#FBFBFA",
+      "text": "#16181B",
+      "primary": "#4B3AA6",
+      "code surface": "#F1F2F4"
+     },
+     "dark": {
+      "surface": "#101216",
+      "text": "#E3E6EA",
+      "primary": "#A99AF0",
+      "code surface": "#191C21"
+     }
+    },
+    {
+     "name": "Terminal Warm",
+     "character": "a warm alternative that reduces eye strain in long light-mode sessions",
+     "light": {
+      "surface": "#FAF8F4",
+      "text": "#1A1815",
+      "primary": "#7A400E"
+     },
+     "dark": {
+      "surface": "#141210",
+      "text": "#E8E4DC",
+      "primary": "#D89A4E"
+     }
+    }
+   ]
+  },
+  {
+   "entry": "Health / Consumer Wellbeing",
+   "shard": "contexts.md",
+   "pairs": [
+    {
+     "name": "Daylight",
+     "character": "warm bone with a calm green — the default patient-facing pair",
+     "light": {
+      "surface": "#FBF9F5",
+      "text": "#22211D",
+      "primary": "#2C6050"
+     },
+     "dark": {
+      "surface": "#171614",
+      "text": "#E9E7E1",
+      "primary": "#7CBAA2"
+     }
+    },
+    {
+     "name": "Linen",
+     "character": "a warmer terracotta register for wellbeing and lifestyle rather than clinical results",
+     "light": {
+      "surface": "#F7F4F0",
+      "text": "#26221E",
+      "primary": "#8E4826"
+     },
+     "dark": {
+      "surface": "#1A1715",
+      "text": "#EAE5DF",
+      "primary": "#D9906A"
+     }
+    }
+   ]
+  },
+  {
+   "entry": "Nonprofit / Advocacy",
+   "shard": "contexts.md",
+   "pairs": [
+    {
+     "name": "Field Report",
+     "character": "warm paper with an earth-red accent — documentary rather than corporate",
+     "light": {
+      "surface": "#FAF8F4",
+      "text": "#1A1916",
+      "primary": "#7E4A16"
+     },
+     "dark": {
+      "surface": "#161512",
+      "text": "#E8E5DE",
+      "primary": "#D9A45E"
+     }
+    },
+    {
+     "name": "Standing",
+     "character": "a cooler blue register for policy, legal and institutional advocacy",
+     "light": {
+      "surface": "#F5F6F7",
+      "text": "#17191C",
+      "primary": "#155268"
+     },
+     "dark": {
+      "surface": "#101315",
+      "text": "#E3E7E9",
+      "primary": "#6DB3CE"
+     }
+    }
+   ]
+  },
+  {
+   "entry": "Music / Festival",
+   "shard": "contexts.md",
+   "pairs": [
+    {
+     "name": "Lineup",
+     "character": "the poster default — warm stock and a hot vermilion",
+     "light": {
+      "surface": "#F2F0EA",
+      "text": "#16150F",
+      "primary": "#BE3C14"
+     },
+     "dark": {
+      "surface": "#100F0C",
+      "text": "#EDEAE0",
+      "primary": "#F2794A"
+     }
+    },
+    {
+     "name": "Night Set",
+     "character": "the club and late-programme register, violet on near-black",
+     "light": {
+      "surface": "#EFEDF3",
+      "text": "#1B1926",
+      "primary": "#503795"
+     },
+     "dark": {
+      "surface": "#0F0E16",
+      "text": "#E6E3EE",
+      "primary": "#A48CE8"
+     }
+    }
+   ]
+  },
+  {
+   "entry": "Cozy",
+   "shard": "moods.md",
+   "pairs": [
+    {
+     "name": "Cozy Cocoa",
+     "character": "monochromatic, H≈20–30° (caramel-to-espresso brown, the safest and most versatile of the three)",
+     "light": {
+      "primary": "#956138",
+      "secondary": "#D6B294",
+      "accent": "#CC9159",
+      "surface": "#F7EAD5",
+      "text": "#442510"
+     },
+     "dark": {
+      "primary": "#78502C",
+      "secondary": "#A58464",
+      "accent": "#CC9159",
+      "surface": "#251309",
+      "text": "#F0D3A6"
+     }
+    },
+    {
+     "name": "Terracotta & Slate",
+     "character": "near-complementary, warm brown (~25°) against a rare cool blue-grey outlier (~210°), the one complementary anchor in an ",
+     "light": {
+      "primary": "#CC9159",
+      "secondary": "#D5D9DD",
+      "accent": "#5C3422",
+      "surface": "#F7EAD5",
+      "text": "#302B28"
+     },
+     "dark": {
+      "primary": "#956138",
+      "secondary": "#403F41",
+      "accent": "#D5D9DD",
+      "surface": "#292316",
+      "text": "#F0D3A6"
+     }
+    },
+    {
+     "name": "Rosewood & Clay",
+     "character": "compound/loose split-complementary (mauve ~318° + clay ~25°, ~60–75° spread, softened by shared low saturation), the mos",
+     "light": {
+      "primary": "#C7A8BF",
+      "secondary": "#D09CA0",
+      "accent": "#B0885C",
+      "surface": "#F3ECEB",
+      "text": "#502019"
+     },
+     "dark": {
+      "primary": "#7E495B",
+      "secondary": "#895B4F",
+      "accent": "#CC9159",
+      "surface": "#302B28",
+      "text": "#EADDE7"
+     }
+    }
+   ]
+  },
+  {
+   "entry": "Clinical / Medical",
+   "shard": "moods.md",
+   "pairs": [
+    {
+     "name": "Clinical Blue",
+     "character": "monochromatic, single-hue family ~197–215°, varying only S/L; a tight blue band reads as trustworthy/clinical without vi",
+     "light": {
+      "surface": "#D5E5F1",
+      "primary": "#295276",
+      "secondary": "#586C89",
+      "accent": "#93ACC0",
+      "text": "#304050"
+     },
+     "dark": {
+      "surface": "#304050",
+      "primary": "#93ACC0",
+      "secondary": "#B1B9C3",
+      "accent": "#D5E5F1",
+      "text": "#CCDBE1"
+     }
+    },
+    {
+     "name": "Clinical Teal",
+     "character": "monochromatic, ~165–191°, with a near-neutral anchor for light-mode text; sea-glass teal reads as calm/sterile, distinct",
+     "light": {
+      "surface": "#DAE5E6",
+      "primary": "#4C7078",
+      "secondary": "#6B888C",
+      "accent": "#68948C",
+      "text": "#343536"
+     },
+     "dark": {
+      "surface": "#202F32",
+      "primary": "#9DC0BA",
+      "secondary": "#7AA2A4",
+      "accent": "#DAE5E6",
+      "text": "#DAE5E6"
+     }
+    }
+   ]
+  },
+  {
+   "entry": "Ethereal / Dreamlike",
+   "shard": "moods.md",
+   "pairs": [
+    {
+     "name": "Sky Veil",
+     "character": "(Ethereal, cool blue-cyan)",
+     "light": {
+      "primary": "#B2D4E4",
+      "secondary": "#CFDCE0",
+      "accent": "#C2DDED",
+      "surface": "#F8EEE6",
+      "text": "#3E5D74"
+     },
+     "dark": {
+      "primary": "#819BAF",
+      "secondary": "#98B7BE",
+      "accent": "#C2DDED",
+      "surface": "#1E2B33",
+      "text": "#E6EEF2"
+     }
+    },
+    {
+     "name": "Lavender Mist",
+     "character": "(Ethereal, periwinkle-indigo)",
+     "light": {
+      "primary": "#BBBAE2",
+      "secondary": "#D9D8EF",
+      "accent": "#CFBAD7",
+      "surface": "#F3E3E8",
+      "text": "#3A3860"
+     },
+     "dark": {
+      "primary": "#57478B",
+      "secondary": "#CFBAD7",
+      "accent": "#BBBAE2",
+      "surface": "#221E38",
+      "text": "#EDE9F7"
+     }
+    },
+    {
+     "name": "Rose Haze",
+     "character": "(Dreamlike, pink-coral-wine)",
+     "light": {
+      "primary": "#FACBD5",
+      "secondary": "#F3E3E8",
+      "accent": "#E5B3B4",
+      "surface": "#EBD8D3",
+      "text": "#5C2A38"
+     },
+     "dark": {
+      "primary": "#8A4249",
+      "secondary": "#E5B3B4",
+      "accent": "#FACBD5",
+      "surface": "#2B1A1E",
+      "text": "#F7E9EA"
+     }
+    },
+    {
+     "name": "Golden Haze",
+     "character": "(Dreamlike, peach-tan-umber)",
+     "light": {
+      "primary": "#F9DFCA",
+      "secondary": "#F5E5D0",
+      "accent": "#E9D2AB",
+      "surface": "#F8EEE6",
+      "text": "#5B3A1E"
+     },
+     "dark": {
+      "primary": "#83613F",
+      "secondary": "#E9D2AB",
+      "accent": "#F9DFCA",
+      "surface": "#241A0F",
+      "text": "#FBF0E4"
+     }
+    }
+   ]
+  },
+  {
+   "entry": "Dramatic / Theatrical",
+   "shard": "moods.md",
+   "pairs": [
+    {
+     "name": "Crimson Curtain",
+     "character": "near-black stage with a single crimson accent",
+     "light": {
+      "surface": "#F5F3EF",
+      "text": "#17140F",
+      "primary": "#B0102E",
+      "secondary": "#CFC9C0"
+     },
+     "dark": {
+      "surface": "#0A0A0A",
+      "text": "#F2F0EC",
+      "primary": "#B0102E",
+      "secondary": "#2B2B2B"
+     }
+    },
+    {
+     "name": "Midnight Gold",
+     "character": "midnight-navy stage with a single gold accent",
+     "light": {
+      "surface": "#F4F1E8",
+      "text": "#14161C",
+      "primary": "#C9A84C",
+      "secondary": "#8A95A8"
+     },
+     "dark": {
+      "surface": "#0D1117",
+      "text": "#EDEAE2",
+      "primary": "#C9A84C",
+      "secondary": "#1B2230"
+     }
+    }
+   ]
+  },
+  {
+   "entry": "Playful",
+   "shard": "moods.md",
+   "pairs": [
+    {
+     "name": "Carnival Pop",
+     "character": "split-complementary, orange primary (14°) against blue-violet, with magenta picked as the single boldest accent for maxi",
+     "light": {
+      "primary": "#F57952",
+      "accent": "#DC0582",
+      "surface": "#F0E7DB",
+      "text": "#1C4650"
+     },
+     "dark": {
+      "primary": "#FB4B08",
+      "accent": "#F973A9",
+      "surface": "#1C4650",
+      "text": "#F0E7DB"
+     }
+    },
+    {
+     "name": "Electric Tropics",
+     "character": "tetrad, cooler-leaning, cyan-blue primary with hot pink picked as the single boldest accent",
+     "light": {
+      "primary": "#0E85C2",
+      "accent": "#EF74BB",
+      "surface": "#F2E9DB",
+      "text": "#1C4650"
+     },
+     "dark": {
+      "primary": "#88A8FA",
+      "accent": "#F973A9",
+      "surface": "#1C4650",
+      "text": "#F2E9DB"
+     }
+    }
+   ]
+  },
+  {
+   "entry": "Urgent / High-Stakes",
+   "shard": "moods.md",
+   "pairs": [
+    {
+     "name": "Signal Red",
+     "character": "stark black/white base, red used purely as a functional signal (errors/warnings/alerts), never decoratively",
+     "light": {
+      "surface": "#FFFFFF",
+      "text": "#0A0A0A",
+      "accent": "#E1000F",
+      "secondary": "#4D4D4D"
+     },
+     "dark": {
+      "surface": "#0A0A0A",
+      "text": "#FFFFFF",
+      "accent": "#FF1421",
+      "secondary": "#B0B0B0"
+     }
+    },
+    {
+     "name": "Red-forward",
+     "character": "red as the dominant base itself, not just an accent",
+     "light": {
+      "surface": "#FBEAEA",
+      "primary": "#A3001E",
+      "text": "#1A0A0A",
+      "accent": "#E1000F"
+     },
+     "dark": {
+      "surface": "#1A0508",
+      "primary": "#FF1F35",
+      "text": "#F5EAEA",
+      "accent": "#E1000F"
+     }
+    }
+   ]
+  },
+  {
+   "entry": "Gloomcore / Moody",
+   "shard": "moods.md",
+   "pairs": [
+    {
+     "name": "Mossbound",
+     "character": "monochromatic olive/moss core (72–84°), damp forest floor: decayed leaf, moss, wet bark",
+     "light": {
+      "primary": "#716B58",
+      "secondary": "#827664",
+      "accent": "#414A2A",
+      "surface": "#A3ACA7",
+      "text": "#1C2018"
+     },
+     "dark": {
+      "primary": "#414A2A",
+      "secondary": "#323526",
+      "accent": "#656D49",
+      "surface": "#171B11",
+      "text": "#A5ACAB"
+     }
+    },
+    {
+     "name": "Fen & Fog",
+     "character": "monochromatic, H≈90–108°, generated via color-optimization-core to sit at a distinct hue position from Mossbound's dry m",
+     "light": {
+      "surface": "#CFD7CC",
+      "primary": "#325D28",
+      "secondary": "#6D8462",
+      "accent": "#8CA375",
+      "text": "#1A2D16"
+     },
+     "dark": {
+      "surface": "#111B0E",
+      "primary": "#2C4C24",
+      "secondary": "#4E5E45",
+      "accent": "#8CA375",
+      "text": "#DBE0D7"
+     }
+    }
+   ]
+  },
+  {
+   "entry": "Nostalgic",
+   "shard": "moods.md",
+   "pairs": [
+    {
+     "name": "Kodachrome",
+     "character": "warm faded-photograph register, saturated but softened",
+     "light": {
+      "surface": "#F2EBDF",
+      "text": "#3A3129",
+      "primary": "#A44E32"
+     },
+     "dark": {
+      "surface": "#211C17",
+      "text": "#E8DECD",
+      "primary": "#D98A63"
+     }
+    },
+    {
+     "name": "Tape",
+     "character": "the cooler video register — magenta-fringed, slightly cold",
+     "light": {
+      "surface": "#E9E7E0",
+      "text": "#2E3138",
+      "primary": "#3D5C7A"
+     },
+     "dark": {
+      "surface": "#1A1D22",
+      "text": "#DCDFE5",
+      "primary": "#7FA6C9"
+     }
+    }
+   ]
+  },
+  {
+   "entry": "Serene / Calm",
+   "shard": "moods.md",
+   "pairs": [
+    {
+     "name": "Still Water",
+     "character": "cool green-neutral, the widest-use register",
+     "light": {
+      "surface": "#F2F5F4",
+      "text": "#2B3634",
+      "primary": "#41695F"
+     },
+     "dark": {
+      "surface": "#151A19",
+      "text": "#DDE5E2",
+      "primary": "#8CBFB1"
+     }
+    },
+    {
+     "name": "Chalk",
+     "character": "warm sand-neutral for reading-length content",
+     "light": {
+      "surface": "#F5F3EF",
+      "text": "#35322D",
+      "primary": "#75674F"
+     },
+     "dark": {
+      "surface": "#1B1917",
+      "text": "#E4DFD6",
+      "primary": "#C0AE8E"
+     }
+    }
+   ]
+  },
+  {
+   "entry": "Tense / Suspenseful",
+   "shard": "moods.md",
+   "pairs": [
+    {
+     "name": "Held Breath",
+     "character": "near-neutral with one deep oxblood held back — the default",
+     "light": {
+      "surface": "#E6E4E1",
+      "text": "#17181A",
+      "primary": "#6E241F"
+     },
+     "dark": {
+      "surface": "#0E0F11",
+      "text": "#D8D6D2",
+      "primary": "#D9695C"
+     }
+    },
+    {
+     "name": "Sodium",
+     "character": "the streetlight alternative — amber against near-black",
+     "light": {
+      "surface": "#EBE7DE",
+      "text": "#1A1814",
+      "primary": "#7A5C0E"
+     },
+     "dark": {
+      "surface": "#101010",
+      "text": "#D6D2C8",
+      "primary": "#E0A93B"
+     }
+    }
+   ]
+  },
+  {
+   "entry": "Sacred / Reverent",
+   "shard": "moods.md",
+   "pairs": [
+    {
+     "name": "Gold Ground",
+     "character": "the historical ceremonial pair, bone and dull gold",
+     "light": {
+      "surface": "#F4EEE0",
+      "text": "#2A241B",
+      "primary": "#846719"
+     },
+     "dark": {
+      "surface": "#17130C",
+      "text": "#E9E0CC",
+      "primary": "#C9A227"
+     }
+    },
+    {
+     "name": "Vault",
+     "character": "secular and institutional — cold violet-blue, no metal",
+     "light": {
+      "surface": "#EFEFF2",
+      "text": "#22242E",
+      "primary": "#42427A"
+     },
+     "dark": {
+      "surface": "#121320",
+      "text": "#DEDFE8",
+      "primary": "#9A9AD0"
+     }
+    }
+   ]
+  },
+  {
+   "entry": "Melancholic",
+   "shard": "moods.md",
+   "pairs": [
+    {
+     "name": "Long Light",
+     "character": "warm-grey ground with a blue-violet accent, late afternoon",
+     "light": {
+      "surface": "#EDEAE6",
+      "text": "#33363A",
+      "primary": "#5A5E75"
+     },
+     "dark": {
+      "surface": "#191B1E",
+      "text": "#D5D8DC",
+      "primary": "#9EA3BC"
+     }
+    },
+    {
+     "name": "Rain Glass",
+     "character": "cooler and greener, weather-adjacent without being Gloomcore",
+     "light": {
+      "surface": "#E8EBEC",
+      "text": "#2C3335",
+      "primary": "#4C6367"
+     },
+     "dark": {
+      "surface": "#14181A",
+      "text": "#D6DCDE",
+      "primary": "#93AFB4"
+     }
+    }
+   ]
+  },
+  {
+   "entry": "Triumphant / Celebratory",
+   "shard": "moods.md",
+   "pairs": [
+    {
+     "name": "Podium",
+     "character": "the default — bone and gold, formal celebration",
+     "light": {
+      "surface": "#FBF7EE",
+      "text": "#22201B",
+      "primary": "#9A6412"
+     },
+     "dark": {
+      "surface": "#1A1712",
+      "text": "#F0E9DA",
+      "primary": "#E0A63C"
+     }
+    },
+    {
+     "name": "Confetti",
+     "character": "warmer and less formal, for launches rather than awards",
+     "light": {
+      "surface": "#FAF6FA",
+      "text": "#241E28",
+      "primary": "#94266E"
+     },
+     "dark": {
+      "surface": "#1A141E",
+      "text": "#EEE4F0",
+      "primary": "#E273B8"
+     }
+    }
+   ]
+  },
+  {
+   "entry": "Absurd / Surreal",
+   "shard": "moods.md",
+   "pairs": [
+    {
+     "name": "Wrong Sky",
+     "character": "the default — the palette itself carries the error, a green ground under a magenta accent",
+     "light": {
+      "surface": "#EDF1E9",
+      "text": "#23261F",
+      "primary": "#9C3F7C"
+     },
+     "dark": {
+      "surface": "#14170F",
+      "text": "#E2E7DA",
+      "primary": "#DE8CC0"
+     }
+    },
+    {
+     "name": "Straight Face",
+     "character": "a completely ordinary corporate pair; the anomaly goes in the layout",
+     "light": {
+      "surface": "#F0EFEA",
+      "text": "#1E1E1C",
+      "primary": "#2A639F"
+     },
+     "dark": {
+      "surface": "#131312",
+      "text": "#E6E5E0",
+      "primary": "#79ADE3"
+     }
+    }
+   ]
+  },
+  {
+   "entry": "Austere",
+   "shard": "moods.md",
+   "pairs": [
+    {
+     "name": "Institution",
+     "character": "cold grey, the primary register",
+     "light": {
+      "surface": "#E4E5E6",
+      "text": "#16181A",
+      "primary": "#4A5054"
+     },
+     "dark": {
+      "surface": "#0F1113",
+      "text": "#CFD2D4",
+      "primary": "#8A9095"
+     }
+    },
+    {
+     "name": "Ledger",
+     "character": "a warm-neutral variant for print-derived and archival work",
+     "light": {
+      "surface": "#EEEDEA",
+      "text": "#1A1A18",
+      "primary": "#55534D"
+     },
+     "dark": {
+      "surface": "#121211",
+      "text": "#D2D1CC",
+      "primary": "#918E86"
+     }
+    }
+   ]
+  },
+  {
+   "entry": "Art Nouveau",
+   "shard": "period-styles.md",
+   "pairs": [
+    {
+     "name": "Jardin Doré",
+     "character": "analogous amber → olive (H 33–76°), \"nature entwined with ornament, sinuous lines traced in amber and moss, illuminated ",
+     "light": {
+      "bg": "#F3DAA6",
+      "surface": "#E9D4B6",
+      "primary": "#BE8229",
+      "secondary": "#7A7B49",
+      "accent": "#835E2F",
+      "muted": "#AFA376",
+      "text": "#2A260F"
+     },
+     "dark": {
+      "bg": "#2A260F",
+      "surface": "#353F1A",
+      "primary": "#BE8229",
+      "secondary": "#7A7B49",
+      "accent": "#F3DAA6",
+      "muted": "#AFA376",
+      "text": "#E9D4B6"
+     }
+    },
+    {
+     "name": "Nuit de Nacre",
+     "character": "near-complementary teal ↔ rose (H 182–348°), a peacock-feather variant (peacock/dragonfly-wing iridescence was a definin",
+     "light": {
+      "bg": "#DBD1D3",
+      "surface": "#B8CDE4",
+      "primary": "#96B4B5",
+      "secondary": "#E37A90",
+      "accent": "#8BB0BD",
+      "muted": "#91858F",
+      "text": "#1B263B"
+     },
+     "dark": {
+      "bg": "#1B263B",
+      "surface": "#22354C",
+      "primary": "#8BB0BD",
+      "secondary": "#F2A6BF",
+      "accent": "#9AADD1",
+      "muted": "#717789",
+      "text": "#DBD1D3"
+     }
+    }
+   ]
+  },
+  {
+   "entry": "Memphis / Postmodern",
+   "shard": "period-styles.md",
+   "pairs": [
+    {
+     "name": "Sunbaked Riviera",
+     "character": "(light) / *Neon Nightclub* (dark) — triadic-leaning split-complementary",
+     "light": {
+      "surface": "#D4CCBF",
+      "text": "#24231E",
+      "primary": "#29AEA9",
+      "secondary": "#E2891D",
+      "accent": "#88254A"
+     },
+     "dark": {
+      "surface": "#262940",
+      "text": "#D0C8C8",
+      "primary": "#F2E254",
+      "secondary": "#E98858",
+      "accent": "#29AEA9"
+     }
+    }
+   ]
+  },
+  {
+   "entry": "Gothic",
+   "shard": "period-styles.md",
+   "pairs": [
+    {
+     "name": "Crimson Abbey",
+     "character": "compound near-complementary, crimson anchor ~352° against ash-neutral 0° and mauve-muted ~357° — a tight cluster staying",
+     "light": {
+      "bg": "#F2ECE9",
+      "surface": "#E0D0CC",
+      "primary": "#843434",
+      "accent": "#A11C2E",
+      "muted": "#9E6568",
+      "text-dim": "#4C4C4C",
+      "text": "#1A1412"
+     },
+     "dark": {
+      "bg": "#0F090A",
+      "surface": "#341C18",
+      "primary": "#843434",
+      "accent": "#A11C2E",
+      "muted": "#695454",
+      "text-dim": "#8C8C8C",
+      "text": "#B8B8B8"
+     }
+    },
+    {
+     "name": "Violet Cloister",
+     "character": "split-complementary, violet anchor ~283°, orchid accent at 298°, crimson split at 356° (73° from violet, cleanly in spli",
+     "light": {
+      "bg": "#F0EAF5",
+      "surface": "#DDD3E8",
+      "primary": "#68347D",
+      "accent": "#83418F",
+      "muted": "#9C7C9E",
+      "text-dim": "#543D5C",
+      "text": "#130F15"
+     },
+     "dark": {
+      "bg": "#070409",
+      "surface": "#20111F",
+      "primary": "#68347D",
+      "accent": "#CD90CF",
+      "muted": "#543D5C",
+      "text-dim": "#897E91",
+      "text": "#CCC3D2"
+     }
+    }
+   ]
+  },
+  {
+   "entry": "Baroque",
+   "shard": "period-styles.md",
+   "pairs": [
+    {
+     "name": "Velvet Throne",
+     "character": "near-analogous, warm arc 340–46°, all five colors drawn directly from source",
+     "light": {
+      "primary": "#9B1B30",
+      "secondary": "#C72C38",
+      "accent": "#D4AF37",
+      "surface": "#F0E5D8",
+      "text": "#3B2E1E"
+     },
+     "dark": {
+      "primary": "#6F2C3E",
+      "secondary": "#9B1B30",
+      "accent": "#D4AF37",
+      "surface": "#2B2A28",
+      "text": "#F0E5D8"
+     }
+    },
+    {
+     "name": "Nocturne Amethyst",
+     "character": "split-complementary, purple↔jade axis at ~126° (within 6° of triadic 120°, harmony ~0",
+     "light": {
+      "primary": "#8E4A8F",
+      "secondary": "#9B7CBB",
+      "accent": "#269B8D",
+      "nudged from": "#2A9D8F",
+      "surface": "#F7F0F6",
+      "text": "#2C2C2C"
+     },
+     "dark": {
+      "primary": "#8A4B9A",
+      "secondary": "#C7B2D2",
+      "accent": "#2A9D8F",
+      "surface": "#1F1423",
+      "text": "#D2C7D3"
+     }
+    }
+   ]
+  },
+  {
+   "entry": "Rococo",
+   "shard": "period-styles.md",
+   "pairs": [
+    {
+     "name": "La Marquise / La Nuit Rose",
+     "character": "analogous pink-magenta core with a hot-pink accent",
+     "light": {
+      "primary": "#D6A2B9",
+      "secondary": "#E8C8D2",
+      "accent": "#D85C9A",
+      "surface": "#F7E1D7",
+      "muted": "#F2A3B4",
+      "text": "#6C4A5B"
+     },
+     "dark": {
+      "primary": "#6C4A5B",
+      "secondary": "#B66A7E",
+      "accent": "#D85C9A",
+      "surface": "#4B3E4D",
+      "muted": "#EAB8D1",
+      "text": "#F8E3E8"
+     }
+    },
+    {
+     "name": "Le Printemps / L'Heure Bleue",
+     "character": "\"Watteau violet\": analogous violet core (H 270–307°) with a powder-blue split accent (H 193°)",
+     "light": {
+      "primary": "#D4B3D6",
+      "secondary": "#A7D3E0",
+      "accent": "#EAB8E4",
+      "surface": "#F6F1E6",
+      "muted": "#C3B1C5",
+      "text": "#4B3D52"
+     },
+     "dark": {
+      "primary": "#4B3D52",
+      "secondary": "#B2A0C4",
+      "accent": "#A7D3E0",
+      "surface": "#3A2E40",
+      "muted": "#C39BD3",
+      "text": "#E6E6FA"
+     }
+    }
+   ]
+  },
+  {
+   "entry": "Medieval",
+   "shard": "period-styles.md",
+   "pairs": [
+    {
+     "name": "Illuminated Manuscript",
+     "character": "analogous warm, H 6–45°, crimson anchor at H=6° creating near-complementary push against a gold cluster at 38–45°; low-s",
+     "light": {
+      "surface": "#F2E9DA",
+      "mid": "#CABAA1",
+      "primary": "#D8C599",
+      "accent": "#BA4235",
+      "text": "#292622"
+     },
+     "dark": {
+      "surface": "#1A1310",
+      "mid": "#3F1F14",
+      "primary": "#846C40",
+      "accent": "#FADF8C",
+      "text": "#F0E1C4"
+     }
+    },
+    {
+     "name": "Tidal Keep",
+     "character": "split-complementary, cool teal-blue family spans a 36° analogous arc (186–222°) for the sea/stone side, with a bronze pi",
+     "light": {
+      "surface": "#D6DAD8",
+      "mid": "#ABB4AF",
+      "primary": "#627F82",
+      "accent": "#256A81",
+      "text": "#162D39"
+     },
+     "dark": {
+      "bg": "#162D39",
+      "mid": "#404B64",
+      "primary": "#5B6360",
+      "accent": "#9B844A",
+      "text": "#D6DAD8"
+     }
+    }
+   ]
+  },
+  {
+   "entry": "Hellenic",
+   "shard": "period-styles.md",
+   "pairs": [
+    {
+     "name": "Cycladic",
+     "character": "analogous + complement, cool blue family (184–209°) against a warm neutral (41–46°), the classic \"sea and stone\" contras",
+     "light": {
+      "primary": "#0B4E8B",
+      "secondary": "#6B8DAB",
+      "accent": "#246D72",
+      "surface": "#F0EAD6",
+      "text": "#272217"
+     },
+     "dark": {
+      "primary": "#B8CCDD",
+      "secondary": "#6B8DAB",
+      "accent": "#246D72",
+      "surface": "#272217",
+      "text": "#EEE6CD"
+     }
+    },
+    {
+     "name": "Attic",
+     "character": "monochromatic-analogous, single warm wedge 21–45° (true monochromatic warmth, the way fired clay/slip/varnish share one ",
+     "light": {
+      "primary": "#703B1E",
+      "secondary": "#C58A53",
+      "accent": "#D8916C",
+      "surface": "#EEE6CD",
+      "text": "#272217"
+     },
+     "dark": {
+      "primary": "#D9A758",
+      "secondary": "#9A6A32",
+      "accent": "#D8916C",
+      "surface": "#33241B",
+      "text": "#E6CDAB"
+     }
+    }
+   ]
+  },
+  {
+   "entry": "Brutalism (web)",
+   "shard": "screen-styles.md",
+   "pairs": [
+    {
+     "name": "Full Volume",
+     "character": "pure black/white with a maximum-saturation red accent",
+     "light": {
+      "surface": "#FFFFFF",
+      "text": "#000000",
+      "primary": "#E10600"
+     },
+     "dark": {
+      "surface": "#000000",
+      "text": "#FFFFFF",
+      "primary": "#E10600"
+     }
+    },
+    {
+     "name": "Radiation",
+     "character": "pure black/white with a maximum-saturation acid-lime accent",
+     "light": {
+      "surface": "#FFFFFF",
+      "text": "#000000",
+      "primary": "#CCFF00"
+     },
+     "dark": {
+      "surface": "#000000",
+      "text": "#FFFFFF",
+      "primary": "#CCFF00"
+     }
+    }
+   ]
+  },
+  {
+   "entry": "Neo-brutalism",
+   "shard": "screen-styles.md",
+   "pairs": [
+    {
+     "name": "Sunshine Pop",
+     "character": "warm duo, yellow + coral",
+     "light": {
+      "surface": "#FFFDF7",
+      "text/border": "#111111",
+      "fill": "#FFD700"
+     },
+     "dark": {
+      "surface": "#171512",
+      "text/border": "#F5F5F0"
+     }
+    },
+    {
+     "name": "Garden Party",
+     "character": "cooler duo, sage + violet, distinct family from Sunshine Pop's warm pair",
+     "light": {
+      "surface": "#FBF8F2",
+      "text/border": "#111111",
+      "fill": "#8DB38B"
+     },
+     "dark": {
+      "surface": "#131317",
+      "text/border": "#F2F2EE"
+     }
+    }
+   ]
+  },
+  {
+   "entry": "Minimalism",
+   "shard": "screen-styles.md",
+   "pairs": [
+    {
+     "name": "Warm earth",
+     "character": "pure monochromatic, no second hue at all, the quietest possible reading of the rule",
+     "light": {
+      "surface": "#F1F1F1",
+      "text": "#302B26",
+      "primary": "#735E47"
+     },
+     "dark": {
+      "surface": "#151517",
+      "text": "#DBD2CB",
+      "primary": "#AB9882"
+     }
+    },
+    {
+     "name": "Pure neutral",
+     "character": "fully achromatic, straight grey scale, zero hue commitment; good as a utility/fallback palette",
+     "light": {
+      "surface": "#F1F1F1",
+      "text": "#302B26",
+      "primary": "#848484"
+     },
+     "dark": {
+      "surface": "#151517",
+      "text": "#DBD2CB",
+      "primary": "#848484"
+     }
+    }
+   ]
+  },
+  {
+   "entry": "Editorial / Print-derived",
+   "shard": "screen-styles.md",
+   "pairs": [
+    {
+     "name": "Fired Earth",
+     "character": "Matsuda Template 8, near-complementary: a tight analogous rust/terracotta/amber band (H 15–50°) against a sky-teal 170° ",
+     "light": {
+      "surface": "#F1EAE6",
+      "primary": "#AC5228",
+      "secondary": "#307C8A",
+      "accent": "#ED9228",
+      "muted": "#B27D4F",
+      "text": "#292725"
+     },
+     "dark": {
+      "surface": "#292725",
+      "primary": "#DB7C51",
+      "secondary": "#70B9C6",
+      "accent": "#EAD46A",
+      "text": "#F1EAE6"
+     }
+    },
+    {
+     "name": "Indigo Atlas",
+     "character": "Template 4, split-complementary: a cool navy triad (H 241–268°, `#2b2a5f`/`#5f80cd`/`#9a77c3`) with warm splits `#eed881",
+     "light": {
+      "surface": "#E5EFED",
+      "primary": "#2B2A5F",
+      "secondary": "#5F80CD",
+      "accent": "#9A77C3",
+      "warm": "#896941",
+      "text": "#383342"
+     },
+     "dark": {
+      "surface": "#2B2A5F",
+      "primary": "#70B9C6",
+      "secondary": "#9A77C3",
+      "accent": "#EED881",
+      "text": "#E5EFED"
+     }
+    }
+   ]
+  },
+  {
+   "entry": "Vaporwave / Synthwave",
+   "shard": "screen-styles.md",
+   "pairs": [
+    {
+     "name": "Ultraviolet",
+     "character": "extended analogous, H 201–310° (cyan → violet → magenta, a 109° sweep just shy of triadic), the classic cold-synthwave t",
+     "light": {
+      "bg": "#F2E6FB",
+      "surface": "#DDC9F0",
+      "primary": "#653AA8",
+      "secondary": "#8E327F",
+      "accent": "#3396BA",
+      "highlight": "#A0C0F9",
+      "muted": "#CBC1EC",
+      "text": "#2C1B55"
+     },
+     "dark": {
+      "bg": "#2C1B55",
+      "surface": "#372741",
+      "primary": "#CA51B6",
+      "secondary": "#7E70F8",
+      "accent": "#3FB2F0",
+      "glow": "#9E88EB",
+      "muted": "#CBC1EC",
+      "text": "#F2E6FB"
+     }
+    },
+    {
+     "name": "Aurora Drift",
+     "character": "split-complementary, warm variant, anchored teal ~165° with splits at orange ~25° and hot-pink/raspberry ~335° (109°/170",
+     "light": {
+      "bg": "#EEEBFA",
+      "surface": "#D7F4ED",
+      "primary": "#13AE88",
+      "secondary": "#D96512",
+      "accent": "#ED1D73",
+      "highlight": "#64F7D2",
+      "text": "#1A1037"
+     },
+     "dark": {
+      "bg": "#100C1D",
+      "surface": "#1D1730",
+      "primary": "#13ECB6",
+      "secondary": "#F47B25",
+      "accent": "#F53D8A",
+      "glow": "#5EEDC9",
+      "muted": "#ADA7BE",
+      "text": "#F2EFFB"
+     }
+    }
+   ]
+  },
+  {
+   "entry": "Y2K / Cyber",
+   "shard": "screen-styles.md",
+   "pairs": [
+    {
+     "name": "Azure Grid",
+     "character": "analogous + split-complementary accent (H 190–241°, ~51° total arc), the tight controlled feel of Windows XP loading scr",
+     "light": {
+      "surface": "#DCF5FA",
+      "secondary": "#DBE8F8",
+      "primary": "#1530B6",
+      "accent": "#7371FA",
+      "muted": "#2682D1",
+      "text": "#112652"
+     },
+     "dark": {
+      "surface": "#0D1018",
+      "secondary": "#112652",
+      "primary": "#1530B6",
+      "accent": "#7371FA",
+      "muted": "#82D4F3",
+      "text": "#DBE8F8"
+     }
+    },
+    {
+     "name": "Neon Orchid",
+     "character": "split-complementary (H 248° violet + 299–324° pink/magenta band, ~76° spread); the two pink tones flank the complement o",
+     "light": {
+      "surface": "#F5BADD",
+      "secondary": "#D7CCEB",
+      "primary": "#6250D1",
+      "accent": "#FA8ED2",
+      "muted": "#DC9CDD",
+      "text": "#3B2029"
+     },
+     "dark": {
+      "surface": "#0D1018",
+      "secondary": "#3B2029",
+      "primary": "#6250D1",
+      "accent": "#FA8ED2",
+      "muted": "#DC9CDD",
+      "text": "#F5BADD"
+     }
+    }
+   ]
+  },
+  {
+   "entry": "ASCII art",
+   "shard": "screen-styles.md",
+   "pairs": [
+    {
+     "name": "Phosphor Terminal",
+     "character": "single-hue green monochrome, the classic CRT terminal register",
+     "light": {
+      "surface": "#EEF7EA",
+      "primary/text": "#123312",
+      "secondary": "#1F7A1F",
+      "primary": "#33FF33"
+     },
+     "dark": {
+      "surface": "#0A0F0A",
+      "primary/text": "#33FF33",
+      "secondary": "#1F7A1F",
+      "primary": "#BAFFBA"
+     }
+    },
+    {
+     "name": "Print Terminal",
+     "character": "fully achromatic, the \"simple black on white/cream\" register",
+     "light": {
+      "surface": "#F7F5EF",
+      "primary/text": "#14120F"
+     },
+     "dark": {
+      "surface": "#0D0D0D",
+      "primary/text": "#F2F2F2"
+     }
+    }
+   ]
+  },
+  {
+   "entry": "Pixelscape",
+   "shard": "screen-styles.md",
+   "pairs": [
+    {
+     "name": "NES-era",
+     "character": "tetradic, flat-hex saturated primaries (harmony 0",
+     "light": {
+      "surface": "#F2E4C9",
+      "primary": "#DC1839",
+      "secondary": "#8FC91D",
+      "accent": "#6525E4",
+      "text": "#1A1408"
+     },
+     "dark": {
+      "surface": "#000000",
+      "primary": "#DC1839",
+      "secondary": "#8FC91D",
+      "accent": "#6525E4",
+      "text": "#F2F2F2"
+     }
+    },
+    {
+     "name": "Game Boy DMG",
+     "character": "single-hue 4-shade green monochrome, reflective LCD rather than CRT",
+     "light": {
+      "surface": "#9BBC0F",
+      "text/primary": "#0F380F",
+      "secondary": "#306230",
+      "accent": "#8BAC0F"
+     },
+     "dark": {
+      "surface": "#0F380F",
+      "text/primary": "#9BBC0F",
+      "secondary": "#306230",
+      "accent": "#8BAC0F"
+     }
+    }
+   ]
+  },
+  {
+   "entry": "Naturecore",
+   "shard": "subculture-styles.md",
+   "pairs": [
+    {
+     "name": "Mossland",
+     "character": "analogous, base 70° moss with ±30–40° tolerance; primary/secondary sit ~3° apart (tight moss cluster), accent pulled ~50",
+     "light": {
+      "primary": "#697D41",
+      "secondary": "#B2C484",
+      "accent": "#816345",
+      "surface": "#D2CEA5",
+      "text": "#171A0B"
+     },
+     "dark": {
+      "primary": "#99B469",
+      "secondary": "#AFAE80",
+      "accent": "#E1B793",
+      "surface": "#1E240C",
+      "text": "#D2CEA5"
+     }
+    },
+    {
+     "name": "Stone & Sage",
+     "character": "compound/near-complementary, base 140° sage with accent at 291° (~151° offset, inside the compound window); a deliberate",
+     "light": {
+      "primary": "#7C8E79",
+      "secondary": "#9AB1B9",
+      "accent": "#CEBDD1",
+      "surface": "#BCBCB7",
+      "text": "#3D4340"
+     },
+     "dark": {
+      "primary": "#7C8B9E",
+      "secondary": "#9AB1B9",
+      "accent": "#CEBDD1",
+      "surface": "#3D4340",
+      "text": "#C7C7D0"
+     }
+    },
+    {
+     "name": "Forest Scholastic",
+     "character": "analogous, H 129–165° (pine → mint), a third distinct branch clear of both Mossland's yellow-green (70–82°) and Stone & ",
+     "light": {
+      "primary": "#085838",
+      "secondary": "#256B37",
+      "accent": "#D6DAD8",
+      "surface": "#FBFBFB",
+      "text": "#122E1A"
+     },
+     "dark": {
+      "primary": "#085838",
+      "secondary": "#679C80",
+      "accent": "#9FDBCC",
+      "surface": "#122E1A",
+      "text": "#FBFBFB"
+     }
+    }
+   ]
+  },
+  {
+   "entry": "Coquette / Girly",
+   "shard": "subculture-styles.md",
+   "pairs": [
+    {
+     "name": "Rose Petal",
+     "character": "analogous mauve · dusty violet split, the dreamiest end of the spectrum",
+     "light": {
+      "surface": "#EDE3E3",
+      "surface-alt": "#E3C3CB",
+      "muted": "#D7C2CA",
+      "mid-rose": "#BB828D",
+      "secondary": "#CF768C",
+      "primary": "#A2516E",
+      "accent": "#7C607C",
+      "text": "#5E4E4C"
+     },
+     "dark": {
+      "surface": "#431814",
+      "surface-alt": "#5E4E4C",
+      "raised": "#84625A",
+      "muted": "#A47473",
+      "accent": "#9A7D84",
+      "secondary": "#CF768C",
+      "primary": "#E3C3CB",
+      "text": "#EDE3E3"
+     }
+    },
+    {
+     "name": "Velvet Ribbon",
+     "character": "split-complementary carmine · dusty violet, theatrical and editorial, dark-romantic edge",
+     "light": {
+      "surface": "#E8DCD3",
+      "surface-alt": "#EDC4A7",
+      "muted": "#C9BBB6",
+      "mid-rose": "#A15F69",
+      "secondary": "#A2516E",
+      "primary": "#A83944",
+      "accent": "#7C607C",
+      "text": "#352219"
+     },
+     "dark": {
+      "surface": "#352219",
+      "surface-alt": "#462915",
+      "raised": "#714C3F",
+      "muted": "#927768",
+      "accent": "#B48B8D",
+      "secondary": "#C99372",
+      "primary": "#DB6653",
+      "text": "#E8DCD3"
+     }
+    }
+   ]
+  },
+  {
+   "entry": "Ancient Occult / Modern Mysticism",
+   "shard": "subculture-styles.md",
+   "pairs": [
+    {
+     "name": "Alchemical Emblem",
+     "character": "gold, verdigris, and faded rose against aged parchment (the alchemical-tree-print and illuminated-initial register)",
+     "light": {
+      "surface": "#DFD3B4",
+      "primary": "#B78F38",
+      "secondary": "#66856E",
+      "accent": "#A0594B",
+      "text": "#2F2319"
+     },
+     "dark": {
+      "surface": "#1D1711",
+      "primary": "#C8A75F",
+      "secondary": "#809D88",
+      "accent": "#BD796B",
+      "text": "#DED1B5"
+     }
+    },
+    {
+     "name": "Engraved Vision",
+     "character": "smoked umber and dull gilt against soft engraving-grey (the Doré/Moreau register — near-monochrome ink softened by gilt ",
+     "light": {
+      "surface": "#E2DDD4",
+      "primary": "#56402E",
+      "secondary": "#8A8475",
+      "accent": "#A37F3E",
+      "text": "#231C15"
+     },
+     "dark": {
+      "surface": "#16110E",
+      "primary": "#C69F5D",
+      "secondary": "#716C60",
+      "accent": "#9E7851",
+      "text": "#E5DDD2"
+     }
+    },
+    {
+     "name": "Ritual Contrast",
+     "character": "(indigo + gold) — the highest-clash end of the register",
+     "light": {
+      "surface": "#0F0F1D",
+      "primary": "#32293D",
+      "secondary": "#564E5D",
+      "accent": "#E0B9B8",
+      "text": "#EBE8ED"
+     },
+     "dark": {
+      "surface": "#302C34",
+      "primary": "#625D55",
+      "secondary": "#43403A",
+      "accent": "#CFB159",
+      "text": "#D1CFCC"
+     }
+    }
+   ]
+  },
+  {
+   "entry": "Light / Dark Academia",
+   "shard": "subculture-styles.md",
+   "pairs": [
+    {
+     "name": "Marginalia",
+     "character": "monochromatic H≈22–25° with an analogous H77° sage accent, \"the feeling of a handwritten annotation found between the pa",
+     "light": {
+      "bg": "#E5DADE",
+      "surface": "#D6C7BA",
+      "border": "#CCBFB3",
+      "muted": "#A29791",
+      "accent": "#707563",
+      "secondary": "#775239",
+      "primary": "#624A32",
+      "text": "#1E140D"
+     },
+     "dark": {
+      "bg": "#1E140D",
+      "surface": "#2D1B15",
+      "border": "#402B1C",
+      "muted": "#816347",
+      "accent": "#707563",
+      "secondary": "#A28166",
+      "primary": "#B79A7D",
+      "text": "#E5DADE",
+      "replacing the lighter": "#DFCFB7"
+     }
+    },
+    {
+     "name": "Tallow & Tome",
+     "character": "near-complementary H≈22–24° core with a compound H40–57° olive-khaki accent, cooler and more shadowed than Marginalia: \"",
+     "light": {
+      "bg": "#D8D6D3",
+      "surface": "#C2AAA1",
+      "border": "#A29791",
+      "muted": "#8B8579",
+      "accent": "#474634",
+      "secondary": "#876D4B",
+      "primary": "#5E3E2C",
+      "text": "#1E1712"
+     },
+     "dark": {
+      "bg": "#1E1712",
+      "surface": "#39291F",
+      "border": "#5C473C",
+      "muted": "#927768",
+      "accent": "#6C6454",
+      "secondary": "#B79A7D",
+      "primary": "#DFCFB7",
+      "text": "#D8D6D3"
+     }
+    }
+   ]
+  },
+  {
+   "entry": "Fairy-tale-whimsical / Dark Fantasy",
+   "shard": "subculture-styles.md",
+   "pairs": [
+    {
+     "name": "Moonflower Meadow",
+     "character": "analogous violet–purple with a complementary mint accent; moonlit enchanted-forest magic, twilight purples with a single",
+     "light": {
+      "surface": "#E7DCE5",
+      "primary": "#9385D8",
+      "secondary": "#CDB9F8",
+      "accent": "#B1D5D1",
+      "text": "#3D3371"
+     },
+     "dark": {
+      "surface": "#1A2C45",
+      "primary": "#9178B7",
+      "secondary": "#573181",
+      "accent": "#D5B2DD",
+      "text": "#D7D5F9"
+     }
+    },
+    {
+     "name": "Honeycomb Grove",
+     "character": "complementary amber ↔ sage/forest-green with a warm blush support tone; honeyed storybook-cottage warmth by day, cozy la",
+     "light": {
+      "surface": "#DCCDB3",
+      "primary": "#D6B689",
+      "secondary": "#E4B5C1",
+      "accent": "#A2AF99",
+      "text": "#4F3421"
+     },
+     "dark": {
+      "surface": "#302218",
+      "primary": "#6A3C12",
+      "secondary": "#4F6A47",
+      "accent": "#CA9147",
+      "text": "#D5C4A1"
+     }
+    },
+    {
+     "name": "Blood & Iron",
+     "character": "analogous cluster (359°→8°→34°) anchored by a near-complementary cold surface (220°), compound/near-complementary varian",
+     "light": {
+      "primary": "#AD5E58",
+      "secondary": "#A48C84",
+      "accent": "#CA9147",
+      "surface": "#CCCBCF",
+      "text": "#262626"
+     },
+     "dark": {
+      "primary": "#985A5B",
+      "secondary": "#6E4B46",
+      "accent": "#CA9147",
+      "surface": "#13171F",
+      "text": "#DACFCB"
+     }
+    },
+    {
+     "name": "Shadow & Frost",
+     "character": "extended analogous arc (233°→241°→276°) with a mild split into teal (187°/197°) for a chill accent; indigo-violet-teal r",
+     "light": {
+      "primary": "#536A9E",
+      "secondary": "#75616D",
+      "accent": "#597580",
+      "surface": "#C4C1C1",
+      "text": "#1A1D33"
+     },
+     "dark": {
+      "primary": "#3C3B6E",
+      "secondary": "#6C3C8C",
+      "accent": "#83A8AD",
+      "surface": "#1A1D33",
+      "text": "#BEE6E3"
+     }
+    }
+   ]
+  },
+  {
+   "entry": "Wabi Sabi",
+   "shard": "world-traditions.md",
+   "pairs": [
+    {
+     "name": "Clay & Umber",
+     "character": "monochromatic core 34–46° with a terracotta accent for warmth variation",
+     "light": {
+      "surface": "#D4C9BF",
+      "primary": "#9D8766",
+      "secondary": "#B7AA97",
+      "accent": "#A3623F",
+      "text": "#3D2B1B"
+     },
+     "dark": {
+      "surface": "#272016",
+      "primary": "#705C3E",
+      "secondary": "#5B543C",
+      "accent": "#A3623F",
+      "text": "#DDDAD0"
+     }
+    },
+    {
+     "name": "Sun-bleached Bark",
+     "character": "monochromatic, H≈20–35°, generated via color-optimization-core as a genuinely distinct second warm register: greyer and ",
+     "light": {
+      "surface": "#D2CCC6",
+      "primary": "#9D8C7B",
+      "secondary": "#B6AFA5",
+      "accent": "#805E4D",
+      "text": "#372E25"
+     },
+     "dark": {
+      "surface": "#1D1A16",
+      "primary": "#64594F",
+      "secondary": "#7E7567",
+      "accent": "#805E4D",
+      "text": "#E4E1DD"
+     }
+    }
+   ]
+  }
+ ]
+}

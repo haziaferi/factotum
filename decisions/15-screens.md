@@ -134,6 +134,23 @@ A minimal repair gives the portfolio a feasible seed, lightness first. Hue moves
 
 **Open: the owner's pick among the groups.**
 
+**Palettes (Q4), first slate (2026-10-06).** The owner asked for the palettes to be decided before the Hub sheet's form, with one palette each for Calendar, Routines and check-in, combined into 15–30 groups. Pages keeps its mockup amber.
+
+The owner's answers:
+- The dark ground is CIELAB L* 5–7, and there is no pure white or black outside OLED.
+- No reds, and no orange, amber, coral, salmon or peach.
+- Terracotta, rust, clay, magenta, plum and mauve are allowed.
+- Pinks appear in at most a third of the groups, and bright colours are toned down.
+- Every palette works on light, dark and OLED.
+- The groups are shown as swatches with a mini home each, about 24 of them.
+
+How they were made:
+- `tools/screens/lexicon_pairs.py` extracts the design lexicon's 111 named pairs.
+- `docs/screens/t0/palette-keywords.json` holds the picks: 8 per module, 5 of them oblique, each with its move and reason.
+- `tools/screens/palette_groups.py` adapts each pick to the fixed grounds, checks it, and composes and selects the groups. It writes `palettes.md` and `palettes.html`.
+
+**Not yet discussed with the owner.**
+
 **Next, in dependency order:**
 1. Score the navigation pattern: Q2, with Q8 and then Q3.
 2. Then the palette (Q4).
