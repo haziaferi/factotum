@@ -4,65 +4,102 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Factotum palette groups</title>
-<!-- Template for tools/screens/palette_groups.py, which writes palette-groups.html with the front in place of DATA.
-     Edit this file, not the generated one. -->
+<!-- Template for tools/screens/palette_groups.py, which writes palette-groups.html with every compatible group in place of
+     DATA. Edit this file, not the generated one. Each palette is drawn whole and apart: nothing is merged. -->
 <style>
 :root{--pg:#f4f4f2;--pfg:#1c1c1a;--pdim:#66665f;--pline:#d6d6d0;--pcard:#fff}
 @media (prefers-color-scheme:dark){:root:not([data-theme=light]){--pg:#141517;--pfg:#e6e5e1;--pdim:#9c9a94;--pline:#34363a;--pcard:#1d1f22}}
 :root[data-theme=dark]{--pg:#141517;--pfg:#e6e5e1;--pdim:#9c9a94;--pline:#34363a;--pcard:#1d1f22}
 *{box-sizing:border-box}
 body{margin:0;padding:20px 16px 48px;background:var(--pg);color:var(--pfg);font:14px/1.5 system-ui,sans-serif}
-h1{font-size:21px;margin:0 0 4px}p{max-width:84ch}.dim{color:var(--pdim)}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,560px),1fr));gap:14px;margin-top:14px}
-.g{background:var(--pcard);border-radius:14px;padding:12px 14px;box-shadow:inset 0 0 0 1px var(--pline)}
-.g h3{margin:0 0 2px;font-size:14px}.g .who{font-size:12.5px;color:var(--pdim);margin:0 0 8px}.g .who b{color:var(--pfg);font-weight:600}
-.g .nums{font:11px ui-monospace,monospace;color:var(--pdim);margin-top:6px}
-.two{display:flex;gap:10px;flex-wrap:wrap}
-/* the mini home: one shared ground and ink, each module in its own palette's primary */
-.mh{flex:1 1 240px;min-width:0;background:var(--gr);color:var(--ink);border-radius:12px;padding:9px;font-size:12px;display:flex;flex-direction:column;gap:6px;box-shadow:inset 0 0 0 1px rgba(127,127,127,.25)}
-.mh .z{background:var(--rs);border-radius:9px;padding:6px 8px}
-.mh .z h4{margin:0 0 3px;font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;opacity:.7;display:flex;gap:6px;align-items:center}
-.mh .z h4 i{width:7px;height:7px;border-radius:50%;background:var(--c)}
-.mh .r{display:flex;align-items:center;gap:7px;padding:2px 0}.mh .r .x{flex:1}
-.mh .bar{width:3px;align-self:stretch;border-radius:2px;background:var(--cal)}
-.mh .btn{background:var(--rou);color:var(--rouink);border-radius:999px;padding:1px 9px;font-size:10.5px}
-.mh .tiles{display:grid;grid-template-columns:1fr 1fr;gap:6px}
-.mh .tile{border-radius:9px;padding:7px 8px;background:color-mix(in srgb,var(--chk) 22%,var(--gr));box-shadow:inset 3px 0 0 var(--chk)}
-.mh .nav{display:flex;justify-content:space-around;font-size:10px;opacity:.85;padding-top:2px}
-.mh .nav span{padding:1px 8px;border-radius:999px}.mh .nav .on{background:color-mix(in srgb,var(--cal) 25%,var(--gr));font-weight:600}
-.sw{display:flex;gap:4px;margin-top:4px}.sw span{flex:1;height:14px;border-radius:4px}
+h1{font-size:21px;margin:0 0 4px}p{max-width:86ch}.dim{color:var(--pdim)}
+.ctl{display:flex;gap:10px;flex-wrap:wrap;align-items:end;margin:12px 0}
+.ctl label{display:flex;flex-direction:column;font-size:12px;color:var(--pdim);gap:2px}
+.ctl select,.ctl button{font:inherit;font-size:13px;color:var(--pfg);background:var(--pcard);border:1px solid var(--pline);border-radius:8px;padding:4px 8px;max-width:100%}
+.g{background:var(--pcard);border-radius:14px;padding:12px 14px;margin:12px 0;box-shadow:inset 0 0 0 1px var(--pline)}
+.g h3{margin:0;font-size:14px}.g .nums{font:11px ui-monospace,monospace;color:var(--pdim);margin:2px 0 8px}
+.trio{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+@media (max-width:760px){.trio{grid-template-columns:1fr}}
+.pal h4{margin:0 0 1px;font-size:12px;color:var(--pdim);text-transform:uppercase;letter-spacing:.05em}
+.pal .nm{font-size:13px;font-weight:600;margin-bottom:5px}.pal .ob{font-size:10.5px;border:1px solid var(--pline);border-radius:999px;padding:0 6px;margin-left:4px;color:var(--pdim);font-weight:500}
+.regs{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.sw{display:flex;height:10px;border-radius:4px;overflow:hidden;margin-top:4px}.sw span{flex:1}
+/* one palette's snippet: all colour from --s --t --p --sec --acc --onp */
+.snip{background:var(--s);color:var(--t);border-radius:9px;padding:7px 8px;font-size:11.5px;min-height:98px;box-shadow:inset 0 0 0 1px rgba(127,127,127,.25)}
+.snip .row{display:flex;align-items:center;gap:6px;padding:2px 0}.snip .row .x{flex:1;min-width:0}
+.snip .bar{width:3px;align-self:stretch;background:var(--p);border-radius:2px}
+.snip .ring{width:11px;height:11px;border-radius:50%;box-shadow:inset 0 0 0 1.5px var(--t);flex:none}
+.snip .wk{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-top:5px;text-align:center;font-size:9px}
+.snip .wk span{border-radius:4px;padding:2px 0;box-shadow:inset 0 0 0 1px var(--sec)}.snip .wk .busy{background:var(--p);color:var(--onp);box-shadow:none}
+.snip .btn{background:var(--p);color:var(--onp);border-radius:999px;padding:0 8px;font-size:10px;flex:none}
+.snip .dots{display:flex;gap:2px}.snip .dots i{width:7px;height:7px;border-radius:50%;box-shadow:inset 0 0 0 1.5px var(--sec)}.snip .dots i.f{background:var(--sec);box-shadow:none}
+.snip .gap{border:1.5px dashed var(--sec);border-radius:4px}
+.snip .line{display:flex;justify-content:space-between;align-items:center;padding:5px 7px;border-radius:8px;background:color-mix(in srgb,var(--p) 22%,var(--s));margin:2px 0}
+.snip .pills{display:flex;gap:4px;margin:4px 0;flex-wrap:wrap}.snip .pills span{border-radius:999px;padding:1px 7px;font-size:10px;box-shadow:inset 0 0 0 1.5px var(--sec)}
 </style>
 </head>
 <body>
 <h1>Palette groups: Calendar, Routines, Check-in</h1>
 <p class="dim" id="intro"></p>
-<div class="grid" id="out"></div>
+<div class="ctl">
+  <label>Calendar <select id="fCal"></select></label>
+  <label>Routines <select id="fRou"></select></label>
+  <label>Check-in <select id="fChk"></select></label>
+  <button id="theme">Light / dark page</button>
+</div>
+<p class="dim" id="count"></p>
+<div id="out"></div>
 <script>
 const D = /*DATA*/null;
+const MODS = ["Calendar", "Routines", "Check-in"];
 const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-const INK = {light: "#1c1c1a", dark: "#e6e5e1"}, RAISED = {light: "#ffffff", dark: "#202125"};
 const lum = h => { const c = [1,3,5].map(i => parseInt(h.slice(i, i + 2), 16) / 255).map(x => x <= .04045 ? x / 12.92 : ((x + .055) / 1.055) ** 2.4);
   return .2126 * c[0] + .7152 * c[1] + .0722 * c[2]; };
 const cr = (a, b) => (Math.max(lum(a), lum(b)) + .05) / (Math.min(lum(a), lum(b)) + .05);
-const lab = m => `${m.oblique ? "★ " : ""}${esc(m.keyword)} · ${esc(m.pair)}`;
-function home(g, mode) {
-  const [cal, rou, chk] = g.members.map(m => m[mode].primary), gr = D.ground[mode];
-  const rouink = cr(INK.light, rou) >= cr(INK.dark, rou) ? INK.light : INK.dark;
-  return `<div class="mh" style="--gr:${gr};--ink:${INK[mode]};--rs:${RAISED[mode]};--cal:${cal};--rou:${rou};--rouink:${rouink};--chk:${chk}">
-    <div class="z" style="--c:${cal}"><h4><i></i>Agenda</h4><div class="r"><span class="bar"></span><span style="width:32px;opacity:.7">09:00</span><span class="x">Dentist</span></div></div>
-    <div class="z" style="--c:${rou}"><h4><i></i>Routines</h4><div class="r"><span class="x">Walk</span><span class="btn">Log</span></div><div class="r"><span class="x">Water 3 of 8</span><span class="btn">Log</span></div></div>
-    <div class="tiles"><div class="tile">How are things? ›</div><div class="tile">Ledger ›</div></div>
-    <div class="nav"><span class="on">Today</span><span>Week</span><span>Hub</span><span>Routines</span><span>Pages</span></div>
-    <div class="sw"><span style="background:${cal}" title="calendar ${cal}"></span><span style="background:${rou}" title="routines ${rou}"></span><span style="background:${chk}" title="check-in ${chk}"></span></div></div>`;
+const onp = (p, c) => cr(c.text, p) >= cr(c.surface, p) ? c.text : c.surface;
+const short = m => `${m.keyword} · ${m.pair.split(" (")[0]}`;
+const SNIP = {
+  "Calendar": () => `<div class="row"><span class="bar"></span><span style="width:30px">09:00</span><span class="x">Dentist</span></div>
+    <div class="row"><span class="ring"></span><span class="x">Pay the fine</span></div>
+    <div class="wk">${["M","T","W","T","F","S","S"].map((d, i) => `<span class="${[0,1,3].includes(i) ? "busy" : ""}">${d}</span>`).join("")}</div>`,
+  "Routines": () => `<div class="row"><span class="x">Walk</span><span class="btn">Log</span></div>
+    <div class="row"><span class="x">Water</span><span class="dots">${"fffiiii".split("").map(c => `<i class="${c === "f" ? "f" : ""}"></i>`).join("")}</span></div>
+    <div class="wk">${["M","T","W","T","F","S","S"].map((d, i) => `<span class="${i === 2 ? "gap" : "busy"}">${d}</span>`).join("")}</div>`,
+  "Check-in": () => `<div class="line"><span>How are things?</span><span>›</span></div>
+    <div class="pills"><span>low</span><span>steady</span><span>high</span></div><div class="line"><span>Ledger</span><span>›</span></div>`,
+};
+const roles = c => ["surface","text","primary","secondary","accent"].filter(k => c[k]);
+function reg(module, r) {
+  const c = r.colors;
+  return `<div><div class="snip" style="--s:${c.surface};--t:${c.text};--p:${c.primary};--sec:${c.secondary || c.primary};--acc:${c.accent || c.primary};--onp:${onp(c.primary, c)}">${SNIP[module]()}</div>
+    <div class="sw">${roles(c).map(k => `<span title="${k} ${c[k]}" style="background:${c[k]}"></span>`).join("")}</div></div>`;
 }
-document.getElementById("intro").innerHTML = `${D.counts.groups} groups were scored (one adapted palette per module, on the shared ground #F4F4F2 / #17181A).
-  <b>${D.counts.ok}</b> keep the three module colours apart (CIEDE2000 ≥ 10) with normal vision and under all three simulated colour blindnesses, in light and dark.
-  The <b>${D.counts.front}</b> below are the best trade-offs among those: harmony of the three hues, even balance against the ground, and colour-blind margin.
-  Each module shows its palette's main colour; the ground and ink are shared, as they would be on the real home.`;
-document.getElementById("out").innerHTML = D.front.map((g, i) => `<div class="g"><h3>Group ${i + 1}</h3>
-  <p class="who"><b>Calendar</b> ${lab(g.members[0])}<br><b>Routines</b> ${lab(g.members[1])}<br><b>Check-in</b> ${lab(g.members[2])}</p>
-  <div class="two">${home(g, "light")}${home(g, "dark")}</div>
-  <div class="nums">harmony ${g.harmony.toFixed(2)} (${esc(g.template)}) · balance spread ${g.balance} · apart: normal ${g.normal}, colour-blind worst ${g.cvd}</div></div>`).join("");
+function pal(m) {
+  return `<div class="pal"><h4>${m.module}</h4><div class="nm">${esc(short(m))}${m.oblique ? '<span class="ob">★ oblique</span>' : ""}</div>
+    <div class="regs">${reg(m.module, m.light)}${reg(m.module, m.dark)}</div></div>`;
+}
+const sel = {Calendar: "fCal", Routines: "fRou", "Check-in": "fChk"};
+for (const m of MODS) {
+  const names = [...new Set(D.groups.map(g => short(g.members[MODS.indexOf(m)])))];
+  document.getElementById(sel[m]).innerHTML = `<option value="">any</option>` + names.map(n => `<option>${esc(n)}</option>`).join("");
+}
+function render() {
+  const f = MODS.map(m => document.getElementById(sel[m]).value);
+  const shown = D.groups.map((g, i) => [g, i + 1]).filter(([g]) => g.members.every((m, k) => !f[k] || short(m) === f[k]));
+  document.getElementById("count").textContent = `Showing ${shown.length} of ${D.groups.length} groups, ordered by harmony.`;
+  document.getElementById("out").innerHTML = shown.map(([g, n]) => `<div class="g"><h3>Group ${n}</h3>
+    <div class="nums">harmony ${g.harmony.toFixed(2)} (${esc(g.template)}) · balance spread ${g.balance} · module colours apart: normal ${g.normal}, colour-blind worst ${g.cvd}</div>
+    <div class="trio">${g.members.map(pal).join("")}</div></div>`).join("");
+}
+document.getElementById("intro").innerHTML = `Every group is one Calendar, one Routines and one Check-in palette, each adapted to the shared ground (#F4F4F2 / #17181A) and drawn <b>whole and apart</b>, light then dark.
+  A group is compatible when the three palettes' main colours stay clearly apart (CIEDE2000 ≥ 10) with normal vision and under all three simulated colour blindnesses, in light and dark.
+  <b>${D.groups.length}</b> of ${D.counts.trios} possible groups are compatible; a palette can belong to several. ${D.excluded.length ? D.excluded.length + " palettes fit no group and are left out." : "Every palette fits at least one group, so none is left out."}
+  Use the filters to see the groups a given palette belongs to.`;
+MODS.forEach(m => document.getElementById(sel[m]).onchange = render);
+let dark = matchMedia("(prefers-color-scheme: dark)").matches;
+const theme = () => document.documentElement.dataset.theme = dark ? "dark" : "light";
+document.getElementById("theme").onclick = () => { dark = !dark; theme(); };
+theme(); render();
 </script>
 </body>
 </html>

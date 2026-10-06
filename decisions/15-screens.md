@@ -122,7 +122,11 @@ A minimal repair gives the portfolio a feasible seed, lightness first. Hue moves
 
 **Compatible groups (owner, same day, Pages left out).** `tools/screens/palette_groups.py` scores all 180 groups of one adapted pair per module, writing `palette-groups.html` and `.md`. Each module is identified by its palette's primary, judged on the shared ground in both modes.
 - **The floor:** CIEDE2000 ≥ 10 between the three module colours, with normal vision and under simulated deuteranopia, protanopia and tritanopia (color-optimization-core's floor, calibrated on Okabe–Ito). **58 groups pass.**
-- **The ranking:** designkit's harmony-template fit, the balance of the three against the ground, and the colour-blind margin. **5 groups are on the front.** Four of them pair ★Wabi Sabi routines with ★Ming or Swiss calendars. The fifth is Swiss · Health Linen · Serene Still Water, the evenest of the five.
+- **Corrected twice the same day:**
+  - The owner wants **groups of three palettes shown whole and apart, not merged** into one screen.
+  - **"As many as can be created", with no limit of 4:** every compatible trio is a group, and a palette may be in several. Only palettes that fit no trio are excluded, and there are none.
+  - The page shows all **58 groups**, ordered by harmony (designkit's template fit), with balance and colour-blind margin beside each. Filters list the groups a given palette is in.
+  - An earlier Pareto front of 5, drawn as one combined home, and a 4-group partition were both withdrawn.
 - **How easily each candidate combines:**
   - Calendar: Ming 18 of 36 groups.
   - Routines: Wabi Sabi 14 of 20 for either pair. Health Daylight and Craft Sage & Clay manage only 1 of 20.

@@ -1,18 +1,20 @@
-"""Which adapted palettes go together (owner, 2026-10-06: "group the compatible palettes for Calendar, Routines and
-Check-in, leaving Pages out for now", with color-optimization-core). Writes docs/screens/t0/palette-groups.html and .md.
+"""Groups of three compatible palettes (owner, 2026-10-06: "groups of 3, each made of one palette for Calendar, one
+for Routines, one for Check-in, as many as can be created from the existing palette candidates on the shared ground;
+palettes not compatible enough to form a group are excluded"; with color-optimization-core; Pages left out).
+Writes docs/screens/t0/palette-groups.html and .md. The palettes are never merged: each is shown whole, beside the
+other two of its group.
 
-Input: docs/screens/t0/palette-adapted.json (palette_adapt.py): every lexicon pair already adapted to the shared
-ground. A group is one pair per module. The three modules sit together on home, so each module is identified by its
-palette's primary, and a group is judged on those three colours, in light AND dark (the worse mode counts):
+Input: docs/screens/t0/palette-adapted.json (palette_adapt.py), every lexicon pair adapted to the shared ground.
+A trio is compatible when its three palettes' primaries (the colour each module is recognised by) stay apart, in
+light AND dark:
 
   hard   distinct   min pairwise CIEDE2000 >= 10 with normal vision, and under simulated deuteranopia, protanopia and
                     tritanopia: the floor color-optimization-core calibrates on Okabe & Ito's colour-blind-safe set
-  rank   harmony    designkit's best harmony-template fit of the three hues (harmony.best_template)
-         balance    spread of the three primaries' CIEDE2000 from the ground: low = no module louder than another
-                    (app-register-layout Step 1d B, nav-glance's equal-salience rule)
-         margin     how far the worst colour-blind pair clears the floor
+  rank   harmony    designkit's best harmony-template fit of the three hues (harmony.best_template), worse mode
+         balance    spread of the three primaries' CIEDE2000 from the ground (lower = no module louder), worse mode
 
-5 x 9 x 4 = 180 groups, small enough to enumerate exactly against designkit's own functions; no search is needed.
+Grouping: every compatible trio is a group; a palette may belong to several (owner: "there is no limit of 4"). A palette
+in no compatible trio is excluded. 5 x 9 x 4 = 180 trios, enumerated exactly; no search is needed.
 
     PYTHONUTF8=1 python tools/screens/palette_groups.py
 """
@@ -41,88 +43,63 @@ def options():
         data = json.load(fh)
     out = {}
     for m in MODULES:
-        out[m] = [dict(keyword=c["keyword"], oblique=c["oblique"], pair=p["name"].split(" (")[0],
-                       light=p["light"]["colors"], dark=p["dark"]["colors"])
+        out[m] = [dict(id="%s|%s|%s" % (m, c["keyword"], p["name"]), module=m, keyword=c["keyword"], oblique=c["oblique"],
+                       note=c["note"], pair=p["name"], light=p["light"], dark=p["dark"])
                   for c in data[m] for p in c["pairs"]]
     return out
 
 
-def judge(group):
-    worst = dict(distinct={v: 999.0 for v in VISION}, harmony=None, balance=0.0, template="")
-    per_mode = {}
+def judge(trio):
+    dist = {v: 999.0 for v in VISION}
+    harm, template, balance = None, "", 0.0
     for mode in ("light", "dark"):
-        cols = [g[mode]["primary"] for g in group]
-        dist = {}
+        cols = [t[mode]["colors"]["primary"] for t in trio]
         for v in VISION:
             sim = cols if v == "normal" else [simulate_cvd(c, v) for c in cols]
-            dist[v] = min(delta_e_hex(a, b) for a, b in itertools.combinations(sim, 2))
+            dist[v] = min(dist[v], min(delta_e_hex(a, b) for a, b in itertools.combinations(sim, 2)))
         name, fit, _ = harmony.best_template([hex_to_hsl(c)[0] for c in cols])
+        if harm is None or fit < harm:
+            harm, template = fit, name
         off = [delta_e_hex(c, GROUND[mode]) for c in cols]
-        per_mode[mode] = dict(distinct=dist, template=name, harmony=fit, balance=max(off) - min(off))
-        for v in VISION:
-            worst["distinct"][v] = min(worst["distinct"][v], dist[v])
-        if worst["harmony"] is None or fit < worst["harmony"]:
-            worst["harmony"], worst["template"] = fit, name
-        worst["balance"] = max(worst["balance"], max(off) - min(off))
-    worst["ok"] = all(x >= FLOOR for x in worst["distinct"].values())
-    worst["margin"] = min(worst["distinct"].values()) - FLOOR
-    worst["per_mode"] = per_mode
-    return worst
-
-
-def dominates(a, b):
-    ka = (a["harmony"], -a["balance"], a["margin"])
-    kb = (b["harmony"], -b["balance"], b["margin"])
-    return all(x >= y for x, y in zip(ka, kb)) and ka != kb
+        balance = max(balance, max(off) - min(off))
+    return dict(ok=all(x >= FLOOR for x in dist.values()), distinct=dist, harmony=harm, template=template, balance=balance)
 
 
 def main():
     opts = options()
-    groups = []
+    trios = []
     for trio in itertools.product(*(opts[m] for m in MODULES)):
-        groups.append(dict(members=list(trio), **judge(trio)))
-    ok = [g for g in groups if g["ok"]]
-    front = [g for g in ok if not any(dominates(o, g) for o in ok if o is not g)]
-    front.sort(key=lambda g: (-g["harmony"], g["balance"]))
-    # how often each candidate appears in a compatible group: which palettes are easy to combine
-    reach = {m: {} for m in MODULES}
-    for g in ok:
-        for m, mem in zip(MODULES, g["members"]):
-            k = "%s · %s" % (mem["keyword"], mem["pair"])
-            reach[m][k] = reach[m].get(k, 0) + 1
-    return opts, groups, ok, front, reach
+        trios.append(dict(members=list(trio), **judge(trio)))
+    ok = [t for t in trios if t["ok"]]
+    groups = sorted(ok, key=lambda t: (-t["harmony"], t["balance"]))
+    used = {m["id"] for t in groups for m in t["members"]}
+    excluded = [dict(o, why="in no compatible trio") for m in MODULES for o in opts[m] if o["id"] not in used]
+    return trios, ok, groups, excluded
 
 
-def label(mem):
-    return "%s%s · %s" % ("★ " if mem["oblique"] else "", mem["keyword"], mem["pair"])
+def label(m):
+    return "%s%s · %s" % ("★ " if m["oblique"] else "", m["keyword"], m["pair"].split(" (")[0])
 
 
-def write(opts, groups, ok, front, reach):
-    out = ["# Compatible palette groups: Calendar, Routines, Check-in", "",
-           "Generated by `tools/screens/palette_groups.py` from `palette-adapted.json`; its docstring defines every measure. "
-           "Pages is left out (owner, 2026-10-06).", "",
-           "**%d** groups (one adapted pair per module); **%d** keep all three module colours apart (CIEDE2000 ≥ %d) with normal vision "
-           "and all three simulated colour blindnesses, in light and dark. **%d** of those are on the Pareto front of harmony, balance and margin." % (
-               len(groups), len(ok), FLOOR, len(front)), "",
-           "## The front", "", "| Calendar | Routines | Check-in | Harmony (template) | Balance (dE spread, lower = evener) | Worst colour-blind distance |",
-           "|---|---|---|---|---|---|"]
-    for g in front:
-        out.append("| %s | %s | %s | %.2f (%s) | %.1f | %.1f |" % (*(label(m) for m in g["members"]), g["harmony"], g["template"], g["balance"],
-                                                              min(v for k, v in g["distinct"].items() if k != "normal")))
-    out += ["", "## How easily each palette combines", "", "Compatible groups each candidate appears in, out of the groups it could be in.", ""]
+def write(trios, ok, groups, excluded):
+    out = ["# Palette groups: Calendar, Routines, Check-in", "",
+           "Generated by `tools/screens/palette_groups.py`; its docstring defines compatibility and the grouping. Pages is left out (owner, 2026-10-06). "
+           "Each palette is used once and shown whole; nothing is merged.", "",
+           "**%d** of %d possible trios are compatible, so there are %d groups; a palette can be in several." % (len(ok), len(trios), len(groups)), "",
+           "| Group | Calendar | Routines | Check-in | Harmony (template) | Balance | Apart: normal · colour-blind worst |", "|---|---|---|---|---|---|---|"]
+    for i, g in enumerate(groups, 1):
+        out.append("| %d | %s | %s | %s | %.2f (%s) | %.1f | %.1f · %.1f |" % (i, *(label(m) for m in g["members"]), g["harmony"], g["template"],
+                                                                          g["balance"], g["distinct"]["normal"], min(v for k, v in g["distinct"].items() if k != "normal")))
+    out += ["", "## Excluded", ""] + (["- %s %s: %s" % (e["module"], label(e), e["why"]) for e in excluded] or ["None: every palette is in at least one group."])
+    out += ["", "## Groups each palette is in", ""]
     for m in MODULES:
-        possible = len(groups) // len(opts[m])
-        out += ["**%s**" % m, ""]
-        for o in opts[m]:
-            k = "%s · %s" % (o["keyword"], o["pair"])
-            out.append("- %s: %d of %d" % (label(o), reach[m].get(k, 0), possible))
-        out.append("")
+        for o in options()[m]:
+            out.append("- %s %s: %d" % (m, label(o), sum(1 for g in groups if o["id"] in {x["id"] for x in g["members"]})))
     with open(os.path.join(T0, "palette-groups.md"), "w", encoding="utf-8", newline="\n") as fh:
         fh.write("\n".join(out) + "\n")
-    data = dict(front=[dict(members=g["members"], harmony=g["harmony"], template=g["template"], balance=round(g["balance"], 1),
-                            cvd=round(min(v for k, v in g["distinct"].items() if k != "normal"), 1),
-                            normal=round(g["distinct"]["normal"], 1)) for g in front],
-                counts=dict(groups=len(groups), ok=len(ok), front=len(front)), ground=GROUND)
+    data = dict(groups=[dict(members=g["members"], harmony=g["harmony"], template=g["template"], balance=round(g["balance"], 1),
+                             normal=round(g["distinct"]["normal"], 1), cvd=round(min(v for k, v in g["distinct"].items() if k != "normal"), 1)) for g in groups],
+                excluded=excluded, counts=dict(trios=len(trios), ok=len(ok)), ground=GROUND)
     with open(os.path.join(T0, "palette-groups.template.html"), encoding="utf-8") as fh:
         page = fh.read()
     with open(os.path.join(T0, "palette-groups.html"), "w", encoding="utf-8", newline="\n") as fh:
