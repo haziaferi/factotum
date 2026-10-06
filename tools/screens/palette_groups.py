@@ -123,7 +123,10 @@ GROUND = {
 }
 THEMES = list(GROUND)
 INK_BAND = (7.0, 15.8)
+# Pages keeps the mockups' colours exactly (owner, 2026-10-06): home-workshop.html's --L/--Lt/--Ct at hue 75, chroma 0.12.
+# The mockups have no OLED theme, so OLED reuses dark's.
 PAGES = {"light": oklch_hex(0.55, 0.12, 75), "dark": oklch_hex(0.78, 0.12, 75), "oled": oklch_hex(0.78, 0.12, 75)}
+PAGES_TINT = {"light": oklch_hex(0.94, 0.035, 75), "dark": oklch_hex(0.33, 0.05, 75), "oled": oklch_hex(0.33, 0.05, 75)}
 CAP = {"light": 0.13, "dark": 0.11, "oled": 0.11}
 # Accent contrast per module, staggered by register (app-register-layout: calendar is the firmest module,
 # check-in the most ambient). Equal contrast means equal luminance, and equal-luminance hues collapse under
@@ -399,7 +402,7 @@ h1{font-size:21px;margin:0 0 4px}h2{font-size:16px;margin:0}p{max-width:90ch}.di
 def var_block(t):
     g = GROUND[t]
     return "--bg:%s;--zone:%s;--zone2:%s;--ink:%s;--dim:%s;--pg-a:%s;--pg-t:%s" % (
-        g["bg"], g["zone"], g["zone2"], g["ink"], g["dim"], PAGES[t], oklch_hex(*((TINT[t][0], 0.03 if t == "light" else 0.04, 75))))
+        g["bg"], g["zone"], g["zone2"], g["ink"], g["dim"], PAGES[t], PAGES_TINT[t])
 
 
 def group_html(i, c):
