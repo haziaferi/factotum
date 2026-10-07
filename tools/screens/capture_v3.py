@@ -55,6 +55,14 @@ def sheet(v, item, control_mode=False):
     key, text, kind, chips = item
     ctl = v2.control
     kind_chip = ('<span class="tg kind" data-tap="Kind" style="justify-content:flex-start"><span class="vis" data-vis="kind" style="height:%dpx">%s</span></span>' % (H, kind))
+    km = v.get("kind", "chip")  # capture_v4: how the kind shows (owner, 2026-10-07: is the chip needed?)
+    caption_row = ""
+    if km == "inline":  # the kind as hint-sized text at the row's start, still a 48 px target
+        kind_chip = '<span class="tg" data-tap="Kind" style="justify-content:flex-start"><span class="kcap" style="font-size:12px;color:var(--dim)">%s</span></span>' % kind
+    elif km == "row":  # the kind as a hint-sized line where the hint sits; changed by prefix or ⋯ › Kind
+        kind_chip, caption_row = "", '<div class="hint">%s</div>' % kind
+    elif km == "none":
+        kind_chip = ""
     shown_chips = chips if v["display"] == "chips" else []
     chip_html = "".join('<span class="tg pchip" data-tap="Fix %s"><span class="vis" data-vis="chip" style="height:%dpx">%s</span></span>' % (c, H, c) for c in shown_chips)
     icons = "".join(ctl(n, g, H, "ghost") for n, g in ICONS) if v["tail"] in ("icons", "icons+more") else ""
@@ -72,7 +80,7 @@ def sheet(v, item, control_mode=False):
     line = '<div class="line"><span class="in">%s</span></div>' % inner
     row = '<div class="crow"><div class="chips">%s%s</div><span style="margin-left:auto;display:flex;gap:6px">%s%s%s</span></div>' % (
         kind_chip, chip_html, icons, more, add)
-    hint = '<div class="hint">j journal · log · t timer · ci check-in</div>' if key == "empty" else ""
+    hint = '<div class="hint">j journal · log · t timer · ci check-in</div>' if key == "empty" else (caption_row if not control_mode else "")
     return '<div class="sheet">%s%s%s</div>' % (line, row, hint)
 
 

@@ -366,3 +366,39 @@ The reference captures add **Any.do's inline add** (on the phone, gitignored). I
 - **The same winners hold for all ten kinds and for the top three.**
 
 Mockups: `docs/screens/t1/capture-v3.html` and `docs/screens/t1/form-options.html`.
+
+## T1.3 v4: the short ⋯ list, the kind chip, shorthands (owner, 2026-10-07)
+
+**⋯ opens a short list** (Kind, Templates, Full form), and the full form is its own page. Added to `form_opt.py` as a two-step shape: ease adds both choices, and it takes three taps to reach a field.
+
+| Option | H | U | C | Taps to a field | Screen covered |
+|---|---|---|---|---|---|
+| Full page (direct) | 19 | 25 | 42.5 | 2 | 100% |
+| ⋯ short list, then the page | 27.5 | 47.5 | 15.5 | 3 | 10% |
+| Todoist's + list | 27.5 | 43.5 | 24 | 2 | 32% |
+
+(All ten kinds. Over the top three, the page and the short list remain on the front, and Todoist's list with the text as the title.)
+
+**The short list is the least cluttered of any option.** Its cost is a third tap and a second choice.
+
+**Is the kind chip needed?** `tools/screens/capture_v4.py` shows the kind four ways:
+- a chip;
+- hint-sized text at the start of the row, still a 48 px target;
+- a hint-sized line in the hint's place;
+- not at all.
+
+Each was crossed with chips or highlighting, and with Enter or a ✓. **The control loses.**
+
+**Front:**
+- chip + highlight + Enter;
+- chip + chips + Enter;
+- no kind + highlight + Enter, which is the least clutter but hides the kind and the resolved values.
+
+**Hint-sized text is dominated by the chip.** Kept as a 48 px target, it takes the chip's room and leaves more empty space (0.73 against 0.68). As a line of its own it adds 23 dp.
+
+**Shorthands** (`tools/screens/shorthands.py`, `docs/screens/t1/shorthands.md`).
+- **Two of the hint's shorthands clash with words:** "ci" (Italian) and "log" (English). A line starting with either would switch kind by accident.
+- **Proposed kinds:** `td` task · `ev` event · `rm` reminder · `lg` log · `j` journal · `t` timer (or a time log when a duration follows) · `ck` check-in · `ld` ledger.
+- **Proposed field markers:** `#` label · `!` reminder · `@` calendar or tracker · `^` page · `~` duration · `*` repeat.
+- **The clash check uses a built-in list** of English and Italian words of one to three letters, not a corpus.
+- **Fit:** a 12 px hint line holds 5 of the 8 kinds, and all 14 need 3 lines.

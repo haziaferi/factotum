@@ -56,7 +56,7 @@ KINDS = {  # key: (kind label, typed line, parsed words, fields (name, value))
                                                             ("Sensory", "Not set"), ("Day", "Today")]),
 }
 TOP3 = ["task", "event", "log"]
-SPACE = {"shape": ["todoist", "ticktick", "anydo"], "line": ["linked", "title", "underline", "highlight"]}
+SPACE = {"shape": ["todoist", "ticktick", "anydo", "short"], "line": ["linked", "title", "underline", "highlight"]}
 H = 32
 CSS = v2.CSS + """
 .c2 .ul{text-decoration:underline;text-decoration-thickness:1.5px;text-underline-offset:3px}
@@ -70,8 +70,9 @@ CSS = v2.CSS + """
 """
 
 
-def rows_html(key, line_mode):
-    fields = KINDS[key][3] + [("Kind", KINDS[key][0]), ("Templates", "")]
+def rows_html(key, line_mode, short=False):
+    # short (owner, 2026-10-07): ⋯ opens only Kind, Templates and Full form; the full form is its own page
+    fields = [("Kind", KINDS[key][0]), ("Templates", ""), ("Full form", "")] if short else KINDS[key][3] + [("Kind", KINDS[key][0]), ("Templates", "")]
     return "".join('<div class="fr" data-tap="Field %s"><span>%s</span><span class="fv">%s</span></div>' % (n, n, val) for n, val in fields)
 
 
@@ -100,7 +101,8 @@ def sheet(shape, line_mode, key):
     plus = v2.control("Add details", "+", H, "tonal") if shape == "todoist" else ""
     row = '<div class="crow" style="position:relative"><div class="chips">%s%s%s</div><span style="margin-left:auto;display:flex;gap:6px">%s</span>%s</div>' % (
         plus, kind_chip, chips, "" if shape == "todoist" else more,
-        '<div class="pop %s">%s</div>' % ("l" if shape == "todoist" else "r", rows_html(key, line_mode)) if shape in ("todoist", "ticktick") else "")
+        '<div class="pop %s"%s>%s</div>' % ("l" if shape == "todoist" else "r", ' style="width:180px"' if shape == "short" else "",
+                                           rows_html(key, line_mode, shape == "short")) if shape in ("todoist", "ticktick", "short") else "")
     inline = '<div class="inl">%s</div>' % rows_html(key, line_mode) if shape == "anydo" else ""
     return '<div class="sheet">%s%s%s</div>' % (inline, line_html(key, line_mode), row)
 
@@ -153,6 +155,14 @@ def measure_one(shape, line_mode, key):
         else:
             y0, y1 = min(tops), max(x["box"][1] + x["box"][3] for x in rows)
             covered = round(max(0, y1 - max(0, y0)) * (260 if shape != "anydo" else 360) / (360 * 740), 3)
+    if shape == "short":  # two steps: the short list over the sheet, then the page; ease adds both choices
+        page = measure_one("page", "title", key)
+        first_hick = math.log2(len(rows) + 1)
+        return {"heights": max(1, len({x[4] for x in m["vis"]})), "edges": len({round(x["box"][0] + 14) for x in rows} | ({round(line[0])} if line else set())),
+                "sprawl": sprawl(shape, line_mode, key), "hick": first_hick + page["hick"], "reach": (reach + page["reach"]) / 2,
+                "unseen": len(rows) - len(on) + page["unseen"], "line_hidden": hidden, "taps": 3, "clutter": ss.edge_density(png),
+                "covered": round(sum(x["box"][2] * x["box"][3] for x in rows) / (360 * 740), 3), "rows": len(rows),
+                "small": sorted({"%s %dx%d" % (x["name"], x["w"], x["h"]) for x in m["taps"] if x["w"] < 48 or x["h"] < 48})}
     return {"heights": max(1, len({x[4] for x in m["vis"]})),  # no drawn control is not better than one height
              "edges": len({round(x["box"][0] + 14) for x in rows} | ({round(line[0])} if line else set())),
             "sprawl": sprawl(shape, line_mode, key), "hick": math.log2(len(rows) + 1), "reach": reach, "unseen": len(rows) - len(on),
