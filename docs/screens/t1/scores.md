@@ -28,7 +28,7 @@ Reference main screens: bearable/00-main.png 0.070, daylio/00-main.png 0.055, ho
 
 ## T1.3 Capture sheet
 
-- A Sheet over the screen: clutter 0.024 / 0.020, faint 0, small 0, taps 2, fields 1, front
-- B Grows in place: clutter 0.027 / 0.020, faint 0, small 0, taps 2, fields 1, dominated
-- C In the keyboard's strip (oblique: Build From the Defect): clutter 0.023 / 0.020, faint 0, small 0, taps 2, fields 1, front
+- A Sheet over the screen: clutter 0.022 / 0.020, faint 0, small 0, taps 2, fields 1, front
+- B Grows in place: clutter 0.025 / 0.020, faint 0, small 0, taps 2, fields 1, dominated
+- C In the keyboard's strip (oblique: Build From the Defect): clutter 0.022 / 0.020, faint 0, small 0, taps 2, fields 1, front
 - X Control: a full form: clutter 0.029 / 0.024, faint 0, small 0, taps 6, fields 9, control

@@ -21,6 +21,7 @@ REFERENCE_SCREENS = ["bearable/00-main.png", "daylio/00-main.png", "howwefeel/00
 
 # ---- T1.1 header and bar ----------------------------------------------------------------------------------
 TITLE = "Today · Mon 5 Oct"  # the date is the app's, not user data: no dotted outline
+APPROVED_T11 = "A′"  # owner, 2026-10-07
 APPROVED_BUTTONS = (("⌕", "Search"), ("⚙", "Settings"))  # T1.1 approved: A, with Settings right of Search (owner, 2026-10-07)
 SYNC_LINE = '<div class="note">Can\'t reach the sync folder. Changes stay on this phone until it\'s back.</div>'
 EXTRA = """
@@ -60,10 +61,10 @@ OPTIONS_T11 = [
      "desk": lambda: desk_today(TITLE), "declared": {"Settings": 2}},
     {"id": "X", "name": "Control: a busy header", "how": "control",
      "about": "Search, filter, sort, notifications and a profile in the header, plus a floating + button. It must lose.",
-     "phone": lambda: kit.phone(kit.header(TITLE, (("⌕", "Search"), ("⚲", "Filter"), ("⇅", "Sort"), ("🔔", "Notifications"), ("◐", "Profile"))),
+     "phone": lambda: kit.phone(kit.header(TITLE, (("⌕", "Search"), ("⚲", "Filter"), ("⇅", "Sort"), ("◔", "Notifications"), ("◐", "Profile"))),
                                 kit.today_body() + '<span class="ib" data-tap="Capture" style="position:absolute;right:16px;bottom:88px;background:var(--ink);color:var(--bg);width:56px;height:56px;font-size:26px">+</span>',
                                 kit.bar("Today").replace('opacity:.65', '')),
-     "desk": lambda: desk_today(TITLE, (("⚲", "Filter"), ("⇅", "Sort"), ("🔔", "Notifications"), ("◐", "Profile"))), "declared": {"Settings": 2}},
+     "desk": lambda: desk_today(TITLE, (("⚲", "Filter"), ("⇅", "Sort"), ("◔", "Notifications"), ("◐", "Profile"))), "declared": {"Settings": 2}},
 ]
 # X's receded bar items are made full strength on purpose: the control ignores depth coding.
 CONTROL_CSS = ".bar .s{opacity:1;color:var(--ink)}"
@@ -105,6 +106,20 @@ def frame(inner, theme_toggle=True):
     return inner
 
 
+def options_html(items, approved=None):
+    """items: (option, phone html, desk html). Once a screen is approved, the options not picked fold into one
+    closed <details> under the picked one (owner, 2026-10-07); before that, every option is open."""
+    def block(o, ph, dk):
+        return ('<div class="opt"><h3>%s · %s <span class="tag">%s</span></h3><p class="dim">%s</p><div class="pair">%s<div class="dwrap">%s</div></div></div>'
+                % (o["id"], e(o["name"]), o["how"], e(o["about"]), ph, dk))
+    if not approved:
+        return "".join(block(*it) for it in items)
+    picked = "".join(block(*it) for it in items if it[0]["id"] == approved)
+    rest = [it for it in items if it[0]["id"] != approved]
+    return picked + '<details class="notpicked"><summary>Options not picked (%s)</summary>%s</details>' % (
+        ", ".join(e(it[0]["id"]) for it in rest), "".join(block(*it) for it in rest))
+
+
 def section_t11(refs):
     rows, fr, low = score_screen(OPTIONS_T11)
     ctrl = [i for i, o in enumerate(OPTIONS_T11) if o["how"] == "control"]
@@ -117,8 +132,7 @@ def section_t11(refs):
         body += "<tr><td><b>%s</b> %s</td><td>%.3f</td><td>%.3f</td><td>%d</td><td>%d</td><td>%d</td><td>%s</td><td>%g px</td><td>%s</td><td>%s</td></tr>" % (
             o["id"], e(o["name"]), r["clutter"], r["desk_clutter"], r["strong_nav"], r["far_nav"], r["faint_n"], e(", ".join(r["small_taps"]) or "none"), r["min_text"], steps, tag)
     refrow = " · ".join("%s %.3f" % (k.split("/")[0], v) for k, v in refs.items())
-    opts = "".join('<div class="opt"><h3>%s · %s <span class="tag">%s</span></h3><p class="dim">%s</p><div class="pair">%s<div class="dwrap">%s</div></div></div>' % (
-        o["id"], e(o["name"]), o["how"], e(o["about"]), o["phone"](), o["desk"]()) for o in OPTIONS_T11)
+    opts = options_html([(o, o["phone"](), o["desk"]()) for o in OPTIONS_T11], APPROVED_T11)
     states = "".join('<div><div class="cap2">%s</div>%s</div>' % (e(n), f()) for n, f in STATES_T11)
     refimgs = "".join('<figure><img src="../../../_screens-sources/reference/%s" alt=""><figcaption>%s · %.3f</figcaption></figure>' % (k, k.split("/")[0], v) for k, v in refs.items())
     html_ = ('<section id="t1-1"><h2>T1.1 Header and bar <span class="tag">approved 2026-10-07: A′</span></h2>'
@@ -279,7 +293,7 @@ def row_x(k, variant="title"):
     kind, title, time, act, sub, chips = k
     return ('<div class="xrow row" data-tap="Open item"><span class="ico" data-tap="Done">☐</span><span class="ico">%s</span><span class="t">%s %s</span>'
             '<span class="ico" data-tap="Flag">⚑</span><span class="ico" data-tap="More">⋯</span></div>') % (
-        {"event": "📅", "task": "✓", "reminder": "⏰", "habit": "↻", "checklist": "≡", "reading": "∿"}[kind], kit.ud(e(title)),
+        {"event": "◷", "task": "✓", "reminder": "◴", "habit": "↻", "checklist": "≡", "reading": "∿"}[kind], kit.ud(e(title)),
         " ".join('<span class="chip">%s</span>' % kit.ud(c) for c in chips + [time] if c))
 
 
@@ -360,8 +374,7 @@ def section_t12():
     body = "".join("<tr><td><b>%s</b> %s</td><td>%.3f</td><td>%.3f</td><td>%d</td><td>%d</td><td>%d</td><td>%d</td><td>%s</td><td>%d</td><td>%s</td></tr>" % (
         o["id"], e(o["name"]), r["clutter"], r["desk_clutter"], r["rows_visible"], r["blank_lead"], r["title_edges"], r["faint_n"], e(", ".join(r["small_taps"]) or "none"), r["strong"],
         "control" if o["how"] == "control" else ("front" if i in fr else "dominated")) for i, (o, r) in enumerate(zip(OPTIONS_T12, rows)))
-    opts = "".join('<div class="opt"><h3>%s · %s <span class="tag">%s</span></h3><p class="dim">%s</p><div class="pair">%s<div class="dwrap">%s</div></div></div>' % (
-        o["id"], e(o["name"]), o["how"], e(o["about"]), t12_phone(o["f"]), t12_desk(o["f"])) for o in OPTIONS_T12)
+    opts = options_html([(o, t12_phone(o["f"]), t12_desk(o["f"])) for o in OPTIONS_T12], APPROVED_T12)
     lead = next(o for o in OPTIONS_T12 if o["id"] == APPROVED_T12)  # states and variants are drawn on the approved row
     states = "".join('<div><div class="cap2">%s</div>%s</div>' % (e(n), h) for n, h in states_t12(lead["f"]))
     variants = "".join('<div><div class="cap2">%s</div>%s</div>' % (n, t12_phone(lead["f"], v)) for v, n in (
@@ -409,8 +422,7 @@ def build_section(sid, title, intro, options, states, css, low, extra=None, appr
     body = "".join("<tr><td><b>%s</b> %s</td>%s<td>%s</td></tr>" % (
         o["id"], e(o["name"]), "".join("<td>%s</td>" % (COLS[k][1] % r[k]) for k in low),
         "control" if o["how"] == "control" else ("front" if i in fr else "dominated")) for i, (o, r) in enumerate(zip(options, rows)))
-    opts = "".join('<div class="opt"><h3>%s · %s <span class="tag">%s</span></h3><p class="dim">%s</p><div class="pair">%s<div class="dwrap">%s</div></div></div>' % (
-        o["id"], e(o["name"]), o["how"], e(o["about"]), o["phone"](), o["desk"]()) for o in options)
+    opts = options_html([(o, o["phone"](), o["desk"]()) for o in options], approved)
     st = "".join('<div><div class="cap2">%s</div>%s</div>' % (e(n), f()) for n, f in states)
     smalls = sorted({x for r in rows for x in r["small_list"]})
     tag = ' <span class="tag">approved: %s</span>' % e(approved) if approved else ""
@@ -444,11 +456,12 @@ T13_CSS = """
 .qwin .dim2{position:absolute;inset:0;opacity:.35}
 """
 TYPED = "Dentist tomorrow 9am every 6 months"
-CHIPS = [("📅", "Tue 6 Oct"), ("◷", "09:00"), ("↻", "Every 6 months"), ("▣", "Event")]
+# chips are text only: no emoji, no icons (owner, 2026-10-07)
+CHIPS = [("", "Tue 6 Oct"), ("", "09:00"), ("", "Every 6 months"), ("", "Event")]
 
 
 def chips_html(chips, question=None):
-    out = "".join('<span class="pc" data-tap="Fix %s"><b>%s %s</b></span>' % (t, g, t) for g, t in chips)
+    out = "".join('<span class="pc" data-tap="Fix %s"><b>%s</b></span>' % (t, t) for g, t in chips)
     if question:
         out += '<span class="pc q" data-tap="Choose"><b>%s</b></span>' % question
     return '<div class="chips">%s</div>' % out
@@ -483,7 +496,7 @@ def cap_phone_c():
     """Oblique (Build From the Defect: the keyboard takes half the screen): the parse rides in the keyboard's own
     suggestion strip, one row, and the line sits right on top of it. Nothing else is drawn."""
     strip = '<div class="chips" style="flex-wrap:nowrap;overflow:hidden;background:var(--zone2);margin:0;padding:0 8px;gap:6px">%s</div>' % "".join(
-        '<span class="pc" data-tap="Fix %s"><b style="background:var(--zone)">%s %s</b></span>' % (t, g, t) for g, t in CHIPS)
+        '<span class="pc" data-tap="Fix %s"><b style="background:var(--zone)">%s</b></span>' % (t, t) for g, t in CHIPS)
     return '<div class="phone">%s%s<div class="sheet" style="border-radius:0;box-shadow:none;padding:4px 12px">%s</div>%s<div class="kb" style="height:214px">keyboard</div></div>' % (
         kit.header(TITLE, APPROVED_BUTTONS), behind(), capture_line(TYPED), strip)
 
@@ -515,8 +528,8 @@ OPTIONS_T13 = [
 STATES_T13 = [
     ("Empty: what it accepts", lambda: cap_phone_a(placeholder=True, hint="Try: dentist tomorrow 9am · water plants every 3 days · call mum fri")),
     ("Typed: understood", lambda: cap_phone_a()),
-    ("Two readings: asks, never guesses", lambda: cap_phone_a(text="Call mum fri", chips=[("▣", "Task")], question="Fri 9 Oct or every Friday?")),
-    ("Nothing to understand: added as typed", lambda: cap_phone_a(text="Buy stamps", chips=[("▣", "Task"), ("📅", "No date")])),
+    ("Two readings: asks, never guesses", lambda: cap_phone_a(text="Call mum fri", chips=[("", "Task")], question="Fri 9 Oct or every Friday?")),
+    ("Nothing to understand: added as typed", lambda: cap_phone_a(text="Buy stamps", chips=[("", "Task"), ("", "No date")])),
     ("Added, with Undo", lambda: kit.phone(kit.header(TITLE, APPROVED_BUTTONS), '<div class="cap">+ <span>Add…</span></div>' +
                                             kit.zone("Agenda", "".join(row_d(k) for k in KINDS[:3])), kit.bar("Today") +
                                             '<div class="toast"><span class="t">Added to Tue 6 Oct</span><span class="u" data-tap="Undo">Undo</span></div>')),
@@ -538,6 +551,7 @@ table{border-collapse:collapse;font-size:13px}td,th{padding:5px 10px;text-align:
 .pair{display:flex;gap:16px;align-items:flex-start;overflow-x:auto;padding-bottom:6px}.dwrap{flex:none}
 .tag{font-size:11px;font-weight:500;padding:2px 8px;border-radius:999px;background:var(--zone2);color:var(--dim)}
 .states{display:flex;gap:16px;overflow-x:auto;padding-bottom:6px}.cap2{font-size:12px;color:var(--dim);margin:0 0 6px;max-width:360px}
+details.notpicked{margin:10px 0}details.notpicked>summary{cursor:pointer;color:var(--dim);font-weight:600;padding:8px 0}
 .refs{display:flex;gap:12px;flex-wrap:wrap}.refs img{width:180px;border-radius:12px}figure{margin:0}figcaption{font-size:12px;color:var(--dim)}
 .sw{display:flex;gap:6px;margin:10px 0}.sw button{font:inherit;color:var(--ink);background:var(--zone);border:1px solid var(--zone2);border-radius:999px;padding:4px 14px;cursor:pointer}
 """

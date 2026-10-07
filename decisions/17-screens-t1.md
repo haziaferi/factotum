@@ -130,3 +130,7 @@ The control first came out on the front. That traced to two real defects and one
 - **The measure itself:** `faint` compared every label with the page and not with its own fill, so the dark Add button read 1.0:1. It now uses the nearest painted background. T1.1 and T1.2 are unchanged, and the old faded bar is still flagged at 2.1:1.
 
 States, drawn on A: empty (what it accepts), understood, two readings (it asks and never guesses: "Fri 9 Oct or every Friday?"), nothing to parse (added as typed, no date), and added (with Undo).
+
+**Page conventions (owner, 2026-10-07):**
+- Once a screen is approved, the options not picked fold into a closed "Options not picked" section under the chosen one.
+- No emojis anywhere. The capture chips are text only. The placeholder glyphs are plain text symbols until icons are scored (Q8).
