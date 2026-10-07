@@ -19,6 +19,7 @@ The contests are taken in dependency order. There is one row per contest.
 | 13 | Sync folder layout (SPEC §10.9) | decided | device-log+copies: per-device 16 KiB log segments, snapshot every 64, conflict copies merged | 4 | [13-folder.md](13-folder.md) |
 | 15 | Screens, navigation and wording (SPEC §10.1) | T0 answered | tiers T0-T6; navigation, palette, type, shapes and density to be scored with the design skills; one register per screen cluster; System/Light/Dark + OLED; settings in two sections | 1 | [15-screens.md](15-screens.md) |
 | 16 | Databases in pages (SPEC §3.12) | decided: O6 | front O1 < O2 inline < O3 linked views < O5 hybrid query < O6 views over items; O4 query-only dominated; control fails as required | 17 | [16-databases.md](16-databases.md) |
+| 17 | Screens T1: shared parts | questions answered; screens one at a time | title-only rows (variants to decide); no swipes; NL capture with parsed chips; Undo not dialogs; preset-first pickers; plain-language repeat; one-sentence empty states; dot+text labels | - | [17-screens-t1.md](17-screens-t1.md) |
 
 Standing owner answers (2026-09-30):
 - Fresh start.
