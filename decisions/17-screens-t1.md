@@ -76,3 +76,27 @@ Rows are title only and cover every kind: an event, a task, a reminder, two habi
 **Measured, A, B and C tie.** Their clutter differs by at most 0.001 (the front now ignores differences under 0.002, `screen_score.TOLERANCE`). All three show the same 8 rows, with no faint labels and no small targets. **The control loses on every count:** clutter 0.056, and four targets under 48 dp.
 
 What decides between them is not measured: how quickly each kind is recognised, and which hand the actions favour. The states are drawn on C: Done with Undo, the long-press menu, Deleted with Undo, and a long title. So is the chapter of variants (title only, a quiet line, chips).
+
+**Refined after the owner's questions (2026-10-07).**
+
+*Why can Call the bank be done but Dentist can't?* An event is a block of time with no done state (decision 02: no task status on an event row). A reminder is a to-do with an alarm (§3.3). The rows now show this: an event's lead is its span, 09:00 over 09:45.
+
+*Can A and B be merged, so the left column is never empty?* Three new options:
+- **D merges A and B.** The left column holds the time, the event's span, or a quiet kind mark; the action is on the right.
+- **E keeps a time column always.** It shows the clock time, the span, the habit's time block, or Any time.
+- **F is oblique: the action leads and the time trails**, as in Things and Google Tasks.
+
+Two measures were added to `screen_score.py`:
+- `blank_lead`, the rows with nothing before the title;
+- `title_edges`, the distinct left edges the titles start at.
+
+The first run of `blank_lead` counted circles drawn with `content:""` as blank. That was fixed, and B's six empty time slots still count, so the measure can fail.
+
+| Option | Blank left | Title edges | Clutter | Status |
+|---|---|---|---|---|
+| A | 0 | 4 (ragged) | 0.036 | dominated |
+| B, C | 6 | 2 | 0.035 | dominated |
+| **D** | 0 | 2 | 0.036 | **front** |
+| E | 0 | 2 | 0.040 | dominated (busier) |
+| **F** | 0 | 2 | 0.035 | **front** |
+| X (control) | 0 | 4 | 0.056 | loses |

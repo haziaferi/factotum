@@ -166,6 +166,10 @@ T12_CSS = """
 .toast{position:absolute;left:12px;right:12px;bottom:84px;background:var(--ink);color:var(--bg);border-radius:12px;min-height:48px;display:flex;align-items:center;padding:0 6px 0 16px;font-size:14px}
 .toast .t{flex:1}.toast .u{min-width:64px;height:48px;display:grid;place-items:center;font-weight:700}
 .fold{display:flex;align-items:center;min-height:48px;color:var(--dim);font-size:14px}.fold .t{flex:1}
+.tm.span{line-height:1.25;font-size:12px}.tm.kind{font-size:17px;text-align:center;width:44px}.tm.when{font-size:12px}
+.mark.bar::before{content:"";width:4px;height:30px;border-radius:2px;background:var(--dim)}
+.mark.plus::before{content:"+";color:var(--dim);font-size:22px}
+.trail{color:var(--dim);font-size:13px;flex:none;padding-right:4px}
 .clamp{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 """
 
@@ -214,6 +218,61 @@ def row_c(k, variant="title"):
     return '<div class="row" data-tap="Open item">%s<span class="t">%s%s</span>%s</div>' % (lead, kit.ud(e(title)), sub_html(variant, sub, chips), right)
 
 
+# An event is a block of time, not a to-do (decision 02: no task state on an event), so its lead shows the
+# span (start over end) where a to-do shows one time (owner's question, 2026-10-07).
+EVENT_END = {"Dentist": "09:45"}
+# When an untimed row belongs: its time block (decision 06b's blocks; Water's next block is 14:00), else Any time.
+WHEN = {"Walk": "Morning", "Water": "14:00", "Morning routine": "Morning", "Sleep": "Evening",
+        "Pay the fine": "Any time", "Return library books": "Any time"}
+KIND_MARK = {"task": "◦", "habit": "↻", "checklist": "≡", "reading": "∿"}
+
+
+def lead_time(k):
+    kind, title, time = k[0], k[1], k[2]
+    if kind == "event" and title in EVENT_END:
+        return '<span class="tm span">%s<br>%s</span>' % (time, EVENT_END[title])
+    return '<span class="tm">%s</span>' % time
+
+
+def right_action(k):
+    kind, act = k[0], k[3]
+    if kind in ("task", "reminder"):
+        return '<span class="ck" data-tap="Done" style="margin:0 -13px 0 0"></span>'
+    if kind == "event":
+        return ""
+    return '<span class="act" data-tap="%s"><span>%s</span></span>' % (act, act)
+
+
+def row_d(k, variant="title"):
+    """A and B merged: the left column always says what or when (a time, an event's span, or a quiet kind mark),
+    and every action sits at the right, under the thumb."""
+    kind, title, time = k[0], k[1], k[2]
+    lead = lead_time(k) if time else '<span class="tm kind">%s</span>' % KIND_MARK[kind]
+    return '<div class="row" data-tap="Open item">%s<span class="t">%s%s</span>%s</div>' % (lead, kit.ud(e(title)), sub_html(variant, k[4], k[5]), right_action(k))
+
+
+def row_e(k, variant="title"):
+    """The left column is always time: a clock time, an event's span, the habit's time block, or Any time.
+    Actions at the right. The day reads top to bottom as a schedule."""
+    kind, title, time = k[0], k[1], k[2]
+    lead = lead_time(k) if time else '<span class="tm when">%s</span>' % WHEN.get(title, "Any time")
+    return '<div class="row" data-tap="Open item">%s<span class="t">%s%s</span>%s</div>' % (lead, kit.ud(e(title)), sub_html(variant, k[4], k[5]), right_action(k))
+
+
+def row_f(k, variant="title"):
+    """Oblique (Inversion of B): the action leads, the time trails. Every doable row starts with its control
+    (circle, Log square, list, +); an event starts with a span bar. Times sit quietly at the right."""
+    kind, title, time = k[0], k[1], k[2]
+    if kind in ("task", "reminder"):
+        lead = '<span class="ck" data-tap="Done"></span>'
+    elif kind == "event":
+        lead = '<span class="mark bar"></span>'
+    else:
+        lead = '<span class="mark %s" data-tap="%s"></span>' % ({"habit": "sq", "checklist": "list", "reading": "plus"}[kind], k[3])
+    trail = '<span class="trail">%s%s</span>' % (time, "–" + EVENT_END[title] if title in EVENT_END else "") if time else ""
+    return '<div class="row" data-tap="Open item">%s<span class="t">%s%s</span>%s</div>' % (lead, kit.ud(e(title)), sub_html(variant, k[4], k[5]), trail)
+
+
 def row_x(k, variant="title"):
     kind, title, time, act, sub, chips = k
     return ('<div class="xrow row" data-tap="Open item"><span class="ico" data-tap="Done">☐</span><span class="ico">%s</span><span class="t">%s %s</span>'
@@ -248,6 +307,12 @@ OPTIONS_T12 = [
      "about": "Times line up in one column on the left. Every action sits at the right edge, where a right thumb rests: the Done circle and the Log, Open and Add buttons. Events have no action."},
     {"id": "C", "name": "Words, not marks (oblique: Arbitrary Constraint)", "how": "oblique", "f": row_c,
      "about": "No glyphs at all. The action is a word at the right: Done, Log, Open, Add. Reads in any language a symbol might not."},
+    {"id": "D", "name": "A and B merged: mark or time left, action right", "how": "merged", "f": row_d,
+     "about": "The left column is never empty: a time, an event's span (09:00 over 09:45), or a quiet mark for the kind (◦ task, ↻ habit, ≡ checklist, ∿ reading). Every action sits at the right, under the thumb."},
+    {"id": "E", "name": "Time column, always", "how": "refined", "f": row_e,
+     "about": "The left column is always time: the clock time, an event's span, a habit's time block (Morning, 14:00, Evening), or Any time. The day reads top to bottom as a schedule. Actions at the right."},
+    {"id": "F", "name": "Action leads, time trails (oblique: Inversion)", "how": "oblique", "f": row_f,
+     "about": "B turned inside out: each row starts with its control (circle, Log square, list, +), and an event starts with a span bar. Times sit quietly at the right edge, as in Things and Google Tasks."},
     {"id": "X", "name": "Control: dense rows", "how": "control", "f": row_x,
      "about": "40 px rows with rules, a checkbox, a kind icon, chips, a flag and an overflow ⋯ on every row. It must lose."},
 ]
@@ -282,13 +347,13 @@ def section_t12():
         r["fewer_rows"] = -r["rows_visible"]
         r["strong_all"] = r["strong"]
         rows.append(r)
-    low = ("clutter", "desk_clutter", "faint_n", "small", "fewer_rows")
+    low = ("clutter", "desk_clutter", "faint_n", "small", "fewer_rows", "blank_lead", "title_edges")
     fr = ss.front(rows, low)
     ctrl = [i for i, o in enumerate(OPTIONS_T12) if o["how"] == "control"]
     beaten = all(i not in fr for i in ctrl)
-    head = "<tr><th>Option</th><th>Clutter (phone)</th><th>Clutter (Windows)</th><th>Rows in view</th><th>Faint labels</th><th>Taps under 48 dp</th><th>Strong targets</th><th></th></tr>"
-    body = "".join("<tr><td><b>%s</b> %s</td><td>%.3f</td><td>%.3f</td><td>%d</td><td>%d</td><td>%s</td><td>%d</td><td>%s</td></tr>" % (
-        o["id"], e(o["name"]), r["clutter"], r["desk_clutter"], r["rows_visible"], r["faint_n"], e(", ".join(r["small_taps"]) or "none"), r["strong"],
+    head = "<tr><th>Option</th><th>Clutter (phone)</th><th>Clutter (Windows)</th><th>Rows in view</th><th>Blank left column</th><th>Title edges</th><th>Faint labels</th><th>Taps under 48 dp</th><th>Strong targets</th><th></th></tr>"
+    body = "".join("<tr><td><b>%s</b> %s</td><td>%.3f</td><td>%.3f</td><td>%d</td><td>%d</td><td>%d</td><td>%d</td><td>%s</td><td>%d</td><td>%s</td></tr>" % (
+        o["id"], e(o["name"]), r["clutter"], r["desk_clutter"], r["rows_visible"], r["blank_lead"], r["title_edges"], r["faint_n"], e(", ".join(r["small_taps"]) or "none"), r["strong"],
         "control" if o["how"] == "control" else ("front" if i in fr else "dominated")) for i, (o, r) in enumerate(zip(OPTIONS_T12, rows)))
     opts = "".join('<div class="opt"><h3>%s · %s <span class="tag">%s</span></h3><p class="dim">%s</p><div class="pair">%s<div class="dwrap">%s</div></div></div>' % (
         o["id"], e(o["name"]), o["how"], e(o["about"]), t12_phone(o["f"]), t12_desk(o["f"])) for o in OPTIONS_T12)
@@ -347,9 +412,9 @@ def main():
                   ", ".join(r["small_taps"]) or "none", r["min_text"], " · ".join(str(v[0]) for v in r["steps"].values()),
                   "control" if o["how"] == "control" else ("front" if i in fr else "dominated")))
     md += ["", "Reference main screens: " + ", ".join("%s %.3f" % kv for kv in refs.items())]
-    md += ["", "## T1.2 Item rows", "", "| Option | Clutter phone | Clutter Windows | Rows in view | Faint | Taps < 48 dp | Status |",
-           "|---|---|---|---|---|---|---|"]
-    md += ["| %s %s | %.3f | %.3f | %d | %d | %s | %s |" % (o["id"], o["name"], r["clutter"], r["desk_clutter"], r["rows_visible"], r["faint_n"],
+    md += ["", "## T1.2 Item rows", "", "| Option | Clutter phone | Clutter Windows | Rows in view | Blank left | Title edges | Faint | Taps < 48 dp | Status |",
+           "|---|---|---|---|---|---|---|---|---|"]
+    md += ["| %s %s | %.3f | %.3f | %d | %d | %d | %d | %s | %s |" % (o["id"], o["name"], r["clutter"], r["desk_clutter"], r["rows_visible"], r["blank_lead"], r["title_edges"], r["faint_n"],
            ", ".join(r["small_taps"]) or "none", "control" if o["how"] == "control" else ("front" if i in fr12 else "dominated"))
            for i, (o, r) in enumerate(zip(OPTIONS_T12, rows12))]
     with open(os.path.join(OUT, "scores.md"), "w", encoding="utf-8", newline="\n") as fh:

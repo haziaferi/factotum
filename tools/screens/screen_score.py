@@ -7,6 +7,8 @@ Measured, not assumed:
                  what the eye lands on first. Fewer = calmer, as long as the main action is among them
   faint          tappable elements whose text reads under 4.5:1 on the ground, opacity included
   small_taps     tappable elements under 48 x 48 dp (Material and WCAG 2.5.8's comfortable size)
+  blank_lead     rows whose slot before the title shows nothing (an empty left column)
+  title_edges    distinct x positions titles start at, summed over zones (1 per zone is one clean edge)
   rows_visible   item rows wholly inside the phone's content area (how much of the day fits at a glance)
   min_text       the smallest font size of any visible text, in px
   nav            tappable elements in the header, bar and rail
@@ -53,6 +55,14 @@ MEASURE_JS = r"""
   var w=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);
   while(w.nextNode()){var n=w.currentNode;if(!n.textContent.trim())continue;var p=n.parentElement;var r=p.getBoundingClientRect();
     if(!r.width||!r.height)continue;var fs=parseFloat(getComputedStyle(p).fontSize);if(fs<out.min_text)out.min_text=fs}
+  // lead column: a row whose slot before the title shows nothing (no text, no ::before mark, no border) is a blank lead;
+  // title edges: how many different x positions titles start at, per zone (1 = one clean left edge)
+  out.blank_lead=0;out.title_edges=0;
+  function shows(c){if(c.textContent.trim())return true;var b=getComputedStyle(c,'::before').content;if(b&&b!=='none'&&b!=='normal')return true;  // content:"" still draws (the circles)
+    var s=getComputedStyle(c);return parseFloat(s.borderLeftWidth)>0||parseFloat(s.borderTopWidth)>0||(s.backgroundColor!=='rgba(0, 0, 0, 0)'&&c.getBoundingClientRect().width>0)}
+  document.querySelectorAll('.zone').forEach(function(z){var xs={};z.querySelectorAll('.row').forEach(function(r){var t=r.querySelector('.t');if(!t)return;
+    xs[Math.round(t.getBoundingClientRect().left)]=1;var any=false;for(var c=r.firstElementChild;c&&c!==t;c=c.nextElementSibling){if(shows(c)){any=true;break}}
+    if(!any)out.blank_lead++});out.title_edges+=Object.keys(xs).length});
   var b=document.querySelector('.body');if(b){var bb=b.getBoundingClientRect();out.rows_visible=0;
     document.querySelectorAll('.body .row').forEach(function(r){var q=r.getBoundingClientRect();if(q.height&&q.top>=bb.top&&q.bottom<=bb.bottom)out.rows_visible++})}
   var pre=document.createElement('pre');pre.id='__measure';pre.textContent=JSON.stringify(out);document.body.appendChild(pre);
@@ -125,7 +135,7 @@ def score_option(make_doc, w, h, targets=None, declared=None):
             # header/bar/rail targets in the top quarter of a phone: the zone a thumb reaches worst (Hoober 2013)
             "far_nav": sum(t["nav"] and t["y"] < h * 0.25 for t in m["taps"]) if w < 600 else 0,
             "small_taps": sorted({"%s %dx%d" % (t["name"], t["w"], t["h"]) for t in m["taps"] if t["w"] < 48 or t["h"] < 48}),
-            "min_text": m["min_text"], "rows_visible": m.get("rows_visible", 0), "nav": sum(t["nav"] for t in m["taps"]), "steps": steps}
+            "min_text": m["min_text"], "rows_visible": m.get("rows_visible", 0), "blank_lead": m.get("blank_lead", 0), "title_edges": m.get("title_edges", 0), "nav": sum(t["nav"] for t in m["taps"]), "steps": steps}
 
 
 def reference_clutter(names):
