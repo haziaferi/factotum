@@ -519,3 +519,5 @@ Every option that fits keeps the empty sheet at 91 dp. Naming kinds in the place
 **Windows quick-add (owner, 2026-10-07):** "two rows of instructive text" are fine on desktop. The empty line's 14 shorthands wrap onto two rows instead of scrolling sideways, and the keyboard line (Enter, Esc, Ctrl+Shift+Space) sits under them, inside the window.
 
 This was checked in the full page with the browser: both lines sit inside the window, at 60 px and 101 px from its top. The owner's screenshot showed the keyboard line outside the window, over the rail; that was an earlier copy of the page, generated before the fix. The first check had rendered the window alone, which could not have caught the problem where the owner saw it. Checks now look at the page.
+
+**Page order (owner, 2026-10-07: "my choice disappeared").** The T1 page opened on the superseded size exploration ("T1.3 refined"), which showed the old ✓ options; the selected v4 sat far below it, after T1.4. T1.3 with the selected option now comes first. The exploration is folded, closed, under it. T1.4, T1.2 and T1.1 follow.
