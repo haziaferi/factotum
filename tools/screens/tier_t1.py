@@ -575,13 +575,16 @@ def t13_extra(o, r):
 ENTER_KEY = (330, 712)  # the mockup keyboard is 250 px tall at the phone's foot, as in capture_opt's model frame
 
 
-def sheet_v(place, font, add, text=TYPED, chips=CHIPS, mirror=False, placeholder=False, question=None, hint="", form_px=48):
+def sheet_v(place, font, add, text=TYPED, chips=CHIPS, mirror=False, placeholder=False, question=None, hint="", form_px=48,
+            add_style="filled", form_glyph="▤"):
     """place: line | chips | row | split | top (the control). add: ✓'s diameter in px; form_px: ▤'s target.
     Glyphs follow Material's proportions, so the size drawn is the size scored: ✓ at 43% of its disc (24 in a 56 FAB),
     ▤ at 24 (the standard icon size), where the first run kept them at 20 and 18 whatever the target."""
     inner = ('<span class="ph">Add a task, event or reminder…</span>' if placeholder else kit.ud(e(text)) + '<span class="caret"></span>')
-    form = '<span class="ib" data-tap="Full form" title="Full form" style="width:%dpx;height:%dpx;font-size:24px">▤</span>' % (form_px, form_px)
-    ok = '<span class="addc" data-tap="Add" title="Add" style="width:%dpx;height:%dpx;font-size:%dpx">✓</span>' % (add, add, round(add * 0.43))
+    fword = form_glyph.isalpha()
+    form = '<span class="ib" data-tap="Full form" title="Full form" style="%sheight:%dpx;font-size:%s">%s</span>' % (
+        "width:auto;padding:0 10px;" if fword else "width:%dpx;" % form_px, form_px, "14px;color:var(--ink)" if fword else "24px", form_glyph)
+    ok = add_button(add, add_style)
     rev = ";flex-direction:row-reverse" if mirror else ""
     on_line = {"line": form + ok, "split": form, "top": ok}.get(place, "")
     line = '<div class="line" style="font-size:%dpx%s"><span class="in">%s</span>%s</div>' % (font, rev, inner, on_line)
@@ -591,6 +594,27 @@ def sheet_v(place, font, add, text=TYPED, chips=CHIPS, mirror=False, placeholder
         ch = '<div style="display:flex;align-items:flex-end;gap:4px%s"><div style="flex:1;min-width:0">%s</div>%s</div>' % (rev, ch, btns)
     row = '<div style="display:flex;justify-content:space-between;margin-top:4px%s">%s%s</div>' % (rev, form, ok) if place == "row" else ""
     return '<div class="sheet" style="padding-top:16px">%s%s%s%s</div>' % (line, ch, row, '<div class="hint">%s</div>' % hint if hint else "")
+
+
+# ✓'s look (owner, 2026-10-07: "consider changing the icons"): the fill decides the button's visual mass far more
+# than its size does. filled = ink disc (as approved); tonal = the zone2 grey with an ink glyph (Material's tonal
+# button); outline = a ring; arrow = tonal with a send arrow (Microsoft To Do, Todoist); word = a tonal "Add" pill.
+ADD_STYLES = {
+    "filled": ("✓", "background:var(--ink);color:var(--bg)"),
+    "tonal": ("✓", "background:var(--zone2);color:var(--ink)"),
+    "outline": ("✓", "background:transparent;color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--dim)"),
+    "arrow": ("↑", "background:var(--zone2);color:var(--ink)"),
+    "word": ("Add", "background:var(--zone2);color:var(--ink)"),
+}
+
+
+def add_button(size, style="filled"):
+    glyph, paint = ADD_STYLES[style]
+    if style == "word":
+        return ('<span class="addc" data-tap="Add" title="Add" style="width:auto;padding:0 18px;border-radius:999px;height:%dpx;'
+                'font-size:15px;font-weight:600;%s">Add</span>' % (size, paint))
+    return '<span class="addc" data-tap="Add" title="Add" style="width:%dpx;height:%dpx;font-size:%dpx;%s">%s</span>' % (
+        size, size, round(size * 0.43), paint, glyph)
 
 
 def cap_phone_v(place, font, add, **kw):

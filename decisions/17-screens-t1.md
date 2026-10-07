@@ -213,3 +213,26 @@ So the size is a trade between speed and visual weight, and it is the owner's to
 | 72 | 2.36 | −0.27 bits (about 30–50 ms) | +65% |
 
 Each step of 4 dp on ▤ saves 0.09 bits on a rarely used action, and changes nothing else. K64 and K72 are drawn beside K.
+
+**Visual weight, measured (owner, 2026-10-07: a big black disc "creates a huge imbalance between the elements on the sheet"; and "consider changing the icons as well").**
+- The reach-only search had no measure of visual weight. Neither does edge-density clutter.
+- `tools/screens/sheet_weight.py` now measures it on the render, using craftkit's definitions (creative-design-suite `imgstat`): each element's mass is its departure from the sheet's ground tone, and the focal point is where edge energy concentrates.
+- It covered 60 variants: ✓ placement (line or chip row) × fill (filled, tonal, outline, ↑ send arrow, the word "Add") × size (48, 56) × ▤'s look (▤, ⤢, the word "Details"). Results are in `docs/screens/t1/sheet-weight.json`.
+
+| ✓ fill | ✓'s share of the sheet's mass | ✓ against the typed text |
+|---|---|---|
+| filled (A′ as approved, K) | 33–43% | 1.5–2.5× |
+| word "Add" | 12–14% | 0.41–0.53× |
+| outline, tonal | 8–11% | 0.27–0.41× |
+| ↑ arrow | 7–10% | 0.24–0.38× |
+
+**The imbalance was already in A′ as approved:** its 48 px black ✓ is 36% of the sheet's mass, 1.8× the text. Size matters much less than fill: going from 48 to 56 adds a few points; filling the disc multiplies the mass by four. ▤ is light in every form (2–5%); the word "Details" is the heaviest, and the only one whose meaning is plain.
+
+**Critique** (`design-critique-plus`, `craftkit ui` on `docs/screens/t1/sheet-candidates.html`):
+- *Measured:*
+  - every label passes AA;
+  - 9 type sizes, 5 corner radii, and 5 of 9 spacing values off the 4 px grid. These are Low, and are settled when type and density are scored.
+- *Judgement:*
+  - with the black disc, the eye lands on the button before the words it submits;
+  - in tonal grey on the chip row, ✓ shares the chips' fill, so the action reads as one more chip. Placement or an outline has to separate it until colour gives it an accent;
+  - on the line, any button with a word wraps the sample to two lines.
