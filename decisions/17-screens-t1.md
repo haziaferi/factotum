@@ -428,7 +428,9 @@ Each was crossed with chips or highlighting, and with Enter or a ✓. **The cont
 - **The shorthand set is accepted,** on the condition that it is safe in text containing those letters inside a word (see the rules below).
 - **The legend uses both places:** the hint scrolls sideways while the line is empty; once a kind is typed, the small line shows the kind and its field markers.
 
-**Still open:** where ⋯ sits beside a wrapped line: centred on both rows, as drawn, or level with the first.
+**⋯ is level with the first line** when the text wraps (owner, 2026-10-07). It is measured: ⋯'s centre equals the first line's centre in the empty, typed and wrapped states. The text line is 22 px, with 13 px above it, so one line keeps the 48 px row and each extra line adds 22.
+
+**Found with it:** the empty line's placeholder, "Add a task, event, log or journal line…", wraps to two lines beside ⋯. That makes the empty sheet 100 dp against 91 typed. Shorter wording would keep it to one line, and that is the owner's choice.
 
 ## T1.3 Shorthand legend: five places, scored (owner, 2026-10-07)
 

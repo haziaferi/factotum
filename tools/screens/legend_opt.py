@@ -41,6 +41,8 @@ VARIANTS = ["scroll", "context", "menu", "ask", "settings", "control"]
 H = 32
 CSS = v2.CSS + """
 .c2 .hl{background:var(--zone2);border-radius:4px;padding:0 2px}
+/* owner, 2026-10-07: ⋯ stays level with the first line when the text wraps; the text keeps its own rectangle */
+.c2 .line{align-items:flex-start}.c2 .line .in{padding:13px 0 0;line-height:22px}
 .c2 .ph{color:var(--dim)}
 .c2 .hint{font-size:12px;color:var(--dim);padding:2px 2px 4px;white-space:nowrap}
 .c2 .hint.scroll{overflow-x:auto;overflow-y:hidden;scrollbar-width:none}
@@ -67,7 +69,8 @@ def sheet(variant, state):
     if state in ("empty", "open"):
         inner = '<span class="ph">Add a task, event, log or journal line…</span>'
     else:
-        inner = kit.ud('<span class="hl">ev</span> dentist <span class="hl">tomorrow 9am</span>') + '<span class="caret"></span>'
+        inner = kit.ud('<span class="hl">ev</span> dentist <span class="hl">tomorrow 9am</span>' + (
+            ' with the new hygienist <span class="hl">*every</span> 6 months' if state == "wrapped" else "")) + '<span class="caret"></span>'
     line = '<div class="line"><span class="in">%s</span>%s</div>' % (inner, more)
     kinds = " · ".join(item(a, b) for a, b in KINDS)
     every = kinds + " · " + " · ".join(item(a, b) for a, b in FIELDS)
@@ -81,7 +84,7 @@ def sheet(variant, state):
             hint = '<div class="hintrow"><div class="hint">%s</div>%s</div>' % (" · ".join(item(a, b) for a, b in KINDS[:4]), v2.control("Shorthands", "?", H, "ghost"))
         else:
             hint = '<div class="hint">%s</div>' % five
-    else:  # typed with a kind's shorthand: the kind takes the hint's place (approved)
+    else:  # typed (or wrapped) with a kind's shorthand: the kind takes the hint's place (approved)
         if variant in ("context", "both"):
             hint = '<div class="hint">Event · %s</div>' % " · ".join(item(a, b) for a, b in FIELDS if a in EVENT_FIELDS)
         else:
