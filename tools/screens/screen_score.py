@@ -73,11 +73,13 @@ MEASURE_JS = r"""
   var cv=document.querySelector('.cover'),kb=document.querySelector('.cover .kb');if(cv&&kb)out.sheet_h=Math.round(kb.getBoundingClientRect().top-cv.getBoundingClientRect().top);
   var li=document.querySelector('.line .in .ud');if(li){var lh=parseFloat(getComputedStyle(li).lineHeight)||parseFloat(getComputedStyle(li).fontSize)*1.2;out.line_lines=Math.round(li.getBoundingClientRect().height/lh)}
   // element boxes for visual-weight scoring (sheet_weight.py)
-  out.boxes={};[['sheet','.sheet'],['line','.line .in'],['linebox','.line'],['chips','.chips'],['route','.route']].forEach(function(p){var el=document.querySelector(p[1]);if(el){var q=el.getBoundingClientRect();out.boxes[p[0]]=[q.left,q.top,q.width,q.height]}});
+  out.boxes={};[['sheet','.sheet'],['line','.line .in'],['linebox','.line'],['chips','.chips'],['route','.route'],['legend','.legend']].forEach(function(p){var el=document.querySelector(p[1]);if(el){var q=el.getBoundingClientRect();out.boxes[p[0]]=[q.left,q.top,q.width,q.height]}});
   // drawn (visual) parts of sheet controls, apart from their 48 px targets: harmony compares these
   out.vis=[].map.call(document.querySelectorAll('.sheet .vis'),function(el){var q=el.getBoundingClientRect();return [el.getAttribute('data-vis')||'',Math.round(q.left),Math.round(q.top),Math.round(q.width),Math.round(q.height)]});
   // is the typed line drawn, or covered by something above it? sampled at its left, middle and right
   var ln=document.querySelector('.line .in');if(ln){var q=ln.getBoundingClientRect(),line=ln.closest('.line');out.line_covered=[0.1,0.5,0.9].some(function(f){var h=document.elementFromPoint(q.left+q.width*f,q.top+q.height/2);return !(h&&line.contains(h))})}
+  // legend items (.lgi) actually readable: inside the viewport and drawn at their centre (not scrolled or clipped away)
+  out.lgi=[].map.call(document.querySelectorAll('.lgi'),function(el){var q=el.getBoundingClientRect(),cx=q.left+q.width/2,cy=q.top+q.height/2;var ok=q.left>=0&&q.right<=innerWidth&&cy>=0&&cy<innerHeight;var h=ok?document.elementFromPoint(cx,cy):null;return ok&&!!h&&(el===h||el.contains(h))});
   var pre=document.createElement('pre');pre.id='__measure';pre.textContent=JSON.stringify(out);document.body.appendChild(pre);
 })();
 </script>"""
@@ -149,7 +151,7 @@ def score_option(make_doc, w, h, targets=None, declared=None):
             "far_nav": sum(t["nav"] and t["y"] < h * 0.25 for t in m["taps"]) if w < 600 else 0,
             "small_taps": sorted({"%s %dx%d" % (t["name"], t["w"], t["h"]) for t in m["taps"] if t["w"] < 48 or t["h"] < 48}),
             "taps_raw": m["taps"],
-            "min_text": m["min_text"], "sheet_h": m.get("sheet_h"), "boxes": m.get("boxes", {}), "vis": m.get("vis", []), "line_covered": m.get("line_covered", False), "line_lines": m.get("line_lines"), "rows_visible": m.get("rows_visible", 0), "blank_lead": m.get("blank_lead", 0), "title_edges": m.get("title_edges", 0), "nav": sum(t["nav"] for t in m["taps"]), "steps": steps}
+            "min_text": m["min_text"], "sheet_h": m.get("sheet_h"), "boxes": m.get("boxes", {}), "vis": m.get("vis", []), "line_covered": m.get("line_covered", False), "lgi": m.get("lgi", []), "line_lines": m.get("line_lines"), "rows_visible": m.get("rows_visible", 0), "blank_lead": m.get("blank_lead", 0), "title_edges": m.get("title_edges", 0), "nav": sum(t["nav"] for t in m["taps"]), "steps": steps}
 
 
 def reference_clutter(names):

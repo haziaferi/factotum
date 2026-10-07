@@ -427,3 +427,34 @@ Each was crossed with chips or highlighting, and with Enter or a ✓. **The cont
 - how the full form opens (the page directly, or ⋯ › Full form › page);
 - whether to accept the shorthand set;
 - where ⋯ sits beside a wrapped line: centred on both rows, as drawn, or level with the first.
+
+## T1.3 Shorthand legend: five places, scored (owner, 2026-10-07)
+
+`tools/screens/legend_opt.py` scores each place against the approved sheet. The places:
+- the hint scrolling sideways;
+- a context-aware hint: kinds while the line is empty, then that kind's field markers once its shorthand is typed;
+- ⋯ › Shorthands;
+- a "?" at the hint's end;
+- Settings › Help.
+
+The control shows all 14 at all times, in three lines.
+
+The measures:
+- **readable:** how many shorthands can actually be read at rest and once a kind is typed, hit-tested;
+- **reach:** taps or swipes to see all 14;
+- **leaving:** whether consulting the legend closes capture;
+- **size and clutter:** sheet height, clutter, controls, and how much of the screen an open table covers;
+- **harmony:** as before.
+
+| Place | Readable at rest | Readable after `ev` | To see all 14 | Sheet | Covered when open | Status |
+|---|---|---|---|---|---|---|
+| Scrolling hint | 6 | 0 | 2 swipes | 96 | none | **front** |
+| Context-aware hint | 5 | 5 (the event's markers) | never all at once | 96 | none | **front** |
+| ⋯ › Shorthands | 5 | 0 | 2 taps | 96 | 36% | dominated by scrolling |
+| "?" at the hint's end | 4 | 0 | 1 tap | 120 | 36% | dominated (its 48 px target adds 24 dp) |
+| Settings › Help | 5 | 0 | 3 taps, and capture closes | 96 | none | dominated by context |
+| All 14 always on (control) | 13 | 13 | none needed | 130 | none | breaks the approved rule (the kind replaces the hint), so it is a constraint failure |
+
+**The two can be combined.** The scrolling hint covers the empty line, and the context hint covers the typed one. Combined, all 14 can be found while typing, at no extra height. This combination is not scored separately.
+
+Mockups: `docs/screens/t1/legend-options.html`.
