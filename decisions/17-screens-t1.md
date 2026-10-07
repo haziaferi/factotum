@@ -42,7 +42,7 @@ There are no swipes.
 |---|---|---|
 | T1.1 | Header and bar | **approved 2026-10-07: A′** |
 | T1.2 | Item rows (title only), plus the row-variants chapter | **approved 2026-10-07: D** |
-| T1.3 | Capture sheet | **approved 2026-10-07: A′** |
+| T1.3 | Capture sheet | **approved 2026-10-07: A′; superseded the same day by the v4 design below** (no chips, highlight, kind in the hint's place, ⋯ beside the line) |
 | T1.4 | Hub sheet (cards) | **paused by the owner (2026-10-07), to be decided** |
 | T1.5 | Date and time picker | to do |
 | T1.6 | Repeat builder | to do |
@@ -402,3 +402,28 @@ Each was crossed with chips or highlighting, and with Enter or a ✓. **The cont
 - **Proposed field markers:** `#` label · `!` reminder · `@` calendar or tracker · `^` page · `~` duration · `*` repeat.
 - **The clash check uses a built-in list** of English and Italian words of one to three letters, not a corpus.
 - **Fit:** a 12 px hint line holds 5 of the 8 kinds, and all 14 need 3 lines.
+
+## T1.3 Capture sheet: approved v4 (owner, 2026-10-07)
+
+**The owner's design:**
+- **No chips.** The understood words are **highlighted** in the line.
+- **The kind replaces the hint.** While the line is empty, the hint lists the shorthands; once text is typed, the same small line shows the kind ("Event", "Log", "Journal").
+- **⋯ sits beside the text box.**
+- **When the text wraps to two rows, it stays a rectangle.** It never flows under ⋯.
+- **Enter adds** (kept from the front; the owner did not name the add).
+
+**Scored with the v4 variants** (`docs/screens/t1/capture-v4-owner.json`). It is on the front, with **the least clutter of any variant (C 21)** and **the shortest sheet: 96 dp with the hint, 91 to 96 typed**. It has one control on the sheet, every drawn height is the same, and there is one left edge.
+
+**What it gives up, measured:**
+- the resolved values are not shown before adding (5 across the three inputs);
+- changing the kind without typing takes ⋯ › Kind, three taps;
+- a typed prefix still takes none.
+
+**Fixed with it:** the empty-line hint used "ci" and "log", which clash with words (`shorthands.md`). It now reads "j journal · lg log · t timer · ck check-in · td task".
+
+**Mockup:** `docs/screens/t1/capture-approved.html`.
+
+**Still open:**
+- how the full form opens (the page directly, or ⋯ › Full form › page);
+- whether to accept the shorthand set;
+- where ⋯ sits beside a wrapped line: centred on both rows, as drawn, or level with the first.

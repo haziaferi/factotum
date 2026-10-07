@@ -1,0 +1,64 @@
+{
+ "owner": {
+  "v": {
+   "kind": "row (owner)",
+   "display": "highlight",
+   "add": "enter",
+   "tail": "line"
+  },
+  "control": false,
+  "heights": 1,
+  "over_box": 0,
+  "emphasis": 0.6,
+  "edges": 1,
+  "sprawl": 1,
+  "taps_fix": 3,
+  "taps_more": 1,
+  "submit_id": 2.29,
+  "hidden": 1,
+  "clutter": 0.0294,
+  "controls": 1,
+  "sheet": 96,
+  "small": [],
+  "tops": [
+   [
+    "line",
+    "more"
+   ],
+   [
+    "line",
+    "more"
+   ],
+   [
+    "line",
+    "more"
+   ]
+  ],
+  "empty": 0.651,
+  "sheet_empty": 96,
+  "sheet_typed_min": 91,
+  "unshown": 5,
+  "min_text": 12,
+  "H": 50.0,
+  "U": 51.0,
+  "C": 21.0
+ },
+ "front": [
+  {
+   "kind": "chip",
+   "display": "chips",
+   "add": "enter"
+  },
+  {
+   "kind": "chip",
+   "display": "highlight",
+   "add": "enter"
+  },
+  {
+   "kind": "row (owner)",
+   "display": "highlight",
+   "add": "enter",
+   "tail": "line"
+  }
+ ]
+}

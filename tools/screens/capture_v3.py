@@ -66,7 +66,7 @@ def sheet(v, item, control_mode=False):
     shown_chips = chips if v["display"] == "chips" else []
     chip_html = "".join('<span class="tg pchip" data-tap="Fix %s"><span class="vis" data-vis="chip" style="height:%dpx">%s</span></span>' % (c, H, c) for c in shown_chips)
     icons = "".join(ctl(n, g, H, "ghost") for n, g in ICONS) if v["tail"] in ("icons", "icons+more") else ""
-    more = ctl("More", "⋯", H, "ghost") if v["tail"] in ("more", "icons+more") else ""
+    more = ctl("More", "⋯", H, "ghost") if v["tail"] in ("more", "icons+more", "line") else ""
     add = ctl("Add", "✓", H, FILL) if v["add"] == "chips" else ""
     if control_mode:
         add = '<span class="tg" data-tap="Add"><span class="vis" data-vis="add" style="height:56px;width:56px;padding:0;background:var(--ink);color:var(--bg);font-size:24px">✓</span></span>'
@@ -80,7 +80,10 @@ def sheet(v, item, control_mode=False):
     line = '<div class="line"><span class="in">%s</span></div>' % inner
     row = '<div class="crow"><div class="chips">%s%s</div><span style="margin-left:auto;display:flex;gap:6px">%s%s%s</span></div>' % (
         kind_chip, chip_html, icons, more, add)
-    hint = '<div class="hint">j journal · log · t timer · ci check-in</div>' if key == "empty" else (caption_row if not control_mode else "")
+    hint = '<div class="hint">j journal · lg log · t timer · ck check-in · td task</div>' if key == "empty" else (caption_row if not control_mode else "")
+    if v.get("tail") == "line":  # owner, 2026-10-07: ⋯ beside the text box; a row left empty is not drawn
+        line = '<div class="line"><span class="in">%s</span>%s</div>' % (inner, more)
+        row = "" if not (kind_chip or chip_html or icons or add) else row.replace(more, "", 1)
     return '<div class="sheet">%s%s%s</div>' % (line, row, hint)
 
 
