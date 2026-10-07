@@ -37,10 +37,12 @@ Reference main screens: bearable/00-main.png 0.070, daylio/00-main.png 0.055, ho
 
 ## T1.4 Hub sheet
 
-- A One column of cards: clutter 0.047 / 0.020, faint 0, small 0, below the fold 5 of 27, dominated
-- B Two columns of cards: clutter 0.052 / 0.020, faint 0, small 0, below the fold 2 of 27, dominated
-- C Cards where the bar says they live (oblique: Cross-Domain Raid): clutter 0.054 / 0.020, faint 0, small 0, below the fold 0 of 27, front
-- X Control: one long list: clutter 0.035 / 0.020, faint 0, small 0, below the fold 15 of 27, control
+- C Cards where the bar says they live (store map), with Pinned and recent: clutter 0.056 / 0.026, faint 0, small 0, below the fold 0 of 27, front
+- B- Two columns of cards, no Pinned and recent: clutter 0.051 / 0.026, faint 0, small 0, below the fold 0 of 27, front
+- C- Store map, no Pinned and recent: clutter 0.051 / 0.026, faint 0, small 0, below the fold 0 of 27, dominated
+- A One column of cards: clutter 0.050 / 0.026, faint 0, small 0, below the fold 6 of 27, dominated
+- B Two columns of cards: clutter 0.054 / 0.026, faint 0, small 0, below the fold 6 of 27, dominated
+- X Control: one long list: clutter 0.035 / 0.020, faint 0, small 0, below the fold 16 of 27, control
 
 ## T1.3 refined: ✓ and ▤
 

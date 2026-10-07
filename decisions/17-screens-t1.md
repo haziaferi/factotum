@@ -43,7 +43,7 @@ There are no swipes.
 | T1.1 | Header and bar | **approved 2026-10-07: A′** |
 | T1.2 | Item rows (title only), plus the row-variants chapter | **approved 2026-10-07: D** |
 | T1.3 | Capture sheet | **approved 2026-10-07: v4** (no chips, highlight, kind and markers in the hint's place, ⋯ beside the line, context-aware placeholder); it superseded A′ the same day |
-| T1.4 | Hub sheet (cards) | **paused by the owner (2026-10-07), to be decided** |
+| T1.4 | Hub sheet (cards) | **unpaused and re-scored 2026-10-07 with T1.3's carry-overs; front: C, B−, C−; owner to choose** |
 | T1.5 | Date and time picker | to do |
 | T1.6 | Repeat builder | to do |
 | T1.7 | Label chips and picker | to do |
@@ -521,3 +521,40 @@ Every option that fits keeps the empty sheet at 91 dp. Naming kinds in the place
 This was checked in the full page with the browser: both lines sit inside the window, at 60 px and 101 px from its top. The owner's screenshot showed the keyboard line outside the window, over the rail; that was an earlier copy of the page, generated before the fix. The first check had rendered the window alone, which could not have caught the problem where the owner saw it. Checks now look at the page.
 
 **Page order (owner, 2026-10-07: "my choice disappeared").** The T1 page opened on the superseded size exploration ("T1.3 refined"), which showed the old ✓ options; the selected v4 sat far below it, after T1.4. T1.3 with the selected option now comes first. The exploration is folded, closed, under it. T1.4, T1.2 and T1.1 follow.
+
+## T1.4 Hub sheet: unpaused and re-scored with T1.3's carry-overs (owner, 2026-10-07)
+
+**Carry-overs applied to every option:**
+1. the T1.3 v4 capture line on top, with the shorthand hint and Today's placeholder, "Add anything…";
+2. one drawn height, with features as plain text on 48 px targets;
+3. text, not pills;
+4. the feature names must outweigh the card headers, by measured mass;
+5. empty space measured;
+6. every card on Windows.
+
+**The measuring fix found in T1.3 applies here too.** A feature counts as seen only if it is drawn at its centre. The old measure counted it by position, so a feature cut off by the sheet's edge could count as visible.
+
+**The scorer is `tools/screens/hub_opt.py`** (results in `docs/screens/t1/hub-opt.json`), on three axes:
+- **Harmony:** designkit `emphasis_coherence` over the measured masses (features first, then the line, then the headers), the headers' share of the mass, and craftkit sprawl.
+- **Ease of use:** thumb reach (Fitts' ID from the Hub's slot) and whether Pinned and recent is there.
+- **Clutter:** edge density and empty share.
+
+"Every screen visible" is a constraint. B− and C− were added: the same layouts without Pinned and recent.
+
+| Option | Hidden (of 27) | Reach | Headers' share | Clutter | Empty | Status |
+|---|---|---|---|---|---|---|
+| C, store map, with Pinned and recent | 0 | 2.82 | 0.089 | 0.056 | 0.16 | **front** (best harmony and ease) |
+| B−, two columns, no Pinned and recent | 0 | 2.90 | 0.101 | 0.051 | 0.14 | **front** (least clutter) |
+| C−, store map, no Pinned and recent | 0 | 3.02 | 0.095 | 0.051 | 0.24 | front on the three axes; the page's own columns put it behind B− |
+| A, one column | 6 (the App card) | 2.86 | 0.095 | 0.050 | 0.11 | fails the constraint |
+| B, two columns | 6 | 3.00 | 0.089 | 0.054 | 0.11 | fails the constraint |
+| X, the control (a long list) | 16 | 2.93 | | 0.035 | 0.06 | fails; loses |
+
+- **The feature names outweigh the headers** in every option, so none needs lighter headers.
+- **The Windows panel hides nothing.**
+
+**Two defects were fixed on the way:**
+- The page's T1.4 section was rendered without T1.3's styles, which lays the sheet out differently: B showed 2 hidden on the page against 6 in the scorer.
+- The page ranked by clutter alone. It now carries the same reach and Pinned measures, and its front matches the scorer's on C and B−.
+
+**The ideas raised before unpausing are not applied:** navigating from the Hub's line, shorthands on the cards, and a short list for rare screens. Each would need the owner's decision and its own scoring.

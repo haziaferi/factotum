@@ -1,0 +1,171 @@
+{
+ "rows": [
+  {
+   "id": "A",
+   "name": "One column of cards",
+   "how": "direct",
+   "hidden": 6,
+   "hidden_names": [
+    "About",
+    "Calendars",
+    "Labels",
+    "Settings",
+    "Time blocks",
+    "Trash"
+   ],
+   "reach": 2.864,
+   "pinned": 1,
+   "emphasis": 0.8,
+   "order": [
+    "features",
+    "headers",
+    "line"
+   ],
+   "headers": 0.095,
+   "sprawl": 2,
+   "clutter": 0.0495,
+   "empty": 0.111,
+   "small": []
+  },
+  {
+   "id": "B",
+   "name": "Two columns of cards",
+   "how": "direct",
+   "hidden": 6,
+   "hidden_names": [
+    "About",
+    "Calendars",
+    "History",
+    "Settings",
+    "Time totals",
+    "Trash"
+   ],
+   "reach": 2.998,
+   "pinned": 1,
+   "emphasis": 0.8,
+   "order": [
+    "features",
+    "headers",
+    "line"
+   ],
+   "headers": 0.089,
+   "sprawl": 2,
+   "clutter": 0.0543,
+   "empty": 0.111,
+   "small": []
+  },
+  {
+   "id": "C",
+   "name": "Cards where the bar says they live (store map)",
+   "how": "oblique",
+   "hidden": 0,
+   "hidden_names": [],
+   "reach": 2.824,
+   "pinned": 1,
+   "emphasis": 0.8,
+   "order": [
+    "features",
+    "headers",
+    "line"
+   ],
+   "headers": 0.089,
+   "sprawl": 2,
+   "clutter": 0.0562,
+   "empty": 0.16,
+   "small": [],
+   "H": 5.0,
+   "U": 2.0,
+   "C": 5.0
+  },
+  {
+   "id": "B-",
+   "name": "Two columns, no Pinned and recent (room for every screen)",
+   "how": "direct",
+   "hidden": 0,
+   "hidden_names": [],
+   "reach": 2.895,
+   "pinned": 0,
+   "emphasis": 0.8,
+   "order": [
+    "features",
+    "headers",
+    "line"
+   ],
+   "headers": 0.101,
+   "sprawl": 2,
+   "clutter": 0.0509,
+   "empty": 0.139,
+   "small": [],
+   "H": 7.0,
+   "U": 4.5,
+   "C": 2.5
+  },
+  {
+   "id": "C-",
+   "name": "Store map, no Pinned and recent",
+   "how": "oblique",
+   "hidden": 0,
+   "hidden_names": [],
+   "reach": 3.023,
+   "pinned": 0,
+   "emphasis": 0.8,
+   "order": [
+    "features",
+    "headers",
+    "line"
+   ],
+   "headers": 0.095,
+   "sprawl": 2,
+   "clutter": 0.0509,
+   "empty": 0.243,
+   "small": [],
+   "H": 6.0,
+   "U": 5.5,
+   "C": 4.5
+  },
+  {
+   "id": "X",
+   "name": "Control: one long list, no capture line",
+   "how": "control",
+   "hidden": 16,
+   "hidden_names": [
+    "About",
+    "Calendars",
+    "History",
+    "Journal",
+    "Labels",
+    "Ledger",
+    "Road Map",
+    "Sensory",
+    "Settings",
+    "Templates",
+    "This week",
+    "Time blocks",
+    "Time totals",
+    "Trash",
+    "Tree",
+    "Trend"
+   ],
+   "reach": 2.926,
+   "pinned": 0,
+   "emphasis": 0.8,
+   "order": [
+    "features",
+    "headers",
+    "line"
+   ],
+   "headers": 0.0,
+   "sprawl": 2,
+   "clutter": 0.035,
+   "empty": 0.056,
+   "small": []
+  }
+ ],
+ "front": [
+  "C",
+  "B-",
+  "C-"
+ ],
+ "control_beaten": true,
+ "desk_hidden": []
+}

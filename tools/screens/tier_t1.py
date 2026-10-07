@@ -764,12 +764,12 @@ def hub_top():
             '<div class="subl">Pinned and recent</div><div class="ft" style="margin-bottom:4px">%s</div>' % "".join(feat(f) for f in RECENT))
 
 
-def hub_phone(body, top=True):
+def hub_phone(body, top=True, v4=False):
     today = kit.phone(kit.header(TITLE, APPROVED_BUTTONS), '<div class="cap">+ <span>Add…</span></div>' + rows_today(row_d),
                       kit.bar("Hub").replace('class="s hub"', 'class="s on hub"'))
     today = today.replace('data-tap="Open item"', 'data-behind="x"').replace('data-tap="Done"', 'data-behind="x"').replace('data-tap="Capture"', 'data-behind="x"')
     return today[:-len("</div>")] + '<div class="scrim" style="bottom:72px;background:rgba(0,0,0,.16)"></div><div class="hubsheet">%s%s</div></div>' % (
-        hub_top() if top else "", body)
+        hub_top() if top and not v4 else "", body)
 
 
 def hub_a():
@@ -802,15 +802,32 @@ def hub_desk(inner):
 
 
 DESK_HUB = '<div class="grid3">%s</div>' % "".join(card(*g) for g in HUB_GROUPS)
+
+
+def hub_v4(oid):
+    """T1.4 re-scored with T1.3's carry-overs (owner, 2026-10-07): hub_opt.py builds every option on the v4 line."""
+    import hub_opt  # imported here: hub_opt imports this module
+    return dict((o[0], o[3]) for o in hub_opt.OPTIONS)[oid]()
+
+
+def hub_desk_v4():
+    import hub_opt
+    return hub_opt.DESK()
+
+
 OPTIONS_T14 = [
-    {"id": "A", "name": "One column of cards", "how": "direct", "phone": hub_a, "desk": lambda: hub_desk(DESK_HUB),
-     "about": "The capture line and Pinned and recent on top, then one card per module, top to bottom, every screen named inside. On Windows the Hub opens a panel beside the rail, three cards across."},
-    {"id": "B", "name": "Two columns of cards", "how": "direct", "phone": hub_b, "desk": lambda: hub_desk(DESK_HUB),
-     "about": "The same cards, two across, so more of the sheet fits without scrolling."},
-    {"id": "C", "name": "Cards where the bar says they live (oblique: Cross-Domain Raid)", "how": "oblique", "phone": hub_c,
-     "desk": lambda: hub_desk(DESK_HUB),
-     "about": "A store map: Calendar and Routines on the left, under Calendar's slot; Pages and check-in on the right, under theirs; Review and App across the foot. Position predicts where a screen is."},
-    {"id": "X", "name": "Control: one long list", "how": "control", "phone": hub_x,
+    {"id": "C", "name": "Cards where the bar says they live (store map), with Pinned and recent", "how": "oblique", "phone": lambda: hub_v4("C"),
+     "desk": hub_desk_v4,
+     "about": "A store map: Calendar and Routines on the left, under Calendar's slot; Pages and check-in on the right, under theirs; Review and App across the foot. The T1.3 v4 capture line on top, then Pinned and recent."},
+    {"id": "B-", "name": "Two columns of cards, no Pinned and recent", "how": "direct", "phone": lambda: hub_v4("B-"), "desk": hub_desk_v4,
+     "about": "Two cards across, with Pinned and recent left out so that every screen fits."},
+    {"id": "C-", "name": "Store map, no Pinned and recent", "how": "oblique", "phone": lambda: hub_v4("C-"), "desk": hub_desk_v4,
+     "about": "The store map without Pinned and recent."},
+    {"id": "A", "name": "One column of cards", "how": "direct", "phone": lambda: hub_v4("A"), "desk": hub_desk_v4,
+     "about": "One card per module, top to bottom, under the capture line and Pinned and recent."},
+    {"id": "B", "name": "Two columns of cards", "how": "direct", "phone": lambda: hub_v4("B"), "desk": hub_desk_v4,
+     "about": "The same cards, two across, with Pinned and recent."},
+    {"id": "X", "name": "Control: one long list", "how": "control", "phone": lambda: hub_v4("X"),
      "desk": lambda: hub_desk('<div class="hlist">%s</div>' % "".join('<div class="hr" data-tap="%s">%s</div>' % (f, f) for f in FEATURES)),
      "about": "Every screen as a row under a heading, no cards and no capture line. It must lose."},
 ]
@@ -818,15 +835,21 @@ OPTIONS_T14 = [
 
 def t14_extra(o, r):
     names = [re_strip(f) for f in FEATURES]
-    seen = {t["name"] for t in r["taps_raw"] if t["name"] in names and 0 < t["y"] < 740 - 72}
-    return {"hidden": len(names) - len(seen), "fields": len(names)}
+    # hit-tested (T1.3's finding): a feature cut off by the sheet's edge keeps its box, so its position alone counted it seen
+    seen = {t["name"] for t in r["taps_raw"] if t["name"] in names and t.get("seen")}
+    # the same ease measures as hub_opt.py: thumb reach from the Hub's slot, and whether Pinned and recent is there
+    vis = [t for t in r["taps_raw"] if t["name"] in names and t.get("seen")]
+    reach = sum(math.log2(math.hypot(180 - t["x"], 712 - t["y"]) / min(t["w"], t["h"]) + 1) for t in vis) / max(1, len(vis))
+    return {"hidden": len(names) - len(seen), "fields": len(names), "reach": round(reach, 2),
+            "no_pinned": 0 if any(t["name"] == "Garden plan" for t in r["taps_raw"]) else 1}
 
 
 COLS["hidden"] = ("Screens below the fold (of 27)", "%d")
+COLS["reach"] = ("Thumb travel to a screen (Fitts ID from the Hub)", "%.2f")
+COLS["no_pinned"] = ("No Pinned and recent", "%d")
 STATES_T14 = [
-    ("Open from the bar (the Hub slot active)", hub_b),
-    ("Long press on the Hub: straight to capture", lambda: cap_phone_a2()),
-    ("A screen pinned: it joins Pinned and recent", hub_b),
+    ("Open from the bar (the Hub slot active)", lambda: hub_v4("C")),
+    ("Long press on the Hub: straight to capture (T1.3 v4)", lambda: cap_v4("empty", "Today")),
 ]
 
 
@@ -881,8 +904,12 @@ def main():
     s14, rows14, fr14, beaten14 = build_section(
         "t1-4", "T1.4 Hub sheet (cards)",
         "The Hub in the bar's centre opens this sheet: the capture line, Pinned and recent, then every screen of every module "
-        "on cards (owner: cards for now, so every screen is visible). A long press on the Hub goes straight to capture.",
-        OPTIONS_T14, STATES_T14, T14_CSS, ("clutter", "desk_clutter", "faint_n", "small", "hidden"), t14_extra,
+        "on cards (owner: cards for now, so every screen is visible). A long press on the Hub goes straight to capture. "
+        "Unpaused and re-scored 2026-10-07 with T1.3's carry-overs: the v4 capture line on top; plain text on 48 px targets; "
+        "feature names outweighing the card headers; empty space measured; every card on Windows. Hidden screens are now "
+        "hit-tested (a feature cut off by the sheet's edge counts as hidden). Three-axis scores (harmony, ease, clutter): "
+        "<code>tools/screens/hub_opt.py</code>, <code>docs/screens/t1/hub-opt.json</code>.",
+        OPTIONS_T14, STATES_T14, T13_CSS + T14_CSS + __import__("legend_opt").CSS, ("clutter", "desk_clutter", "faint_n", "small", "reach", "no_pinned", "hidden"), t14_extra,
         must=lambda r: "%d screens below the fold (owner: every screen visible)" % r["hidden"] if r["hidden"] else None)
     page = ['<!doctype html><html lang="en" data-theme="light"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">',
             '<title>Factotum T1 shared parts</title><style>%s\n%s\n%s\n%s\n%s</style></head><body>' % (kit.theme_css(), kit.BASE_CSS, EXTRA, T12_CSS + T13_CSS + T14_CSS + __import__("legend_opt").CSS, PAGE_CSS),
