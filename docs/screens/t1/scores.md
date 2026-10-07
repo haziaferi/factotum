@@ -28,7 +28,7 @@ Reference main screens: bearable/00-main.png 0.070, daylio/00-main.png 0.055, ho
 
 ## T1.3 Capture sheet
 
-- v4 Selected: highlighted parse, ⋯ beside the line, shorthand hint, context-aware placeholder: clutter 0.031 / 0.019, faint 0, small 0, taps 2, fields 1, dominated
+- v4 Selected: highlighted parse, ⋯ beside the line, shorthand hint, context-aware placeholder: clutter 0.031 / 0.021, faint 0, small 0, taps 2, fields 1, dominated
 - A′ Approved earlier on 2026-10-07, superseded by v4: sheet over a visible Today, check to add, full form button: clutter 0.034 / 0.020, faint 0, small 0, taps 2, fields 1, dominated
 - A Sheet over the screen: clutter 0.022 / 0.020, faint 0, small 0, taps 2, fields 1, front
 - B Grows in place: clutter 0.025 / 0.020, faint 0, small 0, taps 2, fields 1, dominated

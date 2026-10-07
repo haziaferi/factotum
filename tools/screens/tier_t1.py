@@ -549,7 +549,11 @@ def cap_v4(state="empty", opened_from="Today"):
 
 def desk_v4():
     import legend_opt as L
-    sheet = L.sheet("both", "typed").replace('class="sheet" style="position:relative"', 'class="qa" style="position:relative"')
+    # Windows has room (owner, 2026-10-07: two rows of instructive text are fine on desktop): the empty line's 14 shorthands
+    # wrap onto rows instead of scrolling sideways, and the keyboard line sits under them
+    sheet = L.sheet("both", "empty").replace('class="sheet" style="position:relative"', 'class="qa" style="position:relative"')
+    sheet = sheet.replace('class="hint scroll"', 'class="hint" style="white-space:normal"').replace(
+        "Add a task, event, log or journal line…", e(V4_PLACEHOLDER["Today"]))
     # the keyboard line sits inside the window, under the shorthand hint (a first draft put it outside, over the rail)
     sheet = sheet[:-len("</div>")] + '<div class="hint">Enter adds · Esc closes · Ctrl+Shift+Space from anywhere in Windows</div></div>'
     return cap_desk('<div class="c2">%s</div>' % sheet)
@@ -562,7 +566,7 @@ OPTIONS_T13 = [
      "about": "The owner's design (decision 17, T1.3 v4), after scoring chips, routing, add, kind display, legend and placeholder: "
               "no chips, the understood words highlighted in the text; ⋯ beside the text box, level with its first line (it opens the "
               "full page); the box keeps its full width and one-line height until the text wraps; while empty, the hint scrolls through "
-              "the 14 shorthands; once a kind is typed it shows the kind and its field markers; Enter adds; the placeholder says what "
+              "the 14 shorthands (on Windows they wrap onto two rows, with the keyboard line under them); once a kind is typed it shows the kind and its field markers; Enter adds; the placeholder says what "
               "the screen it opens from will make."},
     {"id": "A′", "name": "Approved earlier on 2026-10-07, superseded by v4: sheet over a visible Today, check to add, full form button", "how": "direct",
      "phone": cap_phone_a2, "desk": lambda: cap_desk(DESK_QA2),
