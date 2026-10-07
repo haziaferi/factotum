@@ -41,8 +41,8 @@ There are no swipes.
 | # | Screen | Status |
 |---|---|---|
 | T1.1 | Header and bar | **approved 2026-10-07: A′** |
-| T1.2 | Item rows (title only), plus the row-variants chapter | in progress |
-| T1.3 | Capture sheet | to do |
+| T1.2 | Item rows (title only), plus the row-variants chapter | **approved 2026-10-07: D** |
+| T1.3 | Capture sheet | in progress |
 | T1.4 | Hub sheet (cards) | to do |
 | T1.5 | Date and time picker | to do |
 | T1.6 | Repeat builder | to do |
@@ -100,3 +100,16 @@ The first run of `blank_lead` counted circles drawn with `content:""` as blank. 
 | E | 0 | 2 | 0.040 | dominated (busier) |
 | **F** | 0 | 2 | 0.035 | **front** |
 | X (control) | 0 | 4 | 0.056 | loses |
+
+## T1.2 Item rows: approved (2026-10-07)
+
+**D, with A and B merged.**
+- The left column shows a time, an event's span, or a quiet kind mark.
+- Every action sits at the right edge: the Done circle, and Log, Open or Add.
+- Events have no Done (decision 02).
+
+**Routines are in chronological order, and it changes through the day** (owner). A routine with a set time shows and sorts by that time; an "n a day" habit shows its next block's start (Water, 14:00). Done rows fold away, so the next one rises to the top.
+
+*Assumed, to confirm:* an untimed routine sits at the start of its time block. With no block, it goes to the end. The block start times are placeholders until T3.
+
+The states and the variants chapter are redrawn on D.

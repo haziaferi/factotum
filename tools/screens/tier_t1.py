@@ -141,8 +141,8 @@ KINDS = [
     ("task", "Pay the fine", "", "Done", "Due today · Car", ["Car"]),
     ("reminder", "Call the bank", "15:00", "Done", "Reminder · Money", ["Money"]),
     ("habit", "Walk", "", "Log", "Every day · Health", ["Health"]),
-    ("habit", "Water", "", "Log", "3 of 8 · next block 14:00", ["Health"]),
-    ("checklist", "Morning routine", "", "Open", "Checklist · 3 of 5", []),
+    ("habit", "Water", "14:00", "Log", "3 of 8 · next block 14:00", ["Health"]),  # n a day: its next block's start
+    ("checklist", "Morning routine", "07:00", "Open", "Checklist · 3 of 5", []),  # a set time
     ("reading", "Sleep", "", "Add", "Reading due · hours", ["Sleep"]),
     ("task", "Return library books", "", "Done", "Due today · Errands · repeats weekly", ["Errands", "Weekly"]),
 ]
@@ -224,6 +224,8 @@ EVENT_END = {"Dentist": "09:45"}
 # When an untimed row belongs: its time block (decision 06b's blocks; Water's next block is 14:00), else Any time.
 WHEN = {"Walk": "Morning", "Water": "14:00", "Morning routine": "Morning", "Sleep": "Evening",
         "Pay the fine": "Any time", "Return library books": "Any time"}
+BLOCK_START = {"Morning": "06:00", "Afternoon": "12:00", "Evening": "18:00"}  # placeholder block starts; time blocks are set in T3
+APPROVED_T12 = "D"  # owner, 2026-10-07
 KIND_MARK = {"task": "◦", "habit": "↻", "checklist": "≡", "reading": "∿"}
 
 
@@ -283,7 +285,10 @@ def row_x(k, variant="title"):
 
 def rows_today(rowf, variant="title", done=False):
     agenda = [k for k in KINDS if k[0] in ("event", "task", "reminder") and not (done and k[1] == "Pay the fine")]  # done: it folded away
-    routines = [k for k in KINDS if k[0] not in ("event", "task", "reminder")]
+    # Routines in chronological order (owner, 2026-10-07): a set time sorts by that time; an untimed routine sits at
+    # the start of its time block (BLOCK_START); with neither, at the end. Done rows leave, so the next one rises.
+    routines = sorted((k for k in KINDS if k[0] not in ("event", "task", "reminder")),
+                      key=lambda k: k[2] or BLOCK_START.get(WHEN.get(k[1]), "99:99"))
     fold_a = '<div class="fold" data-tap="Done today"><span class="t">Done today · 2</span>▸</div>' if done else ""
     return (kit.zone("Agenda", "".join(rowf(k, variant) for k in agenda) + fold_a) +
             kit.zone("Routines", "".join(rowf(k, variant) for k in routines)))
@@ -357,7 +362,7 @@ def section_t12():
         "control" if o["how"] == "control" else ("front" if i in fr else "dominated")) for i, (o, r) in enumerate(zip(OPTIONS_T12, rows)))
     opts = "".join('<div class="opt"><h3>%s · %s <span class="tag">%s</span></h3><p class="dim">%s</p><div class="pair">%s<div class="dwrap">%s</div></div></div>' % (
         o["id"], e(o["name"]), o["how"], e(o["about"]), t12_phone(o["f"]), t12_desk(o["f"])) for o in OPTIONS_T12)
-    lead = OPTIONS_T12[min((i for i in fr if OPTIONS_T12[i]["how"] != "control"), key=lambda i: rows[i]["clutter"])]
+    lead = next(o for o in OPTIONS_T12 if o["id"] == APPROVED_T12)  # states and variants are drawn on the approved row
     states = "".join('<div><div class="cap2">%s</div>%s</div>' % (e(n), h) for n, h in states_t12(lead["f"]))
     variants = "".join('<div><div class="cap2">%s</div>%s</div>' % (n, t12_phone(lead["f"], v)) for v, n in (
         ("title", "Title only (the default for now)"), ("line", "Title and one quiet line"), ("chips", "Title and label chips")))
@@ -365,7 +370,7 @@ def section_t12():
     for v in ("title", "line", "chips"):
         vs = ss.score_option(lambda t, s, v=v: kit.document(t12_phone(lead["f"], v), t, EXTRA + T12_CSS, s), 360, 740)
         vscores.append("%s: clutter %.3f, %d rows in view" % ({"title": "title only", "line": "quiet line", "chips": "chips"}[v], vs["clutter"], vs["rows_visible"]))
-    html_ = ('<section id="t1-2"><h2>T1.2 Item rows</h2>'
+    html_ = ('<section id="t1-2"><h2>T1.2 Item rows <span class="tag">approved 2026-10-07: D, routines in time order</span></h2>'
              '<p>Every kind of row on one screen: an event, a task, a reminder, two habits, a checklist and a reading. Titles only (decision 17). '
              'Tap the circle for Done, with Undo; long-press for the other actions; no swipes.</p>'
              '<h3>Scores</h3><table>%s%s</table><p class="dim">%s</p><h3>Options</h3>%s'

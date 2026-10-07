@@ -19,9 +19,9 @@ Reference main screens: bearable/00-main.png 0.070, daylio/00-main.png 0.055, ho
 | Option | Clutter phone | Clutter Windows | Rows in view | Blank left | Title edges | Faint | Taps < 48 dp | Status |
 |---|---|---|---|---|---|---|---|---|
 | A Leading mark | 0.036 | 0.018 | 8 | 0 | 4 | 0 | none | dominated |
-| B Action at the thumb | 0.035 | 0.017 | 8 | 6 | 2 | 0 | none | dominated |
-| C Words, not marks (oblique: Arbitrary Constraint) | 0.035 | 0.017 | 8 | 6 | 2 | 0 | none | dominated |
-| D A and B merged: mark or time left, action right | 0.036 | 0.018 | 8 | 0 | 2 | 0 | none | front |
+| B Action at the thumb | 0.036 | 0.018 | 8 | 4 | 2 | 0 | none | dominated |
+| C Words, not marks (oblique: Arbitrary Constraint) | 0.036 | 0.018 | 8 | 4 | 2 | 0 | none | dominated |
+| D A and B merged: mark or time left, action right | 0.037 | 0.018 | 8 | 0 | 2 | 0 | none | front |
 | E Time column, always | 0.040 | 0.019 | 8 | 0 | 2 | 0 | none | dominated |
-| F Action leads, time trails (oblique: Inversion) | 0.035 | 0.018 | 8 | 0 | 2 | 0 | none | front |
-| X Control: dense rows | 0.056 | 0.026 | 8 | 0 | 4 | 0 | Done 11x19, Flag 9x19, More 11x19, Open item 312x40 | control |
+| F Action leads, time trails (oblique: Inversion) | 0.037 | 0.018 | 8 | 0 | 2 | 0 | none | front |
+| X Control: dense rows | 0.057 | 0.026 | 8 | 0 | 4 | 0 | Done 11x19, Flag 9x19, More 11x19, Open item 312x40 | control |
