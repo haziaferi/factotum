@@ -1,0 +1,169 @@
+{
+ "rows": [
+  {
+   "id": "A-tight-",
+   "name": "One column, tighter cards, no Pinned and recent",
+   "how": "direct",
+   "hidden": 0,
+   "hidden_names": [],
+   "reach": 2.857,
+   "pinned": 0,
+   "emphasis": 0.8,
+   "order": [
+    "features",
+    "headers",
+    "line"
+   ],
+   "headers": 0.121,
+   "sprawl": 2,
+   "clutter": 0.0502,
+   "empty": 0.097,
+   "small": [],
+   "H": 15.0,
+   "U": 8.0,
+   "C": 4.5
+  },
+  {
+   "id": "C",
+   "name": "Cards where the bar says they live (store map)",
+   "how": "oblique",
+   "hidden": 0,
+   "hidden_names": [],
+   "reach": 2.824,
+   "pinned": 1,
+   "emphasis": 0.8,
+   "order": [
+    "features",
+    "headers",
+    "line"
+   ],
+   "headers": 0.089,
+   "sprawl": 2,
+   "clutter": 0.0562,
+   "empty": 0.16,
+   "small": [],
+   "H": 10.0,
+   "U": 3.5,
+   "C": 11.0
+  },
+  {
+   "id": "B-",
+   "name": "Two columns, no Pinned and recent (room for every screen)",
+   "how": "direct",
+   "hidden": 0,
+   "hidden_names": [],
+   "reach": 2.895,
+   "pinned": 0,
+   "emphasis": 0.8,
+   "order": [
+    "features",
+    "headers",
+    "line"
+   ],
+   "headers": 0.101,
+   "sprawl": 2,
+   "clutter": 0.0509,
+   "empty": 0.139,
+   "small": [],
+   "H": 14.0,
+   "U": 10.0,
+   "C": 6.5
+  },
+  {
+   "id": "C-",
+   "name": "Store map, no Pinned and recent",
+   "how": "oblique",
+   "hidden": 0,
+   "hidden_names": [],
+   "reach": 3.023,
+   "pinned": 0,
+   "emphasis": 0.8,
+   "order": [
+    "features",
+    "headers",
+    "line"
+   ],
+   "headers": 0.095,
+   "sprawl": 2,
+   "clutter": 0.0509,
+   "empty": 0.243,
+   "small": [],
+   "H": 12.5,
+   "U": 12.0,
+   "C": 10.5
+  },
+  {
+   "id": "A0",
+   "name": "One column, no App card",
+   "hidden": 0,
+   "hidden_names": [],
+   "reach": 2.864,
+   "pinned": 1,
+   "emphasis": 0.8,
+   "order": [
+    "features",
+    "headers",
+    "line"
+   ],
+   "headers": 0.095,
+   "sprawl": 2,
+   "clutter": 0.0501,
+   "empty": 0.132,
+   "small": [],
+   "H": 12.5,
+   "U": 5.5,
+   "C": 5.5
+  },
+  {
+   "id": "A0-tight",
+   "name": "One column, tighter cards, no App card",
+   "hidden": 0,
+   "hidden_names": [],
+   "reach": 2.939,
+   "pinned": 1,
+   "emphasis": 0.8,
+   "order": [
+    "features",
+    "headers",
+    "line"
+   ],
+   "headers": 0.093,
+   "sprawl": 2,
+   "clutter": 0.0501,
+   "empty": 0.174,
+   "small": [],
+   "H": 11.0,
+   "U": 7.5,
+   "C": 8.5
+  },
+  {
+   "id": "C0",
+   "name": "Store map, no App card (Review across the foot)",
+   "hidden": 0,
+   "hidden_names": [],
+   "reach": 3.049,
+   "pinned": 1,
+   "emphasis": 0.8,
+   "order": [
+    "features",
+    "headers",
+    "line"
+   ],
+   "headers": 0.078,
+   "sprawl": 2,
+   "clutter": 0.0502,
+   "empty": 0.215,
+   "small": [],
+   "H": 9.0,
+   "U": 9.5,
+   "C": 9.5
+  }
+ ],
+ "front": [
+  "A-tight-",
+  "C",
+  "A0",
+  "A0-tight",
+  "C0"
+ ]
+}

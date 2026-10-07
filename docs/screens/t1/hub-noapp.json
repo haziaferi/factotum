@@ -1,0 +1,81 @@
+[
+ {
+  "id": "A0",
+  "name": "One column, no App card",
+  "hidden": 0,
+  "hidden_names": [],
+  "reach": 2.864,
+  "pinned": 1,
+  "emphasis": 0.8,
+  "order": [
+   "features",
+   "headers",
+   "line"
+  ],
+  "headers": 0.095,
+  "sprawl": 2,
+  "clutter": 0.0501,
+  "empty": 0.132,
+  "small": []
+ },
+ {
+  "id": "A0-tight",
+  "name": "One column, tighter cards, no App card",
+  "hidden": 0,
+  "hidden_names": [],
+  "reach": 2.939,
+  "pinned": 1,
+  "emphasis": 0.8,
+  "order": [
+   "features",
+   "headers",
+   "line"
+  ],
+  "headers": 0.093,
+  "sprawl": 2,
+  "clutter": 0.0501,
+  "empty": 0.174,
+  "small": []
+ },
+ {
+  "id": "B0",
+  "name": "Two columns, no App card",
+  "hidden": 2,
+  "hidden_names": [
+   "History",
+   "Time totals"
+  ],
+  "reach": 3.098,
+  "pinned": 1,
+  "emphasis": 0.8,
+  "order": [
+   "features",
+   "headers",
+   "line"
+  ],
+  "headers": 0.078,
+  "sprawl": 2,
+  "clutter": 0.0499,
+  "empty": 0.208,
+  "small": []
+ },
+ {
+  "id": "C0",
+  "name": "Store map, no App card (Review across the foot)",
+  "hidden": 0,
+  "hidden_names": [],
+  "reach": 3.049,
+  "pinned": 1,
+  "emphasis": 0.8,
+  "order": [
+   "features",
+   "headers",
+   "line"
+  ],
+  "headers": 0.078,
+  "sprawl": 2,
+  "clutter": 0.0502,
+  "empty": 0.215,
+  "small": []
+ }
+]

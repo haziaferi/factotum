@@ -577,3 +577,19 @@ This was checked in the full page with the browser: both lines sit inside the wi
 **A-tight− joins the front,** with the least clutter of any option. Its harmony is the worst of the four, because its headers carry the largest share of the mass (0.121).
 
 **The front is now C, B−, C− and A-tight−.** A-tight− is drawn in T1.4 on the page.
+
+**What if the App card left the Hub and lived behind ⚙?** (owner, 2026-10-08)
+
+Its six screens (Labels, Time blocks, Calendars, Settings, Trash and About) would sit behind the header's ⚙ (T1.1). Scored with `hub_opt.py`'s measures (`docs/screens/t1/hub-noapp.json`), keeping Pinned and recent, and ranked with the earlier options (`hub-noapp-ranked.json`):
+- **One column (A0) fits with Pinned and recent,** and hides nothing. It is the **balanced pick**: the lowest rank sum, with harmony 12.5, ease 5.5 and clutter 5.5.
+- **Tight one column (A0-tight) and the store map (C0)** also fit, and are on the front.
+- **Two columns (B0)** still hide 2 screens (History, Time totals).
+- **B− and C− fall off the front.**
+- **The front is A0, C, A0-tight, A-tight− and C0.**
+
+**Navigation cost** (`nav_score2.py` weights, assumed 0.25 a week each, about 1.5 visits a week in total):
+- Settings becomes 1 tap (⚙) instead of 2 (Hub, then Settings);
+- the other five stay at 2 taps (⚙, then the item);
+- ⚙ sits in the top-right corner, the hardest reach for a thumb, so those visits trade ease of reach for a shorter Hub.
+
+**Not decided:** whether the App card leaves the Hub. That is the owner's choice.
