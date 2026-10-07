@@ -188,10 +188,23 @@ What was built and measured (`module-personalities.md` / `.html`, `tools/screens
 - the shortlist;
 - whether Gentle may take a little more chroma to admit more check-in palettes.
 
-**Next, in dependency order:**
-1. Score the navigation pattern: Q2, with Q8 and then Q3.
-2. Then the palette (Q4).
-3. Then type (Q5), against the palette.
-4. Then shapes and density (Q6, Q7).
+**The bar and the Hub, decided (owner, 2026-10-07).**
+- **The bar is Today · Calendar · Hub · Pages · [slot 5].** Slot 5 defaults to check-in and can be re-pinned to any screen in Edit home. "Week" is renamed Calendar.
+- **The Hub's symbol** is the hexagon with a centre dot, on a tonal circle that is always on.
+- **The Hub sheet is drawn as cards** in the mockups, so every screen of a module is visible. This is the working form, not the final one.
+- `nav-home.md` puts this bar at 279.5 steps a week, with 30 screens in reach within 2 taps. The scored best is 276.0.
 
-Each scoring is put to the owner as a short slate with its scores before the frame is mocked.
+**Method from here: every screen, one at a time, before colour (owner, 2026-10-07).**
+- Work goes tier by tier (T1 to T6, as in Q1). Each tier's questions are asked in one batch at its start; then its screens follow one at a time, each approved before the next.
+- Mockups are in neutral greys with depth coding. The module palettes wait until the screens are done.
+- Each screen shows:
+  - the phone and Windows together;
+  - its states;
+  - real copy in its cluster's register;
+  - computed scores;
+  - a little placeholder user data inside a dotted outline.
+- Each option is scored against the matching real-world screens and the layout skills: steps from Today, clutter, elements at full contrast, touch targets and type floor, and register fit. Each screen also gets a control option that must lose. The aim is to improve on existing designs.
+- Type and icons stay placeholders and are scored after the screens.
+- There is one page per tier: `docs/screens/tN/screens.html`.
+
+**Next:** T1, the shared parts. Its questions come first.

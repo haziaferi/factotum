@@ -185,6 +185,7 @@ A window of 1100 × 660 is drawn; scroll sideways on a narrow screen.</p>
 <div id="navhome"></div>
 
 <h2>6. The Hub: symbol and centre slot</h2>
+<p><b>Decided (owner, 2026-10-07): the hexagon, on a tonal circle always on.</b> The other options stay below for reference.</p>
 <p>The owner renamed "All" to <b>Hub</b> and moved it to the centre (2026-10-06). The centre slot is where most apps put "create" (Daylio, YouTube, Instagram). That convention suits the Hub: its sheet opens on the capture line, and a long press captures straight away.
 Pick a symbol and a slot style: every bar on this page redraws with your choice.</p>
 <div id="hubpick"></div>
@@ -303,14 +304,15 @@ const HUB_ICONS = {
   tiles: {name:"Four tiles (the old ⊞)", svg:'<rect x="4" y="4" width="7" height="7" rx="2"/><rect x="13" y="4" width="7" height="7" rx="2"/><rect x="4" y="13" width="7" height="7" rx="2"/><rect x="13" y="13" width="7" height="7" rx="2"/>'},
 };
 const HUB_STYLES = {plain:"Like the other slots", tonal:"Tonal circle, always on", raised:"Raised, filled"};
-let hub = {icon:"spokes", style:"tonal"};
-try { const h = JSON.parse(localStorage.getItem("factotum-hub")); if (h && HUB_ICONS[h.icon] && HUB_STYLES[h.style]) hub = h; } catch (e) {}
+let hub = {icon:"hex", style:"tonal"};
+try { const h = JSON.parse(localStorage.getItem("factotum-hub-2")); if (h && HUB_ICONS[h.icon] && HUB_STYLES[h.style]) hub = h; } catch (e) {}
 const hubSvg = (icon = hub.icon) => `<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${HUB_ICONS[icon].svg}</svg>`;
-const BAR_MODS = {Today:"today", Week:"today", Routines:"routines", "check-in":"checkin", Pages:"pages"};
+const BAR_MODS = {Today:"today", Calendar:"today", Week:"today", Routines:"routines", "check-in":"checkin", Pages:"pages"};
 const BAR = (on, items, h = hub) => `<div class="bar hub-${h.style}">${items.map(([g,l])=>l === "Hub"
   ? `<div class="hub ${on==="Hub"?"on":""}"><i>${hubSvg(h.icon)}</i>Hub</div>`
   : `<div class="${l===on?"on":""} m ${BAR_MODS[l]||""}"><i>${g}</i>${l}</div>`).join("")}</div>`;
-const A_BAR = [["◷","Today"],["▦","Week"],["","Hub"],["↻","Routines"],["☰","Pages"]];
+/* Owner, 2026-10-07: Today · Calendar · Hub · Pages · [slot 5, check-in by default, re-pinnable in Edit home]. */
+const A_BAR = [["◷","Today"],["▦","Calendar"],["","Hub"],["☰","Pages"],["◎","check-in"]];
 const phone = (title, body, bar, mod="today") => `<div class="phone m ${mod}"><div class="hdr"><b>${title}</b><span class="ic">⌕</span><span class="ic">◐</span></div><div class="body">${body}</div>${bar}</div>`;
 
 function render() {
@@ -404,7 +406,7 @@ function renderDaytime() {
 }
 
 /* ---- section 4: Windows ---- */
-const RAIL = `<div class="rail">${[["◷","Today","today"],["▦","Week","today"],["↻","Routines","routines"],["◎","check-in","checkin"],["☰","Pages","pages"],["↗","Review",""]]
+const RAIL = `<div class="rail">${[["◷","Today","today"],["▦","Calendar","today"],["☰","Pages","pages"],["◎","check-in","checkin"],["↻","Routines","routines"],["↗","Review",""]]
   .map(([g, l, m], i) => `<div class="${i===0?"on":""} m ${m}"><i>${g}</i>${l}<span class="kbd">Ctrl+${i+1}</span></div>`).join("")}<div class="sp"></div><div class="hubr"><i>${hubSvg()}</i>Hub</div></div>`;
 const deskHdr = `<div class="dhdr m today"><b>Today · Mon 5 Oct</b><span class="tabs2"><span>Day</span><span>Week</span><span>Month</span><span>Planner</span></span><span class="srch">⌕ Search everything <span class="kbd">Ctrl+K</span></span></div>`;
 function desk(main) { return `<div class="wrap"><div class="desk">${RAIL}<div class="dmain">${deskHdr}${main}</div></div></div>`; }
@@ -431,7 +433,7 @@ function renderWindows() {
 /* ---- section 5: navigation around this home. Numbers come from tools/screens/nav_home.py, injected below. ---- */
 /* NAV_HOME */ const NAV_HOME = {"best": {"flat": {"pins": ["Pages (module)", "Week (module)", "ledger (masking)"], "cost": 276.0, "reach2": 30, "named1": 2, "find": 6.0, "clutter": 0.051413288288288284}, "cards": {"pins": ["Pages (module)", "Week (module)", "ledger (masking)"], "cost": 276.0, "reach2": 30, "named1": 2, "find": 4.0, "clutter": 0.0681081081081081}, "folders": {"pins": ["Routines (module)", "Pages (module)", "Week (module)"], "cost": 276.5, "reach2": 30, "named1": 1, "find": 4.9375, "clutter": 0.05463963963963964}, "grid": {"pins": ["Routines (module)", "Pages (module)", "Week (module)"], "cost": 279.25, "reach2": 24, "named1": 1, "find": 5.0, "clutter": 0.037179054054054056}}, "aplus": {"pins": ["Routines (module)", "check-in (module)", "Pages (module)"], "cost": 281.0, "reach2": 30, "named1": 1, "find": 6.0, "clutter": 0.051413288288288284}}; /* END NAV_HOME */
 const BARH = on => BAR(on, A_BAR);
-const SHEET_GROUPS = [["Week","▦","today",["Day","Week","Month","Planner"],["Day","Week","Planner"]],
+const SHEET_GROUPS = [["Calendar","▦","today",["Day","Week","Month","Planner"],["Day","Week","Planner"]],
   ["Routines","↻","routines",["Habits","Trackers","Activities","Checklists","Charts","Goals"],["Habits","Trackers","Charts"]],
   ["check-in","◎","checkin",["check-in","Ledger","Sensory","Trend"],["Ledger","check-in","Sensory"]],
   ["Pages","☰","pages",["Journal","Tree","Templates","Road Map"],["Journal","Tree","Templates"]],
@@ -454,7 +456,7 @@ function weekScreen() {
   return `<div class="phone m today"><div class="hdr"><b>Week · 5–11 Oct</b><span class="ic">⌕</span><span class="ic">◐</span></div><div class="body">
     <div class="tabs3"><span>Day</span><span class="on">Week</span><span>Month</span><span>Planner</span></div>
     ${days.map(d=>`<div class="zone m today"><h4><span class="dot"></span>${d}</h4>${(ev[d]||[]).map(x=>`<div class="it"><span class="t">${x}</span></div>`).join("") || '<div class="note">Nothing planned</div>'}</div>`).join("")}
-    </div>${BARH("Week")}</div>`;
+    </div>${BARH("Calendar")}</div>`;
 }
 function renderNavHome() {
   const el = document.getElementById("navhome");
@@ -471,7 +473,7 @@ function renderNavHome() {
     <table><tr><th>Hub sheet</th><th>Items scanned to find a feature</th><th>Clutter of the Hub screen (measured)</th></tr>
     ${["flat","cards","folders"].map(s=>`<tr><td>${s}</td><td>${f(b[s].find)}</td><td>${b[s].clutter.toFixed(3)}</td></tr>`).join("")}</table>
     <div class="three">${[
-      [phoneOver("", "Today"), "Home with the bar Today · Week · Hub · Routines · Pages. The fourth slot (Routines) can be pinned to something else."],
+      [phoneOver("", "Today"), "Home with the owner's bar: Today · Calendar · Hub · Pages · check-in. The fifth slot (check-in) can be re-pinned to any screen in Edit home."],
       [weekScreen(), "Week: Day · Week · Month · Planner live here now, not on home."],
       [phoneOver(sheet("flat"), "Hub"), "Hub, flat: every feature by name under its module. The least to draw; the slowest to scan."],
       [phoneOver(sheet("cards"), "Hub"), "Hub, cards: each module a card in its hue, every feature shown. The quickest to scan; the busiest."],
@@ -481,15 +483,15 @@ function renderNavHome() {
 
 /* ---- section 6: the Hub's symbol and slot style ---- */
 const HUB_NOTES = {
-  spokes: "Literal: one centre linked to the five modules. No other bar icon has its shape. <b>Proposed.</b>",
+  spokes: "Literal: one centre linked to the five modules. No other bar icon has its shape.",
   wheel: "Says \"hub\" as in a wheel. At bar size, the ring and six spokes blur into a sun or a cog, close to Settings' ⚙.",
-  hex: "Abstract. It reads as \"node\" or \"block\", and says little about what the Hub holds.",
+  hex: "Abstract. It reads as \"node\" or \"block\", and says little about what the Hub holds. <b>Chosen (owner, 2026-10-07).</b>",
   burst: "Reads as \"new\", \"highlights\" or a sun. The loudest of the five.",
   tiles: "The \"all apps\" convention. At bar size it is close to Week's grid ▦, the slot beside it.",
 };
 const STYLE_NOTES = {
   plain: "The quietest: only its place in the centre marks it.",
-  tonal: "A soft circle always behind it. It marks the centre without competing; it is the one accent the glance measure already allowed. <b>Proposed.</b>",
+  tonal: "A soft circle always behind it. It marks the centre without competing; it is the one accent the glance measure already allowed. <b>Chosen (owner, 2026-10-07).</b>",
   raised: "The strongest. It reads as a \"create\" button, the busiest of the three, and the owner asked for calmer screens.",
 };
 function renderHub() {
@@ -504,7 +506,7 @@ function renderHub() {
   el.querySelectorAll("input[name=hubicon]").forEach(r => r.addEventListener("change", () => { hub.icon = r.value; saveHub(); }));
   el.querySelectorAll("input[name=hubstyle]").forEach(r => r.addEventListener("change", () => { hub.style = r.value; saveHub(); }));
 }
-function saveHub() { try { localStorage.setItem("factotum-hub", JSON.stringify(hub)); } catch (e) {} render(); }
+function saveHub() { try { localStorage.setItem("factotum-hub-2", JSON.stringify(hub)); } catch (e) {} render(); }
 
 function theme(dark) { document.documentElement.dataset.theme = dark ? "dark" : "light"; }
 let dark = matchMedia("(prefers-color-scheme: dark)").matches; theme(dark);

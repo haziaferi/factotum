@@ -97,7 +97,9 @@ def main():
     ref = {"A+ before (thin home)": score(A_PLUS, "flat", glance, home=False),
            "A+ with this home": score(A_PLUS, "flat", glance),
            "A++ before (thin home)": score(A_PP, "flat", glance, home=False),
-           "A++ pins with this home": score(A_PP, "flat", glance)}
+           "A++ pins with this home": score(A_PP, "flat", glance),
+           # owner, 2026-10-07: Today · Calendar · Hub · Pages · check-in (slot 5 re-pinnable), Hub sheet as cards
+           "Owner's bar (2026-10-07)": score(("Week (module)", "Pages (module)", "check-in (module)"), "cards", glance)}
     best = {s: min((r for r in rows if r["sheet"] == s), key=lambda r: (r["cost"], -r["reach2"], -r["named1"])) for s in SHEETS}
     return rows, front, ref, best
 
