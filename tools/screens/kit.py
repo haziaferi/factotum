@@ -18,7 +18,7 @@ e = html.escape
 
 # ---- tokens -----------------------------------------------------------------------------------------------
 GREYS = {
-    "light": {"bg": "#F4F4F2", "zone": "#FBFBF9", "zone2": "#EBEBE7", "ink": "#1C1C1A", "dim": "#6B6B66"},
+    "light": {"bg": "#F4F4F2", "zone": "#FBFBF9", "zone2": "#EBEBE7", "ink": "#1C1C1A", "dim": "#60605B"},
     "dark": {"bg": "#121315", "zone": "#1C1D1F", "zone2": "#26272A", "ink": "#E6E5E1", "dim": "#9C9A94"},
     "oled": {"bg": "#000000", "zone": "#0E0E0F", "zone2": "#18191A", "ink": "#DCDBD7", "dim": "#93918B"},
 }
@@ -55,7 +55,8 @@ body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 system-ui,"Se
 .cap{display:flex;align-items:center;gap:10px;background:var(--zone2);border-radius:14px;min-height:48px;padding:0 14px;color:var(--dim);font-size:15px}
 /* bar */
 .bar{height:72px;display:flex;background:var(--zone2);flex:none;padding:4px 0 8px}
-.bar .s{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:12px;color:var(--dim);opacity:.65}
+/* inactive items recede by colour (dim, >= 4.5:1 on the bar), never by opacity: opacity .65 left labels at 2.4:1 (T1.1 critique) */
+.bar .s{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:12px;color:var(--dim)}
 .bar .s i{font-style:normal;font-size:18px;width:56px;height:30px;display:grid;place-items:center;border-radius:999px}
 .bar .s.on{opacity:1;color:var(--ink);font-weight:600}.bar .s.on i{background:var(--zone)}
 .bar .s.hub{opacity:1;color:var(--ink)}.bar .s.hub i{background:var(--zone);box-shadow:inset 0 0 0 1px var(--dim)}
@@ -63,7 +64,7 @@ body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 system-ui,"Se
 .desk{width:1100px;height:660px;border-radius:10px;display:flex;overflow:hidden;background:var(--bg);flex:none;box-shadow:0 0 0 1px var(--zone2)}
 .score .desk{border-radius:0;box-shadow:none}
 .rail{width:88px;display:flex;flex-direction:column;align-items:center;padding:10px 0;gap:4px;background:var(--zone2);flex:none}
-.rail .s{width:76px;min-height:56px;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:12px;color:var(--dim);opacity:.65}
+.rail .s{width:76px;min-height:56px;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:12px;color:var(--dim)}
 .rail .s i{font-style:normal;font-size:18px}.rail .s.on{opacity:1;color:var(--ink);font-weight:600;background:var(--zone)}
 .rail .s.hub{opacity:1;color:var(--ink)}.rail .s.hub i{display:grid;place-items:center;width:44px;height:30px;border-radius:999px;background:var(--zone);box-shadow:inset 0 0 0 1px var(--dim)}
 .rail .sp{flex:1}.kbd{font:11px ui-monospace,monospace;color:var(--dim)}
@@ -151,5 +152,5 @@ def today_body(capture=True):
 
 
 def document(body, theme="light", extra_css="", score=False):
-    return ('<!doctype html><html data-theme="%s"><head><meta charset="utf-8"><style>%s\n%s\n%s</style></head>'
+    return ('<!doctype html><html lang="en" data-theme="%s"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>%s\n%s\n%s</style></head>'
             '<body class="%s">%s</body></html>') % (theme, theme_css(), BASE_CSS, extra_css, "score" if score else "", body)

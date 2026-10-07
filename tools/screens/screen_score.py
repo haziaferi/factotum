@@ -5,6 +5,7 @@ Measured, not assumed:
                  dotted user-data outline hidden
   strong         (strong_nav: in the header, bar or rail only) tappable elements whose effective contrast on the ground is >= 7:1 (opacity included):
                  what the eye lands on first. Fewer = calmer, as long as the main action is among them
+  faint          tappable elements whose text reads under 4.5:1 on the ground, opacity included
   small_taps     tappable elements under 48 x 48 dp (Material and WCAG 2.5.8's comfortable size)
   min_text       the smallest font size of any visible text, in px
   nav            tappable elements in the header, bar and rail
@@ -116,6 +117,8 @@ def score_option(make_doc, w, h, targets=None, declared=None):
         steps[t] = (1, "on screen") if t in names else ((declared or {}).get(t), "declared")
     return {"clutter": round(clutter, 4), "strong": sum(t["contrast"] >= 7 for t in m["taps"]),
             "strong_nav": sum(t["contrast"] >= 7 and t["nav"] for t in m["taps"]),
+            # labelled targets read below 4.5:1 (WCAG 1.4.3), opacity included: receding must not mean unreadable
+            "faint": sorted({"%s %.1f" % (t["name"], t["contrast"]) for t in m["taps"] if t["contrast"] < 4.5}),
             # header/bar/rail targets in the top quarter of a phone: the zone a thumb reaches worst (Hoober 2013)
             "far_nav": sum(t["nav"] and t["y"] < h * 0.25 for t in m["taps"]) if w < 600 else 0,
             "small_taps": sorted({"%s %dx%d" % (t["name"], t["w"], t["h"]) for t in m["taps"] if t["w"] < 48 or t["h"] < 48}),

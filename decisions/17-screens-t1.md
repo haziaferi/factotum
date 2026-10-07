@@ -29,14 +29,19 @@ Mockups are in `docs/screens/t1/screens.html`.
 
 Already decided elsewhere: a done or skipped item folds into "Done today · n" (decision 15).
 
-**To confirm on the first row screen:** with no swipes, a row is finished by tapping its circle, with Undo. The other actions (move, skip this one, edit, label, delete) are reached by opening the item. A long-press menu was offered and not chosen.
+**Row actions (owner, 2026-10-07):**
+- Tap the circle for Done, with Undo.
+- A long press opens the other actions: move, skip this one, edit, label and delete.
+- Opening the item offers every action.
+
+There are no swipes.
 
 ## Screens
 
 | # | Screen | Status |
 |---|---|---|
-| T1.1 | Header and bar | in progress |
-| T1.2 | Item rows (title only), plus the row-variants chapter | to do |
+| T1.1 | Header and bar | **approved 2026-10-07: A′** |
+| T1.2 | Item rows (title only), plus the row-variants chapter | in progress |
 | T1.3 | Capture sheet | to do |
 | T1.4 | Hub sheet (cards) | to do |
 | T1.5 | Date and time picker | to do |
@@ -44,3 +49,19 @@ Already decided elsewhere: a done or skipped item folds into "Done today · n" (
 | T1.7 | Label chips and picker | to do |
 | T1.8 | Toasts and dialogs | to do |
 | T1.9 | Empty and error states | to do |
+
+## T1.1 Header and bar: approved (2026-10-07)
+
+**A′: a quiet header.** The title sits on the left, with Search and then Settings on the right. The bar is Today · Calendar · Hub · Pages · [check-in]. Search, Capture, the Hub and Settings are each one tap from Today. Scores are in `docs/screens/t1/scores.md`; A′ is on the front, and the control loses.
+
+The critique pass (`design-critique-plus`, measured with `craftkit ui`) found two defects. Both are fixed in `tools/screens/kit.py`:
+- **The receded bar and rail labels read at 2.4:1** in light, because opacity .65 was applied on top of the dim grey. Inactive items now recede by colour alone, at 5.3:1 or more. The scorer gained a measure for this, `faint`, and was checked against the old bar: it flags its three labels at 2.2:1.
+- **The light-theme dim grey #6B6B66 read 4.48:1** on the bar's surface. It is now #60605B (5.29:1).
+
+Also added: the document language and the viewport meta.
+
+Left as Low:
+- some spacing values are not on a 4 px grid;
+- the scale is 12 / 13 / 15 / 18 px.
+
+Both are settled when type and density are scored.
