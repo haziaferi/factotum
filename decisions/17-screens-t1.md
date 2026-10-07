@@ -113,3 +113,20 @@ The first run of `blank_lead` counted circles drawn with `content:""` as blank. 
 *Assumed, to confirm:* an untimed routine sits at the start of its time block. With no block, it goes to the end. The block start times are placeholders until T3.
 
 The states and the variants chapter are redrawn on D.
+
+## T1.3 Capture sheet: put to the owner (2026-10-07)
+
+Three options and a control; `build_section` in `tier_t1.py` now builds every screen from here on.
+- **A, a sheet over the screen.** It sits above the keyboard: the line, the chips under it, and Add at the thumb. On Windows it is a small window opened from anywhere (Ctrl+Shift+Space).
+- **B grows in place.** The home's line expands, and the day stays visible.
+- **C, in the keyboard's strip (oblique).** One strip of chips sits right on the keyboard.
+- **X, the control:** a nine-field form.
+
+**Front: A and C. B is busier, and X loses** (6 taps and 9 fields against 2 and 1).
+
+The control first came out on the front. That traced to two real defects and one fault in the measure:
+- **The chips were 36 px tall.** They are now drawn at 34 px inside a 48 px target.
+- **The dimmed screen behind the Windows window** was counted as tappable.
+- **The measure itself:** `faint` compared every label with the page and not with its own fill, so the dark Add button read 1.0:1. It now uses the nearest painted background. T1.1 and T1.2 are unchanged, and the old faded bar is still flagged at 2.1:1.
+
+States, drawn on A: empty (what it accepts), understood, two readings (it asks and never guesses: "Fri 9 Oct or every Friday?"), nothing to parse (added as typed, no date), and added (with Undo).

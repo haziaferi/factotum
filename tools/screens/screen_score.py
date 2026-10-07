@@ -47,8 +47,10 @@ MEASURE_JS = r"""
   var out={taps:[],min_text:99,nav:0};
   document.querySelectorAll('[data-tap]').forEach(function(el){
     var r=el.getBoundingClientRect(); if(!r.width||!r.height) return;
+    // contrast against the nearest painted background (the button's own fill), not the page's
+    var g=el,bgl=bg;for(;g&&g.nodeType===1;g=g.parentElement){var bc=getComputedStyle(g).backgroundColor;var q=lum(bc);if(q.a>0.5){bgl=q.l;break}}
     var c=lum(getComputedStyle(el).color), o=op(el);
-    var L=c.l*o+bg*(1-o); var hi=Math.max(L,bg)+0.05, lo=Math.min(L,bg)+0.05;
+    var L=c.l*o+bgl*(1-o); var hi=Math.max(L,bgl)+0.05, lo=Math.min(L,bgl)+0.05;
     out.taps.push({name:el.getAttribute('data-tap'),w:Math.round(r.width),h:Math.round(r.height),y:Math.round(r.top+r.height/2),contrast:+(hi/lo).toFixed(2),
                    nav:!!el.closest('.hdr,.bar,.rail')});
   });

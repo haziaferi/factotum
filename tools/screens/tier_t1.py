@@ -381,6 +381,154 @@ def section_t12():
     return html_, rows, fr, beaten
 
 
+# ---- generic screen section (T1.3 onward) ------------------------------------------------------------------
+COLS = {  # key: (header, format)
+    "clutter": ("Clutter (phone)", "%.3f"), "desk_clutter": ("Clutter (Windows)", "%.3f"), "strong": ("Strong targets", "%d"),
+    "faint_n": ("Faint labels", "%d"), "small": ("Taps under 48 dp", "%d"), "steps_sum": ("Taps to finish", "%d"),
+    "far_primary": ("Main action out of thumb reach", "%d"), "fields": ("Fields shown", "%d"),
+}
+
+
+def build_section(sid, title, intro, options, states, css, low, extra=None, approved=None):
+    """options: dicts with id, name, how, about, phone(), desk(); extra(option, phone_result) adds measures.
+    Returns (html, rows, front indices, control beaten)."""
+    rows = []
+    for o in options:
+        r = ss.score_option(lambda t, s, o=o: kit.document(o["phone"](), t, EXTRA + T12_CSS + css, s), 360, 740)
+        rd = ss.score_option(lambda t, s, o=o: kit.document(o["desk"](), t, EXTRA + T12_CSS + css, s), 1100, 660)
+        r["desk_clutter"] = rd["clutter"]
+        r["faint_n"] = len(r["faint"]) + len(rd["faint"])
+        r["small"] = len(r["small_taps"]) + len(rd["small_taps"])
+        r["small_list"] = r["small_taps"] + rd["small_taps"]
+        if extra:
+            r.update(extra(o, r))
+        rows.append(r)
+    fr = ss.front(rows, low)
+    beaten = all(i not in fr for i, o in enumerate(options) if o["how"] == "control")
+    head = "<tr><th>Option</th>%s<th></th></tr>" % "".join("<th>%s</th>" % COLS[k][0] for k in low)
+    body = "".join("<tr><td><b>%s</b> %s</td>%s<td>%s</td></tr>" % (
+        o["id"], e(o["name"]), "".join("<td>%s</td>" % (COLS[k][1] % r[k]) for k in low),
+        "control" if o["how"] == "control" else ("front" if i in fr else "dominated")) for i, (o, r) in enumerate(zip(options, rows)))
+    opts = "".join('<div class="opt"><h3>%s · %s <span class="tag">%s</span></h3><p class="dim">%s</p><div class="pair">%s<div class="dwrap">%s</div></div></div>' % (
+        o["id"], e(o["name"]), o["how"], e(o["about"]), o["phone"](), o["desk"]()) for o in options)
+    st = "".join('<div><div class="cap2">%s</div>%s</div>' % (e(n), f()) for n, f in states)
+    smalls = sorted({x for r in rows for x in r["small_list"]})
+    tag = ' <span class="tag">approved: %s</span>' % e(approved) if approved else ""
+    html_ = ('<section id="%s"><h2>%s%s</h2><p>%s</p><h3>Scores</h3><table>%s%s</table><p class="dim">%s%s</p>'
+             '<h3>Options</h3>%s<h3>States</h3><div class="states">%s</div></section>') % (
+        sid, e(title), tag, intro, head, body, "The control loses, as it must." if beaten else "<b>The control is on the front.</b>",
+        (" Small targets: " + e(", ".join(smalls)) + ".") if smalls else "", opts, st)
+    return html_, rows, fr, beaten
+
+
+# ---- T1.3 capture sheet ------------------------------------------------------------------------------------
+# Decision 17: natural-language line, parsed chips under it; the text stays as typed; tap a chip to fix or drop it.
+T13_CSS = """
+.kb{height:250px;background:var(--zone2);flex:none;display:grid;place-items:center;color:var(--dim);font-size:12px}
+.sheet{background:var(--zone);border-radius:20px 20px 0 0;padding:10px 12px 8px;flex:none;box-shadow:0 -8px 24px rgba(0,0,0,.12)}
+.grab{width:36px;height:4px;border-radius:2px;background:var(--dim);margin:0 auto 8px;opacity:.5}
+.line{display:flex;align-items:center;gap:8px;min-height:48px;font-size:16px}
+.line .in{flex:1}.line .ph{color:var(--dim)}.caret{display:inline-block;width:2px;height:20px;background:var(--ink);vertical-align:-4px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 6px}
+/* a chip is drawn 34 px tall inside a 48 px tap target (screen_score caught 36 px chips) */
+.pc{min-height:48px;display:inline-flex;align-items:center;font-size:13px;color:var(--ink)}
+.pc>b{display:inline-flex;align-items:center;gap:6px;height:34px;padding:0 12px;border-radius:999px;background:var(--zone2);font-weight:400;white-space:nowrap}
+.pc{flex:none}
+.pc.q>b{box-shadow:inset 0 0 0 1.5px var(--dim)}
+.chips{row-gap:0}
+.addb{min-width:64px;height:48px;border-radius:999px;background:var(--ink);color:var(--bg);display:grid;place-items:center;font-weight:600;font-size:15px;flex:none}
+.hint{font-size:12px;color:var(--dim);padding:2px 2px 6px}
+.form .fl{min-height:48px;display:flex;align-items:center;border-bottom:1px solid var(--zone2);font-size:14px;color:var(--dim)}
+.qa{width:520px;background:var(--zone);border-radius:14px;padding:12px 14px;box-shadow:0 12px 40px rgba(0,0,0,.28);margin:60px auto 0}
+.qwin{width:1100px;height:660px;background:var(--bg);border-radius:10px;box-shadow:0 0 0 1px var(--zone2);position:relative;overflow:hidden}
+.qwin .dim2{position:absolute;inset:0;opacity:.35}
+"""
+TYPED = "Dentist tomorrow 9am every 6 months"
+CHIPS = [("📅", "Tue 6 Oct"), ("◷", "09:00"), ("↻", "Every 6 months"), ("▣", "Event")]
+
+
+def chips_html(chips, question=None):
+    out = "".join('<span class="pc" data-tap="Fix %s"><b>%s %s</b></span>' % (t, g, t) for g, t in chips)
+    if question:
+        out += '<span class="pc q" data-tap="Choose"><b>%s</b></span>' % question
+    return '<div class="chips">%s</div>' % out
+
+
+def capture_line(text, placeholder=False, add=True):
+    inner = ('<span class="ph">Add a task, event or reminder…</span>' if placeholder else kit.ud(e(text)) + '<span class="caret"></span>')
+    return '<div class="line"><span class="in">%s</span>%s</div>' % (inner, '<span class="addb" data-tap="Add">Add</span>' if add else "")
+
+
+def sheet(text=TYPED, chips=CHIPS, question=None, placeholder=False, hint=""):
+    return ('<div class="sheet"><div class="grab"></div>%s%s%s</div><div class="kb">keyboard</div>' % (
+        capture_line(text, placeholder), "" if placeholder else chips_html(chips, question), '<div class="hint">%s</div>' % hint if hint else ""))
+
+
+def behind():
+    return '<div class="scrim" style="position:static;flex:1;background:rgba(0,0,0,.28)"></div>'
+
+
+def cap_phone_a(**kw):
+    return '<div class="phone">%s<div style="position:relative;flex:1;display:flex;flex-direction:column">%s</div>%s</div>' % (
+        kit.header(TITLE, APPROVED_BUTTONS), behind(), sheet(**kw))
+
+
+def cap_phone_b():
+    """Inline: the home's capture line grows in place; the list stays visible above the keyboard."""
+    line = '<div class="sheet" style="border-radius:14px;box-shadow:none;margin:0 0 4px">%s%s</div>' % (capture_line(TYPED), chips_html(CHIPS))
+    return kit.phone(kit.header(TITLE, APPROVED_BUTTONS), line + kit.zone("Agenda", "".join(row_d(k) for k in KINDS[:2])), '<div class="kb">keyboard</div>')
+
+
+def cap_phone_c():
+    """Oblique (Build From the Defect: the keyboard takes half the screen): the parse rides in the keyboard's own
+    suggestion strip, one row, and the line sits right on top of it. Nothing else is drawn."""
+    strip = '<div class="chips" style="flex-wrap:nowrap;overflow:hidden;background:var(--zone2);margin:0;padding:0 8px;gap:6px">%s</div>' % "".join(
+        '<span class="pc" data-tap="Fix %s"><b style="background:var(--zone)">%s %s</b></span>' % (t, g, t) for g, t in CHIPS)
+    return '<div class="phone">%s%s<div class="sheet" style="border-radius:0;box-shadow:none;padding:4px 12px">%s</div>%s<div class="kb" style="height:214px">keyboard</div></div>' % (
+        kit.header(TITLE, APPROVED_BUTTONS), behind(), capture_line(TYPED), strip)
+
+
+def cap_phone_x():
+    fields = "".join('<div class="fl">%s</div>' % f for f in ("Title", "Kind: Task ▾", "Date", "Time", "Repeat", "Reminder", "Labels", "Project page", "Notes"))
+    return kit.phone(kit.header("New item", (("✕", "Cancel"), ("✓", "Save")), ("‹", "Back")), '<div class="zone form">%s</div>' % fields, "")
+
+
+def cap_desk(content):
+    # the dimmed app behind the quick-add window cannot be tapped: its targets are not targets here
+    return '<div class="qwin"><div class="dim2">%s</div>%s</div>' % (desk_today(TITLE).replace("data-tap=", "data-behind="), content)
+
+
+DESK_QA = '<div class="qa" style="position:relative">%s%s<div class="hint">Enter adds · Esc closes · Ctrl+Shift+Space from anywhere in Windows</div></div>' % (capture_line(TYPED), chips_html(CHIPS))
+
+OPTIONS_T13 = [
+    {"id": "A", "name": "Sheet over the screen", "how": "direct", "phone": cap_phone_a, "desk": lambda: cap_desk(DESK_QA),
+     "about": "The capture line opens as a sheet just above the keyboard, with the parsed chips under it and Add at the thumb. The screen behind it dims. On Windows it is a small window, from anywhere (Ctrl+Shift+Space)."},
+    {"id": "B", "name": "Grows in place", "how": "direct", "phone": cap_phone_b, "desk": lambda: cap_desk(DESK_QA),
+     "about": "The home's capture line grows where it is, so the day stays in view beneath it while you type."},
+    {"id": "C", "name": "In the keyboard's strip (oblique: Build From the Defect)", "how": "oblique", "phone": cap_phone_c,
+     "desk": lambda: cap_desk(DESK_QA),
+     "about": "The keyboard takes half the screen anyway, so the parse rides in one strip right on top of it, like word suggestions. The line sits above. Nothing else is drawn."},
+    {"id": "X", "name": "Control: a full form", "how": "control", "phone": cap_phone_x,
+     "desk": lambda: cap_desk('<div class="qa zone form" style="position:relative">%s</div>' % "".join('<div class="fl">%s</div>' % f for f in ("Title", "Kind", "Date", "Time", "Repeat", "Reminder", "Labels", "Notes"))),
+     "about": "A screen of nine fields to fill one by one. It must lose."},
+]
+STATES_T13 = [
+    ("Empty: what it accepts", lambda: cap_phone_a(placeholder=True, hint="Try: dentist tomorrow 9am · water plants every 3 days · call mum fri")),
+    ("Typed: understood", lambda: cap_phone_a()),
+    ("Two readings: asks, never guesses", lambda: cap_phone_a(text="Call mum fri", chips=[("▣", "Task")], question="Fri 9 Oct or every Friday?")),
+    ("Nothing to understand: added as typed", lambda: cap_phone_a(text="Buy stamps", chips=[("▣", "Task"), ("📅", "No date")])),
+    ("Added, with Undo", lambda: kit.phone(kit.header(TITLE, APPROVED_BUTTONS), '<div class="cap">+ <span>Add…</span></div>' +
+                                            kit.zone("Agenda", "".join(row_d(k) for k in KINDS[:3])), kit.bar("Today") +
+                                            '<div class="toast"><span class="t">Added to Tue 6 Oct</span><span class="u" data-tap="Undo">Undo</span></div>')),
+]
+
+
+def t13_extra(o, r):
+    # taps from Today to a saved item, typing excluded: open capture (1) + Add (1) for the line options; the form
+    # needs a tap per field to set date, time, repeat and kind (4) plus open and save
+    return {"steps_sum": 6 if o["how"] == "control" else 2, "fields": 9 if o["how"] == "control" else 1}
+
+
 PAGE_CSS = """
 body{padding:20px 16px 48px}h1{font-size:21px;margin:0 0 4px}h2{font-size:18px;margin:28px 0 6px}h3{font-size:15px;margin:18px 0 6px}
 p{max-width:95ch}.dim{color:var(--dim)}
@@ -400,13 +548,18 @@ def main():
     refs = ss.reference_clutter(REFERENCE_SCREENS)
     s11, rows, fr, beaten = section_t11(refs)
     s12, rows12, fr12, beaten12 = section_t12()
+    s13, rows13, fr13, beaten13 = build_section(
+        "t1-3", "T1.3 Capture sheet",
+        "One line in plain language; what it understood shows as chips under the line (decision 17). The text stays as typed; "
+        "a chip is tapped to fix or drop it. Taps exclude typing. Windows: a small window from anywhere.",
+        OPTIONS_T13, STATES_T13, T13_CSS, ("clutter", "desk_clutter", "faint_n", "small", "steps_sum", "fields"), t13_extra)
     page = ['<!doctype html><html lang="en" data-theme="light"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">',
-            '<title>Factotum T1 shared parts</title><style>%s\n%s\n%s\n%s\n%s</style></head><body>' % (kit.theme_css(), kit.BASE_CSS, EXTRA, T12_CSS, PAGE_CSS),
+            '<title>Factotum T1 shared parts</title><style>%s\n%s\n%s\n%s\n%s</style></head><body>' % (kit.theme_css(), kit.BASE_CSS, EXTRA, T12_CSS + T13_CSS, PAGE_CSS),
             '<h1>T1 · Shared parts</h1><p class="dim">Decision 17. Greys only; colour comes after every screen is settled. '
             'Type and icons are placeholders. One screen at a time: each waits for the owner\'s approval.</p>',
             '<div class="sw"><button onclick="document.documentElement.dataset.theme=\'light\'">Light</button>'
             '<button onclick="document.documentElement.dataset.theme=\'dark\'">Dark</button><button onclick="document.documentElement.dataset.theme=\'oled\'">OLED</button></div>',
-            s12, s11, "</body></html>"]
+            s13, s12, s11, "</body></html>"]
     with open(os.path.join(OUT, "screens.html"), "w", encoding="utf-8", newline="\n") as fh:
         fh.write("\n".join(page))
     md = ["# T1 scores", "", "Generated by `tools/screens/tier_t1.py`.", "", "## T1.1 Header and bar", "",
@@ -422,10 +575,13 @@ def main():
     md += ["| %s %s | %.3f | %.3f | %d | %d | %d | %d | %s | %s |" % (o["id"], o["name"], r["clutter"], r["desk_clutter"], r["rows_visible"], r["blank_lead"], r["title_edges"], r["faint_n"],
            ", ".join(r["small_taps"]) or "none", "control" if o["how"] == "control" else ("front" if i in fr12 else "dominated"))
            for i, (o, r) in enumerate(zip(OPTIONS_T12, rows12))]
+    md += ["", "## T1.3 Capture sheet", ""] + ["- %s %s: clutter %.3f / %.3f, faint %d, small %d, taps %d, fields %d, %s" % (
+        o["id"], o["name"], r["clutter"], r["desk_clutter"], r["faint_n"], r["small"], r["steps_sum"], r["fields"],
+        "control" if o["how"] == "control" else ("front" if i in fr13 else "dominated")) for i, (o, r) in enumerate(zip(OPTIONS_T13, rows13))]
     with open(os.path.join(OUT, "scores.md"), "w", encoding="utf-8", newline="\n") as fh:
         fh.write("\n".join(md) + "\n")
-    print("\n".join(md))
-    if not (beaten and beaten12):
+    print("\n".join(md[-5:]))
+    if not (beaten and beaten12 and beaten13):
         sys.exit(2)
 
 
