@@ -137,6 +137,7 @@ def score_option(make_doc, w, h, targets=None, declared=None):
             # header/bar/rail targets in the top quarter of a phone: the zone a thumb reaches worst (Hoober 2013)
             "far_nav": sum(t["nav"] and t["y"] < h * 0.25 for t in m["taps"]) if w < 600 else 0,
             "small_taps": sorted({"%s %dx%d" % (t["name"], t["w"], t["h"]) for t in m["taps"] if t["w"] < 48 or t["h"] < 48}),
+            "taps_raw": m["taps"],
             "min_text": m["min_text"], "rows_visible": m.get("rows_visible", 0), "blank_lead": m.get("blank_lead", 0), "title_edges": m.get("title_edges", 0), "nav": sum(t["nav"] for t in m["taps"]), "steps": steps}
 
 

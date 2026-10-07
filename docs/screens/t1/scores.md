@@ -28,6 +28,7 @@ Reference main screens: bearable/00-main.png 0.070, daylio/00-main.png 0.055, ho
 
 ## T1.3 Capture sheet
 
+- A′ Approved: sheet over a visible Today, check to add, full form button: clutter 0.034 / 0.020, faint 0, small 0, taps 2, fields 1, dominated
 - A Sheet over the screen: clutter 0.022 / 0.020, faint 0, small 0, taps 2, fields 1, front
 - B Grows in place: clutter 0.025 / 0.020, faint 0, small 0, taps 2, fields 1, dominated
 - C In the keyboard's strip (oblique: Build From the Defect): clutter 0.022 / 0.020, faint 0, small 0, taps 2, fields 1, front

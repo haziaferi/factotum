@@ -42,8 +42,8 @@ There are no swipes.
 |---|---|---|
 | T1.1 | Header and bar | **approved 2026-10-07: A′** |
 | T1.2 | Item rows (title only), plus the row-variants chapter | **approved 2026-10-07: D** |
-| T1.3 | Capture sheet | in progress |
-| T1.4 | Hub sheet (cards) | to do |
+| T1.3 | Capture sheet | **approved 2026-10-07: A′** |
+| T1.4 | Hub sheet (cards) | in progress |
 | T1.5 | Date and time picker | to do |
 | T1.6 | Repeat builder | to do |
 | T1.7 | Label chips and picker | to do |
@@ -110,7 +110,7 @@ The first run of `blank_lead` counted circles drawn with `content:""` as blank. 
 
 **Routines are in chronological order, and it changes through the day** (owner). A routine with a set time shows and sorts by that time; an "n a day" habit shows its next block's start (Water, 14:00). Done rows fold away, so the next one rises to the top.
 
-*Assumed, to confirm:* an untimed routine sits at the start of its time block. With no block, it goes to the end. The block start times are placeholders until T3.
+**Confirmed by the owner (2026-10-07):** an untimed routine sits at the start of its time block. With no block, it goes to the end. The block start times are placeholders until T3.
 
 The states and the variants chapter are redrawn on D.
 
@@ -134,3 +134,12 @@ States, drawn on A: empty (what it accepts), understood, two readings (it asks a
 **Page conventions (owner, 2026-10-07):**
 - Once a screen is approved, the options not picked fold into a closed "Options not picked" section under the chosen one.
 - No emojis anywhere. The capture chips are text only. The placeholder glyphs are plain text symbols until icons are scored (Q8).
+
+## T1.3 Capture sheet: approved (2026-10-07)
+
+**A′: A, refined by the owner.**
+- The sheet sits over Today, and Today **stays visible under a slight shade**, as on Windows.
+- **Add is a 48 px check** (✓).
+- **A small Full form button** (▤) sits before the check, for when one line is not enough.
+
+A′ measures busier than A (clutter 0.034 against 0.022). That is the visible day itself, which is the trade the owner chose: context over calm. The states are redrawn on A′.

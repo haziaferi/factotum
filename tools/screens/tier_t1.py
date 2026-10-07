@@ -448,6 +448,7 @@ T13_CSS = """
 .pc{flex:none}
 .pc.q>b{box-shadow:inset 0 0 0 1.5px var(--dim)}
 .chips{row-gap:0}
+.addc{width:48px;height:48px;border-radius:50%;background:var(--ink);color:var(--bg);display:grid;place-items:center;font-size:20px;font-weight:700;flex:none}
 .addb{min-width:64px;height:48px;border-radius:999px;background:var(--ink);color:var(--bg);display:grid;place-items:center;font-weight:600;font-size:15px;flex:none}
 .hint{font-size:12px;color:var(--dim);padding:2px 2px 6px}
 .form .fl{min-height:48px;display:flex;align-items:center;border-bottom:1px solid var(--zone2);font-size:14px;color:var(--dim)}
@@ -467,14 +468,29 @@ def chips_html(chips, question=None):
     return '<div class="chips">%s</div>' % out
 
 
-def capture_line(text, placeholder=False, add=True):
+def capture_line(text, placeholder=False, add=True, approved=False):
+    """approved (T1.3 A′, owner 2026-10-07): Add is a 48 px check, and a small Full form button sits before it."""
     inner = ('<span class="ph">Add a task, event or reminder…</span>' if placeholder else kit.ud(e(text)) + '<span class="caret"></span>')
-    return '<div class="line"><span class="in">%s</span>%s</div>' % (inner, '<span class="addb" data-tap="Add">Add</span>' if add else "")
+    if approved:
+        btns = '<span class="ib" data-tap="Full form" title="Full form">▤</span><span class="addc" data-tap="Add" title="Add">✓</span>'
+    else:
+        btns = '<span class="addb" data-tap="Add">Add</span>' if add else ""
+    return '<div class="line"><span class="in">%s</span>%s</div>' % (inner, btns)
 
 
-def sheet(text=TYPED, chips=CHIPS, question=None, placeholder=False, hint=""):
+def sheet(text=TYPED, chips=CHIPS, question=None, placeholder=False, hint="", approved=False):
     return ('<div class="sheet"><div class="grab"></div>%s%s%s</div><div class="kb">keyboard</div>' % (
-        capture_line(text, placeholder), "" if placeholder else chips_html(chips, question), '<div class="hint">%s</div>' % hint if hint else ""))
+        capture_line(text, placeholder, approved=approved), "" if placeholder else chips_html(chips, question),
+        '<div class="hint">%s</div>' % hint if hint else ""))
+
+
+def cap_phone_a2(**kw):
+    """T1.3 approved, A′: the sheet over Today, which stays visible under a slight shade (as on Windows)."""
+    today = kit.phone(kit.header(TITLE, APPROVED_BUTTONS), '<div class="cap">+ <span>Add…</span></div>' + rows_today(row_d), kit.bar("Today"))
+    today = today.replace("data-tap=", "data-behind=")  # behind the sheet: seen, not tapped
+    overlay = ('<div class="scrim" style="background:rgba(0,0,0,.16)"></div>'
+               '<div style="position:absolute;left:0;right:0;bottom:0">%s</div>' % sheet(approved=True, **kw))
+    return today[:-len("</div>")] + overlay + "</div>"
 
 
 def behind():
@@ -511,9 +527,14 @@ def cap_desk(content):
     return '<div class="qwin"><div class="dim2">%s</div>%s</div>' % (desk_today(TITLE).replace("data-tap=", "data-behind="), content)
 
 
+DESK_QA2 = '<div class="qa" style="position:relative">%s%s<div class="hint">Enter adds · Esc closes · Ctrl+Shift+Space from anywhere in Windows</div></div>' % (capture_line(TYPED, approved=True), chips_html(CHIPS))
 DESK_QA = '<div class="qa" style="position:relative">%s%s<div class="hint">Enter adds · Esc closes · Ctrl+Shift+Space from anywhere in Windows</div></div>' % (capture_line(TYPED), chips_html(CHIPS))
 
+APPROVED_T13 = "A′"  # owner, 2026-10-07
 OPTIONS_T13 = [
+    {"id": "A′", "name": "Approved: sheet over a visible Today, check to add, full form button", "how": "approved",
+     "phone": cap_phone_a2, "desk": lambda: cap_desk(DESK_QA2),
+     "about": "The owner's choice (2026-10-07): option A, with Today left visible under a slight shade (as on Windows), Add as a check, and a small button that opens the full form."},
     {"id": "A", "name": "Sheet over the screen", "how": "direct", "phone": cap_phone_a, "desk": lambda: cap_desk(DESK_QA),
      "about": "The capture line opens as a sheet just above the keyboard, with the parsed chips under it and Add at the thumb. The screen behind it dims. On Windows it is a small window, from anywhere (Ctrl+Shift+Space)."},
     {"id": "B", "name": "Grows in place", "how": "direct", "phone": cap_phone_b, "desk": lambda: cap_desk(DESK_QA),
@@ -526,10 +547,10 @@ OPTIONS_T13 = [
      "about": "A screen of nine fields to fill one by one. It must lose."},
 ]
 STATES_T13 = [
-    ("Empty: what it accepts", lambda: cap_phone_a(placeholder=True, hint="Try: dentist tomorrow 9am · water plants every 3 days · call mum fri")),
-    ("Typed: understood", lambda: cap_phone_a()),
-    ("Two readings: asks, never guesses", lambda: cap_phone_a(text="Call mum fri", chips=[("", "Task")], question="Fri 9 Oct or every Friday?")),
-    ("Nothing to understand: added as typed", lambda: cap_phone_a(text="Buy stamps", chips=[("", "Task"), ("", "No date")])),
+    ("Empty: what it accepts", lambda: cap_phone_a2(placeholder=True, hint="Try: dentist tomorrow 9am · water plants every 3 days · call mum fri")),
+    ("Typed: understood", lambda: cap_phone_a2()),
+    ("Two readings: asks, never guesses", lambda: cap_phone_a2(text="Call mum fri", chips=[("", "Task")], question="Fri 9 Oct or every Friday?")),
+    ("Nothing to understand: added as typed", lambda: cap_phone_a2(text="Buy stamps", chips=[("", "Task"), ("", "No date")])),
     ("Added, with Undo", lambda: kit.phone(kit.header(TITLE, APPROVED_BUTTONS), '<div class="cap">+ <span>Add…</span></div>' +
                                             kit.zone("Agenda", "".join(row_d(k) for k in KINDS[:3])), kit.bar("Today") +
                                             '<div class="toast"><span class="t">Added to Tue 6 Oct</span><span class="u" data-tap="Undo">Undo</span></div>')),
@@ -566,7 +587,7 @@ def main():
         "t1-3", "T1.3 Capture sheet",
         "One line in plain language; what it understood shows as chips under the line (decision 17). The text stays as typed; "
         "a chip is tapped to fix or drop it. Taps exclude typing. Windows: a small window from anywhere.",
-        OPTIONS_T13, STATES_T13, T13_CSS, ("clutter", "desk_clutter", "faint_n", "small", "steps_sum", "fields"), t13_extra)
+        OPTIONS_T13, STATES_T13, T13_CSS, ("clutter", "desk_clutter", "faint_n", "small", "steps_sum", "fields"), t13_extra, APPROVED_T13)
     page = ['<!doctype html><html lang="en" data-theme="light"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">',
             '<title>Factotum T1 shared parts</title><style>%s\n%s\n%s\n%s\n%s</style></head><body>' % (kit.theme_css(), kit.BASE_CSS, EXTRA, T12_CSS + T13_CSS, PAGE_CSS),
             '<h1>T1 · Shared parts</h1><p class="dim">Decision 17. Greys only; colour comes after every screen is settled. '
