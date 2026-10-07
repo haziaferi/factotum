@@ -423,10 +423,12 @@ Each was crossed with chips or highlighting, and with Enter or a ✓. **The cont
 
 **Mockup:** `docs/screens/t1/capture-approved.html`.
 
-**Still open:**
-- how the full form opens (the page directly, or ⋯ › Full form › page);
-- whether to accept the shorthand set;
-- where ⋯ sits beside a wrapped line: centred on both rows, as drawn, or level with the first.
+**Decided by the owner, 2026-10-07:**
+- **The full form opens as the page, directly.**
+- **The shorthand set is accepted,** on the condition that it is safe in text containing those letters inside a word (see the rules below).
+- **The legend uses both places:** the hint scrolls sideways while the line is empty; once a kind is typed, the small line shows the kind and its field markers.
+
+**Still open:** where ⋯ sits beside a wrapped line: centred on both rows, as drawn, or level with the first.
 
 ## T1.3 Shorthand legend: five places, scored (owner, 2026-10-07)
 
@@ -458,3 +460,29 @@ The measures:
 **The two can be combined.** The scrolling hint covers the empty line, and the context hint covers the typed one. Combined, all 14 can be found while typing, at no extra height. This combination is not scored separately.
 
 Mockups: `docs/screens/t1/legend-options.html`.
+
+**The legend, both places together** (`legend_opt.py`, variant `both`), is better than either place alone, on every measure:
+- 6 shorthands readable at rest, and 5 once a kind is typed;
+- all 14 within 2 swipes;
+- the sheet stays 96 dp.
+
+Mockup: `docs/screens/t1/capture-approved.html`.
+
+## Shorthand rules: safe inside words (owner's condition, 2026-10-07)
+
+`tools/screens/shorthand_rules.py` is a reference matcher. Its 48 cases are in `docs/screens/t1/shorthand-cases.jsonl`, which is the acceptance test for the app's parser.
+
+1. **A kind shorthand counts only as the line's whole first token,** followed by a space and more text. "tdah", "event", "ldap", "evening", "rmdir", "t-shirt", "j.k." and a lone "td" all stay text.
+2. **A field marker counts only at a token's start, and only when its value parses:**
+   - `#`, `@` and `^` need a letter after them;
+   - `~` needs a duration;
+   - `!` needs a time or an offset;
+   - `*` needs a repeat word.
+
+   So "C#", "#1", "a@b.com", "user@home", "2^8", "Wow!", "wow!10m", "2*3", "*important*" and "~approx" all stay text.
+3. **Whatever counted is highlighted.** Tapping a highlight offers "Keep as text".
+
+**The cases were checked against deliberately broken rules,** so a pass means something:
+- matching a kind by the prefix of a word fails 9 cases;
+- accepting any value after a marker fails 5;
+- matching a marker anywhere in a word failed only 1 case at first. Six in-word cases were added, and it now fails 7.

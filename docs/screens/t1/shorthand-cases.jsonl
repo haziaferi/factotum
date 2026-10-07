@@ -1,0 +1,48 @@
+{"line": "td call mum fri", "kind": "task", "markers": []}
+{"line": "ev dentist tomorrow 9am", "kind": "event", "markers": []}
+{"line": "rm take meds !21:00", "kind": "reminder", "markers": [["!", "21:00"]]}
+{"line": "lg water 2", "kind": "log", "markers": []}
+{"line": "j slept badly", "kind": "journal", "markers": []}
+{"line": "t reading", "kind": "timer", "markers": []}
+{"line": "T reading ~30m", "kind": "timer", "markers": [["~", "30m"]]}
+{"line": "ck energy 2", "kind": "check-in", "markers": []}
+{"line": "ld masking high", "kind": "ledger", "markers": []}
+{"line": "tdah meeting notes", "kind": null, "markers": []}
+{"line": "event planning", "kind": null, "markers": []}
+{"line": "ldap password reset", "kind": null, "markers": []}
+{"line": "evening walk", "kind": null, "markers": []}
+{"line": "rmdir old folder", "kind": null, "markers": []}
+{"line": "lgbt+ book club", "kind": null, "markers": []}
+{"line": "j.k. rowling book", "kind": null, "markers": []}
+{"line": "t-shirt wash", "kind": null, "markers": []}
+{"line": "ckd follow-up", "kind": null, "markers": []}
+{"line": "td", "kind": null, "markers": []}
+{"line": "call td bank", "kind": null, "markers": []}
+{"line": "ci vediamo domani", "kind": null, "markers": []}
+{"line": "log the bug", "kind": null, "markers": []}
+{"line": "buy milk #home", "kind": null, "markers": [["#", "home"]]}
+{"line": "learn C# basics", "kind": null, "markers": []}
+{"line": "fix issue #1", "kind": null, "markers": []}
+{"line": "# heading", "kind": null, "markers": []}
+{"line": "call @personal tomorrow", "kind": null, "markers": [["@", "personal"]]}
+{"line": "email a@b.com today", "kind": null, "markers": []}
+{"line": "meet @ 5pm", "kind": null, "markers": []}
+{"line": "plan ^garden layout", "kind": null, "markers": [["^", "garden"]]}
+{"line": "compute 2^8", "kind": null, "markers": []}
+{"line": "ev yoga ~1h30m", "kind": "event", "markers": [["~", "1h30m"]]}
+{"line": "about ~approx", "kind": null, "markers": []}
+{"line": "~5 apples", "kind": null, "markers": []}
+{"line": "rm stretch !10m", "kind": "reminder", "markers": [["!", "10m"]]}
+{"line": "Wow! great day", "kind": null, "markers": []}
+{"line": "!!! urgent", "kind": null, "markers": []}
+{"line": "! now", "kind": null, "markers": []}
+{"line": "water plants *weekly", "kind": null, "markers": [["*", "weekly"]]}
+{"line": "td gym *every monday", "kind": "task", "markers": [["*", "every"]]}
+{"line": "2*3 is six", "kind": null, "markers": []}
+{"line": "*important* note", "kind": null, "markers": []}
+{"line": "ping user@home later", "kind": null, "markers": []}
+{"line": "abc#tag in code", "kind": null, "markers": []}
+{"line": "solve x^y", "kind": null, "markers": []}
+{"line": "foo*daily report", "kind": null, "markers": []}
+{"line": "wow!10m left", "kind": null, "markers": []}
+{"line": "a~30m wait", "kind": null, "markers": []}

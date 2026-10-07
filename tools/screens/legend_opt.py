@@ -75,14 +75,14 @@ def sheet(variant, state):
     if variant == "control":
         hint = '<div class="hint wrap">%s</div>' % every
     elif state in ("empty", "open"):
-        if variant == "scroll":
+        if variant in ("scroll", "both"):  # both (owner, 2026-10-07): scrolling while empty, the kind's markers once typed
             hint = '<div class="hint scroll">%s</div>' % every
         elif variant == "ask":
             hint = '<div class="hintrow"><div class="hint">%s</div>%s</div>' % (" · ".join(item(a, b) for a, b in KINDS[:4]), v2.control("Shorthands", "?", H, "ghost"))
         else:
             hint = '<div class="hint">%s</div>' % five
     else:  # typed with a kind's shorthand: the kind takes the hint's place (approved)
-        if variant == "context":
+        if variant in ("context", "both"):
             hint = '<div class="hint">Event · %s</div>' % " · ".join(item(a, b) for a, b in FIELDS if a in EVENT_FIELDS)
         else:
             hint = '<div class="hint">Event</div>'
@@ -124,8 +124,8 @@ def score(variant):
         covered = round(lg[2] * lg[3] / (360 * 740), 3) if lg else 0.0
         open_seen = sum(op["lgi"])
     # swipes to bring every item into view on a scrolling hint: its full width over the visible width
-    reach = {"scroll": None, "context": 99, "menu": 2, "ask": 1, "settings": 3, "control": 0}[variant]
-    if variant == "scroll":
+    reach = {"scroll": None, "both": None, "context": 99, "menu": 2, "ask": 1, "settings": 3, "control": 0}[variant]
+    if variant in ("scroll", "both"):
         visible = sum(rest["lgi"])
         reach = math.ceil(14 / max(1, visible)) - 1
     return {"rest": sum(rest["lgi"]), "typed": sum(typed["lgi"]), "reach": reach, "leaves": 1 if variant == "settings" else 0,
