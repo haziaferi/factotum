@@ -1,0 +1,36 @@
+[
+ {
+  "shape": "dropdown",
+  "reach": 2.824,
+  "travel": 1192,
+  "unseen": [
+   "Lasts 1 h",
+   "Lasts All day",
+   "Suggest 09:00",
+   "Time field"
+  ],
+  "covered": 0.289,
+  "clutter": 0.0224
+ },
+ {
+  "shape": "dropdown2",
+  "reach": 2.369,
+  "travel": 2614,
+  "unseen": [],
+  "covered": 0.407,
+  "clutter": 0.0258
+ },
+ {
+  "shape": "panel",
+  "reach": 3.324,
+  "travel": 1766,
+  "unseen": [
+   "Lasts 1 h",
+   "Lasts All day",
+   "Suggest 09:00",
+   "Time field"
+  ],
+  "covered": 0.354,
+  "clutter": 0.0274
+ }
+]

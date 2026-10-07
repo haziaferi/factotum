@@ -73,7 +73,7 @@ MEASURE_JS = r"""
   var cv=document.querySelector('.cover'),kb=document.querySelector('.cover .kb');if(cv&&kb)out.sheet_h=Math.round(kb.getBoundingClientRect().top-cv.getBoundingClientRect().top);
   var li=document.querySelector('.line .in .ud');if(li){var lh=parseFloat(getComputedStyle(li).lineHeight)||parseFloat(getComputedStyle(li).fontSize)*1.2;out.line_lines=Math.round(li.getBoundingClientRect().height/lh)}
   // element boxes for visual-weight scoring (sheet_weight.py)
-  out.boxes={};[['sheet','.sheet'],['line','.line .in'],['linebox','.line'],['chips','.chips'],['route','.route'],['legend','.legend'],['hubsheet','.hubsheet'],['hubpanel','.hubpanel']].forEach(function(p){var el=document.querySelector(p[1]);if(el){var q=el.getBoundingClientRect();out.boxes[p[0]]=[q.left,q.top,q.width,q.height]}});
+  out.boxes={};[['sheet','.sheet'],['line','.line .in'],['linebox','.line'],['chips','.chips'],['route','.route'],['legend','.legend'],['hubsheet','.hubsheet'],['hubpanel','.hubpanel'],['picker','[data-picker]']].forEach(function(p){var el=document.querySelector(p[1]);if(el){var q=el.getBoundingClientRect();out.boxes[p[0]]=[q.left,q.top,q.width,q.height]}});
   // drawn (visual) parts of sheet controls, apart from their 48 px targets: harmony compares these
   out.vis=[].map.call(document.querySelectorAll('.sheet .vis'),function(el){var q=el.getBoundingClientRect();return [el.getAttribute('data-vis')||'',Math.round(q.left),Math.round(q.top),Math.round(q.width),Math.round(q.height)]});
   // is the typed line drawn, or covered by something above it? sampled at its left, middle and right

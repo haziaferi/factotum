@@ -610,3 +610,39 @@ Its six screens (Labels, Time blocks, Calendars, Settings, Trash and About) woul
 - the legend and the shorthand table.
 
 The internal names, and the T0 pages already settled, keep the lowercase form; they are not on screen.
+
+## T1.5 Date and time picker: first scoring (2026-10-08)
+
+**Owner's answers:**
+- **Time entry:** score the planner's time blocks as presets, a typed field with suggestions, scroll wheels, a clock dial, and cron with its calculator.
+- **Cron:** in both pickers (T1.5 and T1.6).
+- **Week start and clock:** follow the system.
+- **Event end:** score both duration presets and an end time.
+- **Day load:** score with and without.
+- **Containers:** replaces the keyboard, a sheet, a pop-over by the date, a full page.
+- **Windows:** score the options.
+
+**References** captured on the owner's phone (gitignored; nothing saved):
+- Todoist: a near-full sheet with typed date, presets showing weekdays, a month grid with a load line, Add time (a clock dial in a dialog, keyboard toggle) and Repeat;
+- TickTick: Date and Duration tabs, icon presets including "this morning", a dial, start and end with a duration readout, and an all-day switch;
+- Google Tasks: a dialog, with no presets;
+- Microsoft To Do: a pop-over of presets, then a calendar.
+
+**Phone (`tools/screens/picker_opt.py`):** 80 variants plus a control (everything at once). The control loses.
+- Ease is counted, not timed: taps, keystrokes and drags over five tasks, each kept as its own measure, because a wheel drag and a keystroke are not the same effort. Reach and cut-off controls are also measured.
+- **The repeat task without cron is counted as 2 taps through T1.6's builder.** That is an assumption until T1.6 is drawn.
+- **Defects of mine fixed before any numbers:** the time field was under 48 px; day cells were 3 px narrow; preset chips were drawn as squares with their words overflowing; the end-time option had no All-day control, so "all day" cost it nothing.
+
+**Result:**
+- **The front is wide** (14), across every container and time entry. Without a rule against cutting off controls, nothing clearly wins.
+- **With "nothing the tasks need cut off" as a rule, only one passes:** the full page, with a typed time, duration presets and day load.
+- **Every other picker is too tall.** Presets, a 48 px month grid, the time and the end do not fit together.
+- **Day load is on 10 of the 14 front members,** and an end time on 9 of 14.
+
+**Windows (`tools/screens/picker_desk.py`):** both one-column shapes (a drop-down, and a side panel) cut off the time and end in a 660 px window. **A two-column drop-down** (the month left; presets, time and end right) shows everything, with the easiest pointing (mean index of difficulty 2.37). It covers 41% of the window.
+
+**Open:**
+- whether cut-off controls (scrolling inside the picker) are acceptable;
+- a two-step picker, the date first and then the time, as Todoist and TickTick do, which was not yet scored.
+
+Mockups: `docs/screens/t1/picker-options.html`.

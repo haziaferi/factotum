@@ -1,0 +1,102 @@
+{
+ "split_front": [
+  {
+   "container": "keyboard",
+   "entry": "wheel",
+   "load": true,
+   "end": "endtime"
+  },
+  {
+   "container": "sheet",
+   "entry": "typed",
+   "load": true,
+   "end": "duration"
+  },
+  {
+   "container": "sheet",
+   "entry": "wheel",
+   "load": true,
+   "end": "duration"
+  },
+  {
+   "container": "sheet",
+   "entry": "wheel",
+   "load": true,
+   "end": "endtime"
+  },
+  {
+   "container": "sheet",
+   "entry": "cron",
+   "load": true,
+   "end": "duration"
+  },
+  {
+   "container": "popover",
+   "entry": "wheel",
+   "load": false,
+   "end": "endtime"
+  },
+  {
+   "container": "popover",
+   "entry": "wheel",
+   "load": true,
+   "end": "endtime"
+  },
+  {
+   "container": "popover",
+   "entry": "dial",
+   "load": false,
+   "end": "endtime"
+  },
+  {
+   "container": "popover",
+   "entry": "dial",
+   "load": true,
+   "end": "endtime"
+  },
+  {
+   "container": "page",
+   "entry": "typed",
+   "load": true,
+   "end": "duration"
+  },
+  {
+   "container": "page",
+   "entry": "wheel",
+   "load": true,
+   "end": "endtime"
+  },
+  {
+   "container": "page",
+   "entry": "dial",
+   "load": false,
+   "end": "endtime"
+  },
+  {
+   "container": "page",
+   "entry": "dial",
+   "load": true,
+   "end": "endtime"
+  },
+  {
+   "container": "page",
+   "entry": "cron",
+   "load": true,
+   "end": "duration"
+  }
+ ],
+ "strict_front": [
+  {
+   "container": "page",
+   "entry": "typed",
+   "load": true,
+   "end": "duration"
+  },
+  {
+   "container": "sheet",
+   "entry": "all",
+   "load": true,
+   "end": "both"
+  }
+ ]
+}
