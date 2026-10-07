@@ -40,3 +40,13 @@ Reference main screens: bearable/00-main.png 0.070, daylio/00-main.png 0.055, ho
 - B Two columns of cards: clutter 0.052 / 0.020, faint 0, small 0, below the fold 2 of 27, dominated
 - C Cards where the bar says they live (oblique: Cross-Domain Raid): clutter 0.054 / 0.020, faint 0, small 0, below the fold 0 of 27, front
 - X Control: one long list: clutter 0.035 / 0.020, faint 0, small 0, below the fold 15 of 27, control
+
+## T1.3 refined: ✓ and ▤
+
+| Option | ID to ✓ | ID to ▤ | Sheet dp | Lines | Text px | Taps < 48 | Faint | Status |
+|---|---|---|---|---|---|---|---|---|
+| A′ As approved: ✓ and ▤ on the line, 16 px | 2.91 | 2.93 | 130 | 2 | 16 | 0 | 0 | front |
+| K Knee: ✓ and ▤ at the end of the chip row, 18 px, ✓ 56 | 2.49 | 2.69 | 178 | 1 | 18 | 0 | 0 | front |
+| S Split: ▤ on the line, ✓ at the end of the chip row, 16 px, ✓ 56 | 2.49 | 3.09 | 178 | 1 | 16 | 0 | 0 | dominated |
+| R Action row: ▤ left, ✓ right, above the keyboard, 18 px, ✓ 52 | 2.57 | 3.19 | 182 | 1 | 18 | 0 | 0 | dominated |
+| X Control: Any.do's top line, ✓ 40 at the top right | 4.15 | 9.00 | 130 | 1 | 16 | 2 | 0 | control |

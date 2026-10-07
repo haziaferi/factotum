@@ -159,3 +159,38 @@ Fixes found on the way:
 - **The Windows Hub panel escaped its frame,** because `.desk` was not positioned. Fixed in `kit.py`.
 
 `build_section` gained `must`, for the owner's requirements.
+
+## T1.3 refined: where ✓ and ▤ go, and how big: put to the owner (2026-10-07)
+
+The owner left the placement and the sizes of ✓ and ▤ free, asked for a balanced result (a front), and chose right-thumb-first with a left-hand mirror setting.
+- `tools/screens/capture_opt.py` enumerated 1,296 layouts. The variables were placement (line, chip row, action row, split), text 15–18 px, line height, chip height, ✓ size 48–56 and gap.
+- The search ran in two frames: the assumed 360 dp phone, and the owner's phone as measured (384 × 832 dp, Gboard's Enter at 355, 751). Each frame ran with the thumb resting on Enter and on the keyboard's centre. **The knee was the same in all four runs:** ✓ and ▤ at the end of the chip row, 18 px text, ✓ 56.
+- Chip height changes no objective, because the target is 48 dp either way.
+
+**Reference apps, measured on the owner's phone** (placeholder accounts; the sample was typed and cleared, and nothing was saved). Thumb travel is Fitts' ID from Enter to Add, using the smaller of the target's width and height.
+
+| App | Add sits | Add dp | Thumb travel | Sheet dp | Parses |
+|---|---|---|---|---|---|
+| Todoist | end of the chip row | 44×48 | 2.98 | 153 | yes |
+| Microsoft To Do | end of the line | 42×44 | 3.15 | 104 | yes |
+| Google Tasks | action row (text "Save") | 88×48 | 2.81 | 113 | no |
+| TickTick | action row | 40×30 | 3.36 | 130 | yes |
+| Any.do | top right, full screen | 41×41 | 4.16 | full | yes |
+| Keep | back arrow, top left | 56×56 | 3.87 | full | no |
+| Tasks.org | top left, full form | 48×48 | 4.08 | full | no |
+
+**The options, re-measured from the render** (`docs/screens/t1/scores.md`):
+
+| Option | Thumb travel to ✓ | to ▤ | Sheet dp | Lines | Text | Status |
+|---|---|---|---|---|---|---|
+| A′ as approved (on the line) | 2.91 | 2.93 | 130 | 2 | 16 px | front |
+| **K: both at the end of the chip row, ✓ 56** | **2.49** | 2.69 | 178 | **1** | **18 px** | front |
+| S: ▤ on the line, ✓ on the chip row | 2.49 | 3.09 | 178 | 1 | 16 px | dominated by K |
+| R: action row above the keyboard | 2.57 | 3.19 | 182 | 1 | 18 px | dominated by K |
+| X: control, Any.do's top line | 4.15 | none | 130 | 1 | 16 px | loses |
+
+**The trade between A′ and K.** K is the easiest ✓ to reach of any layout or app measured: 14% less thumb travel than A′. Its sample reads on one line at 18 px. But the sheet is 48 dp taller, because the buttons take the chip row's end and four chips then wrap to two rows. With one to three chips, the usual case, the row does not wrap.
+
+The model was checked against the render, and it overstated A′'s sheet (181 against 130). Its glyph width (0.52 em) is wider than the rendered font, so A′'s chips fit on one row. It got thumb travel right (K 2.49 in both).
+
+States drawn on K: empty, two readings, and the left-hand setting (mirrored), with S mirrored for comparison.

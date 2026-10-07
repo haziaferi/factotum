@@ -5,6 +5,7 @@ phone and Windows, real copy, and measured scores beside real apps' numbers.
     PYTHONUTF8=1 python tools/screens/tier_t1.py
 """
 import html
+import math
 import os
 import sys
 
@@ -567,6 +568,85 @@ def t13_extra(o, r):
     return {"steps_sum": 6 if o["how"] == "control" else 2, "fields": 9 if o["how"] == "control" else 1}
 
 
+# ---- T1.3 refined: sizes and the place of ✓ and ▤ ------------------------------------------------------------
+# Owner, 2026-10-07: free = ✓/▤ placement and sizes; balanced (a front); right thumb, with a left-hand mirror setting.
+# The options are capture_opt.py's balanced picks, held in all four frame x thumb-rest runs; the reference apps were
+# measured on the owner's phone (capture_opt.REFERENCES). Here each is drawn and re-measured from the render.
+ENTER_KEY = (330, 712)  # the mockup keyboard is 250 px tall at the phone's foot, as in capture_opt's model frame
+
+
+def sheet_v(place, font, add, text=TYPED, chips=CHIPS, mirror=False, placeholder=False, question=None, hint=""):
+    """place: line | chips | row | split | top (the control). add: ✓'s diameter in px; ▤ is always 48."""
+    inner = ('<span class="ph">Add a task, event or reminder…</span>' if placeholder else kit.ud(e(text)) + '<span class="caret"></span>')
+    form = '<span class="ib" data-tap="Full form" title="Full form">▤</span>'
+    ok = '<span class="addc" data-tap="Add" title="Add" style="width:%dpx;height:%dpx">✓</span>' % (add, add)
+    rev = ";flex-direction:row-reverse" if mirror else ""
+    on_line = {"line": form + ok, "split": form, "top": ok}.get(place, "")
+    line = '<div class="line" style="font-size:%dpx%s"><span class="in">%s</span>%s</div>' % (font, rev, inner, on_line)
+    ch = "" if placeholder else chips_html(chips, question)
+    if place in ("chips", "split"):
+        btns = (form + ok) if place == "chips" else ok
+        ch = '<div style="display:flex;align-items:flex-end;gap:4px%s"><div style="flex:1;min-width:0">%s</div>%s</div>' % (rev, ch, btns)
+    row = '<div style="display:flex;justify-content:space-between;margin-top:4px%s">%s%s</div>' % (rev, form, ok) if place == "row" else ""
+    return '<div class="sheet" style="padding-top:16px">%s%s%s%s</div>' % (line, ch, row, '<div class="hint">%s</div>' % hint if hint else "")
+
+
+def cap_phone_v(place, font, add, **kw):
+    today = kit.phone(kit.header(TITLE, APPROVED_BUTTONS), '<div class="cap">+ <span>Add…</span></div>' + rows_today(row_d), kit.bar("Today"))
+    today = today.replace("data-tap=", "data-behind=")
+    if place == "top":  # the control: Any.do's layout, the line at the top of the screen with Add at its far end
+        overlay = ('<div style="position:absolute;inset:0;background:var(--bg);display:flex;flex-direction:column">%s'
+                   '<div style="flex:1"></div><div class="kb">keyboard</div></div>') % sheet_v(place, font, add, **kw).replace(
+                       'class="sheet" style="', 'class="sheet" style="border-radius:0;box-shadow:none;')
+    else:
+        overlay = ('<div class="scrim" style="background:rgba(0,0,0,.16)"></div><div style="position:absolute;left:0;right:0;bottom:0">%s'
+                   '<div class="kb">keyboard</div></div>') % sheet_v(place, font, add, **kw)
+    return today[:-len("</div>")] + overlay + "</div>"
+
+
+def desk_v(place, font, add):
+    s = sheet_v(place, min(font, 16), min(add, 48)).replace('class="sheet" style="', 'class="qa" style="position:relative;')
+    return cap_desk(s)
+
+
+T13R = [  # (id, name, how, place, font, ✓ px, about)
+    ("A′", "As approved: ✓ and ▤ on the line, 16 px", "approved", "line", 16, 48,
+     "T1.3 as approved. The line keeps 104 px for its buttons, so the sample wraps to two lines, and ✓ sits at the line's end, above the chips."),
+    ("K", "Knee: ✓ and ▤ at the end of the chip row, 18 px, ✓ 56", "direct", "chips", 18, 56,
+     "The whole front's knee in every frame and thumb position tried. The line gets the full width, so the sample reads on one line at 18 px; "
+     "✓ drops to the chip row, nearer the thumb resting on Enter, and grows to 56. As Todoist does, with a bigger target."),
+    ("S", "Split: ▤ on the line, ✓ at the end of the chip row, 16 px, ✓ 56", "direct", "split", 16, 56,
+     "The quieter action stays up on the line, and only ✓ comes down to the thumb. One line at 16 px; ✓ and ▤ are far apart, so a slip cannot open the form."),
+    ("R", "Action row: ▤ left, ✓ right, above the keyboard, 18 px, ✓ 52", "direct", "row", 18, 52,
+     "A row of its own just above the keyboard, as TickTick and Google Tasks have. The most spacing round ✓, at the cost of the tallest sheet."),
+    ("X", "Control: Any.do's top line, ✓ 40 at the top right", "control", "top", 16, 40,
+     "The line opens at the top of the screen with Add at its far end, as Any.do does: the furthest the thumb can travel. It must lose."),
+]
+OPTIONS_T13R = [{"id": i, "name": n, "how": h, "about": a, "phone": (lambda p=p, f=f, s=s: cap_phone_v(p, f, s)),
+                 "desk": (lambda p=p, f=f, s=s: desk_v(p, f, s))} for i, n, h, p, f, s, a in T13R]
+STATES_T13R = [
+    ("K, empty: what it accepts", lambda: cap_phone_v("chips", 18, 56, placeholder=True, hint="Try: dentist tomorrow 9am · water plants every 3 days")),
+    ("K, two readings: asks, never guesses", lambda: cap_phone_v("chips", 18, 56, text="Call mum fri", chips=[("", "Task")], question="Fri 9 Oct or every Friday?")),
+    ("K, left-hand setting (mirrored)", lambda: cap_phone_v("chips", 18, 56, mirror=True)),
+    ("S, left-hand setting (mirrored)", lambda: cap_phone_v("split", 16, 56, mirror=True)),
+]
+
+
+def t13r_extra(o, r):
+    taps = {t["name"]: t for t in r["taps_raw"]}
+
+    def fid(name):
+        t = taps[name]
+        return math.log2(math.hypot(ENTER_KEY[0] - t["x"], ENTER_KEY[1] - t["y"]) / min(t["w"], t["h"]) + 1)
+    font = next(f for i, n, h, p, f, s, a in T13R if i == o["id"])
+    return {"fitts_add": round(fid("Add"), 2), "fitts_form": round(fid("Full form"), 2) if "Full form" in taps else 9.0,
+            "sheet_h": r["sheet_h"], "lines": r["line_lines"], "text_small": 18 - font}
+
+
+COLS.update({"fitts_add": ("Thumb travel to ✓ (Fitts ID from Enter)", "%.2f"), "fitts_form": ("Thumb travel to ▤", "%.2f"),
+             "sheet_h": ("Sheet height dp", "%d"), "lines": ("Lines the sample wraps to", "%d"), "text_small": ("Text px under 18", "%d")})
+
+
 # ---- T1.4 Hub sheet (cards) -------------------------------------------------------------------------------
 # Owner, 2026-10-07: cards, so every screen of a module is visible (the working form, not the final one). The Hub
 # opens on the capture line (A+'s definition); a long press on the Hub captures directly.
@@ -696,6 +776,14 @@ details.notpicked{margin:10px 0}details.notpicked>summary{cursor:pointer;color:v
 """
 
 
+def _load_capture_opt():
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("capture_opt", os.path.join(os.path.dirname(os.path.abspath(__file__)), "capture_opt.py"))
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+
 def main():
     os.makedirs(OUT, exist_ok=True)
     refs = ss.reference_clutter(REFERENCE_SCREENS)
@@ -706,6 +794,19 @@ def main():
         "One line in plain language; what it understood shows as chips under the line (decision 17). The text stays as typed; "
         "a chip is tapped to fix or drop it. Taps exclude typing. Windows: a small window from anywhere.",
         OPTIONS_T13, STATES_T13, T13_CSS, ("clutter", "desk_clutter", "faint_n", "small", "steps_sum", "fields"), t13_extra, APPROVED_T13)
+    co = _load_capture_opt()
+    ref_rows = "".join("<tr><td>%s</td><td>%s</td><td>%dx%d</td><td>%.2f</td><td>%s</td><td>%s</td></tr>" % (
+        e(r["app"]), r["place"], r["add"][2], r["add"][3], r["id_enter"], r["sheet"] or "full screen", "yes" if r["parses"] else "no") for r in co.reference_rows())
+    s13r, rows13r, fr13r, beaten13r = build_section(
+        "t1-3r", "T1.3 refined: where ✓ and ▤ go, and how big",
+        "Owner (2026-10-07): ✓ and ▤ placement and sizes are free; balanced; right thumb, with a left-hand mirror setting. "
+        "<code>tools/screens/capture_opt.py</code> searched 1,296 layouts; these are its balanced picks, each one held in both the "
+        "assumed 360 dp phone and the owner's phone (384 dp, measured), with the thumb resting on Enter or on the keyboard's centre. "
+        "Here they are drawn and measured again from the render. Thumb travel is Fitts' index of difficulty from the Enter key: lower is easier."
+        "<h3>Reference apps, measured on the owner's phone</h3><p class=dim>Same measure, from the phone's own Enter key. Placeholder accounts; "
+        "the sample was typed and cleared, nothing saved.</p><table><tr><th>App</th><th>Add sits</th><th>Add dp</th>"
+        "<th>Thumb travel to Add</th><th>Sheet dp</th><th>Parses</th></tr>" + ref_rows + "</table>",
+        OPTIONS_T13R, STATES_T13R, T13_CSS, ("fitts_add", "fitts_form", "sheet_h", "lines", "text_small", "small", "faint_n"), t13r_extra)
     s14, rows14, fr14, beaten14 = build_section(
         "t1-4", "T1.4 Hub sheet (cards)",
         "The Hub in the bar's centre opens this sheet: the capture line, Pinned and recent, then every screen of every module "
@@ -718,7 +819,7 @@ def main():
             'Type and icons are placeholders. One screen at a time: each waits for the owner\'s approval.</p>',
             '<div class="sw"><button onclick="document.documentElement.dataset.theme=\'light\'">Light</button>'
             '<button onclick="document.documentElement.dataset.theme=\'dark\'">Dark</button><button onclick="document.documentElement.dataset.theme=\'oled\'">OLED</button></div>',
-            s14, s13, s12, s11, "</body></html>"]
+            s13r, s14, s13, s12, s11, "</body></html>"]
     with open(os.path.join(OUT, "screens.html"), "w", encoding="utf-8", newline="\n") as fh:
         fh.write("\n".join(page))
     md = ["# T1 scores", "", "Generated by `tools/screens/tier_t1.py`.", "", "## T1.1 Header and bar", "",
@@ -746,7 +847,13 @@ def main():
     with open(os.path.join(OUT, "scores.md"), "w", encoding="utf-8", newline=chr(10)) as fh:
         fh.write(chr(10).join(md) + chr(10))
     print(chr(10).join(md[-5:]))
-    if not (beaten and beaten12 and beaten13 and beaten14):
+    md += ["", "## T1.3 refined: ✓ and ▤", "", "| Option | ID to ✓ | ID to ▤ | Sheet dp | Lines | Text px | Taps < 48 | Faint | Status |", "|---|---|---|---|---|---|---|---|---|"]
+    md += ["| %s %s | %.2f | %.2f | %d | %d | %d | %d | %d | %s |" % (o["id"], o["name"], r["fitts_add"], r["fitts_form"], r["sheet_h"], r["lines"], 18 - r["text_small"],
+           r["small"], r["faint_n"], "control" if o["how"] == "control" else ("front" if i in fr13r else "dominated")) for i, (o, r) in enumerate(zip(OPTIONS_T13R, rows13r))]
+    with open(os.path.join(OUT, "scores.md"), "w", encoding="utf-8", newline=chr(10)) as fh:
+        fh.write(chr(10).join(md) + chr(10))
+    print(chr(10).join(md[-7:]))
+    if not (beaten and beaten12 and beaten13 and beaten13r and beaten14):
         sys.exit(2)
 
 

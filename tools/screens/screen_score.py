@@ -51,7 +51,7 @@ MEASURE_JS = r"""
     var g=el,bgl=bg;for(;g&&g.nodeType===1;g=g.parentElement){var bc=getComputedStyle(g).backgroundColor;var q=lum(bc);if(q.a>0.5){bgl=q.l;break}}
     var c=lum(getComputedStyle(el).color), o=op(el);
     var L=c.l*o+bgl*(1-o); var hi=Math.max(L,bgl)+0.05, lo=Math.min(L,bgl)+0.05;
-    out.taps.push({name:el.getAttribute('data-tap'),w:Math.round(r.width),h:Math.round(r.height),y:Math.round(r.top+r.height/2),contrast:+(hi/lo).toFixed(2),
+    out.taps.push({name:el.getAttribute('data-tap'),w:Math.round(r.width),h:Math.round(r.height),x:Math.round(r.left+r.width/2),y:Math.round(r.top+r.height/2),contrast:+(hi/lo).toFixed(2),
                    nav:!!el.closest('.hdr,.bar,.rail')});
   });
   var w=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);
@@ -67,6 +67,9 @@ MEASURE_JS = r"""
     if(!any)out.blank_lead++});out.title_edges+=Object.keys(xs).length});
   var b=document.querySelector('.body');if(b){var bb=b.getBoundingClientRect();out.rows_visible=0;
     document.querySelectorAll('.body .row').forEach(function(r){var q=r.getBoundingClientRect();if(q.height&&q.top>=bb.top&&q.bottom<=bb.bottom)out.rows_visible++})}
+  // capture sheets: the sheet's height and how many lines the typed text wraps to
+  var sh=document.querySelector('.sheet');if(sh)out.sheet_h=Math.round(sh.getBoundingClientRect().height);
+  var li=document.querySelector('.line .in .ud');if(li){var lh=parseFloat(getComputedStyle(li).lineHeight)||parseFloat(getComputedStyle(li).fontSize)*1.2;out.line_lines=Math.round(li.getBoundingClientRect().height/lh)}
   var pre=document.createElement('pre');pre.id='__measure';pre.textContent=JSON.stringify(out);document.body.appendChild(pre);
 })();
 </script>"""
@@ -138,7 +141,7 @@ def score_option(make_doc, w, h, targets=None, declared=None):
             "far_nav": sum(t["nav"] and t["y"] < h * 0.25 for t in m["taps"]) if w < 600 else 0,
             "small_taps": sorted({"%s %dx%d" % (t["name"], t["w"], t["h"]) for t in m["taps"] if t["w"] < 48 or t["h"] < 48}),
             "taps_raw": m["taps"],
-            "min_text": m["min_text"], "rows_visible": m.get("rows_visible", 0), "blank_lead": m.get("blank_lead", 0), "title_edges": m.get("title_edges", 0), "nav": sum(t["nav"] for t in m["taps"]), "steps": steps}
+            "min_text": m["min_text"], "sheet_h": m.get("sheet_h"), "line_lines": m.get("line_lines"), "rows_visible": m.get("rows_visible", 0), "blank_lead": m.get("blank_lead", 0), "title_edges": m.get("title_edges", 0), "nav": sum(t["nav"] for t in m["taps"]), "steps": steps}
 
 
 def reference_clutter(names):

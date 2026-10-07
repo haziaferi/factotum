@@ -6,6 +6,7 @@ so only use it on debug builds that start empty.
     python tools/screens/adb_walk.py shot <app> <name>        # PNG into _screens-sources/<app>/<name>.png
     python tools/screens/adb_walk.py texts                    # visible texts and content descriptions, with centres
     python tools/screens/adb_walk.py controls                 # clickable controls' accessibility names only (owner's apps)
+    python tools/screens/adb_walk.py geometry                 # inputs and buttons, bounds in dp, names only (JSON lines)
     python tools/screens/adb_walk.py tap "<text>" [nth]       # tap the nth element whose text or description equals <text>
     python tools/screens/adb_walk.py type "<text>"
     python tools/screens/adb_walk.py key BACK|ENTER|HOME
@@ -55,6 +56,17 @@ def main(cmd, *args):
         for _, (x, y), n in nodes():
             if n.get("clickable") == "true" and n.get("content-desc"):
                 print("%4d,%4d  %s" % (x, y, n.get("content-desc")[:60]))
+    elif cmd == "geometry":
+        # Bounds of inputs and buttons in dp (px / (density/160)), with their accessibility name or class only, never
+        # their text: for measuring a sheet's layout. Output JSON lines to stdout.
+        import json
+        dens = int(re.search(r"(\d+)", adb("shell", "wm", "density")).group(1)) / 160.0
+        for _, _, n in nodes():
+            cls = n.get("class", "").split(".")[-1]
+            if n.get("clickable") == "true" or cls in ("EditText", "AutoCompleteTextView"):
+                x0, y0, x1, y1 = map(int, re.findall(r"\d+", n.get("bounds")))
+                print(json.dumps({"cls": cls, "name": (n.get("content-desc") or "")[:40], "id": n.get("resource-id", "").split("/")[-1],
+                                  "x": round(x0 / dens), "y": round(y0 / dens), "w": round((x1 - x0) / dens), "h": round((y1 - y0) / dens)}))
     elif cmd == "tap":
         nth = int(args[1]) if len(args) > 1 else 0
         hits = [c for label, c, _ in nodes() if label == args[0]]
