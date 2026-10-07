@@ -43,7 +43,7 @@ There are no swipes.
 | T1.1 | Header and bar | **approved 2026-10-07: A′** |
 | T1.2 | Item rows (title only), plus the row-variants chapter | **approved 2026-10-07: D** |
 | T1.3 | Capture sheet | **approved 2026-10-07: A′** |
-| T1.4 | Hub sheet (cards) | put to the owner |
+| T1.4 | Hub sheet (cards) | **paused by the owner (2026-10-07), to be decided** |
 | T1.5 | Date and time picker | to do |
 | T1.6 | Repeat builder | to do |
 | T1.7 | Label chips and picker | to do |
