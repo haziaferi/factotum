@@ -1,0 +1,104 @@
+{
+ "rows": [
+  {
+   "text": "Add anything…",
+   "fits": true,
+   "kinds": 0,
+   "verb": 1,
+   "context": 0,
+   "chars": 13,
+   "words": 2,
+   "sheet": 91,
+   "U": 13.5,
+   "C": 4.5
+  },
+  {
+   "text": "Type anything…",
+   "fits": true,
+   "kinds": 0,
+   "verb": 1,
+   "context": 0,
+   "chars": 14,
+   "words": 2,
+   "sheet": 91,
+   "U": 13.5,
+   "C": 6.0
+  },
+  {
+   "text": "Add a task, event, log…",
+   "fits": true,
+   "kinds": 3,
+   "verb": 1,
+   "context": 0,
+   "chars": 23,
+   "words": 5,
+   "sheet": 91,
+   "U": 9.5,
+   "C": 12.5
+  },
+  {
+   "text": "Task, event, log, journal…",
+   "fits": true,
+   "kinds": 4,
+   "verb": 0,
+   "context": 0,
+   "chars": 26,
+   "words": 4,
+   "sheet": 91,
+   "U": 12.0,
+   "C": 12.0
+  },
+  {
+   "text": "Add a task or event…",
+   "fits": true,
+   "kinds": 2,
+   "verb": 1,
+   "context": 0,
+   "chars": 20,
+   "words": 5,
+   "sheet": 91,
+   "U": 10.5,
+   "C": 11.5
+  },
+  {
+   "text": "What's next?",
+   "fits": true,
+   "kinds": 0,
+   "verb": 0,
+   "context": 0,
+   "chars": 12,
+   "words": 2,
+   "sheet": 91,
+   "U": 17.0,
+   "C": 3.0
+  },
+  {
+   "text": "Today: Add anything… / Journal: Write a line… / Water tracker: Log water… / Calendar: Add an event…",
+   "fits": true,
+   "kinds": 1,
+   "verb": 1,
+   "context": 1,
+   "chars": 13,
+   "words": 3,
+   "sheet": 91,
+   "U": 8.0,
+   "C": 6.5
+  },
+  {
+   "text": "Add a task, event, log or journal line…",
+   "fits": false,
+   "kinds": 4,
+   "verb": 1,
+   "context": 0,
+   "chars": 39,
+   "words": 8,
+   "sheet": 100
+  }
+ ],
+ "front": [
+  "Add anything…",
+  "What's next?",
+  "Today: Add anything… / Journal: Write a line… / Water tracker: Log water… / Calendar: Add an event…"
+ ],
+ "one_line_px": 35
+}

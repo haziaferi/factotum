@@ -488,3 +488,22 @@ Mockup: `docs/screens/t1/capture-approved.html`.
 - matching a kind by the prefix of a word fails 9 cases;
 - accepting any value after a marker fails 5;
 - matching a marker anywhere in a word failed only 1 case at first. Six in-word cases were added, and it now fails 7.
+
+**The text box (owner, 2026-10-07):** it always spans its full width and stays one line high by default. It grows only when typed text wraps. So the placeholder must fit on one line beside ⋯.
+
+**Placeholder options, scored** (`tools/screens/placeholder_opt.py`; fit is measured from the render):
+- **Ease:** the kinds it names, whether it starts with a verb, and whether it matches the screen it opens from.
+- **Cost:** characters and words.
+
+| Placeholder | Fits | Kinds named | Verb first | Context | Chars | Status |
+|---|---|---|---|---|---|---|
+| Context-aware: Today "Add anything…", Journal "Write a line…", a tracker "Log water…", Calendar "Add an event…" | yes | 1 (the one it will make) | yes | yes | ≤13 | **front** |
+| "Add anything…" | yes | 0 | yes | no | 13 | **front** |
+| "What's next?" | yes | 0 | no | no | 12 | **front** (shortest; says least) |
+| "Type anything…" | yes | 0 | yes | no | 14 | dominated by "Add anything…" |
+| "Add a task or event…" | yes | 2 | yes | no | 20 | dominated by context-aware |
+| "Add a task, event, log…" | yes | 3 | yes | no | 23 | dominated by context-aware |
+| "Task, event, log, journal…" | yes | 4 | no | no | 26 | dominated |
+| "Add a task, event, log or journal line…" (the current one) | **no, wraps** | 4 | yes | no | 39 | fails the one-line rule |
+
+Every option that fits keeps the empty sheet at 91 dp. Naming kinds in the placeholder repeats what the hint line below already lists.
