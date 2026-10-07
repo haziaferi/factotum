@@ -402,7 +402,7 @@ COLS = {  # key: (header, format)
 }
 
 
-def build_section(sid, title, intro, options, states, css, low, extra=None, approved=None):
+def build_section(sid, title, intro, options, states, css, low, extra=None, approved=None, must=None):
     """options: dicts with id, name, how, about, phone(), desk(); extra(option, phone_result) adds measures.
     Returns (html, rows, front indices, control beaten)."""
     rows = []
@@ -416,12 +416,16 @@ def build_section(sid, title, intro, options, states, css, low, extra=None, appr
         if extra:
             r.update(extra(o, r))
         rows.append(r)
-    fr = ss.front(rows, low)
+    # must(row) -> None or the reason a row breaks an owner requirement; such a row cannot be on the front
+    fails = {i: must(r) for i, r in enumerate(rows)} if must else {}
+    ok = [i for i in range(len(rows)) if not fails.get(i)]
+    fr = [ok[j] for j in ss.front([rows[i] for i in ok], low)]
     beaten = all(i not in fr for i, o in enumerate(options) if o["how"] == "control")
     head = "<tr><th>Option</th>%s<th></th></tr>" % "".join("<th>%s</th>" % COLS[k][0] for k in low)
     body = "".join("<tr><td><b>%s</b> %s</td>%s<td>%s</td></tr>" % (
         o["id"], e(o["name"]), "".join("<td>%s</td>" % (COLS[k][1] % r[k]) for k in low),
-        "control" if o["how"] == "control" else ("front" if i in fr else "dominated")) for i, (o, r) in enumerate(zip(options, rows)))
+        ("control" if o["how"] == "control" else ("front" if i in fr else "dominated")) + (" · fails: " + e(fails[i]) if fails.get(i) else ""))
+        for i, (o, r) in enumerate(zip(options, rows)))
     opts = options_html([(o, o["phone"](), o["desk"]()) for o in options], approved)
     st = "".join('<div><div class="cap2">%s</div>%s</div>' % (e(n), f()) for n, f in states)
     smalls = sorted({x for r in rows for x in r["small_list"]})
@@ -563,6 +567,120 @@ def t13_extra(o, r):
     return {"steps_sum": 6 if o["how"] == "control" else 2, "fields": 9 if o["how"] == "control" else 1}
 
 
+# ---- T1.4 Hub sheet (cards) -------------------------------------------------------------------------------
+# Owner, 2026-10-07: cards, so every screen of a module is visible (the working form, not the final one). The Hub
+# opens on the capture line (A+'s definition); a long press on the Hub captures directly.
+HUB_GROUPS = [
+    ("Calendar", "▦", ["Day", "Week", "Month", "Planner"]),
+    ("Routines", "↻", ["Habits", "Trackers", "Activities", "Checklists", "Charts", "Goals"]),
+    ("check-in", "◎", ["check-in", "Ledger", "Sensory", "Trend"]),
+    ("Pages", "☰", ["Journal", "Tree", "Templates", "Road Map"]),
+    ("Review", "↗", ["This week", "Time totals", "History"]),
+    ("App", "⚙", ["Labels", "Time blocks", "Calendars", "Settings", "Trash", "About"]),
+]
+FEATURES = [f for _, _, fs in HUB_GROUPS for f in fs]
+RECENT = ["Journal", "Ledger", "Trackers", kit.ud("Garden plan")]
+T14_CSS = """
+.hubsheet{position:absolute;left:0;right:0;top:36px;bottom:72px;background:var(--bg);border-radius:20px 20px 0 0;padding:8px 12px;overflow:hidden;box-shadow:0 -8px 28px rgba(0,0,0,.18)}
+.card{background:var(--zone);border-radius:14px;padding:4px 10px 4px;margin:0 0 8px}
+.card h5{margin:2px 0 0;font-size:12px;font-weight:600;color:var(--dim);display:flex;gap:6px;align-items:center}
+.ft{display:flex;flex-wrap:wrap;column-gap:6px}
+.fe{min-height:48px;min-width:48px;display:inline-flex;align-items:center;justify-content:center;padding:0 8px;font-size:14px;color:var(--ink)}
+.ft{margin:0 -8px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}.grid2 .card{margin:0}
+.hlist .hr{min-height:48px;display:flex;align-items:center;border-bottom:1px solid var(--zone2);font-size:15px;padding:0 4px}
+.hlist .hh{font-size:12px;color:var(--dim);padding:8px 4px 2px;font-weight:600}
+.subl{font-size:12px;color:var(--dim);margin:2px 2px 0}
+.hubpanel{position:absolute;left:100px;top:12px;width:760px;bottom:12px;background:var(--bg);border-radius:16px;padding:14px;box-shadow:0 12px 40px rgba(0,0,0,.25);overflow:hidden}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}.grid3 .card{margin:0}
+"""
+
+
+def feat(f):
+    # plain text on the card, no pill: a box inside a box doubled the clutter (0.065 against the list's 0.035)
+    return '<span class="fe" data-tap="%s">%s</span>' % (re_strip(f), f)
+
+
+def re_strip(f):
+    return f.replace('<span class="ud">', "").replace("</span>", "")
+
+
+def card(name, glyph, feats):
+    return '<div class="card"><h5>%s %s</h5><div class="ft">%s</div></div>' % (glyph, e(name), "".join(feat(f) for f in feats))
+
+
+def hub_top():
+    return ('<div class="grab"></div><div class="line" style="background:var(--zone2);border-radius:14px;padding:0 6px 0 14px;margin-bottom:4px">'
+            '<span class="in ph" style="color:var(--dim)">Add a task, event or reminder…</span><span class="ib" data-tap="Full form">▤</span></div>'
+            '<div class="subl">Pinned and recent</div><div class="ft" style="margin-bottom:4px">%s</div>' % "".join(feat(f) for f in RECENT))
+
+
+def hub_phone(body, top=True):
+    today = kit.phone(kit.header(TITLE, APPROVED_BUTTONS), '<div class="cap">+ <span>Add…</span></div>' + rows_today(row_d),
+                      kit.bar("Hub").replace('class="s hub"', 'class="s on hub"'))
+    today = today.replace('data-tap="Open item"', 'data-behind="x"').replace('data-tap="Done"', 'data-behind="x"').replace('data-tap="Capture"', 'data-behind="x"')
+    return today[:-len("</div>")] + '<div class="scrim" style="bottom:72px;background:rgba(0,0,0,.16)"></div><div class="hubsheet">%s%s</div></div>' % (
+        hub_top() if top else "", body)
+
+
+def hub_a():
+    return hub_phone("".join(card(*g) for g in HUB_GROUPS))
+
+
+def hub_b():
+    return hub_phone('<div class="grid2">%s</div>' % "".join(card(*g) for g in HUB_GROUPS))
+
+
+def hub_c():
+    """Oblique (Cross-Domain Raid, a store map): cards sit where the bar says they live. Calendar and Routines on the
+    left under Calendar's slot, Pages and check-in on the right under theirs, Review and App across the foot."""
+    by = {g[0]: g for g in HUB_GROUPS}
+    left = card(*by["Calendar"]) + card(*by["Routines"])
+    right = card(*by["Pages"]) + card(*by["check-in"])
+    foot = '<div class="grid2">%s%s</div>' % (card(*by["Review"]), card(*by["App"]))
+    return hub_phone('<div class="grid2"><div>%s</div><div>%s</div></div>%s' % (left, right, foot))
+
+
+def hub_x():
+    rows = "".join('<div class="hh">%s</div>%s' % (e(n), "".join('<div class="hr" data-tap="%s">%s</div>' % (f, f) for f in fs)) for n, _, fs in HUB_GROUPS)
+    return hub_phone('<div class="hlist">%s</div>' % rows, top=False)
+
+
+def hub_desk(inner):
+    d = desk_today(TITLE).replace('class="s hub"', 'class="s on hub"')
+    d = d.replace('data-tap="Open item"', 'data-behind="x"').replace('data-tap="Done"', 'data-behind="x"').replace('data-tap="Capture"', 'data-behind="x"').replace('data-tap="Search"', 'data-behind="x"')
+    return d[:-len("</div>")] + '<div class="hubpanel">%s</div></div>' % inner
+
+
+DESK_HUB = '<div class="grid3">%s</div>' % "".join(card(*g) for g in HUB_GROUPS)
+OPTIONS_T14 = [
+    {"id": "A", "name": "One column of cards", "how": "direct", "phone": hub_a, "desk": lambda: hub_desk(DESK_HUB),
+     "about": "The capture line and Pinned and recent on top, then one card per module, top to bottom, every screen named inside. On Windows the Hub opens a panel beside the rail, three cards across."},
+    {"id": "B", "name": "Two columns of cards", "how": "direct", "phone": hub_b, "desk": lambda: hub_desk(DESK_HUB),
+     "about": "The same cards, two across, so more of the sheet fits without scrolling."},
+    {"id": "C", "name": "Cards where the bar says they live (oblique: Cross-Domain Raid)", "how": "oblique", "phone": hub_c,
+     "desk": lambda: hub_desk(DESK_HUB),
+     "about": "A store map: Calendar and Routines on the left, under Calendar's slot; Pages and check-in on the right, under theirs; Review and App across the foot. Position predicts where a screen is."},
+    {"id": "X", "name": "Control: one long list", "how": "control", "phone": hub_x,
+     "desk": lambda: hub_desk('<div class="hlist">%s</div>' % "".join('<div class="hr" data-tap="%s">%s</div>' % (f, f) for f in FEATURES)),
+     "about": "Every screen as a row under a heading, no cards and no capture line. It must lose."},
+]
+
+
+def t14_extra(o, r):
+    names = [re_strip(f) for f in FEATURES]
+    seen = {t["name"] for t in r["taps_raw"] if t["name"] in names and 0 < t["y"] < 740 - 72}
+    return {"hidden": len(names) - len(seen), "fields": len(names)}
+
+
+COLS["hidden"] = ("Screens below the fold (of 27)", "%d")
+STATES_T14 = [
+    ("Open from the bar (the Hub slot active)", hub_b),
+    ("Long press on the Hub: straight to capture", lambda: cap_phone_a2()),
+    ("A screen pinned: it joins Pinned and recent", hub_b),
+]
+
+
 PAGE_CSS = """
 body{padding:20px 16px 48px}h1{font-size:21px;margin:0 0 4px}h2{font-size:18px;margin:28px 0 6px}h3{font-size:15px;margin:18px 0 6px}
 p{max-width:95ch}.dim{color:var(--dim)}
@@ -588,13 +706,19 @@ def main():
         "One line in plain language; what it understood shows as chips under the line (decision 17). The text stays as typed; "
         "a chip is tapped to fix or drop it. Taps exclude typing. Windows: a small window from anywhere.",
         OPTIONS_T13, STATES_T13, T13_CSS, ("clutter", "desk_clutter", "faint_n", "small", "steps_sum", "fields"), t13_extra, APPROVED_T13)
+    s14, rows14, fr14, beaten14 = build_section(
+        "t1-4", "T1.4 Hub sheet (cards)",
+        "The Hub in the bar's centre opens this sheet: the capture line, Pinned and recent, then every screen of every module "
+        "on cards (owner: cards for now, so every screen is visible). A long press on the Hub goes straight to capture.",
+        OPTIONS_T14, STATES_T14, T14_CSS, ("clutter", "desk_clutter", "faint_n", "small", "hidden"), t14_extra,
+        must=lambda r: "%d screens below the fold (owner: every screen visible)" % r["hidden"] if r["hidden"] else None)
     page = ['<!doctype html><html lang="en" data-theme="light"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">',
-            '<title>Factotum T1 shared parts</title><style>%s\n%s\n%s\n%s\n%s</style></head><body>' % (kit.theme_css(), kit.BASE_CSS, EXTRA, T12_CSS + T13_CSS, PAGE_CSS),
+            '<title>Factotum T1 shared parts</title><style>%s\n%s\n%s\n%s\n%s</style></head><body>' % (kit.theme_css(), kit.BASE_CSS, EXTRA, T12_CSS + T13_CSS + T14_CSS, PAGE_CSS),
             '<h1>T1 · Shared parts</h1><p class="dim">Decision 17. Greys only; colour comes after every screen is settled. '
             'Type and icons are placeholders. One screen at a time: each waits for the owner\'s approval.</p>',
             '<div class="sw"><button onclick="document.documentElement.dataset.theme=\'light\'">Light</button>'
             '<button onclick="document.documentElement.dataset.theme=\'dark\'">Dark</button><button onclick="document.documentElement.dataset.theme=\'oled\'">OLED</button></div>',
-            s13, s12, s11, "</body></html>"]
+            s14, s13, s12, s11, "</body></html>"]
     with open(os.path.join(OUT, "screens.html"), "w", encoding="utf-8", newline="\n") as fh:
         fh.write("\n".join(page))
     md = ["# T1 scores", "", "Generated by `tools/screens/tier_t1.py`.", "", "## T1.1 Header and bar", "",
@@ -616,7 +740,13 @@ def main():
     with open(os.path.join(OUT, "scores.md"), "w", encoding="utf-8", newline="\n") as fh:
         fh.write("\n".join(md) + "\n")
     print("\n".join(md[-5:]))
-    if not (beaten and beaten12 and beaten13):
+    md += ["", "## T1.4 Hub sheet", ""] + ["- %s %s: clutter %.3f / %.3f, faint %d, small %d, below the fold %d of 27, %s" % (
+        o["id"], o["name"], r["clutter"], r["desk_clutter"], r["faint_n"], r["small"], r["hidden"],
+        "control" if o["how"] == "control" else ("front" if i in fr14 else "dominated")) for i, (o, r) in enumerate(zip(OPTIONS_T14, rows14))]
+    with open(os.path.join(OUT, "scores.md"), "w", encoding="utf-8", newline=chr(10)) as fh:
+        fh.write(chr(10).join(md) + chr(10))
+    print(chr(10).join(md[-5:]))
+    if not (beaten and beaten12 and beaten13 and beaten14):
         sys.exit(2)
 
 

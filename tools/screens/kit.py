@@ -61,7 +61,7 @@ body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 system-ui,"Se
 .bar .s.on{opacity:1;color:var(--ink);font-weight:600}.bar .s.on i{background:var(--zone)}
 .bar .s.hub{opacity:1;color:var(--ink)}.bar .s.hub i{background:var(--zone);box-shadow:inset 0 0 0 1px var(--dim)}
 /* desktop */
-.desk{width:1100px;height:660px;border-radius:10px;display:flex;overflow:hidden;background:var(--bg);flex:none;box-shadow:0 0 0 1px var(--zone2)}
+.desk{position:relative;width:1100px;height:660px;border-radius:10px;display:flex;overflow:hidden;background:var(--bg);flex:none;box-shadow:0 0 0 1px var(--zone2)}
 .score .desk{border-radius:0;box-shadow:none}
 .rail{width:88px;display:flex;flex-direction:column;align-items:center;padding:10px 0;gap:4px;background:var(--zone2);flex:none}
 .rail .s{width:76px;min-height:56px;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:12px;color:var(--dim)}

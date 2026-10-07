@@ -43,7 +43,7 @@ There are no swipes.
 | T1.1 | Header and bar | **approved 2026-10-07: A′** |
 | T1.2 | Item rows (title only), plus the row-variants chapter | **approved 2026-10-07: D** |
 | T1.3 | Capture sheet | **approved 2026-10-07: A′** |
-| T1.4 | Hub sheet (cards) | in progress |
+| T1.4 | Hub sheet (cards) | put to the owner |
 | T1.5 | Date and time picker | to do |
 | T1.6 | Repeat builder | to do |
 | T1.7 | Label chips and picker | to do |
@@ -143,3 +143,19 @@ States, drawn on A: empty (what it accepts), understood, two readings (it asks a
 - **A small Full form button** (▤) sits before the check, for when one line is not enough.
 
 A′ measures busier than A (clutter 0.034 against 0.022). That is the visible day itself, which is the trade the owner chose: context over calm. The states are redrawn on A′.
+
+## T1.4 Hub sheet (cards): put to the owner (2026-10-07)
+
+The Hub opens a sheet with the capture line, Pinned and recent, and every screen of every module on cards (27 in all). A long press on the Hub goes straight to capture. Three options and a control:
+- **A:** one column.
+- **B:** two columns.
+- **C (oblique, a store map):** cards sit where the bar says they live. Calendar and Routines are on the left, Pages and check-in on the right, and Review and App across the foot.
+- **X (control):** one long list.
+
+**"Every screen visible" is the owner's requirement, so it is applied as a constraint, not a score.** On clutter alone the control's long list wins (0.035), but only because it shows 12 of the 27 screens. With the constraint, **only C passes (0 below the fold)**. A hides 5 and B hides 2; tightening them could make them pass.
+
+Fixes found on the way:
+- **The feature labels were pills inside cards:** 55 targets under 48 dp, and clutter 0.065. They are now plain 48 px text targets on the card, at clutter 0.047–0.054.
+- **The Windows Hub panel escaped its frame,** because `.desk` was not positioned. Fixed in `kit.py`.
+
+`build_section` gained `must`, for the owner's requirements.

@@ -33,3 +33,10 @@ Reference main screens: bearable/00-main.png 0.070, daylio/00-main.png 0.055, ho
 - B Grows in place: clutter 0.025 / 0.020, faint 0, small 0, taps 2, fields 1, dominated
 - C In the keyboard's strip (oblique: Build From the Defect): clutter 0.022 / 0.020, faint 0, small 0, taps 2, fields 1, front
 - X Control: a full form: clutter 0.029 / 0.024, faint 0, small 0, taps 6, fields 9, control
+
+## T1.4 Hub sheet
+
+- A One column of cards: clutter 0.047 / 0.020, faint 0, small 0, below the fold 5 of 27, dominated
+- B Two columns of cards: clutter 0.052 / 0.020, faint 0, small 0, below the fold 2 of 27, dominated
+- C Cards where the bar says they live (oblique: Cross-Domain Raid): clutter 0.054 / 0.020, faint 0, small 0, below the fold 0 of 27, front
+- X Control: one long list: clutter 0.035 / 0.020, faint 0, small 0, below the fold 15 of 27, control
