@@ -593,3 +593,5 @@ Its six screens (Labels, Time blocks, Calendars, Settings, Trash and About) woul
 - ⚙ sits in the top-right corner, the hardest reach for a thumb, so those visits trade ease of reach for a shorter Hub.
 
 **Not decided:** whether the App card leaves the Hub. That is the owner's choice.
+
+**A0, A0-tight and C0 are drawn in T1.4 on the page** (owner, 2026-10-08: "where is it in the mockup?"); they had only been scored. Each option is now checked against the screens it is meant to show: 21 without the App card, whose six are behind ⚙. Before, the six moved behind ⚙ would have counted as hidden. On Windows, the no-App options' panel also drops the App card.

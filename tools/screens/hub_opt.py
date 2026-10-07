@@ -94,6 +94,24 @@ def list_x():
     return '<div class="hlist">%s</div>' % rows
 
 
+# Without the App card (owner's question, 2026-10-08): its screens (Labels, Time blocks, Calendars, Settings, Trash,
+# About) live behind the header's ⚙ (T1.1), and the Hub shows the other 21.
+NOAPP = [g for g in t.HUB_GROUPS if g[0] != "App"]
+NOAPP_NAMES = [t.re_strip(f) for _, _, fs in NOAPP for f in fs]
+
+
+def noapp_a(tight=False):
+    return "".join(card_tight(*g, "tight") if tight else t.card(*g) for g in NOAPP)
+
+
+def noapp_c():
+    by = {g[0]: g for g in NOAPP}
+    left = t.card(*by["Calendar"]) + t.card(*by["Routines"])
+    right = t.card(*by["Pages"]) + t.card(*by["check-in"])
+    return '<div class="grid2"><div>%s</div><div>%s</div></div>%s' % (left, right, t.card(*by["Review"]))
+
+
+DESK_NOAPP = lambda: t.hub_desk(v4_top() + '<div class="grid3">%s</div>' % "".join(t.card(*g) for g in NOAPP))
 TIGHT_CSS = ".hlab{font-size:12px;font-weight:600;color:var(--dim);padding:0 8px;display:inline-flex;align-items:center;min-height:48px}"
 
 
@@ -107,6 +125,9 @@ OPTIONS = [
     ("C", "Cards where the bar says they live (store map)", "oblique", lambda: phone(cards_c())),
     ("B-", "Two columns, no Pinned and recent (room for every screen)", "direct", lambda: phone(cards_b(), pinned=False)),
     ("C-", "Store map, no Pinned and recent", "oblique", lambda: phone(cards_c(), pinned=False)),
+    ("A0", "One column, no App card (App behind ⚙)", "direct", lambda: phone(noapp_a())),
+    ("A0-tight", "One column, tighter cards, no App card", "direct", lambda: phone(noapp_a(True))),
+    ("C0", "Store map, no App card (Review across the foot)", "oblique", lambda: phone(noapp_c())),
     ("X", "Control: one long list, no capture line", "control", lambda: phone(list_x(), top=False)),
 ]
 DESK = lambda: t.hub_desk(v4_top() + '<div class="grid3">%s</div>' % "".join(t.card(*g) for g in t.HUB_GROUPS))
@@ -151,18 +172,19 @@ def sprawl(html, name):
 
 
 def score(oid, make):
+    names = NOAPP_NAMES if oid in ("A0", "A0-tight", "C0") else NAMES  # without App, the 21 screens it is meant to show
     html = make()
     m = ss.measure(doc(html), 360, 740)
     png = ss.render(doc(html), 360, 740)
     clutter = sum(ss.edge_density(ss.render(doc(html, th), 360, 740)) for th in ("light", "dark")) / 2
-    seen = {x["name"] for x in m["taps"] if x["name"] in NAMES and x.get("seen")}
-    vis = [x for x in m["taps"] if x["name"] in NAMES and x.get("seen")]
+    seen = {x["name"] for x in m["taps"] if x["name"] in names and x.get("seen")}
+    vis = [x for x in m["taps"] if x["name"] in names and x.get("seen")]
     reach = sum(math.log2(math.hypot(HUB_SLOT[0] - x["x"], HUB_SLOT[1] - x["y"]) / min(x["w"], x["h"]) + 1) for x in vis) / max(1, len(vis))
     ms, total, empty = masses(png, m, m["boxes"]["hubsheet"])
     order = [k for k, _ in sorted(ms.items(), key=lambda kv: -kv[1])]
     emph = dk_layout.emphasis_coherence({"emphasis_primary": order[0], "emphasis_secondary": order[1], "section_order": ["features", "line", "headers"]},
                                         {"importance": ["features", "line", "headers"]})
-    return {"hidden": len(NAMES) - len(seen), "hidden_names": sorted(set(NAMES) - seen), "reach": round(reach, 3),
+    return {"hidden": len(names) - len(seen), "hidden_names": sorted(set(names) - seen), "reach": round(reach, 3),
             "pinned": 0 if oid.endswith("-") or oid == "X" else 1, "emphasis": emph, "order": order,
             "headers": round(ms["headers"] / total, 3), "sprawl": sprawl(html, oid), "clutter": round(clutter, 4), "empty": round(empty, 3),
             "small": sorted({"%s %dx%d" % (x["name"], x["w"], x["h"]) for x in m["taps"] if x.get("seen") and (x["w"] < 48 or x["h"] < 48)})}

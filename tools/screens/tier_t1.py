@@ -823,6 +823,15 @@ OPTIONS_T14 = [
      "about": "Two cards across, with Pinned and recent left out so that every screen fits."},
     {"id": "C-", "name": "Store map, no Pinned and recent", "how": "oblique", "phone": lambda: hub_v4("C-"), "desk": hub_desk_v4,
      "about": "The store map without Pinned and recent."},
+    {"id": "A0", "name": "One column, no App card: App's screens behind ⚙ (balanced pick)", "how": "direct", "phone": lambda: hub_v4("A0"),
+     "desk": lambda: __import__("hub_opt").DESK_NOAPP(), "names": "noapp",
+     "about": "The App card (Labels, Time blocks, Calendars, Settings, Trash, About) leaves the Hub for the header's ⚙ (owner's question, 2026-10-08). One column then fits every remaining screen with Pinned and recent kept; nearest the ideal on all three axes."},
+    {"id": "A0-tight", "name": "One column, tighter cards, no App card", "how": "direct", "phone": lambda: hub_v4("A0-tight"),
+     "desk": lambda: __import__("hub_opt").DESK_NOAPP(), "names": "noapp",
+     "about": "A0 with 2 px card padding and 4 px gaps."},
+    {"id": "C0", "name": "Store map, no App card", "how": "oblique", "phone": lambda: hub_v4("C0"),
+     "desk": lambda: __import__("hub_opt").DESK_NOAPP(), "names": "noapp",
+     "about": "The store map with Review alone across the foot; App's screens behind ⚙."},
     {"id": "A-tight-", "name": "One column, tighter cards, no Pinned and recent", "how": "direct", "phone": lambda: hub_v4("A-tight-"), "desk": hub_desk_v4,
      "about": "Option A with 2 px card padding and 4 px gaps, and Pinned and recent left out: the 48 px rows stay, and every screen fits (owner's question, 2026-10-07)."},
     {"id": "A", "name": "One column of cards", "how": "direct", "phone": lambda: hub_v4("A"), "desk": hub_desk_v4,
@@ -836,7 +845,8 @@ OPTIONS_T14 = [
 
 
 def t14_extra(o, r):
-    names = [re_strip(f) for f in FEATURES]
+    # an option without the App card is checked against the 21 screens it is meant to show (App's six are behind ⚙)
+    names = __import__("hub_opt").NOAPP_NAMES if o.get("names") == "noapp" else [re_strip(f) for f in FEATURES]
     # hit-tested (T1.3's finding): a feature cut off by the sheet's edge keeps its box, so its position alone counted it seen
     seen = {t["name"] for t in r["taps_raw"] if t["name"] in names and t.get("seen")}
     # the same ease measures as hub_opt.py: thumb reach from the Hub's slot, and whether Pinned and recent is there
@@ -846,7 +856,7 @@ def t14_extra(o, r):
             "no_pinned": 0 if any(t["name"] == "Garden plan" for t in r["taps_raw"]) else 1}
 
 
-COLS["hidden"] = ("Screens below the fold (of 27)", "%d")
+COLS["hidden"] = ("Screens hidden (of those the option shows: 27, or 21 without App)", "%d")
 COLS["reach"] = ("Thumb travel to a screen (Fitts ID from the Hub)", "%.2f")
 COLS["no_pinned"] = ("No Pinned and recent", "%d")
 STATES_T14 = [
