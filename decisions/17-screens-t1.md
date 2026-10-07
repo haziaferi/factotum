@@ -65,3 +65,14 @@ Left as Low:
 - the scale is 12 / 13 / 15 / 18 px.
 
 Both are settled when type and density are scored.
+
+## T1.2 Item rows: put to the owner (2026-10-07)
+
+Rows are title only and cover every kind: an event, a task, a reminder, two habits, a checklist and a reading. Three options and a control:
+- **A, leading mark:** the left slot says what the row is.
+- **B, action at the thumb:** the times sit in a column on the left, and every action at the right edge.
+- **C, words, not marks (oblique):** the actions are the words Done, Log, Open and Add.
+
+**Measured, A, B and C tie.** Their clutter differs by at most 0.001 (the front now ignores differences under 0.002, `screen_score.TOLERANCE`). All three show the same 8 rows, with no faint labels and no small targets. **The control loses on every count:** clutter 0.056, and four targets under 48 dp.
+
+What decides between them is not measured: how quickly each kind is recognised, and which hand the actions favour. The states are drawn on C: Done with Undo, the long-press menu, Deleted with Undo, and a long title. So is the chapter of variants (title only, a quiet line, chips).

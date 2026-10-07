@@ -133,6 +133,184 @@ def section_t11(refs):
     return html_, rows, fr, beaten
 
 
+# ---- T1.2 item rows ---------------------------------------------------------------------------------------
+# Title only by default (decision 17). Done: tap the circle, with Undo; long press: the other actions; no swipes.
+# kind, title, time, action word, secondary line (variants chapter), chips (variants chapter)
+KINDS = [
+    ("event", "Dentist", "09:00", "", "09:00–09:45 · Health", ["Health"]),
+    ("task", "Pay the fine", "", "Done", "Due today · Car", ["Car"]),
+    ("reminder", "Call the bank", "15:00", "Done", "Reminder · Money", ["Money"]),
+    ("habit", "Walk", "", "Log", "Every day · Health", ["Health"]),
+    ("habit", "Water", "", "Log", "3 of 8 · next block 14:00", ["Health"]),
+    ("checklist", "Morning routine", "", "Open", "Checklist · 3 of 5", []),
+    ("reading", "Sleep", "", "Add", "Reading due · hours", ["Sleep"]),
+    ("task", "Return library books", "", "Done", "Due today · Errands · repeats weekly", ["Errands", "Weekly"]),
+]
+T12_CSS = """
+.row .sub{display:block;font-size:13px;color:var(--dim);margin-top:1px}
+.row .t{padding:4px 0}
+.chip{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var(--dim);margin:2px 6px 0 0}.chip::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--dim)}
+.act{min-width:48px;height:48px;display:grid;place-items:center;flex:none}
+.act span{border-radius:999px;padding:4px 12px;font-size:13px;background:var(--zone2);color:var(--ink)}
+.mark{width:48px;height:48px;display:grid;place-items:center;margin:0 -13px;flex:none}
+.mark.sq::before{content:"";width:20px;height:20px;border:2px solid var(--dim);border-radius:6px}
+.mark.list::before{content:"≡";color:var(--dim);font-size:18px}
+.mark.read::before{content:"∿";color:var(--dim);font-size:18px}
+.word{min-width:64px;height:48px;display:grid;place-items:center;flex:none;font-size:14px;font-weight:600;color:var(--ink)}
+.xrow{display:flex;align-items:center;gap:6px;min-height:40px;border-bottom:1px solid var(--dim);font-size:14px}
+.xrow .t{flex:1}.xrow .ico{font-size:13px;color:var(--ink)}
+.menu{position:absolute;left:12px;right:12px;bottom:84px;background:var(--zone);border-radius:16px;padding:6px;box-shadow:0 8px 28px rgba(0,0,0,.25)}
+.menu .mi{min-height:48px;display:flex;align-items:center;padding:0 14px;border-radius:10px;font-size:15px}
+.menu .mh{padding:8px 14px 4px;font-size:12px;color:var(--dim)}
+.scrim{position:absolute;inset:0;background:rgba(0,0,0,.28)}
+.toast{position:absolute;left:12px;right:12px;bottom:84px;background:var(--ink);color:var(--bg);border-radius:12px;min-height:48px;display:flex;align-items:center;padding:0 6px 0 16px;font-size:14px}
+.toast .t{flex:1}.toast .u{min-width:64px;height:48px;display:grid;place-items:center;font-weight:700}
+.fold{display:flex;align-items:center;min-height:48px;color:var(--dim);font-size:14px}.fold .t{flex:1}
+.clamp{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+"""
+
+
+def sub_html(variant, sub, chips):
+    if variant == "line":
+        return '<span class="sub">%s</span>' % kit.ud(e(sub))
+    if variant == "chips" and chips:
+        return '<span class="sub">%s</span>' % "".join('<span class="chip">%s</span>' % kit.ud(e(c)) for c in chips)
+    return ""
+
+
+def row_a(k, variant="title"):
+    """Leading mark: the left slot says what the row is (circle, time, square, list, wave); actions on the right."""
+    kind, title, time, act, sub, chips = k
+    if kind in ("event", "reminder"):
+        lead = '<span class="tm">%s</span>' % time
+    elif kind == "task":
+        lead = '<span class="ck" data-tap="Done"></span>'
+    else:
+        lead = '<span class="mark %s"></span>' % {"habit": "sq", "checklist": "list", "reading": "read"}[kind]
+    if kind == "reminder":
+        lead += '<span class="ck" data-tap="Done"></span>'
+    right = '<span class="act" data-tap="%s"><span>%s</span></span>' % (act, act) if kind in ("habit", "checklist", "reading") else ""
+    return '<div class="row" data-tap="Open item">%s<span class="t">%s%s</span>%s</div>' % (lead, kit.ud(e(title)), sub_html(variant, sub, chips), right)
+
+
+def row_b(k, variant="title"):
+    """Trailing action: time (if any) on the left, every action at the right edge, under the thumb."""
+    kind, title, time, act, sub, chips = k
+    lead = '<span class="tm">%s</span>' % time
+    if kind in ("task", "reminder"):
+        right = '<span class="ck" data-tap="Done" style="margin:0 -13px 0 0"></span>'
+    elif kind == "event":
+        right = ""
+    else:
+        right = '<span class="act" data-tap="%s"><span>%s</span></span>' % (act, act)
+    return '<div class="row" data-tap="Open item">%s<span class="t">%s%s</span>%s</div>' % (lead, kit.ud(e(title)), sub_html(variant, sub, chips), right)
+
+
+def row_c(k, variant="title"):
+    """Words, not marks (oblique: the Arbitrary Constraint, no glyphs): the action is a word at the right."""
+    kind, title, time, act, sub, chips = k
+    lead = '<span class="tm">%s</span>' % time
+    right = '<span class="word" data-tap="%s">%s</span>' % (act, act) if act else ""
+    return '<div class="row" data-tap="Open item">%s<span class="t">%s%s</span>%s</div>' % (lead, kit.ud(e(title)), sub_html(variant, sub, chips), right)
+
+
+def row_x(k, variant="title"):
+    kind, title, time, act, sub, chips = k
+    return ('<div class="xrow row" data-tap="Open item"><span class="ico" data-tap="Done">☐</span><span class="ico">%s</span><span class="t">%s %s</span>'
+            '<span class="ico" data-tap="Flag">⚑</span><span class="ico" data-tap="More">⋯</span></div>') % (
+        {"event": "📅", "task": "✓", "reminder": "⏰", "habit": "↻", "checklist": "≡", "reading": "∿"}[kind], kit.ud(e(title)),
+        " ".join('<span class="chip">%s</span>' % kit.ud(c) for c in chips + [time] if c))
+
+
+def rows_today(rowf, variant="title", done=False):
+    agenda = [k for k in KINDS if k[0] in ("event", "task", "reminder") and not (done and k[1] == "Pay the fine")]  # done: it folded away
+    routines = [k for k in KINDS if k[0] not in ("event", "task", "reminder")]
+    fold_a = '<div class="fold" data-tap="Done today"><span class="t">Done today · 2</span>▸</div>' if done else ""
+    return (kit.zone("Agenda", "".join(rowf(k, variant) for k in agenda) + fold_a) +
+            kit.zone("Routines", "".join(rowf(k, variant) for k in routines)))
+
+
+def t12_phone(rowf, variant="title", overlay="", done=False):
+    return kit.phone(kit.header(TITLE, APPROVED_BUTTONS), '<div class="cap" data-tap="Capture">+ <span>Add…</span></div>' + rows_today(rowf, variant, done),
+                     kit.bar("Today") + overlay)
+
+
+def t12_desk(rowf):
+    head = '<div class="hdr"><span class="ttl">%s</span><span class="srch" data-tap="Search" style="width:320px">⌕ Search everything <span class="kbd">Ctrl+K</span></span></div>' % TITLE
+    page = '<div class="page"><div class="kbd">Pages › %s</div><h3>%s</h3></div>' % (kit.ud("Garden plan"), kit.ud("Garden plan"))
+    return kit.desk(kit.rail("Today"), head, '<div class="dcol">%s</div>%s' % (rows_today(rowf), page))
+
+
+OPTIONS_T12 = [
+    {"id": "A", "name": "Leading mark", "how": "direct", "f": row_a,
+     "about": "The left slot says what the row is: a circle for a task, the time for an event, a square for a habit. Habit and reading actions sit at the right."},
+    {"id": "B", "name": "Action at the thumb", "how": "direct", "f": row_b,
+     "about": "Times line up in one column on the left. Every action sits at the right edge, where a right thumb rests: the Done circle and the Log, Open and Add buttons. Events have no action."},
+    {"id": "C", "name": "Words, not marks (oblique: Arbitrary Constraint)", "how": "oblique", "f": row_c,
+     "about": "No glyphs at all. The action is a word at the right: Done, Log, Open, Add. Reads in any language a symbol might not."},
+    {"id": "X", "name": "Control: dense rows", "how": "control", "f": row_x,
+     "about": "40 px rows with rules, a checkbox, a kind icon, chips, a flag and an overflow ⋯ on every row. It must lose."},
+]
+MENU = ('<div class="scrim"></div><div class="menu"><div class="mh">%s</div>%s</div>' % (
+    kit.ud("Pay the fine"), "".join('<div class="mi" data-tap="%s">%s</div>' % (a, a) for a in
+                                     ("Move to later…", "Skip this one", "Edit", "Label…", "Delete"))))
+TOAST = '<div class="toast"><span class="t">Done: %s</span><span class="u" data-tap="Undo">Undo</span></div>' % kit.ud("Pay the fine")
+TOAST_DEL = '<div class="toast"><span class="t">Moved to Trash.</span><span class="u" data-tap="Undo">Undo</span></div>'
+LONG = ("task", "Renew the parking permit before the end of the month, and bring last year's receipt", "", "Done", "", [])
+
+
+def states_t12(rowf):
+    long_row = rowf(LONG).replace('class="t"', 'class="t clamp"', 1)
+    return [
+        ("Normal", t12_phone(rowf)),
+        ("Done, with Undo (the row folds into Done today)", t12_phone(rowf, overlay=TOAST, done=True)),
+        ("Long press: the other actions", t12_phone(rowf, overlay=MENU)),
+        ("Deleted: to Trash, with Undo", t12_phone(rowf, overlay=TOAST_DEL)),
+        ("A long title, two lines at most", kit.phone(kit.header(TITLE, APPROVED_BUTTONS), kit.zone("Agenda", long_row + rowf(KINDS[0])), kit.bar("Today"))),
+    ]
+
+
+def section_t12():
+    rows = []
+    for o in OPTIONS_T12:
+        css = EXTRA + T12_CSS
+        r = ss.score_option(lambda t, s, o=o: kit.document(t12_phone(o["f"]), t, css, s), 360, 740, ["Done", "Log", "Capture"], {})
+        rd = ss.score_option(lambda t, s, o=o: kit.document(t12_desk(o["f"]), t, css, s), 1100, 660)
+        r["desk_clutter"] = rd["clutter"]
+        r["faint_n"] = len(r["faint"]) + len(rd["faint"])
+        r["small"] = len(r["small_taps"]) + len(rd["small_taps"])
+        r["fewer_rows"] = -r["rows_visible"]
+        r["strong_all"] = r["strong"]
+        rows.append(r)
+    low = ("clutter", "desk_clutter", "faint_n", "small", "fewer_rows")
+    fr = ss.front(rows, low)
+    ctrl = [i for i, o in enumerate(OPTIONS_T12) if o["how"] == "control"]
+    beaten = all(i not in fr for i in ctrl)
+    head = "<tr><th>Option</th><th>Clutter (phone)</th><th>Clutter (Windows)</th><th>Rows in view</th><th>Faint labels</th><th>Taps under 48 dp</th><th>Strong targets</th><th></th></tr>"
+    body = "".join("<tr><td><b>%s</b> %s</td><td>%.3f</td><td>%.3f</td><td>%d</td><td>%d</td><td>%s</td><td>%d</td><td>%s</td></tr>" % (
+        o["id"], e(o["name"]), r["clutter"], r["desk_clutter"], r["rows_visible"], r["faint_n"], e(", ".join(r["small_taps"]) or "none"), r["strong"],
+        "control" if o["how"] == "control" else ("front" if i in fr else "dominated")) for i, (o, r) in enumerate(zip(OPTIONS_T12, rows)))
+    opts = "".join('<div class="opt"><h3>%s · %s <span class="tag">%s</span></h3><p class="dim">%s</p><div class="pair">%s<div class="dwrap">%s</div></div></div>' % (
+        o["id"], e(o["name"]), o["how"], e(o["about"]), t12_phone(o["f"]), t12_desk(o["f"])) for o in OPTIONS_T12)
+    lead = OPTIONS_T12[min((i for i in fr if OPTIONS_T12[i]["how"] != "control"), key=lambda i: rows[i]["clutter"])]
+    states = "".join('<div><div class="cap2">%s</div>%s</div>' % (e(n), h) for n, h in states_t12(lead["f"]))
+    variants = "".join('<div><div class="cap2">%s</div>%s</div>' % (n, t12_phone(lead["f"], v)) for v, n in (
+        ("title", "Title only (the default for now)"), ("line", "Title and one quiet line"), ("chips", "Title and label chips")))
+    vscores = []
+    for v in ("title", "line", "chips"):
+        vs = ss.score_option(lambda t, s, v=v: kit.document(t12_phone(lead["f"], v), t, EXTRA + T12_CSS, s), 360, 740)
+        vscores.append("%s: clutter %.3f, %d rows in view" % ({"title": "title only", "line": "quiet line", "chips": "chips"}[v], vs["clutter"], vs["rows_visible"]))
+    html_ = ('<section id="t1-2"><h2>T1.2 Item rows</h2>'
+             '<p>Every kind of row on one screen: an event, a task, a reminder, two habits, a checklist and a reading. Titles only (decision 17). '
+             'Tap the circle for Done, with Undo; long-press for the other actions; no swipes.</p>'
+             '<h3>Scores</h3><table>%s%s</table><p class="dim">%s</p><h3>Options</h3>%s'
+             '<h3>States (%s)</h3><div class="states">%s</div>'
+             '<h3>Chapter: what a row shows (%s)</h3><p class="dim">The three variants from decision 17, to decide later. %s.</p><div class="states">%s</div></section>') % (
+        head, body, "The control loses, as it must." if beaten else "<b>The control is on the front.</b>", opts,
+        e(lead["id"] + " · " + lead["name"]), states, e(lead["id"]), "; ".join(vscores), variants)
+    return html_, rows, fr, beaten
+
+
 PAGE_CSS = """
 body{padding:20px 16px 48px}h1{font-size:21px;margin:0 0 4px}h2{font-size:18px;margin:28px 0 6px}h3{font-size:15px;margin:18px 0 6px}
 p{max-width:95ch}.dim{color:var(--dim)}
@@ -151,13 +329,14 @@ def main():
     os.makedirs(OUT, exist_ok=True)
     refs = ss.reference_clutter(REFERENCE_SCREENS)
     s11, rows, fr, beaten = section_t11(refs)
+    s12, rows12, fr12, beaten12 = section_t12()
     page = ['<!doctype html><html lang="en" data-theme="light"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">',
-            '<title>Factotum T1 shared parts</title><style>%s\n%s\n%s\n%s</style></head><body>' % (kit.theme_css(), kit.BASE_CSS, EXTRA, PAGE_CSS),
+            '<title>Factotum T1 shared parts</title><style>%s\n%s\n%s\n%s\n%s</style></head><body>' % (kit.theme_css(), kit.BASE_CSS, EXTRA, T12_CSS, PAGE_CSS),
             '<h1>T1 · Shared parts</h1><p class="dim">Decision 17. Greys only; colour comes after every screen is settled. '
             'Type and icons are placeholders. One screen at a time: each waits for the owner\'s approval.</p>',
             '<div class="sw"><button onclick="document.documentElement.dataset.theme=\'light\'">Light</button>'
             '<button onclick="document.documentElement.dataset.theme=\'dark\'">Dark</button><button onclick="document.documentElement.dataset.theme=\'oled\'">OLED</button></div>',
-            s11, "</body></html>"]
+            s12, s11, "</body></html>"]
     with open(os.path.join(OUT, "screens.html"), "w", encoding="utf-8", newline="\n") as fh:
         fh.write("\n".join(page))
     md = ["# T1 scores", "", "Generated by `tools/screens/tier_t1.py`.", "", "## T1.1 Header and bar", "",
@@ -168,10 +347,15 @@ def main():
                   ", ".join(r["small_taps"]) or "none", r["min_text"], " · ".join(str(v[0]) for v in r["steps"].values()),
                   "control" if o["how"] == "control" else ("front" if i in fr else "dominated")))
     md += ["", "Reference main screens: " + ", ".join("%s %.3f" % kv for kv in refs.items())]
+    md += ["", "## T1.2 Item rows", "", "| Option | Clutter phone | Clutter Windows | Rows in view | Faint | Taps < 48 dp | Status |",
+           "|---|---|---|---|---|---|---|"]
+    md += ["| %s %s | %.3f | %.3f | %d | %d | %s | %s |" % (o["id"], o["name"], r["clutter"], r["desk_clutter"], r["rows_visible"], r["faint_n"],
+           ", ".join(r["small_taps"]) or "none", "control" if o["how"] == "control" else ("front" if i in fr12 else "dominated"))
+           for i, (o, r) in enumerate(zip(OPTIONS_T12, rows12))]
     with open(os.path.join(OUT, "scores.md"), "w", encoding="utf-8", newline="\n") as fh:
         fh.write("\n".join(md) + "\n")
     print("\n".join(md))
-    if not beaten:
+    if not (beaten and beaten12):
         sys.exit(2)
 
 

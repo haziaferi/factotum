@@ -7,6 +7,7 @@ Measured, not assumed:
                  what the eye lands on first. Fewer = calmer, as long as the main action is among them
   faint          tappable elements whose text reads under 4.5:1 on the ground, opacity included
   small_taps     tappable elements under 48 x 48 dp (Material and WCAG 2.5.8's comfortable size)
+  rows_visible   item rows wholly inside the phone's content area (how much of the day fits at a glance)
   min_text       the smallest font size of any visible text, in px
   nav            tappable elements in the header, bar and rail
   far_nav        of those, on a phone, the ones centred in the top quarter of the screen (hardest for a thumb)
@@ -52,6 +53,8 @@ MEASURE_JS = r"""
   var w=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);
   while(w.nextNode()){var n=w.currentNode;if(!n.textContent.trim())continue;var p=n.parentElement;var r=p.getBoundingClientRect();
     if(!r.width||!r.height)continue;var fs=parseFloat(getComputedStyle(p).fontSize);if(fs<out.min_text)out.min_text=fs}
+  var b=document.querySelector('.body');if(b){var bb=b.getBoundingClientRect();out.rows_visible=0;
+    document.querySelectorAll('.body .row').forEach(function(r){var q=r.getBoundingClientRect();if(q.height&&q.top>=bb.top&&q.bottom<=bb.bottom)out.rows_visible++})}
   var pre=document.createElement('pre');pre.id='__measure';pre.textContent=JSON.stringify(out);document.body.appendChild(pre);
 })();
 </script>"""
@@ -122,7 +125,7 @@ def score_option(make_doc, w, h, targets=None, declared=None):
             # header/bar/rail targets in the top quarter of a phone: the zone a thumb reaches worst (Hoober 2013)
             "far_nav": sum(t["nav"] and t["y"] < h * 0.25 for t in m["taps"]) if w < 600 else 0,
             "small_taps": sorted({"%s %dx%d" % (t["name"], t["w"], t["h"]) for t in m["taps"] if t["w"] < 48 or t["h"] < 48}),
-            "min_text": m["min_text"], "nav": sum(t["nav"] for t in m["taps"]), "steps": steps}
+            "min_text": m["min_text"], "rows_visible": m.get("rows_visible", 0), "nav": sum(t["nav"] for t in m["taps"]), "steps": steps}
 
 
 def reference_clutter(names):
@@ -141,8 +144,16 @@ def reference_clutter(names):
     return out
 
 
+# Differences smaller than these are noise, not design: the same page renders a few edge pixels differently
+# with a moved element of equal weight. A front decided by a thousandth of clutter says nothing.
+TOLERANCE = {"clutter": 0.002, "desk_clutter": 0.002}
+
+
 def front(rows, low=("clutter", "strong", "small", "min_text_short", "steps_sum")):
-    """Indices of options no other option beats on every measure."""
+    """Indices of options no other option beats on every measure (beyond TOLERANCE)."""
+    def better(a, b, k):
+        return a[k] < b[k] - TOLERANCE.get(k, 0)
+
     def dom(a, b):
-        return all(a[k] <= b[k] for k in low) and any(a[k] < b[k] for k in low)
+        return all(not better(b, a, k) for k in low) and any(better(a, b, k) for k in low)
     return [i for i, r in enumerate(rows) if not any(dom(o, r) for j, o in enumerate(rows) if j != i)]
