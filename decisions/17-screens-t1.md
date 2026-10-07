@@ -236,3 +236,88 @@ Each step of 4 dp on ▤ saves 0.09 bits on a rarely used action, and changes no
   - with the black disc, the eye lands on the button before the words it submits;
   - in tonal grey on the chip row, ✓ shares the chips' fill, so the action reads as one more chip. Placement or an outline has to separate it until colour gives it an accent;
   - on the line, any button with a word wraps the sample to two lines.
+
+## T1.3 v2: one line for every module (owner, 2026-10-07)
+
+**Owner's answers:**
+- The line creates **tasks, events and reminders**, plus **tracker and habit logs, journal lines, timers and time logs, and check-in and ledger entries**.
+- **The screen capture opens from sets the default kind.**
+- The add method is left to the scoring: Enter, an on-screen ✓, or both.
+- Routing is scored with every option together: an inferred kind chip, a kind row, typed prefixes, Todoist's + and TickTick's ⋯. The axes are **harmony, ease of use and clutter**.
+- **Colour may not decide anything**, since there is no palette yet.
+- **Targets are 48 dp**, but no control is drawn taller than the text box beside it.
+
+**What each kind needs on the sheet.** The fields come from the data model (SPEC §3.2–3.7, the regulation ledger). The extra chips follow the research in `_screens-sources/nl-capture-research.md` (gitignored).
+
+| Kind | Example line | Chips under the line (the kind chip first) | Data |
+|---|---|---|---|
+| Event | Dentist tomorrow 9am every 6 months | Event · Tue 6 Oct · 09:00 · Every 6 months | item EVENT, schedule, recurrence |
+| Task | Call mum fri | Task · *Fri 9 Oct or every Friday?* | item TASK; an ambiguity asks |
+| Reminder | Remind me to take meds at 21 | Reminder · Today 21:00 · Notification | item REMINDER + reminder row (alert kind) |
+| Tracker log | water 2 | Log · Water · 2 glasses · Now | tracker_reading on the named tracker, its unit |
+| Habit | walked 30 min | Log · Walk · 30 min · Now | the habit's tracker reading (the verb is "Log") |
+| Journal line | slept badly, calmer after the walk | Journal · Today's page | appended to `journal:<personal day>` |
+| Timer | start reading | Timer · Reading · Starts now | time_span opened on the activity |
+| Time log | read 30 min | Time · Reading · 30 min, ended now | time_span closed, 30 min back from now |
+| Check-in | energy 2 | Check-in · Energy 2 of 5 | check_in axis value with its scale |
+| Ledger | masking high | Ledger · Masking: high | the day's masking row (three scales) |
+
+**Elements this adds,** beyond the line and the date and time chips:
+- a **kind chip**, always first;
+- a **target chip** (which tracker, activity, calendar or page);
+- a **value and unit chip**, showing the scale ("2 of 5");
+- a **timer-state chip**, either "starts now" or "ended now";
+- an **ambiguity chip**, which asks;
+- an **unrecognised-phrase hint**.
+
+**Research findings that shape the parser,** with evidence in the research file:
+- match whole words only (Vikunja's partial-word bug);
+- leave recognised words in the text (Todoist's "too greedy" complaint);
+- separate "start" from "log": no time tracker found does it from one line.
+
+**Reference captures:** Todoist, TickTick, Google Tasks and Any.do, taken on the owner's phone (gitignored).
+- **Todoist's + opens a menu of fields** the line can't express: description, attachment, priority, labels, deadline and location.
+- **TickTick's ⋯ holds** image, template, "convert to note" (a kind switch), full screen and settings.
+- **Both draw their send button no taller than the chips or tools beside it.** Gboard shows the app's IME action on Enter: ✓ in Google Tasks and TickTick, send in Todoist.
+
+**Scored (2026-10-07), `tools/screens/capture_v2.py`.** 70 variants plus a control:
+- **routing:** inferred kind chip, kind row, kind chip with typed prefixes, Todoist's +, TickTick's ⋯;
+- **add:** Enter only, ✓ on the line, ✓ at the end of the chips;
+- **fill:** tonal, plain, outlined;
+- **drawn height:** 32 or 36 px, inside 48 px targets.
+
+Each is drawn with three inputs (an event, a tracker log, a journal line) and measured from the render.
+- **Harmony:** drawn heights, controls taller than the text box (a constraint), designkit `emphasis_coherence` on the measured masses, aligned left edges, and craftkit `ui` sprawl. Colour codes are excluded.
+- **Ease of use:** taps to fix the kind, taps to the full form, Fitts' ID to submit, and what stays hidden.
+- **Clutter:** edge density, controls on the sheet, sheet height.
+- **No hand-set weights:** each axis is a sum of ranks, and the front is taken over the three axes. **The control loses**: everything at once, with a 56 px filled button. It breaks the height rule, and on all three inputs its button outweighs the text.
+
+**Three defects in my own mockups were found and fixed before these numbers:**
+- a class-name clash drew a label dot before every chip and wrapped the chips;
+- the trailing controls wrapped to the left edge, away from the thumb;
+- a short kind chip was centred in its target, 1 px off the text's edge.
+
+**Front, nearest the ideal first** (distance normalised over the front):
+
+| Option | Harmony | Ease | Clutter | Fix kind | Submit ID | Hidden | Controls | Sheet |
+|---|---|---|---|---|---|---|---|---|
+| Kind chip, Enter adds | 163.5 | 128 | 80.5 | 2 taps | 2.29 | add | 5 | 170 |
+| Kind chip, ✓ at the end of the chips | 163.5 | 112 | 102.5 | 2 taps | 2.44 | none | 6 | 170 |
+| Kind chip + prefixes, Enter adds | 163.5 | 86 | 118.5 | typed | 2.29 | add | 5 | 193 |
+| Kind chip + prefixes, ✓ at the end | 163.5 | 85 | 133.5 | typed | 2.54 | none | 6 | 193 |
+| TickTick's ⋯, Enter adds | 163.5 | 180 | 30.5 | 2 taps | 2.29 | kind + add | 4 | 116 |
+| Kind row (Craft), ✓ at the end | 198.5 | 84 | 165.5 | 1 tap | 2.44 | none | 10 | 222 |
+
+(Ranks: lower is better.)
+
+**Dominated:**
+- every Todoist + variant;
+- every ✓ on the line;
+- the outlined ✓;
+- the kind row without an on-screen ✓.
+
+**Ties:**
+- drawn height 32 against 36, and tonal against plain ✓, tie on every measure;
+- once every control shares one drawn height no taller than the text box, harmony separates only the kind row, the one option that adds a second row of controls.
+
+**Prefixes against the plain chip:** the prefix variant's extra height is only its hint line. Mockups: `docs/screens/t1/capture-v2.html`.

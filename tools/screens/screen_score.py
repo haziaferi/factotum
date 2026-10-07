@@ -73,7 +73,9 @@ MEASURE_JS = r"""
   var cv=document.querySelector('.cover'),kb=document.querySelector('.cover .kb');if(cv&&kb)out.sheet_h=Math.round(kb.getBoundingClientRect().top-cv.getBoundingClientRect().top);
   var li=document.querySelector('.line .in .ud');if(li){var lh=parseFloat(getComputedStyle(li).lineHeight)||parseFloat(getComputedStyle(li).fontSize)*1.2;out.line_lines=Math.round(li.getBoundingClientRect().height/lh)}
   // element boxes for visual-weight scoring (sheet_weight.py)
-  out.boxes={};[['sheet','.sheet'],['line','.line .in'],['chips','.chips']].forEach(function(p){var el=document.querySelector(p[1]);if(el){var q=el.getBoundingClientRect();out.boxes[p[0]]=[q.left,q.top,q.width,q.height]}});
+  out.boxes={};[['sheet','.sheet'],['line','.line .in'],['linebox','.line'],['chips','.chips'],['route','.route']].forEach(function(p){var el=document.querySelector(p[1]);if(el){var q=el.getBoundingClientRect();out.boxes[p[0]]=[q.left,q.top,q.width,q.height]}});
+  // drawn (visual) parts of sheet controls, apart from their 48 px targets: harmony compares these
+  out.vis=[].map.call(document.querySelectorAll('.sheet .vis'),function(el){var q=el.getBoundingClientRect();return [el.getAttribute('data-vis')||'',Math.round(q.left),Math.round(q.top),Math.round(q.width),Math.round(q.height)]});
   var pre=document.createElement('pre');pre.id='__measure';pre.textContent=JSON.stringify(out);document.body.appendChild(pre);
 })();
 </script>"""
@@ -145,7 +147,7 @@ def score_option(make_doc, w, h, targets=None, declared=None):
             "far_nav": sum(t["nav"] and t["y"] < h * 0.25 for t in m["taps"]) if w < 600 else 0,
             "small_taps": sorted({"%s %dx%d" % (t["name"], t["w"], t["h"]) for t in m["taps"] if t["w"] < 48 or t["h"] < 48}),
             "taps_raw": m["taps"],
-            "min_text": m["min_text"], "sheet_h": m.get("sheet_h"), "boxes": m.get("boxes", {}), "line_lines": m.get("line_lines"), "rows_visible": m.get("rows_visible", 0), "blank_lead": m.get("blank_lead", 0), "title_edges": m.get("title_edges", 0), "nav": sum(t["nav"] for t in m["taps"]), "steps": steps}
+            "min_text": m["min_text"], "sheet_h": m.get("sheet_h"), "boxes": m.get("boxes", {}), "vis": m.get("vis", []), "line_lines": m.get("line_lines"), "rows_visible": m.get("rows_visible", 0), "blank_lead": m.get("blank_lead", 0), "title_edges": m.get("title_edges", 0), "nav": sum(t["nav"] for t in m["taps"]), "steps": steps}
 
 
 def reference_clutter(names):
