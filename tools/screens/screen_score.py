@@ -51,7 +51,7 @@ MEASURE_JS = r"""
     var g=el,bgl=bg;for(;g&&g.nodeType===1;g=g.parentElement){var bc=getComputedStyle(g).backgroundColor;var q=lum(bc);if(q.a>0.5){bgl=q.l;break}}
     var c=lum(getComputedStyle(el).color), o=op(el);
     var L=c.l*o+bgl*(1-o); var hi=Math.max(L,bgl)+0.05, lo=Math.min(L,bgl)+0.05;
-    out.taps.push({name:el.getAttribute('data-tap'),w:Math.round(r.width),h:Math.round(r.height),x:Math.round(r.left+r.width/2),y:Math.round(r.top+r.height/2),contrast:+(hi/lo).toFixed(2),box:[r.left,r.top,r.width,r.height],
+    out.taps.push({name:el.getAttribute('data-tap'),w:Math.round(r.width),h:Math.round(r.height),x:Math.round(r.left+r.width/2),y:Math.round(r.top+r.height/2),contrast:+(hi/lo).toFixed(2),box:[r.left,r.top,r.width,r.height],seen:(function(){var cx=r.left+r.width/2,cy=r.top+r.height/2;if(cx<0||cy<0||cx>=innerWidth||cy>=innerHeight)return false;var hit=document.elementFromPoint(cx,cy);return !!hit&&(el===hit||el.contains(hit))})(),
                    nav:!!el.closest('.hdr,.bar,.rail')});
   });
   var w=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);
@@ -76,6 +76,8 @@ MEASURE_JS = r"""
   out.boxes={};[['sheet','.sheet'],['line','.line .in'],['linebox','.line'],['chips','.chips'],['route','.route']].forEach(function(p){var el=document.querySelector(p[1]);if(el){var q=el.getBoundingClientRect();out.boxes[p[0]]=[q.left,q.top,q.width,q.height]}});
   // drawn (visual) parts of sheet controls, apart from their 48 px targets: harmony compares these
   out.vis=[].map.call(document.querySelectorAll('.sheet .vis'),function(el){var q=el.getBoundingClientRect();return [el.getAttribute('data-vis')||'',Math.round(q.left),Math.round(q.top),Math.round(q.width),Math.round(q.height)]});
+  // is the typed line drawn, or covered by something above it? sampled at its left, middle and right
+  var ln=document.querySelector('.line .in');if(ln){var q=ln.getBoundingClientRect(),line=ln.closest('.line');out.line_covered=[0.1,0.5,0.9].some(function(f){var h=document.elementFromPoint(q.left+q.width*f,q.top+q.height/2);return !(h&&line.contains(h))})}
   var pre=document.createElement('pre');pre.id='__measure';pre.textContent=JSON.stringify(out);document.body.appendChild(pre);
 })();
 </script>"""
@@ -147,7 +149,7 @@ def score_option(make_doc, w, h, targets=None, declared=None):
             "far_nav": sum(t["nav"] and t["y"] < h * 0.25 for t in m["taps"]) if w < 600 else 0,
             "small_taps": sorted({"%s %dx%d" % (t["name"], t["w"], t["h"]) for t in m["taps"] if t["w"] < 48 or t["h"] < 48}),
             "taps_raw": m["taps"],
-            "min_text": m["min_text"], "sheet_h": m.get("sheet_h"), "boxes": m.get("boxes", {}), "vis": m.get("vis", []), "line_lines": m.get("line_lines"), "rows_visible": m.get("rows_visible", 0), "blank_lead": m.get("blank_lead", 0), "title_edges": m.get("title_edges", 0), "nav": sum(t["nav"] for t in m["taps"]), "steps": steps}
+            "min_text": m["min_text"], "sheet_h": m.get("sheet_h"), "boxes": m.get("boxes", {}), "vis": m.get("vis", []), "line_covered": m.get("line_covered", False), "line_lines": m.get("line_lines"), "rows_visible": m.get("rows_visible", 0), "blank_lead": m.get("blank_lead", 0), "title_edges": m.get("title_edges", 0), "nav": sum(t["nav"] for t in m["taps"]), "steps": steps}
 
 
 def reference_clutter(names):

@@ -321,3 +321,48 @@ Each is drawn with three inputs (an event, a tracker log, a journal line) and me
 - once every control shares one drawn height no taller than the text box, harmony separates only the kind row, the one option that adds a second row of controls.
 
 **Prefixes against the plain chip:** the prefix variant's extra height is only its hint line. Mockups: `docs/screens/t1/capture-v2.html`.
+
+## T1.3 v3: prefixes with ⋯, and opening the full form (owner, 2026-10-07)
+
+**Owner's answers:**
+- ⋯ replaces Details; TickTick's icon row is also scored, in its place and beside it.
+- The parse is shown as chips, underlined or highlighted, with the empty space measured.
+- The full form opens from Todoist's + list, TickTick's ⋯ list, or Any.do's label and group lists.
+- Every form option is scored over all ten kinds and over the owner's three most used: **task, event and tracker log**.
+
+The reference captures add **Any.do's inline add** (on the phone, gitignored). Its # and group icons sit inside the text field, and each opens a list that grows the sheet upward. Nothing was saved.
+
+**Capture sheet (`tools/screens/capture_v3.py`)**
+- **The variants:** prefixes, with the hint shown only while the line is empty × {⋯, icon row, icons and ⋯} × {chips, underline, highlight} × {Enter, ✓}.
+- **The measures:** capture_v2's axes, plus `empty` (the sheet's share of near-blank grid cells, from craftkit imgstat's detail report) and `unshown` (resolved values the sheet doesn't show).
+- **The control loses.** Front:
+
+| Option | H | U | C | Sheet | Empty share | Unshown | Controls |
+|---|---|---|---|---|---|---|---|
+| ⋯, highlight, ✓ at the end | 44.5 | 38 | 30.5 | 116 | 0.66 | 5 | 3 |
+| ⋯, chips, Enter | 53.5 | 29 | 34.5 | 170 | 0.56 | 0 | 5 |
+| icon row, highlight, Enter | 44.5 | 47 | 27 | 116 | 0.62 | 5 | 5 |
+
+**The trade.** Highlighting saves 54 dp and one row of chips, but it hides five resolved values across the three inputs, such as "tomorrow" read as Tue 6 Oct, or a log's unit and tracker. Chips show them all.
+
+**"Empty space" needs two numbers.** Chips have the lower empty *share* (0.56 against 0.66), but their taller sheet holds more empty *area* (about 95 dp of height against 77). That area comes from ⋯ wrapping onto a row of its own.
+
+**Full form (`tools/screens/form_opt.py`)**
+- **The variants:** {Todoist's + pop-over, TickTick's ⋯ pop-over, Any.do's inline list} × {linked chips, text becomes the title, underline, highlight}, against a full-page form.
+- **What is drawn is hit-tested:** clipped rows count as unseen, and a covered line as covered. A first run trusted element boxes, and counted Any.do's clipped rows as seen and as covering the line.
+
+| Option | H | U | C | Unseen rows | Line covered | Screen covered |
+|---|---|---|---|---|---|---|
+| Full page, text as the title | 15 | 19 | 32.5 | 0 | no | 100% |
+| Todoist's + list (title, underline or highlight) | 21.5 | 33.5 | 16 | 1 | yes | 32% |
+| TickTick's ⋯ list | 21.5 | 33.5 | 21.5 | 1 | yes | 32% |
+| Any.do's inline list | 21.5 | 39.5 | 21.5 | 3 | no | 44% |
+
+(All ten kinds; the top three rank the same: the page and Todoist's list, highlighted.)
+
+- **The full page was built as the control, and did not lose:** it is best on harmony and ease, and worst only on clutter. So it is a real option, not a straw man, as Google Tasks' and Tasks.org's detail screens suggest.
+- **Ten rows** (the fields, Kind and Templates) **are more than any pop-over shows** without clipping or covering the typed line.
+- **On the line,** title, underline and highlight tie, and keeping the linked chips under a list does worse everywhere.
+- **The same winners hold for all ten kinds and for the top three.**
+
+Mockups: `docs/screens/t1/capture-v3.html` and `docs/screens/t1/form-options.html`.
