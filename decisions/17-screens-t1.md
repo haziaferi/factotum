@@ -42,7 +42,7 @@ There are no swipes.
 |---|---|---|
 | T1.1 | Header and bar | **approved 2026-10-07: A′** |
 | T1.2 | Item rows (title only), plus the row-variants chapter | **approved 2026-10-07: D** |
-| T1.3 | Capture sheet | **approved 2026-10-07: A′; superseded the same day by the v4 design below** (no chips, highlight, kind in the hint's place, ⋯ beside the line) |
+| T1.3 | Capture sheet | **approved 2026-10-07: v4** (no chips, highlight, kind and markers in the hint's place, ⋯ beside the line, context-aware placeholder); it superseded A′ the same day |
 | T1.4 | Hub sheet (cards) | **paused by the owner (2026-10-07), to be decided** |
 | T1.5 | Date and time picker | to do |
 | T1.6 | Repeat builder | to do |
@@ -507,3 +507,11 @@ Mockup: `docs/screens/t1/capture-approved.html`.
 | "Add a task, event, log or journal line…" (the current one) | **no, wraps** | 4 | yes | no | 39 | fails the one-line rule |
 
 Every option that fits keeps the empty sheet at 91 dp. Naming kinds in the placeholder repeats what the hint line below already lists.
+
+**Placeholder: context-aware** (owner, 2026-10-07):
+- Today: "Add anything…"
+- Journal: "Write a line…"
+- a tracker: "Log water…"
+- Calendar: "Add an event…"
+
+**v4 is now T1.3's selected option in `docs/screens/t1/screens.html`.** It has phone and Windows versions, and six states: empty from Today, a kind typed, wrapped, and empty from Journal, the water tracker and Calendar. A′ and the earlier options are folded under "Options not picked". On Windows, the keyboard line (Enter, Esc, Ctrl+Shift+Space) sits inside the quick-add window; a first draft put it outside, over the rail.

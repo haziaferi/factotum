@@ -535,9 +535,36 @@ def cap_desk(content):
 DESK_QA2 = '<div class="qa" style="position:relative">%s%s<div class="hint">Enter adds · Esc closes · Ctrl+Shift+Space from anywhere in Windows</div></div>' % (capture_line(TYPED, approved=True), chips_html(CHIPS))
 DESK_QA = '<div class="qa" style="position:relative">%s%s<div class="hint">Enter adds · Esc closes · Ctrl+Shift+Space from anywhere in Windows</div></div>' % (capture_line(TYPED), chips_html(CHIPS))
 
-APPROVED_T13 = "A′"  # owner, 2026-10-07
+# T1.3 v4, selected by the owner (2026-10-07; decision 17): no chips, the understood words highlighted; ⋯ beside the
+# text box, level with its first line; the box spans the full width and is one line high until the text wraps; the hint
+# scrolls through the 14 shorthands while empty, and shows the kind and its field markers once a kind is typed; Enter
+# adds; Details opens the full page; the placeholder follows the screen capture opens from.
+V4_PLACEHOLDER = {"Today": "Add anything…", "Journal": "Write a line…", "Water tracker": "Log water…", "Calendar": "Add an event…"}
+
+
+def cap_v4(state="empty", opened_from="Today"):
+    import legend_opt as L  # imported here: legend_opt imports this module
+    return L.phone("both", state).replace("Add a task, event, log or journal line…", e(V4_PLACEHOLDER[opened_from]))
+
+
+def desk_v4():
+    import legend_opt as L
+    sheet = L.sheet("both", "typed").replace('class="sheet" style="position:relative"', 'class="qa" style="position:relative"')
+    # the keyboard line sits inside the window, under the shorthand hint (a first draft put it outside, over the rail)
+    sheet = sheet[:-len("</div>")] + '<div class="hint">Enter adds · Esc closes · Ctrl+Shift+Space from anywhere in Windows</div></div>'
+    return cap_desk('<div class="c2">%s</div>' % sheet)
+
+
+APPROVED_T13 = "v4"  # owner, 2026-10-07 (A′ was approved earlier the same day, then superseded)
 OPTIONS_T13 = [
-    {"id": "A′", "name": "Approved: sheet over a visible Today, check to add, full form button", "how": "approved",
+    {"id": "v4", "name": "Selected: highlighted parse, ⋯ beside the line, shorthand hint, context-aware placeholder", "how": "approved",
+     "phone": cap_v4, "desk": desk_v4,
+     "about": "The owner's design (decision 17, T1.3 v4), after scoring chips, routing, add, kind display, legend and placeholder: "
+              "no chips, the understood words highlighted in the text; ⋯ beside the text box, level with its first line (it opens the "
+              "full page); the box keeps its full width and one-line height until the text wraps; while empty, the hint scrolls through "
+              "the 14 shorthands; once a kind is typed it shows the kind and its field markers; Enter adds; the placeholder says what "
+              "the screen it opens from will make."},
+    {"id": "A′", "name": "Approved earlier on 2026-10-07, superseded by v4: sheet over a visible Today, check to add, full form button", "how": "direct",
      "phone": cap_phone_a2, "desk": lambda: cap_desk(DESK_QA2),
      "about": "The owner's choice (2026-10-07): option A, with Today left visible under a slight shade (as on Windows), Add as a check, and a small button that opens the full form."},
     {"id": "A", "name": "Sheet over the screen", "how": "direct", "phone": cap_phone_a, "desk": lambda: cap_desk(DESK_QA),
@@ -552,6 +579,14 @@ OPTIONS_T13 = [
      "about": "A screen of nine fields to fill one by one. It must lose."},
 ]
 STATES_T13 = [
+    ("Empty, from Today: Add anything…", lambda: cap_v4("empty", "Today")),
+    ("A kind typed: the kind and its field markers", lambda: cap_v4("typed")),
+    ("Wrapped: the text keeps its rectangle, ⋯ level with the first line", lambda: cap_v4("wrapped")),
+    ("Empty, from Journal: Write a line…", lambda: cap_v4("empty", "Journal")),
+    ("Empty, from the water tracker: Log water…", lambda: cap_v4("empty", "Water tracker")),
+    ("Empty, from Calendar: Add an event…", lambda: cap_v4("empty", "Calendar")),
+]
+STATES_T13_A2 = [
     ("Empty: what it accepts", lambda: cap_phone_a2(placeholder=True, hint="Try: dentist tomorrow 9am · water plants every 3 days · call mum fri")),
     ("Typed: understood", lambda: cap_phone_a2()),
     ("Two readings: asks, never guesses", lambda: cap_phone_a2(text="Call mum fri", chips=[("", "Task")], question="Fri 9 Oct or every Friday?")),
@@ -821,9 +856,11 @@ def main():
     s12, rows12, fr12, beaten12 = section_t12()
     s13, rows13, fr13, beaten13 = build_section(
         "t1-3", "T1.3 Capture sheet",
-        "One line in plain language; what it understood shows as chips under the line (decision 17). The text stays as typed; "
-        "a chip is tapped to fix or drop it. Taps exclude typing. Windows: a small window from anywhere.",
-        OPTIONS_T13, STATES_T13, T13_CSS, ("clutter", "desk_clutter", "faint_n", "small", "steps_sum", "fields"), t13_extra, APPROVED_T13)
+        "One line in plain language for every module (decision 17). Selected: v4 (owner, 2026-10-07), after scoring chips against "
+        "highlighting, routing (kind chip, kind row, prefixes, Todoist's +, TickTick's ⋯), the add (Enter, ✓), the kind's display, the "
+        "shorthand legend and the placeholder: see capture-v2/v3/v4, legend-options and placeholder-opt beside this page. Taps exclude "
+        "typing. Windows: a small window from anywhere.",
+        OPTIONS_T13, STATES_T13, T13_CSS + __import__("legend_opt").CSS, ("clutter", "desk_clutter", "faint_n", "small", "steps_sum", "fields"), t13_extra, APPROVED_T13)
     co = _load_capture_opt()
     ref_rows = "".join("<tr><td>%s</td><td>%s</td><td>%dx%d</td><td>%.2f</td><td>%s</td><td>%s</td></tr>" % (
         e(r["app"]), r["place"], r["add"][2], r["add"][3], r["id_enter"], r["sheet"] or "full screen", "yes" if r["parses"] else "no") for r in co.reference_rows())
@@ -844,7 +881,7 @@ def main():
         OPTIONS_T14, STATES_T14, T14_CSS, ("clutter", "desk_clutter", "faint_n", "small", "hidden"), t14_extra,
         must=lambda r: "%d screens below the fold (owner: every screen visible)" % r["hidden"] if r["hidden"] else None)
     page = ['<!doctype html><html lang="en" data-theme="light"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">',
-            '<title>Factotum T1 shared parts</title><style>%s\n%s\n%s\n%s\n%s</style></head><body>' % (kit.theme_css(), kit.BASE_CSS, EXTRA, T12_CSS + T13_CSS + T14_CSS, PAGE_CSS),
+            '<title>Factotum T1 shared parts</title><style>%s\n%s\n%s\n%s\n%s</style></head><body>' % (kit.theme_css(), kit.BASE_CSS, EXTRA, T12_CSS + T13_CSS + T14_CSS + __import__("legend_opt").CSS, PAGE_CSS),
             '<h1>T1 · Shared parts</h1><p class="dim">Decision 17. Greys only; colour comes after every screen is settled. '
             'Type and icons are placeholders. One screen at a time: each waits for the owner\'s approval.</p>',
             '<div class="sw"><button onclick="document.documentElement.dataset.theme=\'light\'">Light</button>'
