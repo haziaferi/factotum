@@ -84,7 +84,7 @@ def cards_b():
 def cards_c():
     by = {g[0]: g for g in t.HUB_GROUPS}
     left = t.card(*by["Calendar"]) + t.card(*by["Routines"])
-    right = t.card(*by["Pages"]) + t.card(*by["check-in"])
+    right = t.card(*by["Pages"]) + t.card(*by["Check-in"])
     foot = '<div class="grid2">%s%s</div>' % (t.card(*by["Review"]), t.card(*by["App"]))
     return '<div class="grid2"><div>%s</div><div>%s</div></div>%s' % (left, right, foot)
 
@@ -107,7 +107,7 @@ def noapp_a(tight=False):
 def noapp_c():
     by = {g[0]: g for g in NOAPP}
     left = t.card(*by["Calendar"]) + t.card(*by["Routines"])
-    right = t.card(*by["Pages"]) + t.card(*by["check-in"])
+    right = t.card(*by["Pages"]) + t.card(*by["Check-in"])
     return '<div class="grid2"><div>%s</div><div>%s</div></div>%s' % (left, right, t.card(*by["Review"]))
 
 

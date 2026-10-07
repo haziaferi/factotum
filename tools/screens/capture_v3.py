@@ -80,7 +80,7 @@ def sheet(v, item, control_mode=False):
     line = '<div class="line"><span class="in">%s</span></div>' % inner
     row = '<div class="crow"><div class="chips">%s%s</div><span style="margin-left:auto;display:flex;gap:6px">%s%s%s</span></div>' % (
         kind_chip, chip_html, icons, more, add)
-    hint = '<div class="hint">j journal · lg log · t timer · ck check-in · td task</div>' if key == "empty" else (caption_row if not control_mode else "")
+    hint = '<div class="hint">j journal · lg log · t timer · ck Check-in · td task</div>' if key == "empty" else (caption_row if not control_mode else "")
     if v.get("tail") == "line":  # owner, 2026-10-07: ⋯ beside the text box; a row left empty is not drawn
         line = '<div class="line"><span class="in">%s</span>%s</div>' % (inner, more)
         row = "" if not (kind_chip or chip_html or icons or add) else row.replace(more, "", 1)

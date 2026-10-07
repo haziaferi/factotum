@@ -84,8 +84,8 @@ def hub_svg(size=20):
             'stroke-linejoin="round"><polygon points="%s"/><circle cx="12" cy="12" r="2.4" fill="currentColor"/></svg>') % (size, size, pts)
 
 
-BAR = [("◷", "Today"), ("▦", "Calendar"), ("HUB", "Hub"), ("☰", "Pages"), ("◎", "check-in")]
-RAIL = [("◷", "Today"), ("▦", "Calendar"), ("HUB", "Hub"), ("☰", "Pages"), ("◎", "check-in")]
+BAR = [("◷", "Today"), ("▦", "Calendar"), ("HUB", "Hub"), ("☰", "Pages"), ("◎", "Check-in")]
+RAIL = [("◷", "Today"), ("▦", "Calendar"), ("HUB", "Hub"), ("☰", "Pages"), ("◎", "Check-in")]
 
 
 def bar(on="Today", items=BAR):

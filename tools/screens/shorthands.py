@@ -36,10 +36,10 @@ KINDS = [
     ("lg", "tracker or habit log", "lg water 2", ""),
     ("j", "journal line", "j slept badly", ""),
     ("t", "timer (no duration) or time log (with one)", "t reading · t reading 30m", ""),
-    ("ck", "check-in", "ck energy 2", ""),
+    ("ck", "Check-in", "ck energy 2", ""),
     ("ld", "ledger", "ld masking high", ""),
     # rejected candidates, kept so the check shows why
-    ("ci", "check-in (rejected)", "ci energy 2", ""),
+    ("ci", "Check-in (rejected)", "ci energy 2", ""),
     ("log", "log (rejected)", "log water 2", ""),
     ("re", "reminder (rejected)", "re take meds", ""),
 ]
@@ -84,7 +84,7 @@ def main():
     lines += ["", "## Field markers (typed anywhere)", "", "| Marker | Field | Example | Means elsewhere |", "|---|---|---|---|"]
     for tok, field, ex, prior in FIELDS:
         lines.append("| `%s` | %s | `%s` | %s |" % (tok, field, ex, prior or "nothing in the references"))
-    items_kinds = ["j journal", "lg log", "t timer", "ck check-in", "td task", "ev event", "rm reminder", "ld ledger"]
+    items_kinds = ["j journal", "lg log", "t timer", "ck Check-in", "td task", "ev event", "rm reminder", "ld ledger"]
     items_fields = ["# label", "! reminder", "@ calendar", "^ page", "~ duration", "* repeat"]
     n1 = fit(items_kinds)
     lines += ["", "## How many fit in the hint", "",

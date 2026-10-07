@@ -137,7 +137,7 @@ def section_t11(refs):
     states = "".join('<div><div class="cap2">%s</div>%s</div>' % (e(n), f()) for n, f in STATES_T11)
     refimgs = "".join('<figure><img src="../../../_screens-sources/reference/%s" alt=""><figcaption>%s · %.3f</figcaption></figure>' % (k, k.split("/")[0], v) for k, v in refs.items())
     html_ = ('<section id="t1-1"><h2>T1.1 Header and bar <span class="tag">approved 2026-10-07: A′</span></h2>'
-             '<p>The chrome every screen shares: the header (title, Search) and the bar of Today · Calendar · Hub · Pages · [check-in]. '
+             '<p>The chrome every screen shares: the header (title, Search) and the bar of Today · Calendar · Hub · Pages · [Check-in]. '
              'Data the person would type is in a <span class="ud">dotted outline</span>. Steps marked * go through the Hub.</p>'
              '<h3>Scores</h3><table>%s%s</table><p class="dim">Clutter of the real apps\' main screens, measured the same way: %s. '
              'Lower is calmer. %s</p>'
@@ -722,7 +722,7 @@ COLS.update({"fitts_add": ("Thumb travel to ✓ (Fitts ID from Enter)", "%.2f"),
 HUB_GROUPS = [
     ("Calendar", "▦", ["Day", "Week", "Month", "Planner"]),
     ("Routines", "↻", ["Habits", "Trackers", "Activities", "Checklists", "Charts", "Goals"]),
-    ("check-in", "◎", ["check-in", "Ledger", "Sensory", "Trend"]),
+    ("Check-in", "◎", ["Check-in", "Ledger", "Sensory", "Trend"]),
     ("Pages", "☰", ["Journal", "Tree", "Templates", "Road Map"]),
     ("Review", "↗", ["This week", "Time totals", "History"]),
     ("App", "⚙", ["Labels", "Time blocks", "Calendars", "Settings", "Trash", "About"]),
@@ -782,10 +782,10 @@ def hub_b():
 
 def hub_c():
     """Oblique (Cross-Domain Raid, a store map): cards sit where the bar says they live. Calendar and Routines on the
-    left under Calendar's slot, Pages and check-in on the right under theirs, Review and App across the foot."""
+    left under Calendar's slot, Pages and Check-in on the right under theirs, Review and App across the foot."""
     by = {g[0]: g for g in HUB_GROUPS}
     left = card(*by["Calendar"]) + card(*by["Routines"])
-    right = card(*by["Pages"]) + card(*by["check-in"])
+    right = card(*by["Pages"]) + card(*by["Check-in"])
     foot = '<div class="grid2">%s%s</div>' % (card(*by["Review"]), card(*by["App"]))
     return hub_phone('<div class="grid2"><div>%s</div><div>%s</div></div>%s' % (left, right, foot))
 
@@ -815,15 +815,25 @@ def hub_desk_v4():
     return hub_opt.DESK()
 
 
+APPROVED_T14 = "A0"  # owner, 2026-10-08: the App card leaves the Hub for ⚙; one column, Pinned and recent kept
+
+
+def settings_v4():
+    """⚙ (T1.1's header, top right) now holds the App card's screens (owner, 2026-10-08)."""
+    rows = "".join('<div class="row" data-tap="%s"><span class="t">%s</span></div>' % (n, n)
+                   for n in ("Settings", "Labels", "Time blocks", "Calendars", "Trash", "About"))
+    return kit.phone(kit.header("Settings", (), ("‹", "Back")), kit.zone("App", rows), kit.bar("Today"))
+
+
 OPTIONS_T14 = [
     {"id": "C", "name": "Cards where the bar says they live (store map), with Pinned and recent", "how": "oblique", "phone": lambda: hub_v4("C"),
      "desk": hub_desk_v4,
-     "about": "A store map: Calendar and Routines on the left, under Calendar's slot; Pages and check-in on the right, under theirs; Review and App across the foot. The T1.3 v4 capture line on top, then Pinned and recent."},
+     "about": "A store map: Calendar and Routines on the left, under Calendar's slot; Pages and Check-in on the right, under theirs; Review and App across the foot. The T1.3 v4 capture line on top, then Pinned and recent."},
     {"id": "B-", "name": "Two columns of cards, no Pinned and recent", "how": "direct", "phone": lambda: hub_v4("B-"), "desk": hub_desk_v4,
      "about": "Two cards across, with Pinned and recent left out so that every screen fits."},
     {"id": "C-", "name": "Store map, no Pinned and recent", "how": "oblique", "phone": lambda: hub_v4("C-"), "desk": hub_desk_v4,
      "about": "The store map without Pinned and recent."},
-    {"id": "A0", "name": "One column, no App card: App's screens behind ⚙ (balanced pick)", "how": "direct", "phone": lambda: hub_v4("A0"),
+    {"id": "A0", "name": "Selected: one column, no App card (App's screens behind ⚙)", "how": "approved", "phone": lambda: hub_v4("A0"),
      "desk": lambda: __import__("hub_opt").DESK_NOAPP(), "names": "noapp",
      "about": "The App card (Labels, Time blocks, Calendars, Settings, Trash, About) leaves the Hub for the header's ⚙ (owner's question, 2026-10-08). One column then fits every remaining screen with Pinned and recent kept; nearest the ideal on all three axes."},
     {"id": "A0-tight", "name": "One column, tighter cards, no App card", "how": "direct", "phone": lambda: hub_v4("A0-tight"),
@@ -860,7 +870,8 @@ COLS["hidden"] = ("Screens hidden (of those the option shows: 27, or 21 without 
 COLS["reach"] = ("Thumb travel to a screen (Fitts ID from the Hub)", "%.2f")
 COLS["no_pinned"] = ("No Pinned and recent", "%d")
 STATES_T14 = [
-    ("Open from the bar (the Hub slot active)", lambda: hub_v4("C")),
+    ("Open from the bar (the Hub slot active)", lambda: hub_v4("A0")),
+    ("⚙ in the header: the App card's screens now live here", settings_v4),
     ("Long press on the Hub: straight to capture (T1.3 v4)", lambda: cap_v4("empty", "Today")),
 ]
 
@@ -922,7 +933,7 @@ def main():
         "hit-tested (a feature cut off by the sheet's edge counts as hidden). Three-axis scores (harmony, ease, clutter): "
         "<code>tools/screens/hub_opt.py</code>, <code>docs/screens/t1/hub-opt.json</code>.",
         OPTIONS_T14, STATES_T14, T13_CSS + T14_CSS + __import__("legend_opt").CSS + __import__("hub_opt").TIGHT_CSS, ("clutter", "desk_clutter", "faint_n", "small", "reach", "no_pinned", "hidden"), t14_extra,
-        must=lambda r: "%d screens below the fold (owner: every screen visible)" % r["hidden"] if r["hidden"] else None)
+        must=lambda r: "%d screens below the fold (owner: every screen visible)" % r["hidden"] if r["hidden"] else None, approved=APPROVED_T14)
     page = ['<!doctype html><html lang="en" data-theme="light"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">',
             '<title>Factotum T1 shared parts</title><style>%s\n%s\n%s\n%s\n%s</style></head><body>' % (kit.theme_css(), kit.BASE_CSS, EXTRA, T12_CSS + T13_CSS + T14_CSS + __import__("legend_opt").CSS, PAGE_CSS),
             '<h1>T1 · Shared parts</h1><p class="dim">Decision 17. Greys only; colour comes after every screen is settled. '

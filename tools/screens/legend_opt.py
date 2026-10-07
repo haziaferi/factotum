@@ -34,7 +34,7 @@ import kit  # noqa: E402
 import screen_score as ss  # noqa: E402
 import tier_t1 as t  # noqa: E402
 
-KINDS = [("j", "journal"), ("lg", "log"), ("t", "timer"), ("ck", "check-in"), ("td", "task"), ("ev", "event"), ("rm", "reminder"), ("ld", "ledger")]
+KINDS = [("j", "journal"), ("lg", "log"), ("t", "timer"), ("ck", "Check-in"), ("td", "task"), ("ev", "event"), ("rm", "reminder"), ("ld", "ledger")]
 FIELDS = [("#", "label"), ("!", "reminder"), ("@", "calendar"), ("^", "page"), ("~", "duration"), ("*", "repeat")]
 EVENT_FIELDS = ["#", "!", "@", "^", "*"]  # an event's markers (no duration: its time says it)
 VARIANTS = ["scroll", "context", "menu", "ask", "settings", "control"]

@@ -43,7 +43,7 @@ There are no swipes.
 | T1.1 | Header and bar | **approved 2026-10-07: A′** |
 | T1.2 | Item rows (title only), plus the row-variants chapter | **approved 2026-10-07: D** |
 | T1.3 | Capture sheet | **approved 2026-10-07: v4** (no chips, highlight, kind and markers in the hint's place, ⋯ beside the line, context-aware placeholder); it superseded A′ the same day |
-| T1.4 | Hub sheet (cards) | **unpaused and re-scored 2026-10-07 with T1.3's carry-overs; front: C, B−, C−; owner to choose** |
+| T1.4 | Hub sheet (cards) | **approved 2026-10-08: A0** (one column, Pinned and recent kept; the App card moved behind ⚙) |
 | T1.5 | Date and time picker | to do |
 | T1.6 | Repeat builder | to do |
 | T1.7 | Label chips and picker | to do |
@@ -595,3 +595,18 @@ Its six screens (Labels, Time blocks, Calendars, Settings, Trash and About) woul
 **Not decided:** whether the App card leaves the Hub. That is the owner's choice.
 
 **A0, A0-tight and C0 are drawn in T1.4 on the page** (owner, 2026-10-08: "where is it in the mockup?"); they had only been scored. Each option is now checked against the screens it is meant to show: 21 without the App card, whose six are behind ⚙. Before, the six moved behind ⚙ would have counted as hidden. On Windows, the no-App options' panel also drops the App card.
+
+## T1.4 Hub sheet: approved (owner, 2026-10-08)
+
+**A0: one column of cards, with Pinned and recent kept. The App card leaves the Hub.**
+- **The Hub shows:** the T1.3 v4 capture line, Pinned and recent, then Calendar, Routines, Check-in, Pages and Review. All 21 screens are visible above the bar, and on Windows too.
+- **⚙ in the header** (T1.1, top right) now holds the App card's screens: Settings, Labels, Time blocks, Calendars, Trash and About. Settings is 1 tap; the others are 2. They are each used about once a month (`nav_score2.py`, assumed).
+- **Drawn in T1.4:** the Hub open from the bar, and ⚙'s screens.
+
+**"Check-in" is written with a capital letter** (owner, 2026-10-08) wherever it is drawn on the T1 page:
+- the bar and the Windows rail;
+- the Hub card and its screen;
+- the shorthand hint, now "ck Check-in";
+- the legend and the shorthand table.
+
+The internal names, and the T0 pages already settled, keep the lowercase form; they are not on screen.

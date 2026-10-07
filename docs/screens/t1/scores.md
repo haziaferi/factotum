@@ -18,7 +18,7 @@ Reference main screens: bearable/00-main.png 0.070, daylio/00-main.png 0.055, ho
 
 | Option | Clutter phone | Clutter Windows | Rows in view | Blank left | Title edges | Faint | Taps < 48 dp | Status |
 |---|---|---|---|---|---|---|---|---|
-| A Leading mark | 0.036 | 0.018 | 8 | 0 | 4 | 0 | none | dominated |
+| A Leading mark | 0.037 | 0.018 | 8 | 0 | 4 | 0 | none | dominated |
 | B Action at the thumb | 0.036 | 0.018 | 8 | 4 | 2 | 0 | none | dominated |
 | C Words, not marks (oblique: Arbitrary Constraint) | 0.036 | 0.018 | 8 | 4 | 2 | 0 | none | dominated |
 | D A and B merged: mark or time left, action right | 0.037 | 0.018 | 8 | 0 | 2 | 0 | none | front |
@@ -40,7 +40,7 @@ Reference main screens: bearable/00-main.png 0.070, daylio/00-main.png 0.055, ho
 - C Cards where the bar says they live (store map), with Pinned and recent: clutter 0.056 / 0.026, faint 0, small 0, below the fold 0 of 27, front
 - B- Two columns of cards, no Pinned and recent: clutter 0.051 / 0.026, faint 0, small 0, below the fold 0 of 27, dominated
 - C- Store map, no Pinned and recent: clutter 0.051 / 0.026, faint 0, small 0, below the fold 0 of 27, dominated
-- A0 One column, no App card: App's screens behind ⚙ (balanced pick): clutter 0.050 / 0.024, faint 0, small 0, below the fold 0 of 27, front
+- A0 Selected: one column, no App card (App's screens behind ⚙): clutter 0.050 / 0.024, faint 0, small 0, below the fold 0 of 27, front
 - A0-tight One column, tighter cards, no App card: clutter 0.050 / 0.024, faint 0, small 0, below the fold 0 of 27, dominated
 - C0 Store map, no App card: clutter 0.050 / 0.024, faint 0, small 0, below the fold 0 of 27, dominated
 - A-tight- One column, tighter cards, no Pinned and recent: clutter 0.050 / 0.026, faint 0, small 0, below the fold 0 of 27, dominated
