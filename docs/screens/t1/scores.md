@@ -47,6 +47,8 @@ Reference main screens: bearable/00-main.png 0.070, daylio/00-main.png 0.055, ho
 |---|---|---|---|---|---|---|---|---|
 | A′ As approved: ✓ and ▤ on the line, 16 px | 2.91 | 2.93 | 130 | 2 | 16 | 0 | 0 | front |
 | K Knee: ✓ and ▤ at the end of the chip row, 18 px, ✓ 56 | 2.49 | 2.69 | 178 | 1 | 18 | 0 | 0 | front |
+| K64 K with ✓ 64 | 2.35 | 2.70 | 178 | 1 | 18 | 0 | 0 | front |
+| K72 K with ✓ 72 | 2.23 | 2.71 | 178 | 1 | 18 | 0 | 0 | front |
 | S Split: ▤ on the line, ✓ at the end of the chip row, 16 px, ✓ 56 | 2.49 | 3.09 | 178 | 1 | 16 | 0 | 0 | dominated |
 | R Action row: ▤ left, ✓ right, above the keyboard, 18 px, ✓ 52 | 2.57 | 3.19 | 182 | 1 | 18 | 0 | 0 | dominated |
-| X Control: Any.do's top line, ✓ 40 at the top right | 4.15 | 9.00 | 130 | 1 | 16 | 2 | 0 | control |
+| X Control: Any.do's top line, ✓ 40 at the top right | 4.15 | 9.00 | 490 | 1 | 16 | 2 | 0 | control |

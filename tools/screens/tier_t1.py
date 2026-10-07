@@ -575,11 +575,13 @@ def t13_extra(o, r):
 ENTER_KEY = (330, 712)  # the mockup keyboard is 250 px tall at the phone's foot, as in capture_opt's model frame
 
 
-def sheet_v(place, font, add, text=TYPED, chips=CHIPS, mirror=False, placeholder=False, question=None, hint=""):
-    """place: line | chips | row | split | top (the control). add: ✓'s diameter in px; ▤ is always 48."""
+def sheet_v(place, font, add, text=TYPED, chips=CHIPS, mirror=False, placeholder=False, question=None, hint="", form_px=48):
+    """place: line | chips | row | split | top (the control). add: ✓'s diameter in px; form_px: ▤'s target.
+    Glyphs follow Material's proportions, so the size drawn is the size scored: ✓ at 43% of its disc (24 in a 56 FAB),
+    ▤ at 24 (the standard icon size), where the first run kept them at 20 and 18 whatever the target."""
     inner = ('<span class="ph">Add a task, event or reminder…</span>' if placeholder else kit.ud(e(text)) + '<span class="caret"></span>')
-    form = '<span class="ib" data-tap="Full form" title="Full form">▤</span>'
-    ok = '<span class="addc" data-tap="Add" title="Add" style="width:%dpx;height:%dpx">✓</span>' % (add, add)
+    form = '<span class="ib" data-tap="Full form" title="Full form" style="width:%dpx;height:%dpx;font-size:24px">▤</span>' % (form_px, form_px)
+    ok = '<span class="addc" data-tap="Add" title="Add" style="width:%dpx;height:%dpx;font-size:%dpx">✓</span>' % (add, add, round(add * 0.43))
     rev = ";flex-direction:row-reverse" if mirror else ""
     on_line = {"line": form + ok, "split": form, "top": ok}.get(place, "")
     line = '<div class="line" style="font-size:%dpx%s"><span class="in">%s</span>%s</div>' % (font, rev, inner, on_line)
@@ -595,7 +597,7 @@ def cap_phone_v(place, font, add, **kw):
     today = kit.phone(kit.header(TITLE, APPROVED_BUTTONS), '<div class="cap">+ <span>Add…</span></div>' + rows_today(row_d), kit.bar("Today"))
     today = today.replace("data-tap=", "data-behind=")
     if place == "top":  # the control: Any.do's layout, the line at the top of the screen with Add at its far end
-        overlay = ('<div style="position:absolute;inset:0;background:var(--bg);display:flex;flex-direction:column">%s'
+        overlay = ('<div class="cover" style="position:absolute;inset:0;background:var(--bg);display:flex;flex-direction:column">%s'
                    '<div style="flex:1"></div><div class="kb">keyboard</div></div>') % sheet_v(place, font, add, **kw).replace(
                        'class="sheet" style="', 'class="sheet" style="border-radius:0;box-shadow:none;')
     else:
@@ -615,6 +617,10 @@ T13R = [  # (id, name, how, place, font, ✓ px, about)
     ("K", "Knee: ✓ and ▤ at the end of the chip row, 18 px, ✓ 56", "direct", "chips", 18, 56,
      "The whole front's knee in every frame and thumb position tried. The line gets the full width, so the sample reads on one line at 18 px; "
      "✓ drops to the chip row, nearer the thumb resting on Enter, and grows to 56. As Todoist does, with a bigger target."),
+    ("K64", "K with ✓ 64", "direct", "chips", 18, 64,
+     "K at the next size up. Thumb travel 0.12 bits less than K (about 15-25 ms a capture); the disc's area grows by a third."),
+    ("K72", "K with ✓ 72", "direct", "chips", 18, 72,
+     "The largest size searched: where the optimizer lands when nothing weighs a button's size. 0.27 bits less than K; the disc's area is 65% larger."),
     ("S", "Split: ▤ on the line, ✓ at the end of the chip row, 16 px, ✓ 56", "direct", "split", 16, 56,
      "The quieter action stays up on the line, and only ✓ comes down to the thumb. One line at 16 px; ✓ and ▤ are far apart, so a slip cannot open the form."),
     ("R", "Action row: ▤ left, ✓ right, above the keyboard, 18 px, ✓ 52", "direct", "row", 18, 52,
@@ -853,6 +859,7 @@ def main():
     with open(os.path.join(OUT, "scores.md"), "w", encoding="utf-8", newline=chr(10)) as fh:
         fh.write(chr(10).join(md) + chr(10))
     print(chr(10).join(md[-7:]))
+    print("controls beaten:", beaten, beaten12, beaten13, beaten13r, beaten14)
     if not (beaten and beaten12 and beaten13 and beaten13r and beaten14):
         sys.exit(2)
 

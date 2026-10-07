@@ -41,7 +41,7 @@ FRAMES = {
 PAD_X, PAD_TOP, PAD_BOT = 12, 16, 8
 SAMPLE = "Dentist tomorrow 9am every 6 months"
 CHIPS = ["Tue 6 Oct", "09:00", "Every 6 months", "Event"]
-EM = 0.52
+EM = 0.48  # measured from the render (chips 0.470-0.484 em per character); 0.52 overstated wrapping
 
 PLACEMENTS = {
     "line": "✓ and ▤ at the right of the line (as approved)",
@@ -49,8 +49,11 @@ PLACEMENTS = {
     "row": "an action row above the keyboard: ▤ left, ✓ right",
     "split": "▤ at the right of the line, ✓ at the right of the chip row",
 }
-SPACE = {"place": list(PLACEMENTS), "font": [15, 16, 17, 18], "line_h": [48, 52, 56], "chip_h": [32, 34, 36],
-         "add": [48, 52, 56], "gap": [4, 8, 12]}
+# ✓ and ▤ are both free (owner): the first run held ▤ at 48 and stopped ✓ at 56, its range's top, which it picked,
+# so the range was too narrow. Targets stay >= 48 dp (WCAG 2.5.8 comfortable, Material). Chip height is dropped:
+# the chip's target is 48 whatever its drawn height, so it moved no objective.
+SPACE = {"place": list(PLACEMENTS), "font": [15, 16, 17, 18], "line_h": [48, 52, 56],
+         "add": [48, 52, 56, 60, 64, 72], "form": [48, 52, 56], "gap": [4, 8, 12]}
 
 
 def text_lines(font, width):
@@ -83,7 +86,7 @@ def fitts(src, centre, width):
 
 def layout(v):
     inner = W - 2 * PAD_X
-    form_w, add_w = 48, v["add"]
+    form_w, add_w = v["form"], v["add"]
     line_res = form_w + add_w + 8 if v["place"] == "line" else (form_w + 4 if v["place"] == "split" else 0)
     chip_res = form_w + add_w + 8 if v["place"] == "chips" else (add_w + 4 if v["place"] == "split" else 0)
     lines = text_lines(v["font"], inner - line_res)
@@ -98,16 +101,16 @@ def layout(v):
     line_y = top + PAD_TOP + line_h / 2
     chips_top = top + PAD_TOP + line_h + v["gap"]
     if v["place"] == "line":
-        add_c, form_c = (W - PAD_X - add_w / 2, line_y), (W - PAD_X - add_w - 4 - 24, line_y)
+        add_c, form_c = (W - PAD_X - add_w / 2, line_y), (W - PAD_X - add_w - 4 - form_w / 2, line_y)
     elif v["place"] == "chips":
         y = chips_top + chips_h - max(48, add_w) / 2
-        add_c, form_c = (W - PAD_X - add_w / 2, y), (W - PAD_X - add_w - 4 - 24, y)
+        add_c, form_c = (W - PAD_X - add_w / 2, y), (W - PAD_X - add_w - 4 - form_w / 2, y)
     elif v["place"] == "split":
         add_c = (W - PAD_X - add_w / 2, chips_top + chips_h - max(48, add_w) / 2)
-        form_c = (W - PAD_X - 24, line_y)
+        form_c = (W - PAD_X - form_w / 2, line_y)
     else:
         y = KTOP - PAD_BOT - action_h / 2
-        add_c, form_c = (W - PAD_X - add_w / 2, y), (PAD_X + 24, y)
+        add_c, form_c = (W - PAD_X - add_w / 2, y), (PAD_X + form_w / 2, y)
     # chip centres, row by row
     centres, x, row = [], PAD_X, 0
     for c in CHIPS:
@@ -124,10 +127,10 @@ def layout(v):
         dx = max(bx0 - ax1, ax0 - bx1, 0)
         dy = max(by0 - ay1, ay0 - by1, 0)
         return math.hypot(dx, dy)
-    gaps = [gap(form_c[0] - 24, form_c[1] - 24, form_c[0] + 24, form_c[1] + 24), KTOP - ay1]
+    gaps = [gap(form_c[0] - form_w / 2, form_c[1] - form_w / 2, form_c[0] + form_w / 2, form_c[1] + form_w / 2), KTOP - ay1]
     gaps += [gap(cx - cw / 2, cy - 24, cx + cw / 2, cy + 24) for cx, cy, cw in centres]
     return {
-        "fitts_add": fitts(REST, add_c, add_w), "fitts_form": fitts(REST, form_c, 48),
+        "fitts_add": fitts(REST, add_c, add_w), "fitts_form": fitts(REST, form_c, form_w),
         "fitts_chips": sum(fitts(KB_MID, (cx, cy), cw) for cx, cy, cw in centres) / len(centres),
         "sheet": sheet, "spacing": min(gaps), "text": v["font"], "lines": lines,
     }
@@ -167,7 +170,7 @@ def main(write=True):
         own = [c for c in front if c["v"]["place"] == p]
         if own:
             picks[p] = min(own, key=norm_dist)
-    current = next(c for c in cands if c["v"] == {"place": "line", "font": 16, "line_h": 48, "chip_h": 34, "add": 48, "gap": 4})
+    current = next(c for c in cands if c["v"] == {"place": "line", "font": 16, "line_h": 48, "add": 48, "form": 48, "gap": 4})
     knee = min(front, key=norm_dist)
     out = {"count": len(cands), "front": len(front), "knee": knee, "picks": picks, "current": current,
            "front_by_place": {p: sum(c["v"]["place"] == p for c in front) for p in PLACEMENTS}}
@@ -227,13 +230,13 @@ def sensitivity():
 def fmt(c):
     v, m = c["v"], c["m"]
     return "| %s | %d px | %d | %d | %d | %d | %.2f | %.2f | %.2f | %.0f | %.0f | %d |" % (
-        v["place"], v["font"], v["line_h"], v["chip_h"], v["add"], v["gap"], m["fitts_add"], m["fitts_chips"], m["fitts_form"],
+        v["place"], v["font"], v["line_h"], v["form"], v["add"], v["gap"], m["fitts_add"], m["fitts_chips"], m["fitts_form"],
         m["sheet"], m["spacing"], m["lines"])
 
 
 if __name__ == "__main__":
     o = main()
-    head = ["| Placement | Text | Line h | Chip h | ✓ size | Gap | ID to ✓ | ID to chips | ID to ▤ | Sheet dp | Spacing at ✓ | Lines |",
+    head = ["| Placement | Text | Line h | ▤ size | ✓ size | Gap | ID to ✓ | ID to chips | ID to ▤ | Sheet dp | Spacing at ✓ | Lines |",
             "|---|---|---|---|---|---|---|---|---|---|---|---|"]
     md = ["# Capture sheet: sizes and placement, enumerated", "", "Generated by `tools/screens/capture_opt.py` (its docstring states the model).", "",
           "%d layouts; %d on the Pareto front. Front members per placement: %s." % (
@@ -248,7 +251,7 @@ if __name__ == "__main__":
     md += ["", "## Sensitivity: frame x thumb rest", "", "Each placement's balanced pick, re-searched in each frame. ID to ✓ / sheet dp / lines.", "",
            "| Frame | Thumb rests on | Knee | line | chips | row | split | A′ as approved |", "|---|---|---|---|---|---|---|---|"]
     for r in sensitivity():
-        cell = lambda c: "%s %dpx ✓%d: %.2f / %.0f / %d" % (c["v"]["place"], c["v"]["font"], c["v"]["add"], c["m"]["fitts_add"], c["m"]["sheet"], c["m"]["lines"]) if c else "none on front"
+        cell = lambda c: "%s %dpx ✓%d ▤%d: %.2f / %.0f / %d" % (c["v"]["place"], c["v"]["font"], c["v"]["add"], c["v"]["form"], c["m"]["fitts_add"], c["m"]["sheet"], c["m"]["lines"]) if c else "none on front"
         md.append("| %s | %s | %s | %s | %s | %s | %s | %s |" % (r["frame"], "Enter" if r["rest"] == "ENTER" else "keyboard centre", cell(r["knee"]),
                   *[cell(r["picks"].get(p)) for p in PLACEMENTS], cell(r["current"])))
     with open(os.path.join(OUT, "capture-opt.md"), "w", encoding="utf-8", newline="\n") as fh:

@@ -1,19 +1,19 @@
 {
- "count": 1296,
- "front": 78,
+ "count": 2592,
+ "front": 72,
  "knee": {
   "v": {
    "place": "chips",
    "font": 18,
    "line_h": 48,
-   "chip_h": 32,
-   "add": 56,
+   "add": 72,
+   "form": 56,
    "gap": 4
   },
   "m": {
-   "fitts_add": 2.488155638781112,
-   "fitts_form": 2.7110731056525923,
-   "fitts_chips": 1.859010023511244,
+   "fitts_add": 2.233548640314493,
+   "fitts_form": 2.583058227058425,
+   "fitts_chips": 1.9213707707112944,
    "sheet": 172,
    "spacing": 4.0,
    "text": 18,
@@ -21,19 +21,38 @@
   }
  },
  "picks": {
+  "line": {
+   "v": {
+    "place": "line",
+    "font": 18,
+    "line_h": 48,
+    "add": 72,
+    "form": 56,
+    "gap": 4
+   },
+   "m": {
+    "fitts_add": 2.439287084772367,
+    "fitts_form": 2.7829467015306024,
+    "fitts_chips": 1.8303523344327917,
+    "sheet": 148,
+    "spacing": 4.0,
+    "text": 18,
+    "lines": 2
+   }
+  },
   "chips": {
    "v": {
     "place": "chips",
     "font": 18,
     "line_h": 48,
-    "chip_h": 32,
-    "add": 56,
+    "add": 72,
+    "form": 56,
     "gap": 4
    },
    "m": {
-    "fitts_add": 2.488155638781112,
-    "fitts_form": 2.7110731056525923,
-    "fitts_chips": 1.859010023511244,
+    "fitts_add": 2.233548640314493,
+    "fitts_form": 2.583058227058425,
+    "fitts_chips": 1.9213707707112944,
     "sheet": 172,
     "spacing": 4.0,
     "text": 18,
@@ -45,15 +64,15 @@
     "place": "row",
     "font": 18,
     "line_h": 48,
-    "chip_h": 32,
-    "add": 52,
-    "gap": 4
+    "add": 48,
+    "form": 56,
+    "gap": 8
    },
    "m": {
-    "fitts_add": 2.5669320703052736,
-    "fitts_form": 3.189283818774415,
-    "fitts_chips": 2.1880007354872184,
-    "sheet": 228,
+    "fitts_add": 2.653780688877992,
+    "fitts_form": 2.9789390752485487,
+    "fitts_chips": 2.0895415966857125,
+    "sheet": 184,
     "spacing": 8.0,
     "text": 18,
     "lines": 1
@@ -62,19 +81,19 @@
   "split": {
    "v": {
     "place": "split",
-    "font": 15,
+    "font": 16,
     "line_h": 48,
-    "chip_h": 32,
-    "add": 56,
+    "add": 64,
+    "form": 56,
     "gap": 4
    },
    "m": {
-    "fitts_add": 2.488155638781112,
-    "fitts_form": 3.066271646848354,
-    "fitts_chips": 1.9587480044733838,
+    "fitts_add": 2.350381345828612,
+    "fitts_form": 2.872621993969743,
+    "fitts_chips": 2.0170537123594783,
     "sheet": 172,
-    "spacing": 6.71999999999997,
-    "text": 15,
+    "spacing": 8.0,
+    "text": 16,
     "lines": 1
    }
   }
@@ -84,25 +103,25 @@
    "place": "line",
    "font": 16,
    "line_h": 48,
-   "chip_h": 34,
    "add": 48,
+   "form": 48,
    "gap": 4
   },
   "m": {
-   "fitts_add": 3.0826819830231584,
-   "fitts_form": 3.0989450874959523,
-   "fitts_chips": 1.9587480044733838,
-   "sheet": 181.2,
+   "fitts_add": 2.901502286619,
+   "fitts_form": 2.9227089602555147,
+   "fitts_chips": 1.8303523344327917,
+   "sheet": 133.2,
    "spacing": 4.0,
    "text": 16,
    "lines": 2
   }
  },
  "front_by_place": {
-  "line": 0,
-  "chips": 9,
-  "row": 9,
-  "split": 60
+  "line": 46,
+  "chips": 6,
+  "row": 6,
+  "split": 14
  },
  "references": [
   {

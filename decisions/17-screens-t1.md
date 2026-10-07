@@ -194,3 +194,22 @@ The owner left the placement and the sizes of ✓ and ▤ free, asked for a bala
 The model was checked against the render, and it overstated A′'s sheet (181 against 130). Its glyph width (0.52 em) is wider than the rendered font, so A′'s chips fit on one row. It got thumb travel right (K 2.49 in both).
 
 States drawn on K: empty, two readings, and the left-hand setting (mirrored), with S mirrored for comparison.
+
+**Corrections after the owner's question, "why are ✓ and ▤ still the same size?" (2026-10-07).**
+- **▤ was never searched:** the model held it at 48. The first run also stopped ✓ at 56, the top of its range, and picked it. A pick on the bound means the range was too narrow.
+- **The glyphs never changed.** They stayed 20 px and 18 px whatever their targets. They now follow Material's proportions: ✓ at 43% of its disc (24 in a 56 FAB), and ▤ at 24.
+- **The text-width constant was guessed.** The model's 0.52 em per character was measured from the render at 0.47–0.48. That is now 0.48, and it is why the model overstated A′'s sheet.
+- **The control had not lost in the refined section.** Its sheet was measured as the line's strip (130 dp), but it covers the screen. The scorer now measures an opaque full-screen capture (`.cover`) to the keyboard, at 490 dp. The earlier "loses" came from reading the exit code through a pipe.
+
+**Searched again with both sizes free** (✓ 48–72, ▤ 48–56; targets never below 48), the search goes to the top of both ranges in every frame. **Nothing in the model counts the cost of size.** Thumb travel and spacing both improve as a button grows. Measured clutter (edge density) cannot see it either: a filled disc adds edges only at its rim, so K at 56, 64 and 72 all fall within 0.002.
+
+So the size is a trade between speed and visual weight, and it is the owner's to make. Along K, with the phone frame and the thumb resting on Enter:
+
+| ✓ size | Thumb travel to ✓ | Change from 56 | Disc area |
+|---|---|---|---|
+| 48 | 2.80 | +0.17 bits | −27% |
+| 56 | 2.63 | 0 | 2,463 dp² |
+| 64 | 2.49 | −0.14 bits (about 15–30 ms a capture) | +31% |
+| 72 | 2.36 | −0.27 bits (about 30–50 ms) | +65% |
+
+Each step of 4 dp on ▤ saves 0.09 bits on a rarely used action, and changes nothing else. K64 and K72 are drawn beside K.

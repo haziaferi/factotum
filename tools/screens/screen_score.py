@@ -69,6 +69,8 @@ MEASURE_JS = r"""
     document.querySelectorAll('.body .row').forEach(function(r){var q=r.getBoundingClientRect();if(q.height&&q.top>=bb.top&&q.bottom<=bb.bottom)out.rows_visible++})}
   // capture sheets: the sheet's height and how many lines the typed text wraps to
   var sh=document.querySelector('.sheet');if(sh)out.sheet_h=Math.round(sh.getBoundingClientRect().height);
+  // an opaque full-screen capture (.cover) hides everything above the keyboard, not just its line's strip
+  var cv=document.querySelector('.cover'),kb=document.querySelector('.cover .kb');if(cv&&kb)out.sheet_h=Math.round(kb.getBoundingClientRect().top-cv.getBoundingClientRect().top);
   var li=document.querySelector('.line .in .ud');if(li){var lh=parseFloat(getComputedStyle(li).lineHeight)||parseFloat(getComputedStyle(li).fontSize)*1.2;out.line_lines=Math.round(li.getBoundingClientRect().height/lh)}
   var pre=document.createElement('pre');pre.id='__measure';pre.textContent=JSON.stringify(out);document.body.appendChild(pre);
 })();
