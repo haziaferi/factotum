@@ -823,6 +823,8 @@ OPTIONS_T14 = [
      "about": "Two cards across, with Pinned and recent left out so that every screen fits."},
     {"id": "C-", "name": "Store map, no Pinned and recent", "how": "oblique", "phone": lambda: hub_v4("C-"), "desk": hub_desk_v4,
      "about": "The store map without Pinned and recent."},
+    {"id": "A-tight-", "name": "One column, tighter cards, no Pinned and recent", "how": "direct", "phone": lambda: hub_v4("A-tight-"), "desk": hub_desk_v4,
+     "about": "Option A with 2 px card padding and 4 px gaps, and Pinned and recent left out: the 48 px rows stay, and every screen fits (owner's question, 2026-10-07)."},
     {"id": "A", "name": "One column of cards", "how": "direct", "phone": lambda: hub_v4("A"), "desk": hub_desk_v4,
      "about": "One card per module, top to bottom, under the capture line and Pinned and recent."},
     {"id": "B", "name": "Two columns of cards", "how": "direct", "phone": lambda: hub_v4("B"), "desk": hub_desk_v4,
@@ -909,7 +911,7 @@ def main():
         "feature names outweighing the card headers; empty space measured; every card on Windows. Hidden screens are now "
         "hit-tested (a feature cut off by the sheet's edge counts as hidden). Three-axis scores (harmony, ease, clutter): "
         "<code>tools/screens/hub_opt.py</code>, <code>docs/screens/t1/hub-opt.json</code>.",
-        OPTIONS_T14, STATES_T14, T13_CSS + T14_CSS + __import__("legend_opt").CSS, ("clutter", "desk_clutter", "faint_n", "small", "reach", "no_pinned", "hidden"), t14_extra,
+        OPTIONS_T14, STATES_T14, T13_CSS + T14_CSS + __import__("legend_opt").CSS + __import__("hub_opt").TIGHT_CSS, ("clutter", "desk_clutter", "faint_n", "small", "reach", "no_pinned", "hidden"), t14_extra,
         must=lambda r: "%d screens below the fold (owner: every screen visible)" % r["hidden"] if r["hidden"] else None)
     page = ['<!doctype html><html lang="en" data-theme="light"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">',
             '<title>Factotum T1 shared parts</title><style>%s\n%s\n%s\n%s\n%s</style></head><body>' % (kit.theme_css(), kit.BASE_CSS, EXTRA, T12_CSS + T13_CSS + T14_CSS + __import__("legend_opt").CSS, PAGE_CSS),

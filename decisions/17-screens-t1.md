@@ -558,3 +558,22 @@ This was checked in the full page with the browser: both lines sit inside the wi
 - The page ranked by clutter alone. It now carries the same reach and Pinned measures, and its front matches the scorer's on C and B−.
 
 **The ideas raised before unpausing are not applied:** navigating from the Hub's line, shorthands on the cards, and a short list for rare screens. Each would need the owner's decision and its own scoring.
+
+**Would shorter cards in A remove the scroll?** (owner, 2026-10-07)
+
+**Not on their own.** A overflows the sheet by 135 px. Its height is spent on:
+- the capture line, hint, and Pinned and recent: 163 px;
+- eight 48 px rows of screens: 384 px, fixed by the target rule;
+- six card headers: 114 px;
+- card padding and the gaps between cards: 96 px.
+
+**What was tried** (`hub_opt.py`):
+- **Tighter padding and gaps** still hide 6 screens.
+- **Headers inline as a first word, or in a label column,** hide 3. Sharing the row pushes two cards onto an extra row of screens.
+- **Without Pinned and recent:**
+  - plain A hides 2;
+  - A with tighter cards (**A-tight−**) hides **none**.
+
+**A-tight− joins the front,** with the least clutter of any option. Its harmony is the worst of the four, because its headers carry the largest share of the mass (0.121).
+
+**The front is now C, B−, C− and A-tight−.** A-tight− is drawn in T1.4 on the page.

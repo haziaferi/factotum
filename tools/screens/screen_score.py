@@ -81,7 +81,7 @@ MEASURE_JS = r"""
   // legend items (.lgi) actually readable: inside the viewport and drawn at their centre (not scrolled or clipped away)
   out.lgi=[].map.call(document.querySelectorAll('.lgi'),function(el){var q=el.getBoundingClientRect(),cx=q.left+q.width/2,cy=q.top+q.height/2;var ok=q.left>=0&&q.right<=innerWidth&&cy>=0&&cy<innerHeight;var h=ok?document.elementFromPoint(cx,cy):null;return ok&&!!h&&(el===h||el.contains(h))});
   // card headers' boxes (Hub sheet: their visual weight against the feature names)
-  out.h5=[].map.call(document.querySelectorAll('.card h5'),function(el){var q=el.getBoundingClientRect();return [q.left,q.top,q.width,q.height]});
+  out.h5=[].map.call(document.querySelectorAll('.card h5, .card .hlab'),function(el){var q=el.getBoundingClientRect();return [q.left,q.top,q.width,q.height]});
   var pre=document.createElement('pre');pre.id='__measure';pre.textContent=JSON.stringify(out);document.body.appendChild(pre);
 })();
 </script>"""

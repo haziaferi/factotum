@@ -60,6 +60,23 @@ def cards_a():
     return "".join(t.card(*g) for g in t.HUB_GROUPS)
 
 
+def card_tight(name, glyph, feats, mode):
+    """Shorter cards for A (owner, 2026-10-07: would shorter cards remove the scroll?). The 48 px rows stay (the owner's
+    target rule); what can go is the header's own row, the card's padding and the gaps between cards.
+      tight   padding 2 px, gaps 4 px, header kept on its own row
+      inline  the header flows as the first word of the card's first row, a quiet label, not a target
+      column  the header in a fixed 76 px label column at the left, the features beside it
+    """
+    fs = "".join(t.feat(f) for f in feats)
+    label = '<span class="hlab">%s %s</span>' % (glyph, t.e(name))
+    if mode == "tight":
+        return '<div class="card" style="padding:2px 10px;margin:0 0 4px"><h5>%s %s</h5><div class="ft">%s</div></div>' % (glyph, t.e(name), fs)
+    if mode == "inline":
+        return '<div class="card" style="padding:0 10px;margin:0 0 4px"><div class="ft" style="align-items:center">%s%s</div></div>' % (label, fs)
+    return ('<div class="card" style="padding:0 10px;margin:0 0 4px;display:flex;align-items:flex-start"><span class="hlab" style="flex:none;width:76px;'
+            'min-height:48px;display:flex;align-items:center">%s %s</span><div class="ft" style="flex:1;margin:0">%s</div></div>' % (glyph, t.e(name), fs))
+
+
 def cards_b():
     return '<div class="grid2">%s</div>' % cards_a()
 
@@ -77,7 +94,14 @@ def list_x():
     return '<div class="hlist">%s</div>' % rows
 
 
+TIGHT_CSS = ".hlab{font-size:12px;font-weight:600;color:var(--dim);padding:0 8px;display:inline-flex;align-items:center;min-height:48px}"
+
+
 OPTIONS = [
+    ("A-tight", "One column, tighter cards (padding 2, gaps 4)", "direct", lambda: phone("".join(card_tight(*g, "tight") for g in t.HUB_GROUPS))),
+    ("A-inline", "One column, header inline as the first word", "direct", lambda: phone("".join(card_tight(*g, "inline") for g in t.HUB_GROUPS))),
+    ("A-column", "One column, header in a label column", "direct", lambda: phone("".join(card_tight(*g, "column") for g in t.HUB_GROUPS))),
+    ("A-tight-", "One column, tighter cards, no Pinned and recent", "direct", lambda: phone("".join(card_tight(*g, "tight") for g in t.HUB_GROUPS), pinned=False)),
     ("A", "One column of cards", "direct", lambda: phone(cards_a())),
     ("B", "Two columns of cards", "direct", lambda: phone(cards_b())),
     ("C", "Cards where the bar says they live (store map)", "oblique", lambda: phone(cards_c())),
@@ -86,7 +110,7 @@ OPTIONS = [
     ("X", "Control: one long list, no capture line", "control", lambda: phone(list_x(), top=False)),
 ]
 DESK = lambda: t.hub_desk(v4_top() + '<div class="grid3">%s</div>' % "".join(t.card(*g) for g in t.HUB_GROUPS))
-CSS = t.EXTRA + t.T12_CSS + t.T13_CSS + t.T14_CSS + L.CSS
+CSS = t.EXTRA + t.T12_CSS + t.T13_CSS + t.T14_CSS + L.CSS + TIGHT_CSS
 
 
 def doc(html, theme="light", score=True):
