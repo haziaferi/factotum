@@ -1079,3 +1079,27 @@ Mockups, every state: `docs/screens/t1/repeat4-options.html`.
   - `WhenKindsTest`: 5, round trips, kinds, sync values, reminders, triggers.
   - The core passes 312 tests and the data layer 378.
 - SPEC v0.38 §3.4.
+
+## T1.7 Labels: questions (owner, 2026-10-08)
+
+**Already fixed** (decision 08, SPEC §3.8):
+- one vocabulary, "Label": name, colour, scope (everything, activities, trackers), order;
+- a page carries many; an activity, habit or tracker at most one;
+- names are unique ignoring case, and duplicates merge on sync;
+- a new label takes a name-derived colour, changeable later;
+- the capture line's `#label` marker (T1.3).
+
+**Owner's answers:**
+- **Scope:** the chip, the picker, the suggestions while typing `#`, and management (Settings › Labels, behind ⚙).
+- **To score:**
+  - the chip's look in greys: text only, a dot and text (the dot takes the colour later), an outlined pill, a tinted pill, or text after #;
+  - the picker: opened from ⋯ › Label and from the full page's Label row, as a sheet, a list with search and create-on-type, a chip grid, or in the keyboard's place;
+  - more labels than fit: the first plus a count, as many as fit plus a count, or all of them wrapping;
+  - the `#` suggestions: chips above the keyboard (in the hint line's place), a short list over the line, or inline completion;
+  - management: direct controls, a menu per label, or a detail page.
+- **Axes:**
+  - harmony, ease, clutter;
+  - legibility and telling labels apart without colour;
+  - density on rows (width taken from the title, extra height, wrapping);
+  - closeness to the references.
+- **References:** Todoist, TickTick, Any.do, Tasks.org, Notion (new content only), Obsidian, and the source apps (Tendril's tags, Chronicle's categories).
