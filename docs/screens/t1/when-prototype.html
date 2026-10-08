@@ -5,7 +5,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>When sheet prototype</title>
 <!-- T1.5 + T1.6 merged (owner's workshop, 2026-10-08; decision 17): one sentence for dates, times and repeats.
-     v2 (owner): the sentence stays put at the bottom (fixed-height sheet, above the gesture bar); Undo and Redo;
+     v2-v3 (owner): the sentence stays put at the foot (the sheet grows upward only, above the gesture bar); Undo and Redo under it;
+     times on T1.5's dial (hours, then minutes) with a typed field;
      impossible combinations are not drawn. Greys only; type Major Second (sentence 17.5 px, small 12.5 px). -->
 <style>
 :root{--bg:#f4f4f2;--zone:#e9e9e6;--zone2:#d9d9d5;--ink:#1d1d1b;--dim:#6b6b66;--sheet:#fafaf8;--scrim:rgba(0,0,0,.16)}
@@ -26,14 +27,21 @@ h1{font-size:19px;margin:0 0 4px}.dim{color:var(--dim)}
 .today .rowi{background:var(--zone);border-radius:12px;padding:12px;margin:0 0 8px;color:var(--dim)}
 .scrim{position:absolute;inset:0;background:var(--scrim)}
 .gesture{position:absolute;left:50%;bottom:8px;width:108px;height:4px;margin-left:-54px;border-radius:2px;background:var(--dim);opacity:.6;z-index:3}
-/* the sheet keeps one height; the sentence block is pinned to its foot, above the gesture bar, so it never moves */
-.sheet{position:absolute;left:0;right:0;bottom:0;height:640px;display:flex;flex-direction:column;background:var(--sheet);border-radius:20px 20px 0 0;padding:4px 12px 28px;box-shadow:0 -8px 24px rgba(0,0,0,.14)}
+/* v3 (owner): the sheet grows upward only; its foot (the sentence) is anchored above the gesture bar, so it never moves */
+.sheet{position:absolute;left:0;right:0;bottom:0;max-height:732px;display:flex;flex-direction:column;background:var(--sheet);border-radius:20px 20px 0 0;padding:4px 12px 28px;box-shadow:0 -8px 24px rgba(0,0,0,.14)}
 .top{display:flex;justify-content:space-between;align-items:center;min-height:48px;flex:none}
 .top .ttl{font-weight:600;font-size:15px}
 .tap{min-height:48px;min-width:48px;display:inline-flex;align-items:center;justify-content:center;background:none;border:0;color:var(--ink);font:inherit;cursor:pointer;padding:0 4px}
 .tap:disabled{opacity:.35;cursor:default}
-.area{flex:1;overflow:auto;display:flex;flex-direction:column;justify-content:flex-end;min-height:0}
+.area{overflow:auto;min-height:0}
 .foot{flex:none;border-top:1px solid var(--zone2);padding-top:2px}
+.crow{display:flex;justify-content:space-between;align-items:center}
+.pill{min-height:48px;min-width:72px;border-radius:10px;border:0;box-shadow:inset 0 0 0 1px var(--zone2);background:transparent;color:var(--ink);font:inherit;font-size:15px;cursor:pointer;margin-right:6px}
+.pill.act{box-shadow:inset 0 0 0 2px var(--ink);font-weight:600}
+.dial{width:312px;height:312px;cursor:pointer;border-radius:50%;background:var(--zone);position:relative;margin:2px auto 4px}
+.dial span{position:absolute;width:40px;height:40px;transform:translate(-50%,-50%);border-radius:50%;display:grid;place-items:center;font-size:15px;pointer-events:none}
+.dial span.in{font-size:13px;color:var(--dim)}
+.dial span.on{background:var(--zone2);color:var(--ink);font-weight:600}
 .sent{font-size:17.5px;line-height:48px}
 .tok{display:inline-flex;align-items:center;justify-content:center;min-height:48px;min-width:48px;padding:0 2px;cursor:pointer;background:none;border:0;font:inherit;color:inherit}
 .tok b{font-weight:600;text-decoration:underline;text-decoration-color:var(--dim);text-underline-offset:4px}
@@ -237,23 +245,59 @@ function chooser(){const o=S.open;if(!o)return"";let h="";
     else{h=`<div class="wd">${WD.map((w,i)=>chip(w.slice(0,2),S.days.has(i),`toggleDay(${i})`)).join("")}</div>`;
       if(S.v.on==="shortcuts")h+=`<div class="chips">${chip("Weekdays",[...S.days].sort().join()==="0,1,2,3,4","S.days=new Set([0,1,2,3,4]);render()")}${chip("Weekends",[...S.days].sort().join()==="5,6","S.days=new Set([5,6]);render()")}${sub(S.unit)?chip("Any day",S.days.size===7,"S.days=new Set([0,1,2,3,4,5,6]);render()"):""}</div>`}}
   if(o==="time"){const t=S.time;
-    h=`<div class="chips">${timeKinds().map(k=>chip(k==="none"&&S.after?"No time":LABEL[k],t.kind===k,`S.time.kind='${k}';render()`)).join("")}</div>`;
-    if(t.kind==="at")h+=`<div class="chips">${t.times.map((x,i)=>`<input class="fld" type="time" value="${x}" onchange="S.time.times[${i}]=this.value;render()">`).join("")}${chip("+ time",false,"S.time.times.push('20:30');render()")}${t.times.length>1?chip("− time",false,"S.time.times.pop();render()"):""}</div>`;
-    if(t.kind==="span"||t.kind==="window"||t.kind==="rtime")h+=`<div class="chips"><span class="lab">${t.kind==="span"?"From":"Between"}</span><input class="fld" type="time" value="${t.a}" onchange="S.time.a=this.value;render()"><span class="small">&nbsp;${t.kind==="span"?"to":"and"}&nbsp;</span><input class="fld" type="time" value="${t.b}" onchange="S.time.b=this.value;render()"></div>`;
-    if(t.kind==="rtime")h+=`<div class="chips"><span class="lab">Times a day</span>${[1,2,3,4,6].map(k=>chip(k,t.k===k,`S.time.k=${k};render()`)).join("")}</div>`}
+    h=`<div class="chips">${timeKinds().map(k=>chip(k==="none"&&S.after?"No time":LABEL[k],t.kind===k,`setKind('${k}')`)).join("")}</div>`;
+    if(t.kind==="none")return h;
+    const slots=t.kind==="at"?t.times.map((x,i)=>"t"+i):["a","b"];
+    if(!slots.includes(E.slot))E.slot=slots[0];
+    const pills=slots.map((s,i)=>(t.kind!=="at"&&i===1?`<span class="small">&nbsp;${t.kind==="span"?"to":"and"}&nbsp;</span>`:"")+
+      `<button class="pill${E.slot===s?" act":""}" onclick="E.slot='${s}';E.stage='h';render(true)">${getT(s)}</button>`).join("");
+    const lead=t.kind==="at"?"":`<span class="lab">${t.kind==="span"?"From":"Between"}</span>`;
+    h+=`<div class="chips">${lead}${pills}${t.kind==="at"?chip("+ time",false,"addTime()")+(t.times.length>1?chip("− time",false,"S.time.times.pop();render()"):""):""}</div>`;
+    if(t.kind==="rtime")h+=`<div class="chips"><span class="lab">Times a day</span>${[1,2,3,4,6].map(k=>chip(k,t.k===k,`S.time.k=${k};render()`)).join("")}</div>`;
+    h+=dial()}
   if(o==="end"){const e=S.end,L={forever:"Forever",until:"Until",count:"Times in all",fordays:"For days"};
     h=`<div class="chips">${endKinds().map(k=>chip(L[k],e.kind===k,`S.end.kind='${k}';render()`)).join("")}</div>`;
     if(e.kind==="count")h+=`<div class="chips"><input class="fld" type="number" min="1" value="${e.count}" onchange="S.end.count=Math.max(1,+this.value);render()"><span class="small">&nbsp;times in all</span></div>`;
     if(e.kind==="fordays")h+=`<div class="chips"><input class="fld" type="number" min="1" value="${e.fordays}" onchange="S.end.fordays=Math.max(1,+this.value);render()"><span class="small">&nbsp;days</span></div>`;
     if(e.kind==="until")h+=`<div class="chips"><span class="lab">Start +</span><input class="fld" type="number" min="0" value="${e.plusN}" onchange="S.end.plusN=Math.max(0,+this.value);render()">${["day","week","month","year"].map(u=>chip(u+"s",e.plusU===u,`S.end.plusU='${u}';render()`)).join("")}</div><div class="small">or pick the date:</div>`+month("until")}
   return h}
-// ---- render: the chooser fills the space above; the sentence and readout stay at the foot --------------------------
+// ---- the time: T1.5's approved entry, the dial (hours, then minutes) with a typed field, the keyboard only on the field --
+const E={slot:"t0",stage:"h"};   // which value the dial edits; not part of the rule, so not an undo step
+function getT(s){return s[0]==="t"?S.time.times[+s.slice(1)]:S.time[s]}
+function setT(s,v){if(s[0]==="t")S.time.times[+s.slice(1)]=v;else S.time[s]=v}
+function setKind(k){const t=S.time;
+  // owner: two times chosen in "at" stay the same when switching to from-to (and back)
+  if(t.kind==="at"&&k!=="at"&&k!=="none"){t.a=t.times[0];if(t.times[1])t.b=t.times[1]}
+  if(k==="at"&&t.kind!=="at"&&t.kind!=="none")t.times=t.b&&t.kind!=="rtime"?[t.a,t.b]:[t.a];
+  t.kind=k;E.slot=k==="at"?"t0":"a";E.stage="h";render()}
+function addTime(){S.time.times.push("20:30");E.slot="t"+(S.time.times.length-1);E.stage="h";render()}
+function pickHour(hh){const v=getT(E.slot);setT(E.slot,String(hh).padStart(2,"0")+v.slice(2));E.stage="m";render()}
+function pickMin(mm){const v=getT(E.slot);setT(E.slot,v.slice(0,3)+String(mm).padStart(2,"0"));E.stage="h";
+  const order=S.time.kind==="at"?S.time.times.map((x,i)=>"t"+i):["a","b"],i=order.indexOf(E.slot);if(i<order.length-1)E.slot=order[i+1];render()}
+function typed(v){if(/^([01]?\d|2[0-3]):?[0-5]\d$/.test(v)){const d=v.replace(":","").padStart(4,"0");setT(E.slot,d.slice(0,2)+":"+d.slice(2))}render()}
+function dial(){const v=getT(E.slot),hh=+v.slice(0,2),mm=+v.slice(3);
+  // Android's 24-hour dial (SimpleReminder, captured 2026-10-08): 1-12 on the outer ring, 13-00 on the inner one, a tap
+  // anywhere in a hour's wedge picks it. Android's is 224 dp across with the inner hours 28 dp apart; here it is 312 dp,
+  // the inner ring at 92 dp, so the inner hours are 48 dp apart (the owner's 48 dp rule)
+  const R0=132,R1=92,C=156,pos=(i,r)=>[C+r*Math.sin(i*Math.PI/6),C-r*Math.cos(i*Math.PI/6)];
+  let labels="";
+  if(E.stage==="h"){for(let i=0;i<12;i++){const o=i===0?12:i,n=i===0?0:i+12,[x,y]=pos(i,R0),[x2,y2]=pos(i,R1);
+      labels+=`<span class="${hh===o?"on":""}" style="left:${x}px;top:${y}px">${o}</span><span class="in${hh===n?" on":""}" style="left:${x2}px;top:${y2}px">${String(n).padStart(2,"0")}</span>`}}
+  else{for(let i=0;i<12;i++){const[x,y]=pos(i,R0);labels+=`<span class="${Math.round(mm/5)%12===i?"on":""}" style="left:${x}px;top:${y}px">${String(i*5).padStart(2,"0")}</span>`}}
+  return `<div class="chips"><input class="fld" style="width:96px" inputmode="numeric" value="${v}" title="Type a time (any minute)" onchange="typed(this.value)"><span class="small">&nbsp;${E.stage==="h"?"hour":"minutes"} · type for any minute</span></div><div class="dial" onclick="dialTap(event)">${labels}</div>`}
+function dialTap(ev){const r=ev.currentTarget.getBoundingClientRect(),x=ev.clientX-r.left-156,y=ev.clientY-r.top-156,d=Math.hypot(x,y);
+  if(d<40)return;                                                     // the hub picks nothing
+  const i=Math.round(((Math.atan2(x,-y)*180/Math.PI+360)%360)/30)%12;
+  if(E.stage==="h"){const inner=d<112;pickHour(inner?(i===0?0:i+12):(i===0?12:i))}else pickMin(i*5)}
+// ---- render: the sheet grows upward from its foot; the sentence and readout stay at the foot ---------------------------
 function render(noStep){normalise();const now=snap();
   if(!noStep&&shown!==null&&now!==shown){past.push(shown);future=[]}
   shown=now;const cr=cron();
-  $("#sheet").innerHTML=`<div class="top"><span><button class="tap" title="Undo" ${past.length?"":"disabled"} onclick="undo()">↶</button><button class="tap" title="Redo" ${future.length?"":"disabled"} onclick="redo()">↷</button></span><span class="ttl">When</span><button class="tap" onclick="done()">Done</button></div>
+  $("#sheet").innerHTML=`<div class="top"><span></span><span class="ttl">When</span><button class="tap" onclick="done()">Done</button></div>
   <div class="area">${chooser()}</div>
-  <div class="foot"><div class="sent">${sentence()}</div>${cr?`<div class="small">As cron: ${cr}</div>`:""}<div class="small">${readout()}</div></div>`}
+  <div class="foot"><div class="sent">${sentence()}</div>
+  <div class="crow"><span class="small">${cr?"As cron: "+cr:""}</span><span><button class="tap" title="Undo" ${past.length?"":"disabled"} onclick="undo()">↶</button><button class="tap" title="Redo" ${future.length?"":"disabled"} onclick="redo()">↷</button></span></div>
+  <div class="small">${readout()}</div></div>`}
 function tapTok(id){if(id==="mode"){S.mode=S.mode==="once"?"every":"once";if(S.mode==="every"&&S.v.start==="once")S.start=new Date(S.date);
     try{localStorage.setItem("when-last",S.mode)}catch(e){}S.open=null;render();return}
   S.open=S.open===id?null:id;if(id==="date"||id==="start"||id==="end"){const r=id==="start"?S.start:id==="end"?untilDate():S.date;S.cal=new Date(r.getFullYear(),r.getMonth(),1)}render(true)}

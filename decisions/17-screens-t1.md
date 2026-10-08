@@ -964,3 +964,17 @@ Mockups, every state: `docs/screens/t1/repeat4-options.html`.
   - 29 Feb notes "28 Feb in other years";
   - overnight windows read "the next day".
 - **Recorded, not drawn:** times that fall in a clock change are a platform rule.
+
+**Prototype v3 (owner, 2026-10-08):**
+- **The sheet resizes upward only, and the sentence is held in place.** The foot is anchored above the gesture bar; measured, it stays at 712 px with every chooser.
+- **The calendar fits without scrolling.** No chooser scrolls; Until's (the calculator plus the month) is the tallest, its top 8 px from the screen's.
+- **Undo and Redo sit under the sentence,** opposite "As cron:".
+- **Two times chosen in "at" are kept** when switching to from–to, and back.
+- **Times are set on T1.5's approved entry, the dial with a typed field:** hour, then minutes. The prototype's native time inputs had brought back the scrolling the T1.5 scoring had ruled out (wheels 27 actions against the dial's 13).
+- **The 24-hour dial follows SimpleReminder's** (Android's TimePicker, captured on the phone; geometry only):
+  - 1–12 on the outer ring, 13–00 on the inner one;
+  - a tap anywhere in an hour's wedge picks it.
+  - Android's is about 224 dp across, with the inner ring at a 54 dp radius, so its inner hours are about 28 dp apart.
+  - Here it is 312 dp across, with the inner ring at 92 dp, so the inner hours are 48 dp apart (the 48 dp rule).
+  - This replaces the 12-position dial with a 00–11 | 12–23 switch.
+  - The time chooser still fits.
