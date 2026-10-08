@@ -1022,3 +1022,17 @@ Mockups, every state: `docs/screens/t1/repeat4-options.html`.
   | Over T1.5's 4 tasks and T1.6's 10 | — | 14 to 27 taps more |
 
   **Owner's choice: two entries,** ⋯ › Date and ⋯ › Repeat, into the one merged sheet.
+
+**Approved (owner, 2026-10-08): the When sheet as T1.5 + T1.6.**
+- It supersedes:
+  - T1.5's two-step picker (approved earlier the same day), now folded in `screens.html` as superseded;
+  - T1.6's rounds 1–4.
+- `screens.html` shows it as section `t1-5` (`tools/screens/when_page.py`), with its states rendered from the interactive prototype itself into `docs/screens/t1/when/`:
+  - nine phone states;
+  - Windows, the same sheet as a panel over the window.
+- The prototype stays the reference for behaviour: `docs/screens/t1/when-prototype.html`.
+- **Still owed:** the cron extensions in `Cron.kt` (`L`, `#`, several lines, names) and the data layer's support for the new kinds:
+  - several random times a day;
+  - random gaps bounded by a window;
+  - "for n days";
+  - the start row.
