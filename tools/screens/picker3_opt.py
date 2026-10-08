@@ -1,5 +1,5 @@
 """T1.5 v3 (owner, 2026-10-08): the line sets dates and times by typing; a typed date is never asked again (tapping its
-highlight does nothing). The picker is for choosing a day by looking at the month: it opens from ⋯ › Date beside the
+highlight opens no picker, only "Keep as text", as every highlight does). The picker is for choosing a day by looking at the month: it opens from ⋯ › Date beside the
 line, or from the full page's Date row, and opens straight on the calendar, with no presets.
 
 Variables: steps (one view: month, time and end together; two: a day tapped, then the time view), container (a

@@ -663,10 +663,10 @@ Also: the empty space was trimmed (labels moved inside their rows, less padding)
 - "If the user already wrote 'tomorrow' there is no reason to add another date/time picker."
 
 **Owner's answers:**
-- **Tapping a highlighted date does nothing.** To change it, the words are edited.
+- **Tapping a highlighted date opens no picker.** To change it, the words are edited. (Revised below: it offers "Keep as text".)
 - **The calendar opens from ⋯ › Date beside the line, and from the full page's Date row.**
 - **It opens straight on the calendar, with no presets.** This supersedes decision 17's earlier "presets first".
-- **Not yet settled:** the shorthand rules' rule 3 still has every highlight offering "Keep as text" when tapped. For dates that is now "nothing"; the other highlights are the owner's to settle.
+- **Settled (owner, 2026-10-08):** "Tapping dates and times should still offer 'Keep as text', since in some inputs, like Journal, they might not have the same meaning as for a Calendar event." So rule 3 of the shorthand rules holds for every highlight, dates and times included: a tap offers "Keep as text" and nothing else.
 
 **The picker's job is now choosing a day by looking at the month (day load on), then a time if wanted.** `tools/screens/picker3_opt.py` scores 60 variants:
 - one view or two steps;

@@ -15,6 +15,8 @@ Rules
        !  a time or offset follows  !10m !2h !9:00   (not "Wow!", "!!!", "! now")
        *  a repeat word follows     *daily *weekly *every ...  (not "2*3", "*important*")
   3. Whatever counted is highlighted; tapping a highlight offers "Keep as text", which undoes rules 1-2 for it.
+     Dates and times read from the words are highlighted and offer it too (owner, 2026-10-08: in a Journal line
+     "tomorrow" may be only a word, not the item's date); to change a date, the words are edited.
 
     PYTHONUTF8=1 python tools/screens/shorthand_rules.py      (exits 1 on any failing case)
 """
