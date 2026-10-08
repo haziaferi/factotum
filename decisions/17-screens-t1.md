@@ -1151,3 +1151,21 @@ Mockups: `docs/screens/t1/labels-options.html`.
 - **D, management:** "Score both". Already scored:
   - direct controls: 17 actions, 6 controls a row, clutter 0.035;
   - a page per label: 23 actions, 2 a row, clutter 0.028, closer to the references.
+
+**T1.7, the owner's proposal (2026-10-09):** "Could the label sit somewhere where it doesn't crowd the screen or increase rows height? Could it become a colored dot? The label color would then be decided by the user with an advanced color picker."
+- **The caveat, recorded:** colour must not be the only way to tell labels apart (WCAG 1.4.1, colour-blind people). The name stays readable by a long press on the row, on the item's page, and in a filter bar of named dots (owner's answers). The colour comes from the guided picker that keeps colours apart for colour-blind vision (T0's series contest).
+- **Scored as part F:**
+  - place: under the time or mark, or by the action;
+  - several labels: up to 3 dots, a dot and a count, or stacked;
+  - the label view: from the item's page, or the dots as a 32 dp target.
+
+  The filter bar is drawn in every variant.
+- **Under the time, the view from the item's page:**
+  - titles get 232 px (125–208 with name chips);
+  - no row height is added and no row lost;
+  - a dot and a count keeps the dots in a column (5 px stray; 21 for three side by side).
+- **Tappable dots under the time** add 5 px a row and lose a row; they take 5% of a row as a target.
+- **By the action:** titles get 162–184 px, nothing lost.
+- **Opening the view:** 2 actions with tappable dots, 3 from the item's page.
+
+Drawn: `docs/screens/t1/labels-dots.html` (`labels-f.json`).

@@ -643,3 +643,115 @@ def c_reach(v):
 if __name__ == "__main__" and "creach" in sys.argv[1:]:
     for v in ({"place": "below"}, {"place": "above"}, {"place": "list"}):
         print(v, c_reach(v))
+
+
+# ==== Part F: the label as a coloured dot (owner, 2026-10-09) ===========================================================
+"""
+Owner: "Could the label sit somewhere where it doesn't crowd the screen or increase rows height? Could it become a
+colored dot? The label color would then be decided by the user with an advanced color picker." The name is read by a
+long press on the row, on the item's page, and in a filter bar of named dots (owner's answers); all of these are drawn
+or counted. The dots are grey here; colour comes with the palette (decision 15), from the guided picker that keeps
+colours apart for colour-blind vision (T0's series contest).
+  place     lead (under the time or kind mark, in the row's left column) or action (beside the right-hand action)
+  several   dots (up to 3 side by side, then +n), count (one dot and the number), stack (up to 3 overlapping)
+  entry     names (the label view opens from the item's page; the dot is no target) or tap (the dots are a 32 dp
+            target opening the label view; owner's exception to 48 dp)
+Measures: title_room, extra_h, rows_lost (the filter bar included), clutter, column (how far the dots stray from one
+x across rows, px), exposure and reach (tap only), see_all (actions to everything carrying Health, and back).
+"""
+F_SPACE = {"place": ["lead", "action"], "several": ["dots", "count", "stack"], "entry": ["names", "tap"]}
+F_CSS = """
+.drow{display:flex;align-items:center;gap:8px;min-height:48px;padding:4px 0;border-bottom:1px solid var(--zone2)}
+.drow .lead{width:44px;flex:none;color:var(--dim);font-size:12px;display:flex;flex-direction:column;align-items:center;gap:3px}
+.drow .tt{flex:1;min-width:0;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.drow .act{flex:none;min-width:48px;height:48px;display:grid;place-items:center;font-size:13px}
+.dots{display:inline-flex;align-items:center;gap:4px;flex:none}
+.dots i{width:8px;height:8px;border-radius:50%;background:var(--dim);display:block}
+.dots.stack i{margin-left:-4px;box-shadow:0 0 0 1.5px var(--bg)}.dots.stack i:first-child{margin-left:0}
+.dots .n{font-size:11px;color:var(--dim)}
+.dtap{min-width:32px;min-height:32px;display:inline-flex;align-items:center;justify-content:center;flex:none}
+.fbar{display:flex;gap:6px;overflow:hidden;padding:0 0 2px}
+"""
+
+
+def dots_html(n, v):
+    if v["several"] == "count":
+        inner = "<i></i>" + ('<span class="n">%d</span>' % n if n > 1 else "")
+    else:
+        inner = "<i></i>" * min(3, n) + ('<span class="n">+%d</span>' % (n - 3) if n > 3 else "")
+    d = '<span class="dots %s">%s</span>' % ("stack" if v["several"] == "stack" else "", inner)
+    return '<span class="dtap" data-tap="Dots">%s</span>' % d if v["entry"] == "tap" else d
+
+
+def f_row(lead, title, n, v, act=""):
+    dots = dots_html(n, v)
+    lead_html = '<span class="lead"><span>%s</span>%s</span>' % (lead, dots if v["place"] == "lead" else "")
+    right = (dots if v["place"] == "action" else "") + ('<span class="act">%s</span>' % act if act else ('<span class="act"></span>' if v["place"] == "action" else ""))
+    return '<div class="drow" data-tap="Open item">%s<span class="tt">%s</span>%s</div>' % (lead_html, kit.ud(title), right)
+
+
+def f_phone(v):
+    fbar = '<div class="fbar">%s</div>' % "".join(R.ch("Filter %s" % n, '<span class="dots"><i></i></span>&nbsp;' + n) for n in ("Health", "Body", "Calm", "Home", "Books"))
+    routines = "".join(f_row(time or t.KIND_MARK["habit"], title, len(names), v, "Log") for _, title, time, names in ROUTINES)
+    pages = "".join(f_row("▤", title, len(names), v) for title, names in PAGES)
+    return kit.phone(kit.header(t.TITLE, t.APPROVED_BUTTONS), '<div class="c2">%s</div>' % fbar + kit.zone("Routines", routines) + kit.zone("Pages", pages), kit.bar("Today"))
+
+
+def f_doc(v, theme="light"):
+    return kit.document(f_phone(v), theme, t.EXTRA + t.T12_CSS + R.CSS + F_CSS, True)
+
+
+F_PROBE = """<script>(function(){var bar=document.querySelector('.bar'),floor=bar?bar.getBoundingClientRect().top:740,out={rows:[]};
+[].slice.call(document.querySelectorAll('.drow')).forEach(function(r){var tt=r.querySelector('.tt'),d=r.querySelector('.dots');
+out.rows.push({h:Math.round(r.getBoundingClientRect().height),room:Math.round(tt.clientWidth),seen:r.getBoundingClientRect().bottom<=floor+1,
+dx:d?Math.round(d.getBoundingClientRect().left):null})});
+document.body.insertAdjacentHTML('beforeend','<pre id="__do'+'ts">'+JSON.stringify(out)+'</pre>')})()</script>"""
+
+
+def score_f(v):
+    d = f_doc(v).replace("</body>", F_PROBE + "</body>")
+    res = ss._edge(["--dump-dom"], True, "labels-f-" + "-".join(v.values()), d, 660, 1040)
+    p = json.loads(re.search(r'<pre id="__dots">(.*?)</pre>', res.stdout, re.S).group(1).replace("&quot;", '"'))["rows"]
+    xs = [r["dx"] for r in p if r["dx"] is not None]
+    m = ss.measure(f_doc(v), 360, 740)
+    chips = [x for x in m["taps"] if x["name"] == "Dots" and x.get("seen")]
+    exposure = round(sum(x["w"] * x["h"] for x in chips) / max(1, len(chips)) / (360 * 56), 3) if chips else 0.0
+    reach = round(sum(math.log2(math.hypot(P.THUMB[0] - x["x"], P.THUMB[1] - x["y"]) / min(x["w"], x["h"]) + 1) for x in chips) / len(chips), 3) if chips else None
+    return {"title_room": round(sum(r["room"] for r in p) / len(p), 1), "extra_h": round(sum(max(0, r["h"] - 56) for r in p) / len(p), 1),
+            "rows_lost": sum(not r["seen"] for r in p), "column": max(xs) - min(xs) if xs else 0, "exposure": exposure, "reach": reach,
+            "see_all": 2 if v["entry"] == "tap" else 3, "small": sorted({"%s %dx%d" % (x["name"], x["w"], x["h"]) for x in m["taps"] if x.get("seen") and (x["w"] < 48 or x["h"] < 48) and x["name"] != "Dots"}),
+            "clutter": clutter_of(lambda th: f_doc(v, th))}
+
+
+if __name__ == "__main__" and "f" in sys.argv[1:]:
+    run_part("f", F_SPACE, score_f)
+
+
+def dots_page():
+    """docs/screens/t1/labels-dots.html: part F drawn, images inlined."""
+    import base64
+    import io
+    import html as H
+    from PIL import Image
+    rows = json.load(open(os.path.join(v2.OUT, "labels-f.json"), encoding="utf-8"))
+    figs = ""
+    for r in rows:
+        v = r["v"]
+        buf = io.BytesIO()
+        Image.open(ss.render(f_doc(v), 360, 740)).convert("L").save(buf, "WEBP", quality=80)
+        cap = "%s · %s · %s: title room %s px, +%s px a row, %d rows lost, dots stray %d px%s, clutter %s" % (
+            {"lead": "under the time", "action": "by the action"}[v["place"]], {"dots": "up to 3 dots", "count": "dot + count", "stack": "stacked"}[v["several"]],
+            {"names": "view from the item's page", "tap": "dots tap to the view (32 dp)"}[v["entry"]], r["title_room"], r["extra_h"], r["rows_lost"], r["column"],
+            ", %.1f%% of a row a target" % (100 * r["exposure"]) if r["exposure"] else "", r["clutter"])
+        figs += '<figure><img width="300" src="data:image/webp;base64,%s"><figcaption>%s</figcaption></figure>' % (base64.b64encode(buf.getvalue()).decode("ascii"), H.escape(cap))
+    css = "body{font:14px/1.4 system-ui,sans-serif;padding:16px;background:#f4f4f2;color:#1d1d1b}.dim{color:#6b6b66}.flex{display:flex;gap:12px;flex-wrap:wrap}figure{margin:0;max-width:300px}figcaption{font-size:12px;color:#6b6b66}"
+    out = ('<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>T1.7 label dots</title><style>%s</style></head><body>'
+           '<h1 style="font-size:20px">T1.7 Labels as coloured dots</h1><p class="dim">Grey here; each dot takes its label\'s colour, chosen in the picker that keeps colours apart '
+           'for colour-blind vision. Names: a long press on the row, the item\'s page, and the filter bar of named dots on top.</p><div class="flex">%s</div></body></html>') % (css, figs)
+    with open(os.path.join(v2.OUT, "labels-dots.html"), "w", encoding="utf-8", newline=chr(10)) as fh:
+        fh.write(out)
+    print(len(out))
+
+
+if __name__ == "__main__" and "dotspage" in sys.argv[1:]:
+    dots_page()
