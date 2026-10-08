@@ -1,0 +1,175 @@
+{
+ "note": "Repeat screens captured on the owner's phone 2026-10-08 (geometry and UI labels only; screenshots gitignored in _screens-sources/repeat/). Features of each app's repeat builder, read from its captures: presets_first = a preset list or dialog comes before the builder; unit_control = how the unit is chosen (menu: drop-down or radio dialog; chips: chips or segmented; wheel; none: weekdays only); weekday_chips = weekdays as a row of chips; page = the builder is a full page; readout = the rule is read back in words; next_dates = at least the next occurrence is shown; modes = separate schedule types first. Skipped: Google Calendar (disabled on the phone), Etar (calendar permission declined), Cyclic Alarms (needs an overlay grant).",
+ "apps": [
+  {
+   "app": "Todoist",
+   "presets_first": true,
+   "unit_control": "menu",
+   "weekday_chips": true,
+   "page": false,
+   "readout": false,
+   "next_dates": false,
+   "modes": false
+  },
+  {
+   "app": "TickTick",
+   "presets_first": true,
+   "unit_control": "wheel",
+   "weekday_chips": true,
+   "page": true,
+   "readout": true,
+   "next_dates": false,
+   "modes": false
+  },
+  {
+   "app": "Google Tasks",
+   "presets_first": false,
+   "unit_control": "menu",
+   "weekday_chips": true,
+   "page": true,
+   "readout": false,
+   "next_dates": true,
+   "modes": false
+  },
+  {
+   "app": "Any.do",
+   "presets_first": false,
+   "unit_control": "chips",
+   "weekday_chips": true,
+   "page": false,
+   "readout": false,
+   "next_dates": false,
+   "modes": false
+  },
+  {
+   "app": "Fossify Calendar",
+   "presets_first": true,
+   "unit_control": "menu",
+   "weekday_chips": false,
+   "page": false,
+   "readout": true,
+   "next_dates": false,
+   "modes": false
+  },
+  {
+   "app": "Notion Calendar",
+   "presets_first": true,
+   "unit_control": "menu",
+   "weekday_chips": true,
+   "page": false,
+   "readout": false,
+   "next_dates": false,
+   "modes": false
+  },
+  {
+   "app": "Tasks.org",
+   "presets_first": true,
+   "unit_control": "menu",
+   "weekday_chips": true,
+   "page": true,
+   "readout": true,
+   "next_dates": false,
+   "modes": false
+  },
+  {
+   "app": "Loop Habit Tracker",
+   "presets_first": true,
+   "unit_control": "menu",
+   "weekday_chips": false,
+   "page": true,
+   "readout": true,
+   "next_dates": false,
+   "modes": false
+  },
+  {
+   "app": "OnePlus Clock",
+   "presets_first": false,
+   "unit_control": "none",
+   "weekday_chips": true,
+   "page": true,
+   "readout": true,
+   "next_dates": true,
+   "modes": false
+  },
+  {
+   "app": "Fossify Clock",
+   "presets_first": false,
+   "unit_control": "none",
+   "weekday_chips": true,
+   "page": false,
+   "readout": false,
+   "next_dates": false,
+   "modes": false
+  },
+  {
+   "app": "SimpleReminder",
+   "presets_first": false,
+   "unit_control": "wheel",
+   "weekday_chips": false,
+   "page": false,
+   "readout": false,
+   "next_dates": false,
+   "modes": false
+  },
+  {
+   "app": "Stochastic Reminder",
+   "presets_first": false,
+   "unit_control": "chips",
+   "weekday_chips": true,
+   "page": true,
+   "readout": false,
+   "next_dates": false,
+   "modes": true
+  },
+  {
+   "app": "MedTimer",
+   "presets_first": false,
+   "unit_control": "chips",
+   "weekday_chips": false,
+   "page": true,
+   "readout": true,
+   "next_dates": false,
+   "modes": true
+  },
+  {
+   "app": "reReminder",
+   "presets_first": false,
+   "unit_control": "wheel",
+   "weekday_chips": true,
+   "page": true,
+   "readout": true,
+   "next_dates": false,
+   "modes": false
+  },
+  {
+   "app": "Chronicle",
+   "presets_first": false,
+   "unit_control": "chips",
+   "weekday_chips": true,
+   "page": false,
+   "readout": true,
+   "next_dates": false,
+   "modes": false
+  },
+  {
+   "app": "Mnemo",
+   "presets_first": false,
+   "unit_control": "chips",
+   "weekday_chips": true,
+   "page": true,
+   "readout": false,
+   "next_dates": false,
+   "modes": true
+  },
+  {
+   "app": "Tendril",
+   "presets_first": false,
+   "unit_control": "chips",
+   "weekday_chips": true,
+   "page": false,
+   "readout": false,
+   "next_dates": false,
+   "modes": false
+  }
+ ]
+}

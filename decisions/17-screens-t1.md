@@ -742,3 +742,44 @@ Mockups: `docs/screens/t1/picker-options.html` (the steps, the keyboard state, a
 - **Containers:** all four again (sheet, page, the keyboard's place, a pop-over).
 
 **On the phone already:** Todoist, TickTick, Google Tasks, Any.do, Google Calendar, Fossify Calendar, Tasks.org and Loop Habit Tracker (both open source), the OnePlus clock, Notion Calendar, Chronicle and Mnemo. Tendril is not installed (only its test package), so its repeat screen is read from its code.
+
+**References captured (2026-10-08)**, on the owner's phone, geometry and labels only. Screenshots are in the gitignored `_screens-sources/repeat/`; the features are in `docs/screens/t1/repeat-references.json`.
+- **16 apps walked:** Todoist, TickTick, Google Tasks, Any.do, Fossify Calendar, Notion Calendar, Tasks.org, Loop, the OnePlus clock, Fossify Clock, SimpleReminder, Stochastic Reminder, MedTimer, reReminder, Chronicle, Mnemo, and Tendril (built from source and installed).
+- **Installed via Droid-ify, with the owner's approval:** Fossify Clock, SimpleReminder, Stochastic Reminder, MedTimer, reReminder, Etar and Cyclic Alarms.
+- **Skipped:**
+  - Google Calendar, which is disabled on the phone;
+  - Etar, whose calendar permission was declined;
+  - Cyclic Alarms, which needs an overlay grant.
+- **No reference reaches every rule group.** Random kinds appear only in Chronicle, Mnemo and Stochastic Reminder; windows only in MedTimer and reReminder; and cron is only typed (Mnemo).
+- **Things created to reach an editor:** in Any.do and MedTimer, a "Sample" was saved to reach its editor, then deleted.
+
+**Scored (`tools/screens/repeat_opt.py`):**
+- **The space:** 234 variants plus a control:
+  - form: freq, modes, sentence or typed;
+  - start: presets first or the builder;
+  - cron: an always-shown field, five fields, or behind Advanced;
+  - preview: none, words or a month;
+  - container: all four.
+- **The tasks:** ten, from a preset to cron's OR rule.
+- **The measures:**
+  - actions are walked in order, and closing the keyboard counts when it hides a control;
+  - visibility is hit-tested with and without the keyboard;
+  - six axes: harmony, ease, clutter, rules reached without free text, the rule read back, and the distance from the 17 references.
+
+**Results:**
+- **125 of 234 pass the visibility and 48 dp rules.** Every keyboard-place variant fails, and all but 7 pop-overs fail.
+- **The six-axis front holds 68,** and the control loses.
+- **Settled by paired comparison** (variants differing in one choice only):
+  - **The small month loses to the words line on every measure:** 2.5 more actions, more clutter, more covered, heavier, and no gain in legibility.
+  - **Cron behind Advanced beats an always-shown cron field** (clutter +0.012 for the field), **and the five-field builder** (worse on everything).
+  - **Typed words are off the front:** about 171 actions against 71–85, because each rule is typed out.
+- **Left as trade-offs:**
+  - **Form:**
+    - modes takes the fewest actions (9.5 fewer than freq);
+    - sentence is the calmest (11 controls against 25–29, covering 38% as a sheet);
+    - freq is the closest to the references.
+  - **Rule in words versus none:** words cost about 0.004 clutter and distance from the references, which mostly have no readout.
+  - **Presets first versus builder:** presets cost 6.7 more actions, and their opening view is smaller and calmer.
+  - **Sheet versus page:** a sheet has better reach (2.7 against 3.4); a page is calmer and covers everything.
+
+Mockups: `docs/screens/t1/repeat-options.html` (`tools/screens/repeat_page.py`).
