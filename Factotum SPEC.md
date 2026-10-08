@@ -1,6 +1,6 @@
 # Factotum — Product & Technical Spec
 
-**Status:** draft v0.36, seeded from the decision register · **Scope:** the merged data model, sync and behaviour rules of Factotum. Screens are not decided and are marked open (§10.1).
+**Status:** draft v0.37, seeded from the decision register · **Scope:** the merged data model, sync and behaviour rules of Factotum. Screens are not decided and are marked open (§10.1).
 **Related documents:** `decisions/`, the evidence behind §3: one ADR per decision with verified `file:line` facts, the scored options, the behaviour cases and the harness that measured them (`decisions/register.md` is the index). This spec states each decision once and points to its ADR for the evidence. It never restates the evidence.
 
 ---
@@ -9,6 +9,7 @@
 
 | Version | Summary | Sections touched |
 |---|---|---|
+| v0.37 | Cron input extended (decision 17): names, `L`, `#`, several lines as one rule | §3.4 |
 | v0.36 | Decision 16: databases in pages, O6 (DATABASE and VIEW blocks, a saved query beside the doorway, views over items); a data-layer slice owed before T5 | §3.12, §10 |
 | v0.35 | Owner: Tendril's Claude text verbs dropped (an exception to §0.1.5); widgets, the on-device LLM, a Windows global quick-add and natural-language input move across; use cadences in decision 15 | §0.1, §10 |
 | v0.34 | §10.1 T0 answers: tiers, dark mode with OLED, settings in two sections (settles §3.9's marker), a register per screen cluster; navigation, palette, type, shapes and density to be scored | §10 |
@@ -191,7 +192,7 @@ Every decision here was scored against its owners' behaviour cases, with a contr
 - Several set times a day are a RULE_SET.
 - Random draws are seeded with FNV-1a 64 of `itemId|occurrenceDate|kind` and drawn with SplitMix64, so every device computes the same time. **[Verified]** §9.4.
 - A drawn time in a DST gap moves forward by the gap.
-- Raw cron is accepted as input, converted, and never stored.
+- Raw cron is accepted as input, converted, and never stored. Beyond Mnemo's five numeric fields it takes names (`MON`, `JAN`), `L` (the last day; `FRIL`, the last Friday), `#` (`TUE#2`, the second Tuesday) and several lines as one rule, their union (decision 17, owner 2026-10-08; `CronTest`). `W`, `?`, seconds and years are refused.
 - **Missed occurrences:**
   - An **ALARM** is held by the OS through `setAlarmClock` and rings even while the app is dead.
   - A **NOTIFICATION** fires once, late, then continues.

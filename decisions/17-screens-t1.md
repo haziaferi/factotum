@@ -1041,3 +1041,21 @@ Mockups, every state: `docs/screens/t1/repeat4-options.html`.
   - **The images are now inlined,** as greyscale WebP, 40% of the PNGs' size.
   - **The page was then over the viewer's size limit.** The superseded explorations (the T1.5 picker, and T1.3's ✓/▤ sizes) moved to `superseded.html`, linked where they were. `screens.html` keeps the approved screens only (453 KB).
   - **Sections are newest first (owner):** T1.5 + T1.6, T1.4, T1.3, T1.2, T1.1.
+
+**Cron extensions built (owner, 2026-10-08: "Cron work first").**
+- **`core/.../recurrence/Cron.kt`** now takes, beyond Mnemo's five numeric fields:
+  - names: `JAN`–`DEC` and `SUN`–`SAT`, any case, in lists and ranges;
+  - `L`: the last day (`BYMONTHDAY=-1`), and `FRIL` / `5L`, the month's last Friday (`BYDAY=-1FR`);
+  - `#`: `TUE#2` / `2#2`, the second Tuesday (`BYDAY=2TU`), 1 to 5;
+  - several lines: one rule, their union (`RULE_SET`).
+- **Plain and ordinal weekdays together** (`MON,FRI#2`) are a union, and the OR rule holds with an ordinal weekday.
+- **Still refused:** `W`, `?`, a day no listed month has (`31 FEB`), and any bad line, which refuses the whole input.
+- **Tests:** `CronTest`, 9 tests, with the dates checked against a calendar.
+  - All 9 fail against the previous converter, and all pass now.
+  - The core suite passes: 299 tests.
+- `RecurrenceCasesTest`'s refusal list dropped the two forms that became valid.
+- SPEC v0.37 §3.4 states the input.
+- **Still owed to the data layer for the When sheet:**
+  - several random times a day (RANDOM_WINDOW with a count);
+  - random gaps bounded by a window;
+  - "for n days" (an until computed from the start).

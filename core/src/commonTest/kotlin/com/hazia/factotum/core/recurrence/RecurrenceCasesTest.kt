@@ -157,8 +157,9 @@ class RecurrenceCasesTest {
     }
 
     @Test
-    fun cronThatIsNotFiveNumericFieldsIsRefused() {
-        for (text in listOf("* * * *", "0 9 * * MON", "0 24 * * *", "61 * * * *", "0 9 L * *", "5-1 * * * *", "1-2-3 * * * *")) {
+    fun cronThatIsNotFiveValidFieldsIsRefused() {
+        // names and L became valid with the owner's extensions (decision 17, 2026-10-08): CronTest covers them
+        for (text in listOf("* * * *", "0 24 * * *", "61 * * * *", "5-1 * * * *", "1-2-3 * * * *")) {
             assertNull(Cron.toRecurrence(text), text)
         }
     }
