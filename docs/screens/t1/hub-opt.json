@@ -13,7 +13,7 @@
     "Time blocks",
     "Trash"
    ],
-   "reach": 2.939,
+   "reach": 2.892,
    "pinned": 1,
    "emphasis": 0.8,
    "order": [
@@ -23,7 +23,7 @@
    ],
    "headers": 0.11,
    "sprawl": 2,
-   "clutter": 0.0512,
+   "clutter": 0.0514,
    "empty": 0.09,
    "small": []
   },
@@ -37,7 +37,7 @@
     "Settings",
     "Trash"
    ],
-   "reach": 2.896,
+   "reach": 2.856,
    "pinned": 1,
    "emphasis": 0.8,
    "order": [
@@ -45,9 +45,9 @@
     "headers",
     "line"
    ],
-   "headers": 0.097,
+   "headers": 0.098,
    "sprawl": 2,
-   "clutter": 0.0532,
+   "clutter": 0.0534,
    "empty": 0.056,
    "small": []
   },
@@ -61,7 +61,7 @@
     "Settings",
     "Trash"
    ],
-   "reach": 2.887,
+   "reach": 2.847,
    "pinned": 1,
    "emphasis": 0.8,
    "order": [
@@ -71,7 +71,7 @@
    ],
    "headers": 0.099,
    "sprawl": 2,
-   "clutter": 0.0532,
+   "clutter": 0.0534,
    "empty": 0.049,
    "small": []
   },
@@ -81,7 +81,7 @@
    "how": "direct",
    "hidden": 0,
    "hidden_names": [],
-   "reach": 2.857,
+   "reach": 2.818,
    "pinned": 0,
    "emphasis": 0.8,
    "order": [
@@ -89,9 +89,9 @@
     "headers",
     "line"
    ],
-   "headers": 0.121,
+   "headers": 0.122,
    "sprawl": 2,
-   "clutter": 0.0502,
+   "clutter": 0.0504,
    "empty": 0.097,
    "small": [],
    "H": 15.0,
@@ -111,7 +111,7 @@
     "Time blocks",
     "Trash"
    ],
-   "reach": 2.864,
+   "reach": 2.82,
    "pinned": 1,
    "emphasis": 0.8,
    "order": [
@@ -119,9 +119,9 @@
     "headers",
     "line"
    ],
-   "headers": 0.095,
+   "headers": 0.096,
    "sprawl": 2,
-   "clutter": 0.0495,
+   "clutter": 0.0497,
    "empty": 0.111,
    "small": []
   },
@@ -129,16 +129,12 @@
    "id": "B",
    "name": "Two columns of cards",
    "how": "direct",
-   "hidden": 6,
+   "hidden": 2,
    "hidden_names": [
     "About",
-    "Calendars",
-    "History",
-    "Settings",
-    "Time totals",
     "Trash"
    ],
-   "reach": 2.998,
+   "reach": 2.769,
    "pinned": 1,
    "emphasis": 0.8,
    "order": [
@@ -146,9 +142,9 @@
     "headers",
     "line"
    ],
-   "headers": 0.089,
+   "headers": 0.09,
    "sprawl": 2,
-   "clutter": 0.0543,
+   "clutter": 0.0545,
    "empty": 0.111,
    "small": []
   },
@@ -158,7 +154,7 @@
    "how": "oblique",
    "hidden": 0,
    "hidden_names": [],
-   "reach": 2.824,
+   "reach": 2.79,
    "pinned": 1,
    "emphasis": 0.8,
    "order": [
@@ -168,7 +164,7 @@
    ],
    "headers": 0.089,
    "sprawl": 2,
-   "clutter": 0.0562,
+   "clutter": 0.0564,
    "empty": 0.16,
    "small": [],
    "H": 10.0,
@@ -181,7 +177,7 @@
    "how": "direct",
    "hidden": 0,
    "hidden_names": [],
-   "reach": 2.895,
+   "reach": 2.854,
    "pinned": 0,
    "emphasis": 0.8,
    "order": [
@@ -189,9 +185,9 @@
     "headers",
     "line"
    ],
-   "headers": 0.101,
+   "headers": 0.102,
    "sprawl": 2,
-   "clutter": 0.0509,
+   "clutter": 0.0511,
    "empty": 0.139,
    "small": [],
    "H": 14.0,
@@ -204,7 +200,7 @@
    "how": "oblique",
    "hidden": 0,
    "hidden_names": [],
-   "reach": 3.023,
+   "reach": 2.978,
    "pinned": 0,
    "emphasis": 0.8,
    "order": [
@@ -212,12 +208,12 @@
     "headers",
     "line"
    ],
-   "headers": 0.095,
+   "headers": 0.096,
    "sprawl": 2,
-   "clutter": 0.0509,
+   "clutter": 0.0511,
    "empty": 0.243,
    "small": [],
-   "H": 12.5,
+   "H": 13.0,
    "U": 12.0,
    "C": 10.5
   },
@@ -227,7 +223,7 @@
    "how": "direct",
    "hidden": 0,
    "hidden_names": [],
-   "reach": 2.864,
+   "reach": 2.82,
    "pinned": 1,
    "emphasis": 0.8,
    "order": [
@@ -237,10 +233,10 @@
    ],
    "headers": 0.095,
    "sprawl": 2,
-   "clutter": 0.0501,
+   "clutter": 0.0503,
    "empty": 0.132,
    "small": [],
-   "H": 12.5,
+   "H": 12.0,
    "U": 5.5,
    "C": 5.5
   },
@@ -250,7 +246,7 @@
    "how": "direct",
    "hidden": 0,
    "hidden_names": [],
-   "reach": 2.939,
+   "reach": 2.892,
    "pinned": 1,
    "emphasis": 0.8,
    "order": [
@@ -260,7 +256,7 @@
    ],
    "headers": 0.093,
    "sprawl": 2,
-   "clutter": 0.0501,
+   "clutter": 0.0503,
    "empty": 0.174,
    "small": [],
    "H": 11.0,
@@ -273,7 +269,7 @@
    "how": "oblique",
    "hidden": 0,
    "hidden_names": [],
-   "reach": 3.049,
+   "reach": 2.998,
    "pinned": 1,
    "emphasis": 0.8,
    "order": [
@@ -281,9 +277,9 @@
     "headers",
     "line"
    ],
-   "headers": 0.078,
+   "headers": 0.079,
    "sprawl": 2,
-   "clutter": 0.0502,
+   "clutter": 0.0504,
    "empty": 0.215,
    "small": [],
    "H": 9.0,
@@ -313,7 +309,7 @@
     "Tree",
     "Trend"
    ],
-   "reach": 2.926,
+   "reach": 2.829,
    "pinned": 0,
    "emphasis": 0.8,
    "order": [
@@ -323,7 +319,7 @@
    ],
    "headers": 0.0,
    "sprawl": 2,
-   "clutter": 0.035,
+   "clutter": 0.0351,
    "empty": 0.056,
    "small": []
   }

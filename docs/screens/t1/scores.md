@@ -45,7 +45,7 @@ Reference main screens: bearable/00-main.png 0.070, daylio/00-main.png 0.055, ho
 - C0 Store map, no App card: clutter 0.050 / 0.024, faint 0, small 0, below the fold 0 of 27, dominated
 - A-tight- One column, tighter cards, no Pinned and recent: clutter 0.050 / 0.026, faint 0, small 0, below the fold 0 of 27, dominated
 - A One column of cards: clutter 0.050 / 0.026, faint 0, small 0, below the fold 6 of 27, dominated
-- B Two columns of cards: clutter 0.054 / 0.026, faint 0, small 0, below the fold 6 of 27, dominated
+- B Two columns of cards: clutter 0.054 / 0.026, faint 0, small 0, below the fold 2 of 27, dominated
 - X Control: one long list: clutter 0.035 / 0.020, faint 0, small 0, below the fold 16 of 27, control
 
 ## T1.3 refined: ✓ and ▤

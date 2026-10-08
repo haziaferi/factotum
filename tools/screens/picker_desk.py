@@ -35,7 +35,7 @@ def body(shape):
     qa = L.sheet("both", "typed").replace('class="sheet" style="position:relative"', 'class="qa" style="position:relative;margin:60px 0 0 150px"')
     if shape == "dropdown2":  # a desktop has width: the month on the left, presets, time and end on the right
         presets = '<div class="row">%s</div>' % "".join(P.chip("Preset %s" % p, p) for p in P.PRESETS)
-        right = presets + P.time_entry("typed") + P.end_part(V)
+        right = P.time_entry("typed") + P.end_part(V)  # no presets (owner, 2026-10-08): the calendar opens straight away
         two = ('<div class="pk" data-picker="1" style="display:grid;grid-template-columns:336px 1fr;gap:16px;padding:6px 24px 10px">'
                '<div>%s</div><div>%s</div></div>') % (P.month(True), right)
         drop = '<div style="position:absolute;left:150px;top:190px;width:720px;box-shadow:0 12px 40px rgba(0,0,0,.25);border-radius:14px;overflow:hidden">%s</div>' % two

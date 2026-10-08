@@ -117,11 +117,14 @@ def render(doc, w, h):
 
 
 def measure(doc, w, h):
-    key = hashlib.sha256((doc + MEASURE_JS + "m%dx%d" % (w, h)).encode("utf-8")).hexdigest()[:20]  # the script is part of the key
+    # headless Edge's --dump-dom lays the page out in a 492 x 648 viewport whatever --window-size says, so anything below
+    # 648 px failed the hit-test ("seen") while drawn on screen (found 2026-10-08 in T1.5). The page is measured in a
+    # window tall and wide enough to hold the whole frame, and only the hit-test's own bounds use the frame's w x h.
+    key = hashlib.sha256((doc + MEASURE_JS + "m%dx%d-tallwindow" % (w, h)).encode("utf-8")).hexdigest()[:20]  # the script is part of the key
     cached = os.path.join(CACHE, key + ".json")
     if os.path.exists(cached):
         return json.load(open(cached, encoding="utf-8"))
-    res = _edge(["--dump-dom"], True, key, doc.replace("</body>", MEASURE_JS + "</body>"), w, h)
+    res = _edge(["--dump-dom"], True, key, doc.replace("</body>", MEASURE_JS.replace("innerWidth", str(w)).replace("innerHeight", str(h)) + "</body>"), w + 300, h + 300)
     m = re.search(r'<pre id="__measure">(.*?)</pre>', res.stdout, re.S)
     if not m:
         raise RuntimeError("measure failed: " + res.stderr[-400:])

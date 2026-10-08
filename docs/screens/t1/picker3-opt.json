@@ -1,0 +1,1391 @@
+{
+ "rows": [
+  {
+   "v": {
+    "steps": "one",
+    "container": "sheet",
+    "entry": "blocks",
+    "end": "duration"
+   },
+   "taps": 12,
+   "keys": 4,
+   "drags": 0,
+   "reach": 2.312,
+   "unseen": 0,
+   "unseen_names": [],
+   "line": 1,
+   "heights": 1,
+   "clutter": 0.0391,
+   "covered": 0.697,
+   "controls": 43,
+   "small": [],
+   "H": 18.0,
+   "U": 79.5,
+   "C": 75.0
+  },
+  {
+   "v": {
+    "steps": "one",
+    "container": "sheet",
+    "entry": "blocks",
+    "end": "endtime"
+   },
+   "taps": 12,
+   "keys": 4,
+   "drags": 0,
+   "reach": 2.528,
+   "unseen": 0,
+   "unseen_names": [],
+   "line": 1,
+   "heights": 1,
+   "clutter": 0.0417,
+   "covered": 0.827,
+   "controls": 45,
+   "small": [],
+   "H": 18.0,
+   "U": 84.5,
+   "C": 84.0
+  },
+  {
+   "v": {
+    "steps": "one",
+    "container": "sheet",
+    "entry": "typed",
+    "end": "duration"
+   },
+   "taps": 12,
+   "keys": 6,
+   "drags": 0,
+   "reach": 2.168,
+   "unseen": 0,
+   "unseen_names": [],
+   "line": 1,
+   "heights": 1,
+   "clutter": 0.0367,
+   "covered": 0.632,
+   "controls": 41,
+   "small": [],
+   "H": 18.0,
+   "U": 82.0,
+   "C": 63.5
+  },
+  {
+   "v": {
+    "steps": "one",
+    "container": "sheet",
+    "entry": "typed",
+    "end": "endtime"
+   },
+   "taps": 12,
+   "keys": 8,
+   "drags": 0,
+   "reach": 2.299,
+   "unseen": 0,
+   "unseen_names": [],
+   "line": 1,
+   "heights": 1,
+   "clutter": 0.0351,
+   "covered": 0.697,
+   "controls": 41,
+   "small": [],
+   "H": 18.0,
+   "U": 94.0,
+   "C": 65.0
+  },
+  {
+   "v": {
+    "steps": "one",
+    "container": "sheet",
+    "entry": "wheel",
+    "end": "duration"
+   },
+   "taps": 10,
+   "keys": 0,
+   "drags": 3,
+   "reach": 2.464,
+   "unseen": 0,
+   "unseen_names": [],
+   "line": 1,
+   "heights": 1,
+   "clutter": 0.0315,
+   "covered": 0.762,
+   "controls": 40,
+   "small": [],
+   "H": 18.0,
+   "U": 75.5,
+   "C": 57.0
+  },
+  {
+   "v": {
+    "steps": "one",
+    "container": "sheet",
+    "entry": "wheel",
+    "end": "endtime"
+   },
+   "taps": 9,
+   "keys": 0,
+   "drags": 4,
+   "reach": 2.857,
+   "unseen": 0,
+   "unseen_names": [],
+   "line": 1,
+   "heights": 1,
+   "clutter": 0.0296,
+   "covered": 0.951,
+   "controls": 39,
+   "small": [],
+   "H": 18.0,
+   "U": 85.5,
+   "C": 56.5
+  },
+  {
+   "v": {
+    "steps": "one",
+    "container": "sheet",
+    "entry": "dial",
+    "end": "duration"
+   },
+   "taps": 12,
+   "keys": 0,
+   "drags": 1,
+   "reach": 2.632,
+   "unseen": 0,
+   "unseen_names": [],
+   "line": 1,
+   "heights": 1,
+   "clutter": 0.0279,
+   "covered": 0.951,
+   "controls": 50,
+   "small": [],
+   "H": 18.0,
+   "U": 92.0,
+   "C": 69.0
+  },
+  {
+   "v": {
+    "steps": "one",
+    "container": "sheet",
+    "entry": "dial",
+    "end": "endtime"
+   },
+   "taps": 12,
+   "keys": 0,
+   "drags": 1,
+   "reach": 3.569,
+   "unseen": 3,
+   "unseen_names": [
+    "1: Done",
+    "1: Hour 2",
+    "1: Hour 3"
+   ],
+   "line": 1,
+   "heights": 1,
+   "clutter": 0.027,
+   "covered": 0.951,
+   "controls": 48,
+   "small": []
+  },
+  {
+   "v": {
+    "steps": "one",
+    "container": "sheet",
+    "entry": "cron",
+    "end": "duration"
+   },
+   "taps": 12,
+   "keys": 6,
+   "drags": 0,
+   "reach": 2.296,
+   "unseen": 0,
+   "unseen_names": [],
+   "line": 1,
+   "heights": 1,
+   "clutter": 0.0414,
+   "covered": 0.689,
+   "controls": 41,
+   "small": [],
+   "H": 18.0,
+   "U": 85.0,
+   "C": 72.5
+  },
+  {
+   "v": {
+    "steps": "one",
+    "container": "sheet",
+    "entry": "cron",
+    "end": "endtime"
+   },
+   "taps": 12,
+   "keys": 8,
+   "drags": 0,
+   "reach": 2.361,
+   "unseen": 0,
+   "unseen_names": [],
+   "line": 1,
+   "heights": 1,
+   "clutter": 0.0413,
+   "covered": 0.754,
+   "controls": 41,
+   "small": [],
+   "H": 18.0,
+   "U": 96.0,
+   "C": 75.5
+  },
+  {
+   "v": {
+    "steps": "one",
+    "container": "page",
+    "entry": "blocks",
+    "end": "duration"
+   },
+   "taps": 12,
+   "keys": 4,
+   "drags": 0,
+   "reach": 2.618,
+   "unseen": 0,
+   "unseen_names": [],
+   "line": 1,
+   "heights": 1,
+   "clutter": 0.0293,
+   "covered": 1.0,
+   "controls": 43,
+   "small": [],
+   "H": 18.0,
+   "U": 86.0,
+   "C": 76.5
+  },
+  {
+   "v": {
+    "steps": "one",
+    "container": "page",
+    "entry": "blocks",
+    "end": "endtime"
+   },
+   "taps": 12,
+   "keys": 4,
+   "drags": 0,
+   "reach": 2.775,
+   "unseen": 1,
+   "unseen_names": [
+    "1: Done"
+   ],
+   "line": 1,
+   "heights": 1,
+   "clutter": 0.0352,
+   "covered": 1.0,
+   "controls": 43,
+   "small": []
+  },
+  {
+   "v": {
+    "steps": "one",
+    "container": "page",
+    "entry": "typed",
+    "end": "duration"
+   },
+   "taps": 12,
+   "keys": 6,
+   "drags": 0,
+   "reach": 2.848,
+   "unseen": 0,
+   "unseen_names": [],
+   "line": 1,
+   "heights": 1,
+   "clutter": 0.024,
+   "covered": 1.0,
+   "controls": 41,
+   "small": [],
+   "H": 18.0,
+   "U": 99.0,
+   "C": 67.0
+  },
+  {
+   "v": {
+    "steps": "one",
+    "container": "page",
+    "entry": "typed",
+    "end": "endtime"
+   },
+   "taps": 12,
+   "keys": 8,
+   "drags": 0,
+   "reach": 2.737,
+   "unseen": 0,
+   "unseen_names": [],
+   "line": 1,
+   "heights": 1,
+   "clutter": 0.025,
+   "covered": 1.0,
+   "controls": 41,
+   "small": [],
+   "H": 18.0,
+   "U": 105.0,
+   "C": 67.5
+  },
+  {
+   "v": {
+    "steps": "one",
+    "container": "page",
+    "entry": "wheel",
+    "end": "duration"
+   },
+   "taps": 10,
+   "keys": 0,
+   "drags": 3,
+   "reach": 2.653,
+   "unseen": 0,
+   "unseen_names": [],
+   "line": 1,
+   "heights": 1,
+   "clutter": 0.0241,
+   "covered": 1.0,
+   "controls": 40,
+   "small": [],
+   "H": 18.0,
+   "U": 81.5,
+   "C": 62.0
+  },
+  {
+   "v": {
+    "steps": "one",
+    "container": "page",
+    "entry": "wheel",
+    "end": "endtime"
+   },
+   "taps": 9,
+   "keys": 0,
+   "drags": 4,
+   "reach": 3.378,
+   "unseen": 1,
+   "unseen_names": [
+    "1: Done"
+   ],
+   "line": 1,
+   "heights": 1,
+   "clutter": 0.0246,
+   "covered": 1.0,
+   "controls": 37,
+   "small": []
+  },
+  {
+   "v": {
+    "steps": "one",
+    "container": "page",
+    "entry": "dial",
+    "end": "duration"
+   },
+   "taps": 12,
+   "keys": 0,
+   "drags": 1,
+   "reach": 3.015,
+   "unseen": 2,
+   "unseen_names": [
+    "1: Done",
+    "1: Lasts 1 h"
+   ],
+   "line": 1,
+   "heights": 1,
+   "clutter": 0.0212,
+   "covered": 1.0,
+   "controls": 45,
+   "small": []
+  },
+  {
+   "v": {
+    "steps": "one",
+    "container": "page",
+    "entry": "dial",
+    "end": "endtime"
+   },
+   "taps": 12,
+   "keys": 0,
+   "drags": 1,
+   "reach": 3.378,
+   "unseen": 3,
+   "unseen_names": [
+    "1: Done",
+    "1: Hour 2",
+    "1: Hour 3"
+   ],
+   "line": 1,
+   "heights": 1,
+   "clutter": 0.021,
+   "covered": 1.0,
+   "controls": 45,
+   "small": []
+  },
+  {
+   "v": {
+    "steps": "one",
+    "container": "page",
+    "entry": "cron",
+    "end": "duration"
+   },
+   "taps": 12,
+   "keys": 6,
+   "drags": 0,
+   "reach": 2.763,
+   "unseen": 0,
+   "unseen_names": [],
+   "line": 1,
+   "heights": 1,
+   "clutter": 0.031,
+   "covered": 1.0,
+   "controls": 41,
+   "small": [],
+   "H": 18.0,
+   "U": 98.0,
+   "C": 74.0
+  },
+  {
+   "v": {
+    "steps": "one",
+    "container": "page",
+    "entry": "cron",
+    "end": "endtime"
+   },
+   "taps": 12,
+   "keys": 8,
+   "drags": 0,
+   "reach": 2.618,
+   "unseen": 0,
+   "unseen_names": [],
+   "line": 1,
+   "heights": 1,
+   "clutter": 0.0328,
+   "covered": 1.0,
+   "controls": 41,
+   "small": [],
+   "H": 18.0,
+   "U": 101.5,
+   "C": 75.5
+  },
+  {
+   "v": {
+    "steps": "one",
+    "container": "keyboard",
+    "entry": "blocks",
+    "end": "duration"
+   },
+   "taps": 12,
+   "keys": 4,
+   "drags": 0,
+   "reach": 1.866,
+   "unseen": 4,
+   "unseen_names": [
+    "1: Block Afternoon",
+    "1: Done",
+    "1: Lasts 1 h",
+    "1: Other time"
+   ],
+   "line": 0,
+   "heights": 1,
+   "clutter": 0.0406,
+   "covered": 0.392,
+   "controls": 33,
+   "small": []
+  },
+  {
+   "v": {
+    "steps": "one",
+    "container": "keyboard",
+    "entry": "blocks",
+    "end": "endtime"
+   },
+   "taps": 12,
+   "keys": 4,
+   "drags": 0,
+   "reach": 1.866,
+   "unseen": 3,
+   "unseen_names": [
+    "1: Block Afternoon",
+    "1: Done",
+    "1: Other time"
+   ],
+   "line": 0,
+   "heights": 1,
+   "clutter": 0.0406,
+   "covered": 0.392,
+   "controls": 33,
+   "small": []
+  },
+  {
+   "v": {
+    "steps": "one",
+    "container": "keyboard",
+    "entry": "typed",
+    "end": "duration"
+   },
+   "taps": 12,
+   "keys": 6,
+   "drags": 0,
+   "reach": 1.866,
+   "unseen": 3,
+   "unseen_names": [
+    "1: Done",
+    "1: Lasts 1 h",
+    "1: Time field"
+   ],
+   "line": 0,
+   "heights": 1,
+   "clutter": 0.0406,
+   "covered": 0.392,
+   "controls": 33,
+   "small": []
+  },
+  {
+   "v": {
+    "steps": "one",
+    "container": "keyboard",
+    "entry": "typed",
+    "end": "endtime"
+   },
+   "taps": 12,
+   "keys": 8,
+   "drags": 0,
+   "reach": 1.866,
+   "unseen": 2,
+   "unseen_names": [
+    "1: Done",
+    "1: Time field"
+   ],
+   "line": 0,
+   "heights": 1,
+   "clutter": 0.0406,
+   "covered": 0.392,
+   "controls": 33,
+   "small": []
+  },
+  {
+   "v": {
+    "steps": "one",
+    "container": "keyboard",
+    "entry": "wheel",
+    "end": "duration"
+   },
+   "taps": 10,
+   "keys": 0,
+   "drags": 3,
+   "reach": 1.866,
+   "unseen": 4,
+   "unseen_names": [
+    "1: Done",
+    "1: Hour wheel",
+    "1: Lasts 1 h",
+    "1: Minute wheel"
+   ],
+   "line": 0,
+   "heights": 1,
+   "clutter": 0.0406,
+   "covered": 0.392,
+   "controls": 33,
+   "small": []
+  },
+  {
+   "v": {
+    "steps": "one",
+    "container": "keyboard",
+    "entry": "wheel",
+    "end": "endtime"
+   },
+   "taps": 9,
+   "keys": 0,
+   "drags": 4,
+   "reach": 1.866,
+   "unseen": 3,
+   "unseen_names": [
+    "1: Done",
+    "1: Hour wheel",
+    "1: Minute wheel"
+   ],
+   "line": 0,
+   "heights": 1,
+   "clutter": 0.0406,
+   "covered": 0.392,
+   "controls": 33,
+   "small": []
+  },
+  {
+   "v": {
+    "steps": "one",
+    "container": "keyboard",
+    "entry": "dial",
+    "end": "duration"
+   },
+   "taps": 12,
+   "keys": 0,
+   "drags": 1,
+   "reach": 1.866,
+   "unseen": 4,
+   "unseen_names": [
+    "1: Done",
+    "1: Hour 2",
+    "1: Hour 3",
+    "1: Lasts 1 h"
+   ],
+   "line": 0,
+   "heights": 1,
+   "clutter": 0.0406,
+   "covered": 0.392,
+   "controls": 33,
+   "small": []
+  },
+  {
+   "v": {
+    "steps": "one",
+    "container": "keyboard",
+    "entry": "dial",
+    "end": "endtime"
+   },
+   "taps": 12,
+   "keys": 0,
+   "drags": 1,
+   "reach": 1.866,
+   "unseen": 3,
+   "unseen_names": [
+    "1: Done",
+    "1: Hour 2",
+    "1: Hour 3"
+   ],
+   "line": 0,
+   "heights": 1,
+   "clutter": 0.0406,
+   "covered": 0.392,
+   "controls": 33,
+   "small": []
+  },
+  {
+   "v": {
+    "steps": "one",
+    "container": "keyboard",
+    "entry": "cron",
+    "end": "duration"
+   },
+   "taps": 12,
+   "keys": 6,
+   "drags": 0,
+   "reach": 1.866,
+   "unseen": 3,
+   "unseen_names": [
+    "1: Done",
+    "1: Lasts 1 h",
+    "1: Time field"
+   ],
+   "line": 0,
+   "heights": 1,
+   "clutter": 0.0406,
+   "covered": 0.392,
+   "controls": 33,
+   "small": []
+  },
+  {
+   "v": {
+    "steps": "one",
+    "container": "keyboard",
+    "entry": "cron",
+    "end": "endtime"
+   },
+   "taps": 12,
+   "keys": 8,
+   "drags": 0,
+   "reach": 1.866,
+   "unseen": 2,
+   "unseen_names": [
+    "1: Done",
+    "1: Time field"
+   ],
+   "line": 0,
+   "heights": 1,
+   "clutter": 0.0406,
+   "covered": 0.392,
+   "controls": 33,
+   "small": []
+  },
+  {
+   "v": {
+    "steps": "two",
+    "container": "sheet",
+    "entry": "blocks",
+    "end": "duration"
+   },
+   "taps": 12,
+   "keys": 4,
+   "drags": 0,
+   "reach": 2.031,
+   "unseen": 0,
+   "unseen_names": [],
+   "line": 1,
+   "heights": 1,
+   "clutter": 0.038,
+   "covered": 0.503,
+   "controls": 34,
+   "small": [],
+   "H": 18.0,
+   "U": 72.5,
+   "C": 42.5
+  },
+  {
+   "v": {
+    "steps": "two",
+    "container": "sheet",
+    "entry": "blocks",
+    "end": "endtime"
+   },
+   "taps": 12,
+   "keys": 4,
+   "drags": 0,
+   "reach": 2.195,
+   "unseen": 0,
+   "unseen_names": [],
+   "line": 1,
+   "heights": 1,
+   "clutter": 0.0391,
+   "covered": 0.503,
+   "controls": 34,
+   "small": [],
+   "H": 18.0,
+   "U": 75.5,
+   "C": 44.5
+  },
+  {
+   "v": {
+    "steps": "two",
+    "container": "sheet",
+    "entry": "typed",
+    "end": "duration"
+   },
+   "taps": 12,
+   "keys": 6,
+   "drags": 0,
+   "reach": 1.888,
+   "unseen": 0,
+   "unseen_names": [],
+   "line": 1,
+   "heights": 1,
+   "clutter": 0.0361,
+   "covered": 0.503,
+   "controls": 34,
+   "small": [],
+   "H": 18.0,
+   "U": 76.0,
+   "C": 40.0
+  },
+  {
+   "v": {
+    "steps": "two",
+    "container": "sheet",
+    "entry": "typed",
+    "end": "endtime"
+   },
+   "taps": 12,
+   "keys": 8,
+   "drags": 0,
+   "reach": 1.964,
+   "unseen": 0,
+   "unseen_names": [],
+   "line": 1,
+   "heights": 1,
+   "clutter": 0.036,
+   "covered": 0.503,
+   "controls": 34,
+   "small": [],
+   "H": 18.0,
+   "U": 85.0,
+   "C": 39.5
+  },
+  {
+   "v": {
+    "steps": "two",
+    "container": "sheet",
+    "entry": "wheel",
+    "end": "duration"
+   },
+   "taps": 10,
+   "keys": 0,
+   "drags": 3,
+   "reach": 2.123,
+   "unseen": 0,
+   "unseen_names": [],
+   "line": 1,
+   "heights": 1,
+   "clutter": 0.0345,
+   "covered": 0.503,
+   "controls": 34,
+   "small": [],
+   "H": 18.0,
+   "U": 66.5,
+   "C": 38.0
+  },
+  {
+   "v": {
+    "steps": "two",
+    "container": "sheet",
+    "entry": "wheel",
+    "end": "endtime"
+   },
+   "taps": 9,
+   "keys": 0,
+   "drags": 4,
+   "reach": 2.414,
+   "unseen": 0,
+   "unseen_names": [],
+   "line": 1,
+   "heights": 1,
+   "clutter": 0.0326,
+   "covered": 0.546,
+   "controls": 34,
+   "small": [],
+   "H": 18.0,
+   "U": 74.5,
+   "C": 39.5
+  },
+  {
+   "v": {
+    "steps": "two",
+    "container": "sheet",
+    "entry": "dial",
+    "end": "duration"
+   },
+   "taps": 12,
+   "keys": 0,
+   "drags": 1,
+   "reach": 2.234,
+   "unseen": 0,
+   "unseen_names": [],
+   "line": 1,
+   "heights": 1,
+   "clutter": 0.0317,
+   "covered": 0.546,
+   "controls": 34,
+   "small": [],
+   "H": 18.0,
+   "U": 81.0,
+   "C": 39.0
+  },
+  {
+   "v": {
+    "steps": "two",
+    "container": "sheet",
+    "entry": "dial",
+    "end": "endtime"
+   },
+   "taps": 12,
+   "keys": 0,
+   "drags": 1,
+   "reach": 2.49,
+   "unseen": 0,
+   "unseen_names": [],
+   "line": 1,
+   "heights": 1,
+   "clutter": 0.0265,
+   "covered": 0.935,
+   "controls": 34,
+   "small": [],
+   "H": 18.0,
+   "U": 88.0,
+   "C": 41.5
+  },
+  {
+   "v": {
+    "steps": "two",
+    "container": "sheet",
+    "entry": "cron",
+    "end": "duration"
+   },
+   "taps": 12,
+   "keys": 6,
+   "drags": 0,
+   "reach": 1.986,
+   "unseen": 0,
+   "unseen_names": [],
+   "line": 1,
+   "heights": 1,
+   "clutter": 0.0389,
+   "covered": 0.503,
+   "controls": 34,
+   "small": [],
+   "H": 18.0,
+   "U": 78.0,
+   "C": 44.5
+  },
+  {
+   "v": {
+    "steps": "two",
+    "container": "sheet",
+    "entry": "cron",
+    "end": "endtime"
+   },
+   "taps": 12,
+   "keys": 8,
+   "drags": 0,
+   "reach": 1.993,
+   "unseen": 0,
+   "unseen_names": [],
+   "line": 1,
+   "heights": 1,
+   "clutter": 0.0391,
+   "covered": 0.503,
+   "controls": 34,
+   "small": [],
+   "H": 18.0,
+   "U": 87.0,
+   "C": 44.5
+  },
+  {
+   "v": {
+    "steps": "two",
+    "container": "page",
+    "entry": "blocks",
+    "end": "duration"
+   },
+   "taps": 12,
+   "keys": 4,
+   "drags": 0,
+   "reach": 3.31,
+   "unseen": 0,
+   "unseen_names": [],
+   "line": 1,
+   "heights": 1,
+   "clutter": 0.0179,
+   "covered": 1.0,
+   "controls": 34,
+   "small": [],
+   "H": 18.0,
+   "U": 97.5,
+   "C": 45.0
+  },
+  {
+   "v": {
+    "steps": "two",
+    "container": "page",
+    "entry": "blocks",
+    "end": "endtime"
+   },
+   "taps": 12,
+   "keys": 4,
+   "drags": 0,
+   "reach": 3.222,
+   "unseen": 0,
+   "unseen_names": [],
+   "line": 1,
+   "heights": 1,
+   "clutter": 0.0215,
+   "covered": 1.0,
+   "controls": 34,
+   "small": [],
+   "H": 18.0,
+   "U": 94.5,
+   "C": 47.5
+  },
+  {
+   "v": {
+    "steps": "two",
+    "container": "page",
+    "entry": "typed",
+    "end": "duration"
+   },
+   "taps": 12,
+   "keys": 6,
+   "drags": 0,
+   "reach": 3.363,
+   "unseen": 0,
+   "unseen_names": [],
+   "line": 1,
+   "heights": 1,
+   "clutter": 0.0152,
+   "covered": 1.0,
+   "controls": 34,
+   "small": [],
+   "H": 18.0,
+   "U": 110.0,
+   "C": 41.5
+  },
+  {
+   "v": {
+    "steps": "two",
+    "container": "page",
+    "entry": "typed",
+    "end": "endtime"
+   },
+   "taps": 12,
+   "keys": 8,
+   "drags": 0,
+   "reach": 3.341,
+   "unseen": 0,
+   "unseen_names": [],
+   "line": 1,
+   "heights": 1,
+   "clutter": 0.0157,
+   "covered": 1.0,
+   "controls": 34,
+   "small": [],
+   "H": 18.0,
+   "U": 116.0,
+   "C": 41.5
+  },
+  {
+   "v": {
+    "steps": "two",
+    "container": "page",
+    "entry": "wheel",
+    "end": "duration"
+   },
+   "taps": 10,
+   "keys": 0,
+   "drags": 3,
+   "reach": 3.296,
+   "unseen": 0,
+   "unseen_names": [],
+   "line": 1,
+   "heights": 1,
+   "clutter": 0.0152,
+   "covered": 1.0,
+   "controls": 34,
+   "small": [],
+   "H": 18.0,
+   "U": 89.5,
+   "C": 41.5
+  },
+  {
+   "v": {
+    "steps": "two",
+    "container": "page",
+    "entry": "wheel",
+    "end": "endtime"
+   },
+   "taps": 9,
+   "keys": 0,
+   "drags": 4,
+   "reach": 3.317,
+   "unseen": 0,
+   "unseen_names": [],
+   "line": 1,
+   "heights": 1,
+   "clutter": 0.0162,
+   "covered": 1.0,
+   "controls": 34,
+   "small": [],
+   "H": 18.0,
+   "U": 92.5,
+   "C": 42.0
+  },
+  {
+   "v": {
+    "steps": "two",
+    "container": "page",
+    "entry": "dial",
+    "end": "duration"
+   },
+   "taps": 12,
+   "keys": 0,
+   "drags": 1,
+   "reach": 3.232,
+   "unseen": 0,
+   "unseen_names": [],
+   "line": 1,
+   "heights": 1,
+   "clutter": 0.0154,
+   "covered": 1.0,
+   "controls": 34,
+   "small": [],
+   "H": 18.0,
+   "U": 100.0,
+   "C": 41.5
+  },
+  {
+   "v": {
+    "steps": "two",
+    "container": "page",
+    "entry": "dial",
+    "end": "endtime"
+   },
+   "taps": 12,
+   "keys": 0,
+   "drags": 1,
+   "reach": 2.959,
+   "unseen": 0,
+   "unseen_names": [],
+   "line": 1,
+   "heights": 1,
+   "clutter": 0.0161,
+   "covered": 1.0,
+   "controls": 34,
+   "small": [],
+   "H": 18.0,
+   "U": 98.0,
+   "C": 42.0
+  },
+  {
+   "v": {
+    "steps": "two",
+    "container": "page",
+    "entry": "cron",
+    "end": "duration"
+   },
+   "taps": 12,
+   "keys": 6,
+   "drags": 0,
+   "reach": 3.352,
+   "unseen": 0,
+   "unseen_names": [],
+   "line": 1,
+   "heights": 1,
+   "clutter": 0.0187,
+   "covered": 1.0,
+   "controls": 34,
+   "small": [],
+   "H": 18.0,
+   "U": 109.0,
+   "C": 46.0
+  },
+  {
+   "v": {
+    "steps": "two",
+    "container": "page",
+    "entry": "cron",
+    "end": "endtime"
+   },
+   "taps": 12,
+   "keys": 8,
+   "drags": 0,
+   "reach": 3.311,
+   "unseen": 0,
+   "unseen_names": [],
+   "line": 1,
+   "heights": 1,
+   "clutter": 0.0196,
+   "covered": 1.0,
+   "controls": 34,
+   "small": [],
+   "H": 18.0,
+   "U": 114.0,
+   "C": 46.5
+  },
+  {
+   "v": {
+    "steps": "two",
+    "container": "keyboard",
+    "entry": "blocks",
+    "end": "duration"
+   },
+   "taps": 12,
+   "keys": 4,
+   "drags": 0,
+   "reach": 2.052,
+   "unseen": 1,
+   "unseen_names": [
+    "1: Done"
+   ],
+   "line": 0,
+   "heights": 1,
+   "clutter": 0.042,
+   "covered": 0.392,
+   "controls": 33,
+   "small": []
+  },
+  {
+   "v": {
+    "steps": "two",
+    "container": "keyboard",
+    "entry": "blocks",
+    "end": "endtime"
+   },
+   "taps": 12,
+   "keys": 4,
+   "drags": 0,
+   "reach": 1.995,
+   "unseen": 1,
+   "unseen_names": [
+    "1: Done"
+   ],
+   "line": 0,
+   "heights": 1,
+   "clutter": 0.0456,
+   "covered": 0.392,
+   "controls": 33,
+   "small": []
+  },
+  {
+   "v": {
+    "steps": "two",
+    "container": "keyboard",
+    "entry": "typed",
+    "end": "duration"
+   },
+   "taps": 12,
+   "keys": 6,
+   "drags": 0,
+   "reach": 2.111,
+   "unseen": 1,
+   "unseen_names": [
+    "1: Done"
+   ],
+   "line": 0,
+   "heights": 1,
+   "clutter": 0.0394,
+   "covered": 0.392,
+   "controls": 33,
+   "small": []
+  },
+  {
+   "v": {
+    "steps": "two",
+    "container": "keyboard",
+    "entry": "typed",
+    "end": "endtime"
+   },
+   "taps": 12,
+   "keys": 8,
+   "drags": 0,
+   "reach": 2.048,
+   "unseen": 1,
+   "unseen_names": [
+    "1: Done"
+   ],
+   "line": 0,
+   "heights": 1,
+   "clutter": 0.0399,
+   "covered": 0.392,
+   "controls": 33,
+   "small": []
+  },
+  {
+   "v": {
+    "steps": "two",
+    "container": "keyboard",
+    "entry": "wheel",
+    "end": "duration"
+   },
+   "taps": 10,
+   "keys": 0,
+   "drags": 3,
+   "reach": 1.948,
+   "unseen": 1,
+   "unseen_names": [
+    "1: Done"
+   ],
+   "line": 0,
+   "heights": 1,
+   "clutter": 0.0393,
+   "covered": 0.392,
+   "controls": 33,
+   "small": []
+  },
+  {
+   "v": {
+    "steps": "two",
+    "container": "keyboard",
+    "entry": "wheel",
+    "end": "endtime"
+   },
+   "taps": 9,
+   "keys": 0,
+   "drags": 4,
+   "reach": 2.104,
+   "unseen": 1,
+   "unseen_names": [
+    "1: Done"
+   ],
+   "line": 0,
+   "heights": 1,
+   "clutter": 0.0393,
+   "covered": 0.392,
+   "controls": 33,
+   "small": []
+  },
+  {
+   "v": {
+    "steps": "two",
+    "container": "keyboard",
+    "entry": "dial",
+    "end": "duration"
+   },
+   "taps": 12,
+   "keys": 0,
+   "drags": 1,
+   "reach": 2.007,
+   "unseen": 2,
+   "unseen_names": [
+    "1: Done",
+    "2: Lasts 1 h"
+   ],
+   "line": 0,
+   "heights": 1,
+   "clutter": 0.0377,
+   "covered": 0.392,
+   "controls": 33,
+   "small": []
+  },
+  {
+   "v": {
+    "steps": "two",
+    "container": "keyboard",
+    "entry": "dial",
+    "end": "endtime"
+   },
+   "taps": 12,
+   "keys": 0,
+   "drags": 1,
+   "reach": 2.104,
+   "unseen": 3,
+   "unseen_names": [
+    "1: Done",
+    "2: Hour 2",
+    "2: Hour 3"
+   ],
+   "line": 0,
+   "heights": 1,
+   "clutter": 0.0377,
+   "covered": 0.392,
+   "controls": 33,
+   "small": []
+  },
+  {
+   "v": {
+    "steps": "two",
+    "container": "keyboard",
+    "entry": "cron",
+    "end": "duration"
+   },
+   "taps": 12,
+   "keys": 6,
+   "drags": 0,
+   "reach": 2.073,
+   "unseen": 1,
+   "unseen_names": [
+    "1: Done"
+   ],
+   "line": 0,
+   "heights": 1,
+   "clutter": 0.0429,
+   "covered": 0.392,
+   "controls": 33,
+   "small": []
+  },
+  {
+   "v": {
+    "steps": "two",
+    "container": "keyboard",
+    "entry": "cron",
+    "end": "endtime"
+   },
+   "taps": 12,
+   "keys": 8,
+   "drags": 0,
+   "reach": 1.942,
+   "unseen": 1,
+   "unseen_names": [
+    "1: Done"
+   ],
+   "line": 0,
+   "heights": 1,
+   "clutter": 0.044,
+   "covered": 0.392,
+   "controls": 33,
+   "small": []
+  }
+ ],
+ "front": [
+  34
+ ]
+}

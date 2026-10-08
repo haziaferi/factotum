@@ -47,16 +47,16 @@ from craftkit import imgstat  # noqa: E402
 THUMB = (180, 700)
 CONTAINERS = ["keyboard", "sheet", "popover", "page"]
 ENTRIES = ["blocks", "typed", "wheel", "dial", "cron"]
-SPACE = {"container": CONTAINERS, "entry": ENTRIES, "load": [False, True], "end": ["duration", "endtime"]}
+SPACE = {"container": CONTAINERS, "entry": ENTRIES, "load": [False, True], "end": ["duration", "endtime"], "steps": ["one", "two"]}
 PRESETS = ["Today", "Tomorrow", "This weekend", "Next week", "No date"]
 BLOCKS = [("Morning", "08:00"), ("Midday", "12:00"), ("Afternoon", "15:00"), ("Evening", "19:00")]  # placeholder blocks (planner defaults)
 BUSY = {8, 9, 12, 15, 21}
 CSS = L.CSS + """
-.pk{background:var(--zone);padding:6px 12px 8px;overflow:hidden}
-.pk .sec{font-size:12px;color:var(--dim);font-weight:600;padding:6px 0 0}
+.pk{background:var(--zone);padding:2px 12px 4px;overflow:hidden}
+.pk .sec{font-size:12px;color:var(--dim);font-weight:600;min-width:44px;display:inline-flex;align-items:center;min-height:48px}
 .pk .row{display:flex;flex-wrap:wrap;gap:0 6px;min-height:48px;align-items:center}
 .pk .grid{display:grid;grid-template-columns:repeat(7,1fr);margin:0 -12px}  /* full width: 7 x 48 px needs 336 */
-.pk .wd{font-size:11px;color:var(--dim);text-align:center;padding:2px 0}
+.pk .wd{font-size:11px;color:var(--dim);text-align:center;padding:0}
 .pk .day{min-height:48px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:14px}
 .pk .day.sel b{background:var(--zone2);border-radius:999px;width:32px;height:32px;display:grid;place-items:center;font-weight:600}
 .pk .day b{font-weight:400;width:32px;height:32px;display:grid;place-items:center}
@@ -93,36 +93,39 @@ def month(load):
 
 def time_entry(entry, label="Time"):
     if entry == "blocks":
-        return '<div class="sec">%s</div><div class="row">%s%s</div>' % (label, "".join(chip("Block %s" % n, "%s %s" % (n, h)) for n, h in BLOCKS), btn("Other time", "Other…"))
+        return '<div class="row"><span class="sec">%s</span>%s%s</div>' % (label, "".join(chip("Block %s" % n, "%s %s" % (n, h)) for n, h in BLOCKS), btn("Other time", "Other…"))
     if entry in ("typed", "cron"):
-        out = '<div class="sec">%s</div><div class="row"><span class="field" data-tap="Time field">9</span>%s%s</div>' % (
+        out = '<div class="row"><span class="sec">%s</span><span class="field" data-tap="Time field">9</span>%s%s</div>' % (
             label, chip("Suggest 09:00", "09:00"), chip("Suggest 21:00", "21:00"))
         if entry == "cron":
             out += '<div class="calc">Also takes cron: <b>0 9 * * 1-5</b> reads "09:00, Monday to Friday", next Thu 8, Fri 9, Mon 12 Oct</div>'
         return out
     if entry == "wheel":
         col = lambda name, vals, on: '<div class="wheel" data-tap="%s">%s</div>' % (name, "".join('<div%s>%s</div>' % (' class="on"' if v == on else "", v) for v in vals))
-        return '<div class="sec">%s</div><div class="wheels">%s%s</div>' % (label, col("Hour wheel", ["08", "09", "10"], "09"), col("Minute wheel", ["55", "00", "05"], "00"))
+        return '<div class="row"><span class="sec">%s</span><div class="wheels" style="flex:1">%s%s</div></div>' % (label, col("Hour wheel", ["08", "09", "10"], "09"), col("Minute wheel", ["55", "00", "05"], "00"))
     # dial: Material's, hours on a ring
     spots = "".join('<span data-tap="Hour %d" style="left:%.0fpx;top:%.0fpx">%d</span>' % (
         h, 116 + 92 * math.sin(math.radians(h * 30)), 116 - 92 * math.cos(math.radians(h * 30)), h) for h in range(12))
-    return '<div class="sec">%s</div><div class="hhmm">09:00</div><div class="dial">%s</div>' % (label, spots)
+    return '<div class="row"><span class="sec">%s</span><span class="hhmm" style="flex:1">09:00</span></div><div class="dial">%s</div>' % (label, spots)
 
 
 def end_part(v):
     if v["end"] == "duration":
-        return '<div class="sec">Ends</div><div class="row">%s</div>' % "".join(chip("Lasts %s" % d, d) for d in ("30 min", "1 h", "2 h", "All day"))
+        return '<div class="row"><span class="sec">Ends</span>%s</div>' % "".join(chip("Lasts %s" % d, d) for d in ("30 min", "1 h", "2 h", "All day"))
     # an end time needs its own way to say "all day" (TickTick: a switch beside it), or that task would cost nothing
     return time_entry(v["entry"] if v["entry"] != "cron" else "typed", "Ends") + '<div class="row">%s</div>' % chip("Lasts All day", "All day")
 
 
-def picker(v, control=False):
+def picker(v, control=False, view=1):
     presets = '<div class="row">%s</div>' % "".join(chip("Preset %s" % p, p) for p in PRESETS)
     body = presets + month(v["load"]) + time_entry(v["entry"]) + end_part(v)
+    if v.get("steps") == "two":  # the date first, the time on its own view (Todoist, TickTick)
+        body = (presets + month(v["load"]) + '<div class="row">%s</div>' % btn("Add time", "Add time ›") if view == 1 else
+                '<div class="row">%s</div>' % btn("Back to date", "‹ Tue 9 Oct") + time_entry(v["entry"]) + end_part(v))
     if control:  # everything at once: every time entry and both ends
         body = presets + month(True) + "".join(time_entry(e) for e in ("blocks", "typed", "wheel", "dial")) + end_part(dict(v, end="duration")) + end_part(dict(v, end="endtime", entry="dial"))
     cls = {"keyboard": "pk", "sheet": "pk sheet", "popover": "pk pop", "page": "pk page"}[v["container"]]
-    style = ' style="height:290px"' if v["container"] == "keyboard" else (' style="max-height:620px"' if v["container"] == "sheet" else "")
+    style = ' style="height:290px"' if v["container"] == "keyboard" else (' style="max-height:704px"' if v["container"] == "sheet" else "")
     return '<div class="%s"%s data-picker="1">%s</div>' % (cls, style, body)
 
 
@@ -131,24 +134,24 @@ def line_html():
         kit.ud('<span class="hl">ev</span> dentist <span class="hl">tomorrow</span>'), v2.control("More", "⋯", 32, "ghost")))
 
 
-def phone(v, control=False):
+def phone(v, control=False, view=1):
     c = v["container"]
     if c == "page":
-        return kit.phone(kit.header("Date and time", (("✓", "Done"),), ("‹", "Back")), '<div class="c2" style="position:relative;height:100%%">%s</div>' % picker(v, control), "")
+        return kit.phone(kit.header("Date and time", (("✓", "Done"),), ("‹", "Back")), '<div class="c2" style="position:relative;height:100%%">%s</div>' % picker(v, control, view), "")
     today = kit.phone(kit.header(t.TITLE, t.APPROVED_BUTTONS), '<div class="cap">+ <span>Add…</span></div>' + t.rows_today(t.row_d), kit.bar("Today"))
     today = today.replace("data-tap=", "data-behind=")
     if c == "keyboard":  # the picker takes the keyboard's place; the line stays above it
-        overlay = '<div class="sheet c2" style="position:relative">%s</div>%s' % (line_html(), picker(v, control))
+        overlay = '<div class="sheet c2" style="position:relative">%s</div>%s' % (line_html(), picker(v, control, view))
     elif c == "popover":  # anchored on the line, above it, keyboard kept
-        overlay = '<div class="sheet c2" style="position:relative">%s%s</div><div class="kb" style="height:250px">keyboard</div>' % (picker(v, control), line_html())
+        overlay = '<div class="sheet c2" style="position:relative">%s%s</div><div class="kb" style="height:250px">keyboard</div>' % (picker(v, control, view), line_html())
     else:  # a sheet over the screen: the line goes behind it
-        overlay = '<div class="c2">%s</div>' % picker(v, control)
+        overlay = '<div class="c2">%s</div>' % picker(v, control, view)
     overlay = '<div class="scrim" style="background:rgba(0,0,0,.16)"></div><div class="c2" style="position:absolute;left:0;right:0;bottom:0">%s</div>' % overlay
     return today[:-len("</div>")] + overlay + "</div>"
 
 
-def doc(v, theme="light", score=True, control=False):
-    return kit.document(phone(v, control), theme, t.EXTRA + t.T12_CSS + t.T13_CSS + CSS, score)
+def doc(v, theme="light", score=True, control=False, view=1):
+    return kit.document(phone(v, control, view), theme, t.EXTRA + t.T12_CSS + t.T13_CSS + CSS, score)
 
 
 # the steps each task takes, by design: (targets tapped, keystrokes, drags)
@@ -162,10 +165,13 @@ def steps(v):
     tasks = [
         (["Preset Tomorrow"] + time_09[0], time_09[1], time_09[2]),
         (["Day 9"] + time_1430[0], time_1430[1], time_1430[2]),
-        (["Preset Next week", "Lasts All day"], 0, 0),
+        (["Preset Next week"], 0, 0),  # a date with no time is a whole-day item (SPEC §3.2): no all-day tap
         (["Preset Today"] + time_15[0] + end_1h[0], time_15[1] + end_1h[1], time_15[2] + end_1h[2]),
         (["Time field"], 11, 0) if e == "cron" else (["Repeat (T1.6)", "Every weekday (T1.6)"] + time_09[0], time_09[1], time_09[2]),
     ]
+    if v.get("steps") == "two":  # every task that sets a time opens the time view first
+        tasks = [(names[:1] + (["Add time"] if (names[1:] or keys or drags) and not names[0] == "Time field" else []) + names[1:], keys, drags)
+                 if names[0] != "Time field" else (["Add time"] + names, keys, drags) for names, keys, drags in tasks]
     return tasks
 
 
@@ -191,10 +197,10 @@ def masses(png, m):
     return round(heavy, 3)
 
 
-def sprawl(v, control):
-    path = os.path.join(ss.CACHE, "pk-%s-%s-%d-%s-%d.html" % (v["container"], v["entry"], v["load"], v["end"], control))
-    with open(path, "w", encoding="utf-8", newline="\n") as fh:
-        fh.write(doc(v, control=control))
+def sprawl(v, control, view=1):
+    path = os.path.join(ss.CACHE, "pk-%s-%s-%d-%s-%s-%d-%d.html" % (v["container"], v["entry"], v["load"], v["end"], v.get("steps", "one"), control, view))
+    with open(path, "w", encoding="utf-8", newline=chr(10)) as fh:
+        fh.write(doc(v, control=control, view=view))
     res = subprocess.run([sys.executable, os.path.join(v2.CRAFT, "craftkit_cli.py"), "ui", "--json", path], capture_output=True, text=True,
                          env=dict(os.environ, PYTHONUTF8="1"))
     found = json.loads(res.stdout).get("findings", [])
@@ -203,34 +209,52 @@ def sprawl(v, control):
 
 
 def score(v, control=False):
-    d = doc(v, control=control)
-    m = ss.measure(d, 360, 740)
-    png = ss.render(d, 360, 740)
-    clutter = sum(ss.edge_density(ss.render(doc(v, th, control=control), 360, 740)) for th in ("light", "dark")) / 2
-    taps = {x["name"]: x for x in m["taps"]}
+    """Two steps are measured on both views: a control counts as seen if its own view draws it; clutter is their mean,
+    coverage and controls their larger, and the harder view sets heights, sprawl and the heaviest element."""
+    views = [1, 2] if v.get("steps") == "two" and not control else [1]
+    per = []
+    for view in views:
+        d = doc(v, control=control, view=view)
+        m = ss.measure(d, 360, 740)
+        png = ss.render(d, 360, 740)
+        clutter = sum(ss.edge_density(ss.render(doc(v, th, control=control, view=view), 360, 740)) for th in ("light", "dark")) / 2
+        pk = m["boxes"].get("picker")
+        pk_taps = [x for x in m["taps"] if pk and x["box"][1] >= pk[1] - 1 and x.get("seen")]
+        per.append({"m": m, "clutter": clutter, "pk": pk, "pk_taps": pk_taps, "heavy": masses(png, m), "sprawl": sprawl(v, control, view)})
+    taps = {}
+    for p in per:
+        for x in p["m"]["taps"]:
+            if x.get("seen") or x["name"] not in taps:
+                taps[x["name"]] = x
     ops, ids, unseen_needed = 0, [], set()
+    tk = [0, 0, 0]
     for names, keys, drags in steps(v):
         ops += len(names) + keys + drags
-        for n in names:
+        tk[0] += len(names); tk[1] += keys; tk[2] += drags
+        # a drag needs its wheel on screen as much as a tap needs its target (wheels were left out of this check at first)
+        needed = names + (["Hour wheel", "Minute wheel"] if drags and v["entry"] == "wheel" else [])
+        for n in needed:
             x = taps.get(n)
             if n.endswith("(T1.6)"):
                 continue
             if not x or not x.get("seen"):
                 unseen_needed.add(n)
                 continue
-            ids.append(math.log2(math.hypot(THUMB[0] - x["x"], THUMB[1] - x["y"]) / min(x["w"], x["h"]) + 1))
-    pk = m["boxes"].get("picker")
-    pk_taps = [x for x in m["taps"] if pk and x["box"][1] >= pk[1] - 1 and x.get("seen")]
-    return {"ops": ops, "reach": round(sum(ids) / max(1, len(ids)), 3), "unseen": len(unseen_needed), "unseen_names": sorted(unseen_needed),
+            if n in names:
+                ids.append(math.log2(math.hypot(THUMB[0] - x["x"], THUMB[1] - x["y"]) / min(x["w"], x["h"]) + 1))
+    cover = lambda p: round(min(1.0, (p["pk"][3] if p["pk"] else 0) / 740), 3) if v["container"] != "page" else 1.0
+    return {"ops": ops, "taps": tk[0], "keys": tk[1], "drags": tk[2], "reach": round(sum(ids) / max(1, len(ids)), 3),
+            "unseen": len(unseen_needed), "unseen_names": sorted(unseen_needed),
             "line": 0 if v["container"] in ("keyboard", "popover") else 1, "load": 0 if (v["load"] or control) else 1,
-            "heights": max(1, len({x[4] for x in m["vis"]})), "edges": 1, "sprawl": sprawl(v, control), "heavy": masses(png, m),
-            "clutter": round(clutter, 4), "covered": round(min(1.0, (pk[3] if pk else 0) / 740), 3) if v["container"] != "page" else 1.0,
-            "controls": len(pk_taps),
-            "small": sorted({"%s %dx%d" % (x["name"], x["w"], x["h"]) for x in pk_taps if x["w"] < 48 or x["h"] < 48})}
+            "heights": max(max(1, len({x[4] for x in p["m"]["vis"]})) for p in per), "edges": 1,
+            "sprawl": max(p["sprawl"] for p in per), "heavy": max(p["heavy"] for p in per),
+            "clutter": round(sum(p["clutter"] for p in per) / len(per), 4), "covered": max(cover(p) for p in per),
+            "controls": max(len(p["pk_taps"]) for p in per),
+            "small": sorted({"%s %dx%d" % (x["name"], x["w"], x["h"]) for p in per for x in p["pk_taps"] if x["w"] < 48 or x["h"] < 48})}
 
 
 AXES = {"H": (("heights", 1), ("sprawl", 1), ("heavy", 1)),
-        "U": (("ops", 1), ("reach", 1), ("unseen", 1), ("line", 1), ("load", 1)),
+        "U": (("taps", 1), ("keys", 1), ("drags", 1), ("reach", 1), ("line", 1), ("load", 1)),  # taps, keys, drags apart
         "C": (("clutter", 1), ("covered", 1), ("controls", 1))}
 
 
@@ -242,9 +266,10 @@ def main():
         rows.append(r)
         print(len(rows), v, {k: r[k] for k in ("ops", "reach", "unseen", "heavy", "clutter", "covered", "controls", "small")}, flush=True)
     ctrl = dict(v={"container": "sheet", "entry": "all", "load": True, "end": "both"}, control=True,
-                **score({"container": "sheet", "entry": "typed", "load": True, "end": "duration"}, True))
+                **score({"container": "sheet", "entry": "typed", "load": True, "end": "duration", "steps": "one"}, True))
     rows.append(ctrl)
-    ok = [r for r in rows if not r["small"]]
+    # owner, 2026-10-08: everything a task needs must be visible (as the Hub): a cut-off control is a constraint
+    ok = [r for r in rows if not r["small"] and (r["unseen"] == 0 or r["control"])]
     for axis, parts in AXES.items():
         rk = [v2.ranks(ok, k, s) for k, s in parts]
         for i, r in enumerate(ok):

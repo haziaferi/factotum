@@ -646,3 +646,47 @@ The internal names, and the T0 pages already settled, keep the lowercase form; t
 - a two-step picker, the date first and then the time, as Todoist and TickTick do, which was not yet scored.
 
 Mockups: `docs/screens/t1/picker-options.html`.
+
+**T1.5 re-scored (2026-10-08) under the owner's rule that everything a task needs is visible.**
+
+**Two measuring bugs, both mine, were found and fixed:**
+- **Viewport.** Headless Edge's `--dump-dom` lays the page out at 492 × 648 whatever `--window-size` says. So since T1.4, every hit-test ("seen") counted anything below 648 px as hidden, even when it was drawn. It is fixed in `screen_score.measure`: the page is measured in a window that holds the whole frame, and the hit-test uses the frame's 360 × 740.
+  - **Re-checked:** the Hub (A still hides its six App screens; B hides 2, not 6; **A0 is unchanged and stays approved**), the full-form menus and the legend (fronts unchanged).
+- **Wheels.** A wheel is dragged, not tapped, so it was left out of the visibility check. A picker with its wheels cut off had passed.
+
+Also: the empty space was trimmed (labels moved inside their rows, less padding), and two-step pickers were added.
+
+## T1.5: the calendar on request (owner, 2026-10-08)
+
+**Owner:**
+- "An entire calendar picker should be opened by the user rather than appear unprompted. The natural language input has as few clicks to make as possible on purpose."
+- "If the user already wrote 'tomorrow' there is no reason to add another date/time picker."
+
+**Owner's answers:**
+- **Tapping a highlighted date does nothing.** To change it, the words are edited.
+- **The calendar opens from ⋯ › Date beside the line, and from the full page's Date row.**
+- **It opens straight on the calendar, with no presets.** This supersedes decision 17's earlier "presets first".
+- **Not yet settled:** the shorthand rules' rule 3 still has every highlight offering "Keep as text" when tapped. For dates that is now "nothing"; the other highlights are the owner's to settle.
+
+**The picker's job is now choosing a day by looking at the month (day load on), then a time if wanted.** `tools/screens/picker3_opt.py` scores 60 variants:
+- one view or two steps;
+- a sheet, a page, or the keyboard's place;
+- five time entries;
+- duration presets or an end time.
+
+**The tasks:** "Fri 16"; "Fri 16 at 14:30"; "an event Fri 16 at 15:00 for 1 h"; "the 3rd of next month". 35 of the 60 keep every needed control on screen; none in the keyboard's place does.
+
+**One option leads on all three axes:** **two steps, in a sheet, with wheels and duration presets.**
+- **Step 1** is the month and Done.
+- **Step 2,** after a day is tapped, is the time and the end.
+- **Each step covers about half the screen.**
+
+**Every top option is a two-step sheet.** The time entries are close: time blocks are 8% behind, typed 9% and the dial 13%.
+
+**Caveat:** a wheel drag counts as one action however far it spins, which slightly favours wheels.
+
+**Windows:** the two-column drop-down, the month beside the time, now without presets.
+
+**The calendar-first runs are kept as a record:** `picker-opt.json` (one view or two steps, presets included) and `picker2-opt.json` (a menu from the tapped word; stopped and superseded).
+
+Mockups: `docs/screens/t1/picker-options.html`.
