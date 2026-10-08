@@ -783,3 +783,24 @@ Mockups: `docs/screens/t1/picker-options.html` (the steps, the keyboard state, a
   - **Sheet versus page:** a sheet has better reach (2.7 against 3.4); a page is calmer and covers everything.
 
 Mockups: `docs/screens/t1/repeat-options.html` (`tools/screens/repeat_page.py`).
+
+**Cron's reach (owner's question, 2026-10-08: "How many of the repeat options could cron cover?").** Read from `core/.../recurrence/Cron.kt`, which is Mnemo's five numeric fields with lists, ranges and steps, and no `L W #`.
+- **3 of the 10 tasks today:**
+  - every weekday (`0 9 * * 1-5`);
+  - 08:30 and 20:30 (`30 8,20 * * *`);
+  - the 1st or any Monday, the OR rule, which only cron reaches.
+- **5 with Quartz's `L` and `#`:** the last day, and the 2nd Tuesday. A count ("6 times") is still out.
+- **6 with several lines:** every 90 minutes, as `0 9,12,15 * * *` plus `30 10,13,16 * * *`.
+- **Out of reach in any dialect:**
+  - every n weeks, or n days across months (cron has no year and no week parity);
+  - counts and end dates;
+  - random schedules (a draw would have to be stored, which decision 04 rules out);
+  - "after done".
+- **Typed words translated into cron lines would not change this.** The limit is cron's grammar, not how the rule is entered. Typed words can still reach every kind, because the stored rule is RRULE plus the two random kinds, and cron is shown beside it whenever it can express the rule.
+
+**Owner's answers:**
+- **Cron accepts more than Mnemo's form:** `L` and `#` (Quartz), several lines as one rule (the data layer's RULE_SET), and names (MON, JAN). This is owed to the data layer, in `Cron.kt` with its cases, separately from the screen.
+- **Score a merge:**
+  - the sentence with the schedule types as its first chooser (`sentmodes`);
+  - each form with one field that takes words or cron, with the calculator's cron line under it. Per task, the quicker path is counted: the builder or the field.
+- **Narrowed by the first run:** sheet or page only; preview words or none; cron behind Advanced when there is no field.
