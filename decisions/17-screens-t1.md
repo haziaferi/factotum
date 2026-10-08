@@ -1059,3 +1059,23 @@ Mockups, every state: `docs/screens/t1/repeat4-options.html`.
   - several random times a day (RANDOM_WINDOW with a count);
   - random gaps bounded by a window;
   - "for n days" (an until computed from the start).
+
+**The When sheet's data built (owner, 2026-10-08: "Build those in order of dependency").**
+- **Order of dependency:**
+  1. several random times a day, the window's draw generalised;
+  2. random gaps bounded by a window, which reuses that window;
+  3. ends for both.
+- **Storage compatibility:** sync sends rows as named values, and an older version reads only the names it knows. A new column on an old kind would be dropped there, and written back without it. So each new form is a kind of its own:
+  - **RANDOM_TIMES:** `window_count` times a day, one drawn in each equal part of the window, so they spread and never coincide; a window may run past midnight.
+  - **RANDOM_GAPS:** `rand_unit` from MINUTE to MONTH, an optional window for the time (minutes and hours need one), and the gap restarts at the window's start each day.
+  - **Both** take `rec_until` (inclusive) or `rec_count`.
+  - **An older version cannot read the new kinds,** so their rows wait in its sync queue.
+- **The plain forms keep RANDOM_WINDOW and RANDOM_DAYS,** with the same draw keys. Tests compare them with the old expansion verbatim, so stored items do not move.
+- **"For n days"** is `untilForDays`, the last moment of the n-th day; a rule takes it as its UNTIL.
+- **Schema 23** (an automatic migration adds four nullable columns). The triggers tie each kind to its columns.
+- **A defect found and fixed before commit:** the first trigger draft compared the kind with IN. NULL IN (...) is NULL, which refused every row that does not repeat (140 tests failed). It now compares with IS, and the comment says why.
+- **Tests:**
+  - `RandomKindsTest`: 13, in the core;
+  - `WhenKindsTest`: 5, round trips, kinds, sync values, reminders, triggers.
+  - The core passes 312 tests and the data layer 378.
+- SPEC v0.38 §3.4.

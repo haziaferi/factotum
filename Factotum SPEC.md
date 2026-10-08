@@ -1,6 +1,6 @@
 # Factotum — Product & Technical Spec
 
-**Status:** draft v0.37, seeded from the decision register · **Scope:** the merged data model, sync and behaviour rules of Factotum. Screens are not decided and are marked open (§10.1).
+**Status:** draft v0.38, seeded from the decision register · **Scope:** the merged data model, sync and behaviour rules of Factotum. Screens are not decided and are marked open (§10.1).
 **Related documents:** `decisions/`, the evidence behind §3: one ADR per decision with verified `file:line` facts, the scored options, the behaviour cases and the harness that measured them (`decisions/register.md` is the index). This spec states each decision once and points to its ADR for the evidence. It never restates the evidence.
 
 ---
@@ -9,6 +9,7 @@
 
 | Version | Summary | Sections touched |
 |---|---|---|
+| v0.38 | Recurrence: RANDOM_TIMES and RANDOM_GAPS with ends, for the When sheet (decision 17); schema 23 | §3.4 |
 | v0.37 | Cron input extended (decision 17): names, `L`, `#`, several lines as one rule | §3.4 |
 | v0.36 | Decision 16: databases in pages, O6 (DATABASE and VIEW blocks, a saved query beside the doorway, views over items); a data-layer slice owed before T5 | §3.12, §10 |
 | v0.35 | Owner: Tendril's Claude text verbs dropped (an exception to §0.1.5); widgets, the on-device LLM, a Windows global quick-add and natural-language input move across; use cadences in decision 15 | §0.1, §10 |
@@ -187,6 +188,7 @@ Every decision here was scored against its owners' behaviour cases, with a contr
 ### 3.4 Recurrence — ADR 04
 
 **Decided:** **rrule+ext** on `item`. `recurrence_kind` is RRULE, RULE_SET, RANDOM_DAYS, RANDOM_WINDOW or PLANNED.
+- The When sheet's random forms (decision 17, owner 2026-10-08) are kinds of their own, so a version that cannot read them leaves the row waiting rather than reading it as the old kind and dropping what it does not know: **RANDOM_TIMES** (`window_count` drawn times a day, one in each equal part of the window, which may run past midnight) and **RANDOM_GAPS** (gaps counted in `rand_unit`, minutes to months, with an optional window for the time; minutes and hours need one). Both take an end, `rec_until` (inclusive) or `rec_count`. The plain forms keep RANDOM_WINDOW and RANDOM_DAYS and draw exactly as before. "For n days" is an until: the last moment of the n-th day. Schema 23 (`RandomKindsTest`, `WhenKindsTest`).
 - Month ends anchor to the original date.
 - DTSTART is the first date the rule's own anchor allows, on or after the active start (**[Verified]** §9.2).
 - Several set times a day are a RULE_SET.

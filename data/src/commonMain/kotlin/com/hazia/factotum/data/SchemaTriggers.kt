@@ -55,21 +55,33 @@ internal object SchemaTriggers : RoomDatabase.Callback() {
     /**
      * ADR 04: each recurrence kind has all of its own columns and none of another's, and repeats
      * from a start date. Wrapped in COALESCE, since a NULL inside would make WHEN NOT(...) let the
-     * row through.
+     * row through; and a kind is compared with IS, never IN or =, since a row that does not repeat
+     * has none, and NULL IN (...) is NULL, which the COALESCE turns into a refusal of every such row.
      */
     private val recurrenceRules = """
         COALESCE(
             (NEW.recurrence_kind IS NULL OR NEW.start_date IS NOT NULL)
-            AND (NEW.recurrence_kind IS NULL OR NEW.recurrence_kind IN ('RRULE', 'RULE_SET', 'RANDOM_DAYS', 'RANDOM_WINDOW', 'ROLLING', 'PLANNED'))
+            AND (NEW.recurrence_kind IS NULL OR NEW.recurrence_kind IN ('RRULE', 'RULE_SET', 'RANDOM_DAYS', 'RANDOM_WINDOW', 'ROLLING', 'PLANNED', 'RANDOM_TIMES', 'RANDOM_GAPS'))
             AND (NEW.rrule IS NOT NULL) = (NEW.recurrence_kind IS 'RRULE' OR NEW.recurrence_kind IS 'RULE_SET')
             AND (NEW.recurrence_kind IS NOT 'RULE_SET' OR instr(NEW.rrule, char(10)) > 0)
-            AND (NEW.rand_min_days IS NOT NULL) = (NEW.recurrence_kind IS 'RANDOM_DAYS')
-            AND (NEW.rand_max_days IS NOT NULL) = (NEW.recurrence_kind IS 'RANDOM_DAYS')
+            AND (NEW.rand_min_days IS NOT NULL) = (NEW.recurrence_kind IS 'RANDOM_DAYS' OR NEW.recurrence_kind IS 'RANDOM_GAPS')
+            AND (NEW.rand_max_days IS NOT NULL) = (NEW.recurrence_kind IS 'RANDOM_DAYS' OR NEW.recurrence_kind IS 'RANDOM_GAPS')
             AND (NEW.rand_min_days IS NULL OR (NEW.rand_min_days >= 1 AND NEW.rand_max_days >= NEW.rand_min_days))
-            AND (NEW.window_days IS NOT NULL) = (NEW.recurrence_kind IS 'RANDOM_WINDOW')
-            AND (NEW.window_start IS NOT NULL) = (NEW.recurrence_kind IS 'RANDOM_WINDOW')
-            AND (NEW.window_end IS NOT NULL) = (NEW.recurrence_kind IS 'RANDOM_WINDOW')
-            AND (NEW.window_days IS NULL OR (NEW.window_days BETWEEN 1 AND 127 AND NEW.window_end > NEW.window_start))
+            AND (NEW.rand_unit IS NOT NULL) = (NEW.recurrence_kind IS 'RANDOM_GAPS')
+            AND (NEW.rand_unit IS NULL OR NEW.rand_unit IN ('MINUTE', 'HOUR', 'DAY', 'WEEK', 'MONTH'))
+            AND (NEW.window_days IS NOT NULL) = (NEW.recurrence_kind IS 'RANDOM_WINDOW' OR NEW.recurrence_kind IS 'RANDOM_TIMES')
+            AND (NEW.window_start IS NOT NULL) = (NEW.window_end IS NOT NULL)
+            AND (NEW.window_start IS NULL OR NEW.recurrence_kind IN ('RANDOM_WINDOW', 'RANDOM_TIMES', 'RANDOM_GAPS'))
+            AND (NEW.window_start IS NOT NULL OR NOT (NEW.recurrence_kind IS 'RANDOM_WINDOW' OR NEW.recurrence_kind IS 'RANDOM_TIMES'))
+            AND (NEW.window_start IS NOT NULL OR NEW.rand_unit IS NULL OR NEW.rand_unit NOT IN ('MINUTE', 'HOUR'))
+            AND (NEW.window_start IS NULL OR NEW.window_end != NEW.window_start)
+            AND (NEW.window_days IS NULL OR NEW.window_days BETWEEN 1 AND 127)
+            AND (NEW.recurrence_kind IS NOT 'RANDOM_WINDOW' OR NEW.window_end > NEW.window_start)
+            AND (NEW.window_count IS NOT NULL) = (NEW.recurrence_kind IS 'RANDOM_TIMES')
+            AND (NEW.window_count IS NULL OR NEW.window_count BETWEEN 1 AND 48)
+            AND (NEW.rec_until IS NULL OR NEW.rec_count IS NULL)
+            AND (NEW.rec_count IS NULL OR NEW.rec_count >= 1)
+            AND ((NEW.rec_until IS NULL AND NEW.rec_count IS NULL) OR NEW.recurrence_kind IN ('RANDOM_TIMES', 'RANDOM_GAPS'))
             AND (NEW.roll_every IS NOT NULL) = (NEW.recurrence_kind IS 'ROLLING')
             AND (NEW.roll_unit IS NOT NULL) = (NEW.recurrence_kind IS 'ROLLING')
             AND (NEW.roll_every IS NULL OR (NEW.roll_every BETWEEN 1 AND 10000 AND NEW.roll_unit IN ('DAY', 'WEEK', 'MONTH')))
