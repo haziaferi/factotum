@@ -1,0 +1,38 @@
+[
+ {
+  "variant": "next",
+  "seen_open": true,
+  "seen_closed": true,
+  "actions_open": 2,
+  "actions_closed": 2,
+  "lines": 1,
+  "foot": 151,
+  "clutter_open": 0.0479,
+  "clutter_closed": 0.0297,
+  "controls": 6
+ },
+ {
+  "variant": "row",
+  "seen_open": true,
+  "seen_closed": false,
+  "actions_open": 2,
+  "actions_closed": 3,
+  "lines": 1,
+  "foot": 121,
+  "clutter_open": 0.0501,
+  "clutter_closed": 0.029,
+  "controls": 5
+ },
+ {
+  "variant": "always",
+  "seen_open": true,
+  "seen_closed": true,
+  "actions_open": 2,
+  "actions_closed": 2,
+  "lines": 2,
+  "foot": 169,
+  "clutter_open": 0.0506,
+  "clutter_closed": 0.0324,
+  "controls": 6
+ }
+]

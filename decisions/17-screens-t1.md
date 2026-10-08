@@ -990,3 +990,19 @@ Mockups, every state: `docs/screens/t1/repeat4-options.html`.
 
   - The outer ring sits 40 dp further out, so its hours and the minutes stay above 48 dp (53 dp at 32).
   - The prototype has a selector, so the owner can try each by hand. **This is a recorded exception to the 48 dp rule for the dial's inner ring only.**
+- **The dial at 32 dp inner spacing (250 dp across): owner's choice, 2026-10-08.**
+
+**The start of a repeat (owner, 2026-10-08):**
+- **"I don't know how to change it if it doesn't show."** As built, "shown only when changed" had no way to change the start: a defect, not an option. It is replaced.
+- **A repeat's start defaults to Once's date.**
+- **Three ways to change it, scored** (`tools/screens/when_start_opt.py`, `docs/screens/t1/when-start.json`). The prototype itself was measured: a script sets each state, then the render and the hit-tested DOM are read, the phone alone at 360 × 740.
+
+| Variant | Actions (interval chooser open / sentence closed) | Drawn when closed | Sentence lines | Foot | Clutter, closed | Controls |
+|---|---|---|---|---|---|---|
+| The first Next date is tappable | 2 / 2 | yes | 1 | 151 px | 0.0297 | 6 |
+| A Starting row in the interval's chooser | 2 / 3 | no | 1 | 121 px | 0.0290 | 5 |
+| Always in the sentence | 2 / 2 | yes | 2 | 169 px | 0.0324 | 6 |
+
+- **"Always" is dominated by the tappable Next date:** the same actions, with a line more, more height and more clutter.
+- **Between the other two:** the tappable date is one action quicker from a closed sentence. The row is the shortest foot (30 px less, the date drawn at 12.5 px inside a 48 px target), the calmest, and has one control fewer. ⋯ › Repeat opens with the interval's chooser showing, where the row already is.
+- **Once moved,** the start reads in the sentence ("…, starting [date]"), whichever way it was moved.

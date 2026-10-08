@@ -45,6 +45,7 @@ h1{font-size:19px;margin:0 0 4px}.dim{color:var(--dim)}
 .sent{font-size:17.5px;line-height:48px}
 .tok{display:inline-flex;align-items:center;justify-content:center;min-height:48px;min-width:48px;padding:0 2px;cursor:pointer;background:none;border:0;font:inherit;color:inherit}
 .tok b{font-weight:600;text-decoration:underline;text-decoration-color:var(--dim);text-underline-offset:4px}
+.tok.sm{min-height:48px;font-size:12.5px;color:var(--ink)}
 .tok.open b{text-decoration-thickness:2px;text-decoration-color:var(--ink)}
 .chips{display:flex;flex-wrap:wrap;gap:0 6px;align-items:center}
 .chip{min-height:48px;display:inline-flex;align-items:center;cursor:pointer;background:none;border:0;font:inherit;color:var(--ink);padding:0}
@@ -86,7 +87,7 @@ input[type=time].fld{width:96px}
     <label>Weekdays and Weekend:
       <select onchange="S.v.on=this.value;render()"><option value="shortcuts">shortcuts inside "on"</option><option value="units">units of the interval</option></select></label>
     <label>The start date of a repeat:
-      <select onchange="S.v.start=this.value;render()"><option value="changed">shown only when changed</option><option value="always">always shown</option><option value="once">carried from Once's date</option></select></label>
+      <select onchange="S.v.start=this.value;render()"><option value="next">tap the first Next date</option><option value="row">a Starting row in the interval's chooser</option><option value="always">always in the sentence</option></select></label>
     <label>Dial, inner-ring spacing:
       <select onchange="GAP=+this.value;render(true)"><option value="30">30 dp (242 dp dial)</option><option value="32" selected>32 dp (250 dp dial)</option><option value="35">35 dp (262 dp dial)</option><option value="48">48 dp (312 dp dial)</option></select></label>
     <h2>Rules (owner, 2026-10-08)</h2>
@@ -110,7 +111,7 @@ let lastMode="once"; try{lastMode=localStorage.getItem("when-last")||"once"}catc
 const S={mode:lastMode,date:new Date(ITEM),n:1,unit:"week",random:false,rmin:2,rmax:4,after:false,
   days:new Set([4]),mmode:"dom",dom:16,ord:3,owd:4,
   time:{kind:"at",times:["09:00"],a:"09:00",b:"17:00",k:1},end:{kind:"forever",until:null,count:6,plusN:3,plusU:"month",fordays:7},
-  start:new Date(ITEM),startChanged:false,open:null,cal:new Date(2026,9,1),v:{on:"shortcuts",start:"changed"}};
+  start:new Date(ITEM),startChanged:false,open:null,cal:new Date(2026,9,1),v:{on:"shortcuts",start:"next"}};
 // ---- undo and redo: every change to the rule is a step (owner: one misclick must not lose the work) ----------------
 const RULE_KEYS=["mode","date","n","unit","random","rmin","rmax","after","days","mmode","dom","ord","owd","time","end","start","startChanged"];
 function snap(){return JSON.stringify(RULE_KEYS.map(k=>k==="days"?[...S.days]:S[k]))}
@@ -126,8 +127,8 @@ const plural=(n,u)=>n===1?u:u+"s";
 const sub=u=>u==="minute"||u==="hour";
 const toMin=s=>{const[h,m]=s.split(":").map(Number);return h*60+m};
 const hhmm=m=>String(Math.floor(m/60)%24).padStart(2,"0")+":"+String(m%60).padStart(2,"0");
-function tok(id,text){return `<button class="tok${S.open===id?" open":""}" onclick="tapTok('${id}')"><b>${text}</b></button>`}
-function chip(label,on,act){return `<button class="chip${on?" on":""}" onclick="${act}"><span>${label}</span></button>`}
+function tok(id,text){return `<button class="tok${S.open===id?" open":""}" data-tap="Tok ${id}" onclick="tapTok('${id}')"><b>${text}</b></button>`}
+function chip(label,on,act){return `<button class="chip${on?" on":""}" data-tap="Chip ${label}" onclick="${act}"><span>${label}</span></button>`}
 // ---- what each slot may hold, given the words before it (impossible options are not drawn) -------------------------
 function timeKinds(){
   if(S.mode==="once")return["at","span","none"];
@@ -170,7 +171,7 @@ function endPhrase(){const e=S.end;
   if(e.kind==="fordays")return tok("end","for "+e.fordays+" "+plural(e.fordays,"day"));
   return tok("end","until "+fmt(untilDate())+(e.plusN?` (${e.plusN} ${plural(e.plusN,e.plusU)})`:""))}
 function startPhrase(){if(S.mode!=="every")return"";
-  const show=S.v.start==="always"||(S.v.start==="changed"&&S.startChanged);
+  const show=S.v.start==="always"||S.startChanged;   // once moved, the start is part of the rule and reads in the sentence
   return show?", starting "+tok("start",fmt(S.start)):""}
 function sentence(){
   const mode=tok("mode",S.mode==="once"?"Once":"Every");
@@ -202,7 +203,8 @@ function readout(){
   const t=S.time,win=t.kind==="rtime"||t.kind==="window"?` between ${t.a} and ${t.b}`:t.kind==="at"?" at "+t.times.join(", "):"";
   if(S.after)return`${S.n} ${plural(S.n,S.unit)} after each time it is marked done${win}`;
   if(S.random)return`Random gaps of ${S.rmin}–${S.rmax} ${S.unit}s${win}`;
-  let s="Next: "+(occurrences(3).join(", ")||"none");
+  const occ=occurrences(3);
+  let s="Next: "+(S.v.start==="next"&&occ.length?`<button class="tok sm" data-tap="Tok start" onclick="tapTok('start')"><b>${occ[0]}</b></button>${occ.length>1?", "+occ.slice(1).join(", "):""}`:(occ.join(", ")||"none"));
   if(t.kind==="rtime")s+=` (${t.k===1?"a random time":t.k+" random times"} each day)`;
   if(S.end.kind!=="forever"){const all=occurrences(5000);if(all.length)s+=" · last: "+all[all.length-1]}
   if(S.unit==="month"&&S.mmode==="dom"&&S.dom>28)s+=" · the last day in shorter months";
@@ -238,7 +240,8 @@ function chooser(){const o=S.open;if(!o)return"";let h="";
     if(S.random)h+=`<div class="chips"><span class="lab">Every</span><input class="fld" type="number" min="1" value="${S.rmin}" onchange="S.rmin=+this.value;render()"><span class="small">&nbsp;to&nbsp;</span><input class="fld" type="number" min="1" value="${S.rmax}" onchange="S.rmax=+this.value;render()"></div>`;
     else if(S.unit!=="weekday"&&S.unit!=="weekend")h+=`<div class="chips">${(QUICK[S.unit]||[]).map(x=>chip(x,S.n===x,`S.n=${x};render()`)).join("")}<input class="fld" type="number" min="1" value="${S.n}" title="Any number" onchange="S.n=Math.max(1,+this.value);render()"></div>`;
     h+=`<div class="chips">${units.map(u=>chip(u==="weekday"?"weekdays":u==="weekend"?"weekends":u+"s",S.unit===u,`setUnit('${u}')`)).join("")}</div>`;
-    h+=`<div class="chips">${S.unit==="weekday"||S.unit==="weekend"?"":chip("At random",S.random,"S.random=!S.random;render()")}${chip("After it's done",S.after,"S.after=!S.after;render()")}</div>`}
+    h+=`<div class="chips">${S.unit==="weekday"||S.unit==="weekend"?"":chip("At random",S.random,"S.random=!S.random;render()")}${chip("After it's done",S.after,"S.after=!S.after;render()")}</div>`;
+    if(S.v.start==="row"&&!S.after)h+=`<div class="chips"><span class="lab">Starting</span>${chip(fmt(S.start),false,"tapTok('start')")}</div>`}
   if(o==="on"){
     if(S.unit==="month"){h=`<div class="chips">${chip("Day of the month",S.mmode==="dom","S.mmode='dom';render()")}${chip("Weekday of the month",S.mmode==="wom","S.mmode='wom';render()")}</div>`;
       h+=S.mmode==="dom"?`<div class="chips"><span class="lab">Day</span><input class="fld" type="number" min="1" max="31" value="${S.dom===-1?"":S.dom}" onchange="S.dom=Math.min(31,Math.max(1,+this.value));render()">${chip("Last day",S.dom===-1,"S.dom=-1;render()")}</div>`
@@ -302,11 +305,11 @@ function render(noStep){normalise();const now=snap();
   <div class="foot"><div class="sent">${sentence()}</div>
   <div class="crow"><span class="small">${cr?"As cron: "+cr:""}</span><span><button class="tap" title="Undo" ${past.length?"":"disabled"} onclick="undo()">↶</button><button class="tap" title="Redo" ${future.length?"":"disabled"} onclick="redo()">↷</button></span></div>
   <div class="small">${readout()}</div></div>`}
-function tapTok(id){if(id==="mode"){S.mode=S.mode==="once"?"every":"once";if(S.mode==="every"&&S.v.start==="once")S.start=new Date(S.date);
+function tapTok(id){if(id==="mode"){S.mode=S.mode==="once"?"every":"once";if(S.mode==="every"&&!S.startChanged)S.start=new Date(S.date);
     try{localStorage.setItem("when-last",S.mode)}catch(e){}S.open=null;render();return}
   S.open=S.open===id?null:id;if(id==="date"||id==="start"||id==="end"){const r=id==="start"?S.start:id==="end"?untilDate():S.date;S.cal=new Date(r.getFullYear(),r.getMonth(),1)}render(true)}
 function pickDay(target,i){const d=new Date(S.cal.getFullYear(),S.cal.getMonth(),i);
-  if(target==="date"){S.date=d;if(S.v.start==="once"||!S.startChanged)S.start=new Date(d)}
+  if(target==="date"){S.date=d;if(!S.startChanged)S.start=new Date(d)}
   if(target==="start"){S.start=d;S.startChanged=true}
   if(target==="until"){S.end.until=d;S.end.plusN=0}render()}
 function setUnit(u){S.unit=u;if(QUICK[u]&&!QUICK[u].includes(S.n))S.n=QUICK[u][0];if(u==="minute"&&S.n<5)S.n=30;
