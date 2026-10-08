@@ -1036,3 +1036,8 @@ Mockups, every state: `docs/screens/t1/repeat4-options.html`.
   - random gaps bounded by a window;
   - "for n days";
   - the start row.
+- **Fixed after the owner's report (2026-10-08): "T1.5 + T1.6 in screens.html did not render."**
+  - **The cause:** the section's images were separate files, which a viewer that loads the page alone cannot reach.
+  - **The images are now inlined,** as greyscale WebP, 40% of the PNGs' size.
+  - **The page was then over the viewer's size limit.** The superseded explorations (the T1.5 picker, and T1.3's ✓/▤ sizes) moved to `superseded.html`, linked where they were. `screens.html` keeps the approved screens only (453 KB).
+  - **Sections are newest first (owner):** T1.5 + T1.6, T1.4, T1.3, T1.2, T1.1.

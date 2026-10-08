@@ -6,6 +6,7 @@ Windows as the same sheet in a panel under the quick-add window, 1100 x 660. PNG
 
     PYTHONUTF8=1 python tools/screens/when_page.py      (tier_t1.py calls section())
 """
+import base64
 import html
 import os
 import shutil
@@ -69,9 +70,20 @@ TABLE = [
 ]
 
 
+def uri(name):
+    """The PNG inlined: the page then renders wherever it is opened (a viewer that copies the page alone cannot reach when/)."""
+    # greys only, so a greyscale WebP keeps every pixel that matters at 40% of the PNG's size (the page stays small enough
+    # for viewers that cap a page's size)
+    import io
+    from PIL import Image
+    buf = io.BytesIO()
+    Image.open(os.path.join(IMG, name + ".png")).convert("L").save(buf, "WEBP", quality=80)
+    return "data:image/webp;base64," + base64.b64encode(buf.getvalue()).decode("ascii")
+
+
 def section():
     states = render_all()
-    imgs = "".join('<figure><img src="when/%s.png" width="300" alt="%s"><figcaption>%s</figcaption></figure>' % (n, html.escape(c), html.escape(c)) for n, c in states)
+    imgs = "".join('<figure><img src="%s" width="300" alt="%s"><figcaption>%s</figcaption></figure>' % (uri(n), html.escape(c), html.escape(c)) for n, c in states)
     rows = "".join("<tr><td>%s</td><td>%s</td><td><code>%s</code></td></tr>" % (html.escape(a), html.escape(b), c) for a, b, c in TABLE)
     return ('<section id="t1-5"><h2>T1.5 + T1.6 When: dates, times and repeats <span class="tag">approved</span></h2>'
             '<p>One sentence replaces the date and time picker and the repeat builder (owner\'s workshop, 2026-10-08): '
@@ -82,8 +94,8 @@ def section():
             '<h3>Decided by</h3><table><tr><th>Part</th><th>Choice and its measure</th><th>Record</th></tr>%s</table>'
             '<h3>Phone</h3><div class="refs">%s</div>'
             '<h3>Windows</h3><p class="dim">The same sheet as a panel over the window, opened from the quick-add window'"'"'s ⋯.</p>'
-            '<div class="refs"><figure><img src="when/desk-repeat.png" width="560" alt="Windows, Repeat"><figcaption>⋯ › Repeat</figcaption></figure>'
-            '<figure><img src="when/desk-date.png" width="560" alt="Windows, Date"><figcaption>⋯ › Date</figcaption></figure></div></section>') % (rows, imgs)
+            '<div class="refs"><figure><img src="%s" width="560" alt="Windows, Repeat"><figcaption>⋯ › Repeat</figcaption></figure>'
+            '<figure><img src="%s" width="560" alt="Windows, Date"><figcaption>⋯ › Date</figcaption></figure></div></section>') % (rows, imgs, uri("desk-repeat"), uri("desk-date"))
 
 
 if __name__ == "__main__":
