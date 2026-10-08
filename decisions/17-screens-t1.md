@@ -912,3 +912,33 @@ Every state of the chosen design is drawn for review, because round 3's redundan
 - **Caveat:** no task picks an arbitrary day of the month. There the grid costs 1 tap, and a typed day 3 actions with the keyboard up.
 
 Mockups, every state: `docs/screens/t1/repeat4-options.html`.
+
+## T1.5 + T1.6 merged: one "When" sentence (owner's workshop, 2026-10-08)
+
+**Owner:**
+- "'Does not repeat' is not necessary if we insert date and time picker vs repeat correctly… could the Repeat layout have a switch and become the only date and time and repeat pattern picker? 'Every' becomes a variable, tapping it switches to 'Once' (the last used option sticks as default for the next input). Tapping on 'at' switches to 'from-to' and 'random'."
+- "Never ask 'exactly'": a specific time is exact, an interval is counted exactly, and a random time only respects its window.
+
+**The grammar, workshopped:**
+- **Once** on [date] [time].
+- **Every** [n unit] [· at random (a range)] [· after it's done] [on days] [time] [starting date], [end].
+  - **time:**
+    - at [t, + more times];
+    - from [a] to [b], read as "between [a] and [b]" when the unit is minutes or hours;
+    - at a random time between [a] and [b];
+    - no time (all day). After it's done, the time is optional.
+  - **end:** forever · until [date] · [n] times.
+    - Until opens the month, plus a calculator, "+ [n] [days, weeks, months]" from the start. It also covers "for [duration]" (merged, owner).
+- **How the readings are chosen:** the time chooser offers At · From–to · Random time · No time, and the unit decides the wording. With days or longer, from–to reads as the item's span; with minutes and hours, as the window the repeats stay inside.
+- **Combinations:**
+  - random days take any time slot;
+  - "at random" and "after it's done" can combine (a random gap counted from completion);
+  - Once has no random time.
+- **Both ways of saying twice a day stay:** several times, or an every-12-hours interval.
+
+**To be scored:**
+- "on [days]": Weekdays and Weekend as shortcuts in the weekday chooser, against Weekday and Weekend as units of the interval;
+- how the start shows: only when changed, always, or carried over from Once's date;
+- the entries: ⋯ › Date and ⋯ › Repeat opening the chooser already open, against one ⋯ › When opening on the last used.
+
+**Owner asked for an interactive HTML page of the screen first, to see how it works in practice:** `docs/screens/t1/when-prototype.html`.
