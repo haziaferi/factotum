@@ -724,3 +724,21 @@ Mockups: `docs/screens/t1/picker-options.html` (the steps, the keyboard state, a
 - **The dial alone sits just beyond the noise floor:** clutter 0.030 against 0.033 for the combination (tolerance 0.002). The page marks the combination as dominated. Actions (13), reach (2.23) and coverage (55%) are equal. The combination is the owner's choice, held for typing.
 - **A correction:** the earlier claim that "an exact minute (14:37) is where typing beats the dial" was not measured. The dial's minute ring can be tapped at any minute, but its one-minute targets are far under 48 dp. Typing costs the field plus four keys. Which is faster depends on how that ring is drawn, so the claim stands as a reason to keep typing, not as a measured win.
 - **The control** (one view in the keyboard's place, with wheels and an end time) loses: three needed controls are not drawn, and it takes 32 actions.
+
+## T1.6 Repeat builder: questions (owner, 2026-10-08)
+
+**Owner's answers:**
+- **Rules the builder reaches directly** (the rest through cron or typing): all four groups:
+  - everyday intervals (every n days, weeks, months or years; chosen weekdays);
+  - ordinals and month ends (second Tuesday, last Friday, the last day, the 31st clamped);
+  - within a day (every 90 min, every 15 min from 9 to 17, 08:30 and 20:30);
+  - random and after-done (random every 2–4 days, a random time in a window, n days after last done).
+- **Cron:** score a raw field with its plain-language readout and next dates (the calculator), a five-field builder, and cron behind an Advanced row.
+- **Presets:** score both presets first (then Custom) and the builder straight away (presets as its first row).
+- **Next occurrences:** score with and without.
+- **Axes:** harmony, ease, clutter, rule coverage (cases reached without cron or typing), the rule's legibility (read back in words before Done), and closeness to the references (measured geometry).
+- **References:** include clock and timer apps ("some of these features are more akin to a clock or a timer"), and do not exclude open-source apps. Capture Todoist, TickTick, Google Tasks, Any.do, Google Calendar, Fossify Calendar, SimpleReminder, and the source apps' own screens.
+- **Opens from:** ⋯ › Repeat beside the line and the full page's Repeat row. How T1.5 links to it is settled after this design.
+- **Containers:** all four again (sheet, page, the keyboard's place, a pop-over).
+
+**On the phone already:** Todoist, TickTick, Google Tasks, Any.do, Google Calendar, Fossify Calendar, Tasks.org and Loop Habit Tracker (both open source), the OnePlus clock, Notion Calendar, Chronicle and Mnemo. Tendril is not installed (only its test package), so its repeat screen is read from its code.
