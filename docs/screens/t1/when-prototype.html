@@ -87,7 +87,7 @@ input[type=time].fld{width:96px}
     <label>Weekdays and Weekend:
       <select onchange="S.v.on=this.value;render()"><option value="shortcuts">shortcuts inside "on"</option><option value="units">units of the interval</option></select></label>
     <label>The start date of a repeat:
-      <select onchange="S.v.start=this.value;render()"><option value="next">tap the first Next date</option><option value="row">a Starting row in the interval's chooser</option><option value="always">always in the sentence</option></select></label>
+      <select onchange="S.v.start=this.value;render()"><option value="row" selected>a Starting row in the interval's chooser</option><option value="next">tap the first Next date</option><option value="always">always in the sentence</option></select></label>
     <label>Dial, inner-ring spacing:
       <select onchange="GAP=+this.value;render(true)"><option value="30">30 dp (242 dp dial)</option><option value="32" selected>32 dp (250 dp dial)</option><option value="35">35 dp (262 dp dial)</option><option value="48">48 dp (312 dp dial)</option></select></label>
     <h2>Rules (owner, 2026-10-08)</h2>
@@ -111,7 +111,7 @@ let lastMode="once"; try{lastMode=localStorage.getItem("when-last")||"once"}catc
 const S={mode:lastMode,date:new Date(ITEM),n:1,unit:"week",random:false,rmin:2,rmax:4,after:false,
   days:new Set([4]),mmode:"dom",dom:16,ord:3,owd:4,
   time:{kind:"at",times:["09:00"],a:"09:00",b:"17:00",k:1},end:{kind:"forever",until:null,count:6,plusN:3,plusU:"month",fordays:7},
-  start:new Date(ITEM),startChanged:false,open:null,cal:new Date(2026,9,1),v:{on:"shortcuts",start:"next"}};
+  start:new Date(ITEM),startChanged:false,open:null,cal:new Date(2026,9,1),v:{on:"shortcuts",start:"row"}};
 // ---- undo and redo: every change to the rule is a step (owner: one misclick must not lose the work) ----------------
 const RULE_KEYS=["mode","date","n","unit","random","rmin","rmax","after","days","mmode","dom","ord","owd","time","end","start","startChanged"];
 function snap(){return JSON.stringify(RULE_KEYS.map(k=>k==="days"?[...S.days]:S[k]))}

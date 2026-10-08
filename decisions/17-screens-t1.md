@@ -1006,3 +1006,9 @@ Mockups, every state: `docs/screens/t1/repeat4-options.html`.
 - **"Always" is dominated by the tappable Next date:** the same actions, with a line more, more height and more clutter.
 - **Between the other two:** the tappable date is one action quicker from a closed sentence. The row is the shortest foot (30 px less, the date drawn at 12.5 px inside a 48 px target), the calmest, and has one control fewer. ⋯ › Repeat opens with the interval's chooser showing, where the row already is.
 - **Once moved,** the start reads in the sentence ("…, starting [date]"), whichever way it was moved.
+- **Owner's choices (2026-10-08):**
+  - Weekdays and Weekend are shortcuts inside "on";
+  - a repeat's start is changed from a Starting row in the interval's chooser;
+  - the dial's inner ring is spaced 32 dp (250 dp across).
+
+  These are the prototype's defaults now. Still open: two entries (⋯ › Date, ⋯ › Repeat) against one (⋯ › When).
