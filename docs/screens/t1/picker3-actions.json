@@ -1,0 +1,17 @@
+{
+ "front": [
+  {
+   "steps": "two",
+   "container": "sheet",
+   "entry": "wheel",
+   "end": "duration"
+  },
+  {
+   "steps": "two",
+   "container": "sheet",
+   "entry": "dial",
+   "end": "duration"
+  }
+ ],
+ "note": "actions = taps + keystrokes + wheel steps (owner, 2026-10-08)"
+}

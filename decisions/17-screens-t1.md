@@ -690,3 +690,20 @@ Also: the empty space was trimmed (labels moved inside their rows, less padding)
 **The calendar-first runs are kept as a record:** `picker-opt.json` (one view or two steps, presets included) and `picker2-opt.json` (a menu from the tapped word; stopped and superseded).
 
 Mockups: `docs/screens/t1/picker-options.html`.
+
+**Wheel cost corrected (owner, 2026-10-08):** "typing numbers or tapping on a clock shape is way faster than scrolling a wheel one hour and one minute at a time."
+- **One wheel step is now one action.** From 09:00, 14:30 takes 11 steps and 15:00 takes 6. Before, each wheel counted one drag however far it spun.
+- **The rank-sum also hid sizes.** A wheel last on drags by 17 to 1 cost the same as last by 1. Ease therefore uses one count of **actions** (taps + keystrokes + wheel steps), as the owner counts them (`docs/screens/t1/picker3-actions.json`).
+
+Two-step sheet with duration presets:
+
+| Time entry | Actions (4 tasks) | Reach | Clutter | Screen covered |
+|---|---|---|---|---|
+| **Clock dial** | **13** | 2.23 | **0.032** | 55% |
+| Time blocks | 16 | 2.03 | 0.038 | 50% |
+| Typed | 18 | **1.89** | 0.036 | **50%** |
+| Wheels | 27 | 2.12 | 0.035 | 50% |
+
+- **The dial is now the only front member.**
+- **Typed has the best reach.** It brings up the keyboard, and its time view was checked to fit above it: the field, suggestions, end presets and Done all stay visible.
+- **The owner narrowed the choice to typed or the dial.**

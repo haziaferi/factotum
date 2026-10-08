@@ -61,8 +61,11 @@ def doc(v, view=1, theme="light", score=True):
 def tasks(v):
     """(view, targets, keys, drags) per step."""
     e, end, two = v["entry"], v["end"], v["steps"] == "two"
-    t1430 = {"blocks": (["Other time"], 4, 0), "typed": (["Time field"], 4, 0), "cron": (["Time field"], 4, 0), "wheel": ([], 0, 2), "dial": (["Hour 2"], 0, 1)}[e]
-    t15 = {"blocks": (["Block Afternoon"], 0, 0), "typed": (["Time field"], 2, 0), "cron": (["Time field"], 2, 0), "wheel": ([], 0, 1), "dial": (["Hour 3"], 0, 0)}[e]
+    # a wheel moves one value per step (owner, 2026-10-08: "scrolling a wheel one hour and one minute at a time"):
+    # from 09:00, 14:30 is 5 hour steps and 6 five-minute steps, 15:00 is 6; the first count (one drag a wheel)
+    # flattered the wheels
+    t1430 = {"blocks": (["Other time"], 4, 0), "typed": (["Time field"], 4, 0), "cron": (["Time field"], 4, 0), "wheel": ([], 0, 11), "dial": (["Hour 2"], 0, 1)}[e]
+    t15 = {"blocks": (["Block Afternoon"], 0, 0), "typed": (["Time field"], 2, 0), "cron": (["Time field"], 2, 0), "wheel": ([], 0, 6), "dial": (["Hour 3"], 0, 0)}[e]
     end1h = (["Lasts 1 h"], 0, 0) if end == "duration" else t15
     tv = 2 if two else 1  # the view the time lives in
     # two steps: tapping a day with a time wanted opens the time view (the day tap is the step); without a time, Done
