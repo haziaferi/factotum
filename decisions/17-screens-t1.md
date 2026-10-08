@@ -942,3 +942,25 @@ Mockups, every state: `docs/screens/t1/repeat4-options.html`.
 - the entries: ⋯ › Date and ⋯ › Repeat opening the chooser already open, against one ⋯ › When opening on the last used.
 
 **Owner asked for an interactive HTML page of the screen first, to see how it works in practice:** `docs/screens/t1/when-prototype.html`.
+
+**Prototype v2 (owner, 2026-10-08):**
+- **"The constant resizing of the sheet makes the user chase the sentence around the screen."** The sheet now keeps one height (640 px). The sentence and its readout are pinned to its foot, above the gesture bar. Choosers fill the space above them, scrolling when tall. Measured: the foot's bottom stays at the same pixel with every chooser open.
+- **Undo and Redo** are in the header. Every change to the rule is one step, "so the user does not lose all progress for one misclick".
+- **Contradictions the owner found:**
+  - random gaps plus a random time;
+  - an hourly interval plus a random time;
+  - "every hour from 9 to 17, 6 times", which ends at 14:00 on the first day.
+
+**Rules (owner's answers):** impossible options are hidden.
+- **Minutes and hours** take a window ("between [a] and [b]") or all day; the interval sets the times.
+- **At random (random gaps) needs a time bound** ("to avoid notifications or alarms firing during sleep hours"): a fixed time, or a window the random moment falls in, with no count. "On [days]" is hidden.
+- **A random time takes a count per day** ("at [3] random times between 9:00 and 17:00"; owner: yes to several random times a day). This is separate from the end's count in all.
+- **After it's done** hides "on [days]"; its time is optional.
+- **Ends:** forever, until, [n] times in all, and, for minutes and hours, for [n] days (owner: both). A finite end reads back its last occurrence.
+- **Edge cases, in the readout:**
+  - until cannot be before the start (those days are not drawn);
+  - a range typed backwards is swapped;
+  - day 29–31 notes "the last day in shorter months";
+  - 29 Feb notes "28 Feb in other years";
+  - overnight windows read "the next day".
+- **Recorded, not drawn:** times that fall in a clock change are a platform rule.

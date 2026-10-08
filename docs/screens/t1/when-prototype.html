@@ -5,7 +5,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>When sheet prototype</title>
 <!-- T1.5 + T1.6 merged (owner's workshop, 2026-10-08; decision 17): one sentence for dates, times and repeats.
-     Interactive, greys only; type Major Second (sentence 17.5 px, small 12.5 px, controls 14 px). Hand-written, not generated. -->
+     v2 (owner): the sentence stays put at the bottom (fixed-height sheet, above the gesture bar); Undo and Redo;
+     impossible combinations are not drawn. Greys only; type Major Second (sentence 17.5 px, small 12.5 px). -->
 <style>
 :root{--bg:#f4f4f2;--zone:#e9e9e6;--zone2:#d9d9d5;--ink:#1d1d1b;--dim:#6b6b66;--sheet:#fafaf8;--scrim:rgba(0,0,0,.16)}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#121211;--zone:#1d1d1b;--zone2:#2c2c29;--ink:#ecece8;--dim:#9a9a94;--sheet:#1a1a18;--scrim:rgba(0,0,0,.4)}}
@@ -14,20 +15,25 @@
 body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;padding:16px}
 h1{font-size:19px;margin:0 0 4px}.dim{color:var(--dim)}
 .wrap{display:flex;gap:24px;flex-wrap:wrap;align-items:flex-start}
-.side{max-width:440px;flex:1 1 300px}
+.side{max-width:460px;flex:1 1 300px}
 .side h2{font-size:15px;margin:18px 0 6px}
 .side button,.side select{font:inherit;color:var(--ink);background:var(--zone);border:1px solid var(--zone2);border-radius:999px;padding:6px 14px;cursor:pointer;margin:0 6px 6px 0;min-height:36px}
 .side label{display:block;margin:6px 0}
-.side code{font-size:12.5px}
+.side ul{padding-left:18px;margin:4px 0}.side li{margin:2px 0}
 .phone{width:360px;height:740px;border-radius:28px;background:var(--bg);position:relative;overflow:hidden;box-shadow:0 0 0 1px var(--zone2);flex:none;max-width:100%}
 .today{padding:14px 12px}
 .today .hdr{font-size:17px;font-weight:600;padding:6px 4px 14px}
 .today .rowi{background:var(--zone);border-radius:12px;padding:12px;margin:0 0 8px;color:var(--dim)}
 .scrim{position:absolute;inset:0;background:var(--scrim)}
-.sheet{position:absolute;left:0;right:0;bottom:0;max-height:704px;overflow:auto;background:var(--sheet);border-radius:20px 20px 0 0;padding:4px 12px 10px;box-shadow:0 -8px 24px rgba(0,0,0,.14)}
-.top{display:flex;justify-content:space-between;align-items:center;min-height:48px}
+.gesture{position:absolute;left:50%;bottom:8px;width:108px;height:4px;margin-left:-54px;border-radius:2px;background:var(--dim);opacity:.6;z-index:3}
+/* the sheet keeps one height; the sentence block is pinned to its foot, above the gesture bar, so it never moves */
+.sheet{position:absolute;left:0;right:0;bottom:0;height:640px;display:flex;flex-direction:column;background:var(--sheet);border-radius:20px 20px 0 0;padding:4px 12px 28px;box-shadow:0 -8px 24px rgba(0,0,0,.14)}
+.top{display:flex;justify-content:space-between;align-items:center;min-height:48px;flex:none}
 .top .ttl{font-weight:600;font-size:15px}
 .tap{min-height:48px;min-width:48px;display:inline-flex;align-items:center;justify-content:center;background:none;border:0;color:var(--ink);font:inherit;cursor:pointer;padding:0 4px}
+.tap:disabled{opacity:.35;cursor:default}
+.area{flex:1;overflow:auto;display:flex;flex-direction:column;justify-content:flex-end;min-height:0}
+.foot{flex:none;border-top:1px solid var(--zone2);padding-top:2px}
 .sent{font-size:17.5px;line-height:48px}
 .tok{display:inline-flex;align-items:center;justify-content:center;min-height:48px;min-width:48px;padding:0 2px;cursor:pointer;background:none;border:0;font:inherit;color:inherit}
 .tok b{font-weight:600;text-decoration:underline;text-decoration-color:var(--dim);text-underline-offset:4px}
@@ -38,7 +44,7 @@ h1{font-size:19px;margin:0 0 4px}.dim{color:var(--dim)}
 .chip.on span{background:var(--zone2);box-shadow:none;font-weight:600}
 .wd{display:grid;grid-template-columns:repeat(7,1fr);margin:0 -12px}.wd .chip{justify-content:center}
 .lab{font-size:12.5px;color:var(--dim);font-weight:600;min-width:52px;display:inline-flex;align-items:center;min-height:48px}
-.fld{min-height:48px;width:72px;border-radius:10px;border:0;box-shadow:inset 0 0 0 1px var(--zone2);background:transparent;color:var(--ink);font:inherit;font-size:15px;text-align:center}
+.fld{min-height:48px;width:64px;border-radius:10px;border:0;box-shadow:inset 0 0 0 1px var(--zone2);background:transparent;color:var(--ink);font:inherit;font-size:15px;text-align:center}
 input[type=time].fld{width:96px}
 .small{font-size:12.5px;color:var(--dim);line-height:18px;padding:2px 0}
 .mh{display:flex;align-items:center;justify-content:space-between;font-weight:600}
@@ -49,7 +55,6 @@ input[type=time].fld{width:96px}
 .day.sel b{background:var(--zone2);font-weight:600}
 .day i{width:4px;height:4px;border-radius:50%;background:var(--dim)}
 .day.pad{visibility:hidden}
-.chooser{border-top:1px solid var(--zone2);margin-top:2px;padding-top:2px}
 .note{font-size:12.5px;color:var(--dim)}
 @media (max-width:420px){body{padding:16px 8px}.phone{width:100%}}
 </style>
@@ -60,21 +65,29 @@ input[type=time].fld{width:96px}
 <div class="wrap">
   <div class="phone" id="phone">
     <div class="today"><div class="hdr">Today · Mon 5 Oct</div>
-      <div class="rowi">Dentist</div><div class="rowi">Pay the fine</div><div class="rowi">Call the bank</div><div class="rowi">Walk</div><div class="rowi">Water</div></div>
+      <div class="rowi">Dentist</div><div class="rowi">Pay the fine</div><div class="rowi">Call the bank</div></div>
     <div class="scrim"></div>
     <div class="sheet" id="sheet"></div>
+    <div class="gesture"></div>
   </div>
   <div class="side">
     <h2>Open it as</h2>
     <button onclick="openFrom('date')">⋯ › Date</button><button onclick="openFrom('repeat')">⋯ › Repeat</button><button onclick="openFrom('when')">⋯ › When (one entry)</button>
-    <p class="note">Two entries open the chooser already showing (Date: Once and the month; Repeat: Every and the interval). One entry opens on whichever of Once or Every was used last; that is remembered on this device.</p>
+    <p class="note">Two entries open with a chooser already showing (Date: Once and the month; Repeat: Every and the interval). One entry opens on whichever of Once or Every was used last on this device.</p>
     <h2>Variants still to be scored</h2>
     <label>Weekdays and Weekend:
-      <select id="vOn" onchange="S.v.on=this.value;render()"><option value="shortcuts">shortcuts inside "on"</option><option value="units">units of the interval</option></select></label>
+      <select onchange="S.v.on=this.value;render()"><option value="shortcuts">shortcuts inside "on"</option><option value="units">units of the interval</option></select></label>
     <label>The start date of a repeat:
-      <select id="vStart" onchange="S.v.start=this.value;render()"><option value="changed">shown only when changed</option><option value="always">always shown</option><option value="once">carried from Once's date</option></select></label>
-    <h2>Try</h2>
-    <p class="note">Every 2 weeks on Tue and Thu · the 2nd Tuesday monthly · the last day, 6 times · 08:30 and 20:30 daily · every 90 min between 9 and 17 on weekdays · every 2–4 days at random · a random time between 9 and 12 · 3 days after it's done · until 3 months from the start.</p>
+      <select onchange="S.v.start=this.value;render()"><option value="changed">shown only when changed</option><option value="always">always shown</option><option value="once">carried from Once's date</option></select></label>
+    <h2>Rules (owner, 2026-10-08)</h2>
+    <ul class="note">
+      <li>Minutes and hours take only a window ("between a and b") or all day: the interval sets the times.</li>
+      <li>At random (random gaps) needs a time bound: a fixed time, or a window the moment falls in ("every 2–4 days at random between 9:00 and 12:00"); "on [days]" is hidden.</li>
+      <li>A random time takes a count per day: "at 3 random times between 9:00 and 17:00".</li>
+      <li>After it's done hides "on [days]"; its time is optional.</li>
+      <li>Ends: forever, until, n times in all; minutes and hours also "for n days". A finite end reads back its last occurrence.</li>
+      <li>Impossible options are not drawn; until cannot be before the start.</li>
+    </ul>
     <h2>Theme</h2>
     <button onclick="document.documentElement.dataset.theme='light'">Light</button><button onclick="document.documentElement.dataset.theme='dark'">Dark</button>
   </div>
@@ -86,39 +99,66 @@ const QUICK={minute:[5,10,15,30,45,60,90],hour:[1,2,3,4,6,8,12],day:[1,2,3,4,5,6
 let lastMode="once"; try{lastMode=localStorage.getItem("when-last")||"once"}catch(e){}
 const S={mode:lastMode,date:new Date(ITEM),n:1,unit:"week",random:false,rmin:2,rmax:4,after:false,
   days:new Set([4]),mmode:"dom",dom:16,ord:3,owd:4,
-  time:{kind:"at",times:["09:00"],a:"09:00",b:"10:00"},end:{kind:"forever",until:null,count:6,plusN:3,plusU:"month"},
+  time:{kind:"at",times:["09:00"],a:"09:00",b:"17:00",k:1},end:{kind:"forever",until:null,count:6,plusN:3,plusU:"month",fordays:7},
   start:new Date(ITEM),startChanged:false,open:null,cal:new Date(2026,9,1),v:{on:"shortcuts",start:"changed"}};
+// ---- undo and redo: every change to the rule is a step (owner: one misclick must not lose the work) ----------------
+const RULE_KEYS=["mode","date","n","unit","random","rmin","rmax","after","days","mmode","dom","ord","owd","time","end","start","startChanged"];
+function snap(){return JSON.stringify(RULE_KEYS.map(k=>k==="days"?[...S.days]:S[k]))}
+function restore(js){const a=JSON.parse(js);RULE_KEYS.forEach((k,i)=>{let x=a[i];if(k==="days")x=new Set(x);
+  if(k==="date"||k==="start")x=new Date(x);if(k==="end"&&x.until)x.until=new Date(x.until);S[k]=x})}
+let past=[],future=[],shown=null;
+function undo(){if(!past.length)return;future.push(shown);shown=past.pop();restore(shown);render(true)}
+function redo(){if(!future.length)return;past.push(shown);shown=future.pop();restore(shown);render(true)}
 const $=s=>document.querySelector(s);
 const fmt=d=>WD[(d.getDay()+6)%7]+" "+d.getDate()+" "+MON[d.getMonth()];
 const ordn=n=>n===-1?"last":["","1st","2nd","3rd","4th"][n];
 const plural=(n,u)=>n===1?u:u+"s";
+const sub=u=>u==="minute"||u==="hour";
+const toMin=s=>{const[h,m]=s.split(":").map(Number);return h*60+m};
+const hhmm=m=>String(Math.floor(m/60)%24).padStart(2,"0")+":"+String(m%60).padStart(2,"0");
 function tok(id,text){return `<button class="tok${S.open===id?" open":""}" onclick="tapTok('${id}')"><b>${text}</b></button>`}
 function chip(label,on,act){return `<button class="chip${on?" on":""}" onclick="${act}"><span>${label}</span></button>`}
-function sub(unit){return unit==="minute"||unit==="hour"}
+// ---- what each slot may hold, given the words before it (impossible options are not drawn) -------------------------
+function timeKinds(){
+  if(S.mode==="once")return["at","span","none"];
+  if(sub(S.unit))return S.random?["window"]:["window","none"];
+  if(S.random)return["at","window"];              // random gaps need a bound: a fixed time, or a window the moment falls in (no count)
+  if(S.after)return["at","none"];
+  return["at","span","rtime","none"]}
+function endKinds(){return sub(S.unit)?["forever","until","count","fordays"]:["forever","until","count"]}
+function showOn(){return S.mode==="every"&&!S.after&&!S.random&&(S.unit==="week"||S.unit==="month"||S.unit==="year"||sub(S.unit))}
+function normalise(){
+  if(!timeKinds().includes(S.time.kind))S.time.kind=timeKinds()[0];
+  if(!endKinds().includes(S.end.kind))S.end.kind="forever";
+  if(S.rmin>S.rmax)[S.rmin,S.rmax]=[S.rmax,S.rmin];
+  if(S.end.until&&S.end.until<S.start)S.end.until=new Date(S.start);
+  if(S.unit==="week"&&S.days.size===0)S.days=new Set([(S.date.getDay()+6)%7])}
+// ---- the sentence ---------------------------------------------------------------------------------------------------
+function overnight(a,b){return toMin(b)<=toMin(a)?" the next day":""}
 function timePhrase(){const t=S.time;
   if(t.kind==="none")return S.after?"":" "+tok("time","all day");
   if(t.kind==="at")return " at "+tok("time",t.times.join(" and "));
-  if(t.kind==="random")return " at "+tok("time",`a random time between ${t.a} and ${t.b}`);
-  return S.mode==="every"&&sub(S.unit)?" "+tok("time",`between ${t.a} and ${t.b}`):" "+tok("time",`from ${t.a} to ${t.b}`)}
-function onPhrase(){if(S.mode!=="every")return"";
-  if(S.unit==="week"||(sub(S.unit)&&S.days.size<7&&S.days.size>0)){
-    const d=[...S.days].sort();const txt=d.length===5&&d.every((x,i)=>x===i)?"weekdays":d.length===2&&d[0]===5&&d[1]===6?"weekends":d.map(i=>WD[i]).join(", ");
-    return " on "+tok("on",txt)}
-  if(sub(S.unit))return " "+tok("on","on any day");  // minutes and hours can be kept to some days ("every 30 min on weekdays")
-  if(S.unit==="month")return " on "+tok("on",S.mmode==="dom"?(S.dom===-1?"the last day":"day "+S.dom):`the ${ordn(S.ord)} ${WD[S.owd]}`);
-  if(S.unit==="year")return " on "+tok("on",S.date.getDate()+" "+MON[S.date.getMonth()]);
-  return ""}
+  if(t.kind==="rtime")return " at "+tok("time",(t.k===1?"a random time":t.k+" random times")+` between ${t.a} and ${t.b}${overnight(t.a,t.b)}`);
+  if(t.kind==="window")return " "+tok("time",`between ${t.a} and ${t.b}${overnight(t.a,t.b)}`);
+  return " "+tok("time",`from ${t.a} to ${t.b}${overnight(t.a,t.b)}`)}
+function onText(){
+  if(S.unit==="month")return S.mmode==="dom"?(S.dom===-1?"the last day":"day "+S.dom):`the ${ordn(S.ord)} ${WD[S.owd]}`;
+  if(S.unit==="year")return S.date.getDate()+" "+MON[S.date.getMonth()];
+  const d=[...S.days].sort();
+  if(d.length===7)return"any day";if(d.length===5&&d.every((x,i)=>x===i))return"weekdays";if(d.length===2&&d[0]===5&&d[1]===6)return"weekends";
+  return d.map(i=>WD[i]).join(", ")}
 function intervalPhrase(){
   if(S.unit==="weekday"||S.unit==="weekend")return tok("interval",S.unit==="weekday"?"weekday":"weekend day");
   const base=S.random?`${S.rmin}–${S.rmax} ${S.unit}s`:(S.n===1?S.unit:S.n+" "+plural(S.n,S.unit));
   return tok("interval",base)+(S.random?" at random":"")}
-function endPhrase(){const e=S.end;
-  if(e.kind==="forever")return tok("end","forever");
-  if(e.kind==="count")return tok("end",e.count+" times");
-  return tok("end","until "+fmt(untilDate())+(e.plusN?` (${e.plusN} ${plural(e.plusN,e.plusU)})`:""))}
 function untilDate(){const e=S.end;if(!e.plusN&&e.until)return e.until;const d=new Date(S.start);
   if(e.plusU==="day")d.setDate(d.getDate()+e.plusN);if(e.plusU==="week")d.setDate(d.getDate()+7*e.plusN);
   if(e.plusU==="month")d.setMonth(d.getMonth()+e.plusN);if(e.plusU==="year")d.setFullYear(d.getFullYear()+e.plusN);return d}
+function endPhrase(){const e=S.end;
+  if(e.kind==="forever")return tok("end","forever");
+  if(e.kind==="count")return tok("end",e.count+" times in all");
+  if(e.kind==="fordays")return tok("end","for "+e.fordays+" "+plural(e.fordays,"day"));
+  return tok("end","until "+fmt(untilDate())+(e.plusN?` (${e.plusN} ${plural(e.plusN,e.plusU)})`:""))}
 function startPhrase(){if(S.mode!=="every")return"";
   const show=S.v.start==="always"||(S.v.start==="changed"&&S.startChanged);
   return show?", starting "+tok("start",fmt(S.start)):""}
@@ -126,90 +166,108 @@ function sentence(){
   const mode=tok("mode",S.mode==="once"?"Once":"Every");
   if(S.mode==="once")return `${mode} on ${tok("date",fmt(S.date))}${timePhrase()}`;
   const head=S.after?`${mode} ${intervalPhrase()} after it's done`:`${mode} ${intervalPhrase()}`;
-  const tp=timePhrase();
-  return `${head}${onPhrase()}${tp}${startPhrase()}, ${endPhrase()}`}
-function hm(s){const[h,m]=s.split(":").map(Number);return[h,m]}
-function nextDates(){if(S.mode==="once")return[fmt(S.date)+(S.time.kind==="at"?" "+S.time.times[0]:"")];
-  if(S.after)return[`${S.n} ${plural(S.n,"day")} after each time it is marked done`];
-  if(S.random)return[`on random days, ${S.rmin} to ${S.rmax} ${S.unit}s apart`];
-  const out=[];let d=new Date(S.start);d.setHours(0,0,0,0);let guard=0;
-  const dayOk=x=>{const w=(x.getDay()+6)%7;
-    if(S.unit==="weekday")return w<5;if(S.unit==="weekend")return w>4;
-    if(S.unit==="week"){if(!S.days.has(w))return false;const wk=Math.floor((x-S.start)/864e5/7+1e-9);return wk%S.n===0||S.n===1}
-    if(S.unit==="day")return Math.round((x-S.start)/864e5)%S.n===0;
-    if(sub(S.unit))return S.days.size===0||S.days.size===7||S.days.has(w);
-    if(S.unit==="month"){const mi=(x.getFullYear()-S.start.getFullYear())*12+x.getMonth()-S.start.getMonth();if(mi%S.n)return false;
-      if(S.mmode==="dom"){const last=new Date(x.getFullYear(),x.getMonth()+1,0).getDate();return S.dom===-1?x.getDate()===last:x.getDate()===Math.min(S.dom,last)}
-      if(w!==S.owd)return false;if(S.ord===-1)return x.getDate()+7>new Date(x.getFullYear(),x.getMonth()+1,0).getDate();return Math.ceil(x.getDate()/7)===S.ord}
-    if(S.unit==="year")return x.getDate()===S.date.getDate()&&x.getMonth()===S.date.getMonth()&&(x.getFullYear()-S.start.getFullYear())%S.n===0;return false};
-  const lim=S.end.kind==="count"?S.end.count:99, until=S.end.kind==="until"?untilDate():null;
-  while(out.length<3&&guard<1200&&out.length<lim){if(until&&d>until)break;
-    if(dayOk(d)){if(sub(S.unit)&&S.time.kind!=="none"){const[a1,a2]=hm(S.time.kind==="at"?S.time.times[0]:S.time.a);const[b1,b2]=hm(S.time.kind==="at"?"23:59":S.time.b);
-        const step=S.unit==="minute"?S.n:S.n*60;for(let m=a1*60+a2;m<=b1*60+b2&&out.length<3;m+=step)out.push(fmt(d)+" "+String(Math.floor(m/60)).padStart(2,"0")+":"+String(m%60).padStart(2,"0"))}
+  return `${head}${showOn()?" on "+tok("on",onText()):""}${timePhrase()}${startPhrase()}, ${endPhrase()}`}
+// ---- the readout: next dates, the last one, cron -----------------------------------------------------------------
+function dayOk(x){const w=(x.getDay()+6)%7;
+  if(S.unit==="weekday")return w<5;if(S.unit==="weekend")return w>4;
+  if(S.unit==="week"){if(!S.days.has(w))return false;const wk=Math.floor((x-S.start)/864e5/7+1e-9);return wk%S.n===0}
+  if(S.unit==="day")return Math.round((x-S.start)/864e5)%S.n===0;
+  if(sub(S.unit))return S.days.size===7||S.days.has(w);
+  if(S.unit==="month"){const mi=(x.getFullYear()-S.start.getFullYear())*12+x.getMonth()-S.start.getMonth();if(mi%S.n)return false;
+    const last=new Date(x.getFullYear(),x.getMonth()+1,0).getDate();
+    if(S.mmode==="dom")return S.dom===-1?x.getDate()===last:x.getDate()===Math.min(S.dom,last);
+    if(w!==S.owd)return false;if(S.ord===-1)return x.getDate()+7>last;return Math.ceil(x.getDate()/7)===S.ord}
+  if(S.unit==="year")return x.getDate()===S.date.getDate()&&x.getMonth()===S.date.getMonth()&&(x.getFullYear()-S.start.getFullYear())%S.n===0;return false}
+function occurrences(max){const out=[];let d=new Date(S.start);d.setHours(0,0,0,0);
+  const until=S.end.kind==="until"?untilDate():null, lim=S.end.kind==="count"?Math.min(S.end.count,max):max;
+  const lastDay=S.end.kind==="fordays"?new Date(d.getTime()+(S.end.fordays-1)*864e5):null;
+  for(let g=0;g<1500&&out.length<lim;g++){if((until&&d>until)||(lastDay&&d>lastDay))break;
+    if(dayOk(d)){if(sub(S.unit)){const t=S.time,a=t.kind==="window"?toMin(t.a):0,b=t.kind==="window"?toMin(t.b):1439,b2=b<=a?b+1440:b,step=S.unit==="minute"?S.n:S.n*60;
+        for(let m=a;m<=b2&&out.length<lim;m+=step)out.push(fmt(d)+" "+hhmm(m))}
       else out.push(fmt(d)+(S.time.kind==="at"?" "+S.time.times.join(", "):""))}
-    d.setDate(d.getDate()+1);guard++}
-  return out.length?out:["none in the next three years"]}
-function cron(){if(S.mode!=="every"||S.random||S.after||S.time.kind==="random")return"";
-  const t=S.time.kind==="none"?["0","0"]:(S.time.kind==="at"?S.time.times:[S.time.a]).map(hm);
-  const sameMin=Array.isArray(t[0])?t.every(x=>x[1]===t[0][1]):true; if(!sameMin)return"";
-  const M=Array.isArray(t[0])?t[0][1]:0, H=Array.isArray(t[0])?t.map(x=>x[0]).join(","):"0";
-  const dow=[...S.days].sort().map(i=>(i+1)%7).join(",")||"*";
+    d.setDate(d.getDate()+1)}
+  return out}
+function readout(){
+  if(S.mode==="once")return"Next: "+fmt(S.date)+(S.time.kind==="at"?" "+S.time.times.join(", "):"");
+  const t=S.time,win=t.kind==="rtime"||t.kind==="window"?` between ${t.a} and ${t.b}`:t.kind==="at"?" at "+t.times.join(", "):"";
+  if(S.after)return`${S.n} ${plural(S.n,S.unit)} after each time it is marked done${win}`;
+  if(S.random)return`Random gaps of ${S.rmin}–${S.rmax} ${S.unit}s${win}`;
+  let s="Next: "+(occurrences(3).join(", ")||"none");
+  if(t.kind==="rtime")s+=` (${t.k===1?"a random time":t.k+" random times"} each day)`;
+  if(S.end.kind!=="forever"){const all=occurrences(5000);if(all.length)s+=" · last: "+all[all.length-1]}
+  if(S.unit==="month"&&S.mmode==="dom"&&S.dom>28)s+=" · the last day in shorter months";
+  if(S.unit==="year"&&S.date.getDate()===29&&S.date.getMonth()===1)s+=" · 28 Feb in other years";
+  return s}
+function cron(){if(S.mode!=="every"||S.random||S.after||S.time.kind==="rtime")return"";
+  const dow=[...S.days].sort().map(i=>(i+1)%7).join(","),days7=S.days.size===7;
+  if(sub(S.unit)){const t=S.time;if(t.kind!=="window"||toMin(t.b)<=toMin(t.a))return"";const[a,b]=[t.a,t.b].map(x=>+x.split(":")[0]);
+    if(S.unit==="minute"&&60%S.n===0)return `*/${S.n} ${a}-${b-1} * * ${days7?"*":dow}`;
+    if(S.unit==="hour")return `${+t.a.split(":")[1]} ${a}-${b}/${S.n} * * ${days7?"*":dow}`;return""}
+  const ts=S.time.kind==="none"?["00:00"]:S.time.kind==="at"?S.time.times:[S.time.a];
+  if(!ts.every(x=>x.split(":")[1]===ts[0].split(":")[1]))return"";
+  const M=+ts[0].split(":")[1],H=ts.map(x=>+x.split(":")[0]).join(",");
   if(S.unit==="weekday")return `${M} ${H} * * 1-5`;if(S.unit==="weekend")return `${M} ${H} * * 0,6`;
-  if(S.unit==="day")return S.n===1?`${M} ${H} * * ${S.days.size&&S.days.size<7?dow:"*"}`:"";
-  if(S.unit==="week")return S.n===1?`${M} ${H} * * ${dow}`:"";
-  if(S.unit==="month")return S.n===1?(S.mmode==="dom"?`${M} ${H} ${S.dom===-1?"L":S.dom} * *`:`${M} ${H} * * ${WD[S.owd].toUpperCase()}#${S.ord===-1?"L":S.ord}`):"";
-  if(S.unit==="year")return S.n===1?`${M} ${H} ${S.date.getDate()} ${S.date.getMonth()+1} *`:"";
-  const[a]=hm(S.time.kind==="at"?S.time.times[0]:S.time.a),[b]=hm(S.time.kind==="at"?"23:59":S.time.b);
-  if(S.unit==="minute"&&60%S.n===0)return `*/${S.n} ${a}-${b-1} * * ${S.days.size&&S.days.size<7?dow:"*"}`;
-  if(S.unit==="hour")return `${hm(S.time.kind==="at"?S.time.times[0]:S.time.a)[1]} ${a}-${b}/${S.n} * * ${S.days.size&&S.days.size<7?dow:"*"}`;
-  return""}
+  if(S.n!==1)return"";
+  if(S.unit==="day")return `${M} ${H} * * *`;if(S.unit==="week")return `${M} ${H} * * ${dow}`;
+  if(S.unit==="month")return S.mmode==="dom"?`${M} ${H} ${S.dom===-1?"L":S.dom} * *`:`${M} ${H} * * ${WD[S.owd].toUpperCase()}#${S.ord===-1?"L":S.ord}`;
+  if(S.unit==="year")return `${M} ${H} ${S.date.getDate()} ${S.date.getMonth()+1} *`;return""}
+// ---- choosers --------------------------------------------------------------------------------------------------------
 function month(target){const c=S.cal,first=(new Date(c.getFullYear(),c.getMonth(),1).getDay()+6)%7,days=new Date(c.getFullYear(),c.getMonth()+1,0).getDate();
   const sel=target==="until"?untilDate():target==="start"?S.start:S.date;
   let cells=WD.map(w=>`<div class="h">${w[0]}</div>`).join("")+"<div class='day pad'></div>".repeat(first);
-  for(let i=1;i<=days;i++){const on=sel.getDate()===i&&sel.getMonth()===c.getMonth()&&sel.getFullYear()===c.getFullYear();
+  for(let i=1;i<=days;i++){const d=new Date(c.getFullYear(),c.getMonth(),i);
+    if(target==="until"&&d<S.start){cells+="<div class='day pad'></div>";continue}   // impossible: not drawn
+    const on=sel.getDate()===i&&sel.getMonth()===c.getMonth()&&sel.getFullYear()===c.getFullYear();
     cells+=`<button class="day${on?" sel":""}" onclick="pickDay('${target}',${i})"><b>${i}</b>${BUSY.includes(i)&&c.getMonth()===9?"<i></i>":"<i style='visibility:hidden'></i>"}</button>`}
-  return `<div class="mh"><span>${MON[c.getMonth()]} ${c.getFullYear()}</span><span><button class="tap" onclick="S.cal.setMonth(S.cal.getMonth()-1);render()">‹</button><button class="tap" onclick="S.cal.setMonth(S.cal.getMonth()+1);render()">›</button></span></div><div class="grid">${cells}</div>`}
+  return `<div class="mh"><span>${MON[c.getMonth()]} ${c.getFullYear()}</span><span><button class="tap" onclick="S.cal.setMonth(S.cal.getMonth()-1);render(true)">‹</button><button class="tap" onclick="S.cal.setMonth(S.cal.getMonth()+1);render(true)">›</button></span></div><div class="grid">${cells}</div>`}
+const LABEL={at:"At",span:"From–to",window:"Between",rtime:"Random time",none:"All day"};
 function chooser(){const o=S.open;if(!o)return"";let h="";
   if(o==="date"||o==="start")h=month(o);
   if(o==="interval"){
     const units=["minute","hour","day","week","month","year"].concat(S.v.on==="units"?["weekday","weekend"]:[]);
     if(S.random)h+=`<div class="chips"><span class="lab">Every</span><input class="fld" type="number" min="1" value="${S.rmin}" onchange="S.rmin=+this.value;render()"><span class="small">&nbsp;to&nbsp;</span><input class="fld" type="number" min="1" value="${S.rmax}" onchange="S.rmax=+this.value;render()"></div>`;
-    else if(S.unit!=="weekday"&&S.unit!=="weekend")h+=`<div class="chips">${(QUICK[S.unit]||[]).map(x=>chip(x,S.n===x,`S.n=${x};render()`)).join("")}<input class="fld" type="number" min="1" value="${S.n}" title="Any number" onchange="S.n=+this.value;render()"></div>`;
+    else if(S.unit!=="weekday"&&S.unit!=="weekend")h+=`<div class="chips">${(QUICK[S.unit]||[]).map(x=>chip(x,S.n===x,`S.n=${x};render()`)).join("")}<input class="fld" type="number" min="1" value="${S.n}" title="Any number" onchange="S.n=Math.max(1,+this.value);render()"></div>`;
     h+=`<div class="chips">${units.map(u=>chip(u==="weekday"?"weekdays":u==="weekend"?"weekends":u+"s",S.unit===u,`setUnit('${u}')`)).join("")}</div>`;
-    h+=`<div class="chips">${chip("At random",S.random,"S.random=!S.random;render()")}${chip("After it's done",S.after,"S.after=!S.after;render()")}</div>`}
+    h+=`<div class="chips">${S.unit==="weekday"||S.unit==="weekend"?"":chip("At random",S.random,"S.random=!S.random;render()")}${chip("After it's done",S.after,"S.after=!S.after;render()")}</div>`}
   if(o==="on"){
     if(S.unit==="month"){h=`<div class="chips">${chip("Day of the month",S.mmode==="dom","S.mmode='dom';render()")}${chip("Weekday of the month",S.mmode==="wom","S.mmode='wom';render()")}</div>`;
-      h+=S.mmode==="dom"?`<div class="chips"><span class="lab">Day</span><input class="fld" type="number" min="1" max="31" value="${S.dom===-1?"":S.dom}" onchange="S.dom=+this.value;render()">${chip("Last day",S.dom===-1,"S.dom=-1;render()")}</div>`
+      h+=S.mmode==="dom"?`<div class="chips"><span class="lab">Day</span><input class="fld" type="number" min="1" max="31" value="${S.dom===-1?"":S.dom}" onchange="S.dom=Math.min(31,Math.max(1,+this.value));render()">${chip("Last day",S.dom===-1,"S.dom=-1;render()")}</div>`
         :`<div class="chips">${[1,2,3,4,-1].map(n=>chip(n===-1?"Last":ordn(n),S.ord===n,`S.ord=${n};render()`)).join("")}</div><div class="wd">${WD.map((w,i)=>chip(w.slice(0,2),S.owd===i,`S.owd=${i};render()`)).join("")}</div>`}
     else if(S.unit==="year")h=month("date");
     else{h=`<div class="wd">${WD.map((w,i)=>chip(w.slice(0,2),S.days.has(i),`toggleDay(${i})`)).join("")}</div>`;
-      if(S.v.on==="shortcuts")h+=`<div class="chips">${chip("Weekdays",[...S.days].join()==="0,1,2,3,4","S.days=new Set([0,1,2,3,4]);render()")}${chip("Weekends",[...S.days].sort().join()==="5,6","S.days=new Set([5,6]);render()")}${chip("Every day",S.days.size===7,"S.days=new Set([0,1,2,3,4,5,6]);render()")}</div>`}}
-  if(o==="time"){const t=S.time,kinds=[["at","At"],["span","From–to"]].concat(S.mode==="every"?[["random","Random time"]]:[]).concat([["none",S.after?"No time":"All day"]]);
-    h=`<div class="chips">${kinds.map(([k,l])=>chip(l,t.kind===k,`S.time.kind='${k}';render()`)).join("")}</div>`;
+      if(S.v.on==="shortcuts")h+=`<div class="chips">${chip("Weekdays",[...S.days].sort().join()==="0,1,2,3,4","S.days=new Set([0,1,2,3,4]);render()")}${chip("Weekends",[...S.days].sort().join()==="5,6","S.days=new Set([5,6]);render()")}${sub(S.unit)?chip("Any day",S.days.size===7,"S.days=new Set([0,1,2,3,4,5,6]);render()"):""}</div>`}}
+  if(o==="time"){const t=S.time;
+    h=`<div class="chips">${timeKinds().map(k=>chip(k==="none"&&S.after?"No time":LABEL[k],t.kind===k,`S.time.kind='${k}';render()`)).join("")}</div>`;
     if(t.kind==="at")h+=`<div class="chips">${t.times.map((x,i)=>`<input class="fld" type="time" value="${x}" onchange="S.time.times[${i}]=this.value;render()">`).join("")}${chip("+ time",false,"S.time.times.push('20:30');render()")}${t.times.length>1?chip("− time",false,"S.time.times.pop();render()"):""}</div>`;
-    if(t.kind==="span"||t.kind==="random")h+=`<div class="chips"><span class="lab">${t.kind==="span"&&!(S.mode==="every"&&sub(S.unit))?"From":"Between"}</span><input class="fld" type="time" value="${t.a}" onchange="S.time.a=this.value;render()"><span class="small">&nbsp;${t.kind==="span"&&!(S.mode==="every"&&sub(S.unit))?"to":"and"}&nbsp;</span><input class="fld" type="time" value="${t.b}" onchange="S.time.b=this.value;render()"></div>`}
-  if(o==="end"){const e=S.end;h=`<div class="chips">${chip("Forever",e.kind==="forever","S.end.kind='forever';render()")}${chip("Until",e.kind==="until","S.end.kind='until';render()")}${chip("Times",e.kind==="count","S.end.kind='count';render()")}</div>`;
-    if(e.kind==="count")h+=`<div class="chips"><input class="fld" type="number" min="1" value="${e.count}" onchange="S.end.count=+this.value;render()"><span class="small">&nbsp;times</span></div>`;
-    if(e.kind==="until")h+=`<div class="chips"><span class="lab">Start +</span><input class="fld" type="number" min="0" value="${e.plusN}" onchange="S.end.plusN=+this.value;render()">${["day","week","month","year"].map(u=>chip(u+"s",e.plusU===u,`S.end.plusU='${u}';render()`)).join("")}</div><div class="small">or pick the date:</div>`+month("until")}
-  return `<div class="chooser">${h}</div>`}
-function render(){const nd=nextDates(),cr=cron();
-  $("#sheet").innerHTML=`<div class="top"><span></span><span class="ttl">When</span><button class="tap" onclick="done()">Done</button></div>
-  <div class="sent">${sentence()}</div>${chooser()}
-  ${cr?`<div class="small">As cron: ${cr}</div>`:""}<div class="small">Next: ${nd.join(", ")}</div>`}
-function tapTok(id){if(id==="mode"){S.mode=S.mode==="once"?"every":"once";if(S.mode==="every"&&S.v.start==="once"){S.start=new Date(S.date)}
-    if(S.mode==="once"&&S.time.kind==="random")S.time.kind="at";try{localStorage.setItem("when-last",S.mode)}catch(e){}S.open=null;render();return}
-  S.open=S.open===id?null:id;if(id==="date"||id==="start")S.cal=new Date((id==="start"?S.start:S.date).getFullYear(),(id==="start"?S.start:S.date).getMonth(),1);render()}
+    if(t.kind==="span"||t.kind==="window"||t.kind==="rtime")h+=`<div class="chips"><span class="lab">${t.kind==="span"?"From":"Between"}</span><input class="fld" type="time" value="${t.a}" onchange="S.time.a=this.value;render()"><span class="small">&nbsp;${t.kind==="span"?"to":"and"}&nbsp;</span><input class="fld" type="time" value="${t.b}" onchange="S.time.b=this.value;render()"></div>`;
+    if(t.kind==="rtime")h+=`<div class="chips"><span class="lab">Times a day</span>${[1,2,3,4,6].map(k=>chip(k,t.k===k,`S.time.k=${k};render()`)).join("")}</div>`}
+  if(o==="end"){const e=S.end,L={forever:"Forever",until:"Until",count:"Times in all",fordays:"For days"};
+    h=`<div class="chips">${endKinds().map(k=>chip(L[k],e.kind===k,`S.end.kind='${k}';render()`)).join("")}</div>`;
+    if(e.kind==="count")h+=`<div class="chips"><input class="fld" type="number" min="1" value="${e.count}" onchange="S.end.count=Math.max(1,+this.value);render()"><span class="small">&nbsp;times in all</span></div>`;
+    if(e.kind==="fordays")h+=`<div class="chips"><input class="fld" type="number" min="1" value="${e.fordays}" onchange="S.end.fordays=Math.max(1,+this.value);render()"><span class="small">&nbsp;days</span></div>`;
+    if(e.kind==="until")h+=`<div class="chips"><span class="lab">Start +</span><input class="fld" type="number" min="0" value="${e.plusN}" onchange="S.end.plusN=Math.max(0,+this.value);render()">${["day","week","month","year"].map(u=>chip(u+"s",e.plusU===u,`S.end.plusU='${u}';render()`)).join("")}</div><div class="small">or pick the date:</div>`+month("until")}
+  return h}
+// ---- render: the chooser fills the space above; the sentence and readout stay at the foot --------------------------
+function render(noStep){normalise();const now=snap();
+  if(!noStep&&shown!==null&&now!==shown){past.push(shown);future=[]}
+  shown=now;const cr=cron();
+  $("#sheet").innerHTML=`<div class="top"><span><button class="tap" title="Undo" ${past.length?"":"disabled"} onclick="undo()">↶</button><button class="tap" title="Redo" ${future.length?"":"disabled"} onclick="redo()">↷</button></span><span class="ttl">When</span><button class="tap" onclick="done()">Done</button></div>
+  <div class="area">${chooser()}</div>
+  <div class="foot"><div class="sent">${sentence()}</div>${cr?`<div class="small">As cron: ${cr}</div>`:""}<div class="small">${readout()}</div></div>`}
+function tapTok(id){if(id==="mode"){S.mode=S.mode==="once"?"every":"once";if(S.mode==="every"&&S.v.start==="once")S.start=new Date(S.date);
+    try{localStorage.setItem("when-last",S.mode)}catch(e){}S.open=null;render();return}
+  S.open=S.open===id?null:id;if(id==="date"||id==="start"||id==="end"){const r=id==="start"?S.start:id==="end"?untilDate():S.date;S.cal=new Date(r.getFullYear(),r.getMonth(),1)}render(true)}
 function pickDay(target,i){const d=new Date(S.cal.getFullYear(),S.cal.getMonth(),i);
   if(target==="date"){S.date=d;if(S.v.start==="once"||!S.startChanged)S.start=new Date(d)}
   if(target==="start"){S.start=d;S.startChanged=true}
   if(target==="until"){S.end.until=d;S.end.plusN=0}render()}
 function setUnit(u){S.unit=u;if(QUICK[u]&&!QUICK[u].includes(S.n))S.n=QUICK[u][0];if(u==="minute"&&S.n<5)S.n=30;
-  if(u==="week"&&S.days.size===0)S.days=new Set([(S.date.getDay()+6)%7]);if(u==="day"||sub(u))S.days=new Set([0,1,2,3,4,5,6]);
-  if(sub(u)&&S.time.kind==="at"){S.time.kind="span";S.time.a="09:00";S.time.b="17:00"}render()}
+  if(u==="week")S.days=new Set([(S.date.getDay()+6)%7]);if(sub(u)){S.days=new Set([0,1,2,3,4,5,6]);S.time.kind="window";S.time.a="09:00";S.time.b="17:00"}
+  if(u==="weekday"||u==="weekend")S.random=false;render()}
 function toggleDay(i){S.days.has(i)?S.days.delete(i):S.days.add(i);if(S.days.size===0)S.days.add(i);render()}
-function done(){S.open=null;render()}
+function done(){S.open=null;render(true)}
 function openFrom(entry){if(entry==="date"){S.mode="once";S.open="date"}else if(entry==="repeat"){S.mode="every";S.open="interval"}
-  else{try{S.mode=localStorage.getItem("when-last")||"once"}catch(e){}S.open=null}S.cal=new Date(S.date.getFullYear(),S.date.getMonth(),1);render()}
+  else{try{S.mode=localStorage.getItem("when-last")||"once"}catch(e){}S.open=null}S.cal=new Date(S.date.getFullYear(),S.date.getMonth(),1);past=[];future=[];shown=null;render()}
 openFrom("when");
 </script>
 </body>
