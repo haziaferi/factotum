@@ -1,0 +1,168 @@
+[
+ {
+  "v": {
+   "container": "sheet",
+   "shape": "list"
+  },
+  "actions": 20,
+  "per_task": {
+   "a": 1,
+   "b": 14,
+   "c": 1,
+   "d": 4
+  },
+  "reach": 3.283,
+  "unseen": [],
+  "small": [],
+  "covered": 0.951,
+  "controls": 13,
+  "labels_seen": 11,
+  "clutter": 0.0508
+ },
+ {
+  "v": {
+   "container": "sheet",
+   "shape": "grid"
+  },
+  "actions": 20,
+  "per_task": {
+   "a": 1,
+   "b": 14,
+   "c": 1,
+   "d": 4
+  },
+  "reach": 2.084,
+  "unseen": [],
+  "small": [],
+  "covered": 0.416,
+  "controls": 14,
+  "labels_seen": 12,
+  "clutter": 0.0475
+ },
+ {
+  "v": {
+   "container": "page",
+   "shape": "list"
+  },
+  "actions": 20,
+  "per_task": {
+   "a": 1,
+   "b": 14,
+   "c": 1,
+   "d": 4
+  },
+  "reach": 3.357,
+  "unseen": [],
+  "small": [],
+  "covered": 1.0,
+  "controls": 13,
+  "labels_seen": 11,
+  "clutter": 0.0428
+ },
+ {
+  "v": {
+   "container": "page",
+   "shape": "grid"
+  },
+  "actions": 20,
+  "per_task": {
+   "a": 1,
+   "b": 14,
+   "c": 1,
+   "d": 4
+  },
+  "reach": 3.585,
+  "unseen": [],
+  "small": [],
+  "covered": 1.0,
+  "controls": 14,
+  "labels_seen": 12,
+  "clutter": 0.0277
+ },
+ {
+  "v": {
+   "container": "keyboard",
+   "shape": "list"
+  },
+  "actions": 21,
+  "per_task": {
+   "a": 1,
+   "b": 15,
+   "c": 1,
+   "d": 4
+  },
+  "reach": 1.75,
+  "unseen": [
+   "multi: Lb Outdoors",
+   "multi: Lb Seasonal"
+  ],
+  "small": [],
+  "covered": 0.392,
+  "controls": 5,
+  "labels_seen": 3,
+  "clutter": 0.0464
+ },
+ {
+  "v": {
+   "container": "keyboard",
+   "shape": "grid"
+  },
+  "actions": 21,
+  "per_task": {
+   "a": 1,
+   "b": 15,
+   "c": 1,
+   "d": 4
+  },
+  "reach": 2.095,
+  "unseen": [],
+  "small": [],
+  "covered": 0.392,
+  "controls": 14,
+  "labels_seen": 12,
+  "clutter": 0.0531
+ },
+ {
+  "v": {
+   "container": "popover",
+   "shape": "list"
+  },
+  "actions": 20,
+  "per_task": {
+   "a": 1,
+   "b": 14,
+   "c": 1,
+   "d": 4
+  },
+  "reach": 3.522,
+  "unseen": [
+   "base: Search field",
+   "multi: Done"
+  ],
+  "small": [],
+  "covered": 0.595,
+  "controls": 8,
+  "labels_seen": 6,
+  "clutter": 0.0391
+ },
+ {
+  "v": {
+   "container": "popover",
+   "shape": "grid"
+  },
+  "actions": 20,
+  "per_task": {
+   "a": 1,
+   "b": 14,
+   "c": 1,
+   "d": 4
+  },
+  "reach": 3.476,
+  "unseen": [],
+  "small": [],
+  "covered": 0.397,
+  "controls": 15,
+  "labels_seen": 12,
+  "clutter": 0.045
+ }
+]

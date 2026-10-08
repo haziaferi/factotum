@@ -1,0 +1,49 @@
+[
+ {
+  "v": {
+   "place": "chips"
+  },
+  "actions": 14,
+  "per_task": {
+   "a": 4,
+   "b": 3,
+   "c": 7
+  },
+  "shown": 2,
+  "small": [],
+  "clutter": 0.0272,
+  "line_covered": false
+ },
+ {
+  "v": {
+   "place": "list"
+  },
+  "actions": 14,
+  "per_task": {
+   "a": 4,
+   "b": 3,
+   "c": 7
+  },
+  "shown": 2,
+  "small": [],
+  "clutter": 0.0279,
+  "line_covered": false
+ },
+ {
+  "v": {
+   "place": "inline"
+  },
+  "actions": 15,
+  "per_task": {
+   "a": 4,
+   "b": 4,
+   "c": 7
+  },
+  "shown": 0,
+  "small": [
+   "Accept 43x48"
+  ],
+  "clutter": 0.0283,
+  "line_covered": false
+ }
+]

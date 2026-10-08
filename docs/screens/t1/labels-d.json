@@ -1,0 +1,56 @@
+[
+ {
+  "v": {
+   "form": "direct"
+  },
+  "actions": 17,
+  "per_task": {
+   "a": 11,
+   "b": 1,
+   "c": 1,
+   "d": 1,
+   "e": 1,
+   "f": 2
+  },
+  "unseen": [],
+  "small": [],
+  "controls_per_row": 6.0,
+  "clutter": 0.0348
+ },
+ {
+  "v": {
+   "form": "menu"
+  },
+  "actions": 23,
+  "per_task": {
+   "a": 12,
+   "b": 3,
+   "c": 2,
+   "d": 1,
+   "e": 2,
+   "f": 3
+  },
+  "unseen": [],
+  "small": [],
+  "controls_per_row": 2.0,
+  "clutter": 0.0283
+ },
+ {
+  "v": {
+   "form": "detail"
+  },
+  "actions": 23,
+  "per_task": {
+   "a": 12,
+   "b": 3,
+   "c": 2,
+   "d": 1,
+   "e": 1,
+   "f": 4
+  },
+  "unseen": [],
+  "small": [],
+  "controls_per_row": 2.0,
+  "clutter": 0.028
+ }
+]
