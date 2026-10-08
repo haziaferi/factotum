@@ -57,7 +57,7 @@ SPACE = {"form": FORMS, "start": ["presets", "builder"], "cron": ["field", "five
          "container": ["sheet", "page", "keyboard", "popover"]}
 PRESETS = [("Daily", "Daily"), ("Weekdays", "Weekdays"), ("Weekly", "Weekly on Fri"), ("Monthly", "Monthly on the 16th"), ("Yearly", "Yearly on 16 Oct")]
 WD = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
-FIELDS = {"N field", "N2 field", "Time 1", "From", "To", "End field", "Cron field", "Cron min", "Typed field", "Add time"}
+FIELDS = {"Rule field", "N field", "N2 field", "Time 1", "From", "To", "End field", "Cron field", "Cron min", "Typed field", "Add time"}
 CSS = P.CSS + """
 .pk .ttl{font-size:15px;font-weight:600}
 .pk .lab{font-size:12px;color:var(--dim);font-weight:600;min-width:44px;display:inline-flex;align-items:center;min-height:48px}
@@ -239,11 +239,13 @@ def body(v, state):
     inner = FORM[v["form"]](v, state)
     # the readout follows the state drawn (the same length either way, so the measures do not move)
     words = WORDS.get(state, "Every week on Fri at 09:00")
-    if v["form"] == "sentence":
+    if v["form"] in ("sentence", "sentmodes"):
         words = "Next"  # the sentence is the rule in words; its readout adds only the dates
-    show_preview = v["preview"] if not (v["form"] == "sentence" and v["preview"] == "words") else "words"
+    show_preview = v["preview"]
     pre = presets_row() if v["start"] == "builder" else ""
-    cron = cron_sec(v["cron"]) if v["form"] != "typed" else ""
+    cron = cron_sec(v["cron"]) if v["form"] != "typed" and v.get("words", "none") == "none" else ""
+    if v.get("words") == "field":
+        pre += rule_field()
     if v["form"] == "typed" and v["preview"] == "none":
         show_preview = "none"
     return header(v, back=v["start"] == "presets") + pre + inner + preview_sec(show_preview, words) + cron
@@ -323,6 +325,18 @@ def walk(v):
         }
         # sentence T2: the weekday chooser opens from "on Fri"; its chips are drawn in a "week on" state
         T[2] = tap(base, "Tok unit") + tap("unit", "N field") + typ("unit", 1) + tap("unit", "Tok on") + tap("onw", "Wd Tue", "Wd Thu", "Wd Fri", "Done")
+    elif f == "slim":
+        cron4 = tap(base, "Rule field") + typ(base, len(CRON_CHARS[4])) + tap(base, "End after", "End field") + typ(base, 1) + tap(base, "Done")
+        T = {2: tap(base, "Mode Every") + tap("everyn", "N field") + typ("everyn", 1) + tap("everyn", "Wd Tue", "Wd Thu", "Wd Fri", "Done"),
+             4: cron4,
+             7: tap(base, "Mode Random") + tap("random", "N field") + typ("random", 1) + tap("random", "N2 field") + typ("random", 1) + tap("random", "Done"),
+             8: tap(base, "Mode Random") + tap("random", "Rand time") + tap("randtime", "To") + typ("randtime", 4) + tap("randtime", "Done"),
+             9: tap(base, "Mode After done") + tap("done", "N field") + typ("done", 1) + tap("done", "Done")}
+        # T3, T5, T6 and T10 go through the field (walk_field), the quicker of words and cron
+    elif f == "sentmodes":
+        S = walk(dict(v, form="sentence", start="builder", words="none"))
+        M = walk(dict(v, form="modes", start="builder", words="none"))
+        T = {k: (S[k] if k <= 5 else M[k]) for k in range(2, 10)}
     else:  # typed: words, no autocomplete counted
         T = {k: tap(base, "Typed field") + typ(base, n) + tap(base, "Done") for k, n in
              ((2, len("every 2 weeks tue thu")), (3, len("2nd tue monthly")), (4, len("last day monthly 6 times")), (5, len("daily 8:30 20:30")),
@@ -330,7 +344,9 @@ def walk(v):
     # T1, a preset
     T[1] = tap("presets", "Preset Weekdays") if start == "presets" else tap(base, "Preset Weekdays", "Done")
     # T10, cron
-    if f == "typed":
+    if f == "typed" or v.get("words") == "field":
+        T[10] = tap(base, "Typed field" if f == "typed" else "Rule field") + typ(base, 9) + tap(base, "Done")
+    elif f == "typed":
         T[10] = tap(base, "Typed field") + typ(base, 9) + tap(base, "Done")
     elif v["cron"] == "field":
         T[10] = tap(base, "Cron field") + typ(base, 9) + tap(base, "Done")
@@ -345,6 +361,22 @@ def walk(v):
     return T
 
 
+TYPED_CHARS = {2: "every 2 weeks tue thu", 3: "2nd tue monthly", 4: "last day monthly 6 times", 5: "daily 8:30 20:30",
+               6: "every 90 min 9-17", 7: "random 2-4 days", 8: "daily random 9-12", 9: "3 days after done", 10: "0 9 1 * 1"}
+
+
+CRON_CHARS = {3: "0 9 * * TUE#2", 4: "0 9 L * *", 5: "30 8,20 * * *", 6: "0 9,12,15 * * *" + chr(10) + "30 10,13,16 * * *", 10: "0 9 1 * 1"}
+
+
+def walk_field(v):
+    """The field's path for each task: the shorter of words and cron (with L, #, names and several lines), no
+    autocomplete counted. T4's count is not cron: the field path types the words."""
+    T = {k: tap("base", "Rule field") + typ("base", min(len(w), len(CRON_CHARS.get(k, w)) if k != 4 else len(w))) + tap("base", "Done") for k, w in TYPED_CHARS.items()}
+    if v["start"] == "presets":
+        T = {k: tap("presets", "Custom") + x for k, x in T.items()}
+    return T
+
+
 def walk_control(v):
     T = walk(dict(v, form="freq", start="builder"))
     out = {}
@@ -355,6 +387,8 @@ def walk_control(v):
 
 def states_of(v):
     out = {s for task in (walk_control(v) if v.get("control") else walk(v)).values() for s, _, _ in task}
+    if v.get("words") == "field":
+        out |= {s for task in walk_field(v).values() for s, _, _ in task}
     return sorted(out | {"base"})
 
 
@@ -371,6 +405,46 @@ def sentence(v, state):  # noqa: F811
 
 FORM["sentence"] = sentence
 
+SENT_STATES = {"base", "unit", "unitm", "onm", "endm", "unitd", "atd", "onw"}
+
+
+def seg_html(mode):
+    return '<div class="seg">%s</div>' % "".join(ch("Mode %s" % m, m, m == mode) for m in ("Repeat", "Interval", "Random", "After done"))
+
+
+def sentmodes(v, state):
+    """Merge (owner, 2026-10-08): the schedule types as the first chooser, the sentence under them; Repeat edits
+    the sentence's words, the other types show their own short form under the sentence."""
+    if state in SENT_STATES:
+        return seg_html("Repeat") + sentence(v, state)
+    mode = {"interval": "Interval", "random": "Random", "randtime": "Random", "done": "After done"}[state]
+    return seg_html(mode) + '<div class="sent">%s</div>' % WORDS[state] + modes(v, state).split("</div>", 1)[1]
+
+
+FORM["sentmodes"] = sentmodes
+
+
+def slim(v, state):
+    """Owner, 2026-10-08: cron (with L, #, names and several lines) shown in the sheet, not behind Advanced, takes
+    the tasks it can express; the builder keeps only what cron cannot: every n days or weeks, random, after done,
+    and the end. The field and its calculator come from rule_field (words or cron)."""
+    mode = {"base": None, "everyn": "Every", "random": "Random", "randtime": "Random", "done": "After done"}[state]
+    seg = '<div class="seg">%s</div>' % "".join(ch("Mode %s" % m, lab, m == mode) for m, lab in (("Every", "Every n…"), ("Random", "Random"), ("After done", "After done")))
+    if state == "base":
+        return seg + ends_sec()
+    if state == "everyn":
+        return seg + row('<span class="txt">Every</span>', field("N field", "1"), ch("Unit d", "days"), ch("Unit w", "weeks", True), ch("Unit m", "months")) + weekdays({"Fri"}) + ends_sec()
+    return seg + modes(v, state).split("</div>", 1)[1]
+
+
+FORM["slim"] = slim
+
+
+def rule_field():
+    """Merge (owner, 2026-10-08): one field that takes the rule in words or as cron lines, with the calculator's
+    cron line under it (shown when cron can express the rule)."""
+    return row(field("Rule field", "Type a rule or cron", "field")) + '<div class="calc">As cron: 0 9 * * 5</div>'
+
 
 def measure_view(v, state, kb):
     m = ss.measure(doc(v, state, kb), 360, 740)
@@ -385,10 +459,10 @@ def score(v):
             views[(s, kb)] = measure_view(v, s, kb)
     base_m = views[("base", False)][1]
     typed_kb = v["form"] == "typed"  # its field is focused when it opens
-    actions, ids, unseen, per_task = 0, [], set(), {}
-    for k, task in sorted(T.items()):
+
+    def sim(k, task):
         kb = typed_kb and task[0][0] == "base"
-        n = 0
+        n, miss, tids = 0, set(), []
         for state, kind, x in task:
             if kind == "type":
                 n += x
@@ -399,29 +473,39 @@ def score(v):
                     n += 1  # close the keyboard first
                     kb = False
                 else:
-                    unseen.add("T%d %s: %s" % (k, state, x))
+                    miss.add("T%d %s: %s" % (k, state, x))
             elif not kb and not seen(False):
-                unseen.add("T%d %s: %s" % (k, state, x))
+                miss.add("T%d %s: %s" % (k, state, x))
             tp = views[(state, kb)][0].get(x)
             if tp and tp.get("seen"):
-                ids.append(math.log2(math.hypot(P.THUMB[0] - tp["x"], P.THUMB[1] - tp["y"]) / min(tp["w"], tp["h"]) + 1))
+                tids.append(math.log2(math.hypot(P.THUMB[0] - tp["x"], P.THUMB[1] - tp["y"]) / min(tp["w"], tp["h"]) + 1))
             n += 1
             if x in FIELDS or x.startswith("Cron "):
                 kb = True
             if x == "Done" or x.startswith("Preset"):
                 kb = False
-        per_task[k] = n
+        return n, miss, tids
+
+    alt = walk_field(v) if v.get("words") == "field" else {}
+    actions, ids, unseen, per_task, path = 0, [], set(), {}, {}
+    for k in sorted(set(T) | set(alt)):
+        runs = ([(sim(k, T[k]), "builder")] if k in T else []) + ([(sim(k, alt[k]), "field")] if k in alt else [])
+        (n, miss, tids), which = min(runs, key=lambda r: (len(r[0][1]), r[0][0]))  # the quicker of the drawn paths
+        unseen |= miss
+        ids += tids
+        per_task[k], path[k] = n, which
         actions += n
     pk = base_m["boxes"].get("picker")
     in_pk = [x for x in base_m["taps"] if pk and x["box"][1] >= pk[1] - 1 and x.get("seen") and not x["name"].startswith("Readout")]
     small = sorted({"%s %dx%d" % (x["name"], x["w"], x["h"]) for (st, kbv), (tp, m) in views.items() if not kbv for x in tp.values()
                     if x.get("seen") and not x["name"].startswith("Readout") and (x["w"] < 48 or x["h"] < 48)})
     readout = views[("base", False)][0]
-    words_seen = bool(readout.get("Readout", {}).get("seen")) or v["form"] == "sentence"
+    words_seen = bool(readout.get("Readout", {}).get("seen")) or v["form"] in ("sentence", "sentmodes")
     dates_seen = bool(readout.get("Readout", {}).get("seen"))
     clutter = sum(ss.edge_density(ss.render(doc(v, "base", False, th), 360, 740)) for th in ("light", "dark")) / 2
-    coverage = 0 if v["form"] == "typed" else 8  # T2-T9 without free text; typed reaches them only by words
-    return {"actions": actions, "per_task": per_task, "reach": round(sum(ids) / max(1, len(ids)), 3), "unseen": len(unseen), "unseen_names": sorted(unseen),
+    # T2-T9 without free text: typed reaches them only by words; slim leaves T3-T6 to the field (cron or words)
+    coverage = {"typed": 0, "slim": 4}.get(v["form"], 8)
+    return {"actions": actions, "per_task": per_task, "path": path, "reach": round(sum(ids) / max(1, len(ids)), 3), "unseen": len(unseen), "unseen_names": sorted(unseen),
             "small": small, "heights": max(1, len({x[4] for x in base_m["vis"]})), "clutter": round(clutter, 4),
             "covered": 1.0 if v["container"] == "page" else round(min(1.0, (pk[3] if pk else 0) / 740), 3),
             "controls": len(in_pk), "uncovered_rules": 8 - coverage, "unread": 2 - int(words_seen) - int(dates_seen)}
@@ -472,9 +556,9 @@ FEATURES = ("presets_first", "unit_control", "weekday_chips", "page", "readout",
 
 def features(r):
     v = r["v"]
-    return {"presets_first": v["start"] == "presets", "unit_control": {"freq": "menu", "modes": "chips", "sentence": "words", "typed": "text"}[v["form"]],
+    return {"presets_first": v["start"] == "presets", "unit_control": {"freq": "menu", "modes": "chips", "sentence": "words", "sentmodes": "words", "slim": "text", "typed": "text"}[v["form"]],
             "weekday_chips": v["form"] != "typed", "page": v["container"] == "page", "readout": r["unread"] < 2, "next_dates": r["unread"] == 0,
-            "modes": v["form"] == "modes"}
+            "modes": v["form"] in ("modes", "sentmodes", "slim")}
 
 
 def ref_distance(r, refs):
@@ -488,7 +572,7 @@ def harmony(r):
     d = doc(v, "base")
     m = ss.measure(d, 360, 740)
     png = ss.render(d, 360, 740)
-    path = os.path.join(ss.CACHE, "rp-%s.html" % "-".join(str(v[k]) for k in SPACE))
+    path = os.path.join(ss.CACHE, "rp-%s.html" % "-".join(str(v.get(k)) for k in list(SPACE) + ["words"]))
     with open(path, "w", encoding="utf-8", newline="\n") as fh:
         fh.write(d)
     import subprocess
@@ -502,8 +586,28 @@ AXES = {"H": ("heights", "sprawl", "heavy"), "U": ("actions", "reach"), "C": ("c
         "Rules": ("uncovered_rules",), "Legible": ("unread",), "Refs": ("ref_distance",)}
 
 
-def rank():
-    with open(os.path.join(v2.OUT, "repeat-opt.json"), encoding="utf-8") as fh:
+SPACE_MERGE = {"form": ["freq", "modes", "sentence", "sentmodes", "slim"], "words": ["none", "field"], "start": ["presets", "builder"],
+               "preview": ["none", "words"], "container": ["sheet", "page"]}
+
+
+def merge_run(workers=4):
+    """Owner, 2026-10-08: score a merge. The sentence with the schedule types as its first chooser, and each form with
+    a field that takes words or cron (the calculator under it), the quicker path counted per task. Containers and
+    preview narrowed by the first run (the keyboard's place and the pop-over fail the visibility rule; the month
+    preview loses to words on every measure; cron behind Advanced beats the other cron forms)."""
+    vs = [dict(dict(zip(SPACE_MERGE, c)), cron="advanced") for c in itertools.product(*SPACE_MERGE.values())]
+    vs = [v for v in vs if not (v["form"] == "slim" and v["words"] == "none")] + [control()]  # slim is the field
+    rows = []
+    with concurrent.futures.ProcessPoolExecutor(workers) as ex:
+        for v, r in zip(vs, ex.map(score, vs)):
+            rows.append(dict(v=v, **r))
+            print(len(rows), v, {k: r[k] for k in ("actions", "reach", "unseen", "small", "clutter", "covered", "unread")}, flush=True)
+    with open(os.path.join(v2.OUT, "repeat-merge.json"), "w", encoding="utf-8", newline=chr(10)) as fh:
+        json.dump({"rows": rows}, fh, indent=1, ensure_ascii=False)
+
+
+def rank(src="repeat-opt.json", dst="repeat-rank.json"):
+    with open(os.path.join(v2.OUT, src), encoding="utf-8") as fh:
         rows = json.load(fh)["rows"]
     with open(REFS, encoding="utf-8") as fh:
         refs = json.load(fh)["apps"]
@@ -521,7 +625,7 @@ def rank():
     front = [r for r in ok if not any(all(o[a] <= r[a] for a in ax) and any(o[a] < r[a] for a in ax) for o in ok if o is not r)]
     ctrl = [r for r in ok if r["v"].get("control")]
     beaten = not any(r in front for r in ctrl)
-    with open(os.path.join(v2.OUT, "repeat-rank.json"), "w", encoding="utf-8", newline="\n") as fh:
+    with open(os.path.join(v2.OUT, dst), "w", encoding="utf-8", newline="\n") as fh:
         json.dump({"passed": len(ok) - len(ctrl), "of": len(rows) - len(ctrl), "front": front, "control_beaten": beaten,
                    "all": [{k: r.get(k) for k in ("v", "actions", "reach", "clutter", "covered", "controls", "heights", "sprawl", "heavy", "uncovered_rules", "unread", "ref_distance") + tuple(ax)} for r in ok]},
                   fh, indent=1, ensure_ascii=False)
@@ -533,4 +637,10 @@ def rank():
 
 
 if __name__ == "__main__":
-    rank() if "--rank" in sys.argv else main()
+    if "--merge" in sys.argv:
+        merge_run()
+        rank("repeat-merge.json", "repeat-merge-rank.json")
+    elif "--rank" in sys.argv:
+        rank()
+    else:
+        main()

@@ -804,3 +804,48 @@ Mockups: `docs/screens/t1/repeat-options.html` (`tools/screens/repeat_page.py`).
   - the sentence with the schedule types as its first chooser (`sentmodes`);
   - each form with one field that takes words or cron, with the calculator's cron line under it. Per task, the quicker path is counted: the builder or the field.
 - **Narrowed by the first run:** sheet or page only; preview words or none; cron behind Advanced when there is no field.
+
+**Merge round (`repeat_opt.py --merge`, `repeat-merge-rank.json`):** 72 variants plus the control; all pass, the front holds 61, and the control loses.
+- **The words-or-cron field added to a builder barely helps:** 0.16 fewer actions, for +0.005 clutter and +1.6% covered. Typing a rule is longer than tapping it.
+- **The sentence with the types as its first chooser (`sentmodes`) is the middle ground:**
+  - against the sentence alone: 6.6 fewer actions, 4 more controls;
+  - against the types alone: 6.4 more actions, 14 fewer controls, 13% less covered.
+- **Slim (owner's idea: cron shown in the sheet, the builder thinned to what cron cannot do):**
+  - 101 actions, against 81 for sentmodes;
+  - covers 48%, so it is no thinner;
+  - four tasks then need typing.
+
+**Round 3 (owner, 2026-10-08): "hiding the full task sheet behind advanced or wrapping everything, including cron, inside the rule as a sentence of tappable words"** (`tools/screens/repeat3_opt.py`, `repeat3-opt.json`).
+
+**Owner's answers:**
+- **A** is scored with each builder behind More options.
+- **B** is scored three ways: a read-only cron line, a two-way mirror, and an "as cron" toggle. The cron line is blank when cron cannot express the rule.
+- **Text size:** the scoring decides.
+- **Axes:** the six, plus density, legibility and learnability. "No cron-only actually exists": every task has a words, sentence or builder path, so learnability is the actions taken without cron syntax.
+
+**The space:**
+- 196 variants:
+  - A: 4 builders × start × sheet or page × 7 type options;
+  - B: 3 cron modes × start × sheet or page × 7 type options.
+- The type options are designkit scale steps on the controls' 14 px base. The sentence sits at lg or xl; the small text at sm.
+
+**Results:**
+- **All 196 pass the rules; the front holds 81.**
+- **B (everything in the sentence) against A (the slim field, the builder behind More options), paired:**
+  - against A with the types builder: 7.75 fewer actions without cron, 4.25 more with it;
+  - against A with sentmodes: 14.6 and 2.6 fewer;
+  - clutter equal, 2% less covered, 2 more controls;
+  - more crowded (0.8 more controls per 100 px), with a lighter heaviest element (A's field is the heaviest thing on its sheet);
+  - closer to the references (−0.09).
+- **Inside B, the cron path never beats the sentence's words on these ten tasks.** So read-only, toggle and mirror tie on actions:
+  - the toggle costs 1 control;
+  - the mirror costs 1 control and +0.003 clutter.
+
+  Cron's value is then familiarity for people who know it, which these measures cannot see.
+- **Type:**
+  - The sentence's size (16–22 px) barely moves the measures.
+  - craftkit's type-size sprawl counts the whole page, the Today screen behind included, so it does not separate the options.
+  - **Only the Major Second options keep the small text at 12 px or more (12.5 px).** The other ratios drop it to 10.5–11.5 px.
+  - Recommendation: the sentence one step above the controls, the small text at least 12 px; the exact sizes are settled in the type pass (decision 15).
+
+Mockups: `docs/screens/t1/repeat3-options.html`.

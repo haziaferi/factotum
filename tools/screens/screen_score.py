@@ -98,8 +98,10 @@ def _load(name):
 def _edge(args, out_flag, key, doc, w, h):
     os.makedirs(CACHE, exist_ok=True)
     src = os.path.join(CACHE, key + ".html")
-    with open(src, "w", encoding="utf-8", newline="\n") as fh:
+    tmp = "%s.%d.tmp" % (src, os.getpid())  # parallel workers may write the same page: write aside, then swap in whole
+    with open(tmp, "w", encoding="utf-8", newline="\n") as fh:
         fh.write(doc)
+    os.replace(tmp, src)
     with tempfile.TemporaryDirectory() as prof:
         return subprocess.run([EDGE, "--headless=new", "--disable-gpu", "--hide-scrollbars", "--force-device-scale-factor=1",
                                "--window-size=%d,%d" % (w, h), "--user-data-dir=" + prof, "--virtual-time-budget=3000"] + args +
@@ -123,13 +125,20 @@ def measure(doc, w, h):
     key = hashlib.sha256((doc + MEASURE_JS + "m%dx%d-tallwindow" % (w, h)).encode("utf-8")).hexdigest()[:20]  # the script is part of the key
     cached = os.path.join(CACHE, key + ".json")
     if os.path.exists(cached):
-        return json.load(open(cached, encoding="utf-8"))
+        try:
+            with open(cached, encoding="utf-8") as fh:
+                return json.load(fh)
+        except ValueError:
+            pass  # another worker was still writing it: measure again
     res = _edge(["--dump-dom"], True, key, doc.replace("</body>", MEASURE_JS.replace("innerWidth", str(w)).replace("innerHeight", str(h)) + "</body>"), w + 300, h + 300)
     m = re.search(r'<pre id="__measure">(.*?)</pre>', res.stdout, re.S)
     if not m:
         raise RuntimeError("measure failed: " + res.stderr[-400:])
     data = json.loads(m.group(1).replace("&quot;", '"').replace("&amp;", "&"))
-    json.dump(data, open(cached, "w", encoding="utf-8"))
+    tmp = "%s.%d.tmp" % (cached, os.getpid())
+    with open(tmp, "w", encoding="utf-8") as fh:
+        json.dump(data, fh)
+    os.replace(tmp, cached)
     return data
 
 
