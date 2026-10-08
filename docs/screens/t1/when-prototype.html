@@ -38,7 +38,7 @@ h1{font-size:19px;margin:0 0 4px}.dim{color:var(--dim)}
 .crow{display:flex;justify-content:space-between;align-items:center}
 .pill{min-height:48px;min-width:72px;border-radius:10px;border:0;box-shadow:inset 0 0 0 1px var(--zone2);background:transparent;color:var(--ink);font:inherit;font-size:15px;cursor:pointer;margin-right:6px}
 .pill.act{box-shadow:inset 0 0 0 2px var(--ink);font-weight:600}
-.dial{width:312px;height:312px;cursor:pointer;border-radius:50%;background:var(--zone);position:relative;margin:2px auto 4px}
+.dial{cursor:pointer;border-radius:50%;background:var(--zone);position:relative;margin:2px auto 4px}
 .dial span{position:absolute;width:40px;height:40px;transform:translate(-50%,-50%);border-radius:50%;display:grid;place-items:center;font-size:15px;pointer-events:none}
 .dial span.in{font-size:13px;color:var(--dim)}
 .dial span.on{background:var(--zone2);color:var(--ink);font-weight:600}
@@ -87,6 +87,8 @@ input[type=time].fld{width:96px}
       <select onchange="S.v.on=this.value;render()"><option value="shortcuts">shortcuts inside "on"</option><option value="units">units of the interval</option></select></label>
     <label>The start date of a repeat:
       <select onchange="S.v.start=this.value;render()"><option value="changed">shown only when changed</option><option value="always">always shown</option><option value="once">carried from Once's date</option></select></label>
+    <label>Dial, inner-ring spacing:
+      <select onchange="GAP=+this.value;render(true)"><option value="30">30 dp (242 dp dial)</option><option value="32" selected>32 dp (250 dp dial)</option><option value="35">35 dp (262 dp dial)</option><option value="48">48 dp (312 dp dial)</option></select></label>
     <h2>Rules (owner, 2026-10-08)</h2>
     <ul class="note">
       <li>Minutes and hours take only a window ("between a and b") or all day: the interval sets the times.</li>
@@ -262,7 +264,9 @@ function chooser(){const o=S.open;if(!o)return"";let h="";
     if(e.kind==="until")h+=`<div class="chips"><span class="lab">Start +</span><input class="fld" type="number" min="0" value="${e.plusN}" onchange="S.end.plusN=Math.max(0,+this.value);render()">${["day","week","month","year"].map(u=>chip(u+"s",e.plusU===u,`S.end.plusU='${u}';render()`)).join("")}</div><div class="small">or pick the date:</div>`+month("until")}
   return h}
 // ---- the time: T1.5's approved entry, the dial (hours, then minutes) with a typed field, the keyboard only on the field --
-const E={slot:"t0",stage:"h"};   // which value the dial edits; not part of the rule, so not an undo step
+const E={slot:"t0",stage:"h"};
+let GAP=32;   // inner-ring spacing in dp; the dial is sized from it (owner: a smaller target for this one purpose)
+function dialGeom(){const R1=Math.round(GAP/(2*Math.PI/12)),R0=R1+40,C=R0+24;return{R1,R0,C,D:2*C}}   // which value the dial edits; not part of the rule, so not an undo step
 function getT(s){return s[0]==="t"?S.time.times[+s.slice(1)]:S.time[s]}
 function setT(s,v){if(s[0]==="t")S.time.times[+s.slice(1)]=v;else S.time[s]=v}
 function setKind(k){const t=S.time;
@@ -277,18 +281,18 @@ function pickMin(mm){const v=getT(E.slot);setT(E.slot,v.slice(0,3)+String(mm).pa
 function typed(v){if(/^([01]?\d|2[0-3]):?[0-5]\d$/.test(v)){const d=v.replace(":","").padStart(4,"0");setT(E.slot,d.slice(0,2)+":"+d.slice(2))}render()}
 function dial(){const v=getT(E.slot),hh=+v.slice(0,2),mm=+v.slice(3);
   // Android's 24-hour dial (SimpleReminder, captured 2026-10-08): 1-12 on the outer ring, 13-00 on the inner one, a tap
-  // anywhere in a hour's wedge picks it. Android's is 224 dp across with the inner hours 28 dp apart; here it is 312 dp,
-  // the inner ring at 92 dp, so the inner hours are 48 dp apart (the owner's 48 dp rule)
-  const R0=132,R1=92,C=156,pos=(i,r)=>[C+r*Math.sin(i*Math.PI/6),C-r*Math.cos(i*Math.PI/6)];
+  // anywhere in an hour's wedge picks it. Android's is 224 dp across with the inner hours 28 dp apart; here the size follows
+  // the inner spacing chosen (owner: 30-35 dp for this one purpose, rather than 48 dp, which needed a 312 dp dial)
+  const{R0,R1,C,D}=dialGeom(),pos=(i,r)=>[C+r*Math.sin(i*Math.PI/6),C-r*Math.cos(i*Math.PI/6)];
   let labels="";
   if(E.stage==="h"){for(let i=0;i<12;i++){const o=i===0?12:i,n=i===0?0:i+12,[x,y]=pos(i,R0),[x2,y2]=pos(i,R1);
       labels+=`<span class="${hh===o?"on":""}" style="left:${x}px;top:${y}px">${o}</span><span class="in${hh===n?" on":""}" style="left:${x2}px;top:${y2}px">${String(n).padStart(2,"0")}</span>`}}
   else{for(let i=0;i<12;i++){const[x,y]=pos(i,R0);labels+=`<span class="${Math.round(mm/5)%12===i?"on":""}" style="left:${x}px;top:${y}px">${String(i*5).padStart(2,"0")}</span>`}}
-  return `<div class="chips"><input class="fld" style="width:96px" inputmode="numeric" value="${v}" title="Type a time (any minute)" onchange="typed(this.value)"><span class="small">&nbsp;${E.stage==="h"?"hour":"minutes"} · type for any minute</span></div><div class="dial" onclick="dialTap(event)">${labels}</div>`}
-function dialTap(ev){const r=ev.currentTarget.getBoundingClientRect(),x=ev.clientX-r.left-156,y=ev.clientY-r.top-156,d=Math.hypot(x,y);
-  if(d<40)return;                                                     // the hub picks nothing
+  return `<div class="chips"><input class="fld" style="width:96px" inputmode="numeric" value="${v}" title="Type a time (any minute)" onchange="typed(this.value)"><span class="small">&nbsp;${E.stage==="h"?"hour":"minutes"} · type for any minute</span></div><div class="dial" style="width:${D}px;height:${D}px" onclick="dialTap(event)">${labels}</div>`}
+function dialTap(ev){const{R0,R1,C}=dialGeom(),r=ev.currentTarget.getBoundingClientRect(),x=ev.clientX-r.left-C,y=ev.clientY-r.top-C,d=Math.hypot(x,y);
+  if(d<R1-28)return;                                                     // the hub picks nothing
   const i=Math.round(((Math.atan2(x,-y)*180/Math.PI+360)%360)/30)%12;
-  if(E.stage==="h"){const inner=d<112;pickHour(inner?(i===0?0:i+12):(i===0?12:i))}else pickMin(i*5)}
+  if(E.stage==="h"){const inner=d<(R0+R1)/2;pickHour(inner?(i===0?0:i+12):(i===0?12:i))}else pickMin(i*5)}
 // ---- render: the sheet grows upward from its foot; the sentence and readout stay at the foot ---------------------------
 function render(noStep){normalise();const now=snap();
   if(!noStep&&shown!==null&&now!==shown){past.push(shown);future=[]}

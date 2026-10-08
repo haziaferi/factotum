@@ -978,3 +978,15 @@ Mockups, every state: `docs/screens/t1/repeat4-options.html`.
   - Here it is 312 dp across, with the inner ring at 92 dp, so the inner hours are 48 dp apart (the 48 dp rule).
   - This replaces the 12-position dial with a 00–11 | 12–23 switch.
   - The time chooser still fits.
+- **Owner (2026-10-08): "I am comfortable with using a somewhat smaller tap size for this one purpose, not to devour the whole screen. 30-32dp could work? 35dp?"**
+  - The dial is now sized from the inner ring's spacing (a tap still picks the whole wedge):
+
+    | Inner spacing | Dial | Time chooser's top |
+    |---|---|---|
+    | 30 dp | 242 dp | 147 px from the screen's top |
+    | **32 dp (default)** | 250 dp | 139 px |
+    | 35 dp | 262 dp | 127 px |
+    | 48 dp | 312 dp | 77 px |
+
+  - The outer ring sits 40 dp further out, so its hours and the minutes stay above 48 dp (53 dp at 32).
+  - The prototype has a selector, so the owner can try each by hand. **This is a recorded exception to the 48 dp rule for the dial's inner ring only.**
