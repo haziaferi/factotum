@@ -183,7 +183,7 @@ def steps(v):
 def masses(png, m):
     pk = m["boxes"].get("picker")
     sx, sy, sw, sh = pk
-    crop = png.replace(".png", "-pk.png")
+    crop = png.replace(".png", "-pk-%d.png" % os.getpid())  # per process: parallel workers crop the same render
     Image.open(png).convert("RGB").crop((int(sx), int(max(0, sy)), int(sx + sw), int(min(740, sy + sh)))).save(crop)
     img = imgstat.load(crop)
     lum = imgstat._fast_luma(img.px)

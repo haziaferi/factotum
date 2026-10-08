@@ -849,3 +849,66 @@ Mockups: `docs/screens/t1/repeat-options.html` (`tools/screens/repeat_page.py`).
   - Recommendation: the sentence one step above the controls, the small text at least 12 px; the exact sizes are settled in the type pass (decision 15).
 
 Mockups: `docs/screens/t1/repeat3-options.html`.
+
+**Round 4 (owner, 2026-10-08): the sentence sheet tidied** (`tools/screens/repeat4_opt.py`).
+
+**The owner's review of round 3's B:**
+- the presets and the unit chooser repeated the same options;
+- an "every [n]" row repeated the sentence;
+- the monthly chooser drew "day 16" and "3rd Friday" together. A monthly rule is one or the other: "I don't see why it matters that they coincide".
+
+**The owner's design:**
+- **Chips are the presets and set the unit:** Day, Week, Month, Year, plus Minutes, Hours, Weekdays and Weekend.
+- **The sentence's words edit the rest,** and each word opens one chooser:
+  - the unit word sets the number;
+  - "on" sets the day;
+  - "at" sets the time;
+  - "forever" sets the end.
+- **Monthly is a switch, then one picker:** the day of the month, or the weekday of the month.
+- **The sheet opens with "Does not repeat".**
+
+**The owner's answers:** score every one of the following.
+- **Chip layouts:** all eight shown; 4 + More; two labelled rows; and the owner's own, the four presets on top with the sentence tapped to show the other four, placed above it (swapA) or below it (swapB).
+- **The number:** typed inline, a stepper, or quick values.
+- **The month day:** a grid, a typed number, or a list.
+- **Random and After done:** as words in the sentence, as chips, or typed only.
+- **The time:** typed, or T1.5's dial with the typed field.
+- **The end:** chips, a list, or typed.
+- **The cron line:**
+  - read-only;
+  - an "as cron" toggle;
+  - a mirror;
+  - the owner's addition: read-only until tapped, then edited in place, not in another sheet.
+- **Containers:** the sheet and the page.
+
+**Workflow:** about 6,500 combinations. The choices that touch only their own chooser were scored in two stages:
+- **Stage 1** (the opening): chips × random × cron × container, 120 variants.
+- **Stage 2** (the choosers): 54 combinations on stage 1's best sheet and best page, 108 variants.
+
+Every state of the chosen design is drawn for review, because round 3's redundancy had gone unseen in its mockups.
+
+**Defects fixed in the tooling:** the measure and render caches and the image crops raced between parallel workers. They now write aside, then swap the file in whole.
+
+**Stage 1:** all 120 pass; the front holds 68.
+- **Chips:**
+  - swapping in the other four costs 2.7 more actions than showing all eight;
+  - but it brings 4.6 fewer controls, −0.006 clutter and less crowding.
+- **Random and After done:**
+  - as chips: 81 actions;
+  - as words: 84, and closer to the references;
+  - typed only: 103, outside the sheet.
+- **Cron:**
+  - read-only is the calmest, but leaves cron to the capture line;
+  - of the editable forms, the owner's "edit in place" has the least clutter (0.034, against the mirror's 0.038).
+- **Best by the sum of the axis ranks, for both the sheet and the page:** swapB, random as words, cron read-only.
+
+**Stage 2:** all 108 pass; the front holds 2, one per container.
+- **The sheet's front member** (83 actions, reach 1.86, clutter 0.044, the tallest view 48% of the screen):
+  - quick values for the number (the "…" chip types any other);
+  - a typed month day, with a "Last day" chip;
+  - a typed time with suggestions;
+  - chips for the end.
+- **The 1–31 grid** makes the month view taller than the screen; its header is cut off (the tallest view averages 71% against 61% for typed).
+- **Caveat:** no task picks an arbitrary day of the month. There the grid costs 1 tap, and a typed day 3 actions with the keyboard up.
+
+Mockups, every state: `docs/screens/t1/repeat4-options.html`.

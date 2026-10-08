@@ -112,7 +112,10 @@ def render(doc, w, h):
     key = hashlib.sha256((doc + "%dx%d" % (w, h)).encode("utf-8")).hexdigest()[:20]
     png = os.path.join(CACHE, key + ".png")
     if not os.path.exists(png):
-        _edge(["--screenshot=" + png], False, key, doc, w, h)
+        tmp = png.replace(".png", "-%d.tmp.png" % os.getpid())  # written aside, swapped in whole
+        _edge(["--screenshot=" + tmp], False, key, doc, w, h)
+        if os.path.exists(tmp):
+            os.replace(tmp, png)
     if not os.path.exists(png):
         raise RuntimeError("render failed")
     return png

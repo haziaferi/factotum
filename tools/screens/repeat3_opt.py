@@ -152,7 +152,7 @@ def paths(v):
 
 def empty_share(png, m):
     sx, sy, sw, sh = m["boxes"]["picker"]
-    crop = png.replace(".png", "-r3.png")
+    crop = png.replace(".png", "-r3-%d.png" % os.getpid())
     Image.open(png).convert("RGB").crop((int(sx), int(max(0, sy)), int(sx + sw), int(min(740, sy + sh)))).save(crop)
     img = imgstat.load(crop)
     lum = imgstat._fast_luma(img.px)
