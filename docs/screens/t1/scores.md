@@ -59,3 +59,12 @@ Reference main screens: bearable/00-main.png 0.070, daylio/00-main.png 0.055, ho
 | S Split: ▤ on the line, ✓ at the end of the chip row, 16 px, ✓ 56 | 2.49 | 3.09 | 178 | 1 | 16 | 0 | 0 | dominated |
 | R Action row: ▤ left, ✓ right, above the keyboard, 18 px, ✓ 52 | 2.57 | 3.19 | 182 | 1 | 18 | 0 | 0 | dominated |
 | X Control: Any.do's top line, ✓ 40 at the top right | 4.15 | 9.00 | 490 | 1 | 16 | 2 | 0 | control |
+
+## T1.5 Date and time picker
+
+- Dial + typed Selected: two steps in a sheet; the time view holds the typed field with suggestions and the dial: clutter 0.033 / 0.023, actions 13, reach 2.23, covered 0.55, not drawn 0, dominated
+- Dial Two steps in a sheet, the clock dial alone: clutter 0.030 / 0.023, actions 13, reach 2.23, covered 0.55, not drawn 0, front
+- Typed Two steps in a sheet, the typed field with suggestions alone: clutter 0.039 / 0.023, actions 18, reach 1.89, covered 0.50, not drawn 0, front
+- Blocks Two steps in a sheet, the person's time blocks as presets: clutter 0.043 / 0.023, actions 16, reach 2.03, covered 0.50, not drawn 0, front
+- Wheels Two steps in a sheet, hour and minute wheels: clutter 0.036 / 0.023, actions 27, reach 2.12, covered 0.50, not drawn 0, front
+- X Control: one view in the keyboard's place, wheels and an end time: clutter 0.041 / 0.023, actions 32, reach 1.87, covered 0.39, not drawn 3, control

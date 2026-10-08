@@ -717,3 +717,10 @@ Two-step sheet with duration presets:
 **The task set has no exact-minute time,** which is the one case where typing beats the dial (14:37). So the combination costs nothing measurable, and keeps typing for exact minutes and for anyone who prefers it.
 
 Mockups: `docs/screens/t1/picker-options.html` (the steps, the keyboard state, and each entry alone for comparison).
+
+**Approved (owner, 2026-10-08): the dial and the typed field in one sheet.** Two steps in a sheet: ⋯ › Date (or the full page's Date row) opens the month with its day load and Done; a day tapped opens the time view, with the typed field and its 09:00 and 21:00 suggestions, the dial under it, the duration presets and Done. The keyboard rises only when the field is tapped. On Windows, the two-column drop-down: the month beside the time. Tapping a highlighted date or time offers "Keep as text" and opens no picker. T1.5 is now a section of `docs/screens/t1/screens.html` (`tier_t1.py`, `OPTIONS_T15`).
+
+**Measured again on the page** (`tier_t1.build_section`, the page's own clutter render):
+- **The dial alone sits just beyond the noise floor:** clutter 0.030 against 0.033 for the combination (tolerance 0.002). The page marks the combination as dominated. Actions (13), reach (2.23) and coverage (55%) are equal. The combination is the owner's choice, held for typing.
+- **A correction:** the earlier claim that "an exact minute (14:37) is where typing beats the dial" was not measured. The dial's minute ring can be tapped at any minute, but its one-minute targets are far under 48 dp. Typing costs the field plus four keys. Which is faster depends on how that ring is drawn, so the claim stands as a reason to keep typing, not as a measured win.
+- **The control** (one view in the keyboard's place, with wheels and an end time) loses: three needed controls are not drawn, and it takes 32 actions.

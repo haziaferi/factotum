@@ -876,6 +876,87 @@ STATES_T14 = [
 ]
 
 
+# ---- T1.5 date and time picker -----------------------------------------------------------------------------
+# Owner, 2026-10-08: typing sets the date and time (a typed date is never asked again); the picker is opened by the
+# person, from ⋯ › Date beside the line or the full page's Date row, straight on the month; two steps in a sheet
+# (the month, then the time); the time view holds the typed field with suggestions and the dial together, the
+# keyboard only when the field is tapped. Scored by picker3_opt.py (actions, reach, coverage, visibility) and
+# picker_desk.py (Windows); here the options are drawn and measured again with the page's own measures.
+APPROVED_T15 = "Dial + typed"
+T15_CSS = """
+.keepw{position:relative;display:inline-block}
+.keep{position:absolute;left:0;bottom:calc(100% + 6px);min-height:48px;display:flex;align-items:center;white-space:nowrap}
+.keep>b{display:inline-flex;align-items:center;height:34px;padding:0 12px;border-radius:999px;background:var(--bg);font-weight:400;font-size:13px;box-shadow:0 2px 10px rgba(0,0,0,.18)}
+"""
+
+
+def _p3():
+    import picker3_opt  # imported here: picker3_opt imports this module
+    return picker3_opt
+
+
+def t15_v(entry, steps="two", container="sheet", end="duration"):
+    return {"steps": steps, "container": container, "entry": entry, "end": end}
+
+
+def t15_desk(shape="dropdown2"):
+    import picker_desk
+    return cap_desk(picker_desk.body(shape))
+
+
+def t15_keyboard(v):
+    """Step 2 with the typed field tapped: the keyboard rises under the sheet (the owner's rule: everything still shows)."""
+    html_ = _p3().phone(v, 2)
+    i = html_.rfind("</div></div>")
+    return html_[:i] + '<div class="kb" style="height:290px">keyboard</div>' + html_[i:]
+
+
+def t15_keep():
+    """A highlight tapped (owner, 2026-10-08): dates and times offer "Keep as text" like every highlight, since in a
+    Journal line "tomorrow" may be only a word; no picker opens from it."""
+    html_ = cap_v4("typed")
+    return html_.replace('<span class="hl">tomorrow 9am</span>',
+                         '<span class="keepw"><span class="hl">tomorrow 9am</span><span class="keep" data-tap="Keep as text"><b>Keep as text</b></span></span>', 1)
+
+
+OPTIONS_T15 = [
+    {"id": "Dial + typed", "name": "Selected: two steps in a sheet; the time view holds the typed field with suggestions and the dial", "how": "approved",
+     "phone": lambda: _p3().phone(t15_v("dialtyped"), 2), "desk": t15_desk, "v": t15_v("dialtyped"),
+     "about": "Step 1 is the month with its day load and Done; a day tapped opens step 2: the typed field with 09:00 and 21:00, the clock dial under it, "
+              "the duration presets and Done. The keyboard rises only when the field is tapped (owner's proposal, 2026-10-08). Ties the dial alone, "
+              "and keeps typing for exact minutes. Windows: the month beside the time, in a drop-down under the line."},
+    {"id": "Dial", "name": "Two steps in a sheet, the clock dial alone", "how": "direct", "phone": lambda: _p3().phone(t15_v("dial"), 2), "desk": t15_desk,
+     "v": t15_v("dial"), "about": "The front's only member once wheel steps were counted one by one; no typing for an exact minute."},
+    {"id": "Typed", "name": "Two steps in a sheet, the typed field with suggestions alone", "how": "direct", "phone": lambda: _p3().phone(t15_v("typed"), 2),
+     "desk": t15_desk, "v": t15_v("typed"), "about": "The best reach; every time but a suggestion brings up the keyboard."},
+    {"id": "Blocks", "name": "Two steps in a sheet, the person's time blocks as presets", "how": "direct", "phone": lambda: _p3().phone(t15_v("blocks"), 2),
+     "desk": t15_desk, "v": t15_v("blocks"), "about": "Morning, Afternoon, Evening from T1.6's blocks; any other time goes through Other time and typing."},
+    {"id": "Wheels", "name": "Two steps in a sheet, hour and minute wheels", "how": "direct", "phone": lambda: _p3().phone(t15_v("wheel"), 2),
+     "desk": t15_desk, "v": t15_v("wheel"), "about": "One action per wheel step (owner, 2026-10-08): 14:30 from 09:00 is 11 of them."},
+    {"id": "X", "name": "Control: one view in the keyboard's place, wheels and an end time", "how": "control",
+     "phone": lambda: _p3().phone(t15_v("wheel", "one", "keyboard", "endtime"), 1), "desk": lambda: t15_desk("dropdown"),
+     "v": t15_v("wheel", "one", "keyboard", "endtime"),
+     "about": "Month, wheels and an end time packed into the keyboard's 290 px, the usual Android swap. It cuts controls off and must lose."},
+]
+
+
+def t15_extra(o, r):
+    s = _p3().score(o["v"])
+    return {"actions": s["taps"] + s["keys"] + s["drags"], "reach15": s["reach"], "covered": s["covered"], "unseen": s["unseen"]}
+
+
+COLS["actions"] = ("Actions over the 4 tasks (taps + keys + wheel steps)", "%d")
+COLS["reach15"] = ("Thumb reach (mean Fitts ID)", "%.2f")
+COLS["covered"] = ("Share of the screen covered", "%.2f")
+COLS["unseen"] = ("Needed controls not drawn", "%d")
+STATES_T15 = [
+    ("Step 1: ⋯ › Date opens the month (day load under each day)", lambda: _p3().phone(t15_v("dialtyped"), 1)),
+    ("Step 2: a day tapped; the field, the dial, the end, Done", lambda: _p3().phone(t15_v("dialtyped"), 2)),
+    ("Step 2, the field tapped: the keyboard rises and everything still fits", lambda: t15_keyboard(t15_v("dialtyped"))),
+    ("A highlighted date tapped: Keep as text, no picker", t15_keep),
+]
+
+
 PAGE_CSS = """
 body{padding:20px 16px 48px}h1{font-size:21px;margin:0 0 4px}h2{font-size:18px;margin:28px 0 6px}h3{font-size:15px;margin:18px 0 6px}
 p{max-width:95ch}.dim{color:var(--dim)}
@@ -934,8 +1015,19 @@ def main():
         "<code>tools/screens/hub_opt.py</code>, <code>docs/screens/t1/hub-opt.json</code>.",
         OPTIONS_T14, STATES_T14, T13_CSS + T14_CSS + __import__("legend_opt").CSS + __import__("hub_opt").TIGHT_CSS, ("clutter", "desk_clutter", "faint_n", "small", "reach", "no_pinned", "hidden"), t14_extra,
         must=lambda r: "%d screens below the fold (owner: every screen visible)" % r["hidden"] if r["hidden"] else None, approved=APPROVED_T14)
+    s15, rows15, fr15, beaten15 = build_section(
+        "t1-5", "T1.5 Date and time picker",
+        "Typing sets the date and time; a typed date is never asked again, and tapping its highlight offers only Keep as text. "
+        "The picker is opened by the person, from ⋯ › Date beside the line or the full page's Date row, straight on the month "
+        "(owner, 2026-10-08). Two steps in a sheet: the month with its day load, then the time and the event's end. Week start "
+        "and the 12/24 h clock follow the system. Four tasks: Fri 16; Fri 16 at 14:30; an event Fri 16 at 15:00 for 1 h; the 3rd "
+        "of next month. Scores: <code>tools/screens/picker3_opt.py</code> (60 variants), <code>picker_desk.py</code> (Windows), "
+        "<code>docs/screens/t1/picker3-opt.json</code>, <code>picker3-actions.json</code>. Repeat (cron and its calculator) is T1.6.",
+        OPTIONS_T15, STATES_T15, T13_CSS + T15_CSS + __import__("legend_opt").CSS + __import__("picker_opt").CSS,
+        ("clutter", "desk_clutter", "faint_n", "small", "actions", "reach15", "covered", "unseen"), t15_extra,
+        must=lambda r: "%d needed controls not drawn (owner: everything a task needs visible)" % r["unseen"] if r["unseen"] else None, approved=APPROVED_T15)
     page = ['<!doctype html><html lang="en" data-theme="light"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">',
-            '<title>Factotum T1 shared parts</title><style>%s\n%s\n%s\n%s\n%s</style></head><body>' % (kit.theme_css(), kit.BASE_CSS, EXTRA, T12_CSS + T13_CSS + T14_CSS + __import__("legend_opt").CSS, PAGE_CSS),
+            '<title>Factotum T1 shared parts</title><style>%s\n%s\n%s\n%s\n%s</style></head><body>' % (kit.theme_css(), kit.BASE_CSS, EXTRA, T12_CSS + T13_CSS + T14_CSS + T15_CSS + __import__("legend_opt").CSS + __import__("picker_opt").CSS, PAGE_CSS),
             '<h1>T1 · Shared parts</h1><p class="dim">Decision 17. Greys only; colour comes after every screen is settled. '
             'Type and icons are placeholders. One screen at a time: each waits for the owner\'s approval.</p>',
             '<div class="sw"><button onclick="document.documentElement.dataset.theme=\'light\'">Light</button>'
@@ -943,7 +1035,7 @@ def main():
             # the selected T1.3 first (owner, 2026-10-07: the choice must be what the page opens on); the superseded ✓/▤ size
             # exploration is folded at the foot of T1.3, closed
             s13, '<details class="notpicked"><summary>T1.3 exploration, superseded by v4: where ✓ and ▤ go, and how big</summary>%s</details>' % s13r,
-            s14, s12, s11, "</body></html>"]
+            s14, s15, s12, s11, "</body></html>"]
     with open(os.path.join(OUT, "screens.html"), "w", encoding="utf-8", newline="\n") as fh:
         fh.write("\n".join(page))
     md = ["# T1 scores", "", "Generated by `tools/screens/tier_t1.py`.", "", "## T1.1 Header and bar", "",
@@ -977,8 +1069,14 @@ def main():
     with open(os.path.join(OUT, "scores.md"), "w", encoding="utf-8", newline=chr(10)) as fh:
         fh.write(chr(10).join(md) + chr(10))
     print(chr(10).join(md[-7:]))
-    print("controls beaten:", beaten, beaten12, beaten13, beaten13r, beaten14)
-    if not (beaten and beaten12 and beaten13 and beaten13r and beaten14):
+    md += ["", "## T1.5 Date and time picker", ""] + ["- %s %s: clutter %.3f / %.3f, actions %d, reach %.2f, covered %.2f, not drawn %d, %s" % (
+        o["id"], o["name"], r["clutter"], r["desk_clutter"], r["actions"], r["reach15"], r["covered"], r["unseen"],
+        "control" if o["how"] == "control" else ("front" if i in fr15 else "dominated")) for i, (o, r) in enumerate(zip(OPTIONS_T15, rows15))]
+    with open(os.path.join(OUT, "scores.md"), "w", encoding="utf-8", newline=chr(10)) as fh:
+        fh.write(chr(10).join(md) + chr(10))
+    print(chr(10).join(md[-8:]))
+    print("controls beaten:", beaten, beaten12, beaten13, beaten13r, beaten14, beaten15)
+    if not (beaten and beaten12 and beaten13 and beaten13r and beaten14 and beaten15):
         sys.exit(2)
 
 
