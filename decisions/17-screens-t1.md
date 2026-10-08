@@ -1012,3 +1012,13 @@ Mockups, every state: `docs/screens/t1/repeat4-options.html`.
   - the dial's inner ring is spaced 32 dp (250 dp across).
 
   These are the prototype's defaults now. Still open: two entries (⋯ › Date, ⋯ › Repeat) against one (⋯ › When).
+- **Entries, counted** (the ⋯ short list from T1.3 holds Kind, Templates and Full form):
+
+  | | Two entries | One entry |
+  |---|---|---|
+  | Items in ⋯ | 5 | 4 (Hick: 2.32 against 2.58 bits) |
+  | The chooser | opens already showing | a tap more, every time |
+  | Once or Every | set by the entry | a tap more whenever the last used is the wrong one |
+  | Over T1.5's 4 tasks and T1.6's 10 | — | 14 to 27 taps more |
+
+  **Owner's choice: two entries,** ⋯ › Date and ⋯ › Repeat, into the one merged sheet.
