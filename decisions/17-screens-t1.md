@@ -1103,3 +1103,34 @@ Mockups, every state: `docs/screens/t1/repeat4-options.html`.
   - density on rows (width taken from the title, extra height, wrapping);
   - closeness to the references.
 - **References:** Todoist, TickTick, Any.do, Tasks.org, Notion (new content only), Obsidian, and the source apps (Tendril's tags, Chronicle's categories).
+
+**T1.7 scored (`tools/screens/label_opt.py`, `labels-{a,b,c,d}.json`, `labels-rank.json`).**
+
+**References** (`docs/screens/t1/label-references.json`), captured on the phone with geometry and labels only:
+- **Apps:** Todoist, TickTick, Any.do, Tasks.org, Notion and Obsidian (geometry only), Tendril, Chronicle.
+- **Chips:** 7 of the 8 draw a tinted pill (Todoist's rows show grey text).
+- **Pickers:** mostly sheets with a list, search, and create-while-typing.
+- **`#` suggestions:** only Todoist and Any.do offer them.
+- **Management:** mostly a page per label.
+- **Left behind by the capture, to be cleared by the owner:**
+  - Tendril's "Sample label" (Tendril cannot delete a label);
+  - an empty Notion database in Notion's trash;
+  - possibly a TickTick task in its trash.
+
+**Results:**
+- **A, the chip** (30 variants; all pass; the front holds 14):
+  - **Inline**, after the title: no row lost, but titles get 125–160 px.
+  - **Below** the title: titles get 208 px, but rows grow 11–18 px and one row is lost below the bar.
+  - Plain text and #name are the calmest; outlines are the busiest.
+  - The leaders are a tint, inline, as many as fit then +n (clutter and density), and a tint, below, the first then +n (closest to the references, 0.23).
+- **B, the picker:**
+  - A list in the keyboard's place, or in a pop-over, cuts off controls.
+  - A grid in a sheet leads on ease and on labels shown (12, covering 42%).
+  - A list in a sheet is the closest to the references, but covers 95% with 12 labels.
+- **C, the `#` suggestions:** chips above the keyboard and a list over the line tie (14 actions). Inline completion fails the 48 dp rule.
+- **D, management:**
+  - direct controls: 17 actions, but 6 controls a row;
+  - a page per label: 23 actions, 2 a row, calmer, closer to the references;
+  - a menu per label is dominated by the page.
+
+Mockups: `docs/screens/t1/labels-options.html`.

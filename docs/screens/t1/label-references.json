@@ -1,0 +1,13 @@
+{
+ "note": "Label and tag interfaces captured on the owner's phone, 2026-10-08 (geometry and UI labels only; screenshots gitignored in _screens-sources/labels/; Notion and Obsidian geometry only). One feature per part, as each app draws it; null where the app has none or it was not verified.",
+ "apps": [
+  {"app": "Todoist", "look": "text", "placement": "below", "container": "sheet", "shape": "list", "suggest": "list", "manage": "detail"},
+  {"app": "TickTick", "look": "tint", "placement": null, "container": "keyboard", "shape": "list", "suggest": null, "manage": "detail"},
+  {"app": "Any.do", "look": "tint", "placement": "below", "container": "sheet", "shape": "list", "suggest": "chips", "manage": "direct"},
+  {"app": "Tasks.org", "look": "tint", "placement": "below", "container": "page", "shape": "list", "suggest": null, "manage": "detail"},
+  {"app": "Notion", "look": "tint", "placement": null, "container": "sheet", "shape": "list", "suggest": null, "manage": "menu"},
+  {"app": "Obsidian", "look": "hash", "placement": "inline", "container": null, "shape": null, "suggest": null, "manage": null},
+  {"app": "Tendril", "look": "tint", "placement": "below", "container": "sheet", "shape": "grid", "suggest": null, "manage": null},
+  {"app": "Chronicle", "look": "tint", "placement": null, "container": "inline", "shape": "grid", "suggest": null, "manage": "direct"}
+ ]
+}

@@ -460,3 +460,118 @@ if __name__ == "__main__":
         run_part("c", C_SPACE, score_c)
     if "d" in sys.argv[1:]:
         run_part("d", D_SPACE, score_d)
+
+
+# ==== ranking: each part on the owner's axes, with the distance from the captured apps ==================================
+def ref_distance(v, keys, refs):
+    """The share of the reference apps that draw a part differently, over the apps that draw it at all."""
+    out = []
+    for k in keys:
+        have = [r[k] for r in refs if r.get(k)]
+        if have:
+            out.append(sum(x != v[k] for x in have) / len(have))
+    return round(sum(out) / len(out), 3)
+
+
+def rank():
+    with open(os.path.join(v2.OUT, "label-references.json"), encoding="utf-8") as fh:
+        refs = json.load(fh)["apps"]
+    parts = {
+        # A: density is title room (more is better), added height, rows lost and labels hidden
+        "a": ({"place": ("placement",), "look": ("look",)}, {"Clutter": ("clutter",), "Apart": ("neg_apart",), "Density": ("neg_title_room", "extra_h", "rows_lost", "hidden", "lines"),
+                                                               "Refs": ("ref_distance",)}),
+        "b": ({}, {"Ease": ("actions", "reach"), "Clutter": ("clutter", "covered", "controls"), "Shown": ("neg_labels_seen",), "Refs": ("ref_distance",)}),
+        "c": ({}, {"Ease": ("actions",), "Clutter": ("clutter",), "Shown": ("neg_shown",), "Refs": ("ref_distance",)}),
+        "d": ({}, {"Ease": ("actions",), "Clutter": ("clutter", "controls_per_row"), "Refs": ("ref_distance",)}),
+    }
+    keys = {"a": ("look", "placement"), "b": ("container", "shape"), "c": ("suggest",), "d": ("manage",)}
+    report = {}
+    for p, (_, axes) in parts.items():
+        with open(os.path.join(v2.OUT, "labels-%s.json" % p), encoding="utf-8") as fh:
+            rows = json.load(fh)
+        for r in rows:
+            v = dict(r["v"])
+            v.setdefault("suggest", v.get("place"))
+            v.setdefault("manage", v.get("form"))
+            r["ref_distance"] = ref_distance(v, keys[p], refs)
+            for k in ("apart", "title_room", "labels_seen", "shown"):
+                if k in r:
+                    r["neg_" + k] = -r[k]
+        ok = [r for r in rows if not r.get("small") and not r.get("unseen")]
+        for axis, ks in axes.items():
+            cols = [v2.ranks(ok, k, 1) for k in ks]
+            for i, r in enumerate(ok):
+                r[axis] = sum(c[i] for c in cols)
+        ax = list(axes)
+        front = [r for r in ok if not any(all(o[a] <= r[a] for a in ax) and any(o[a] < r[a] for a in ax) for o in ok if o is not r)]
+        report[p] = {"passed": len(ok), "of": len(rows), "front": [r["v"] for r in front],
+                     "rows": [{k: r.get(k) for k in ["v", "ref_distance"] + ax} for r in rows]}
+        print(p, "passed", len(ok), "of", len(rows), "front", len(front))
+        for r in sorted(front, key=lambda r: sum(r[a] for a in ax)):
+            print("  ", r["v"], {a: r[a] for a in ax}, "ref", r["ref_distance"])
+    with open(os.path.join(v2.OUT, "labels-rank.json"), "w", encoding="utf-8", newline=chr(10)) as fh:
+        json.dump(report, fh, indent=1, ensure_ascii=False)
+
+
+if __name__ == "__main__" and "rank" in sys.argv[1:]:
+    rank()
+
+
+# ==== the options page: the front of each part, drawn ===================================================================
+def page():
+    """docs/screens/t1/labels-options.html, its images inlined (greyscale WebP) so it renders wherever it is opened."""
+    import base64
+    import io
+    import html as H
+    from PIL import Image
+    with open(os.path.join(v2.OUT, "labels-rank.json"), encoding="utf-8") as fh:
+        rank_ = json.load(fh)
+
+    def img(d, w=300):
+        buf = io.BytesIO()
+        Image.open(ss.render(d, 360, 740)).convert("L").save(buf, "WEBP", quality=80)
+        return '<img width="%d" src="data:image/webp;base64,%s">' % (w, base64.b64encode(buf.getvalue()).decode("ascii"))
+
+    def fig(cap, d):
+        return '<figure>%s<figcaption>%s</figcaption></figure>' % (img(d), H.escape(cap))
+
+    def meas(part, v):
+        r = [x for x in rank_[part]["rows"] if x["v"] == v][0]
+        return " · ".join("%s %s" % (k, r[k]) for k in r if k != "v")
+
+    a = json.load(open(os.path.join(v2.OUT, "labels-a.json"), encoding="utf-8"))
+    sec = []
+    shown_a = [{"look": "tint", "overflow": "fit", "placement": "inline"}, {"look": "tint", "overflow": "first", "placement": "below"},
+               {"look": "hash", "overflow": "first", "placement": "inline"}, {"look": "text", "overflow": "first", "placement": "inline"},
+               {"look": "dot", "overflow": "fit", "placement": "inline"}]
+    figs = ""
+    for v in shown_a:
+        r = [x for x in a if x["v"] == v][0]
+        cap = "%s, %s, %s: title room %s px, +%s px a row, %d rows lost, %d labels hidden, clutter %s" % (
+            v["look"], {"fit": "as many as fit +n", "first": "first +n", "wrap": "wrap"}[v["overflow"]], v["placement"], r["title_room"], r["extra_h"], r["rows_lost"], r["hidden"], r["clutter"])
+        figs += fig(cap, doc(v))
+    sec.append('<h3>A. The chip on rows</h3><p class="dim">The front holds %d of 30; drawn: its leaders, and the dot for comparison.</p><div class="flex">%s</div>' % (len(rank_["a"]["front"]), figs))
+    b = json.load(open(os.path.join(v2.OUT, "labels-b.json"), encoding="utf-8"))
+    figs = ""
+    for v in ({"container": "sheet", "shape": "grid"}, {"container": "sheet", "shape": "list"}, {"container": "page", "shape": "list"}):
+        r = [x for x in b if x["v"] == v][0]
+        cap = "%s, %s: %d actions over 4 tasks, covers %d%%, %d labels shown, clutter %s" % (v["container"], v["shape"], r["actions"], 100 * r["covered"], r["labels_seen"], r["clutter"])
+        figs += fig(cap, picker_doc(v, "base")) + fig("…typing a new name: Create", picker_doc(v, "typed", True))
+    figs += fig("A page's labels, several (sheet, grid)", picker_doc({"container": "sheet", "shape": "grid"}, "base", False, True))
+    sec.append('<h3>B. The picker</h3><p class="dim">The keyboard\'s place and the pop-over cut off controls with a list.</p><div class="flex">%s</div>' % figs)
+    figs = "".join(fig("%s: typing #h" % p, c_doc({"place": p}, "#h")) for p in ("chips", "list"))
+    sec.append('<h3>C. Suggestions while typing #</h3><p class="dim">Chips and a list tie on every measure (14 actions); inline completion fails the 48 dp rule.</p><div class="flex">%s</div>' % figs)
+    figs = fig("direct: 17 actions, 6 controls a row", d_doc({"form": "direct"}, "list")) + fig("detail: 23 actions, 2 controls a row (the list)", d_doc({"form": "detail"}, "list")) + \
+        fig("detail: a label's page", d_doc({"form": "detail"}, "detail")) + fig("menu: 23 actions (a label's ⋯)", d_doc({"form": "menu"}, "menu"))
+    sec.append('<h3>D. Management, Settings › Labels</h3><div class="flex">%s</div>' % figs)
+    css = "body{font:14px/1.4 system-ui,sans-serif;padding:16px;background:#f4f4f2;color:#1d1d1b}h3{font-size:15px;margin:20px 0 6px}.dim{color:#6b6b66}.flex{display:flex;gap:12px;flex-wrap:wrap}figure{margin:0;max-width:300px}figcaption{font-size:12px;color:#6b6b66}"
+    out = ('<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>T1.7 label options</title><style>%s</style></head><body>'
+           '<h1 style="font-size:20px">T1.7 Labels: the options on each front</h1><p class="dim">Greys only (the dot, the tint and the outline take the label\'s colour later). '
+           'Scores: <code>tools/screens/label_opt.py</code>; references: 8 apps captured on the phone.</p>%s</body></html>') % (css, "".join(sec))
+    with open(os.path.join(v2.OUT, "labels-options.html"), "w", encoding="utf-8", newline=chr(10)) as fh:
+        fh.write(out)
+    print(len(out))
+
+
+if __name__ == "__main__" and "page" in sys.argv[1:]:
+    page()
