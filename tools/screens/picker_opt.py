@@ -100,6 +100,11 @@ def time_entry(entry, label="Time"):
         if entry == "cron":
             out += '<div class="calc">Also takes cron: <b>0 9 * * 1-5</b> reads "09:00, Monday to Friday", next Thu 8, Fri 9, Mon 12 Oct</div>'
         return out
+    if entry == "dialtyped":  # owner, 2026-10-08: the typed field with its suggestions and the dial, one view; the keyboard only on the field
+        spots = "".join('<span data-tap="Hour %d" style="left:%.0fpx;top:%.0fpx">%d</span>' % (
+            h, 116 + 92 * math.sin(math.radians(h * 30)), 116 - 92 * math.cos(math.radians(h * 30)), h) for h in range(12))
+        return ('<div class="row"><span class="sec">%s</span><span class="field" data-tap="Time field">09:00</span>%s%s</div><div class="dial">%s</div>' % (
+            label, chip("Suggest 09:00", "09:00"), chip("Suggest 21:00", "21:00"), spots))
     if entry == "wheel":
         col = lambda name, vals, on: '<div class="wheel" data-tap="%s">%s</div>' % (name, "".join('<div%s>%s</div>' % (' class="on"' if v == on else "", v) for v in vals))
         return '<div class="row"><span class="sec">%s</span><div class="wheels" style="flex:1">%s%s</div></div>' % (label, col("Hour wheel", ["08", "09", "10"], "09"), col("Minute wheel", ["55", "00", "05"], "00"))

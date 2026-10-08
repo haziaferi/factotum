@@ -707,3 +707,13 @@ Two-step sheet with duration presets:
 - **The dial is now the only front member.**
 - **Typed has the best reach.** It brings up the keyboard, and its time view was checked to fit above it: the field, suggestions, end presets and Done all stay visible.
 - **The owner narrowed the choice to typed or the dial.**
+
+**The owner's proposal (2026-10-08): the dial and the typed field with its suggestions in one sheet, the keyboard only when the field is tapped** (entry `dialtyped`; the person takes the quicker of the two).
+
+**Measured** (two steps, sheet, duration presets):
+- **It ties the dial alone:** 13 actions, reach 2.23, 55% covered. Clutter is 0.0331 against 0.0317, under the 0.002 noise floor.
+- **In both states** (normal, and with the field tapped and the keyboard up), the field, suggestions, end presets and Done stay visible, and so does the dial.
+
+**The task set has no exact-minute time,** which is the one case where typing beats the dial (14:37). So the combination costs nothing measurable, and keeps typing for exact minutes and for anyone who prefers it.
+
+Mockups: `docs/screens/t1/picker-options.html` (the steps, the keyboard state, and each entry alone for comparison).

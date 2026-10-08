@@ -25,7 +25,7 @@ import picker_opt as P  # noqa: E402
 import screen_score as ss  # noqa: E402
 import tier_t1 as t  # noqa: E402
 
-SPACE = {"steps": ["one", "two"], "container": ["sheet", "page", "keyboard"], "entry": P.ENTRIES, "end": ["duration", "endtime"]}
+SPACE = {"steps": ["one", "two"], "container": ["sheet", "page", "keyboard"], "entry": P.ENTRIES + ["dialtyped"], "end": ["duration", "endtime"]}
 
 
 def done_row(back=False):
@@ -64,8 +64,11 @@ def tasks(v):
     # a wheel moves one value per step (owner, 2026-10-08: "scrolling a wheel one hour and one minute at a time"):
     # from 09:00, 14:30 is 5 hour steps and 6 five-minute steps, 15:00 is 6; the first count (one drag a wheel)
     # flattered the wheels
-    t1430 = {"blocks": (["Other time"], 4, 0), "typed": (["Time field"], 4, 0), "cron": (["Time field"], 4, 0), "wheel": ([], 0, 11), "dial": (["Hour 2"], 0, 1)}[e]
-    t15 = {"blocks": (["Block Afternoon"], 0, 0), "typed": (["Time field"], 2, 0), "cron": (["Time field"], 2, 0), "wheel": ([], 0, 6), "dial": (["Hour 3"], 0, 0)}[e]
+    # dialtyped: the person takes the quicker of its two (the dial here; a suggestion chip for 09:00)
+    t1430 = {"blocks": (["Other time"], 4, 0), "typed": (["Time field"], 4, 0), "cron": (["Time field"], 4, 0), "wheel": ([], 0, 11), "dial": (["Hour 2"], 0, 1),
+             "dialtyped": (["Hour 2"], 0, 1)}[e]
+    t15 = {"blocks": (["Block Afternoon"], 0, 0), "typed": (["Time field"], 2, 0), "cron": (["Time field"], 2, 0), "wheel": ([], 0, 6), "dial": (["Hour 3"], 0, 0),
+           "dialtyped": (["Hour 3"], 0, 0)}[e]
     end1h = (["Lasts 1 h"], 0, 0) if end == "duration" else t15
     tv = 2 if two else 1  # the view the time lives in
     # two steps: tapping a day with a time wanted opens the time view (the day tap is the step); without a time, Done
