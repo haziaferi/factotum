@@ -1134,3 +1134,20 @@ Mockups, every state: `docs/screens/t1/repeat4-options.html`.
   - a menu per label is dominated by the page.
 
 Mockups: `docs/screens/t1/labels-options.html`.
+
+**T1.7, the owner's answers and the scoring that followed (2026-10-09):**
+- **B, the picker (chosen):** a sheet with a grid; all labels shown, in alphabetical order; the search-and-create box below them.
+- **A, the chip:** "depends on whether the label can be tapped to open a screen with all elements belonging to that label". Scored as part E: a label view, a filter, or a mark only, with the chip's target at 28 or 32 dp (owner's exception to 48 dp).
+  - **A label view beats the filter on every measure:** both take 2 actions; the filter shows only the screen it is on.
+  - **A label view against a mark only:** 2 actions against 10 (searching #health). The view's costs are mis-tap exposure (4.5–7.7% of a row's area) and reach to a small target (Fitts 3.6–3.8).
+  - **32 dp against 28 dp:** reach 3.59 against 3.78, for 1 px more height and about 1% more exposure.
+  - **A tappable chip below the title** loses 2 rows below the bar; after the title, none.
+- **C, the `#` suggestions:** the owner asked to score chips above the line against below it. With the same keyboard:
+  - below: the line moves 25 px, reach 2.49;
+  - above: the line stays put, reach 2.81;
+  - a list over the line: stays put, reach 3.06.
+
+  All take 14 actions.
+- **D, management:** "Score both". Already scored:
+  - direct controls: 17 actions, 6 controls a row, clutter 0.035;
+  - a page per label: 23 actions, 2 a row, clutter 0.028, closer to the references.

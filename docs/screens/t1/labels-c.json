@@ -1,7 +1,7 @@
 [
  {
   "v": {
-   "place": "chips"
+   "place": "below"
   },
   "actions": 14,
   "per_task": {
@@ -12,6 +12,21 @@
   "shown": 2,
   "small": [],
   "clutter": 0.0272,
+  "line_covered": false
+ },
+ {
+  "v": {
+   "place": "above"
+  },
+  "actions": 14,
+  "per_task": {
+   "a": 4,
+   "b": 3,
+   "c": 7
+  },
+  "shown": 2,
+  "small": [],
+  "clutter": 0.0253,
   "line_covered": false
  },
  {

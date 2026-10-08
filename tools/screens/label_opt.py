@@ -298,7 +298,7 @@ def score_b(v):
   (c) "#garden", a new label, kept by typing on (the line creates it when the item is added). Counted: the taps and
   keys after the #.
 """
-C_SPACE = {"place": ["chips", "list", "inline"]}
+C_SPACE = {"place": ["below", "above", "list", "inline"]}  # below was "chips" (owner: score chips above and below the line)
 C_CSS = """
 .sug{display:flex;gap:6px;flex-wrap:nowrap;overflow:hidden;padding:0 2px}
 .slist{background:var(--zone);border-radius:14px 14px 0 0;box-shadow:0 -6px 18px rgba(0,0,0,.12)}
@@ -316,8 +316,11 @@ def c_sheet(v, typed):
     else:
         word = '<span class="hl">%s</span>' % typed
     line = '<div class="line"><span class="in">%s</span>%s</div>' % (kit.ud("water plants " + word) + '<span class="caret"></span>', more)
-    if v["place"] == "chips":
+    if v["place"] in ("chips", "below", "above"):
+        # owner, 2026-10-09: chips below the line (the hint line's place) or above it
         hint = '<div class="sug">%s%s</div>' % ("".join(R.ch("Sug %s" % n, n) for n in matches), R.ch("Create", "+ " + typed) if typed not in ("#he", "#h") else "")
+        if v["place"] == "above":
+            return '<div class="sheet" style="position:relative">%s%s<div class="hint">Task · # label</div></div>' % (hint, line)
         return '<div class="sheet" style="position:relative">%s%s</div>' % (line, hint)
     if v["place"] == "list":
         rows = "".join('<div class="sr" data-tap="Sug %s">%s</div>' % (n, n) for n in matches[:4]) + '<div class="sr" data-tap="Create">Create %s</div>' % typed
@@ -575,3 +578,68 @@ def page():
 
 if __name__ == "__main__" and "page" in sys.argv[1:]:
     page()
+
+
+# ==== Part E: what tapping a label does, with the chip's target at 28 or 32 dp (owner, 2026-10-09) ====================
+"""
+  behaviour  view (a screen of everything carrying the label: items, habits, activities, trackers, pages, its time
+             total), filter (the current screen filtered by it, with a clear ×), mark (the chip only shows; everything
+             with a label is found by searching #name)
+  target     28 or 32 dp, the chip's tap area (owner: an exception to 48 dp for this one purpose, as the dial's 32 dp)
+  placement  inline or below, as part A; look tint (7 of the 8 captured apps) or text (a mark needs no pill)
+Measures
+  see_all      actions from Today to see everything carrying Health, and back
+  complete     whether that shows everything (a filter shows only the screen it is on: 0)
+  reach        Fitts' ID from the thumb to the chip (its target's smaller side as the width)
+  exposure     the share of each row's area a chip's target takes from opening the item (0 for a mark)
+  title_room, extra_h, rows_lost   as part A, with the chip's target height
+"""
+E_SPACE = {"behaviour": ["view", "filter", "mark"], "target": [28, 32], "placement": ["inline", "below"], "look": ["tint", "text"]}
+
+
+def e_doc(v, theme="light"):
+    base = dict(look=v["look"], overflow="first", placement=v["placement"])
+    d = doc(base, theme)
+    if v["behaviour"] != "mark":
+        # each chip becomes a target of its own, the given height, its drawn pill unchanged inside
+        d = re.sub(r'<span class="lb ([^"]*)">([^<]*)</span>',
+                   lambda m: '<span data-tap="Chip %s" style="display:inline-flex;align-items:center;min-height:%dpx;min-width:%dpx;flex:none"><span class="lb %s">%s</span></span>' % (
+                       m.group(2), v["target"], v["target"], m.group(1), m.group(2)) if "more" not in m.group(1) else m.group(0), d)
+    return d
+
+
+def score_e(v):
+    m = ss.measure(e_doc(v), 360, 740)
+    chips = [x for x in m["taps"] if x["name"].startswith("Chip ") and x.get("seen")]
+    rows_px = 360 * 56  # a row's area, before labels
+    exposure = round(sum(x["w"] * x["h"] for x in chips) / max(1, len(chips)) / rows_px, 3) if chips else 0.0
+    reach = round(sum(math.log2(math.hypot(P.THUMB[0] - x["x"], P.THUMB[1] - x["y"]) / min(x["w"], x["h"]) + 1) for x in chips) / len(chips), 3) if chips else None
+    # see everything carrying Health from Today, and back: view 1 + back 1; filter 1 + clear 1 (this screen only);
+    # mark: search (1), "#health" (7 keys), its result (1), back (1)
+    see_all = {"view": 2, "filter": 2, "mark": 10}[v["behaviour"]]
+    complete = {"view": 1, "filter": 0, "mark": 1}[v["behaviour"]]
+    d = doc(dict(look=v["look"], overflow="first", placement=v["placement"])).replace("</body>", PROBE + "</body>")
+    if v["behaviour"] != "mark":
+        d = e_doc(v).replace("</body>", PROBE + "</body>")
+    res = ss._edge(["--dump-dom"], True, "labels-e-" + "-".join(str(x) for x in v.values()), d, 660, 1040)
+    p = json.loads(re.search(r'<pre id="__labels">(.*?)</pre>', res.stdout, re.S).group(1).replace("&quot;", '"'))["rows"]
+    return {"see_all": see_all, "complete": complete, "reach": reach, "exposure": exposure, "chips": len(chips),
+            "title_room": round(sum(r["room"] for r in p) / len(p), 1), "extra_h": round(sum(max(0, r["h"] - 56) for r in p) / len(p), 1),
+            "rows_lost": sum(not r["seen"] for r in p), "clutter": clutter_of(lambda th: e_doc(v, th))}
+
+
+if __name__ == "__main__" and "e" in sys.argv[1:]:
+    run_part("e", E_SPACE, score_e)
+
+
+def c_reach(v):
+    """Thumb reach to the suggestions (Fitts' ID from the thumb's rest; the keyboard is up, so the thumb rests on it)."""
+    m = ss.measure(c_doc(v, "#h"), 360, 740)
+    sug = [x for x in m["taps"] if x["name"].startswith("Sug ") and x.get("seen")]
+    kb_thumb = (180, 615)  # the keyboard's centre, where a typing thumb is (as T1.3)
+    return round(sum(math.log2(math.hypot(kb_thumb[0] - x["x"], kb_thumb[1] - x["y"]) / min(x["w"], x["h"]) + 1) for x in sug) / max(1, len(sug)), 3)
+
+
+if __name__ == "__main__" and "creach" in sys.argv[1:]:
+    for v in ({"place": "below"}, {"place": "above"}, {"place": "list"}):
+        print(v, c_reach(v))
