@@ -1,0 +1,80 @@
+[
+ {
+  "v": {
+   "form": "inline"
+  },
+  "noticed": 1,
+  "says_fix": 1,
+  "stays": 1,
+  "lost": 0,
+  "extra_actions": 0,
+  "reach": 3.773,
+  "words": 6,
+  "blame": 0,
+  "small": [],
+  "clutter": 0.0136
+ },
+ {
+  "v": {
+   "form": "toast"
+  },
+  "noticed": 1,
+  "says_fix": 1,
+  "stays": 0,
+  "lost": 0,
+  "extra_actions": 0,
+  "reach": 3.773,
+  "words": 6,
+  "blame": 0,
+  "small": [],
+  "clutter": 0.0167
+ },
+ {
+  "v": {
+   "form": "disabled"
+  },
+  "noticed": 1,
+  "says_fix": 1,
+  "stays": 1,
+  "lost": 0,
+  "extra_actions": 0,
+  "reach": 3.773,
+  "words": 1,
+  "blame": 0,
+  "small": [],
+  "clutter": 0.0115
+ },
+ {
+  "v": {
+   "form": "silent"
+  },
+  "noticed": 0,
+  "says_fix": 0,
+  "stays": 1,
+  "lost": 1,
+  "extra_actions": 0,
+  "reach": 3.773,
+  "words": 1,
+  "blame": 0,
+  "small": [],
+  "clutter": 0.0115
+ },
+ {
+  "v": {
+   "form": "dialog",
+   "control": true
+  },
+  "why": "a dialog: \"Error. Invalid input.\" and OK",
+  "control": true,
+  "noticed": 1,
+  "says_fix": 0,
+  "stays": 1,
+  "lost": 0,
+  "extra_actions": 1,
+  "reach": 3.773,
+  "words": 5,
+  "blame": 1,
+  "small": [],
+  "clutter": 0.0168
+ }
+]

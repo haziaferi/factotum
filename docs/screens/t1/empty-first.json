@@ -1,0 +1,45 @@
+[
+ {
+  "v": {
+   "start": "straight"
+  },
+  "taps_before_use": 0,
+  "words_before_use": 0,
+  "cheer": 0,
+  "small": [],
+  "clutter": 0.0209
+ },
+ {
+  "v": {
+   "start": "intro"
+  },
+  "taps_before_use": 1,
+  "words_before_use": 14,
+  "cheer": 0,
+  "small": [],
+  "clutter": 0.0277
+ },
+ {
+  "v": {
+   "start": "tour"
+  },
+  "taps_before_use": 3,
+  "words_before_use": 57,
+  "cheer": 0,
+  "small": [],
+  "clutter": 0.0285
+ },
+ {
+  "v": {
+   "start": "onboarding",
+   "control": true
+  },
+  "why": "five onboarding screens, an account prompt, every permission at once",
+  "control": true,
+  "taps_before_use": 13,
+  "words_before_use": 20,
+  "cheer": 1,
+  "small": [],
+  "clutter": 0.0327
+ }
+]

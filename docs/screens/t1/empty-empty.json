@@ -1,0 +1,80 @@
+[
+ {
+  "v": {
+   "form": "centred"
+  },
+  "reach": 2.845,
+  "block_px": 540,
+  "words": 26,
+  "grade": 4.6,
+  "cheer": 0,
+  "blame": 0,
+  "small": [],
+  "clutter": 0.022,
+  "desk_clutter": 0.0118,
+  "desk_way": 1
+ },
+ {
+  "v": {
+   "form": "inline"
+  },
+  "reach": 3.79,
+  "block_px": 66,
+  "words": 19,
+  "grade": 4.3,
+  "cheer": 0,
+  "blame": 0,
+  "small": [],
+  "clutter": 0.0191,
+  "desk_clutter": 0.0113,
+  "desk_way": 1
+ },
+ {
+  "v": {
+   "form": "placeholder"
+  },
+  "reach": 3.79,
+  "block_px": 0,
+  "words": 9,
+  "grade": 3.7,
+  "cheer": 0,
+  "blame": 0,
+  "small": [],
+  "clutter": 0.0168,
+  "desk_clutter": 0.0101,
+  "desk_way": 1
+ },
+ {
+  "v": {
+   "form": "example"
+  },
+  "reach": 3.79,
+  "block_px": 114,
+  "words": 37,
+  "grade": 0.7,
+  "cheer": 0,
+  "blame": 0,
+  "small": [],
+  "clutter": 0.0256,
+  "desk_clutter": 0.0139,
+  "desk_way": 1
+ },
+ {
+  "v": {
+   "form": "illustration",
+   "control": true
+  },
+  "why": "an illustration, \"All clear! 🎉 Enjoy your free day!\" and two buttons",
+  "control": true,
+  "reach": 2.605,
+  "block_px": 540,
+  "words": 40,
+  "grade": 2.9,
+  "cheer": 15,
+  "blame": 0,
+  "small": [],
+  "clutter": 0.0277,
+  "desk_clutter": 0.0134,
+  "desk_way": 1
+ }
+]

@@ -1,0 +1,55 @@
+[
+ {
+  "v": {
+   "show": "skeleton"
+  },
+  "layout_shift": 0,
+  "something_to_read": 0,
+  "blocks": 0,
+  "small": [],
+  "clutter": 0.0215
+ },
+ {
+  "v": {
+   "show": "spinner"
+  },
+  "layout_shift": 1,
+  "something_to_read": 0,
+  "blocks": 0,
+  "small": [],
+  "clutter": 0.0181
+ },
+ {
+  "v": {
+   "show": "progressive"
+  },
+  "layout_shift": 0,
+  "something_to_read": 1,
+  "blocks": 0,
+  "small": [],
+  "clutter": 0.0384
+ },
+ {
+  "v": {
+   "show": "blank"
+  },
+  "layout_shift": 1,
+  "something_to_read": 0,
+  "blocks": 0,
+  "small": [],
+  "clutter": 0.0176
+ },
+ {
+  "v": {
+   "show": "blocking",
+   "control": true
+  },
+  "why": "a dark shade with \"Loading, please wait… 42%\", blocking the screen",
+  "control": true,
+  "layout_shift": 1,
+  "something_to_read": 0,
+  "blocks": 1,
+  "small": [],
+  "clutter": 0.0198
+ }
+]

@@ -1,0 +1,61 @@
+[
+ {
+  "v": {
+   "words": "whatfix"
+  },
+  "says_what": 1,
+  "says_safe": 1,
+  "has_fix": 1,
+  "words": 9,
+  "grade": 4.5,
+  "blame": 0,
+  "banner_px": 48,
+  "small": [],
+  "clutter": 0.0463
+ },
+ {
+  "v": {
+   "words": "what"
+  },
+  "says_what": 1,
+  "says_safe": 0,
+  "has_fix": 1,
+  "words": 3,
+  "grade": 9.2,
+  "blame": 0,
+  "banner_px": 48,
+  "small": [],
+  "clutter": 0.043
+ },
+ {
+  "v": {
+   "words": "plain"
+  },
+  "says_what": 1,
+  "says_safe": 0,
+  "has_fix": 0,
+  "words": 2,
+  "grade": 2.9,
+  "blame": 0,
+  "banner_px": 48,
+  "small": [],
+  "clutter": 0.0412
+ },
+ {
+  "v": {
+   "words": "code",
+   "control": true
+  },
+  "why": "\"Error 0x80070005: sync exception\" with OK",
+  "control": true,
+  "says_what": 0,
+  "says_safe": 0,
+  "has_fix": 0,
+  "words": 4,
+  "grade": 6.6,
+  "blame": 0,
+  "banner_px": 48,
+  "small": [],
+  "clutter": 0.0442
+ }
+]

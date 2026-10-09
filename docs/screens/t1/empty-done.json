@@ -1,0 +1,70 @@
+[
+ {
+  "v": {
+   "sentences": "one",
+   "fold": "kept"
+  },
+  "tells_which": 1,
+  "words": 7,
+  "cheer": 0,
+  "blame": 0,
+  "rows": 2,
+  "small": [],
+  "clutter": 0.0213
+ },
+ {
+  "v": {
+   "sentences": "one",
+   "fold": "hidden"
+  },
+  "tells_which": 0,
+  "words": 5,
+  "cheer": 0,
+  "blame": 0,
+  "rows": 1,
+  "small": [],
+  "clutter": 0.0198
+ },
+ {
+  "v": {
+   "sentences": "two",
+   "fold": "kept"
+  },
+  "tells_which": 1,
+  "words": 8,
+  "cheer": 0,
+  "blame": 0,
+  "rows": 2,
+  "small": [],
+  "clutter": 0.0218
+ },
+ {
+  "v": {
+   "sentences": "two",
+   "fold": "hidden"
+  },
+  "tells_which": 1,
+  "words": 6,
+  "cheer": 0,
+  "blame": 0,
+  "rows": 1,
+  "small": [],
+  "clutter": 0.0203
+ },
+ {
+  "v": {
+   "sentences": "praise",
+   "fold": "hidden",
+   "control": true
+  },
+  "why": "\"Great job! You finished everything 🎉\" with an illustration, the fold hidden",
+  "control": true,
+  "tells_which": 0,
+  "words": 7,
+  "cheer": 3,
+  "blame": 0,
+  "rows": 1,
+  "small": [],
+  "clutter": 0.0242
+ }
+]

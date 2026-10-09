@@ -37,6 +37,7 @@ THUMB = P.THUMB            # (180, 700), the right thumb's rest on a 360x740 pho
 THUMB_KB = (180, 615)      # with the keyboard up, the thumb rests on it (as T1.3)
 READ_WPM = 238             # Brysbaert 2019
 OUT = v2.OUT
+PREFIX, REFS, NAME = "toasts", "toast-references.json", "T1.8 toasts and dialogs"  # T1.9 (empty_opt) sets its own
 # Fitts IDs closer than 0.05 bits are a tie: below what the drawings can tell apart (found 2026-10-09: a 0.002 gap put a control on the front)
 v2.TOL.setdefault("_clutter", v2.TOL["clutter"]); v2.TOL.setdefault("_desk_clutter", v2.TOL["clutter"])  # the project's clutter tolerance, under the keys these tables rank
 for _k in ("_reach", "_desk_reach", "_reach_keep"):
@@ -803,14 +804,14 @@ def run_part(p):
     cv, why = CONTROLS[p]
     rows.append(dict(v=cv, why=why, control=True, **SCORERS[p](cv)))
     print(p, "control", rows[-1], flush=True)
-    with open(os.path.join(OUT, "toasts-%s.json" % p), "w", encoding="utf-8", newline=chr(10)) as fh:
+    with open(os.path.join(OUT, PREFIX + "-%s.json" % p), "w", encoding="utf-8", newline=chr(10)) as fh:
         json.dump(rows, fh, indent=1, ensure_ascii=False)
 
 
 def ranked(p):
-    with open(os.path.join(OUT, "toasts-%s.json" % p), encoding="utf-8") as fh:
+    with open(os.path.join(OUT, PREFIX + "-%s.json" % p), encoding="utf-8") as fh:
         rows = json.load(fh)
-    refs_path = os.path.join(OUT, "toast-references.json")
+    refs_path = os.path.join(OUT, REFS)
     if os.path.exists(refs_path):
         with open(refs_path, encoding="utf-8") as fh:
             refs = json.load(fh).get(p, [])
@@ -853,7 +854,7 @@ def scores_page():
     import html as H
     out, lost = [], {}
     for p in sorted(SPACES):
-        if not os.path.exists(os.path.join(OUT, "toasts-%s.json" % p)):
+        if not os.path.exists(os.path.join(OUT, PREFIX + "-%s.json" % p)):
             continue
         rows, ok, axes = ranked(p)
         ctl = next(r for r in rows if r.get("control"))
@@ -895,11 +896,11 @@ body{background:var(--bg);color:var(--fg);font:14px/1.45 system-ui,sans-serif;ma
 .dim{color:var(--dim)}.wrap{overflow-x:auto}table{border-collapse:collapse;font-size:12.5px;font-variant-numeric:tabular-nums}
 th,td{border-bottom:1px solid var(--line);padding:4px 7px;text-align:left;white-space:nowrap}
 .ax{border-left:1px solid var(--line)}tr.ctl td{font-style:italic;border-top:2px dashed var(--dim)}tr.fr{background:var(--fr)}tr.fail td{color:var(--dim)}</style></head><body>
-<h1>T1.8 toasts and dialogs: score tables</h1>
+<h1>%s: score tables</h1>
 <p>Every variant scored by <code>python tools/screens/toast_opt.py</code>, from drawings measured in headless Edge (360×740 phone, 1100×660 Windows). Axes are rank sums within a part, lower is better; ★ marks the Pareto front; each part's control (italics, dashed rule) was built to lose, and the run fails if it reaches the front. Grey rows failed the gate (a target under 48 dp).</p>
-<p class=dim>Reference distance joins the axes once the reference apps are captured (toast-references.json).</p>
-%s</body></html>""" % "".join(out)
-    with open(os.path.join(OUT, "toasts-scores.html"), "w", encoding="utf-8", newline=chr(10)) as fh:
+<p class=dim>Reference distance joins the axes once the reference apps are captured (%s).</p>
+%s</body></html>""" % (NAME, REFS, "".join(out))
+    with open(os.path.join(OUT, PREFIX + "-scores.html"), "w", encoding="utf-8", newline=chr(10)) as fh:
         fh.write(page)
     print("controls lost:", lost)
     if not all(lost.values()):
@@ -947,7 +948,7 @@ def options_page():
 
     secs = []
     for p in sorted(SPACES):
-        if not os.path.exists(os.path.join(OUT, "toasts-%s.json" % p)):
+        if not os.path.exists(os.path.join(OUT, PREFIX + "-%s.json" % p)):
             continue
         rows, ok, axes = ranked(p)
         # small parts: every option drawn (the owner chooses among them); large ones: the front, lowest sum first, up to four
@@ -982,14 +983,14 @@ def options_page():
         if p == "b":
             figs.append(fig("Way back: ⋯ in the header, Undo and History", b_way_doc("menu")) + fig("Way back: ⚙ › Recently done", b_way_doc("recent")) +
                         fig("Way back: ⚙ › Trash", b_way_doc("trash")))
-        secs.append('<h2>%s</h2><p class=dim>Every option where there are seven or fewer (★ on the front), otherwise the front, lowest sum first; then the control. Every row is in <a href="toasts-scores.html#%s">the tables</a>.</p><div class=flex>%s</div>' % (
-            TITLES[p], p, "".join(figs)))
+        secs.append('<h2>%s</h2><p class=dim>Every option where there are seven or fewer (★ on the front), otherwise the front, lowest sum first; then the control. Every row is in <a href="%s-scores.html#%s">the tables</a>.</p><div class=flex>%s</div>' % (
+            TITLES[p], PREFIX, p, "".join(figs)))
     page = ('<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Toast Options</title>'
             '<style>:root{--bg:#f4f4f2;--fg:#1d1d1b;--dim:#6b6b66}@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#141414;--fg:#eee;--dim:#9a9a94}}'
             ':root[data-theme=dark]{--bg:#141414;--fg:#eee;--dim:#9a9a94}body{background:var(--bg);color:var(--fg);font:14px/1.4 system-ui,sans-serif;margin:0;padding:16px}'
             '.dim{color:var(--dim)}.flex{display:flex;gap:14px;flex-wrap:wrap;align-items:flex-start}figure{margin:0}figcaption{font-size:12px;max-width:420px}</style></head><body>'
-            '<h1 style="font-size:20px">T1.8 toasts and dialogs: the options</h1>%s</body></html>') % "".join(secs)
-    with open(os.path.join(OUT, "toasts-options.html"), "w", encoding="utf-8", newline=chr(10)) as fh:
+            '<h1 style="font-size:20px">%s: the options</h1>%s</body></html>') % (NAME, "".join(secs))
+    with open(os.path.join(OUT, PREFIX + "-options.html"), "w", encoding="utf-8", newline=chr(10)) as fh:
         fh.write(page)
     print(len(page))
 

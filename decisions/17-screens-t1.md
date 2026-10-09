@@ -1517,3 +1517,26 @@ Drawn: `docs/screens/t1/labels-dots.html` (`labels-f.json`).
   - tone, measured: word count, reading grade, and a check for cheer, praise or blame;
   - references captured on the phone and the desktop (placeholder data only);
   - Windows scored too.
+
+**T1.9 scored (2026-10-09)** (`tools/screens/empty_opt.py`, run through toast_opt's tables, now named per tier; `docs/screens/t1/empty-scores.html` and `empty-options.html`).
+- **References:** 16 phone apps (`empty-references.json`).
+  - Every source app puts a short sentence in the middle, with a small icon; most name the action ("Tap + to add one").
+  - Tasks.org, Todoist, MS To Do, Google Tasks and TickTick use illustrations; Google Tasks praises ("Ben fatto!").
+  - No app shows a field error, except Loop's "!" inside the field.
+  - The desktop references wait: the owner was using the desktop.
+- **Tone, measured:** words, a Flesch-Kincaid grade estimate, cheer (a word list, "!" and pictographic emoji) and blame (a word list). The lists are the assumption; they come from the 2026-10-07 rule.
+  - A first run counted the interface glyphs ⚙ ✎ ☰ as emoji and the bar's labels as words; both were fixed before these numbers.
+- **Empty screens:**
+  - Placeholder alone leads (sum 19.5).
+  - Then the sentence on a line where rows go (26) and the sentence with a centred button (26.5).
+  - The example row is last (30.5).
+  - **The control (an illustration with "All clear! 🎉") stays on the front:** its centred button is nearest the thumb (2.61). Every other axis is worst.
+- **Today, done or nothing planned:** two sentences with the fold hidden lead (14). Keeping the fold costs a row.
+- **Filtered to nothing:**
+  - centred with a Clear button: plain 30, repeating the query 31.5;
+  - inline forms off the front;
+  - the control stays on the front by reach.
+- **A field's error:** disabled Save (with its reason on a tap) 20.5; a line under the field 25; silent (Tendril's) 28.
+- **The banner's words:** all three real wordings are on the front. "Sync folder unreachable. Changes are kept on this phone." + Fix is the only one that says the data is safe.
+- **First run:** straight to an empty Today (0 taps), against one sheet (1 tap) and a tour (3 taps).
+- **Loading:** what is already on the device at once (progressive), or skeleton rows. Both cause no layout shift.

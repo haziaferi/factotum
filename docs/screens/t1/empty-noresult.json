@@ -1,0 +1,140 @@
+[
+ {
+  "v": {
+   "form": "centred",
+   "words": "repeat",
+   "action": "clear"
+  },
+  "reach": 2.835,
+  "names_it": 1,
+  "words": 15,
+  "grade": 3.9,
+  "cheer": 0,
+  "blame": 0,
+  "small": [],
+  "clutter": 0.0212
+ },
+ {
+  "v": {
+   "form": "centred",
+   "words": "repeat",
+   "action": "none"
+  },
+  "reach": 3.805,
+  "names_it": 1,
+  "words": 11,
+  "grade": 3.7,
+  "cheer": 0,
+  "blame": 0,
+  "small": [],
+  "clutter": 0.0197
+ },
+ {
+  "v": {
+   "form": "centred",
+   "words": "plain",
+   "action": "clear"
+  },
+  "reach": 2.835,
+  "names_it": 0,
+  "words": 11,
+  "grade": 1.6,
+  "cheer": 0,
+  "blame": 0,
+  "small": [],
+  "clutter": 0.0192
+ },
+ {
+  "v": {
+   "form": "centred",
+   "words": "plain",
+   "action": "none"
+  },
+  "reach": 3.805,
+  "names_it": 0,
+  "words": 7,
+  "grade": 0.9,
+  "cheer": 0,
+  "blame": 0,
+  "small": [],
+  "clutter": 0.0177
+ },
+ {
+  "v": {
+   "form": "inline",
+   "words": "repeat",
+   "action": "clear"
+  },
+  "reach": 3.527,
+  "names_it": 1,
+  "words": 15,
+  "grade": 3.9,
+  "cheer": 0,
+  "blame": 0,
+  "small": [],
+  "clutter": 0.0212
+ },
+ {
+  "v": {
+   "form": "inline",
+   "words": "repeat",
+   "action": "none"
+  },
+  "reach": 3.805,
+  "names_it": 1,
+  "words": 11,
+  "grade": 3.7,
+  "cheer": 0,
+  "blame": 0,
+  "small": [],
+  "clutter": 0.0197
+ },
+ {
+  "v": {
+   "form": "inline",
+   "words": "plain",
+   "action": "clear"
+  },
+  "reach": 3.527,
+  "names_it": 0,
+  "words": 11,
+  "grade": 1.6,
+  "cheer": 0,
+  "blame": 0,
+  "small": [],
+  "clutter": 0.0193
+ },
+ {
+  "v": {
+   "form": "inline",
+   "words": "plain",
+   "action": "none"
+  },
+  "reach": 3.805,
+  "names_it": 0,
+  "words": 7,
+  "grade": 0.9,
+  "cheer": 0,
+  "blame": 0,
+  "small": [],
+  "clutter": 0.0178
+ },
+ {
+  "v": {
+   "form": "illustration",
+   "words": "oops",
+   "action": "two",
+   "control": true
+  },
+  "why": "an illustration, \"Oops! Nothing here 😕\" and two buttons",
+  "control": true,
+  "reach": 2.592,
+  "names_it": 0,
+  "words": 15,
+  "grade": 2.3,
+  "cheer": 6,
+  "blame": 0,
+  "small": [],
+  "clutter": 0.0238
+ }
+]
