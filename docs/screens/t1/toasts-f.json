@@ -1,0 +1,52 @@
+[
+ {
+  "v": {
+   "form": "toast"
+  },
+  "noticed": 0,
+  "fix_actions": 3,
+  "persists": 0,
+  "blocks": 0,
+  "hidden": 0,
+  "rows_visible": 8,
+  "clutter": 0.0465
+ },
+ {
+  "v": {
+   "form": "banner"
+  },
+  "noticed": 1,
+  "fix_actions": 1,
+  "persists": 1,
+  "blocks": 0,
+  "hidden": 0,
+  "rows_visible": 8,
+  "clutter": 0.0449
+ },
+ {
+  "v": {
+   "form": "mark"
+  },
+  "noticed": 1,
+  "fix_actions": 2,
+  "persists": 1,
+  "blocks": 0,
+  "hidden": 0,
+  "rows_visible": 8,
+  "clutter": 0.0372
+ },
+ {
+  "v": {
+   "form": "control"
+  },
+  "why": "a dialog at every failure, \"Error 13\", OK only",
+  "control": true,
+  "noticed": 1,
+  "fix_actions": 3,
+  "persists": 0,
+  "blocks": 1,
+  "hidden": 23,
+  "rows_visible": 8,
+  "clutter": 0.0358
+ }
+]

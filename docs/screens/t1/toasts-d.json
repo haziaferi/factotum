@@ -1,0 +1,294 @@
+[
+ {
+  "v": {
+   "form": "mark",
+   "answer": "side",
+   "words": "words"
+  },
+  "actions": 2,
+  "interrupts": 0,
+  "must_answer": 0,
+  "signal_px2": 200,
+  "reach": 3.275,
+  "versions_h": 184,
+  "named": 1,
+  "hidden": 0,
+  "small": [],
+  "clutter": 0.0374
+ },
+ {
+  "v": {
+   "form": "mark",
+   "answer": "side",
+   "words": "marks"
+  },
+  "actions": 2,
+  "interrupts": 0,
+  "must_answer": 0,
+  "signal_px2": 200,
+  "reach": 3.269,
+  "versions_h": 184,
+  "named": 0,
+  "hidden": 0,
+  "small": [],
+  "clutter": 0.0374
+ },
+ {
+  "v": {
+   "form": "mark",
+   "answer": "stacked",
+   "words": "words"
+  },
+  "actions": 2,
+  "interrupts": 0,
+  "must_answer": 0,
+  "signal_px2": 200,
+  "reach": 3.018,
+  "versions_h": 141,
+  "named": 1,
+  "hidden": 0,
+  "small": [],
+  "clutter": 0.0374
+ },
+ {
+  "v": {
+   "form": "mark",
+   "answer": "stacked",
+   "words": "marks"
+  },
+  "actions": 2,
+  "interrupts": 0,
+  "must_answer": 0,
+  "signal_px2": 200,
+  "reach": 3.035,
+  "versions_h": 141,
+  "named": 0,
+  "hidden": 0,
+  "small": [],
+  "clutter": 0.0374
+ },
+ {
+  "v": {
+   "form": "card",
+   "answer": "side",
+   "words": "words"
+  },
+  "actions": 2,
+  "interrupts": 0,
+  "must_answer": 0,
+  "signal_px2": 22848,
+  "reach": 3.275,
+  "versions_h": 184,
+  "named": 1,
+  "hidden": 0,
+  "small": [],
+  "clutter": 0.0421
+ },
+ {
+  "v": {
+   "form": "card",
+   "answer": "side",
+   "words": "marks"
+  },
+  "actions": 2,
+  "interrupts": 0,
+  "must_answer": 0,
+  "signal_px2": 22848,
+  "reach": 3.269,
+  "versions_h": 184,
+  "named": 0,
+  "hidden": 0,
+  "small": [],
+  "clutter": 0.0421
+ },
+ {
+  "v": {
+   "form": "card",
+   "answer": "stacked",
+   "words": "words"
+  },
+  "actions": 2,
+  "interrupts": 0,
+  "must_answer": 0,
+  "signal_px2": 22848,
+  "reach": 3.018,
+  "versions_h": 141,
+  "named": 1,
+  "hidden": 0,
+  "small": [],
+  "clutter": 0.0421
+ },
+ {
+  "v": {
+   "form": "card",
+   "answer": "stacked",
+   "words": "marks"
+  },
+  "actions": 2,
+  "interrupts": 0,
+  "must_answer": 0,
+  "signal_px2": 22848,
+  "reach": 3.035,
+  "versions_h": 141,
+  "named": 0,
+  "hidden": 0,
+  "small": [],
+  "clutter": 0.0421
+ },
+ {
+  "v": {
+   "form": "toast",
+   "answer": "side",
+   "words": "words"
+  },
+  "actions": 2,
+  "interrupts": 0,
+  "must_answer": 0,
+  "signal_px2": 16328,
+  "reach": 3.275,
+  "versions_h": 184,
+  "named": 1,
+  "hidden": 0,
+  "small": [],
+  "clutter": 0.0451
+ },
+ {
+  "v": {
+   "form": "toast",
+   "answer": "side",
+   "words": "marks"
+  },
+  "actions": 2,
+  "interrupts": 0,
+  "must_answer": 0,
+  "signal_px2": 16328,
+  "reach": 3.269,
+  "versions_h": 184,
+  "named": 0,
+  "hidden": 0,
+  "small": [],
+  "clutter": 0.0451
+ },
+ {
+  "v": {
+   "form": "toast",
+   "answer": "stacked",
+   "words": "words"
+  },
+  "actions": 2,
+  "interrupts": 0,
+  "must_answer": 0,
+  "signal_px2": 16328,
+  "reach": 3.018,
+  "versions_h": 141,
+  "named": 1,
+  "hidden": 0,
+  "small": [],
+  "clutter": 0.0451
+ },
+ {
+  "v": {
+   "form": "toast",
+   "answer": "stacked",
+   "words": "marks"
+  },
+  "actions": 2,
+  "interrupts": 0,
+  "must_answer": 0,
+  "signal_px2": 16328,
+  "reach": 3.035,
+  "versions_h": 141,
+  "named": 0,
+  "hidden": 0,
+  "small": [],
+  "clutter": 0.0451
+ },
+ {
+  "v": {
+   "form": "dialog",
+   "answer": "side",
+   "words": "words"
+  },
+  "actions": 1,
+  "interrupts": 1,
+  "must_answer": 0,
+  "signal_px2": 94375,
+  "reach": 3.161,
+  "versions_h": 184,
+  "named": 1,
+  "hidden": 23,
+  "small": [],
+  "clutter": 0.0468
+ },
+ {
+  "v": {
+   "form": "dialog",
+   "answer": "side",
+   "words": "marks"
+  },
+  "actions": 1,
+  "interrupts": 1,
+  "must_answer": 0,
+  "signal_px2": 94375,
+  "reach": 3.153,
+  "versions_h": 184,
+  "named": 0,
+  "hidden": 23,
+  "small": [],
+  "clutter": 0.0431
+ },
+ {
+  "v": {
+   "form": "dialog",
+   "answer": "stacked",
+   "words": "words"
+  },
+  "actions": 1,
+  "interrupts": 1,
+  "must_answer": 0,
+  "signal_px2": 120471,
+  "reach": 2.87,
+  "versions_h": 141,
+  "named": 1,
+  "hidden": 23,
+  "small": [],
+  "clutter": 0.0429
+ },
+ {
+  "v": {
+   "form": "dialog",
+   "answer": "stacked",
+   "words": "marks"
+  },
+  "actions": 1,
+  "interrupts": 1,
+  "must_answer": 0,
+  "signal_px2": 120471,
+  "reach": 2.888,
+  "versions_h": 141,
+  "named": 0,
+  "hidden": 23,
+  "small": [],
+  "clutter": 0.0393
+ },
+ {
+  "v": {
+   "form": "dialog",
+   "answer": "stacked",
+   "words": "marks",
+   "control": true
+  },
+  "why": "a dialog at once, stacked versions, marks only, and no Later: it must be answered",
+  "control": true,
+  "actions": 1,
+  "interrupts": 1,
+  "must_answer": 1,
+  "signal_px2": 120471,
+  "reach": 2.888,
+  "versions_h": 141,
+  "named": 0,
+  "hidden": 23,
+  "small": [],
+  "clutter": 0.0386
+ }
+]

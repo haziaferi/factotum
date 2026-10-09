@@ -1,0 +1,995 @@
+[
+ {
+  "v": {
+   "form": "dialog",
+   "order": "away",
+   "labels": "verbs",
+   "confirm": "tap"
+  },
+  "confirm_actions": 4,
+  "back_actions": 4,
+  "reach_keep": 3.031,
+  "go_distance": 331,
+  "extra_step": 0,
+  "named": 4,
+  "specific": 1,
+  "min_text": 13,
+  "small": [],
+  "clutter": 0.0346
+ },
+ {
+  "v": {
+   "form": "dialog",
+   "order": "away",
+   "labels": "verbs",
+   "confirm": "hold"
+  },
+  "confirm_actions": 4,
+  "back_actions": 4,
+  "reach_keep": 3.031,
+  "go_distance": 331,
+  "extra_step": 1,
+  "named": 4,
+  "specific": 1,
+  "min_text": 13,
+  "small": [],
+  "clutter": 0.0365
+ },
+ {
+  "v": {
+   "form": "dialog",
+   "order": "away",
+   "labels": "verbs",
+   "confirm": "type"
+  },
+  "confirm_actions": 18,
+  "back_actions": 4,
+  "reach_keep": 2.803,
+  "go_distance": 271,
+  "extra_step": 1,
+  "named": 4,
+  "specific": 1,
+  "min_text": 13,
+  "small": [],
+  "clutter": 0.0412
+ },
+ {
+  "v": {
+   "form": "dialog",
+   "order": "away",
+   "labels": "glyphs",
+   "confirm": "tap"
+  },
+  "confirm_actions": 4,
+  "back_actions": 4,
+  "reach_keep": 3.045,
+  "go_distance": 333,
+  "extra_step": 0,
+  "named": 0,
+  "specific": 1,
+  "min_text": 13,
+  "small": [],
+  "clutter": 0.0322
+ },
+ {
+  "v": {
+   "form": "dialog",
+   "order": "away",
+   "labels": "glyphs",
+   "confirm": "hold"
+  },
+  "confirm_actions": 4,
+  "back_actions": 4,
+  "reach_keep": 3.045,
+  "go_distance": 332,
+  "extra_step": 1,
+  "named": 0,
+  "specific": 1,
+  "min_text": 13,
+  "small": [],
+  "clutter": 0.0337
+ },
+ {
+  "v": {
+   "form": "dialog",
+   "order": "away",
+   "labels": "glyphs",
+   "confirm": "type"
+  },
+  "confirm_actions": 18,
+  "back_actions": 4,
+  "reach_keep": 2.823,
+  "go_distance": 273,
+  "extra_step": 1,
+  "named": 0,
+  "specific": 1,
+  "min_text": 13,
+  "small": [],
+  "clutter": 0.0388
+ },
+ {
+  "v": {
+   "form": "dialog",
+   "order": "away",
+   "labels": "both",
+   "confirm": "tap"
+  },
+  "confirm_actions": 4,
+  "back_actions": 4,
+  "reach_keep": 3.022,
+  "go_distance": 331,
+  "extra_step": 0,
+  "named": 4,
+  "specific": 1,
+  "min_text": 13,
+  "small": [],
+  "clutter": 0.0352
+ },
+ {
+  "v": {
+   "form": "dialog",
+   "order": "away",
+   "labels": "both",
+   "confirm": "hold"
+  },
+  "confirm_actions": 4,
+  "back_actions": 4,
+  "reach_keep": 3.023,
+  "go_distance": 333,
+  "extra_step": 1,
+  "named": 4,
+  "specific": 1,
+  "min_text": 13,
+  "small": [],
+  "clutter": 0.0372
+ },
+ {
+  "v": {
+   "form": "dialog",
+   "order": "away",
+   "labels": "both",
+   "confirm": "type"
+  },
+  "confirm_actions": 18,
+  "back_actions": 4,
+  "reach_keep": 2.791,
+  "go_distance": 271,
+  "extra_step": 1,
+  "named": 4,
+  "specific": 1,
+  "min_text": 13,
+  "small": [],
+  "clutter": 0.0417
+ },
+ {
+  "v": {
+   "form": "dialog",
+   "order": "near",
+   "labels": "verbs",
+   "confirm": "tap"
+  },
+  "confirm_actions": 4,
+  "back_actions": 4,
+  "reach_keep": 2.982,
+  "go_distance": 341,
+  "extra_step": 0,
+  "named": 4,
+  "specific": 1,
+  "min_text": 13,
+  "small": [],
+  "clutter": 0.0346
+ },
+ {
+  "v": {
+   "form": "dialog",
+   "order": "near",
+   "labels": "verbs",
+   "confirm": "hold"
+  },
+  "confirm_actions": 4,
+  "back_actions": 4,
+  "reach_keep": 3.0,
+  "go_distance": 336,
+  "extra_step": 1,
+  "named": 4,
+  "specific": 1,
+  "min_text": 13,
+  "small": [],
+  "clutter": 0.0365
+ },
+ {
+  "v": {
+   "form": "dialog",
+   "order": "near",
+   "labels": "verbs",
+   "confirm": "type"
+  },
+  "confirm_actions": 18,
+  "back_actions": 4,
+  "reach_keep": 2.734,
+  "go_distance": 283,
+  "extra_step": 1,
+  "named": 4,
+  "specific": 1,
+  "min_text": 13,
+  "small": [],
+  "clutter": 0.0412
+ },
+ {
+  "v": {
+   "form": "dialog",
+   "order": "near",
+   "labels": "glyphs",
+   "confirm": "tap"
+  },
+  "confirm_actions": 4,
+  "back_actions": 4,
+  "reach_keep": 2.989,
+  "go_distance": 344,
+  "extra_step": 0,
+  "named": 0,
+  "specific": 1,
+  "min_text": 13,
+  "small": [],
+  "clutter": 0.0322
+ },
+ {
+  "v": {
+   "form": "dialog",
+   "order": "near",
+   "labels": "glyphs",
+   "confirm": "hold"
+  },
+  "confirm_actions": 4,
+  "back_actions": 4,
+  "reach_keep": 2.982,
+  "go_distance": 345,
+  "extra_step": 1,
+  "named": 0,
+  "specific": 1,
+  "min_text": 13,
+  "small": [],
+  "clutter": 0.0337
+ },
+ {
+  "v": {
+   "form": "dialog",
+   "order": "near",
+   "labels": "glyphs",
+   "confirm": "type"
+  },
+  "confirm_actions": 18,
+  "back_actions": 4,
+  "reach_keep": 2.743,
+  "go_distance": 292,
+  "extra_step": 1,
+  "named": 0,
+  "specific": 1,
+  "min_text": 13,
+  "small": [],
+  "clutter": 0.0388
+ },
+ {
+  "v": {
+   "form": "dialog",
+   "order": "near",
+   "labels": "both",
+   "confirm": "tap"
+  },
+  "confirm_actions": 4,
+  "back_actions": 4,
+  "reach_keep": 2.989,
+  "go_distance": 339,
+  "extra_step": 0,
+  "named": 4,
+  "specific": 1,
+  "min_text": 13,
+  "small": [],
+  "clutter": 0.0353
+ },
+ {
+  "v": {
+   "form": "dialog",
+   "order": "near",
+   "labels": "both",
+   "confirm": "hold"
+  },
+  "confirm_actions": 4,
+  "back_actions": 4,
+  "reach_keep": 3.015,
+  "go_distance": 335,
+  "extra_step": 1,
+  "named": 4,
+  "specific": 1,
+  "min_text": 13,
+  "small": [],
+  "clutter": 0.0372
+ },
+ {
+  "v": {
+   "form": "dialog",
+   "order": "near",
+   "labels": "both",
+   "confirm": "type"
+  },
+  "confirm_actions": 18,
+  "back_actions": 4,
+  "reach_keep": 2.744,
+  "go_distance": 281,
+  "extra_step": 1,
+  "named": 4,
+  "specific": 1,
+  "min_text": 13,
+  "small": [],
+  "clutter": 0.0419
+ },
+ {
+  "v": {
+   "form": "sheet",
+   "order": "away",
+   "labels": "verbs",
+   "confirm": "tap"
+  },
+  "confirm_actions": 4,
+  "back_actions": 4,
+  "reach_keep": 0.115,
+  "go_distance": 52,
+  "extra_step": 0,
+  "named": 4,
+  "specific": 1,
+  "min_text": 13,
+  "small": [],
+  "clutter": 0.0356
+ },
+ {
+  "v": {
+   "form": "sheet",
+   "order": "away",
+   "labels": "verbs",
+   "confirm": "hold"
+  },
+  "confirm_actions": 4,
+  "back_actions": 4,
+  "reach_keep": 0.115,
+  "go_distance": 52,
+  "extra_step": 1,
+  "named": 4,
+  "specific": 1,
+  "min_text": 13,
+  "small": [],
+  "clutter": 0.0379
+ },
+ {
+  "v": {
+   "form": "sheet",
+   "order": "away",
+   "labels": "verbs",
+   "confirm": "type"
+  },
+  "confirm_actions": 18,
+  "back_actions": 4,
+  "reach_keep": 0.115,
+  "go_distance": 52,
+  "extra_step": 1,
+  "named": 4,
+  "specific": 1,
+  "min_text": 13,
+  "small": [],
+  "clutter": 0.0425
+ },
+ {
+  "v": {
+   "form": "sheet",
+   "order": "away",
+   "labels": "glyphs",
+   "confirm": "tap"
+  },
+  "confirm_actions": 4,
+  "back_actions": 4,
+  "reach_keep": 0.115,
+  "go_distance": 52,
+  "extra_step": 0,
+  "named": 0,
+  "specific": 1,
+  "min_text": 13,
+  "small": [],
+  "clutter": 0.0337
+ },
+ {
+  "v": {
+   "form": "sheet",
+   "order": "away",
+   "labels": "glyphs",
+   "confirm": "hold"
+  },
+  "confirm_actions": 4,
+  "back_actions": 4,
+  "reach_keep": 0.115,
+  "go_distance": 52,
+  "extra_step": 1,
+  "named": 0,
+  "specific": 1,
+  "min_text": 13,
+  "small": [],
+  "clutter": 0.0359
+ },
+ {
+  "v": {
+   "form": "sheet",
+   "order": "away",
+   "labels": "glyphs",
+   "confirm": "type"
+  },
+  "confirm_actions": 18,
+  "back_actions": 4,
+  "reach_keep": 0.115,
+  "go_distance": 52,
+  "extra_step": 1,
+  "named": 0,
+  "specific": 1,
+  "min_text": 13,
+  "small": [],
+  "clutter": 0.0406
+ },
+ {
+  "v": {
+   "form": "sheet",
+   "order": "away",
+   "labels": "both",
+   "confirm": "tap"
+  },
+  "confirm_actions": 4,
+  "back_actions": 4,
+  "reach_keep": 0.115,
+  "go_distance": 52,
+  "extra_step": 0,
+  "named": 4,
+  "specific": 1,
+  "min_text": 13,
+  "small": [],
+  "clutter": 0.0362
+ },
+ {
+  "v": {
+   "form": "sheet",
+   "order": "away",
+   "labels": "both",
+   "confirm": "hold"
+  },
+  "confirm_actions": 4,
+  "back_actions": 4,
+  "reach_keep": 0.115,
+  "go_distance": 52,
+  "extra_step": 1,
+  "named": 4,
+  "specific": 1,
+  "min_text": 13,
+  "small": [],
+  "clutter": 0.0384
+ },
+ {
+  "v": {
+   "form": "sheet",
+   "order": "away",
+   "labels": "both",
+   "confirm": "type"
+  },
+  "confirm_actions": 18,
+  "back_actions": 4,
+  "reach_keep": 0.115,
+  "go_distance": 52,
+  "extra_step": 1,
+  "named": 4,
+  "specific": 1,
+  "min_text": 13,
+  "small": [],
+  "clutter": 0.0431
+ },
+ {
+  "v": {
+   "form": "sheet",
+   "order": "near",
+   "labels": "verbs",
+   "confirm": "tap"
+  },
+  "confirm_actions": 4,
+  "back_actions": 4,
+  "reach_keep": 1.059,
+  "go_distance": 4,
+  "extra_step": 0,
+  "named": 4,
+  "specific": 1,
+  "min_text": 13,
+  "small": [],
+  "clutter": 0.0356
+ },
+ {
+  "v": {
+   "form": "sheet",
+   "order": "near",
+   "labels": "verbs",
+   "confirm": "hold"
+  },
+  "confirm_actions": 4,
+  "back_actions": 4,
+  "reach_keep": 1.059,
+  "go_distance": 4,
+  "extra_step": 1,
+  "named": 4,
+  "specific": 1,
+  "min_text": 13,
+  "small": [],
+  "clutter": 0.0379
+ },
+ {
+  "v": {
+   "form": "sheet",
+   "order": "near",
+   "labels": "verbs",
+   "confirm": "type"
+  },
+  "confirm_actions": 18,
+  "back_actions": 4,
+  "reach_keep": 1.059,
+  "go_distance": 4,
+  "extra_step": 1,
+  "named": 4,
+  "specific": 1,
+  "min_text": 13,
+  "small": [],
+  "clutter": 0.0425
+ },
+ {
+  "v": {
+   "form": "sheet",
+   "order": "near",
+   "labels": "glyphs",
+   "confirm": "tap"
+  },
+  "confirm_actions": 4,
+  "back_actions": 4,
+  "reach_keep": 1.059,
+  "go_distance": 4,
+  "extra_step": 0,
+  "named": 0,
+  "specific": 1,
+  "min_text": 13,
+  "small": [],
+  "clutter": 0.0337
+ },
+ {
+  "v": {
+   "form": "sheet",
+   "order": "near",
+   "labels": "glyphs",
+   "confirm": "hold"
+  },
+  "confirm_actions": 4,
+  "back_actions": 4,
+  "reach_keep": 1.059,
+  "go_distance": 4,
+  "extra_step": 1,
+  "named": 0,
+  "specific": 1,
+  "min_text": 13,
+  "small": [],
+  "clutter": 0.0359
+ },
+ {
+  "v": {
+   "form": "sheet",
+   "order": "near",
+   "labels": "glyphs",
+   "confirm": "type"
+  },
+  "confirm_actions": 18,
+  "back_actions": 4,
+  "reach_keep": 1.059,
+  "go_distance": 4,
+  "extra_step": 1,
+  "named": 0,
+  "specific": 1,
+  "min_text": 13,
+  "small": [],
+  "clutter": 0.0406
+ },
+ {
+  "v": {
+   "form": "sheet",
+   "order": "near",
+   "labels": "both",
+   "confirm": "tap"
+  },
+  "confirm_actions": 4,
+  "back_actions": 4,
+  "reach_keep": 1.059,
+  "go_distance": 4,
+  "extra_step": 0,
+  "named": 4,
+  "specific": 1,
+  "min_text": 13,
+  "small": [],
+  "clutter": 0.0362
+ },
+ {
+  "v": {
+   "form": "sheet",
+   "order": "near",
+   "labels": "both",
+   "confirm": "hold"
+  },
+  "confirm_actions": 4,
+  "back_actions": 4,
+  "reach_keep": 1.059,
+  "go_distance": 4,
+  "extra_step": 1,
+  "named": 4,
+  "specific": 1,
+  "min_text": 13,
+  "small": [],
+  "clutter": 0.0384
+ },
+ {
+  "v": {
+   "form": "sheet",
+   "order": "near",
+   "labels": "both",
+   "confirm": "type"
+  },
+  "confirm_actions": 18,
+  "back_actions": 4,
+  "reach_keep": 1.059,
+  "go_distance": 4,
+  "extra_step": 1,
+  "named": 4,
+  "specific": 1,
+  "min_text": 13,
+  "small": [],
+  "clutter": 0.0431
+ },
+ {
+  "v": {
+   "form": "inplace",
+   "order": "away",
+   "labels": "verbs",
+   "confirm": "tap"
+  },
+  "confirm_actions": 4,
+  "back_actions": 4,
+  "reach_keep": 0.0,
+  "go_distance": 45,
+  "extra_step": 0,
+  "named": 4,
+  "specific": 1,
+  "min_text": 13,
+  "small": [],
+  "clutter": 0.0257
+ },
+ {
+  "v": {
+   "form": "inplace",
+   "order": "away",
+   "labels": "verbs",
+   "confirm": "hold"
+  },
+  "confirm_actions": 4,
+  "back_actions": 4,
+  "reach_keep": 0.0,
+  "go_distance": 33,
+  "extra_step": 1,
+  "named": 4,
+  "specific": 1,
+  "min_text": 13,
+  "small": [],
+  "clutter": 0.0259
+ },
+ {
+  "v": {
+   "form": "inplace",
+   "order": "away",
+   "labels": "verbs",
+   "confirm": "type"
+  },
+  "confirm_actions": 18,
+  "back_actions": 4,
+  "reach_keep": 3.817,
+  "go_distance": 24,
+  "extra_step": 1,
+  "named": 4,
+  "specific": 1,
+  "min_text": 13,
+  "small": [],
+  "clutter": 0.0236
+ },
+ {
+  "v": {
+   "form": "inplace",
+   "order": "away",
+   "labels": "glyphs",
+   "confirm": "tap"
+  },
+  "confirm_actions": 4,
+  "back_actions": 4,
+  "reach_keep": 0.0,
+  "go_distance": 8,
+  "extra_step": 0,
+  "named": 0,
+  "specific": 1,
+  "min_text": 13,
+  "small": [],
+  "clutter": 0.0234
+ },
+ {
+  "v": {
+   "form": "inplace",
+   "order": "away",
+   "labels": "glyphs",
+   "confirm": "hold"
+  },
+  "confirm_actions": 4,
+  "back_actions": 4,
+  "reach_keep": 0.0,
+  "go_distance": 8,
+  "extra_step": 1,
+  "named": 0,
+  "specific": 1,
+  "min_text": 13,
+  "small": [],
+  "clutter": 0.0234
+ },
+ {
+  "v": {
+   "form": "inplace",
+   "order": "away",
+   "labels": "glyphs",
+   "confirm": "type"
+  },
+  "confirm_actions": 18,
+  "back_actions": 4,
+  "reach_keep": 3.819,
+  "go_distance": 24,
+  "extra_step": 1,
+  "named": 0,
+  "specific": 1,
+  "min_text": 13,
+  "small": [],
+  "clutter": 0.0231
+ },
+ {
+  "v": {
+   "form": "inplace",
+   "order": "away",
+   "labels": "both",
+   "confirm": "tap"
+  },
+  "confirm_actions": 4,
+  "back_actions": 4,
+  "reach_keep": 0.0,
+  "go_distance": 23,
+  "extra_step": 0,
+  "named": 4,
+  "specific": 1,
+  "min_text": 13,
+  "small": [],
+  "clutter": 0.0246
+ },
+ {
+  "v": {
+   "form": "inplace",
+   "order": "away",
+   "labels": "both",
+   "confirm": "hold"
+  },
+  "confirm_actions": 4,
+  "back_actions": 4,
+  "reach_keep": 0.0,
+  "go_distance": 9,
+  "extra_step": 1,
+  "named": 4,
+  "specific": 1,
+  "min_text": 13,
+  "small": [],
+  "clutter": 0.0239
+ },
+ {
+  "v": {
+   "form": "inplace",
+   "order": "away",
+   "labels": "both",
+   "confirm": "type"
+  },
+  "confirm_actions": 18,
+  "back_actions": 4,
+  "reach_keep": 3.815,
+  "go_distance": 24,
+  "extra_step": 1,
+  "named": 4,
+  "specific": 1,
+  "min_text": 13,
+  "small": [],
+  "clutter": 0.0238
+ },
+ {
+  "v": {
+   "form": "inplace",
+   "order": "near",
+   "labels": "verbs",
+   "confirm": "tap"
+  },
+  "confirm_actions": 4,
+  "back_actions": 4,
+  "reach_keep": 0.0,
+  "go_distance": 45,
+  "extra_step": 0,
+  "named": 4,
+  "specific": 1,
+  "min_text": 13,
+  "small": [],
+  "clutter": 0.0257
+ },
+ {
+  "v": {
+   "form": "inplace",
+   "order": "near",
+   "labels": "verbs",
+   "confirm": "hold"
+  },
+  "confirm_actions": 4,
+  "back_actions": 4,
+  "reach_keep": 0.0,
+  "go_distance": 33,
+  "extra_step": 1,
+  "named": 4,
+  "specific": 1,
+  "min_text": 13,
+  "small": [],
+  "clutter": 0.0259
+ },
+ {
+  "v": {
+   "form": "inplace",
+   "order": "near",
+   "labels": "verbs",
+   "confirm": "type"
+  },
+  "confirm_actions": 18,
+  "back_actions": 4,
+  "reach_keep": 3.817,
+  "go_distance": 24,
+  "extra_step": 1,
+  "named": 4,
+  "specific": 1,
+  "min_text": 13,
+  "small": [],
+  "clutter": 0.0236
+ },
+ {
+  "v": {
+   "form": "inplace",
+   "order": "near",
+   "labels": "glyphs",
+   "confirm": "tap"
+  },
+  "confirm_actions": 4,
+  "back_actions": 4,
+  "reach_keep": 0.0,
+  "go_distance": 8,
+  "extra_step": 0,
+  "named": 0,
+  "specific": 1,
+  "min_text": 13,
+  "small": [],
+  "clutter": 0.0234
+ },
+ {
+  "v": {
+   "form": "inplace",
+   "order": "near",
+   "labels": "glyphs",
+   "confirm": "hold"
+  },
+  "confirm_actions": 4,
+  "back_actions": 4,
+  "reach_keep": 0.0,
+  "go_distance": 8,
+  "extra_step": 1,
+  "named": 0,
+  "specific": 1,
+  "min_text": 13,
+  "small": [],
+  "clutter": 0.0234
+ },
+ {
+  "v": {
+   "form": "inplace",
+   "order": "near",
+   "labels": "glyphs",
+   "confirm": "type"
+  },
+  "confirm_actions": 18,
+  "back_actions": 4,
+  "reach_keep": 3.819,
+  "go_distance": 24,
+  "extra_step": 1,
+  "named": 0,
+  "specific": 1,
+  "min_text": 13,
+  "small": [],
+  "clutter": 0.0231
+ },
+ {
+  "v": {
+   "form": "inplace",
+   "order": "near",
+   "labels": "both",
+   "confirm": "tap"
+  },
+  "confirm_actions": 4,
+  "back_actions": 4,
+  "reach_keep": 0.0,
+  "go_distance": 23,
+  "extra_step": 0,
+  "named": 4,
+  "specific": 1,
+  "min_text": 13,
+  "small": [],
+  "clutter": 0.0246
+ },
+ {
+  "v": {
+   "form": "inplace",
+   "order": "near",
+   "labels": "both",
+   "confirm": "hold"
+  },
+  "confirm_actions": 4,
+  "back_actions": 4,
+  "reach_keep": 0.0,
+  "go_distance": 9,
+  "extra_step": 1,
+  "named": 4,
+  "specific": 1,
+  "min_text": 13,
+  "small": [],
+  "clutter": 0.0239
+ },
+ {
+  "v": {
+   "form": "inplace",
+   "order": "near",
+   "labels": "both",
+   "confirm": "type"
+  },
+  "confirm_actions": 18,
+  "back_actions": 4,
+  "reach_keep": 3.815,
+  "go_distance": 24,
+  "extra_step": 1,
+  "named": 4,
+  "specific": 1,
+  "min_text": 13,
+  "small": [],
+  "clutter": 0.0238
+ },
+ {
+  "v": {
+   "form": "dialog",
+   "order": "near",
+   "labels": "verbs",
+   "confirm": "tap",
+   "control": true
+  },
+  "why": "\"Are you sure?\" with Yes and No, Yes filled under the thumb, a tap confirms",
+  "control": true,
+  "confirm_actions": 4,
+  "back_actions": 4,
+  "reach_keep": 2.989,
+  "go_distance": 344,
+  "extra_step": 0,
+  "named": 4,
+  "specific": 0,
+  "min_text": 13,
+  "small": [],
+  "clutter": 0.0324
+ }
+]

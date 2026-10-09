@@ -1,0 +1,52 @@
+[
+ {
+  "v": {
+   "when": "need"
+  },
+  "before_use": 0,
+  "actions": 7,
+  "silent_fail": 0,
+  "repeats": 0,
+  "context": 1,
+  "reach": 1.059,
+  "clutter": 0.0501
+ },
+ {
+  "v": {
+   "when": "first"
+  },
+  "before_use": 7,
+  "actions": 7,
+  "silent_fail": 0,
+  "repeats": 0,
+  "context": 0,
+  "reach": 1.059,
+  "clutter": 0.0301
+ },
+ {
+  "v": {
+   "when": "settings"
+  },
+  "before_use": 0,
+  "actions": 10,
+  "silent_fail": 1,
+  "repeats": 0,
+  "context": 0,
+  "reach": 3.79,
+  "clutter": 0.0135
+ },
+ {
+  "v": {
+   "when": "control"
+  },
+  "why": "all three at first run, no explanation, asked again at every start until granted",
+  "control": true,
+  "before_use": 7,
+  "actions": 7,
+  "silent_fail": 0,
+  "repeats": 1,
+  "context": 0,
+  "reach": 3.093,
+  "clutter": 0.0221
+ }
+]

@@ -1,0 +1,100 @@
+[
+ {
+  "v": {
+   "place": "bar"
+  },
+  "continue_actions": 0,
+  "undo_seen": 2,
+  "reach": 2.206,
+  "look": 221,
+  "hidden": 1,
+  "hidden_names": [
+   "More"
+  ],
+  "line_covered": false,
+  "clutter": 0.042,
+  "desk_reach": 3.846,
+  "desk_look": 642,
+  "desk_hidden": 0,
+  "desk_clutter": 0.0203
+ },
+ {
+  "v": {
+   "place": "anchored"
+  },
+  "continue_actions": 0,
+  "undo_seen": 2,
+  "reach": 2.396,
+  "look": 237,
+  "hidden": 0,
+  "hidden_names": [],
+  "line_covered": false,
+  "clutter": 0.042,
+  "desk_reach": 3.397,
+  "desk_look": 457,
+  "desk_hidden": 0,
+  "desk_clutter": 0.0203
+ },
+ {
+  "v": {
+   "place": "top"
+  },
+  "continue_actions": 0,
+  "undo_seen": 2,
+  "reach": 3.725,
+  "look": 240,
+  "hidden": 1,
+  "hidden_names": [
+   "Capture"
+  ],
+  "line_covered": false,
+  "clutter": 0.04,
+  "desk_reach": 3.677,
+  "desk_look": 566,
+  "desk_hidden": 0,
+  "desk_clutter": 0.0202
+ },
+ {
+  "v": {
+   "place": "control"
+  },
+  "why": "a notice in the middle of the screen over a shade, with Undo and OK",
+  "control": true,
+  "continue_actions": 1,
+  "undo_seen": 2,
+  "reach": 2.962,
+  "look": 105,
+  "hidden": 23,
+  "hidden_names": [
+   "Add",
+   "Calendar",
+   "Capture",
+   "Check-in",
+   "Done",
+   "Done",
+   "Done today",
+   "Hub",
+   "Log",
+   "Log",
+   "Open",
+   "Open item",
+   "Open item",
+   "Open item",
+   "Open item",
+   "Open item",
+   "Open item",
+   "Open item",
+   "Pages",
+   "Search",
+   "Settings",
+   "Today",
+   "More"
+  ],
+  "line_covered": true,
+  "clutter": 0.0387,
+  "desk_reach": 2.794,
+  "desk_look": 285,
+  "desk_hidden": 21,
+  "desk_clutter": 0.0199
+ }
+]

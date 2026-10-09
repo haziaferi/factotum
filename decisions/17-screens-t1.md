@@ -1233,3 +1233,30 @@ Drawn: `docs/screens/t1/labels-dots.html` (`labels-f.json`).
   
   Placeholder data only. A destructive dialog is opened and cancelled, never confirmed.
 - **The control:** one per part, built to lose; the run fails if a control reaches the front (as in T1.7).
+
+**T1.8 first scoring (2026-10-09; the reference apps are not captured yet, so the reference distance is not on any axis).** `tools/screens/toast_opt.py`, tables `docs/screens/t1/toasts-scores.html`, drawings `toasts-options.html`. Six parts, each with a control.
+- **A, where the toast sits:**
+  - Above the capture line when it is open (anchored): hides nothing, reach 2.40, sum 25.5.
+  - Above the bar: with the keyboard up it lands on the capture line and hides its ⋯.
+  - At the top: reach 3.73.
+  - **The control did not lose.** A notice in the middle over a shade hides 23 targets and needs a tap to carry on, but it sits closest to where the user acted (105 px, against 221–240), so it wins Notice and stays on the front. Reported as measured, not redesigned; how much nearness should count is the owner's call.
+- **B, the Undo time:**
+  - Merging several into one toast ("3 moved to Trash · Undo all", ▸ to pick one) is on the front at every timing.
+  - The timings trade margin after reading (2.5 s at 4 s, 8.5 s at 10 s; Brysbaert 2019's 238 wpm) against how long the toast lingers.
+  - Undo in a header ⋯ saves 4 actions over Trash and the folds, at one more header control.
+  - Control (2 s, unlimited stack): off the front.
+- **C, the dialogs** (17 of 54 on the front):
+  - Confirming in place with a hold leads the sums: no overlay, backing out by tapping anywhere. It is the least safe, though: the confirm sits 8–33 px from the button just tapped.
+  - A dialog or sheet keeps the destructive choice 52–345 px away.
+  - Verbs read; glyphs are calmer.
+  - In place, the button order has no effect (the rows repeat).
+  - Control ("Are you sure?", Yes under the thumb): off the front.
+- **D, the sync clash:**
+  - A card at the top of Today, versions stacked, buttons in words: lowest sum (63.5).
+  - A dialog answers in 1 action but interrupts and hides 23 targets.
+  - Side by side always loses to stacked, because long titles wrap (184 px against 141).
+  - Control: off the front.
+- **E, permission asks:** asking when first needed wins (0 before use, with context). Settings only leaves a reminder to fail silently. Clutter is left out, as the three are different screens.
+- **F, failures:**
+  - A banner under the header and a dot on the Hub are both on the front.
+  - A toast ranks below even the control: once it fades, nothing shows that anything failed.
