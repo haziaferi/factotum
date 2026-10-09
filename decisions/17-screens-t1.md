@@ -1391,3 +1391,10 @@ Drawn: `docs/screens/t1/labels-dots.html` (`labels-f.json`).
   - `label_id` on items and checklists, with a schema bump;
   - a reminder on a database row;
   - a test of Skip on a standalone reminder.
+- **Owner, 2026-10-09:**
+  - Every "delete" moves to Trash.
+  - Archive is unnecessary, since Trash keeps everything until Delete forever; it leaves the vocabulary.
+  - Everything can be renamed except elements recorded on a tracker or for a chart.
+  - Inventory draft 4. Open:
+    - what becomes of activities Chronicle had archived;
+    - whether a habit, linked to its tracker, is renamed on its own.

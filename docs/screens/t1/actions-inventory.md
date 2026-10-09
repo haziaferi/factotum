@@ -1,6 +1,8 @@
-# Actions inventory (T1.8 G workshop, draft 3, 2026-10-09)
+# Actions inventory (T1.8 G workshop, draft 4, 2026-10-09)
 
-Draft 3 takes in the owner's corrections of 2026-10-09:
+Draft 4 (owner, 2026-10-09): every Delete moves to Trash, and Archive is dropped, since Trash already keeps everything until Delete forever. Rename is a column: everything can be renamed except what is recorded on a tracker or for a chart.
+
+Draft 3 took in the owner's corrections of 2026-10-09:
 - "Move" is split into When and Move;
 - Snooze and Skip are named;
 - the matrix is corrected kind by kind.
@@ -15,34 +17,34 @@ Where the owner's answers go beyond the data layer or the SPEC, the work is list
 | **Move** | Where it sits: another parent, list or order, or a place on a canvas. Never a time. | Pages, rows, checklist lines, canvas cards, labels (order). |
 | **Skip** | This occurrence does not happen; the next one stands. For a reminder or alarm it reads **Skip for today**. | Anything that repeats. |
 | **Snooze** | While ringing only: rings again in a few minutes. Not a When change. | A ringing reminder or alarm (T2). |
-| **Delete** | The element goes to Trash. An Undo toast shows for 7 s. | On the element, and on a selection. |
+| **Delete** | Moves the element to Trash: always, for every kind. An Undo toast shows for 7 s. | On the element, and on a selection. |
 | **Restore** | It comes back from Trash, to where it was. | In Trash only. |
 | **Delete forever** | It is gone for good, on every device. Held. | In Trash only. |
 | **Empty Trash** | Delete forever for everything in Trash. Held. | Trash, fixed top right (owner). |
-| **Archive** | It stays, out of the lists, and keeps its history. Not a deletion. | Activities (Chronicle's). |
+| **Rename** | Changes the element's name. | Everything except what is recorded: a tracker's readings (Logs), time spans, check-in entries, a chart's recorded points. |
 | **Remove** | Takes one thing off another; nothing is deleted. | A label off an element, a reminder off a task, a line off a canvas. |
 | **Undo** | Reverses the last action, from its toast only. | The toast. |
 
 ## a. A single element
 
-Every element that can be deleted has all three of **Delete** (to Trash), **Restore** and **Delete forever** (owner, 2026-10-09). The matrix therefore lists what differs between kinds. **gap** = the screens need it and the data layer lacks it; see the end.
+Every element that can be deleted has all three of **Delete** (to Trash), **Restore** and **Delete forever**, and every named element has **Rename** (owner, 2026-10-09). The matrix therefore lists what differs between kinds. **gap** = the screens need it and the data layer lacks it; see the end.
 
-| Element | Done | When | Skip | Label | Reminder | Move | Archive | Its other actions |
-|---|---|---|---|---|---|---|---|---|
-| Task | ✓ Done | ✓ | ✓ if it repeats | ✓ **gap** | ✓ | ✓ order | — | rename; importance; an occurrence: change this day / week / from now on |
-| Event | — | ✓ | ✓ if it repeats | ✓ **gap** | ✓ | — | — | rename; an occurrence as for a task |
-| Reminder / alarm | — (no Done) | ✓ date, time, repeat | ✓ Skip for today, if it fires on several days | ✓ **gap** | — | — | — | alert: notification or alarm; Snooze while ringing |
-| Habit | ✓ Log | ✓ (plan the week, time blocks) | — | ✓ | ✓ | — | — | pause / resume; undo the log |
-| Tracker | ✓ Log | — | — | ✓ | — | — | — | goals; undo the last log |
-| Activity (time) | — (start / stop) | — | — | ✓ | — | — | ✓ | goals; its time spans: edit, Delete |
-| Checklist | — | — | — | ✓ **gap** | — | ✓ | — | rename; reset; its lines: Check, edit, Move, Delete |
-| Page | — | — | — | ✓ (many) | — | ✓ parent | — | rename; icon; relate to a page; revisions; save as a template |
-| Database (a page) | — | — | — | ✓ | — | ✓ parent | — | properties; options; views; rows as tasks |
-| Database row (a page) | ✓ Done, if rows are tasks | ✓ date, due | ✓ if it repeats | ✓ (many) | ✓ if rows are tasks **gap** | ✓ | — | its cells |
-| Canvas card / frame | — | — | — | — | — | ✓ place | — | text; colour; fold; to front; connect |
-| Label | — | — | — | — | — | ✓ order | — | rename; colour; scope |
-| Chart | — | — | — | — | — | ✓ | — | rename; range; sources |
-| Check-in entry | — | — | — | — | — | — | — | mood; energy; note; undo only |
+| Element | Done | When | Skip | Label | Reminder | Move | Its other actions |
+|---|---|---|---|---|---|---|---|
+| Task | ✓ Done | ✓ | ✓ if it repeats | ✓ **gap** | ✓ | ✓ order | importance; an occurrence: change this day / week / from now on |
+| Event | — | ✓ | ✓ if it repeats | ✓ **gap** | ✓ | — | an occurrence as for a task |
+| Reminder / alarm | — (no Done) | ✓ date, time, repeat | ✓ Skip for today, if it fires on several days | ✓ **gap** | — | — | alert: notification or alarm; Snooze while ringing |
+| Habit | ✓ Log | ✓ (plan the week, time blocks) | — | ✓ | ✓ | — | pause / resume; undo the log |
+| Tracker | ✓ Log | — | — | ✓ | — | — | goals; undo the last log |
+| Activity (time) | — (start / stop) | — | — | ✓ | — | — | goals; its time spans: edit, Delete (no Rename: recorded) |
+| Checklist | — | — | — | ✓ **gap** | — | ✓ | reset; its lines: Check, edit, Move, Delete |
+| Page | — | — | — | ✓ (many) | — | ✓ parent | icon; relate to a page; revisions; save as a template |
+| Database (a page) | — | — | — | ✓ | — | ✓ parent | properties; options; views; rows as tasks |
+| Database row (a page) | ✓ Done, if rows are tasks | ✓ date, due | ✓ if it repeats | ✓ (many) | ✓ if rows are tasks **gap** | ✓ | its cells |
+| Canvas card / frame | — | — | — | — | — | ✓ place | text; colour; fold; to front; connect |
+| Label | — | — | — | — | — | ✓ order | colour; scope |
+| Chart | — | — | — | — | — | ✓ | range; sources |
+| Check-in entry | — | — | — | — | — | — | mood; energy; note; undo only |
 
 **Labels (owner, 2026-10-09):** tasks, events, reminders and checklists carry labels too. This amends ADR 08, which gave them to pages, habits, activities, trackers and databases only.
 
@@ -93,12 +95,15 @@ A selection offers only what makes sense for many at once, and only what every s
    - Activities, canvas cards and labels have a delete with no Trash.
    - Charts have no Delete forever.
 3. **Delete forever** for checklists.
-4. **Delete forever on an activity:** this reverses the owner's 2026-10-02 rule that an activity is never deleted forever, so that no tracked time is lost. Deleting an activity forever takes its time spans with it, and its labels' time totals shrink. Its time spans keep a plain Delete **?**
-5. **Labels on tasks, events, reminders and checklists:** an ADR 08 amendment. It needs a `label_id` on those rows, a schema bump, and scope values for them.
-6. **A reminder on a database row,** when rows are tasks.
-7. **Skip for today** on a reminder: a standalone reminder is an item, so `OccurrenceRepository.skip` should serve it. To check with a test.
+4. **Archive is dropped** (owner): `ActivityRepository.setArchived` leaves the screens. What becomes of activities Chronicle had already archived is an open question below.
+5. **Delete forever on an activity:** this reverses the owner's 2026-10-02 rule that an activity is never deleted forever, so that no tracked time is lost. Deleting an activity forever takes its time spans with it, and its labels' time totals shrink. Its time spans keep a plain Delete **?**
+6. **Labels on tasks, events, reminders and checklists:** an ADR 08 amendment. It needs a `label_id` on those rows, a schema bump, and scope values for them.
+7. **A reminder on a database row,** when rows are tasks.
+8. **Skip for today** on a reminder: a standalone reminder is an item, so `OccurrenceRepository.skip` should serve it. To check with a test.
 
 **Still open:**
+- Activities that Chronicle archived, once Archive is gone: show them as live, or put them in Trash?
+- Rename: a habit is linked to its tracker. Is a habit renamed on its own, or does it take its tracker's name?
 - Should a database's properties, options and views go through Trash? (ADR 12 deletes a property forever at once.)
 - Sort on Reminders and on Pages.
 - How a selection starts, and what a mixed selection offers.
