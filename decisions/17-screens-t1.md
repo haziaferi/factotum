@@ -1364,3 +1364,30 @@ Drawn: `docs/screens/t1/labels-dots.html` (`labels-f.json`).
     - edge density reads the shaded dialog as calm.
   - **The control (a "Discard draft?" dialog) stays on the front:** it ties hold-in-place on every count, and its shade lowers clutter.
   - Undo (gone after 7 s) leads the sums, but loses the text unasked once the toast has gone.
+
+**T1.8 G workshop, the owner's corrections (2026-10-09)** (`docs/screens/t1/actions-inventory.md`, draft 3):
+- **One vocabulary:**
+  - **Delete:** to Trash, with Undo.
+  - **Restore** and **Delete forever:** in Trash only; Delete forever is held.
+  - **Empty Trash:** held, fixed top right.
+  - **Archive:** out of the lists, kept.
+  - **Remove:** takes one thing off another.
+  - "Move" is split into **When** (a time) and **Move** (a place).
+  - **Snooze:** while ringing only.
+  - **Skip** (Skip for today on a reminder or alarm that fires on several days).
+- **Every deletable element has Delete, Restore and Delete forever** (tasks, events, reminders and alarms, habits, trackers, activities, checklists, pages, canvas cards and frames, labels, charts).
+- **Labels:** tasks, events, reminders and checklists carry them too. This amends ADR 08.
+- **Reminders and alarms:**
+  - no Done;
+  - label, date and time, repeat;
+  - Skip for today when they fire on several days.
+- **Tasks:** no timer.
+- **A database row:** a reminder when its rows are tasks.
+- **The work this creates** (listed in the inventory):
+  - Restore for items and trackers;
+  - Trash for activities, canvas cards and labels;
+  - Delete forever for checklists and charts;
+  - Delete forever for activities, reversing the 2026-10-02 rule;
+  - `label_id` on items and checklists, with a schema bump;
+  - a reminder on a database row;
+  - a test of Skip on a standalone reminder.
