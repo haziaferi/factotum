@@ -1401,3 +1401,13 @@ Drawn: `docs/screens/t1/labels-dots.html` (`labels-f.json`).
 - **Owner, 2026-10-09:**
   - There is only placeholder data, so Chronicle's archived flag leaves the data layer (column, repository method, import).
   - Habits cannot be renamed, as they are attached to a tracker.
+- **Owner, 2026-10-09:**
+  - Score how a selection starts: long press selects; the long-press menu with Select; Select as a screen action; dragging down the left column; plus a control.
+  - Score what a mixed selection offers: shared actions only, against each action where it applies; plus a control.
+  - A database's properties, options and views go through Trash. Pages have their own section in Trash, so their elements are easier to find. Score per-page groups under the Pages section against one list under it.
+  - Reminders and Pages get a sort.
+- **G is rescored as where actions live:**
+  - an element's own actions: long-press menu, selection bar, a ⋯ inside the element, or the element's page;
+  - a screen's own actions: header, header ⋯, bottom bar, floating button.
+  
+  It is scored alongside the selection start, the mixed selection and the Trash's Pages section. The first G (a single placement for all four screens) is superseded.
