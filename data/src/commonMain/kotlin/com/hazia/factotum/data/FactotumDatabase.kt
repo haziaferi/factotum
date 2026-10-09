@@ -171,6 +171,7 @@ import com.hazia.factotum.data.sync.LostEntity
         AutoMigration(from = 8, to = 9), AutoMigration(from = 9, to = 10), AutoMigration(from = 10, to = 11), AutoMigration(from = 11, to = 12), AutoMigration(from = 12, to = 13),
         AutoMigration(from = 13, to = 14), AutoMigration(from = 14, to = 15), AutoMigration(from = 15, to = 16), AutoMigration(from = 16, to = 17), AutoMigration(from = 17, to = 18), AutoMigration(from = 18, to = 19), AutoMigration(from = 19, to = 20), AutoMigration(from = 20, to = 21), AutoMigration(from = 21, to = 22),
         AutoMigration(from = 22, to = 23), AutoMigration(from = 23, to = 24, spec = DropArchived::class),
+        AutoMigration(from = 24, to = 25, spec = DropLabelScope::class),
     ],
 )
 @ConstructedBy(FactotumDatabaseConstructor::class)
@@ -235,6 +236,14 @@ internal class SeedBlocks : AutoMigrationSpec {
 )
 internal class DropArchived : AutoMigrationSpec
 
+/** Version 25 (owner, 2026-10-10): labels are global, any label on any element, so a label's scope goes. */
+@DeleteColumn.Entries(
+    DeleteColumn(tableName = "label", columnName = "applies_to"),
+    DeleteColumn(tableName = "label", columnName = "scope_hlc"),
+    DeleteColumn(tableName = "label", columnName = "scope_device"),
+)
+internal class DropLabelScope : AutoMigrationSpec
+
 // Room's KSP processor generates the actual for each target.
 @Suppress("KotlinNoActualForExpect")
 expect object FactotumDatabaseConstructor : RoomDatabaseConstructor<FactotumDatabase>
@@ -242,4 +251,4 @@ expect object FactotumDatabaseConstructor : RoomDatabaseConstructor<FactotumData
 const val DATABASE_NAME = "factotum.db"
 
 /** The schema's version; a file below it is upgraded by Room's migrations on open. */
-internal const val SCHEMA_VERSION = 24
+internal const val SCHEMA_VERSION = 25

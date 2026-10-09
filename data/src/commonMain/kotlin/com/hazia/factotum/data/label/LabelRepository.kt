@@ -1,6 +1,5 @@
 package com.hazia.factotum.data.label
 
-import com.hazia.factotum.core.label.LabelScope
 import com.hazia.factotum.core.label.colorForName
 import com.hazia.factotum.core.label.nameKey
 import com.hazia.factotum.core.sync.Group
@@ -9,7 +8,6 @@ import com.hazia.factotum.data.FactotumDatabase
 import com.hazia.factotum.data.LocalWrites
 import com.hazia.factotum.data.checklist.CHECKLIST
 import com.hazia.factotum.data.item.ITEM
-import com.hazia.factotum.data.item.ItemKind
 import com.hazia.factotum.core.sync.Stamp
 import com.hazia.factotum.data.page.MADE
 import com.hazia.factotum.data.page.automatic
@@ -19,7 +17,7 @@ import com.hazia.factotum.data.sync.StagedStore
 import com.hazia.factotum.data.sync.readChunked
 import com.hazia.factotum.data.tracker.TRACKER
 
-data class Label(val id: String, val name: String, val color: Long, val appliesTo: LabelScope, val sortOrder: Double)
+data class Label(val id: String, val name: String, val color: Long, val sortOrder: Double)
 
 /** Unicode composes one character in more than one way ("é" or "e" and an accent); names are kept, and compared, in one form. */
 internal expect fun nfc(text: String): String
@@ -47,10 +45,11 @@ internal class LabelRepository(
     private val trackers = db.trackerDao()
     private val pages = db.pageDao()
     private val checklists = db.checklistDao()
+    private val databases = db.databaseDao()
     private val clock = writes.clock
 
     /** A new label, last in the order, coloured from its name unless [color] is given (Tendril). */
-    suspend fun create(name: String, appliesTo: LabelScope = LabelScope.ALL, color: Long? = null): String {
+    suspend fun create(name: String, color: Long? = null): String {
         val id = newId()
         var clean = ""
         var order = 0.0
@@ -63,7 +62,6 @@ internal class LabelRepository(
             writes.merger.created(store, Row(LABEL, id, mapOf(
                 NAME to Group(s, mapOf("name" to clean)),
                 LOOK to Group(s, mapOf("color" to (color ?: colorForName(clean)))),
-                SCOPE to Group(s, mapOf("applies_to" to appliesTo.name)),
                 ORDER to Group(s, mapOf("sort_order" to order)),
                 GONE to Group(s, mapOf("deleted_at" to null, "merged_into" to null)),
             )))
@@ -77,9 +75,6 @@ internal class LabelRepository(
     }
 
     suspend fun recolor(id: String, color: Long) = change(id, LOOK) { mapOf("color" to color) }
-
-    /** Where [id] is offered; what already carries it keeps it (owner, 2026-10-02). */
-    suspend fun setScope(id: String, scope: LabelScope) = change(id, SCOPE) { mapOf("applies_to" to scope.name) }
 
     suspend fun setSortOrder(id: String, order: Double) = change(id, ORDER) { mapOf("sort_order" to order) }
 
@@ -137,12 +132,26 @@ internal class LabelRepository(
         mapOf(LABEL to listOf(id))
     }) { store, _ -> writes.merger.purge(store, id) }
 
-    /** Every live label, in order. */
+    /** Every live label, in order: each is offered on every element (owner, 2026-10-10). */
     suspend fun labels(): List<Label> = dao.liveLabels().map { it.toLabel() }
 
-    /** The labels offered for an activity ([LabelScope.ACTIVITY]), a tracker ([LabelScope.TRACKER]) or anything else ([LabelScope.ALL]). */
-    suspend fun offeredFor(scope: LabelScope): List<Label> =
-        labels().filter { it.appliesTo == LabelScope.ALL || it.appliesTo == scope }
+    /**
+     * How many live elements carry [labelId], or a label merged into it: items, trackers, checklists,
+     * pages (a template is none) and databases by their doorway, each once. A label adds up to
+     * nothing else (owner, 2026-10-10); a deleted label is carried by none.
+     */
+    suspend fun carrying(labelId: String): Int {
+        val all = dao.allLabels()
+        val r = resolver(all)
+        val same = all.map { it.id }.filter { r(it) == labelId }
+        if (same.isEmpty()) return 0
+        val onPages = readChunked(same) { pages.pagesLabelled(it) }.map { it.pageId } +
+            databases.allDatabases().filter { it.labelId in same }.map { it.pageId }
+        val livePages = readChunked(onPages.distinct()) { pages.pages(it) }.filter { it.deletedAt == null && it.isTemplate != true }.map { it.id }
+        val members = readChunked(same) { dao.itemsLabelled(it) } + readChunked(same) { dao.trackersLabelled(it) } +
+            readChunked(same) { dao.checklistsLabelled(it) } + livePages
+        return members.distinct().size
+    }
 
     /** The label the item [itemId] carries now: a merged one reads as the label it went into, a deleted or purged one as none. */
     suspend fun labelOf(itemId: String): String? = items.items(listOf(itemId)).singleOrNull()?.labelId.let(resolver(dao.allLabels()))
@@ -150,20 +159,17 @@ internal class LabelRepository(
     /** The label the tracker [trackerId] carries now, read as [labelOf] reads one. */
     suspend fun trackerLabelOf(trackerId: String): String? = trackers.trackers(listOf(trackerId)).singleOrNull()?.labelId.let(resolver(dao.allLabels()))
 
-    /**
-     * Puts [labelId] on the item [itemId], or takes its label off with null. Every kind carries one
-     * (ADR 08, amended 2026-10-09); all but an activity are offered the labels for everything.
-     */
+    /** Puts the live label [labelId] on the item [itemId], or takes its label off with null; every kind carries one (ADR 08, amended 2026-10-09). */
     suspend fun label(itemId: String, labelId: String?) = writes.write({
-        val item = requireNotNull(items.items(listOf(itemId)).singleOrNull()?.takeIf { it.deletedAt == null }) { "no item $itemId" }
-        labelId?.let { offered(it, if (item.kind == ItemKind.ACTIVITY.name) LabelScope.ACTIVITY else LabelScope.ALL) }
+        requireNotNull(items.items(listOf(itemId)).singleOrNull()?.takeIf { it.deletedAt == null }) { "no item $itemId" }
+        labelId?.let { live(it) }
         mapOf(ITEM to listOf(itemId))
     }) { store, _ -> setLabel(store, itemId, labelId) }
 
     /** Puts [labelId] on the checklist [checklistId] (ADR 08, amended 2026-10-09), or takes it off with null. */
     suspend fun labelChecklist(checklistId: String, labelId: String?) = writes.write({
         requireNotNull(checklists.checklists(listOf(checklistId)).singleOrNull()?.takeIf { it.deletedAt == null }) { "no checklist $checklistId" }
-        labelId?.let { offered(it, LabelScope.ALL) }
+        labelId?.let { live(it) }
         mapOf(CHECKLIST to listOf(checklistId))
     }) { store, _ -> setLabel(store, checklistId, labelId) }
 
@@ -173,7 +179,7 @@ internal class LabelRepository(
     /** Puts [labelId] on the tracker [trackerId] (Chronicle's category), or takes it off with null. */
     suspend fun labelTracker(trackerId: String, labelId: String?) = writes.write({
         requireNotNull(trackers.trackers(listOf(trackerId)).singleOrNull()?.takeIf { it.deletedAt == null }) { "no tracker $trackerId" }
-        labelId?.let { offered(it, LabelScope.TRACKER) }
+        labelId?.let { live(it) }
         mapOf(TRACKER to listOf(trackerId))
     }) { store, _ -> setLabel(store, trackerId, labelId) }
 
@@ -183,7 +189,7 @@ internal class LabelRepository(
      */
     suspend fun labelPage(pageId: String, labelId: String) = writes.write({
         requireNotNull(pages.pages(listOf(pageId)).singleOrNull()?.takeIf { it.deletedAt == null }) { "no page $pageId" }
-        offered(labelId, LabelScope.ALL)
+        live(labelId)
         mapOf(PAGE_LABEL to listOf(pageLabelId(pageId, labelId)))
     }) { store, targets ->
         val id = targets.getValue(PAGE_LABEL).single()
@@ -261,12 +267,6 @@ internal class LabelRepository(
         require(dao.liveLabels().none { it.id != except && labelKey(it.name) == labelKey(clean) }) { "there is already a label \"$clean\"" }
         return clean
     }
-
-    private suspend fun offered(labelId: String, scope: LabelScope) {
-        val label = live(labelId)
-        val applies = LabelScope.valueOf(label.appliesTo)
-        require(applies == LabelScope.ALL || applies == scope) { "label ${label.name} is not offered here" }
-    }
 }
 
 /**
@@ -281,4 +281,4 @@ internal fun resolver(labels: List<LabelEntity>): (String?) -> String? {
     }
 }
 
-private fun LabelEntity.toLabel() = Label(id, name, color, LabelScope.valueOf(appliesTo), sortOrder)
+private fun LabelEntity.toLabel() = Label(id, name, color, sortOrder)

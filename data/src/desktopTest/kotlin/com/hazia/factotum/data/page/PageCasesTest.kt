@@ -3,7 +3,6 @@ package com.hazia.factotum.data.page
 import androidx.room.useReaderConnection
 import androidx.room.useWriterConnection
 import androidx.room.execSQL
-import com.hazia.factotum.core.label.LabelScope
 import com.hazia.factotum.data.FactotumDatabase
 import com.hazia.factotum.data.LocalWrites
 import com.hazia.factotum.data.label.LabelRepository
@@ -328,11 +327,9 @@ class PageCasesTest {
         val page = runBlocking { pages.create("Trip") }
         val work = runBlocking { labels.create("work") }
         val urgent = runBlocking { labels.create("urgent") }
-        val trackers = runBlocking { labels.create("moods", LabelScope.TRACKER) }
         // tendril-page-many-labels
         runBlocking { labels.labelPage(page, work); labels.labelPage(page, urgent); labels.labelPage(page, work) }
         assertEquals(listOf("work", "urgent"), runBlocking { labels.labelsOfPage(page) }.map { it.name })
-        assertFailsWith<IllegalArgumentException> { runBlocking { labels.labelPage(page, trackers) } }
         // tendril-database-doorway: a label's pages.
         assertEquals(listOf(page), runBlocking { labels.pagesLabelled(work) })
 

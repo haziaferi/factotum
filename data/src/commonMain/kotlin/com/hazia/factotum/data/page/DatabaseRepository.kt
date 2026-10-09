@@ -15,7 +15,6 @@ import com.hazia.factotum.core.formula.rewriteKeys
 import com.hazia.factotum.core.formula.rewriteKeysMapped
 import com.hazia.factotum.core.formula.rollup
 import com.hazia.factotum.core.formula.toCellText
-import com.hazia.factotum.core.label.LabelScope
 import com.hazia.factotum.core.page.keyAfter
 import com.hazia.factotum.core.page.keyBetween
 import com.hazia.factotum.core.recurrence.Interval
@@ -98,7 +97,7 @@ internal class DatabaseRepository(
     /** The label whose pages are rows too (ADR 08's doorway), or none. */
     suspend fun setDoorway(databaseId: String, labelId: String?) = writes.write({
         shell(databaseId)
-        labelId?.let { l -> require(labels.labels(listOf(l)).singleOrNull()?.takeIf { it.deletedAt == null && LabelScope.valueOf(it.appliesTo) == LabelScope.ALL } != null) { "label $l is not offered here" } }
+        labelId?.let { l -> require(labels.labels(listOf(l)).singleOrNull()?.takeIf { it.deletedAt == null } != null) { "no label $l" } }
         mapOf(PAGE_DATABASE to listOf(shellId(databaseId)))
     }) { store, _ -> store.put(requireNotNull(store.row(shellId(databaseId))).edit(DOORWAY, clock.tick(), mapOf("label_id" to labelId))) }
 

@@ -145,6 +145,37 @@ class VocabularyTest {
     }
 
     @Test
+    fun aLabelCountsTheLiveElementsCarryingItEachOnce() = one {
+        val home = go { labels.create("Home") }
+        val other = go { labels.create("Other") }
+        val task = go { items.createTask("bins", oct5) }
+        val walk = go { activities.create("Walk") }
+        val mood = go { trackers.create("Mood", TrackerType.RATING) }
+        val list = go { checklists.create("Morning") }
+        val page = go { pages.create("Plants") }
+        val base = go { databases.create("Chores") }
+        val gone = go { items.createTask("old", oct5) }
+        go { labels.label(task, home) }
+        go { labels.label(walk, home) }
+        go { labels.label(gone, home) }
+        go { labels.labelTracker(mood, home) }
+        go { labels.labelChecklist(list, home) }
+        go { labels.labelPage(page, home) }
+        // A database carries it by its doorway; its page carrying it too is still one element.
+        go { databases.setDoorway(base, home) }
+        go { labels.labelPage(base, home) }
+        go { labels.labelPage(page, other) }
+        go { items.delete(gone) }
+
+        assertEquals(6, go { labels.carrying(home) })
+        assertEquals(1, go { labels.carrying(other) })
+        go { pages.trash(page) }
+        assertEquals(5, go { labels.carrying(home) })
+        go { labels.delete(home) }
+        assertEquals(0, go { labels.carrying(home) })
+    }
+
+    @Test
     fun aLabelDeletedForeverReadsAsNoneEverywhere() = one {
         val home = go { labels.create("Home") }
         val task = go { items.createTask("bins", oct5) }

@@ -2,7 +2,6 @@ package com.hazia.factotum.data.label
 
 import androidx.room.execSQL
 import androidx.room.useWriterConnection
-import com.hazia.factotum.core.label.LabelScope
 import com.hazia.factotum.core.label.colorForName
 import com.hazia.factotum.data.FactotumDatabase
 import com.hazia.factotum.data.LocalWrites
@@ -102,8 +101,6 @@ class LabelCasesTest {
         runBlocking { labels.label(talk, study) }
         assertEquals(study, labelOf(report))
         assertEquals(study, labelOf(talk))
-        val onlyActivities = runBlocking { labels.create("Hobby", LabelScope.ACTIVITY) }
-        assertFailsWith<IllegalArgumentException> { runBlocking { labels.label(report, onlyActivities) } }
     }
 
     @Test
@@ -117,7 +114,7 @@ class LabelCasesTest {
         runBlocking { labels.rename(leisure, "Free time") }
         runBlocking { labels.recolor(leisure, 0xFF112233) }
 
-        assertEquals(listOf(Label(leisure, "Free time", 0xFF112233, LabelScope.ALL, 1.0)), runBlocking { labels.labels() })
+        assertEquals(listOf(Label(leisure, "Free time", 0xFF112233, 1.0)), runBlocking { labels.labels() })
         assertEquals(leisure, labelOf(reading))
         assertEquals(leisure, trackerLabelOf(mood))
     }
@@ -150,46 +147,40 @@ class LabelCasesTest {
     }
 
     @Test
-    fun chronicleAppliesToScope_aLabelIsOfferedOnlyWhereItAppliesAndNarrowingHides() {
-        val both = runBlocking { labels.create("Leisure") }
-        val onlyActivities = runBlocking { labels.create("Sport", LabelScope.ACTIVITY) }
-        val onlyTrackers = runBlocking { labels.create("Body", LabelScope.TRACKER) }
+    fun anyLabelGoesOnAnyElementAndEveryLiveLabelIsOffered() {
+        // Owner, 2026-10-10: labels are global and tie elements across screens; a label has no scope.
+        val leisure = runBlocking { labels.create("Leisure") }
+        val sport = runBlocking { labels.create("Sport") }
         val reading = runBlocking { activities.create("Reading") }
         val water = runBlocking { habits.create("water", monday) }
+        val mood = runBlocking { trackers.create("Mood", TrackerType.RATING) }
+        val report = runBlocking { items.createTask("report", monday) }
 
-        assertEquals(listOf(both, onlyActivities), runBlocking { labels.offeredFor(LabelScope.ACTIVITY) }.map { it.id })
-        assertEquals(listOf(both, onlyTrackers), runBlocking { labels.offeredFor(LabelScope.TRACKER) }.map { it.id })
-        assertEquals(listOf(both), runBlocking { labels.offeredFor(LabelScope.ALL) }.map { it.id })
-        assertFailsWith<IllegalArgumentException> { runBlocking { labels.label(reading, onlyTrackers) } }
-        assertFailsWith<IllegalArgumentException> { runBlocking { labels.label(water, onlyActivities) } }
+        assertEquals(listOf(leisure, sport), runBlocking { labels.labels() }.map { it.id })
+        for (item in listOf(reading, water, report)) runBlocking { labels.label(item, sport) }
+        runBlocking { labels.labelTracker(mood, sport) }
 
-        runBlocking { labels.label(reading, both) }
-        runBlocking { labels.setScope(both, LabelScope.TRACKER) }
-
-        assertEquals(both, labelOf(reading))
-        assertEquals(listOf(onlyActivities), runBlocking { labels.offeredFor(LabelScope.ACTIVITY) }.map { it.id })
-        refused("UPDATE label SET applies_to = 'PAGE' WHERE id = '$both'")
+        assertEquals(listOf(sport, sport, sport, sport), listOf(labelOf(reading), labelOf(water), labelOf(report), trackerLabelOf(mood)))
+        assertEquals(4, runBlocking { labels.carrying(sport) })
     }
 
     @Test
-    fun sharedOneVocabulary_aHabitAndAnActivityShareOneLabelAndItsTotal() {
+    fun sharedOneVocabulary_aHabitAndAnActivityShareOneLabel() {
         val health = runBlocking { labels.create("Health") }
         val walk = runBlocking { activities.create("Walk") }
         val stretch = runBlocking { habits.create("stretch", monday) }
         runBlocking { labels.label(walk, health) }
         runBlocking { labels.label(stretch, health) }
-        runBlocking { time.logManual(walk, at(5, 7), at(5, 7, 40)) }
-        runBlocking { time.logManual(stretch, at(5, 7, 30), at(5, 7, 50)) }
 
         runBlocking { labels.rename(health, "Wellbeing") }
         assertEquals(listOf("Wellbeing"), runBlocking { labels.labels() }.map { it.name })
         assertEquals(health to health, labelOf(walk) to labelOf(stretch))
-        // Owner, 2026-10-02: a habit's time counts in its label's total, overlapping time once.
-        assertEquals(50, runBlocking { time.total(listOf(monday), at(6, 0), labelId = health) } / 60)
+        // Owner, 2026-10-10: a label adds up to how many elements carry it, nothing else.
+        assertEquals(2, runBlocking { labels.carrying(health) })
     }
 
     @Test
-    fun chronicleActivityAndCategoryTotals_40MinutesOfReadingTotal40ForLeisure() {
+    fun chronicleActivityTotal_40MinutesOfReadingTotal40AndItsLabelCountsElementsNotTime() {
         val leisure = runBlocking { labels.create("Leisure") }
         val reading = runBlocking { activities.create("Reading") }
         val chess = runBlocking { activities.create("Chess") }
@@ -198,10 +189,10 @@ class LabelCasesTest {
         runBlocking { time.logManual(chess, at(5, 21), at(5, 21, 30)) }
 
         assertEquals(40, runBlocking { time.total(listOf(monday), at(6, 0), itemId = reading) } / 60)
-        assertEquals(40, runBlocking { time.total(listOf(monday), at(6, 0), labelId = leisure) } / 60)
+        assertEquals(1, runBlocking { labels.carrying(leisure) })
 
         runBlocking { labels.delete(leisure) }
-        assertEquals(0, runBlocking { time.total(listOf(monday), at(6, 0), labelId = leisure) })
+        assertEquals(0, runBlocking { labels.carrying(leisure) })
     }
 
     @Test
@@ -231,8 +222,8 @@ class LabelCasesTest {
         runBlocking {
             db.useWriterConnection {
                 it.execSQL(
-                    "INSERT INTO label (id, name, name_hlc, name_device, color, look_hlc, look_device, applies_to, scope_hlc, scope_device, " +
-                        "sort_order, order_hlc, order_device, gone_hlc, gone_device) VALUES ('old', 'Cafe\u0301', 1, 'X', 1, 1, 'X', 'ALL', 1, 'X', 1.0, 1, 'X', 1, 'X')",
+                    "INSERT INTO label (id, name, name_hlc, name_device, color, look_hlc, look_device, " +
+                        "sort_order, order_hlc, order_device, gone_hlc, gone_device) VALUES ('old', 'Cafe\u0301', 1, 'X', 1, 1, 'X', 1.0, 1, 'X', 1, 'X')",
                 )
             }
         }
@@ -247,7 +238,7 @@ class LabelCasesTest {
             val a = w.Device("A")
             val b = w.Device("B")
             w.syncthing.now = 1_000
-            val first = runBlocking { b.timedLabels(w).create("health", LabelScope.TRACKER, color = 0xFF000002) }
+            val first = runBlocking { b.timedLabels(w).create("health", color = 0xFF000002) }
             w.syncthing.now = 2_000
             val second = runBlocking { a.timedLabels(w).create("Health", color = 0xFF000001) }
             val walk = runBlocking { a.activities.create("Walk") }
@@ -257,7 +248,7 @@ class LabelCasesTest {
             w.settle(listOf(a, b))
 
             for (d in listOf(a, b)) {
-                assertEquals(listOf(Label(first, "health", 0xFF000002, LabelScope.TRACKER, 1.0)), runBlocking { d.labels.labels() })
+                assertEquals(listOf(Label(first, "health", 0xFF000002, 1.0)), runBlocking { d.labels.labels() })
                 assertEquals(first to first, runBlocking { d.labels.trackerLabelOf(mood) to d.labels.labelOf(walk) })
             }
         } finally {
@@ -350,7 +341,7 @@ class LabelCasesTest {
             runBlocking { b.labels.label(walk, second) }
             runBlocking { b.time.logManual(walk, at(5, 7), at(5, 7, 30)) }
             w.settle(listOf(a, b))
-            assertEquals(30, runBlocking { a.time.total(listOf(monday), at(6, 0), labelId = first) } / 60)
+            assertEquals(1, runBlocking { a.labels.carrying(first) })
 
             runBlocking { a.labels.delete(first) }
             w.settle(listOf(a, b))
@@ -370,7 +361,7 @@ class LabelCasesTest {
     @Test
     fun aMergeChainReadsToItsEndAndAChainEndingInADeletedLabelReadsAsNone() {
         fun label(id: String, deleted: Boolean = false, into: String? = null) =
-            LabelEntity(id, id, 0, "", 0, 0, "", "ALL", 0, "", 0.0, 0, "", if (deleted || into != null) 1 else null, into, 0, "")
+            LabelEntity(id, id, 0, "", 0, 0, "", 0.0, 0, "", if (deleted || into != null) 1 else null, into, 0, "")
         val read = resolver(listOf(label("x"), label("y", into = "x"), label("z", into = "y"), label("q", deleted = true), label("r", into = "q")))
 
         assertEquals(listOf("x", "x", "x", null, null, null), listOf("x", "y", "z", "q", "r", "unknown").map(read))
@@ -504,6 +495,11 @@ class LabelCasesTest {
                 "INSERT INTO checklist (id, name, name_hlc, name_device, sort_key, order_hlc, order_device, run_hlc, run_device, deleted_at, gone_hlc, gone_device) " +
                     "VALUES ('morning', 'Morning', 1, 'A', 'a', 1, 'A', 1, 'A', NULL, 1, 'A')",
             )
+            // A label with a scope, which version 25 drops (owner, 2026-10-10).
+            c.execSQL(
+                "INSERT INTO label (id, name, name_hlc, name_device, color, look_hlc, look_device, applies_to, scope_hlc, scope_device, " +
+                    "sort_order, order_hlc, order_device, gone_hlc, gone_device) VALUES ('body', 'Body', 1, 'A', 1, 1, 'A', 'TRACKER', 1, 'A', 1.0, 1, 'A', 1, 'A')",
+            )
         }
 
         val upgraded = openFactotumDatabase(file).database
@@ -516,6 +512,9 @@ class LabelCasesTest {
             val leisure = runBlocking { here.create("Leisure") }
             runBlocking { here.labelChecklist("morning", leisure) }
             assertEquals(leisure, runBlocking { here.checklistLabelOf("morning") })
+            // The tracker-only label of version 23 now goes on anything.
+            runBlocking { here.labelChecklist("morning", "body") }
+            assertEquals(listOf("body", leisure), runBlocking { here.labels() }.map { it.id })
         } finally {
             upgraded.close()
         }

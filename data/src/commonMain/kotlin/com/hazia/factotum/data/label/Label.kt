@@ -15,11 +15,11 @@ internal const val LABEL = "label"
 
 /*
  * A label's ADR 01 groups, one per thing changed apart, so a rename on one device and a recolour,
- * a new scope, a new place in the order or a deletion on another all survive the merge.
+ * a new place in the order or a deletion on another all survive the merge. A label has no scope:
+ * any label goes on any element (owner, 2026-10-10; schema 25 dropped `applies_to`).
  */
 internal const val NAME = "name"
 internal const val LOOK = "look"
-internal const val SCOPE = "scope"
 internal const val ORDER = "order"
 internal const val GONE = "gone"
 
@@ -27,7 +27,7 @@ internal const val GONE = "gone"
 internal const val LABELLED = "label"
 
 /**
- * One label (ADR 08). [appliesTo] is ALL, ACTIVITY or TRACKER; [sortOrder] is fractional, as every
+ * One label (ADR 08). [sortOrder] is fractional, as every
  * manual order here. [mergedInto] is set when a sync found it a second label of the same name and
  * merged it away (owner, 2026-10-02): what still names it reads as that label.
  */
@@ -40,9 +40,6 @@ internal data class LabelEntity(
     val color: Long,
     @ColumnInfo(name = "look_hlc") val lookHlc: Long,
     @ColumnInfo(name = "look_device") val lookDevice: String,
-    @ColumnInfo(name = "applies_to") val appliesTo: String,
-    @ColumnInfo(name = "scope_hlc") val scopeHlc: Long,
-    @ColumnInfo(name = "scope_device") val scopeDevice: String,
     @ColumnInfo(name = "sort_order") val sortOrder: Double,
     @ColumnInfo(name = "order_hlc") val orderHlc: Long,
     @ColumnInfo(name = "order_device") val orderDevice: String,
@@ -96,7 +93,6 @@ internal fun labelTable(dao: LabelDao) =
 internal fun LabelEntity.toRow() = Row(LABEL, id, mapOf(
     NAME to Group(Stamp(nameHlc, nameDevice), mapOf("name" to name)),
     LOOK to Group(Stamp(lookHlc, lookDevice), mapOf("color" to color)),
-    SCOPE to Group(Stamp(scopeHlc, scopeDevice), mapOf("applies_to" to appliesTo)),
     ORDER to Group(Stamp(orderHlc, orderDevice), mapOf("sort_order" to sortOrder)),
     GONE to Group(Stamp(goneHlc, goneDevice), mapOf("deleted_at" to deletedAt, "merged_into" to mergedInto)),
 ))
@@ -105,7 +101,6 @@ internal fun LabelEntity.toRow() = Row(LABEL, id, mapOf(
 internal fun Row.toLabelEntity(): LabelEntity {
     val name = groups.getValue(NAME)
     val look = groups.getValue(LOOK)
-    val scope = groups.getValue(SCOPE)
     val order = groups.getValue(ORDER)
     val gone = groups.getValue(GONE)
     return LabelEntity(
@@ -116,9 +111,6 @@ internal fun Row.toLabelEntity(): LabelEntity {
         color = look.values["color"] as Long,
         lookHlc = look.stamp.hlc,
         lookDevice = look.stamp.device,
-        appliesTo = scope.values["applies_to"] as String,
-        scopeHlc = scope.stamp.hlc,
-        scopeDevice = scope.stamp.device,
         sortOrder = order.values["sort_order"] as Double,
         orderHlc = order.stamp.hlc,
         orderDevice = order.stamp.device,

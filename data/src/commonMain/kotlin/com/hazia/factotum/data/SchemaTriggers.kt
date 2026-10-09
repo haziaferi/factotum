@@ -3,7 +3,6 @@ package com.hazia.factotum.data
 import androidx.room.RoomDatabase
 import com.hazia.factotum.data.item.COMPLETION
 import com.hazia.factotum.data.item.HABIT_BLOCK
-import com.hazia.factotum.data.label.LABEL
 import com.hazia.factotum.data.checkin.CHECK_IN
 import com.hazia.factotum.data.search.rebuildSearchIfStale
 import com.hazia.factotum.data.search.searchTriggers
@@ -164,12 +163,6 @@ internal object SchemaTriggers : RoomDatabase.Callback() {
     private val spanRules = "COALESCE((SELECT kind FROM item WHERE id = NEW.item_id) IN ('TASK', 'HABIT', 'ACTIVITY'), 1)"
 
     /**
-     * ADR 08: a label's scope is one of three. That names are unique is not a database rule: two
-     * devices make the same name apart, and the sync merges them (owner, 2026-10-02).
-     */
-    private val labelRules = "COALESCE(NEW.applies_to IN ('ALL', 'ACTIVITY', 'TRACKER'), 0)"
-
-    /**
      * ADR 05: a check-in says something, on its scales: a whole mood 1 to 5, energy and
      * pleasantness 0 to 1, a whole step count of two or more on an axis, a known stability, a
      * well-formed moment, and a day it is about no later than the date it was made (the repository
@@ -218,7 +211,6 @@ internal object SchemaTriggers : RoomDatabase.Callback() {
         GOAL to goalRules,
         HABIT_BLOCK to blockRules,
         TIME_SPAN to spanRules,
-        LABEL to labelRules,
         CHECK_IN to checkInRules,
         SAVED_CHART to "NEW.chart_type IN ('LINE', 'BAR', 'PIE') AND NEW.range_days > 0",
         CHART_SOURCE to "NEW.source_kind IN ('ACTIVITY', 'TRACKER')",
@@ -267,6 +259,9 @@ internal object SchemaTriggers : RoomDatabase.Callback() {
                     " BEGIN SELECT RAISE(ABORT, '$table: what it was made for does not change'); END",
             )
         }
+        // A label has no scope since schema 25 (owner, 2026-10-10): its rule goes from databases made before.
+        add("DROP TRIGGER IF EXISTS label_rules_insert")
+        add("DROP TRIGGER IF EXISTS label_rules_update")
         // An activity is deleted forever from the Trash now (owner, 2026-10-09, reversing 2026-10-02):
         // the trigger that kept it goes from databases made before.
         add("DROP TRIGGER IF EXISTS item_activity_keep")

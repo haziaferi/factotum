@@ -1,14 +1,11 @@
 package com.hazia.factotum.core.label
 
 /*
- * Labels (ADR 08): one vocabulary across activities, habits, trackers and pages. Names are unique
+ * Labels (ADR 08): one global vocabulary, any label on any element (owner, 2026-10-10). Names are unique
  * ignoring case, and two labels a sync finds with one name merge into the one made first (owner,
  * 2026-10-02). A new label's colour comes from its name, as Tendril's does, so a label made again
  * with the same name looks the same on every device.
  */
-
-/** What a label is offered for: everything, or only activities or only trackers (Chronicle's `appliesTo`). */
-enum class LabelScope { ALL, ACTIVITY, TRACKER }
 
 /** The form two names are compared in: Unicode lower case, so "Health" and "HEALTH" are one name, and "Ärger" and "ärger" too. */
 fun nameKey(name: String): String = name.trim().lowercase()
