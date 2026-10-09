@@ -37,6 +37,24 @@ CSS = T.G_CSS + """
 .cnt{font-size:11px;color:var(--dim);margin-left:2px}
 """
 ROW = "Call the bank"
+# T1.7's approved label: one dot under the time or mark, with a count when there are several (label_opt.CHOSEN_DOT);
+# items carry labels since the owner's 2026-10-09 answer, so every row with one shows its dot
+import label_opt as LBL  # noqa: E402
+CSS += LBL.F_CSS + ".lead2{display:flex;flex-direction:column;align-items:center;gap:3px;flex:none;width:44px}.lead2 .tm{width:auto}"
+LABELS_OF = {k[1]: k[5] for k in t.KINDS}
+
+
+def with_dots(html):
+    """Puts each row's label dot under its time or mark, as T1.7 approved."""
+    def one(m):
+        row = m.group(0)
+        title = re.search(r'<span class="ud">([^<]*)</span>', row)
+        n = len(LABELS_OF.get(title.group(1), [])) if title else 0
+        if not n:
+            return row
+        dot = '<span class="dots centred"><i></i>%s</span>' % ('<span class="n">%d</span>' % n if n > 1 else "")
+        return re.sub(r'<span class="tm[^"]*">.*?</span>', lambda q: '<span class="lead2">' + q.group(0) + dot + '</span>', row, count=1, flags=re.S)
+    return re.sub(r'<div class="row[^"]*" data-tap="Open item">.*?</div>(?=<div class="row|<div class="fold|</div>)', one, html, flags=re.S)
 
 
 def doc(html, theme="light"):
@@ -45,7 +63,7 @@ def doc(html, theme="light"):
 
 def today(overlay="", header=None, sel=(), dots=False, strip=False):
     """Today (T1.2's rows); optionally a selection header, selected rows, a ⋯ in every row, or a control strip."""
-    html = t.t12_phone(t.row_d)
+    html = with_dots(t.t12_phone(t.row_d))
     if header is not None:
         html = re.sub(r'<div class="hdr">.*?</div>', header, html, count=1, flags=re.S)
     for name in sel:
@@ -107,9 +125,14 @@ def score_i(v):
     row = [x for x in m["taps"] if x["name"] == "Open item" and x.get("seen")]
     target = [x for x in m["taps"] if x["name"] in ("Row more", "Strip When") and x.get("seen")] or row
     actions = {"menu": 8, "selbar": 10, "dots": 8, "page": 12, "control": 4}[p]   # selbar: When and Delete in the bar (2 each), Label and Reminder behind its ⋯ (3 each)
-    room = T.probe(rest, "act-i-room-" + p, "(function(){var a=[].map.call(document.querySelectorAll('.row .t'),function(e){return e.clientWidth});return Math.round(a.reduce(function(s,x){return s+x},0)/a.length)})()")
+    room = T.probe(rest, "act-i-room-dots-" + p, "(function(){var a=[].map.call(document.querySelectorAll('.row .t'),function(e){return e.clientWidth});return Math.round(a.reduce(function(s,x){return s+x},0)/a.length)})()")
+    # crowding: the targets inside a row (its own tap excluded), and the smallest gap between two side by side
+    crowd = T.probe(rest, "act-i-crowd-" + p, "(function(){var most=0,gap=360;[].forEach.call(document.querySelectorAll('.row'),function(r){"
+                    "var q=[].map.call(r.querySelectorAll('[data-tap]'),function(e){return e.getBoundingClientRect()}).filter(function(b){return b.width>0}).sort(function(a,b){return a.left-b.left});"
+                    "most=Math.max(most,q.length);for(var i=1;i<q.length;i++){gap=Math.min(gap,Math.round(q[i].left-q[i-1].right))}});return [most,gap]})()")
     seen_way = 1 if p in ("dots", "page", "control") else 0   # a ⋯, a strip, or the row itself (tapping a row is what rows are for)
     return {"actions": actions, "reach": round(T.fitts(T.THUMB, target[len(target) // 2]), 3), "title_room": room, "seen_at_rest": seen_way,
+            "row_targets": crowd[0], "gap_px": crowd[1],
             "small": sorted({"%s %dx%d" % (x["name"], x["w"], x["h"]) for x in ss.measure(open_, 360, 740)["taps"] + m["taps"]
                              if x.get("seen") and x["name"].startswith(("A ", "Row more", "Strip")) and (x["w"] < 48 or x["h"] < 48)}) if p != "control" else [],
             "clutter": T.clutter_of(lambda th: doc(today(dots=(p == "dots"), strip=(p == "control")), th))}
@@ -315,7 +338,7 @@ T.CONTROLS.update({
     "t": ({"pages": "control"}, "no sections: every kind in one list, with no path"),
 })
 T.AXES.update({
-    "i": {"Ease": ("actions", "reach"), "Calm": ("-title_room", "clutter"), "Seen": ("-seen_at_rest",)},
+    "i": {"Ease": ("actions", "reach"), "Calm": ("-title_room", "row_targets", "-gap_px", "clutter"), "Seen": ("-seen_at_rest",)},
     "n": {"Ease": ("actions", "reach"), "Calm": ("header_controls", "-room_px", "clutter"), "Consistency": ("sort_stray",)},
     "s": {"Ease": ("actions", "reach"), "Safety": ("gesture_clash",), "Seen": ("-seen_at_rest",), "Calm": ("clutter",)},
     "m": {"Ease": ("actions", "reach"), "Safety": ("silent_subset",), "Calm": ("bar_buttons", "clutter")},

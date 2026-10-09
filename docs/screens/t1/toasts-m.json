@@ -8,7 +8,7 @@
   "bar_buttons": 2,
   "reach": 3.924,
   "small": [],
-  "clutter": 0.0407
+  "clutter": 0.0419
  },
  {
   "v": {
@@ -19,7 +19,7 @@
   "bar_buttons": 3,
   "reach": 3.924,
   "small": [],
-  "clutter": 0.0397
+  "clutter": 0.041
  },
  {
   "v": {
@@ -32,6 +32,6 @@
   "bar_buttons": 3,
   "reach": 3.922,
   "small": [],
-  "clutter": 0.0415
+  "clutter": 0.0428
  }
 ]

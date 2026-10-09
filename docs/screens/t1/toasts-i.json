@@ -7,8 +7,10 @@
   "reach": 2.82,
   "title_room": 207,
   "seen_at_rest": 0,
+  "row_targets": 1,
+  "gap_px": 360,
   "small": [],
-  "clutter": 0.0371
+  "clutter": 0.0384
  },
  {
   "v": {
@@ -18,8 +20,10 @@
   "reach": 2.82,
   "title_room": 207,
   "seen_at_rest": 0,
+  "row_targets": 1,
+  "gap_px": 360,
   "small": [],
-  "clutter": 0.0371
+  "clutter": 0.0384
  },
  {
   "v": {
@@ -29,8 +33,10 @@
   "reach": 2.937,
   "title_room": 147,
   "seen_at_rest": 1,
+  "row_targets": 2,
+  "gap_px": -1,
   "small": [],
-  "clutter": 0.0379
+  "clutter": 0.0391
  },
  {
   "v": {
@@ -40,8 +46,10 @@
   "reach": 2.82,
   "title_room": 207,
   "seen_at_rest": 1,
+  "row_targets": 1,
+  "gap_px": 360,
   "small": [],
-  "clutter": 0.0371
+  "clutter": 0.0384
  },
  {
   "v": {
@@ -53,7 +61,9 @@
   "reach": 2.676,
   "title_room": 35,
   "seen_at_rest": 1,
+  "row_targets": 5,
+  "gap_px": -1,
   "small": [],
-  "clutter": 0.0428
+  "clutter": 0.0441
  }
 ]

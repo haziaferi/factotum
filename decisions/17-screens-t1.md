@@ -1441,3 +1441,15 @@ Drawn: `docs/screens/t1/labels-dots.html` (`labels-f.json`).
 - **M, a mixed selection:** each action where it applies, with a count, takes 3 actions; only shared actions take 5. Both are on the front. Control (no counts, Done touching two of four silently): off.
 - **T, Trash's Pages section:** one group per page takes 7 actions and reads 4 rows before the target, against 9 and 10 for one list. The control loses.
 - **Controls still on a front:** A (nearness), C (nearest the references), I (fewest actions), S (calmest page). Each wins one axis and loses the rest.
+- **Owner, 2026-10-09:**
+  - **H: Undo.** Closing the capture sheet with text not added discards it, with a 7 s Undo toast.
+  - **I is rescored with T1.7's label dots drawn on Today**, and the question "can a ⋯ live beside the circle, Log, Open and Add?" is measured:
+    - With a ⋯, every row carries two targets. They overlap: the gap is −1 px, since the circle's 48 px target reaches past its drawing. Titles keep 147 px instead of 207.
+    - Clutter rises 0.0007, inside the 0.002 tolerance.
+    - So the ⋯ crowds the hand, not the eye. Keeping the usual 8 dp between targets would cost about 8 px more of title.
+  - Front:
+    - long-press menu (8 actions) and element page (12), sum 18.5;
+    - ⋯ in the row (24.5);
+    - control, still on the front by fewest actions (23.5).
+    
+    The selection bar is off the front (20).
