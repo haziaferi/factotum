@@ -53,6 +53,35 @@ class CanvasCasesTest {
     private fun World.Device.card(board: String, id: String) = go { canvases.nodes(board) }.single { it.id == id }
 
     @Test
+    fun aRestoredCardBringsBackItsLinesAndChildrenAndOneDeletedForeverIsGone() {
+        val board = go { canvases.create("Plan") }
+        val root = go { canvases.addText(board, 0.0, 0.0, "root") }
+        val card = go { canvases.addText(board, 10.0, 10.0, "card", parent = root) }
+        val child = go { canvases.addText(board, 20.0, 20.0, "child", parent = card) }
+        val other = go { canvases.addText(board, 50.0, 50.0, "other") }
+        val line = go { canvases.addEdge(card, other) }
+
+        go { canvases.deleteNode(card) }
+        assertEquals(listOf(card), go { canvases.trashedNodes(board) }.map { it.id })
+        assertEquals(root, go { canvases.nodes(board) }.single { it.id == child }.parentId)
+        assertEquals(emptyList(), go { canvases.edges(board) })
+
+        go { canvases.restoreNode(card) }
+        assertEquals(listOf(root, card, child, other), go { canvases.nodes(board) }.map { it.id }.sorted())
+        assertEquals(card, go { canvases.nodes(board) }.single { it.id == child }.parentId)
+        assertEquals(listOf(line), go { canvases.edges(board) }.map { it.id })
+        assertEquals(emptyList(), go { canvases.trashedNodes(board) })
+
+        go { canvases.deleteNode(card) }
+        assertFailsWith<IllegalArgumentException> { go { canvases.purgeNode(other) } }
+        go { canvases.purgeNode(card) }
+        assertEquals(emptyList(), go { canvases.trashedNodes(board) })
+        assertEquals(emptyList(), go { db.canvasDao().nodes(listOf(card)) })
+        assertEquals(emptyList(), go { db.canvasDao().edges(listOf(line)) })
+        assertEquals(root, go { canvases.nodes(board) }.single { it.id == child }.parentId)
+    }
+
+    @Test
     fun twoCardsMovedApartAndACardMovedAndRetypedApartAllStand() = two(1) { a, b ->
         syncthing.now = 1_000
         val board = go { a.canvases.create("Plan") }

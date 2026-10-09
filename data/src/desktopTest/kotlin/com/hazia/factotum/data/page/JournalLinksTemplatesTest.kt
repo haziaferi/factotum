@@ -258,7 +258,14 @@ class JournalLinksTemplatesTest {
 
         go { databases.deleteProperty(with) }
 
+        // Both columns go to the Trash in one stamp, their links kept for a restore, and are deleted forever together.
         assertEquals(emptyList(), go { databases.properties(people) })
+        assertEquals(1, go { databases.trashedProperties(people) }.size)
+        go { databases.restoreProperty(with) }
+        assertEquals(listOf(ann), go { databases.cells(trips, rome) }.getValue(with).pages)
+        go { databases.deleteProperty(with) }
+        go { databases.purgeProperty(with) }
+        assertEquals(emptyList(), go { databases.trashedProperties(people) })
         assertEquals(emptyList(), go { db.linkDao().allLinks() })
     }
 

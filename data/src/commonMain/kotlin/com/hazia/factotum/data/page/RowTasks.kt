@@ -116,7 +116,7 @@ internal class RowTaskRepository(
         var pushed = emptyMap<String, String>()
         var before = emptyList<String>()
         writes.write({
-            val p = requireNotNull(dao.properties(listOf(propertyId)).singleOrNull()) { "no property $propertyId" }
+            val p = requireNotNull(dao.properties(listOf(propertyId)).singleOrNull()?.takeIf { it.deletedAt == null }) { "no property $propertyId" }
             require(p.type == role.type.name) { "${p.name} is a ${p.type}, and $role shows in a ${role.type}" }
             require(shell(p.databaseId).tasksOn == true) { "the rows of ${p.databaseId} are not tasks" }
             val previous = bindingsOf(p.databaseId)[role]?.takeIf { it.id != propertyId }

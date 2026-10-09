@@ -167,9 +167,9 @@ internal class CanvasRepository(
     }
 
     /**
-     * Deletes card [id] in one stamp: its lines, and the frames that follow it, go with it; its
-     * children are lifted to its parent (Tendril). A later edit to it anywhere brings back it and
-     * what was deleted with it (owner, 2026-10-03).
+     * Moves card [id] to the Trash in one stamp: its lines, and the frames that follow it, go with it;
+     * its children are lifted to its parent (Tendril). A later edit to it anywhere brings back it and
+     * what was deleted with it (owner, 2026-10-03), as [restoreNode] does.
      */
     suspend fun deleteNode(id: String) {
         var lines = emptyList<String>()
@@ -195,6 +195,67 @@ internal class CanvasRepository(
             // and a revival of the card can tell which children to take back.
             children.forEach { store.put(requireNotNull(store.row(it)).edit(NODE_TREE, automatic(s), mapOf("parent_id" to lifted))) }
         }
+    }
+
+    /**
+     * Restores card [id] from the Trash (owner, 2026-10-09) with what its deletion took in that one
+     * stamp: the frames that follow it, its lines, and the children it lifted, put back under it
+     * (as [settle] brings them back after a later edit). A new stamp, so it syncs as any edit does.
+     */
+    suspend fun restoreNode(id: String) {
+        var back = emptyList<String>()
+        var children = emptyList<String>()
+        val canvasId = requireNotNull(dao.nodes(listOf(id)).singleOrNull()) { "no card $id" }.pageId
+        pages.snapshotIfDue(canvasId)
+        writes.write({
+            val n = requireNotNull(dao.nodes(listOf(id)).singleOrNull()?.takeIf { it.deletedAt != null }) { "card $id is not in the Trash" }
+            shell(n.pageId)
+            val (cards, lines) = takenWith(n)
+            back = cards + lines
+            children = dao.nodesOf(n.pageId).filter { it.deletedAt == null && Stamp(it.treeHlc, it.treeDevice) == automatic(n.gone()) }.map { it.id }
+            mapOf(CANVAS_NODE to cards + children, CANVAS_EDGE to lines)
+        }) { store, _ ->
+            val s = clock.tick()
+            back.forEach { store.put(requireNotNull(store.row(it)).edit(GONE, s, mapOf("deleted_at" to null))) }
+            children.forEach { store.put(requireNotNull(store.row(it)).edit(NODE_TREE, automatic(s), mapOf("parent_id" to id))) }
+        }
+    }
+
+    /** The cards of the live canvas [canvasId] in the Trash, each once: a frame that comes back with its card is not there. */
+    suspend fun trashedNodes(canvasId: String): List<CanvasNode> {
+        shell(canvasId)
+        val nodes = dao.nodesOf(canvasId)
+        val gone = nodes.filter { it.deletedAt != null }.associateBy { it.id }
+        val states = pageStates(db, gone.values.mapNotNull { it.pageRef })
+        return gone.values.filter { n -> n.parentId?.let(gone::get)?.gone() != n.gone() }.sortedBy { it.id }.map { n ->
+            CanvasNode(
+                n.id, NodeType.valueOf(n.type), n.x, n.y, n.width, n.height, n.text, n.hue?.toInt(), null, n.folded,
+                n.structure?.let(CanvasStructure::valueOf), n.pageRef, n.pageRef?.let(states::getValue),
+            )
+        }
+    }
+
+    /**
+     * "Delete forever", from the Trash (owner, 2026-10-09): the card, the frames deleted with it, and
+     * every line touching them, for good; the purges travel. Its lifted children stay where they are.
+     */
+    suspend fun purgeNode(id: String) {
+        var gone = emptyList<String>()
+        writes.write({
+            val n = requireNotNull(dao.nodes(listOf(id)).singleOrNull()?.takeIf { it.deletedAt != null }) { "only a card in the Trash is deleted forever" }
+            val cards = takenWith(n).first.toSet()
+            val lines = dao.edgesOf(n.pageId).filter { it.fromNodeId in cards || it.toNodeId in cards }.map { it.id }
+            gone = cards.toList() + lines
+            mapOf(CANVAS_NODE to cards.toList(), CANVAS_EDGE to lines)
+        }) { store, _ -> gone.forEach { writes.merger.purge(store, it) } }
+    }
+
+    /** What the deletion of the card [n] took in its one stamp: it and the frames that follow it, and the lines of those. */
+    private suspend fun takenWith(n: CanvasNodeEntity): Pair<List<String>, List<String>> {
+        val frames = dao.nodesOf(n.pageId).filter { it.deletedAt != null && it.gone() == n.gone() && it.parentId == n.id }.map { it.id }
+        val with = (frames + n.id).toSet()
+        val lines = dao.edgesOf(n.pageId).filter { it.deletedAt != null && it.gone() == n.gone() && (it.fromNodeId in with || it.toNodeId in with) }.map { it.id }
+        return listOf(n.id) + frames to lines
     }
 
     /** A line from card [from] to card [to] of one board; never from a card to itself. */

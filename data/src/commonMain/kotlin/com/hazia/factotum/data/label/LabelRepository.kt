@@ -10,7 +10,9 @@ import com.hazia.factotum.data.LocalWrites
 import com.hazia.factotum.data.checklist.CHECKLIST
 import com.hazia.factotum.data.item.ITEM
 import com.hazia.factotum.data.item.ItemKind
+import com.hazia.factotum.core.sync.Stamp
 import com.hazia.factotum.data.page.MADE
+import com.hazia.factotum.data.page.automatic
 import com.hazia.factotum.data.page.PAGE_LABEL
 import com.hazia.factotum.data.page.pageLabelId
 import com.hazia.factotum.data.sync.StagedStore
@@ -82,9 +84,11 @@ internal class LabelRepository(
     suspend fun setSortOrder(id: String, order: Double) = change(id, ORDER) { mapOf("sort_order" to order) }
 
     /**
-     * Deletes [id]; what carried it, or a label merged into it, carries no label, in the same write
-     * (Chronicle). A page's label rows are left as they are and read as none: taking them off would
-     * be an edit to every trashed page carrying it, which would bring each one back (ADR 12's revive).
+     * Moves [id] to the Trash; what carried it, or a label merged into it, carries no label, in the
+     * same write (Chronicle). That is the deletion's doing, stamped as the app's just above it, so a
+     * [restore] knows what to give the label back to, on any device. A page's label rows are left as
+     * they are and read as none: taking them off would be an edit to every trashed page carrying it,
+     * which would bring each one back (ADR 12's revive).
      */
     suspend fun delete(id: String) = writes.write({
         live(id)
@@ -94,9 +98,44 @@ internal class LabelRepository(
         val s = clock.tick()
         store.put(requireNotNull(store.row(id)).edit(GONE, s, mapOf("deleted_at" to s.hlc)))
         for (member in targets.getValue(ITEM) + targets.getValue(TRACKER) + targets.getValue(CHECKLIST)) {
-            store.put(requireNotNull(store.row(member)).edit(LABELLED, s, mapOf("label_id" to null)))
+            store.put(requireNotNull(store.row(member)).edit(LABELLED, automatic(s), mapOf("label_id" to null)))
         }
     }
+
+    /**
+     * Restores [id] from the Trash (owner, 2026-10-09): what its deletion took it off carries it again,
+     * unless labelled otherwise since. A label whose name a live one has taken meanwhile is refused:
+     * names are unique (ADR 08). A new stamp, so the restore syncs as any edit does.
+     */
+    suspend fun restore(id: String) = writes.write({
+        val label = requireNotNull(dao.labels(listOf(id)).singleOrNull()?.takeIf { it.deletedAt != null && it.mergedInto == null }) { "label $id is not in the Trash" }
+        checkedName(label.name, except = id)
+        val took = automatic(Stamp(label.goneHlc, label.goneDevice))
+        mapOf(
+            LABEL to listOf(id),
+            ITEM to dao.itemsUnlabelledBy(took.hlc, took.device),
+            TRACKER to dao.trackersUnlabelledBy(took.hlc, took.device),
+            CHECKLIST to dao.checklistsUnlabelledBy(took.hlc, took.device),
+        )
+    }) { store, targets ->
+        val s = clock.tick()
+        store.put(requireNotNull(store.row(id)).edit(GONE, s, mapOf("deleted_at" to null)))
+        for (member in targets.getValue(ITEM) + targets.getValue(TRACKER) + targets.getValue(CHECKLIST)) {
+            store.put(requireNotNull(store.row(member)).edit(LABELLED, automatic(s), mapOf("label_id" to id)))
+        }
+    }
+
+    /** The labels in the Trash; one merged into another is not there, as it was never deleted by a person. */
+    suspend fun trashed(): List<Label> = dao.allLabels().filter { it.deletedAt != null && it.mergedInto == null }.map { it.toLabel() }
+
+    /**
+     * "Delete forever", from the Trash (owner, 2026-10-09): the purge travels. Nothing names it by a
+     * foreign key, and whatever still does reads it as none everywhere ([resolver]).
+     */
+    suspend fun purge(id: String) = writes.write({
+        requireNotNull(dao.labels(listOf(id)).singleOrNull()?.takeIf { it.deletedAt != null && it.mergedInto == null }) { "only a label in the Trash is deleted forever" }
+        mapOf(LABEL to listOf(id))
+    }) { store, _ -> writes.merger.purge(store, id) }
 
     /** Every live label, in order. */
     suspend fun labels(): List<Label> = dao.liveLabels().map { it.toLabel() }
@@ -232,7 +271,7 @@ internal class LabelRepository(
 
 /**
  * Reads a label id as the live label it stands for now: itself while live, the label it was
- * merged into (followed to the end), or none once deleted.
+ * merged into (followed to the end), or none once deleted or deleted forever.
  */
 internal fun resolver(labels: List<LabelEntity>): (String?) -> String? {
     val byId = labels.associateBy { it.id }

@@ -78,6 +78,16 @@ internal interface LabelDao {
 
     @Query("SELECT id FROM checklist WHERE label_id IN (:labelIds) AND deleted_at IS NULL")
     suspend fun checklistsLabelled(labelIds: List<String>): List<String>
+
+    /** What a label's deletion took it off ([hlc], [device] its stamp), and nothing has labelled since. */
+    @Query("SELECT id FROM item WHERE label_hlc = :hlc AND label_device = :device AND label_id IS NULL")
+    suspend fun itemsUnlabelledBy(hlc: Long, device: String): List<String>
+
+    @Query("SELECT id FROM tracker WHERE label_hlc = :hlc AND label_device = :device AND label_id IS NULL")
+    suspend fun trackersUnlabelledBy(hlc: Long, device: String): List<String>
+
+    @Query("SELECT id FROM checklist WHERE label_hlc = :hlc AND label_device = :device AND label_id IS NULL")
+    suspend fun checklistsUnlabelledBy(hlc: Long, device: String): List<String>
 }
 
 internal fun labelTable(dao: LabelDao) =

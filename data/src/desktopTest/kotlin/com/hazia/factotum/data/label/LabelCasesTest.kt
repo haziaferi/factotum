@@ -422,6 +422,41 @@ class LabelCasesTest {
     }
 
     @Test
+    fun aRestoredLabelIsBackOnWhatItsDeletionTookItOffAndOneDeletedForeverReadsAsNone() {
+        val leisure = runBlocking { labels.create("Leisure") }
+        val study = runBlocking { labels.create("Study") }
+        val reading = runBlocking { activities.create("Reading") }
+        val mood = runBlocking { trackers.create("Mood", TrackerType.RATING) }
+        val report = runBlocking { items.createTask("report", monday) }
+        runBlocking { labels.label(reading, leisure) }
+        runBlocking { labels.labelTracker(mood, leisure) }
+        runBlocking { labels.label(report, leisure) }
+
+        runBlocking { labels.delete(leisure) }
+        assertEquals(listOf(null, null, null), listOf(labelOf(reading), trackerLabelOf(mood), labelOf(report)))
+        assertEquals(listOf(leisure), runBlocking { labels.trashed() }.map { it.id })
+        // Labelled otherwise since, the report keeps its new label.
+        runBlocking { labels.label(report, study) }
+
+        runBlocking { labels.restore(leisure) }
+        assertEquals(listOf(leisure, leisure, study), listOf(labelOf(reading), trackerLabelOf(mood), labelOf(report)))
+        assertEquals(emptyList(), runBlocking { labels.trashed() })
+
+        // A name taken meanwhile is refused: names are unique.
+        runBlocking { labels.delete(leisure) }
+        val again = runBlocking { labels.create("leisure") }
+        assertFailsWith<IllegalArgumentException> { runBlocking { labels.restore(leisure) } }
+        runBlocking { labels.label(reading, again) }
+
+        assertFailsWith<IllegalArgumentException> { runBlocking { labels.purge(again) } }
+        runBlocking { labels.purge(leisure) }
+        assertEquals(emptyList(), runBlocking { labels.trashed() })
+        assertEquals(emptyList(), runBlocking { db.labelDao().labels(listOf(leisure)) })
+        assertEquals(listOf(again, null), listOf(labelOf(reading), trackerLabelOf(mood)))
+        assertEquals(1, runBlocking { db.syncDao().purges() }.count { it.id == leisure })
+    }
+
+    @Test
     fun aVersion9DatabaseKeepsItsItemsAndTrackersWhenLabelsArrive() {
         val file = File(tmp.root, "v9.db")
         createAtVersion(file, 9) { c ->

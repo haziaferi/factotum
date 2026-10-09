@@ -246,7 +246,7 @@ internal object SchemaTriggers : RoomDatabase.Callback() {
                 "OR (OLD.deleted_at IS NOT NULL AND NEW.deleted_at IS NOT OLD.deleted_at) " +
                 "BEGIN SELECT RAISE(ABORT, 'occurrence_edit: an edit is written once and undone once'); END",
         )
-        // ADR 07: a span stays on its owner; an activity is never deleted for good (owner, 2026-10-02).
+        // ADR 07: a span stays on its owner.
         add("DROP TRIGGER IF EXISTS time_span_owner_fixed")
         add(
             "CREATE TRIGGER time_span_owner_fixed BEFORE UPDATE ON time_span WHEN NEW.item_id IS NOT OLD.item_id " +
@@ -267,11 +267,9 @@ internal object SchemaTriggers : RoomDatabase.Callback() {
                     " BEGIN SELECT RAISE(ABORT, '$table: what it was made for does not change'); END",
             )
         }
+        // An activity is deleted forever from the Trash now (owner, 2026-10-09, reversing 2026-10-02):
+        // the trigger that kept it goes from databases made before.
         add("DROP TRIGGER IF EXISTS item_activity_keep")
-        add(
-            "CREATE TRIGGER item_activity_keep BEFORE DELETE ON item WHEN OLD.kind = 'ACTIVITY' " +
-                "BEGIN SELECT RAISE(ABORT, 'item: an activity is not deleted for good'); END",
-        )
         for (table in SYNCED_TABLES) for (event in listOf("INSERT", "UPDATE", "DELETE")) {
             val name = "${table}_outbox_${event.lowercase()}"
             val row = if (event == "DELETE") "OLD" else "NEW"

@@ -258,7 +258,7 @@ internal class DatabaseRepository(
 
     /** The rows something live blocks: a blocker in the Trash, or deleted for good, does not block (owner, 2026-10-03). */
     suspend fun blocked(databaseId: String): Set<String> {
-        val by = shell(databaseId).blockedBy?.let { dao.properties(listOf(it)).singleOrNull() } ?: return emptySet()
+        val by = shell(databaseId).blockedBy?.let { dao.properties(listOf(it)).singleOrNull() }?.takeIf { it.deletedAt == null } ?: return emptySet()
         val rows = read(databaseId, members(databaseId))
         val states = pageStates(rows.flatMap { it.cells[by.id]?.pages.orEmpty() })
         return rows.filter { row -> row.cells[by.id]?.pages.orEmpty().any { states[it] == PageState.LIVE } }.map { it.pageId }.toSet()
@@ -330,13 +330,47 @@ internal class DatabaseRepository(
     }
 
     /**
-     * Deletes a property for good, with its values and options (ADR 12: the schema is deleted only by
-     * a purge); a relation goes with its matching column and its links, as it is always two-way.
+     * Moves a property to the Trash (owner, 2026-10-09; ADR 12 had purged it at once), its values,
+     * options and links kept, so a restore brings them back; a relation goes with its matching column,
+     * in one stamp, as it is always two-way. Until then it reads as gone everywhere but the Trash.
      */
     suspend fun deleteProperty(id: String) = writes.write({
         val p = property(id)
-        mapOf(PROPERTY to listOfNotNull(id, p.pairPropertyId?.takeIf { dao.properties(listOf(it)).isNotEmpty() }))
+        mapOf(PROPERTY to listOfNotNull(id, p.pairPropertyId?.let { dao.properties(listOf(it)).singleOrNull() }?.takeIf { it.deletedAt == null }?.id))
+    }) { store, targets ->
+        val s = clock.tick()
+        targets.getValue(PROPERTY).forEach { store.put(requireNotNull(store.row(it)).set(GONE, s, mapOf("deleted_at" to s.hlc))) }
+    }
+
+    /** Restores a property from the Trash with its values, and a relation with the matching column deleted with it. */
+    suspend fun restoreProperty(id: String) = writes.write({
+        val p = requireNotNull(dao.properties(listOf(id)).singleOrNull()?.takeIf { it.deletedAt != null }) { "property $id is not in the Trash" }
+        shell(p.databaseId)
+        mapOf(PROPERTY to listOfNotNull(id, pairDeletedWith(p)?.id))
+    }) { store, targets ->
+        val s = clock.tick()
+        targets.getValue(PROPERTY).forEach { store.put(requireNotNull(store.row(it)).edit(GONE, s, mapOf("deleted_at" to null))) }
+    }
+
+    /** The live database [databaseId]'s properties in the Trash, each once: a relation within it shows one of its two columns. */
+    suspend fun trashedProperties(databaseId: String): List<Property> {
+        shell(databaseId)
+        return dao.everyPropertyOf(databaseId).filter { p -> p.deletedAt != null && pairDeletedWith(p)?.takeIf { it.databaseId == databaseId && it.id < p.id } == null }
+            .sortedBy { it.id }.map { Property(it.id, it.name, PropertyType.valueOf(it.type)) }
+    }
+
+    /**
+     * "Delete forever", from the Trash: the property and a relation's matching column deleted with it,
+     * for good, with their values, options and links (by the foreign keys); the purges travel.
+     */
+    suspend fun purgeProperty(id: String) = writes.write({
+        val p = requireNotNull(dao.properties(listOf(id)).singleOrNull()?.takeIf { it.deletedAt != null }) { "only a property in the Trash is deleted forever" }
+        mapOf(PROPERTY to listOfNotNull(id, pairDeletedWith(p)?.id))
     }) { store, targets -> targets.getValue(PROPERTY).forEach { writes.merger.purge(store, it) } }
+
+    /** A relation's matching column when it was deleted in [p]'s one stamp. */
+    private suspend fun pairDeletedWith(p: PropertyEntity): PropertyEntity? =
+        p.pairPropertyId?.let { dao.properties(listOf(it)).singleOrNull() }?.takeIf { it.deletedAt != null && it.goneHlc == p.goneHlc && it.goneDevice == p.goneDevice }
 
     /** The live options of a Select or Multi-select, in order. */
     suspend fun options(propertyId: String): List<SelectOption> =
@@ -371,8 +405,25 @@ internal class DatabaseRepository(
         }) { mapOf("sort_key" to key) }
     }
 
-    /** Deletes an option: the cells that picked it read as empty and keep the pick, which brings it back if made again elsewhere (owner, 2026-10-03). */
+    /** Moves an option to the Trash: the cells that picked it read as empty and keep the pick, which brings it back if made again elsewhere (owner, 2026-10-03). */
     suspend fun deleteOption(id: String) = writes.edit(PROPERTY_OPTION, id, GONE, { liveOption(id) }) { s -> mapOf("deleted_at" to s.hlc, "merged_into" to null) }
+
+    /** Restores an option from the Trash; the cells that picked it read it again. One whose name a live option has taken since is refused. */
+    suspend fun restoreOption(id: String) = writes.edit(PROPERTY_OPTION, id, GONE, {
+        val o = requireNotNull(dao.options(listOf(id)).singleOrNull()?.takeIf { it.deletedAt != null && it.mergedInto == null }) { "option $id is not in the Trash" }
+        choice(o.propertyId)
+        uniqueOption(o.propertyId, o.name, except = id)
+    }) { mapOf("deleted_at" to null, "merged_into" to null) }
+
+    /** A live property's options in the Trash; one merged into another of its name is not there, as no person deleted it. */
+    suspend fun trashedOptions(propertyId: String): List<SelectOption> =
+        dao.optionsOf(listOf(choice(propertyId).id)).filter { it.deletedAt != null && it.mergedInto == null }.sortedBy { it.id }.map { SelectOption(it.id, it.name, it.color) }
+
+    /** "Delete forever", from the Trash: the purge travels, and a cell that picked it reads as empty for good. */
+    suspend fun purgeOption(id: String) = writes.write({
+        requireNotNull(dao.options(listOf(id)).singleOrNull()?.takeIf { it.deletedAt != null && it.mergedInto == null }) { "only an option in the Trash is deleted forever" }
+        mapOf(PROPERTY_OPTION to listOf(id))
+    }) { store, _ -> writes.merger.purge(store, id) }
 
     /** Sets a text, URL, e-mail or phone cell; blank clears it. */
     suspend fun setText(pageId: String, propertyId: String, text: String?) =
@@ -494,11 +545,26 @@ internal class DatabaseRepository(
         }) { mapOf("sort_key" to key) }
     }
 
-    /** Deletes a view; a database keeps at least one. */
+    /** Moves a view to the Trash; a database keeps at least one. */
     suspend fun deleteView(id: String) = writes.edit(PAGE_VIEW, id, GONE, {
         val view = liveView(id)
         require(dao.viewsOf(view.databaseId).count { it.deletedAt == null } > 1) { "a database keeps one view" }
     }) { s -> mapOf("deleted_at" to s.hlc) }
+
+    /** Restores a view from the Trash. */
+    suspend fun restoreView(id: String) = writes.edit(PAGE_VIEW, id, GONE, {
+        shell(requireNotNull(dao.views(listOf(id)).singleOrNull()?.takeIf { it.deletedAt != null }) { "view $id is not in the Trash" }.databaseId)
+    }) { mapOf("deleted_at" to null) }
+
+    /** The live database [databaseId]'s views in the Trash. */
+    suspend fun trashedViews(databaseId: String): List<View> =
+        dao.viewsOf(shell(databaseId).pageId).filter { it.deletedAt != null }.sortedBy { it.id }.map { it.toView() }
+
+    /** "Delete forever", from the Trash: the purge travels. */
+    suspend fun purgeView(id: String) = writes.write({
+        requireNotNull(dao.views(listOf(id)).singleOrNull()?.takeIf { it.deletedAt != null }) { "only a view in the Trash is deleted forever" }
+        mapOf(PAGE_VIEW to listOf(id))
+    }) { store, _ -> writes.merger.purge(store, id) }
 
     /**
      * A view's rows: the members passing its filter, in its sort (typed: numbers as numbers, dates
@@ -529,21 +595,42 @@ internal class DatabaseRepository(
     /** A Board: a column for no option, then one per live option in order. Null when the view groups by no Select (the screen's empty state). */
     suspend fun board(viewId: String): List<BoardColumn>? {
         val view = liveView(viewId)
-        val property = view.groupBy?.let { dao.properties(listOf(it)).singleOrNull() }?.takeIf { it.type == PropertyType.SELECT.name } ?: return null
+        val property = view.groupBy?.let { dao.properties(listOf(it)).singleOrNull() }?.takeIf { it.type == PropertyType.SELECT.name && it.deletedAt == null } ?: return null
         val rows = rows(viewId)
         val columns = listOf<String?>(null) + options(property.id).map { it.id }
         return columns.map { o -> BoardColumn(o, rows.filter { it.cells.getValue(property.id).options.firstOrNull() == o }) }
     }
 
     /**
-     * After every import: an option deleted on one device and picked later on another, itself or an
-     * option merged into it, comes back (owner, 2026-10-03), stamped just above its deletion as a
-     * revived page is; then live options of one property with one name merge into the one with the
+     * After every import: a property in the Trash that a person edited on another device after its
+     * deletion comes back, with a relation's matching column deleted with it (ADR 12's revive, as a
+     * purged column edited after its purge came back before the Trash); an option deleted on one
+     * device and picked later on another, itself or an option merged into it, comes back (owner,
+     * 2026-10-03); each stamped just above its deletion as a revived page is; then live options of one property with one name merge into the one with the
      * lowest id, the one made first (owner, 2026-10-03, ADR 08's rule). A merge is stamped just above
      * the merged option's own last stamp, not with a fresh tick: every device writes the same row, and
      * a merge is never an edit that would bring back a trashed database (ADR 12's revive).
      */
     suspend fun settle() {
+        var revived = emptyMap<String, Stamp>()
+        writes.write({
+            val trashed = dao.allProperties().filter { it.deletedAt != null }
+            val found = HashMap<String, Stamp>()
+            for (p in trashed) {
+                val gone = Stamp(requireNotNull(p.goneHlc), requireNotNull(p.goneDevice))
+                val edits = listOfNotNull(
+                    Stamp(p.nameHlc, p.nameDevice), Stamp(p.typeHlc, p.typeDevice), Stamp(p.placeHlc, p.placeDevice),
+                    p.formulaHlc?.let { Stamp(it, requireNotNull(p.formulaDevice)) }, p.roleHlc?.let { Stamp(it, requireNotNull(p.roleDevice)) },
+                )
+                if ((latestByHand(edits) ?: continue) <= gone) continue
+                found[p.id] = gone
+                pairDeletedWith(p)?.let { found[it.id] = gone }
+            }
+            revived = found
+            mapOf(PROPERTY to found.keys.toList())
+        }) { store, _ ->
+            for ((id, gone) in revived) store.put(requireNotNull(store.row(id)).edit(GONE, automatic(gone), mapOf("deleted_at" to null)))
+        }
         var back = emptyMap<String, Stamp>()
         writes.write({
             val all = dao.allOptions()
@@ -639,7 +726,7 @@ internal class DatabaseRepository(
         val related = HashMap<String, Map<String, DatabaseRow>>()
         for (p in valid) {
             val relation = byId.getValue(requireNotNull(p.rollupRelation))
-            val target = p.rollupTarget?.let { dao.properties(listOf(it)).singleOrNull() }
+            val target = p.rollupTarget?.let { dao.properties(listOf(it)).singleOrNull() }?.takeIf { it.deletedAt == null }
             val db = requireNotNull(relation.targetDatabaseId)
             val linked = { cells: Map<String, Cell> -> cells.getValue(relation.id).pages.filter { states[it] == PageState.LIVE } }
             val read = if (target == null) emptyMap() else related.getOrPut(relation.id) {
@@ -756,6 +843,7 @@ internal class DatabaseRepository(
         return RelationLinkEntity(linkId(stored, row, target), stored, row, target, 0, "", null, 0, "")
     }
 
+    /** Whether [p]'s matching column is on this device, in the Trash or not: where a link is stored never moves. */
     private suspend fun pairHere(p: PropertyEntity) = p.pairPropertyId?.let { dao.properties(listOf(it)).isNotEmpty() } == true
 
     private suspend fun member(pageId: String, property: PropertyEntity, types: Set<PropertyType>) {
@@ -786,8 +874,8 @@ internal class DatabaseRepository(
 
     private suspend fun shell(id: String) = requireNotNull(dao.databases(listOf(shellId(id))).singleOrNull()?.takeIf { pageDao.pages(listOf(id)).singleOrNull()?.deletedAt == null }) { "no database $id" }
 
-    /** A property of a live database: an edit to a trashed one's would bring it back (ADR 12's revive). */
-    private suspend fun property(id: String) = requireNotNull(dao.properties(listOf(id)).singleOrNull()) { "no property $id" }.also { shell(it.databaseId) }
+    /** A live property of a live database: an edit to a trashed one's would bring it back (ADR 12's revive). */
+    private suspend fun property(id: String) = requireNotNull(dao.properties(listOf(id)).singleOrNull()?.takeIf { it.deletedAt == null }) { "no property $id" }.also { shell(it.databaseId) }
 
     private suspend fun liveOption(id: String) = requireNotNull(dao.options(listOf(id)).singleOrNull()?.takeIf { it.deletedAt == null }) { "no option $id" }.also { property(it.propertyId) }
 

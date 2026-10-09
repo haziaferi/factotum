@@ -126,23 +126,34 @@ class TimeCasesTest {
     }
 
     @Test
-    fun chronicleActivityDeleteRefused_anActivityIsNeverDeletedForGoodButIsDeletedWithItsTime() {
+    fun chronicleActivityDelete_anActivityGoesToTheTrashWithItsTimeAndIsDeletedForeverOnlyFromThere() {
         val reading = runBlocking { activities.create("Reading") }
         val span = runBlocking { time.logManual(reading, at(5, 20), at(5, 20, 40)) }
         val goal = runBlocking { activities.addGoal(reading, GoalPeriod.WEEK, 180) }
         val untimed = runBlocking { activities.create("Chess") }
 
-        // Owner, 2026-10-02: not even one with no time, so a purge can never take time another device logged.
+        // Delete forever is the Trash's, and an activity's is ActivityRepository's, which takes its goals too.
+        assertFailsWith<IllegalArgumentException> { runBlocking { activities.purge(reading) } }
         assertFailsWith<IllegalArgumentException> { runBlocking { items.purge(reading) } }
-        assertFailsWith<IllegalArgumentException> { runBlocking { items.purge(untimed) } }
-        refused("DELETE FROM item WHERE id = '$reading'")
-        refused("DELETE FROM item WHERE id = '$untimed'")
 
         runBlocking { activities.delete(reading) }
-        val left = runBlocking { db.timeDao().spans(listOf(span)) }.single()
-        assertTrue(left.deletedAt != null)
+        assertTrue(runBlocking { db.timeDao().spans(listOf(span)) }.single().deletedAt != null)
         assertTrue(runBlocking { db.trackerDao().goals(listOf(goal)) }.single().deletedAt != null)
         assertEquals(listOf(untimed), runBlocking { activities.activities() }.map { it.id })
+        assertEquals(listOf(reading), runBlocking { activities.trashed() }.map { it.id })
+
+        // Restore brings back the time and goals its deletion took.
+        runBlocking { activities.restore(reading) }
+        assertEquals(40, minutes(itemId = reading))
+        assertEquals(null, runBlocking { db.trackerDao().goals(listOf(goal)) }.single().deletedAt)
+
+        // Owner, 2026-10-09 (reversing 2026-10-02): Delete forever takes its time and goals.
+        runBlocking { activities.delete(reading) }
+        runBlocking { activities.purge(reading) }
+        assertEquals(emptyList(), runBlocking { db.itemDao().items(listOf(reading)) })
+        assertEquals(emptyList(), runBlocking { db.timeDao().spans(listOf(span)) })
+        assertEquals(emptyList(), runBlocking { db.trackerDao().goals(listOf(goal)) })
+        assertEquals(emptyList(), runBlocking { activities.trashed() })
     }
 
     @Test

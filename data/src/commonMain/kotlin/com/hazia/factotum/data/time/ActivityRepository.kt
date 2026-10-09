@@ -28,8 +28,9 @@ data class TimeGoalProgress(val minutes: Long, val targetMinutes: Long)
 
 /**
  * Activities (Chronicle's, ADR 07): items of kind ACTIVITY, timed through [TimeRepository], with
- * goals on their time. Deleting one deletes its time and goals with it (Chronicle); none is ever
- * deleted for good (owner, 2026-10-02).
+ * goals on their time. Deleting one moves it to the Trash with its time and goals (Chronicle), and a
+ * restore brings them back; Delete forever takes them for good (owner, 2026-10-09, reversing the
+ * rule of 2026-10-02 that none was ever deleted for good).
  */
 internal class ActivityRepository(
     db: FactotumDatabase,
@@ -61,10 +62,7 @@ internal class ActivityRepository(
         return items.liveActivities().map { Activity(it.id, it.title, it.icon, it.color, it.sortOrder, label(it.labelId)) }
     }
 
-    /**
-     * Deletes [id] with its live spans and goals, in one write (Chronicle's `ActivityRepository.delete`).
-     * It is never deleted forever (owner, 2026-10-02).
-     */
+    /** Moves [id] to the Trash with its live spans and goals, in one write and one stamp (Chronicle's `ActivityRepository.delete`). */
     suspend fun delete(id: String) = writes.write({
         activity(id)
         mapOf(ITEM to listOf(id), TIME_SPAN to times.liveSpansOf(listOf(id)), GOAL to goals.goalsOf(ACTIVITY, id).map { it.id })
@@ -73,6 +71,43 @@ internal class ActivityRepository(
         store.put(requireNotNull(store.row(id)) { "no activity $id" }.edit(SCHEDULE, s, mapOf("deleted_at" to s.hlc)))
         for (span in targets.getValue(TIME_SPAN)) store.put(requireNotNull(store.row(span)).edit(GONE, s, mapOf("deleted_at" to s.hlc)))
         for (goal in targets.getValue(GOAL)) store.put(requireNotNull(store.row(goal)).edit(WHOLE, s, mapOf("deleted_at" to s.hlc)))
+    }
+
+    /**
+     * Restores [id] from the Trash with the spans and goals its deletion took, in that one stamp; a
+     * span deleted by hand before stays deleted. A new stamp, so it syncs as any edit does.
+     */
+    suspend fun restore(id: String) = writes.write({
+        val a = requireNotNull(items.items(listOf(id)).singleOrNull()?.takeIf { it.kind == ACTIVITY && it.deletedAt != null }) { "activity $id is not in the Trash" }
+        mapOf(
+            ITEM to listOf(id),
+            TIME_SPAN to times.spans(times.everySpanOf(listOf(id))).filter { it.deletedAt == a.deletedAt }.map { it.id },
+            GOAL to goals.goals(goals.everyGoalOf(ACTIVITY, id)).filter { it.deletedAt == a.deletedAt }.map { it.id },
+        )
+    }) { store, targets ->
+        val s = clock.tick()
+        store.put(requireNotNull(store.row(id)).edit(SCHEDULE, s, mapOf("deleted_at" to null)))
+        for (span in targets.getValue(TIME_SPAN)) store.put(requireNotNull(store.row(span)).edit(GONE, s, mapOf("deleted_at" to null)))
+        for (goal in targets.getValue(GOAL)) store.put(requireNotNull(store.row(goal)).edit(WHOLE, s, mapOf("deleted_at" to null)))
+    }
+
+    /** The activities in the Trash. */
+    suspend fun trashed(): List<Activity> {
+        val label = resolver(labelDao.allLabels())
+        return items.deletedItems().filter { it.kind == ACTIVITY }.map { Activity(it.id, it.title, it.icon, it.color, it.sortOrder, label(it.labelId)) }
+    }
+
+    /**
+     * "Delete forever", from the Trash (owner, 2026-10-09): the purge travels; its spans go by the
+     * foreign key, so its labels' time totals shrink, and its goals, which name it without one
+     * (Chronicle), are purged with it.
+     */
+    suspend fun purge(id: String) = writes.write({
+        requireNotNull(items.items(listOf(id)).singleOrNull()?.takeIf { it.kind == ACTIVITY && it.deletedAt != null }) { "only an activity in the Trash is deleted forever" }
+        mapOf(ITEM to listOf(id), GOAL to goals.everyGoalOf(ACTIVITY, id))
+    }) { store, targets ->
+        writes.merger.purge(store, id)
+        targets.getValue(GOAL).forEach { writes.merger.purge(store, it) }
     }
 
     /** A goal on [activityId]'s time: [minutes] a [period], or once within the last 400 days for a [milestone]. */

@@ -337,15 +337,66 @@ class DatabaseCasesTest {
     }
 
     @Test
-    fun deletingAPropertyIsForGoodWithItsValues() {
+    fun aDeletedPropertyGoesToTheTrashWithItsValuesAndIsDeletedForeverFromThere() {
         val trips = go { databases.create("Trips") }
         val status = go { databases.addProperty(trips, "Status", PropertyType.TEXT) }
         val rome = go { pages.create("Rome", parentId = trips) }
         go { databases.setText(rome, status, "Booked") }
+
+        // Owner, 2026-10-09: a database's columns go to the Trash too (ADR 12 had purged them at once).
         go { databases.deleteProperty(status) }
         assertEquals(emptyList(), go { databases.properties(trips) })
+        assertEquals(listOf(Property(status, "Status", PropertyType.TEXT)), go { databases.trashedProperties(trips) })
+        assertEquals(null, go { databases.cells(trips, rome) }[status])
+        assertFailsWith<IllegalArgumentException> { go { databases.renameProperty(status, "State") } }
+
+        go { databases.restoreProperty(status) }
+        assertEquals("Booked", go { databases.cells(trips, rome) }.getValue(status).text)
+        assertEquals(emptyList(), go { databases.trashedProperties(trips) })
+
+        assertFailsWith<IllegalArgumentException> { go { databases.purgeProperty(status) } }
+        go { databases.deleteProperty(status) }
+        go { databases.purgeProperty(status) }
+        assertEquals(emptyList(), go { databases.properties(trips) })
+        assertEquals(emptyList(), go { databases.trashedProperties(trips) })
         assertEquals(emptyList(), go { db.databaseDao().allValues() })
         assertEquals(1, go { db.syncDao().purges() }.count { it.id == status })
+    }
+
+    @Test
+    fun optionsAndViewsGoToTheTrashAndComeBackOrAreDeletedForever() {
+        val trips = go { databases.create("Trips") }
+        val status = go { databases.addProperty(trips, "Status", PropertyType.SELECT) }
+        val todo = go { databases.addOption(status, "To do") }
+        val rome = go { pages.create("Rome", parentId = trips) }
+        go { databases.setOption(rome, status, todo) }
+
+        go { databases.deleteOption(todo) }
+        assertEquals(emptyList(), go { databases.cells(trips, rome) }.getValue(status).options)
+        assertEquals(listOf(todo), go { databases.trashedOptions(status) }.map { it.id })
+        go { databases.restoreOption(todo) }
+        assertEquals(listOf(todo), go { databases.cells(trips, rome) }.getValue(status).options)
+
+        // A name a live option took meanwhile is refused, as names are unique in a property.
+        go { databases.deleteOption(todo) }
+        val again = go { databases.addOption(status, "to do") }
+        assertFailsWith<IllegalArgumentException> { go { databases.restoreOption(todo) } }
+        go { databases.purgeOption(todo) }
+        assertEquals(emptyList(), go { databases.trashedOptions(status) })
+        assertEquals(listOf(again), go { databases.options(status) }.map { it.id })
+        assertEquals(emptyList(), go { databases.cells(trips, rome) }.getValue(status).options)
+
+        val first = go { databases.views(trips) }.single().id
+        val board = go { databases.addView(trips, "Board", ViewType.BOARD) }
+        go { databases.deleteView(board) }
+        assertEquals(listOf(first), go { databases.views(trips) }.map { it.id })
+        assertEquals(listOf(board), go { databases.trashedViews(trips) }.map { it.id })
+        go { databases.restoreView(board) }
+        assertEquals(listOf(first, board), go { databases.views(trips) }.map { it.id })
+        go { databases.deleteView(board) }
+        go { databases.purgeView(board) }
+        assertEquals(emptyList(), go { databases.trashedViews(trips) })
+        assertEquals(emptyList(), go { db.databaseDao().views(listOf(board)) })
     }
 
     @Test

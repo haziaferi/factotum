@@ -287,7 +287,9 @@ internal interface DatabaseDao {
     @Upsert suspend fun putViews(rows: List<ViewEntity>)
     @Query("DELETE FROM page_view WHERE id IN (:ids)") suspend fun deleteViews(ids: List<String>)
 
-    @Query("SELECT * FROM property WHERE database_id = :databaseId") suspend fun propertiesOf(databaseId: String): List<PropertyEntity>
+    /** A database's live columns; one in the Trash reads as gone everywhere but the Trash. */
+    @Query("SELECT * FROM property WHERE database_id = :databaseId AND deleted_at IS NULL") suspend fun propertiesOf(databaseId: String): List<PropertyEntity>
+    @Query("SELECT * FROM property WHERE database_id = :databaseId") suspend fun everyPropertyOf(databaseId: String): List<PropertyEntity>
     @Query("SELECT * FROM property_option WHERE property_id IN (:propertyIds)") suspend fun optionsOf(propertyIds: List<String>): List<OptionEntity>
     @Query("SELECT * FROM property_value WHERE page_id IN (:pageIds)") suspend fun valuesOfPages(pageIds: List<String>): List<PropertyValueEntity>
     @Query("SELECT * FROM property_value WHERE property_id = :propertyId") suspend fun valuesOf(propertyId: String): List<PropertyValueEntity>
