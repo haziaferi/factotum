@@ -940,7 +940,7 @@ def options_page():
         return '<figure><img src="%s" width="%d"><figcaption>%s</figcaption></figure>' % (img(d, w, h, show), show, cap)
 
     def label(r):
-        return H.escape(", ".join("%s" % x for k, x in r["v"].items() if k not in ("control", "limit")))
+        return ("★ " if r.get("front") else "") + H.escape(", ".join("%s" % x for k, x in r["v"].items() if k not in ("control", "limit")))
 
     def nums(r, axes):
         return " · ".join("%s %g" % (a, r[a]) for a in axes) + " · sum %g" % r["total"] if "total" in r else "failed the gate"
@@ -950,7 +950,9 @@ def options_page():
         if not os.path.exists(os.path.join(OUT, "toasts-%s.json" % p)):
             continue
         rows, ok, axes = ranked(p)
-        fr = sorted([r for r in ok if r.get("front") and not r.get("control")], key=lambda r: r["total"])[:4]
+        # small parts: every option drawn (the owner chooses among them); large ones: the front, lowest sum first, up to four
+        pool = [r for r in ok if not r.get("control")] if len(rows) <= 7 else [r for r in ok if r.get("front") and not r.get("control")]
+        fr = sorted(pool, key=lambda r: (not r.get("front"), r["total"]))[:6]
         ctl = next(r for r in rows if r.get("control"))
         figs = []
         for r in fr + [ctl]:
@@ -980,7 +982,7 @@ def options_page():
         if p == "b":
             figs.append(fig("Way back: ⋯ in the header, Undo and History", b_way_doc("menu")) + fig("Way back: ⚙ › Recently done", b_way_doc("recent")) +
                         fig("Way back: ⚙ › Trash", b_way_doc("trash")))
-        secs.append('<h2>%s</h2><p class=dim>The front, lowest sum first (up to four), and the control. Every row is in <a href="toasts-scores.html#%s">the tables</a>.</p><div class=flex>%s</div>' % (
+        secs.append('<h2>%s</h2><p class=dim>Every option where there are seven or fewer (★ on the front), otherwise the front, lowest sum first; then the control. Every row is in <a href="toasts-scores.html#%s">the tables</a>.</p><div class=flex>%s</div>' % (
             TITLES[p], p, "".join(figs)))
     page = ('<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Toast Options</title>'
             '<style>:root{--bg:#f4f4f2;--fg:#1d1d1b;--dim:#6b6b66}@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#141414;--fg:#eee;--dim:#9a9a94}}'
@@ -996,7 +998,8 @@ if __name__ == "__main__":
     for p in sorted(SPACES):
         if p in sys.argv[1:]:
             run_part(p)
-    if "scores" in sys.argv[1:]:
-        scores_page()
+    # the drawings first: the tables exit non-zero when a control reaches a front, which stopped the page from being rebuilt
     if "page" in sys.argv[1:]:
         options_page()
+    if "scores" in sys.argv[1:]:
+        scores_page()

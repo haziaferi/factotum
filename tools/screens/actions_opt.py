@@ -331,7 +331,8 @@ if __name__ == "__main__":
     for p in "insmt":
         if p in sys.argv[1:]:
             T.run_part(p)
-    if "scores" in sys.argv[1:]:
-        T.scores_page()
+    # the drawings first: the tables exit non-zero when a control reaches a front, which stopped the page from being rebuilt
     if "page" in sys.argv[1:]:
         T.options_page()
+    if "scores" in sys.argv[1:]:
+        T.scores_page()
