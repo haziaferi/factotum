@@ -1468,3 +1468,29 @@ Drawn: `docs/screens/t1/labels-dots.html` (`labels-f.json`).
   - Pairing a ⋯ in the row with a long-press menu reaches the same actions two ways (68).
   - Dragging down the left column saves 2 actions but clashes with scrolling.
   - The control stays on the front, as do 10 of 14: with five axes the Pareto front barely discriminates here, so the sums carry the comparison.
+
+**T1.8, every part decided (owner, 2026-10-09):**
+- **I and S:** a long press begins a selection; one element selected shows its actions in the selection bar. Select is also a screen action.
+- **M:** each action where it applies, with a count ("✓ 2", "● 4", "🗑 4").
+- **N:** the top-right corner holds the Search glyph ⌕, the edit glyph ✎ and the Settings glyph ⚙.
+  - ✎ starts a selection (checkboxes appear) and holds the screen's own edits: Sort on Pages and Reminders, Edit home on Today.
+- **The selection's actions show in the header**, which reads "n selected" with ✕.
+  - The owner's pasted note of a bottom bar for the menu is superseded by this answer.
+- **T:** Trash's Pages section is grouped per page. Empty Trash is held, fixed top right.
+- **Already decided:**
+  - A: anchored;
+  - B: 7 s, merged, swiped away, Trash and "Done today" as the way back;
+  - C: in place, near, held;
+  - D: a card on Today, versions stacked, words;
+  - E: asked when first needed;
+  - F: a banner;
+  - H: discarded with Undo.
+- **Data-layer work owed** (inventory draft 4):
+  - Restore for items and trackers;
+  - Trash for activities, canvas cards, labels and database parts;
+  - Delete forever for checklists and charts;
+  - labels on tasks, events, reminders and checklists (ADR 08 amendment, schema bump);
+  - the archived flag removed;
+  - a reminder on a database row;
+  - a test of Skip on a standalone reminder;
+  - a vocabulary gate test across every kind.
