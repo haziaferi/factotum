@@ -1,0 +1,111 @@
+{
+ "a": {
+  "v": {
+   "look": "heavy",
+   "overflow": "wrap",
+   "placement": "below"
+  },
+  "why": "heavy dark chips (bold, 14 px, a mark), every name, wrapped below the title",
+  "truncated": 1,
+  "title_room": 208.0,
+  "extra_h": 26.5,
+  "lines": 2,
+  "hidden": 0,
+  "rows_lost": 2,
+  "min_text": 12.5,
+  "apart": 3,
+  "clutter": 0.068
+ },
+ "b": {
+  "v": {
+   "container": "page",
+   "shape": "list",
+   "control": true
+  },
+  "why": "a full page, a list, rename/colour/delete on every row, every pick confirmed with Done",
+  "actions": 23,
+  "per_task": {
+   "a": 2,
+   "b": 15,
+   "c": 2,
+   "d": 4
+  },
+  "reach": 3.527,
+  "unseen": [],
+  "small": [],
+  "covered": 1.0,
+  "controls": 42,
+  "labels_seen": 10,
+  "clutter": 0.0467
+ },
+ "c": {
+  "v": {
+   "place": "dialog"
+  },
+  "why": "a dialog over the line, every match a row, each pick confirmed with OK",
+  "actions": 18,
+  "per_task": {
+   "a": 5,
+   "b": 4,
+   "c": 9
+  },
+  "shown": 2,
+  "small": [],
+  "clutter": 0.0272,
+  "line_covered": true
+ },
+ "d": {
+  "v": {
+   "form": "nested"
+  },
+  "why": "nested pages: list › label › a page per property with Save, reorder behind Edit, delete confirmed, rows written out",
+  "actions": 33,
+  "per_task": {
+   "a": 14,
+   "b": 5,
+   "c": 3,
+   "d": 4,
+   "e": 2,
+   "f": 5
+  },
+  "unseen": [],
+  "small": [],
+  "controls_per_row": 1.8,
+  "clutter": 0.059
+ },
+ "e": {
+  "v": {
+   "behaviour": "menu",
+   "target": 48,
+   "placement": "below",
+   "look": "tint"
+  },
+  "why": "tinted 48 dp chips below the title; a tap opens a menu (View, Filter, Remove) first",
+  "see_all": 3,
+  "complete": 1,
+  "reach": 2.971,
+  "exposure": 0.119,
+  "chips": 5,
+  "title_room": 208.0,
+  "extra_h": 41.0,
+  "rows_lost": 3,
+  "clutter": 0.0416
+ },
+ "f": {
+  "v": {
+   "place": "lead",
+   "several": "names",
+   "entry": "tap"
+  },
+  "why": "every label as a dot and its name, stacked under the time, the stack a target",
+  "title_room": 229.2,
+  "extra_h": 11.8,
+  "rows_lost": 2,
+  "column": 0,
+  "exposure": 0.091,
+  "reach": 3.212,
+  "see_all": 2,
+  "small": [],
+  "clutter": 0.0567
+ }
+}

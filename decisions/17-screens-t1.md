@@ -1141,7 +1141,16 @@ Mockups: `docs/screens/t1/labels-options.html`.
   - **A label view and the filter tie on every scored axis** (both take 2 actions, same reach, room and clutter). They differ only in what they show: the view gathers every kind, the filter only the screen it is on. That column is in the table but on no axis. (Corrected 2026-10-09: this line first said the view beat the filter "on every measure".)
   - **A label view against a mark only:** 2 actions against 10 (searching #health). The view's costs are mis-tap exposure (4.5–7.7% of a row's area) and reach to a small target (Fitts 3.6–3.8).
   - **32 dp against 28 dp:** reach 3.59 against 3.78, for 1 px more height and about 1% more exposure. On the rank sums 28 dp comes out ahead (inline text: 76.5 against 84.5), because exposure and height count against 32; 32 wins on reach alone.
-- **Score tables (every variant of A–F, raw measures, rank-sum axes, the front, the gate):** `docs/screens/t1/labels-scores.html`, from `label_opt.py scores`. Part C's reach and line movement and part F's chosen dot are measured there, not copied. No control variant was run in T1.7.
+- **Score tables (every variant of A–F, raw measures, rank-sum axes, the front, the gate):** `docs/screens/t1/labels-scores.html`, from `label_opt.py scores`. Part C's reach and line movement and part F's chosen dot are measured there, not copied.
+- **Controls added at the owner's request (2026-10-09), one per part, scored like the rest (`label_opt.py controls`, `labels-controls.json`).** The table run fails if any control reaches the front.
+  - A: heavy dark chips, every name wrapped below the title. Last of 31 (clutter 0.068, 26.5 px a row, 2 rows lost).
+  - B: a page with rename, colour and delete on every row, and each pick confirmed. Last of 7 (23 actions, 42 controls).
+  - C: a dialog over the line, with OK after each pick. Last of 4 (18 actions against 14, and the line is hidden).
+  - D: nested pages, one page per property with Save, reorder behind Edit, and a confirmation before deleting. Last of 4 (33 actions; clutter 0.059 against 0.028–0.035). Its taller rows put Projects below the fold, so one scroll is counted.
+  - E: 48 dp chips below the title, with a menu first. Off the front; 22 of 24 have a lower sum.
+  - F: each dot with its name stacked under the time. On the first run it reached the front: it was the only tappable variant with every dot on one line, because the centred count had been measured on the chosen dot alone.
+    - The centred count was then scored for all four count variants. The control fell off the front: 15 of 16 have a lower sum.
+    - The chosen dot stays on the front, with the lowest sum.
   - **A tappable chip below the title** loses 2 rows below the bar; after the title, none.
 - **C, the `#` suggestions:** the owner asked to score chips above the line against below it. With the same keyboard:
   - below: the line moves 25 px, reach 2.49;

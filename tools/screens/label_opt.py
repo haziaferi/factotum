@@ -42,7 +42,7 @@ import tier_t1 as t  # noqa: E402
 LOOKS = ["text", "dot", "outline", "tint", "hash"]
 OVERFLOW = ["first", "fit", "wrap"]
 PLACEMENT = ["inline", "below"]
-APART = {"text": 2, "dot": 3, "outline": 3, "tint": 3, "hash": 3}  # smaller text and dim ink, plus a mark or a boundary
+APART = {"text": 2, "dot": 3, "outline": 3, "tint": 3, "hash": 3, "heavy": 3}  # smaller text and dim ink, plus a mark or a boundary
 ROUTINES = [("habit", "Walk", "07:00", ["Health"]), ("habit", "Water", "14:00", ["Health"]), ("habit", "Stretch", "", ["Body"]),
             ("habit", "Read before bed", "22:00", ["Calm"])]
 PAGES = [("Garden plan", ["Home", "Outdoors", "Seasonal", "Projects"]), ("Reading notes", ["Books", "Ideas"]),
@@ -63,6 +63,9 @@ CSS = """
 .lb.tint{background:var(--zone2);border-radius:999px;padding:0 8px;height:22px;color:var(--ink)}
 .lb.dot::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--dim)}
 .lb.more{color:var(--dim)}
+/* control: built to lose */
+.lb.heavy{background:var(--ink);color:var(--bg);border-radius:6px;padding:0 10px;height:26px;font-size:14px;font-weight:600}
+.lb.heavy::before{content:"\25C6";font-size:10px}
 """
 # "fit": labels that do not fit their row are hidden and counted in +n, measured on the laid-out page
 FIT_JS = """<script>(function(){document.querySelectorAll('.lbs.fit').forEach(function(b){var ls=[].slice.call(b.querySelectorAll('.lb:not(.more)')),m=b.querySelector('.more');
@@ -222,7 +225,9 @@ def picker_body(v, state, multi):
     create = state == "typed"
     if v["shape"] == "list":
         rows = "" if multi or create else '<div class="lrow2 mk" data-tap="Lb none">No label</div>'
-        rows += "".join('<div class="lrow2" data-tap="Lb %s"><span class="dt"></span>%s<span class="ck2">%s</span></div>' % (n, n, "✓" if n in chosen else "") for n in names)
+        extra = (lambda n: "".join('<span data-tap="%s %s" style="min-width:48px;min-height:48px;display:inline-flex;align-items:center;justify-content:center;color:var(--dim)">%s</span>' % (k, n, g)
+                                  for k, g in (("Ren", "✎"), ("Col", "●"), ("Del", "×")))) if v.get("control") else (lambda n: "")
+        rows += "".join('<div class="lrow2"><span data-tap="Lb %s" style="flex:1;min-height:48px;display:flex;align-items:center;gap:10px"><span class="dt"></span>%s<span class="ck2">%s</span></span>%s</div>' % (n, n, "✓" if n in chosen else "", extra(n)) for n in names)
         if create:
             rows += '<div class="lrow2" data-tap="Create">Create “Sample label”</div>'
         items = rows
@@ -243,7 +248,7 @@ def picker_phone(v, state, kb, multi):
         style = ' style="bottom:290px"'
     pk = '<div class="%s"%s data-picker="1">%s</div>' % (cls, style, picker_body(v, state, multi))
     if c == "page":
-        return kit.phone(kit.header("Label", (("✓", "Done"),) if multi else (), ("‹", "Back")),
+        return kit.phone(kit.header("Label", (("✓", "Done"),) if multi or v.get("control") else (), ("‹", "Back")),
                          '<div class="c2" style="position:relative;height:100%%">%s</div>' % pk, KB.replace('class="kb"', 'class="kb" style="position:absolute;left:0;right:0;bottom:0;height:290px"') if kb else "")
     today = kit.phone(kit.header(t.TITLE, t.APPROVED_BUTTONS), '<div class="cap">+ <span>Add…</span></div>' + t.rows_today(t.row_d), kit.bar("Today"))
     today = today.replace("data-tap=", "data-behind=")
@@ -274,6 +279,9 @@ def score_b(v):
     }
     if v["shape"] == "grid":
         tasks["c"] = tap("base", "Lb none")
+    if v.get("control"):  # every pick is confirmed with Done
+        for k in ("a", "b", "c"):
+            tasks[k] = tasks[k] + tap("typed" if k == "b" else "base", "Done")
     actions, ids, miss, per = 0, [], set(), {}
     for k, task in tasks.items():
         n, m, i = walk(views, task, {"Search field"})
@@ -322,6 +330,12 @@ def c_sheet(v, typed):
         if v["place"] == "above":
             return '<div class="sheet" style="position:relative">%s%s<div class="hint">Task · # label</div></div>' % (hint, line)
         return '<div class="sheet" style="position:relative">%s%s</div>' % (line, hint)
+    if v["place"] == "dialog":
+        rows = "".join('<div class="sr" data-tap="Sug %s">%s</div>' % (n, n) for n in matches) + '<div class="sr" data-tap="Create">Create %s</div>' % typed
+        dlg = ('<div style="position:absolute;left:20px;right:20px;bottom:0;background:var(--bg);border-radius:16px;box-shadow:0 8px 28px rgba(0,0,0,.25);padding:8px 0;z-index:5">'
+               '<div style="padding:8px 16px;font-size:17px;font-weight:600">Choose a label</div><div class="slist" style="box-shadow:none;border-radius:0">%s</div>'
+               '<div style="display:flex;justify-content:flex-end;gap:8px;padding:4px 8px 0">%s%s</div></div>') % (rows, R.b("Cancel", "Cancel"), R.b("OK", "OK"))
+        return '<div class="sheet" style="position:relative">%s<div class="hint">Task · # label</div>%s</div>' % (line, dlg)
     if v["place"] == "list":
         rows = "".join('<div class="sr" data-tap="Sug %s">%s</div>' % (n, n) for n in matches[:4]) + '<div class="sr" data-tap="Create">Create %s</div>' % typed
         return '<div class="slist">%s</div><div class="sheet" style="position:relative">%s<div class="hint">Task · # label</div></div>' % (rows, line)
@@ -347,6 +361,8 @@ def score_c(v):
         a = 3 + (1 if seen(he, "Sug Health") else 3)
         b = 2 + (1 if seen(h, "Sug Home") else 3)
     c = len("#garden")
+    if v["place"] == "dialog":  # each pick is confirmed with OK; the new label is created from its row, then OK
+        a, b, c = a + 1, b + 1, c + 2
     d = ss.measure(c_doc(v, "#h"), 360, 740)
     shown = sum(1 for x in d["taps"] if x["name"].startswith("Sug ") and x.get("seen"))
     covered_line = d.get("line_covered", False)
@@ -404,8 +420,32 @@ def d_detail(state):
     return kit.phone(kit.header("Health", (), ("‹", "Back")), body, "")
 
 
+def d_nested(state):
+    """The control: every row opens the label (› or ⋯, both), with its count, scope and use written out; each property
+    is a page of its own with Save; reorder sits behind Edit; delete asks first."""
+    if state in ("list", "edit"):
+        rows = "".join(('<div class="mrow" style="min-height:60px">%s<span class="nm" data-tap="Open %s" style="flex-direction:column;align-items:flex-start;justify-content:center">%s'
+                        '<span style="font-size:12.5px;color:var(--dim)">Everything · %d items · used today</span></span><span class="ic"><span class="dt"></span></span>'
+                        '<span class="ic" data-tap="More %s">⋯</span><span class="ic">›</span></div>') % (
+                            '<span class="ic" data-tap="Handle %s">≡</span>' % n if state == "edit" else "", n, n, COUNTS[n], n) for n in LABELS)
+        return kit.phone(kit.header("Labels", (("✎", "Edit" if state == "list" else "Done"), ("+", "New label")), ("‹", "Back")),
+                         '<div class="c2" style="padding:0 12px">%s</div>' % rows, "")
+    if state in ("detail", "confirm"):
+        rows = "".join('<div class="mrow" data-tap="Go %s"><span class="nm">%s</span><span class="ic">›</span></div>' % (k, k) for k in ("Rename", "Colour", "Scope", "Carries", "Delete"))
+        body = '<div class="c2" style="padding:0 12px">%s</div>' % rows
+        if state == "confirm":
+            body += ('<div class="scrim" style="background:rgba(0,0,0,.3)"></div><div style="position:absolute;left:24px;right:24px;top:260px;background:var(--bg);border-radius:16px;padding:16px">'
+                     '<div style="font-size:17px;font-weight:600">Delete this label?</div><div style="color:var(--dim);font-size:14px;margin:6px 0 10px">It comes off every item.</div>'
+                     '<div style="display:flex;justify-content:flex-end;gap:8px">%s%s</div></div>') % (R.b("Cancel", "Cancel"), R.b("Confirm delete", "Delete"))
+        return kit.phone(kit.header("Health", (), ("‹", "Back")), body, "")
+    body = ('<div class="c2" style="padding:0 12px">%s<div class="row">%s%s%s</div><div class="row">%s</div></div>') % (
+        R.row(R.field("Sub field", "Health", "field")), R.ch("Scope all", "Everything", True), R.ch("Scope act", "Activities"), R.ch("Scope trk", "Trackers"),
+        "".join(R.ch("Swatch %d" % i, "●") for i in range(6)))
+    return kit.phone(kit.header("Rename", (("✓", "Save"),), ("‹", "Back")), body, "")
+
+
 def d_doc(v, state, kb=False, theme="light"):
-    page = d_detail(state) if state in ("detail", "colours") else d_list(v, state)
+    page = d_nested(state) if v["form"] == "nested" else d_detail(state) if state in ("detail", "colours") else d_list(v, state)
     if state == "colours" and v["form"] != "detail":
         page = d_list(v, "list")[:-len("</div>")] + '<div class="c2" style="position:absolute;left:0;right:0;bottom:0;padding:0 12px;background:var(--zone)"><div class="row">%s</div></div></div>' % "".join(R.ch("Swatch %d" % i, "●") for i in range(6))
     if kb:
@@ -414,10 +454,17 @@ def d_doc(v, state, kb=False, theme="light"):
 
 
 def score_d(v):
-    states = ("list", "menu", "detail", "colours")
+    states = ("list", "edit", "detail", "sub", "confirm") if v["form"] == "nested" else ("list", "menu", "detail", "colours")
     views = views_of({s: (d_doc(v, s), d_doc(v, s, True)) for s in states})
     f = v["form"]
-    if f == "direct":
+    if f == "nested":
+        tasks = {"a": tap("list", "Open Health") + tap("detail", "Go Rename") + tap("sub", "Sub field") + typ("sub", 9) + tap("sub", "Save") + tap("detail", "Back"),
+                 "b": tap("list", "Open Books") + tap("detail", "Go Scope") + tap("sub", "Scope act", "Save") + tap("detail", "Back"),
+                 "c": tap("list", "Open Calm") + tap("detail", "Go Delete") + tap("confirm", "Confirm delete"),
+                 "d": tap("list", "Edit") + tap("edit", "Handle Projects", "Done"),
+                 "e": tap("list", "Open Health") + tap("detail", "Go Carries"),
+                 "f": tap("list", "Open Home") + tap("detail", "Go Colour") + tap("sub", "Swatch 0", "Save") + tap("detail", "Back")}
+    elif f == "direct":
         tasks = {"a": tap("list", "Name Health") + typ("list", 9) + tap("list", "Name Health"),
                  "b": tap("list", "Scope Books"), "c": tap("list", "Delete Calm"), "d": tap("list", "Handle Projects"),
                  "e": tap("list", "Count Health"), "f": tap("list", "Colour Home") + tap("colours", "Swatch 0")}
@@ -432,14 +479,16 @@ def score_d(v):
                  "d": tap("list", "Handle Projects"), "e": tap("list", "Open Health"), "f": tap("list", "Open Home") + tap("detail", "Colour row") + tap("colours", "Swatch 0") + tap("detail", "Back")}
     actions, miss, per = 0, set(), {}
     for k, task in tasks.items():
-        n, m, _ = walk(views, task, {"Name field", "Name Health"}, closers=("Back",))
+        n, m, _ = walk(views, task, {"Name field", "Name Health", "Sub field"}, closers=("Back", "Save"))
+        if f == "nested" and m == {"edit: Handle Projects"}:  # its taller rows put Projects below the fold: one scroll
+            n, m = n + 1, set()
         actions += n
         miss |= m
         per[k] = n
     lst = ss.measure(d_doc(v, "list"), 360, 740)
     rows = len(LABELS)
     return {"actions": actions, "per_task": per, "unseen": sorted(miss), "small": small_of({"list": views["list"]}),
-            "controls_per_row": round(len([x for x in lst["taps"] if x.get("seen") and x["name"] not in ("Back", "New label")]) / rows, 1),
+            "controls_per_row": round(len([x for x in lst["taps"] if x.get("seen") and x["name"] not in ("Back", "New label", "Edit")]) / rows, 1),
             "clutter": clutter_of(lambda th: d_doc(v, "list", False, th))}
 
 
@@ -616,8 +665,8 @@ def score_e(v):
     reach = round(sum(math.log2(math.hypot(P.THUMB[0] - x["x"], P.THUMB[1] - x["y"]) / min(x["w"], x["h"]) + 1) for x in chips) / len(chips), 3) if chips else None
     # see everything carrying Health from Today, and back: view 1 + back 1; filter 1 + clear 1 (this screen only);
     # mark: search (1), "#health" (7 keys), its result (1), back (1)
-    see_all = {"view": 2, "filter": 2, "mark": 10}[v["behaviour"]]
-    complete = {"view": 1, "filter": 0, "mark": 1}[v["behaviour"]]
+    see_all = {"view": 2, "filter": 2, "mark": 10, "menu": 3}[v["behaviour"]]
+    complete = {"view": 1, "filter": 0, "mark": 1, "menu": 1}[v["behaviour"]]
     d = doc(dict(look=v["look"], overflow="first", placement=v["placement"])).replace("</body>", PROBE + "</body>")
     if v["behaviour"] != "mark":
         d = e_doc(v).replace("</body>", PROBE + "</body>")
@@ -677,6 +726,10 @@ F_CSS = """
 
 
 def dots_html(n, v):
+    if v["several"] == "names":  # the control: n is the list of names
+        inner = "".join('<span style="display:inline-flex;align-items:center;gap:3px;font-size:11px;color:var(--dim);white-space:nowrap"><i></i>%s</span>' % x for x in n)
+        d = '<span class="dots" style="flex-direction:column;align-items:flex-start;gap:1px">%s</span>' % inner
+        return '<span class="dtap" data-tap="Dots">%s</span>' % d if v["entry"] == "tap" else d
     if v["several"] == "count":
         inner = "<i></i>" + ('<span class="n">%d</span>' % n if n > 1 else "")
     else:
@@ -687,15 +740,17 @@ def dots_html(n, v):
 
 def f_row(lead, title, n, v, act=""):
     dots = dots_html(n, v)
-    lead_html = '<span class="lead"><span>%s</span>%s</span>' % (lead, dots if v["place"] == "lead" else "")
+    wide = ' style="width:auto;min-width:44px;align-items:flex-start"' if v["several"] == "names" else ""
+    lead_html = '<span class="lead"%s><span>%s</span>%s</span>' % (wide, lead, dots if v["place"] == "lead" else "")
     right = (dots if v["place"] == "action" else "") + ('<span class="act">%s</span>' % act if act else ('<span class="act"></span>' if v["place"] == "action" else ""))
     return '<div class="drow" data-tap="Open item">%s<span class="tt">%s</span>%s</div>' % (lead_html, kit.ud(title), right)
 
 
 def f_phone(v):
     fbar = '<div class="fbar">%s</div>' % "".join(R.ch("Filter %s" % n, '<span class="dots"><i></i></span>&nbsp;' + n) for n in ("Health", "Body", "Calm", "Home", "Books"))
-    routines = "".join(f_row(time or t.KIND_MARK["habit"], title, len(names), v, "Log") for _, title, time, names in ROUTINES)
-    pages = "".join(f_row("▤", title, len(names), v) for title, names in PAGES)
+    cnt = (lambda names: names) if v["several"] == "names" else len
+    routines = "".join(f_row(time or t.KIND_MARK["habit"], title, cnt(names), v, "Log") for _, title, time, names in ROUTINES)
+    pages = "".join(f_row("▤", title, cnt(names), v) for title, names in PAGES)
     return kit.phone(kit.header(t.TITLE, t.APPROVED_BUTTONS), '<div class="c2">%s</div>' % fbar + kit.zone("Routines", routines) + kit.zone("Pages", pages), kit.bar("Today"))
 
 
@@ -727,6 +782,25 @@ def score_f(v):
 
 if __name__ == "__main__" and "f" in sys.argv[1:]:
     run_part("f", F_SPACE, score_f)
+
+
+def run_f_centred():
+    """The count hung beside its dot (owner's "exactly vertically centred") for every count variant, not only the chosen
+    one: added to labels-f.json (the F control first reached the front because no tappable centred variant existed)."""
+    path = os.path.join(v2.OUT, "labels-f.json")
+    with open(path, encoding="utf-8") as fh:
+        rows = [r for r in json.load(fh) if not r["v"].get("centred")]
+    for place in F_SPACE["place"]:
+        for entry in F_SPACE["entry"]:
+            v = {"place": place, "several": "count", "entry": entry, "centred": True}
+            rows.append(dict(v=v, **score_f(v)))
+            print(rows[-1], flush=True)
+    with open(path, "w", encoding="utf-8", newline=chr(10)) as fh:
+        json.dump(rows, fh, indent=1, ensure_ascii=False)
+
+
+if __name__ == "__main__" and "fcentred" in sys.argv[1:]:
+    run_f_centred()
 
 
 def dots_page():
@@ -779,16 +853,19 @@ def rest_page():
     r = score_f(CHOSEN_DOT)
     sec = '<h3>The chosen dots</h3><p class="dim">Under the time or mark, one dot and its count; every dot on one vertical line (strays %d px), titles %s px, no row height added.</p><div class="flex">%s</div>' % (
         r["column"], r["title_room"], fig("Today and Pages, the chosen dots", f_doc(CHOSEN_DOT)))
-    sec += '<h3>The # suggestions: above or below the line</h3><div class="flex">%s%s</div>' % (
+    sec += '<h3>The # suggestions: above or below the line</h3><div class="flex">%s%s%s</div>' % (
         fig("Above: the line stays put while you type; reach 2.81", c_doc({"place": "above"}, "#h")),
-        fig("Below (the hint line's place): reach 2.49, the line moves up 25 px", c_doc({"place": "below"}, "#h")))
-    sec += '<h3>Settings › Labels</h3><div class="flex">%s%s%s</div>' % (
+        fig("Below (the hint line's place): reach 2.49, the line moves up 25 px", c_doc({"place": "below"}, "#h")),
+        fig("Control (lost): a dialog over the line, OK after each pick; 18 actions, the line hidden", c_doc({"place": "dialog"}, "#h")))
+    sec += '<h3>Settings › Labels</h3><div class="flex">%s%s%s%s%s</div>' % (
         fig("Direct controls: 17 actions, 6 controls a row", d_doc({"form": "direct"}, "list")),
         fig("A page per label: the list (23 actions, 2 controls a row)", d_doc({"form": "detail"}, "list")),
-        fig("…a label's page: name, colour, scope, what carries it, Delete", d_doc({"form": "detail"}, "detail")))
+        fig("…a label's page: name, colour, scope, what carries it, Delete", d_doc({"form": "detail"}, "detail")),
+        fig("Control (lost): nested pages, a page per property with Save; 33 actions, clutter 0.059", d_doc({"form": "nested"}, "list")),
+        fig("…the control's label page: every property one more page away", d_doc({"form": "nested"}, "detail")))
     css = "body{font:14px/1.4 system-ui,sans-serif;padding:16px;background:#f4f4f2;color:#1d1d1b}h3{font-size:15px;margin:20px 0 6px}.dim{color:#6b6b66}.flex{display:flex;gap:12px;flex-wrap:wrap}figure{margin:0;max-width:300px}figcaption{font-size:12px;color:#6b6b66}"
     out = ('<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>T1.7 labels, the rest</title><style>%s</style></head><body>'
-           '<h1 style="font-size:20px">T1.7 Labels: the chosen dots, and the parts still open</h1>%s</body></html>') % (css, sec)
+           '<h1 style="font-size:20px">T1.7 Labels: the chosen dots, and the parts still open</h1><p class="dim">Every number is in labels-scores.html, one table per part, with its control.</p>%s</body></html>') % (css, sec)
     with open(os.path.join(v2.OUT, "labels-rest.html"), "w", encoding="utf-8", newline=chr(10)) as fh:
         fh.write(out)
     print(len(out), r)
@@ -798,12 +875,37 @@ if __name__ == "__main__" and "rest" in sys.argv[1:]:
     rest_page()
 
 
+# ==== controls: one variant per part built to lose; it must stay off the front ==============================================
+CONTROLS = {
+    "a": ({"look": "heavy", "overflow": "wrap", "placement": "below"}, "heavy dark chips (bold, 14 px, a mark), every name, wrapped below the title"),
+    "b": ({"container": "page", "shape": "list", "control": True}, "a full page, a list, rename/colour/delete on every row, every pick confirmed with Done"),
+    "c": ({"place": "dialog"}, "a dialog over the line, every match a row, each pick confirmed with OK"),
+    "d": ({"form": "nested"}, "nested pages: list › label › a page per property with Save, reorder behind Edit, delete confirmed, rows written out"),
+    "e": ({"behaviour": "menu", "target": 48, "placement": "below", "look": "tint"}, "tinted 48 dp chips below the title; a tap opens a menu (View, Filter, Remove) first"),
+    "f": ({"place": "lead", "several": "names", "entry": "tap"}, "every label as a dot and its name, stacked under the time, the stack a target"),
+}
+
+
+def run_controls():
+    fns = {"a": score_a, "b": score_b, "c": score_c, "d": score_d, "e": score_e, "f": score_f}
+    out = {}
+    for p, (v, why) in CONTROLS.items():
+        out[p] = dict(v=v, why=why, **fns[p](v))
+        print(p, out[p], flush=True)
+    with open(os.path.join(v2.OUT, "labels-controls.json"), "w", encoding="utf-8", newline=chr(10)) as fh:
+        json.dump(out, fh, indent=1, ensure_ascii=False)
+
+
+if __name__ == "__main__" and "controls" in sys.argv[1:]:
+    run_controls()
+
+
 # ==== the score tables: every variant of every part, its measures, its axes and the front ===============================
 SCORE_AXES = {
     # part: {axis: (measure, ...)}; a measure prefixed "-" counts more as better
     "a": {"Clutter": ("clutter",), "Apart": ("-apart",), "Density": ("-title_room", "extra_h", "rows_lost", "hidden", "lines"), "Refs": ("ref_distance",)},
     "b": {"Ease": ("actions", "reach"), "Clutter": ("clutter", "covered", "controls"), "Shown": ("-labels_seen",), "Refs": ("ref_distance",)},
-    "c": {"Ease": ("actions", "reach"), "Calm": ("clutter", "line_move"), "Shown": ("-shown",), "Refs": ("ref_distance",)},
+    "c": {"Ease": ("actions", "reach"), "Calm": ("clutter", "line_move", "line_hidden"), "Shown": ("-shown",), "Refs": ("ref_distance",)},
     "d": {"Ease": ("actions",), "Clutter": ("clutter", "controls_per_row"), "Refs": ("ref_distance",)},
     "e": {"Ease": ("see_all", "reach"), "Clutter": ("clutter", "exposure"), "Density": ("-title_room", "extra_h", "rows_lost")},
     "f": {"Density": ("-title_room", "extra_h", "rows_lost"), "Order": ("column",), "Ease": ("see_all",), "Clutter": ("clutter",)},
@@ -811,7 +913,7 @@ SCORE_AXES = {
 SCORE_COLS = {
     "a": ["title_room", "extra_h", "rows_lost", "hidden", "lines", "truncated", "min_text", "apart", "clutter", "ref_distance"],
     "b": ["actions", "reach", "covered", "controls", "labels_seen", "clutter", "ref_distance"],
-    "c": ["actions", "reach", "line_move", "shown", "clutter", "ref_distance"],
+    "c": ["actions", "reach", "line_move", "line_hidden", "shown", "clutter", "ref_distance"],
     "d": ["actions", "controls_per_row", "clutter", "ref_distance"],
     "e": ["see_all", "complete", "reach", "exposure", "chips", "title_room", "extra_h", "rows_lost", "clutter"],
     "f": ["title_room", "extra_h", "rows_lost", "column", "see_all", "reach", "exposure", "clutter"],
@@ -823,7 +925,7 @@ SCORE_HELP = {
     "ref_distance": "share of the 8 captured apps that draw it differently", "actions": "taps and keys over the part's tasks",
     "reach": "Fitts ID from the thumb (lower is easier)", "covered": "share of the screen covered", "controls": "controls on screen",
     "labels_seen": "labels visible, of 12", "line_move": "px the capture line moves when suggestions appear",
-    "shown": "suggestions visible", "controls_per_row": "controls on each Settings row",
+    "shown": "suggestions visible", "line_hidden": "1 = the capture line is covered while choosing", "controls_per_row": "controls on each Settings row",
     "see_all": "actions to see everything carrying a label, and back",
     "complete": "1 = the view shows every kind (tasks, pages, entries)", "exposure": "tap area per row, share of the row",
     "chips": "chips that are targets", "column": "px the dots stray from one vertical line",
@@ -853,15 +955,18 @@ def scores_page():
              "c": "Tasks: a = \"#he\" then Health; b = \"#h\" then Home (the second match); c = \"#garden\", a new label.",
              "d": "Tasks: a = rename Health; b = scope Books; c = delete Calm; d = move Projects up; e = see what carries Health; f = colour Home."}
     out = []
+    with open(os.path.join(v2.OUT, "labels-controls.json"), encoding="utf-8") as fh:
+        controls = json.load(fh)
+    lost = {}
     for p in "abcdef":
         with open(os.path.join(v2.OUT, "labels-%s.json" % p), encoding="utf-8") as fh:
             rows = json.load(fh)
+        rows.append(dict(controls[p], control=True))
         if p == "c":
             for r in rows:
                 r["reach"] = c_reach(r["v"]) if r["shown"] else None
                 r["line_move"] = c_line_move(r["v"])
-        if p == "f":
-            rows.append(dict(v=dict(CHOSEN_DOT), **score_f(CHOSEN_DOT)))
+                r["line_hidden"] = int(not [x for x in ss.measure(c_doc(r["v"], "#h"), 360, 740)["taps"] if x["name"] == "More"][0].get("seen"))
         for r in rows:
             if p in keys:
                 v = dict(r["v"])
@@ -884,8 +989,11 @@ def scores_page():
         for r in ok:
             r["front"] = not any(all(o[a] <= r[a] for a in ax) and any(o[a] < r[a] for a in ax) for o in ok if o is not r)
             r["total"] = sum(r[a] for a in ax)
+        ctl = next(r for r in rows if r.get("control"))
+        worse = sum(1 for r in ok if r is not ctl and r.get("total", 0) < ctl.get("total", 1e9))
+        lost[p] = ctl in ok and not ctl.get("front")
         order = sorted(rows, key=lambda r: (r not in ok, not r.get("front"), r.get("total", 1e9)))
-        vk = list(dict.fromkeys(k for r in rows for k in r["v"]))
+        vk = [k for k in dict.fromkeys(k for r in rows for k in r["v"]) if k != "control"]
         cols = SCORE_COLS[p]
 
         def cell(x):
@@ -900,16 +1008,19 @@ def scores_page():
         body = []
         for r in order:
             gate = "pass" if r in ok else "fails: " + H.escape(", ".join(r.get("small", []) + r.get("unseen", [])))
-            cls = " ".join(c for c in ("ch" if chosen.get(p) == r["v"] else "", "fr" if r.get("front") else "", "fail" if r not in ok else "") if c)
+            cls = " ".join(c for c in ("ch" if chosen.get(p) == r["v"] else "", "fr" if r.get("front") else "", "fail" if r not in ok else "", "ctl" if r.get("control") else "") if c)
             body.append('<tr class="%s">%s%s%s<td class=ax>%s</td><td>%s</td><td>%s</td></tr>' % (
                 cls, "".join("<td>%s</td>" % cell(r["v"].get(k, "")) for k in vk),
                 "".join("<td>%s</td>" % cell(r.get(c)) for c in cols),
                 "".join("<td class=ax>%g</td>" % r[a] if r in ok else "<td class=ax>—</td>" for a in ax),
-                "%g" % r["total"] if r in ok else "—", "★" if r.get("front") else "", gate))
+                "%g" % r["total"] if r in ok else "—", "★" if r.get("front") else "", ("control · " if r.get("control") else "") + gate))
         axis_line = "; ".join("<b>%s</b> = rank-sum of %s" % (a, ", ".join(k.lstrip("-") + (" (more is better)" if k.startswith("-") else "") for k in ks)) for a, ks in axes.items())
-        out.append('<h2 id="%s">%s</h2><p class=dim>%d variants · %d pass the gate · %d on the Pareto front (★). %s</p>'
-                   '<p class=dim>Axes, lower is better: %s.</p><div class=wrap><table><tr>%s</tr>%s</table></div>' % (
-                       p, titles[p], len(rows), len(ok), sum(1 for r in ok if r.get("front")), tasks.get(p, ""), axis_line, head, "".join(body)))
+        verdict = ("<b>Control lost:</b> off the front; %d of %d passing variants have a lower sum." % (worse, len(ok) - 1)) if lost[p] else \
+            ("<b>CONTROL DID NOT LOSE</b> (%s): the axes cannot tell it from a real option." % ("on the front" if ctl in ok else "it failed the gate instead"))
+        out.append('<h2 id="%s">%s</h2><p class=dim>%d variants and the control · %d pass the gate · %d on the Pareto front (★). %s</p>'
+                   '<p class=dim>Axes, lower is better: %s.</p><p>Control: %s. %s</p><div class=wrap><table><tr>%s</tr>%s</table></div>' % (
+                       p, titles[p], len(rows) - 1, len(ok), sum(1 for r in ok if r.get("front")), tasks.get(p, ""), axis_line,
+                       H.escape(ctl["why"]), verdict, head, "".join(body)))
     legend = "".join("<li><b>%s</b>: %s</li>" % (k, H.escape(v)) for k, v in SCORE_HELP.items())
     doc = """<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Label Score Tables</title>
 <style>:root{--bg:#fafafa;--fg:#1c1c1c;--dim:#777;--line:#ddd;--ch:#dcdcdc;--fr:#f0f0f0}
@@ -918,17 +1029,20 @@ def scores_page():
 body{background:var(--bg);color:var(--fg);font:14px/1.45 system-ui,sans-serif;margin:0;padding:16px;max-width:1500px}
 .dim{color:var(--dim)}.wrap{overflow-x:auto}table{border-collapse:collapse;font-size:12.5px;font-variant-numeric:tabular-nums}
 th,td{border-bottom:1px solid var(--line);padding:4px 7px;text-align:left;white-space:nowrap}th{background:var(--bg)}
-.ax{border-left:1px solid var(--line)}tr.fr{background:var(--fr)}tr.ch{background:var(--ch);font-weight:700}tr.fail td{color:var(--dim)}
+.ax{border-left:1px solid var(--line)}tr.ctl td{font-style:italic;border-top:2px dashed var(--dim)}tr.fr{background:var(--fr)}tr.ch{background:var(--ch);font-weight:700}tr.fail td{color:var(--dim)}
 li{margin:2px 0}</style></head><body>
 <h1>T1.7 labels: score tables</h1>
 <p>Every variant scored, generated from the measured files (labels-a…f.json) by <code>python tools/screens/label_opt.py scores</code>.
 Measures come from headless Edge at 360×740: targets, reach, row heights, and clutter rendered light and dark. Axes are rank sums within a part (lower is better); ★ marks the Pareto front; <b>bold</b> rows are the owner's choices so far; grey rows failed the gate (a target under 48 dp where no exception was set, or a target that cannot be reached).</p>
-<p class=dim>No deliberate control (a variant built to lose) was included in T1.7: the losers are the gate failures and the dominated rows.</p>
+<p class=dim>Each part has one control, in italics with a dashed rule: a variant built to be heavier or deeper than anything in its space. It must pass the gate and stay off the front; if it does not, the axes are suspect and the run fails.</p>
 %s<h2>Measures</h2><ul>%s</ul></body></html>""" % ("".join(out), legend)
     path = os.path.join(v2.OUT, "labels-scores.html")
     with open(path, "w", encoding="utf-8", newline=chr(10)) as fh:
         fh.write(doc)
     print(path)
+    print("controls lost:", lost)
+    if not all(lost.values()):
+        sys.exit(1)
 
 
 if __name__ == "__main__" and "scores" in sys.argv[1:]:
