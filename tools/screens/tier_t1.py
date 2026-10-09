@@ -107,6 +107,9 @@ def frame(inner, theme_toggle=True):
     return inner
 
 
+KEEP_NOT_PICKED = False  # the options not picked are erased from screens.html (owner, 2026-10-10); the scores and decisions keep them
+
+
 def options_html(items, approved=None):
     """items: (option, phone html, desk html). Once a screen is approved, the options not picked fold into one
     closed <details> under the picked one (owner, 2026-10-07); before that, every option is open."""
@@ -117,6 +120,8 @@ def options_html(items, approved=None):
         return "".join(block(*it) for it in items)
     picked = "".join(block(*it) for it in items if it[0]["id"] == approved)
     rest = [it for it in items if it[0]["id"] != approved]
+    if not KEEP_NOT_PICKED:  # owner, 2026-10-10: screens.html keeps the chosen screens only
+        return picked
     return picked + '<details class="notpicked"><summary>Options not picked (%s)</summary>%s</details>' % (
         ", ".join(e(it[0]["id"]) for it in rest), "".join(block(*it) for it in rest))
 
@@ -1035,6 +1040,7 @@ def main():
     co = _load_capture_opt()
     ref_rows = "".join("<tr><td>%s</td><td>%s</td><td>%dx%d</td><td>%.2f</td><td>%s</td><td>%s</td></tr>" % (
         e(r["app"]), r["place"], r["add"][2], r["add"][3], r["id_enter"], r["sheet"] or "full screen", "yes" if r["parses"] else "no") for r in co.reference_rows())
+    globals()["KEEP_NOT_PICKED"] = True  # superseded.html keeps every option
     s13r, rows13r, fr13r, beaten13r = build_section(
         "t1-3r", "T1.3 refined: where ✓ and ▤ go, and how big",
         "Owner (2026-10-07): ✓ and ▤ placement and sizes are free; balanced; right thumb, with a left-hand mirror setting. "
@@ -1045,6 +1051,7 @@ def main():
         "the sample was typed and cleared, nothing saved.</p><table><tr><th>App</th><th>Add sits</th><th>Add dp</th>"
         "<th>Thumb travel to Add</th><th>Sheet dp</th><th>Parses</th></tr>" + ref_rows + "</table>",
         OPTIONS_T13R, STATES_T13R, T13_CSS, ("fitts_add", "fitts_form", "sheet_h", "lines", "text_small", "small", "faint_n"), t13r_extra)
+    globals()["KEEP_NOT_PICKED"] = False
     s14, rows14, fr14, beaten14 = build_section(
         "t1-4", "T1.4 Hub sheet (cards)",
         "The Hub in the bar's centre opens this sheet: the capture line, Pinned and recent, then every screen of every module "
@@ -1055,6 +1062,7 @@ def main():
         "<code>tools/screens/hub_opt.py</code>, <code>docs/screens/t1/hub-opt.json</code>.",
         OPTIONS_T14, STATES_T14, T13_CSS + T14_CSS + __import__("legend_opt").CSS + __import__("hub_opt").TIGHT_CSS, ("clutter", "desk_clutter", "faint_n", "small", "reach", "no_pinned", "hidden"), t14_extra,
         must=lambda r: "%d screens below the fold (owner: every screen visible)" % r["hidden"] if r["hidden"] else None, approved=APPROVED_T14)
+    globals()["KEEP_NOT_PICKED"] = True  # superseded.html keeps every option
     s15, rows15, fr15, beaten15 = build_section(
         "t1-5old", "T1.5 Date and time picker (superseded by the When sheet)",
         "Typing sets the date and time; a typed date is never asked again, and tapping its highlight offers only Keep as text. "
@@ -1066,6 +1074,7 @@ def main():
         OPTIONS_T15, STATES_T15, T13_CSS + T15_CSS + __import__("legend_opt").CSS + __import__("picker_opt").CSS,
         ("clutter", "desk_clutter", "faint_n", "small", "actions", "reach15", "covered", "unseen"), t15_extra,
         must=lambda r: "%d needed controls not drawn (owner: everything a task needs visible)" % r["unseen"] if r["unseen"] else None, approved=APPROVED_T15)
+    globals()["KEEP_NOT_PICKED"] = False
     page = ['<!doctype html><html lang="en" data-theme="light"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">',
             '<title>Factotum T1 shared parts</title><style>%s\n%s\n%s\n%s\n%s</style></head><body>' % (kit.theme_css(), kit.BASE_CSS, EXTRA, T12_CSS + T13_CSS + T14_CSS + T15_CSS + __import__("legend_opt").CSS + __import__("picker_opt").CSS, PAGE_CSS),
             '<h1>T1 · Shared parts</h1><p class="dim">Decision 17. Greys only; colour comes after every screen is settled. '
@@ -1077,11 +1086,11 @@ def main():
             # superseded explorations live on their own page (superseded.html), linked where they were: screens.html keeps
             # the approved screens only and stays small enough for viewers that cap a page's size (owner, 2026-10-08: the
             # T1.5 + T1.6 section "did not render")
+            __import__("t19_page").section(),  # T1.9, approved 2026-10-10
             __import__("t18_page").section(),  # T1.8, approved 2026-10-09
             __import__("label_opt").labels_section(),  # T1.7, approved 2026-10-09
-            __import__("when_page").section(), '<p class="dim">Superseded: the T1.5 date and time picker approved earlier on 2026-10-08, in <a href="superseded.html#t1-5old">superseded.html</a>.</p>',
-            s14, s13, '<p class="dim">Superseded: the T1.3 exploration of where ✓ and ▤ go, in <a href="superseded.html#t1-3r">superseded.html</a>.</p>',
-            s12, s11, "</body></html>"]
+            __import__("when_page").section(),
+            s14, s13, s12, s11, "</body></html>"]  # owner, 2026-10-10: discarded screens erased; superseded.html keeps the record
     with open(os.path.join(OUT, "screens.html"), "w", encoding="utf-8", newline="\n") as fh:
         fh.write(fit_size("\n".join(page)))
     sup = page[:4] + ['<p><a href="screens.html">‹ The approved screens</a></p>', s15, s13r, "</body></html>"]

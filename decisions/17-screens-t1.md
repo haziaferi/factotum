@@ -1,6 +1,6 @@
 # 17. Screens T1: shared parts
 
-Status: **questions answered 2026-10-07; screens being mocked one at a time.** Method: decision 15, "every screen, one at a time, before colour".
+Status: **T1 approved in full (T1.1–T1.9, 2026-10-10).** Method: decision 15, "every screen, one at a time, before colour".
 
 T1 holds the parts every later tier reuses:
 - the header and the bar;
@@ -47,8 +47,8 @@ There are no swipes.
 | T1.5 | Date and time picker | **approved 2026-10-08: merged with T1.6 into the When sheet** |
 | T1.6 | Repeat builder | **approved 2026-10-08: the When sheet** (one sentence, Once or Every) |
 | T1.7 | Label chips and picker | **approved 2026-10-09:** dots, a filter bar, the picker sheet, # chips above the line, the legend list |
-| T1.8 | Toasts and dialogs | questions answered 2026-10-09; references and scoring next |
-| T1.9 | Empty and error states | to do |
+| T1.8 | Toasts and dialogs | **approved 2026-10-09:** toasts anchored, 7 s merged; held confirm in place; long press selects; ⌕ ✎ ⚙; Trash grouped |
+| T1.9 | Empty and error states | **approved 2026-10-10:** one sentence and a button, centred; "Nothing here."; a line under the field; "what" banner; a three-card tour; what is here loads first |
 
 ## T1.1 Header and bar: approved (2026-10-07)
 
@@ -1581,3 +1581,8 @@ Drawn: `docs/screens/t1/labels-dots.html` (`labels-f.json`).
 4. "Labels do not have trackers attached to them nor can they amount to a total, aside from how many elements have that label."
    - The label time total (ADR 08, owner 2026-10-02) is removed.
    - A label's only number is the count of what carries it.
+
+**T1.9 approved (owner, 2026-10-10):** "Approved, erase all discarded screens so far in screen HTML to make room for the chosen T1.9 screen."
+- `screens.html` now holds the chosen screens only. The options not picked in T1.1–T1.4, and the notes pointing to superseded explorations, are erased from it (`tier_t1.KEEP_NOT_PICKED = False`). The scores, the decisions and `superseded.html` keep the record; `superseded.html` is unchanged.
+- The T1.9 section is at the top. The page is 455 KB, so its images keep their quality (no re-encoding needed); the separate T1.9 page is removed.
+- T1 is complete: T1.1–T1.9 are approved.
