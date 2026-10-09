@@ -1,6 +1,6 @@
 # Factotum — Product & Technical Spec
 
-**Status:** draft v0.39, seeded from the decision register · **Scope:** the merged data model, sync and behaviour rules of Factotum. Screens are not decided and are marked open (§10.1).
+**Status:** draft v0.40, seeded from the decision register · **Scope:** the merged data model, sync and behaviour rules of Factotum. Screens are not decided and are marked open (§10.1).
 **Related documents:** `decisions/`, the evidence behind §3: one ADR per decision with verified `file:line` facts, the scored options, the behaviour cases and the harness that measured them (`decisions/register.md` is the index). This spec states each decision once and points to its ADR for the evidence. It never restates the evidence.
 
 ---
@@ -9,6 +9,7 @@
 
 | Version | Summary | Sections touched |
 |---|---|---|
+| v0.40 | Owner, 2026-10-10: labels are global, any label on any element (scope dropped, schema 25), and a label counts the elements carrying it, with no time total. Gaps fixed: deleting an activity stops its timer; Delete forever of tasks, events, reminders, habits and trackers refuses a live row | §3.1, §3.7, §3.8 |
 | v0.39 | Owner, 2026-10-09: one vocabulary for every kind (Delete to the Trash, Restore, Delete forever), Archive dropped, an activity deleted forever, a database's columns through the Trash; labels on tasks, events, reminders and checklists (ADR 08 amended); schema 24 | §3.1, §3.7, §3.8, §3.10, §3.12 |
 | v0.38 | Recurrence: RANDOM_TIMES and RANDOM_GAPS with ends, for the When sheet (decision 17); schema 23 | §3.4 |
 | v0.37 | Cron input extended (decision 17): names, `L`, `#`, several lines as one rule | §3.4 |
@@ -149,7 +150,8 @@ Every decision here was scored against its owners' behaviour cases, with a contr
 - **Delete** sets `deleted_at` in the group that decides existence. What a deletion takes with it (subtasks, a standalone reminder's reminders, a tracker's habits and goals, an activity's spans and goals, a card's frames and lines, a relation's pair) shares its one stamp.
 - **Restore** is an edit with a new stamp, so it syncs as any change does. It brings back what that one stamp took, and nothing deleted by hand before. A part waits for its whole: a subtask for its parent, a habit for its tracker.
 - **Delete forever** is the purge above, and it travels. What hangs off a row by a foreign key goes with it.
-- **The gate:** `VocabularyTest` walks every kind through delete, its Trash, restore, delete and Delete forever. A kind missing one does not compile or fails. The purges of tasks, events, reminders, habits and trackers are older than the Trash and still take a live row too; every other kind refuses one.
+- **Delete forever refuses a live row**, for every kind. A purge from a peer is the import's own (the merge above), and it applies to a row live here too.
+- **The gate:** `VocabularyTest` walks every kind through delete, its Trash, restore, delete and Delete forever, and checks that a live one is refused. A kind missing one does not compile or fails.
 
 **Importer built (2026-10-01):** see §3.13. Two changes to the rules above came with it: a `Row` names its table (ids stay unique across tables), and a Double value must be finite, since NaN never equals itself and JSON cannot carry it.
 
@@ -282,45 +284,47 @@ Every decision here was scored against its owners' behaviour cases, with a contr
 - A span counts wholly for **the day it started**.
 - A day's total is the union of the spans that started that day, and a week's total is the sum of its days.
 - Manual entry and editing apply to every owner.
-- **Owner answers, 2026-10-02:** a span running past a limit (12 hours to start with) asks the person to keep it, end it at a time they pick, or end it at the limit, and counts as running until answered; marking a task done or skipped, or deleting a task or habit, ends its running spans, while a habit's Log does not; an activity is never deleted forever, so no tracked time is lost to a purge. **[Reversed 2026-10-09]** Delete forever on an activity takes its spans, and its labels' time totals shrink (owner).
+- **Owner answers, 2026-10-02:** a span running past a limit (12 hours to start with) asks the person to keep it, end it at a time they pick, or end it at the limit, and counts as running until answered; marking a task done or skipped, or deleting a task or habit, ends its running spans, while a habit's Log does not; an activity is never deleted forever, so no tracked time is lost to a purge. **[Reversed 2026-10-09]** Delete forever on an activity takes its spans (owner).
 
 **Acceptance:** `cases/07-timelog.jsonl`, 9 cases.
 
-**Built (2026-10-02):** totals in `com.hazia.factotum.core.time`; spans and activities in `com.hazia.factotum.data.time`. The cases pass as tests (`TimeCasesTest`); the category half of `chronicle-activity-and-category-totals` passes with §3.8's labels (`LabelCasesTest`). What the build settled, none of which changes the decision:
+**Built (2026-10-02):** totals in `com.hazia.factotum.core.time`; spans and activities in `com.hazia.factotum.data.time`. The cases pass as tests (`TimeCasesTest`). The category half of `chronicle-activity-and-category-totals` passed with §3.8's labels until the owner removed label time totals (2026-10-10): a label now counts the elements carrying it, nothing else. What the build settled, none of which changes the decision:
 - **An activity** is an item with no dates, and optionally an icon and a colour (its `archived` flag was dropped with schema 24, owner 2026-10-09); an activity or a habit has a manual `sort_order`, fractional as Tendril's, which the planner now follows inside a block.
 - **A span has five ADR 01 groups**, one per thing written apart: its start (with its owner and planned run), its end, its deletion, when a long run was last kept, and its comment. Each write touches only what it changes, so a stop, a deletion, a "keep", a start time and a comment made on different devices all survive the merge, and nothing reopens or revives a span. Times are kept to the second. A span stays on its owner and is timed only on a task, habit or activity. That it ends no earlier than it starts is checked where it is written, not in the database: start and end merge apart, and a row the database refused would stop every later import; totals count such a span as nothing. A deleted span, or one on a deleted owner, is not edited again (Chronicle); deleting twice changes nothing.
 - **Totals** add each personal day's union of the spans started on it; a running span counts up to now; a span whose owner is deleted, or a habit whose tracker is deleted, does not count. Seconds are kept and minutes shown rounded down, as both apps round once at the end.
 - **Goals on an activity** name the activity item. Their windows are Chronicle's (the day, the week from Monday, the month from the 1st, a milestone the last 400 days), built from day totals.
-- **Deleting an activity** moves it to the Trash with its live spans and goals, in one write and one stamp (Chronicle). A restore brings them back. Delete forever (owner, 2026-10-09) purges it and its goals; its spans go by the foreign key. A span another device logged before they synced goes with it: the owner chose this over the 2026-10-02 rule.
+- **Deleting an activity** moves it to the Trash with its live spans and goals, in one write and one stamp (Chronicle). Its running timers stop first, as a deleted item's do (owner, 2026-10-02). A restore brings them back, ended. Delete forever (owner, 2026-10-09) purges it and its goals; its spans go by the foreign key. A span another device logged before they synced goes with it: the owner chose this over the 2026-10-02 rule.
 - **The owner's answers:** a timer running past the limit (12 hours by default, a PERSONAL setting since slice 09, §3.9) since it started, or since the person last said to keep it, is listed to ask about (`runningLong`); "end it at the limit" ends it that long after. Marking a task done or skipped, resolving an occurrence, deleting a task or habit, or deleting a habit's tracker ends its running timers in the same write; resolving a past occurrence of a repeating task leaves a timer started after it running. A device that learns of a finished task or a deleted owner from a peer ends its timers when it imports it (`endFinished`, run after each import). A habit's Log does not stop a timer.
 
 ### 3.8 Labels — ADR 08
 
-**Decided:** one `label` vocabulary (name, colour, `applies_to`, `sort_order`). Each owner keeps its cardinality:
+**Decided:** one `label` vocabulary (name, colour, `sort_order`; `applies_to` until 2026-10-10). Each owner keeps its cardinality:
 - a page carries many, through `page_label`;
 - an item (ACTIVITY or HABIT), a tracker or a page database carries one.
 
 **[Amended 2026-10-09]** Tasks, events, standalone reminders and checklists carry one too (owner). Every item kind and a checklist carry at most one.
 
+**[Amended 2026-10-10]** Labels are global: the person chooses a label, and it ties elements across screens. Any label goes on any element, and every live label is offered everywhere; `applies_to` is gone (owner). A label adds up to nothing but how many elements carry it: it has no time total (owner).
+
 Names are unique ignoring case. A new label takes a colour derived from its name, which can then be changed. Labels sync as rows.
 
 **The word on screen is "Label".** "Tag" keeps Tendril's meaning: a Select property.
 
-**Owner answers, 2026-10-02:** two labels with the same name (ignoring case), made or renamed on devices that then sync, merge into the one made first, which keeps its colour and scope; a label's scope (everything, activities, trackers) is chosen and can change, and narrowing it only hides it from the other pickers; a label's time total counts every activity and habit carrying it, overlapping time once.
+**Owner answers, 2026-10-02:** two labels with the same name (ignoring case), made or renamed on devices that then sync, merge into the one made first, which keeps its colour. **[Superseded 2026-10-10]** A label's scope and its time total were also answered here; both are gone (see the amendment above).
 
 **Acceptance:** `cases/08-tagging.jsonl`, 10 cases.
 
-**Built (2026-10-02):** `com.hazia.factotum.core.label` and `com.hazia.factotum.data.label`. Six of the ten cases pass as tests (`LabelCasesTest`), with the owner's answers and ADR 07's category total; with slice 12a, `tendril-page-many-labels`, `tendril-page-delete-no-orphans` and the members half of `tendril-database-doorway` pass in `PageCasesTest`. The doorway itself, a page database, comes with 12b. What the build settled, none of which changes the decision:
-- **A label has five ADR 01 groups** (name, colour, scope, order, deletion), and an item's or a tracker's `label_id` is a group of its own, so a rename and a recolour made apart both stand, and a label deleted on one device never brings back a tracker deleted on another.
+**Built (2026-10-02):** `com.hazia.factotum.core.label` and `com.hazia.factotum.data.label`. Six of the ten cases pass as tests (`LabelCasesTest`), with the owner's answers (the scope and category-total cases until 2026-10-10); with slice 12a, `tendril-page-many-labels`, `tendril-page-delete-no-orphans` and the members half of `tendril-database-doorway` pass in `PageCasesTest`. The doorway itself, a page database, comes with 12b. What the build settled, none of which changes the decision:
+- **A label has four ADR 01 groups** (name, colour, order, deletion; a fifth, scope, went with schema 25), and an item's or a tracker's `label_id` is a group of its own, so a rename and a recolour made apart both stand, and a label deleted on one device never brings back a tracker deleted on another.
 - **Names are unique by the repository, not by an index**: two devices make the same name apart, and a database rule a merged row broke would stop every later import. Names are compared trimmed, in one Unicode form (NFC), ignoring case; a new label's colour is Tendril's for its name.
 - **The merge** (owner, 2026-10-02) runs after every import: of the live labels with one name, all but the one with the lowest id (ULIDs begin with the time, so the one made first) are deleted with `merged_into` naming it. Nothing that carried them is rewritten: readers take a merged label as the label it went into, so a merge never overwrites a label a person chose meanwhile on another device. Deleting a label clears what carried it or any label merged into it.
 - **No foreign key on `label_id`**, on an item, a tracker, a checklist or a page's `page_label` row: a key would only add a table rebuild (a label was then never deleted for good; since 2026-10-09 it can be); readers take a missing or deleted label as none (Tendril's habit label had no key either). `page_label` has a key to its page, which a purge of the page cascades through.
-- **A page carries many labels** through `page_label`, one row per page and label (its id names both), so two devices that put one label on one page write one row. Pages are offered the labels for everything. Deleting a label leaves the page rows as they are and reads them as none: taking them off would count as an edit to every trashed page carrying it, and bring each one back (§3.12).
-- **Scope** is where a label is offered: activities get labels for everything and for activities, trackers for everything and for trackers, habits for everything (ADR 08). A label outside the scope is refused when set; narrowing the scope leaves what carries it alone.
+- **A page carries many labels** through `page_label`, one row per page and label (its id names both), so two devices that put one label on one page write one row. Deleting a label leaves the page rows as they are and reads them as none: taking them off would count as an edit to every trashed page carrying it, and bring each one back (§3.12).
+- **No scope** (owner, 2026-10-10). Schema 25 drops `applies_to` and its stamp columns, and the rule trigger that checked it. Setting a label checks only that it is live.
 - **Upgrades drop the app's triggers first.** Adding the label columns made Room rebuild `item`, and SQLite checks every trigger when the rebuilt copy is renamed into place: the span rule, which names `item`, stopped the upgrade. Before Room upgrades an older file, the app now drops its own triggers, which it makes again on every open; a test upgrades a version 9 file holding them.
-- **The amendment of 2026-10-09** (schema 24): `checklist` gets `label_id` in a group of its own, absent on a list made before until a label is put on it. The item rule allows a label on every kind, comparing kinds with IS. Every kind but an activity is offered the labels for everything.
+- **The amendment of 2026-10-09** (schema 24): `checklist` gets `label_id` in a group of its own, absent on a list made before until a label is put on it. The item rule allows a label on every kind, comparing kinds with IS.
 - **A label goes to the Trash** (owner, 2026-10-09). Its deletion takes it off what carried it in a stamp of the app's just above its own, so a restore gives it back to exactly those, unless they were labelled otherwise since. A restore is refused while a live label has its name. Delete forever purges it, and whatever still names it (an item, a page's label row, a doorway) reads it as none.
-- **A label's time total** is the union of the spans on every activity and habit carrying it, or a label merged into it (owner, 2026-10-02); Chronicle's pie summed overlapping activities twice.
+- **What a label counts** (owner, 2026-10-10): the live elements carrying it or a label merged into it, each once: items, trackers, checklists, pages (not a template) and databases by their doorway (`LabelRepository.carrying`). The label time total is removed.
 
 ### 3.9 Settings — ADR 09
 
