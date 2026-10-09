@@ -42,7 +42,7 @@ Every element that can be deleted has all three of **Delete** (to Trash), **Rest
 | Database (a page) | — | — | — | ✓ | — | ✓ parent | properties; options; views; rows as tasks |
 | Database row (a page) | ✓ Done, if rows are tasks | ✓ date, due | ✓ if it repeats | ✓ (many) | ✓ if rows are tasks **gap** | ✓ | its cells |
 | Canvas card / frame | — | — | — | — | — | ✓ place | text; colour; fold; to front; connect |
-| Label | — | — | — | — | — | ✓ order | colour; scope |
+| Label | — | — | — | — | — | ✓ order | colour (any label goes on any element, owner 2026-10-10) |
 | Chart | — | — | — | — | — | ✓ | range; sources |
 | Check-in entry | — | — | — | — | — | — | mood; energy; note; undo only |
 
@@ -97,7 +97,7 @@ A selection offers only what makes sense for many at once, and only what every s
 3. **Delete forever** for checklists.
 4. **Archive is dropped from the data layer too** (owner, 2026-10-09: there is only placeholder data). The archived flag on activities, `ActivityRepository.setArchived` and its import mapping are removed, with a schema bump.
 5. **Delete forever on an activity:** this reverses the owner's 2026-10-02 rule that an activity is never deleted forever, so that no tracked time is lost. Deleting an activity forever takes its time spans with it, and its labels' time totals shrink. Its time spans keep a plain Delete **?**
-6. **Labels on tasks, events, reminders and checklists:** an ADR 08 amendment. It needs a `label_id` on those rows, a schema bump, and scope values for them.
+6. **Labels on tasks, events, reminders and checklists:** an ADR 08 amendment, done in schema 24. Labels are global (owner, 2026-10-10): any label goes on any element, and scope is removed.
 7. **A reminder on a database row,** when rows are tasks.
 8. **Skip for today** on a reminder: a standalone reminder is an item, so `OccurrenceRepository.skip` should serve it. To check with a test.
 

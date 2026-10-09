@@ -402,7 +402,7 @@ def d_list(v, state):
                      '<span class="cnt" data-tap="Count %s">%d</span><span class="cnt" data-tap="Scope %s">All</span><span class="ic" data-tap="Delete %s">×</span></div>') % (handle, n, n, n, n, COUNTS[n], n, n)
         elif v["form"] in ("legend", "legend_menu"):
             rows += ('<div class="mrow" style="min-height:60px">%s<span class="ic"><span class="dt"></span></span><span class="nm" data-tap="Open %s" '
-                     'style="flex-direction:column;align-items:flex-start;justify-content:center">%s<span style="font-size:12.5px;color:var(--dim)">Everything · %d item%s</span></span>'
+                     'style="flex-direction:column;align-items:flex-start;justify-content:center">%s<span style="font-size:12.5px;color:var(--dim)">%d item%s</span></span>'
                      '%s<span class="ic">›</span></div>') % (handle if state == "edit" else "", n, n, COUNTS[n], "" if COUNTS[n] == 1 else "s",
                                                             '<span class="ic" data-tap="Menu %s">⋯</span>' % n if v["form"] == "legend_menu" else "")
         elif v["form"] == "menu":
@@ -416,11 +416,14 @@ def d_list(v, state):
     return kit.phone(kit.header("Labels", edit + (("+", "New label"),), ("‹", "Back")), body, "")
 
 
+SCOPE = True  # the label page's scope row; the approved drawing leaves it out (owner, 2026-10-10: labels are global)
+
+
 def d_detail(state):
+    scope = '<div class="row"><span class="lab">For</span>%s%s%s</div>' % (R.ch("Scope all", "Everything", True), R.ch("Scope act", "Activities"), R.ch("Scope trk", "Trackers")) if SCOPE else ""
     body = ('<div class="c2" style="padding:0 12px">%s<div class="mrow"><span class="nm" data-tap="Colour row">Colour</span><span class="ic"><span class="dt"></span></span></div>'
-            '<div class="row"><span class="lab">For</span>%s%s%s</div><div class="mrow"><span class="nm" data-tap="Carries">Carried by 12 · Walk, Water, …</span></div>'
-            '<div class="row">%s</div></div>') % (R.row(R.field("Name field", "Health", "field")), R.ch("Scope all", "Everything", True), R.ch("Scope act", "Activities"),
-                                                   R.ch("Scope trk", "Trackers"), R.b("Delete label", "Delete"))
+            '%s<div class="mrow"><span class="nm" data-tap="Carries">Carried by 12 · Walk, Water, …</span></div>'
+            '<div class="row">%s</div></div>') % (R.row(R.field("Name field", "Health", "field")), scope, R.b("Delete label", "Delete"))
     if state == "colours":
         body += '<div class="c2" style="padding:0 12px"><div class="row">%s</div></div>' % "".join(R.ch("Swatch %d" % i, "●") for i in range(6))
     return kit.phone(kit.header("Health", (), ("‹", "Back")), body, "")
@@ -431,7 +434,7 @@ def d_nested(state):
     is a page of its own with Save; reorder sits behind Edit; delete asks first."""
     if state in ("list", "edit"):
         rows = "".join(('<div class="mrow" style="min-height:60px">%s<span class="nm" data-tap="Open %s" style="flex-direction:column;align-items:flex-start;justify-content:center">%s'
-                        '<span style="font-size:12.5px;color:var(--dim)">Everything · %d item%s · used today</span></span><span class="ic"><span class="dt"></span></span>'
+                        '<span style="font-size:12.5px;color:var(--dim)">%d item%s · used today</span></span><span class="ic"><span class="dt"></span></span>'
                         '<span class="ic" data-tap="More %s">⋯</span><span class="ic">›</span></div>') % (
                             '<span class="ic" data-tap="Handle %s">≡</span>' % n if state == "edit" else "", n, n, COUNTS[n], "" if COUNTS[n] == 1 else "s", n) for n in LABELS)
         return kit.phone(kit.header("Labels", (("✎", "Edit" if state == "list" else "Done"), ("+", "New label")), ("‹", "Back")),
@@ -1107,7 +1110,7 @@ def labels_desk_doc(theme="light"):
     rows = "".join(f_row(time or t.KIND_MARK["habit"], title, len(names), v, "Log") for _, title, time, names in ROUTINES) + \
         "".join(f_row("▤", title, len(names), v) for title, names in PAGES)
     legend = "".join(('<div class="mrow" style="min-height:52px"><span class="ic"><span class="dt"></span></span><span class="nm" style="flex-direction:column;align-items:flex-start;justify-content:center">'
-                      '%s<span style="font-size:12.5px;color:var(--dim)">Everything · %d item%s</span></span><span class="ic">›</span></div>') % (n, COUNTS[n], "" if COUNTS[n] == 1 else "s") for n in LABELS[:9])
+                      '%s<span style="font-size:12.5px;color:var(--dim)">%d item%s</span></span><span class="ic">›</span></div>') % (n, COUNTS[n], "" if COUNTS[n] == 1 else "s") for n in LABELS[:9])
     head = '<div class="hdr"><span class="ttl">%s</span><span class="srch" data-tap="Search" style="width:320px">⌕ Search everything <span class="kbd">Ctrl+K</span></span></div>' % t.TITLE
     page = '<div class="page"><div class="kbd">Settings › Labels</div>%s</div>' % legend
     return kit.document(kit.desk(kit.rail("Today"), head, '<div class="dcol">%s%s</div>%s' % (fbar, rows, page)), theme,
@@ -1116,6 +1119,8 @@ def labels_desk_doc(theme="light"):
 
 def labels_section():
     """The T1.7 section, images inlined small (greyscale WebP at the shown width) so screens.html stays under viewers' caps."""
+    global SCOPE
+    SCOPE = False  # owner, 2026-10-10: labels are global, so a label's page has no scope row
     import base64
     import io
     import html as H
@@ -1135,7 +1140,7 @@ def labels_section():
         ("Filtering", "The filter bar of named dots on any screen: a tap shows only what carries that label there; Clear undoes it. 2 actions.", "E, owner 2026-10-09"),
         ("The picker", "A sheet, a grid of every label in alphabetical order, the search-and-create box below them. 20 actions over 4 tasks, reach 2.08, 12 of 12 labels shown.", "B, labels-scores.html#b"),
         ("# on the capture line", "Matching labels as chips above the line, so the line stays put while typing (moves 0 px, against 25 px below). 14 actions, reach 2.81.", "C, labels-scores.html#c"),
-        ("Settings › Labels", "Each row is the label's dot, its name and a written line (scope · count), so the list is the colour legend; each opens one page with name, colour, scope, what carries it and Delete (undo toast). Reorder behind Edit. 26 actions, 0.9 controls a row.", "D, labels-scores.html#d"),
+        ("Settings › Labels", "Each row is the label's dot, its name and a written line (how many carry it), so the list is the colour legend; each opens one page with name, colour, what carries it and Delete (undo toast). Reorder behind Edit. 26 actions, 0.9 controls a row.", "D, labels-scores.html#d"),
     ]
     rows = "".join("<tr><td>%s</td><td>%s</td><td><code>%s</code></td></tr>" % tuple(H.escape(x) for x in r) for r in table)
     figs = "".join([
