@@ -44,10 +44,10 @@ There are no swipes.
 | T1.2 | Item rows (title only), plus the row-variants chapter | **approved 2026-10-07: D** |
 | T1.3 | Capture sheet | **approved 2026-10-07: v4** (no chips, highlight, kind and markers in the hint's place, ⋯ beside the line, context-aware placeholder); it superseded A′ the same day |
 | T1.4 | Hub sheet (cards) | **approved 2026-10-08: A0** (one column, Pinned and recent kept; the App card moved behind ⚙) |
-| T1.5 | Date and time picker | to do |
-| T1.6 | Repeat builder | to do |
-| T1.7 | Label chips and picker | to do |
-| T1.8 | Toasts and dialogs | to do |
+| T1.5 | Date and time picker | **approved 2026-10-08: merged with T1.6 into the When sheet** |
+| T1.6 | Repeat builder | **approved 2026-10-08: the When sheet** (one sentence, Once or Every) |
+| T1.7 | Label chips and picker | **approved 2026-10-09:** dots, a filter bar, the picker sheet, # chips above the line, the legend list |
+| T1.8 | Toasts and dialogs | questions answered 2026-10-09; references and scoring next |
 | T1.9 | Empty and error states | to do |
 
 ## T1.1 Header and bar: approved (2026-10-07)
@@ -1200,3 +1200,36 @@ Drawn: `docs/screens/t1/labels-dots.html` (`labels-f.json`).
 - **Drawn:** the T1.7 section of `docs/screens/t1/screens.html` (phone: Today with dots, Today filtered, capture with #, the picker, the legend list, a label's page; Windows: Today beside Settings › Labels).
   - Images are greyscale WebP at quality 50, so the page stays under 512 KB (505 KB).
   - The next tier's sections need a page of their own.
+
+**T1.8 toasts and dialogs, the owner's answers (2026-10-09).** Already settled on 2026-10-07: deleting shows an Undo toast with no dialog; dialogs appear only for what Trash cannot bring back (emptying Trash, discarding an unsaved page).
+- **Scope:**
+  - the Undo toast and the two Trash dialogs;
+  - the sync clash, when something changed on two devices (SPEC §3: keep one, or keep both);
+  - notices and failures;
+  - permission asks: notifications, exact alarms, battery.
+- **The toast's place:** score all three, on phone and Windows: above the bar, above the capture line when it is open, and at the top under the header.
+- **The Undo time:**
+  - score the timings: 4, 7 and 10 s, against staying until the next action. WCAG 2.2.1 asks for an adjustable limit, so a setting is drawn either way;
+  - score stacking: a new toast replaces the old, toasts stack, or they merge ("3 deleted · Undo all");
+  - score a way back once the toast has gone: Undo in ⋯, a "Recently done" list, or Trash only.
+- **The dialogs:**
+  - score the forms: a centred dialog, a bottom sheet, or confirming in place;
+  - score the button order;
+  - score verb buttons against glyphs, icons and symbols. The owner changed the offered "verb buttons, always" into this;
+  - score typing or holding to confirm as a real option.
+- **The sync clash:** score every form (a mark on the item, a card on Today, a toast, a dialog when found), and the answer screen (side by side or stacked; words or marks).
+- **Permission asks:** score the timing (when first needed, at first run, from Settings only).
+- **Failures:** score the forms (a toast, a banner under the header until fixed, a mark in the bar or the Hub).
+- **Axes (all four):**
+  - ease and reach;
+  - clutter and cover (including what the toast hides);
+  - safety (how easily a destructive action is confirmed by mistake);
+  - legibility and distance from the references.
+- **References (all four groups):**
+  - the four source apps;
+  - the T1.7 label references;
+  - more open-source apps (Fossify, Etar, Syncthing-Fork, others, via Droid-ify or Aurora);
+  - Windows 11's own toasts and dialogs, and the desktop Notion and Obsidian.
+  
+  Placeholder data only. A destructive dialog is opened and cancelled, never confirmed.
+- **The control:** one per part, built to lose; the run fails if a control reaches the front (as in T1.7).
