@@ -1586,3 +1586,16 @@ Drawn: `docs/screens/t1/labels-dots.html` (`labels-f.json`).
 - `screens.html` now holds the chosen screens only. The options not picked in T1.1–T1.4, and the notes pointing to superseded explorations, are erased from it (`tier_t1.KEEP_NOT_PICKED = False`). The scores, the decisions and `superseded.html` keep the record; `superseded.html` is unchanged.
 - The T1.9 section is at the top. The page is 455 KB, so its images keep their quality (no re-encoding needed); the separate T1.9 page is removed.
 - T1 is complete: T1.1–T1.9 are approved.
+
+**T2 items, calendar and alarms, the owner's answers (2026-10-10):**
+- **Screens:** an item's page (task, event, reminder); Calendar; the Reminders list; the alarm ringing.
+- **Calendar views:** score all four (month grid, week, day timeline, agenda) and the default.
+- **An item's page opens as:** score all (a full page, a sheet over the list, the row expanding in place).
+- **The alarm:** score all (the dismiss gesture, the snooze choices and where Skip for today sits, full screen over the lock screen against a heads-up only).
+- **Axes:**
+  - the four axes;
+  - the calendar's density (events and hours without scrolling, titles cut);
+  - half-asleep safety (a groggy tap that dismisses instead of snoozing);
+  - Windows too.
+- **References:** calendars, the task apps' item pages, alarm apps, the source apps. Placeholder data only. Alarms are set only in daytime and deleted after.
+- **What a calendar day holds:** score what to show (events only, with tasks, everything) and filters for it.
