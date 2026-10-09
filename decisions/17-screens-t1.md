@@ -1184,3 +1184,19 @@ Drawn: `docs/screens/t1/labels-dots.html` (`labels-f.json`).
   - The time or mark and its dot are centred together in the row.
   - Titles keep 232 px; no row height is added.
   - Drawn with the parts still open (the # chips above or below the line; Settings › Labels as direct controls or a page per label): `docs/screens/t1/labels-rest.html`.
+
+**T1.7 approved (owner, 2026-10-09):** "C: above, the textbox stays fixed. D: filter on any screen, page per label in settings with Control, which serves as a legend for the colors as well." Asked what D takes from the control: "Its list rows only".
+- **The label on a row:** a dot under the time or kind mark, as chosen earlier; one dot and its count, every dot on one vertical line.
+- **Filtering:** the filter bar of named dots, on any screen. A tap shows only what carries that label there; the chip that is on comes first, with Clear beside it. A label's page shows what carries it.
+- **The picker:** a sheet with every label in a grid, in alphabetical order, the search-and-create box below them. The drawing now puts the box below; the scored picker had it on top, and the 20 actions are unchanged.
+- **The # suggestions:** chips above the capture line, which stays put (0 px, against 25 below; 14 actions, reach 2.81).
+- **Settings › Labels:**
+  - The control's list rows: each row has the label's dot, its name and a written line (scope · count), so the list is the colour legend.
+  - Each row opens one page per label: name, colour, scope, what carries it, and Delete, with an undo toast. Reordering is behind Edit.
+  - Scored as `legend`: 26 actions, 0.9 controls a row, clutter 0.045. It is on the front, with a rank sum of 12 against 10 for the plain page per label.
+  - The cost of the legend is the written line (+0.017 clutter) and Edit (+3 actions with a scroll).
+  - A ⋯ on each row (`legend_menu`) saves 1 action, doubles the controls a row, and falls off the front, so it is left out.
+  - The reference distance counts `legend` as a page per label.
+- **Drawn:** the T1.7 section of `docs/screens/t1/screens.html` (phone: Today with dots, Today filtered, capture with #, the picker, the legend list, a label's page; Windows: Today beside Settings › Labels).
+  - Images are greyscale WebP at quality 50, so the page stays under 512 KB (505 KB).
+  - The next tier's sections need a page of their own.

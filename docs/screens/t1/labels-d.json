@@ -52,5 +52,41 @@
   "small": [],
   "controls_per_row": 2.0,
   "clutter": 0.028
+ },
+ {
+  "v": {
+   "form": "legend"
+  },
+  "actions": 26,
+  "per_task": {
+   "a": 12,
+   "b": 3,
+   "c": 2,
+   "d": 4,
+   "e": 1,
+   "f": 4
+  },
+  "unseen": [],
+  "small": [],
+  "controls_per_row": 0.9,
+  "clutter": 0.0452
+ },
+ {
+  "v": {
+   "form": "legend_menu"
+  },
+  "actions": 25,
+  "per_task": {
+   "a": 12,
+   "b": 3,
+   "c": 2,
+   "d": 4,
+   "e": 1,
+   "f": 3
+  },
+  "unseen": [],
+  "small": [],
+  "controls_per_row": 1.8,
+  "clutter": 0.0462
  }
 ]

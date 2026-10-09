@@ -237,7 +237,7 @@ def picker_body(v, state, multi):
             chips += R.ch("Create", "Create “Sample label”")
         items = '<div class="row">%s</div>' % chips
     head = ('<div class="row" style="justify-content:space-between"><span></span><span class="ttl">Label</span>%s</div>' % (R.b("Done", "Done") if multi else "<span></span>")) if v["container"] != "page" else ""
-    return head + field + items
+    return head + (items + field if v.get("field_below") else field + items)
 
 
 def picker_phone(v, state, kb, multi):
@@ -400,6 +400,11 @@ def d_list(v, state):
         if v["form"] == "direct":
             rows += ('<div class="mrow">%s<span class="ic" data-tap="Colour %s"><span class="dt"></span></span><span class="nm" data-tap="Name %s">%s</span>'
                      '<span class="cnt" data-tap="Count %s">%d</span><span class="cnt" data-tap="Scope %s">All</span><span class="ic" data-tap="Delete %s">×</span></div>') % (handle, n, n, n, n, COUNTS[n], n, n)
+        elif v["form"] in ("legend", "legend_menu"):
+            rows += ('<div class="mrow" style="min-height:60px">%s<span class="ic"><span class="dt"></span></span><span class="nm" data-tap="Open %s" '
+                     'style="flex-direction:column;align-items:flex-start;justify-content:center">%s<span style="font-size:12.5px;color:var(--dim)">Everything · %d item%s</span></span>'
+                     '%s<span class="ic">›</span></div>') % (handle if state == "edit" else "", n, n, COUNTS[n], "" if COUNTS[n] == 1 else "s",
+                                                            '<span class="ic" data-tap="Menu %s">⋯</span>' % n if v["form"] == "legend_menu" else "")
         elif v["form"] == "menu":
             rows += '<div class="mrow">%s<span class="nm">%s</span><span class="cnt">%d</span><span class="ic" data-tap="Menu %s">⋯</span></div>' % (handle, n, COUNTS[n], n)
         else:
@@ -407,7 +412,8 @@ def d_list(v, state):
     body = '<div class="c2" style="padding:0 12px">%s</div>' % rows
     if state == "menu":
         body += '<div class="menu2">%s</div>' % "".join('<div data-tap="M %s">%s</div>' % (x, x) for x in ("Rename", "Colour", "Scope", "What carries it", "Delete"))
-    return kit.phone(kit.header("Labels", (("+", "New label"),), ("‹", "Back")), body, "")
+    edit = ((("✎", "Edit") if state != "edit" else ("✓", "Done")),) if v["form"] in ("legend", "legend_menu") else ()
+    return kit.phone(kit.header("Labels", edit + (("+", "New label"),), ("‹", "Back")), body, "")
 
 
 def d_detail(state):
@@ -425,9 +431,9 @@ def d_nested(state):
     is a page of its own with Save; reorder sits behind Edit; delete asks first."""
     if state in ("list", "edit"):
         rows = "".join(('<div class="mrow" style="min-height:60px">%s<span class="nm" data-tap="Open %s" style="flex-direction:column;align-items:flex-start;justify-content:center">%s'
-                        '<span style="font-size:12.5px;color:var(--dim)">Everything · %d items · used today</span></span><span class="ic"><span class="dt"></span></span>'
+                        '<span style="font-size:12.5px;color:var(--dim)">Everything · %d item%s · used today</span></span><span class="ic"><span class="dt"></span></span>'
                         '<span class="ic" data-tap="More %s">⋯</span><span class="ic">›</span></div>') % (
-                            '<span class="ic" data-tap="Handle %s">≡</span>' % n if state == "edit" else "", n, n, COUNTS[n], n) for n in LABELS)
+                            '<span class="ic" data-tap="Handle %s">≡</span>' % n if state == "edit" else "", n, n, COUNTS[n], "" if COUNTS[n] == 1 else "s", n) for n in LABELS)
         return kit.phone(kit.header("Labels", (("✎", "Edit" if state == "list" else "Done"), ("+", "New label")), ("‹", "Back")),
                          '<div class="c2" style="padding:0 12px">%s</div>' % rows, "")
     if state in ("detail", "confirm"):
@@ -446,7 +452,7 @@ def d_nested(state):
 
 def d_doc(v, state, kb=False, theme="light"):
     page = d_nested(state) if v["form"] == "nested" else d_detail(state) if state in ("detail", "colours") else d_list(v, state)
-    if state == "colours" and v["form"] != "detail":
+    if state == "colours" and v["form"] not in ("detail", "legend", "legend_menu"):
         page = d_list(v, "list")[:-len("</div>")] + '<div class="c2" style="position:absolute;left:0;right:0;bottom:0;padding:0 12px;background:var(--zone)"><div class="row">%s</div></div></div>' % "".join(R.ch("Swatch %d" % i, "●") for i in range(6))
     if kb:
         page = page[:-len("</div>")] + KB.replace('class="kb"', 'class="kb" style="position:absolute;left:0;right:0;bottom:0;height:290px"') + "</div>"
@@ -454,7 +460,7 @@ def d_doc(v, state, kb=False, theme="light"):
 
 
 def score_d(v):
-    states = ("list", "edit", "detail", "sub", "confirm") if v["form"] == "nested" else ("list", "menu", "detail", "colours")
+    states = ("list", "edit", "detail", "sub", "confirm") if v["form"] == "nested" else ("list", "edit", "menu", "detail", "colours") if v["form"].startswith("legend") else ("list", "menu", "detail", "colours")
     views = views_of({s: (d_doc(v, s), d_doc(v, s, True)) for s in states})
     f = v["form"]
     if f == "nested":
@@ -464,6 +470,16 @@ def score_d(v):
                  "d": tap("list", "Edit") + tap("edit", "Handle Projects", "Done"),
                  "e": tap("list", "Open Health") + tap("detail", "Go Carries"),
                  "f": tap("list", "Open Home") + tap("detail", "Go Colour") + tap("sub", "Swatch 0", "Save") + tap("detail", "Back")}
+    elif f == "legend":
+        tasks = {"a": tap("list", "Open Health") + tap("detail", "Name field") + typ("detail", 9) + tap("detail", "Back"),
+                 "b": tap("list", "Open Books") + tap("detail", "Scope act", "Back"), "c": tap("list", "Open Calm") + tap("detail", "Delete label"),
+                 "d": tap("list", "Edit") + tap("edit", "Handle Projects", "Done"), "e": tap("list", "Open Health"),
+                 "f": tap("list", "Open Home") + tap("detail", "Colour row") + tap("colours", "Swatch 0") + tap("detail", "Back")}
+    elif f == "legend_menu":
+        tasks = {"a": tap("list", "Menu Health") + tap("menu", "M Rename") + typ("menu", 9) + tap("menu", "M Rename"),
+                 "b": tap("list", "Menu Books") + tap("menu", "M Scope") + tap("detail", "Scope act"),
+                 "c": tap("list", "Menu Calm") + tap("menu", "M Delete"), "d": tap("list", "Edit") + tap("edit", "Handle Projects", "Done"),
+                 "e": tap("list", "Open Health"), "f": tap("list", "Menu Home") + tap("menu", "M Colour") + tap("colours", "Swatch 0")}
     elif f == "direct":
         tasks = {"a": tap("list", "Name Health") + typ("list", 9) + tap("list", "Name Health"),
                  "b": tap("list", "Scope Books"), "c": tap("list", "Delete Calm"), "d": tap("list", "Handle Projects"),
@@ -480,7 +496,7 @@ def score_d(v):
     actions, miss, per = 0, set(), {}
     for k, task in tasks.items():
         n, m, _ = walk(views, task, {"Name field", "Name Health", "Sub field"}, closers=("Back", "Save"))
-        if f == "nested" and m == {"edit: Handle Projects"}:  # its taller rows put Projects below the fold: one scroll
+        if f in ("nested", "legend", "legend_menu") and m == {"edit: Handle Projects"}:  # its taller rows put Projects below the fold: one scroll
             n, m = n + 1, set()
         actions += n
         miss |= m
@@ -875,6 +891,23 @@ if __name__ == "__main__" and "rest" in sys.argv[1:]:
     rest_page()
 
 
+def run_d_legend():
+    """The owner's D (the control's list rows as the colour legend, a page per label), with and without the row's ⋯,
+    added to labels-d.json."""
+    path = os.path.join(v2.OUT, "labels-d.json")
+    with open(path, encoding="utf-8") as fh:
+        rows = [r for r in json.load(fh) if not r["v"]["form"].startswith("legend")]
+    for f in ("legend", "legend_menu"):
+        rows.append(dict(v={"form": f}, **score_d({"form": f})))
+        print(rows[-1], flush=True)
+    with open(path, "w", encoding="utf-8", newline=chr(10)) as fh:
+        json.dump(rows, fh, indent=1, ensure_ascii=False)
+
+
+if __name__ == "__main__" and "dlegend" in sys.argv[1:]:
+    run_d_legend()
+
+
 # ==== controls: one variant per part built to lose; it must stay off the front ==============================================
 CONTROLS = {
     "a": ({"look": "heavy", "overflow": "wrap", "placement": "below"}, "heavy dark chips (bold, 14 px, a mark), every name, wrapped below the title"),
@@ -950,7 +983,7 @@ def scores_page():
               "c": "C. # suggestions on the capture line", "d": "D. Settings › Labels",
               "e": "E. What tapping a label does × target size × placement × look",
               "f": "F. The label as a dot: place × several × entry"}
-    chosen = {"b": {"container": "sheet", "shape": "grid"}, "f": dict(CHOSEN_DOT)}
+    chosen = {"b": {"container": "sheet", "shape": "grid"}, "c": {"place": "above"}, "d": {"form": "legend"}, "f": dict(CHOSEN_DOT)}
     tasks = {"b": "Tasks: a = add Health; b = add three labels; c = remove one; d = create Garden.",
              "c": "Tasks: a = \"#he\" then Health; b = \"#h\" then Home (the second match); c = \"#garden\", a new label.",
              "d": "Tasks: a = rename Health; b = scope Books; c = delete Calm; d = move Projects up; e = see what carries Health; f = colour Home."}
@@ -971,7 +1004,7 @@ def scores_page():
             if p in keys:
                 v = dict(r["v"])
                 v.setdefault("suggest", {"below": "chips", "above": "chips"}.get(v.get("place"), v.get("place")))
-                v.setdefault("manage", v.get("form"))
+                v.setdefault("manage", {"legend": "detail", "legend_menu": "menu"}.get(v.get("form"), v.get("form")))
                 r["ref_distance"] = ref_distance(v, keys[p], refs)
         ok = [r for r in rows if not r.get("small") and not r.get("unseen")]
         axes = SCORE_AXES[p]
@@ -1047,3 +1080,83 @@ Measures come from headless Edge at 360×740: targets, reach, row heights, and c
 
 if __name__ == "__main__" and "scores" in sys.argv[1:]:
     scores_page()
+
+
+# ==== the approved T1.7 section for screens.html (owner, 2026-10-09) ======================================================
+CHOSEN_B = {"container": "sheet", "shape": "grid", "field_below": True}
+CHOSEN_C = {"place": "above"}
+CHOSEN_D = {"form": "legend"}
+
+
+def f_filtered_doc(name="Health", theme="light"):
+    """Today filtered by one label from the filter bar of named dots: only what carries it, the chip on, Clear beside it."""
+    v = CHOSEN_DOT
+    names = [name] + [n for n in ("Health", "Body", "Calm", "Home", "Books") if n != name]  # the one on first, Clear beside it
+    chip = lambda n: R.ch("Filter %s" % n, '<span class="dots"><i></i></span>&nbsp;' + n, n == name)
+    fbar = '<div class="fbar">%s%s%s</div>' % (chip(names[0]), R.ch("Clear", "Clear"), "".join(chip(n) for n in names[1:]))
+    routines = "".join(f_row(time or t.KIND_MARK["habit"], title, len(names), v, "Log") for _, title, time, names in ROUTINES if name in names)
+    pages = "".join(f_row("▤", title, len(names), v) for title, names in PAGES if name in names)
+    body = '<div class="c2">%s</div>' % fbar + kit.zone("Routines", routines) + (kit.zone("Pages", pages) if pages else "")
+    return kit.document(kit.phone(kit.header(t.TITLE, t.APPROVED_BUTTONS), body, kit.bar("Today")), theme, t.EXTRA + t.T12_CSS + R.CSS + F_CSS, True)
+
+
+def labels_desk_doc(theme="light"):
+    """Windows: Today's rows with their dots and the filter bar, and Settings › Labels open in the page column."""
+    v = CHOSEN_DOT
+    fbar = '<div class="c2"><div class="fbar">%s</div></div>' % "".join(R.ch("Filter %s" % n, '<span class="dots"><i></i></span>&nbsp;' + n) for n in ("Health", "Body", "Calm", "Home", "Books"))
+    rows = "".join(f_row(time or t.KIND_MARK["habit"], title, len(names), v, "Log") for _, title, time, names in ROUTINES) + \
+        "".join(f_row("▤", title, len(names), v) for title, names in PAGES)
+    legend = "".join(('<div class="mrow" style="min-height:52px"><span class="ic"><span class="dt"></span></span><span class="nm" style="flex-direction:column;align-items:flex-start;justify-content:center">'
+                      '%s<span style="font-size:12.5px;color:var(--dim)">Everything · %d item%s</span></span><span class="ic">›</span></div>') % (n, COUNTS[n], "" if COUNTS[n] == 1 else "s") for n in LABELS[:9])
+    head = '<div class="hdr"><span class="ttl">%s</span><span class="srch" data-tap="Search" style="width:320px">⌕ Search everything <span class="kbd">Ctrl+K</span></span></div>' % t.TITLE
+    page = '<div class="page"><div class="kbd">Settings › Labels</div>%s</div>' % legend
+    return kit.document(kit.desk(kit.rail("Today"), head, '<div class="dcol">%s%s</div>%s' % (fbar, rows, page)), theme,
+                        t.EXTRA + t.T12_CSS + R.CSS + F_CSS + D_CSS, True)
+
+
+def labels_section():
+    """The T1.7 section, images inlined small (greyscale WebP at the shown width) so screens.html stays under viewers' caps."""
+    import base64
+    import io
+    import html as H
+    from PIL import Image
+
+    def img(d, w, h, show):
+        im = Image.open(ss.render(d, w, h)).convert("L")
+        im = im.resize((show, round(im.height * show / im.width)), Image.LANCZOS)
+        buf = io.BytesIO()
+        im.save(buf, "WEBP", quality=50)
+        return "data:image/webp;base64," + base64.b64encode(buf.getvalue()).decode("ascii")
+
+    def fig(cap, d):
+        return '<figure><img src="%s" width="300" alt="%s"><figcaption>%s</figcaption></figure>' % (img(d, 360, 740, 300), H.escape(cap), H.escape(cap))
+    table = [
+        ("The label on a row", "A dot under the time or kind mark, one dot and its count, every dot on one vertical line. Titles keep 232 px; no row grows; 0 px stray. Colour from the guided picker; the name is never colour alone (WCAG 1.4.1).", "F, labels-scores.html#f"),
+        ("Filtering", "The filter bar of named dots on any screen: a tap shows only what carries that label there; Clear undoes it. 2 actions.", "E, owner 2026-10-09"),
+        ("The picker", "A sheet, a grid of every label in alphabetical order, the search-and-create box below them. 20 actions over 4 tasks, reach 2.08, 12 of 12 labels shown.", "B, labels-scores.html#b"),
+        ("# on the capture line", "Matching labels as chips above the line, so the line stays put while typing (moves 0 px, against 25 px below). 14 actions, reach 2.81.", "C, labels-scores.html#c"),
+        ("Settings › Labels", "Each row is the label's dot, its name and a written line (scope · count), so the list is the colour legend; each opens one page with name, colour, scope, what carries it and Delete (undo toast). Reorder behind Edit. 26 actions, 0.9 controls a row.", "D, labels-scores.html#d"),
+    ]
+    rows = "".join("<tr><td>%s</td><td>%s</td><td><code>%s</code></td></tr>" % tuple(H.escape(x) for x in r) for r in table)
+    figs = "".join([
+        fig("Today: the dots, and the filter bar", f_doc(CHOSEN_DOT)),
+        fig("Today filtered by Health", f_filtered_doc()),
+        fig("Capture: # suggestions above the line", c_doc(CHOSEN_C, "#h")),
+        fig("⋯ › Label: the picker sheet", picker_doc(CHOSEN_B, "base")),
+        fig("Settings › Labels: the list is the legend", d_doc(CHOSEN_D, "list")),
+        fig("A label's page", d_doc(CHOSEN_D, "detail")),
+    ])
+    desk = '<figure><img src="%s" width="560" alt="Windows, Today and Labels"><figcaption>Today with its dots beside Settings › Labels</figcaption></figure>' % img(labels_desk_doc(), 1100, 660, 560)
+    return ('<section id="t1-7"><h2>T1.7 Labels <span class="tag">approved</span></h2>'
+            '<p>A label is a coloured dot, not a chip: it takes no room from titles and adds no height. The name is read in the filter bar, '
+            'on the item\'s page, in the picker and in Settings › Labels, whose list doubles as the colour legend. Every variant, its measures '
+            'and a control per part: <a href="labels-scores.html">labels-scores.html</a>.</p>'
+            '<h3>Decided by</h3><table><tr><th>Part</th><th>Choice and its measure</th><th>Record</th></tr>%s</table>'
+            '<h3>Phone</h3><div class="refs">%s</div><h3>Windows</h3><div class="refs">%s</div></section>') % (rows, figs, desk)
+
+
+if __name__ == "__main__" and "section" in sys.argv[1:]:
+    s_ = labels_section()
+    print(len(s_))
+    with open(os.path.join(v2.OUT, "labels-section-preview.html"), "w", encoding="utf-8", newline=chr(10)) as fh:
+        fh.write('<!doctype html><meta charset="utf-8"><title>T1.7 preview</title>' + s_)
