@@ -327,15 +327,64 @@ def score_t(v):
     return {"actions": acts, "scan_rows": scan, "rows_shown": shown, "small": [], "clutter": T.clutter_of(lambda th: t_doc(v, th))}
 
 
+# ==== Part X: which pairing of I (an element's actions) and S (starting a selection) works together (owner, 2026-10-09) ====
+"""
+  i  where one element's actions live: menu (a long press opens them), selbar (a long press selects; the bar shows them),
+     dots (a ⋯ in the row), page (the element's page)
+  s  how a selection of several starts: longpress (a long press selects), menu (Select in the long-press menu), screen
+     (Select is the screen's action), drag (down the left column)
+  Rules, from what each option claims for itself:
+    clash (the pair fails): one gesture given two meanings. A long press cannot both open the menu (i = menu) and select
+      (s = longpress); a long press cannot both select (i = selbar) and open a menu holding Select (s = menu).
+    duplicate paths: the same actions reached two ways from one row: a ⋯ and a long-press menu (i = dots, s = menu).
+    one model: one element and several are acted on from the same place (i = selbar with s = longpress, or with s = screen
+      or s = drag, whose selections land in the same bar).
+    scroll clash: s = drag.
+  Taken from parts I and S (their measured rows): the actions of each, reach, title room, clutter, seen at rest.
+  Control: four glyph buttons on every row, and Select as a page of its own under ⚙.
+"""
+X_SPACE = {"i": ["menu", "selbar", "dots", "page"], "s": ["longpress", "menu", "screen", "drag"]}
+
+
+def _part_rows(p):
+    import json
+    with open(os.path.join(T.OUT, "toasts-%s.json" % p), encoding="utf-8") as fh:
+        return {(r["v"].get("place") or r["v"].get("start")): r for r in json.load(fh)}
+
+
+def score_x(v):
+    I, S = _part_rows("i"), _part_rows("s")
+    ri, rs = I[v["i"]], S[v["s"]]
+    clash = []
+    if v["i"] == "menu" and v["s"] == "longpress":
+        clash.append("long press: menu and select")
+    if v["i"] == "selbar" and v["s"] == "menu":
+        clash.append("long press: select and a menu")
+    dup = 1 if (v["i"] == "dots" and v["s"] == "menu") else 0
+    one = 1 if v["i"] == "selbar" and v["s"] in ("longpress", "screen", "drag") else 0
+    reaches = [x for x in (ri.get("reach"), rs.get("reach")) if x is not None]
+    return {"actions": ri["actions"] + rs["actions"], "reach": round(sum(reaches) / len(reaches), 3) if reaches else None,
+            "gesture_clash": len(clash), "duplicate_paths": dup, "one_model": one, "scroll_clash": rs["gesture_clash"],
+            "title_room": ri["title_room"], "seen_at_rest": max(ri["seen_at_rest"], rs["seen_at_rest"]),
+            "small": ["clash: " + c for c in clash], "clutter": max(ri["clutter"], rs["clutter"])}
+
+
+def x_docs(v):
+    if v.get("control"):
+        return [i_docs({"place": "control"})[0], s_doc({"start": "control"})]
+    return [i_docs({"place": v["i"]})[1], s_doc({"start": v["s"]})]
+
+
 # ==== registered in toast_opt's tables ======================================================================================
-T.SPACES.update({"i": I_SPACE, "n": N_SPACE, "s": S_SPACE, "m": M_SPACE, "t": T_SPACE})
-T.SCORERS.update({"i": score_i, "n": score_n, "s": score_s, "m": score_m, "t": score_t})
+T.SPACES.update({"i": I_SPACE, "n": N_SPACE, "s": S_SPACE, "m": M_SPACE, "t": T_SPACE, "x": X_SPACE})
+T.SCORERS.update({"i": score_i, "n": score_n, "s": score_s, "m": score_m, "t": score_t, "x": score_x})
 T.CONTROLS.update({
     "i": ({"place": "control"}, "a strip of four glyph buttons on every row, always shown"),
     "n": ({"place": "control"}, "each screen its own way: Today's in the header, Pages' in a bottom bar, Reminders' behind a floating button"),
     "s": ({"start": "control"}, "Select lives in ⚙ › Select, a page of its own"),
     "m": ({"offer": "control"}, "every action any of them has, with no counts: Done touches two of four silently"),
     "t": ({"pages": "control"}, "no sections: every kind in one list, with no path"),
+    "x": ({"i": "control", "s": "control", "control": True}, "four glyph buttons on every row, and Select as a page of its own under ⚙"),
 })
 T.AXES.update({
     "i": {"Ease": ("actions", "reach"), "Calm": ("-title_room", "row_targets", "-gap_px", "clutter"), "Seen": ("-seen_at_rest",)},
@@ -343,15 +392,16 @@ T.AXES.update({
     "s": {"Ease": ("actions", "reach"), "Safety": ("gesture_clash",), "Seen": ("-seen_at_rest",), "Calm": ("clutter",)},
     "m": {"Ease": ("actions", "reach"), "Safety": ("silent_subset",), "Calm": ("bar_buttons", "clutter")},
     "t": {"Ease": ("actions", "scan_rows"), "Calm": ("rows_shown", "clutter")},
+    "x": {"Ease": ("actions", "reach"), "Safety": ("scroll_clash",), "Learn": ("duplicate_paths", "-one_model"), "Calm": ("-title_room", "clutter"), "Seen": ("-seen_at_rest",)},
 })
 T.TITLES.update({"g": "G (superseded 2026-10-09). One placement for all four screens", "i": "I. An element's own actions",
-                 "n": "N. A screen's own actions", "s": "S. How a selection starts", "m": "M. A selection of mixed kinds", "t": "T. Trash's Pages section"})
+                 "n": "N. A screen's own actions", "s": "S. How a selection starts", "m": "M. A selection of mixed kinds", "t": "T. Trash's Pages section", "x": "X. Which pairing of I and S works together"})
 T.DRAW = {"i": lambda v: list(i_docs(v)), "n": lambda v: [doc(n_screen(s, {"Today": "header", "Pages": "bottom", "Reminders": "fab"}[s] if v["place"] == "control" else v["place"])) for s in N_SCREENS],
-          "s": lambda v: [s_doc(v)], "m": lambda v: [m_doc(v)], "t": lambda v: [t_doc(v)]}
+          "s": lambda v: [s_doc(v)], "m": lambda v: [m_doc(v)], "t": lambda v: [t_doc(v)], "x": x_docs}
 
 
 if __name__ == "__main__":
-    for p in "insmt":
+    for p in "insmtx":
         if p in sys.argv[1:]:
             T.run_part(p)
     # the drawings first: the tables exit non-zero when a control reaches a front, which stopped the page from being rebuilt

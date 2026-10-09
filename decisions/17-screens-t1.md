@@ -1453,3 +1453,18 @@ Drawn: `docs/screens/t1/labels-dots.html` (`labels-f.json`).
     - control, still on the front by fewest actions (23.5).
     
     The selection bar is off the front (20).
+- **X, which pairing of I and S works together** (owner's question, 2026-10-09; `actions_opt.py x`, from I's and S's measured rows):
+  - **Two pairings fail by clash:**
+    - a long press can't both open the menu and select (menu + long press);
+    - nor both select and open a menu holding Select (selection bar + menu).
+  - **The lowest sum is a long press that begins the selection, with the selection bar showing the actions (sum 57):**
+    - one model for one element or many;
+    - no gesture with two meanings, nothing reached two ways, no clash with scrolling;
+    - 17 actions;
+    - but nothing at rest shows the way in.
+  - **Next:**
+    - the element's page with the long-press menu's Select (58);
+    - the long-press menu with Select in it (59): 17 actions, but two models, one for one element and one for several.
+  - Pairing a ⋯ in the row with a long-press menu reaches the same actions two ways (68).
+  - Dragging down the left column saves 2 actions but clashes with scrolling.
+  - The control stays on the front, as do 10 of 14: with five axes the Pareto front barely discriminates here, so the sums carry the comparison.

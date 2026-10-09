@@ -1,0 +1,281 @@
+[
+ {
+  "v": {
+   "i": "menu",
+   "s": "longpress"
+  },
+  "actions": 15,
+  "reach": 3.204,
+  "gesture_clash": 1,
+  "duplicate_paths": 0,
+  "one_model": 0,
+  "scroll_clash": 0,
+  "title_room": 207,
+  "seen_at_rest": 0,
+  "small": [
+   "clash: long press: menu and select"
+  ],
+  "clutter": 0.0401
+ },
+ {
+  "v": {
+   "i": "menu",
+   "s": "menu"
+  },
+  "actions": 17,
+  "reach": 2.577,
+  "gesture_clash": 0,
+  "duplicate_paths": 0,
+  "one_model": 0,
+  "scroll_clash": 0,
+  "title_room": 207,
+  "seen_at_rest": 0,
+  "small": [],
+  "clutter": 0.0384
+ },
+ {
+  "v": {
+   "i": "menu",
+   "s": "screen"
+  },
+  "actions": 17,
+  "reach": 3.365,
+  "gesture_clash": 0,
+  "duplicate_paths": 0,
+  "one_model": 0,
+  "scroll_clash": 0,
+  "title_room": 207,
+  "seen_at_rest": 1,
+  "small": [],
+  "clutter": 0.0387
+ },
+ {
+  "v": {
+   "i": "menu",
+   "s": "drag"
+  },
+  "actions": 13,
+  "reach": 3.204,
+  "gesture_clash": 0,
+  "duplicate_paths": 0,
+  "one_model": 0,
+  "scroll_clash": 1,
+  "title_room": 207,
+  "seen_at_rest": 0,
+  "small": [],
+  "clutter": 0.0401
+ },
+ {
+  "v": {
+   "i": "selbar",
+   "s": "longpress"
+  },
+  "actions": 17,
+  "reach": 3.204,
+  "gesture_clash": 0,
+  "duplicate_paths": 0,
+  "one_model": 1,
+  "scroll_clash": 0,
+  "title_room": 207,
+  "seen_at_rest": 0,
+  "small": [],
+  "clutter": 0.0401
+ },
+ {
+  "v": {
+   "i": "selbar",
+   "s": "menu"
+  },
+  "actions": 19,
+  "reach": 2.577,
+  "gesture_clash": 1,
+  "duplicate_paths": 0,
+  "one_model": 0,
+  "scroll_clash": 0,
+  "title_room": 207,
+  "seen_at_rest": 0,
+  "small": [
+   "clash: long press: select and a menu"
+  ],
+  "clutter": 0.0384
+ },
+ {
+  "v": {
+   "i": "selbar",
+   "s": "screen"
+  },
+  "actions": 19,
+  "reach": 3.365,
+  "gesture_clash": 0,
+  "duplicate_paths": 0,
+  "one_model": 1,
+  "scroll_clash": 0,
+  "title_room": 207,
+  "seen_at_rest": 1,
+  "small": [],
+  "clutter": 0.0387
+ },
+ {
+  "v": {
+   "i": "selbar",
+   "s": "drag"
+  },
+  "actions": 15,
+  "reach": 3.204,
+  "gesture_clash": 0,
+  "duplicate_paths": 0,
+  "one_model": 1,
+  "scroll_clash": 1,
+  "title_room": 207,
+  "seen_at_rest": 0,
+  "small": [],
+  "clutter": 0.0401
+ },
+ {
+  "v": {
+   "i": "dots",
+   "s": "longpress"
+  },
+  "actions": 15,
+  "reach": 3.262,
+  "gesture_clash": 0,
+  "duplicate_paths": 0,
+  "one_model": 0,
+  "scroll_clash": 0,
+  "title_room": 147,
+  "seen_at_rest": 1,
+  "small": [],
+  "clutter": 0.0401
+ },
+ {
+  "v": {
+   "i": "dots",
+   "s": "menu"
+  },
+  "actions": 17,
+  "reach": 2.635,
+  "gesture_clash": 0,
+  "duplicate_paths": 1,
+  "one_model": 0,
+  "scroll_clash": 0,
+  "title_room": 147,
+  "seen_at_rest": 1,
+  "small": [],
+  "clutter": 0.0391
+ },
+ {
+  "v": {
+   "i": "dots",
+   "s": "screen"
+  },
+  "actions": 17,
+  "reach": 3.423,
+  "gesture_clash": 0,
+  "duplicate_paths": 0,
+  "one_model": 0,
+  "scroll_clash": 0,
+  "title_room": 147,
+  "seen_at_rest": 1,
+  "small": [],
+  "clutter": 0.0391
+ },
+ {
+  "v": {
+   "i": "dots",
+   "s": "drag"
+  },
+  "actions": 13,
+  "reach": 3.262,
+  "gesture_clash": 0,
+  "duplicate_paths": 0,
+  "one_model": 0,
+  "scroll_clash": 1,
+  "title_room": 147,
+  "seen_at_rest": 1,
+  "small": [],
+  "clutter": 0.0401
+ },
+ {
+  "v": {
+   "i": "page",
+   "s": "longpress"
+  },
+  "actions": 19,
+  "reach": 3.204,
+  "gesture_clash": 0,
+  "duplicate_paths": 0,
+  "one_model": 0,
+  "scroll_clash": 0,
+  "title_room": 207,
+  "seen_at_rest": 1,
+  "small": [],
+  "clutter": 0.0401
+ },
+ {
+  "v": {
+   "i": "page",
+   "s": "menu"
+  },
+  "actions": 21,
+  "reach": 2.577,
+  "gesture_clash": 0,
+  "duplicate_paths": 0,
+  "one_model": 0,
+  "scroll_clash": 0,
+  "title_room": 207,
+  "seen_at_rest": 1,
+  "small": [],
+  "clutter": 0.0384
+ },
+ {
+  "v": {
+   "i": "page",
+   "s": "screen"
+  },
+  "actions": 21,
+  "reach": 3.365,
+  "gesture_clash": 0,
+  "duplicate_paths": 0,
+  "one_model": 0,
+  "scroll_clash": 0,
+  "title_room": 207,
+  "seen_at_rest": 1,
+  "small": [],
+  "clutter": 0.0387
+ },
+ {
+  "v": {
+   "i": "page",
+   "s": "drag"
+  },
+  "actions": 17,
+  "reach": 3.204,
+  "gesture_clash": 0,
+  "duplicate_paths": 0,
+  "one_model": 0,
+  "scroll_clash": 1,
+  "title_room": 207,
+  "seen_at_rest": 1,
+  "small": [],
+  "clutter": 0.0401
+ },
+ {
+  "v": {
+   "i": "control",
+   "s": "control",
+   "control": true
+  },
+  "why": "four glyph buttons on every row, and Select as a page of its own under ⚙",
+  "control": true,
+  "actions": 17,
+  "reach": 2.676,
+  "gesture_clash": 0,
+  "duplicate_paths": 0,
+  "one_model": 0,
+  "scroll_clash": 0,
+  "title_room": 35,
+  "seen_at_rest": 1,
+  "small": [],
+  "clutter": 0.0441
+ }
+]
