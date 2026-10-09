@@ -669,6 +669,8 @@ F_CSS = """
 .dots i{width:8px;height:8px;border-radius:50%;background:var(--dim);display:block}
 .dots.stack i{margin-left:-4px;box-shadow:0 0 0 1.5px var(--bg)}.dots.stack i:first-child{margin-left:0}
 .dots .n{font-size:11px;color:var(--dim)}
+/* owner, 2026-10-09: the dots exactly on one vertical line; a count hangs beside its dot without moving it */
+.dots.centred{position:relative}.dots.centred .n{position:absolute;left:calc(100% + 3px);top:50%;transform:translateY(-50%);line-height:1}
 .dtap{min-width:32px;min-height:32px;display:inline-flex;align-items:center;justify-content:center;flex:none}
 .fbar{display:flex;gap:6px;overflow:hidden;padding:0 0 2px}
 """
@@ -679,7 +681,7 @@ def dots_html(n, v):
         inner = "<i></i>" + ('<span class="n">%d</span>' % n if n > 1 else "")
     else:
         inner = "<i></i>" * min(3, n) + ('<span class="n">+%d</span>' % (n - 3) if n > 3 else "")
-    d = '<span class="dots %s">%s</span>' % ("stack" if v["several"] == "stack" else "", inner)
+    d = '<span class="dots %s%s">%s</span>' % ("stack" if v["several"] == "stack" else "", " centred" if v.get("centred") else "", inner)
     return '<span class="dtap" data-tap="Dots">%s</span>' % d if v["entry"] == "tap" else d
 
 
@@ -710,7 +712,7 @@ document.body.insertAdjacentHTML('beforeend','<pre id="__do'+'ts">'+JSON.stringi
 
 def score_f(v):
     d = f_doc(v).replace("</body>", F_PROBE + "</body>")
-    res = ss._edge(["--dump-dom"], True, "labels-f-" + "-".join(v.values()), d, 660, 1040)
+    res = ss._edge(["--dump-dom"], True, "labels-f-" + "-".join(str(x) for x in v.values()), d, 660, 1040)
     p = json.loads(re.search(r'<pre id="__dots">(.*?)</pre>', res.stdout, re.S).group(1).replace("&quot;", '"'))["rows"]
     xs = [r["dx"] for r in p if r["dx"] is not None]
     m = ss.measure(f_doc(v), 360, 740)
@@ -755,3 +757,42 @@ def dots_page():
 
 if __name__ == "__main__" and "dotspage" in sys.argv[1:]:
     dots_page()
+
+
+# ==== the chosen dot (owner, 2026-10-09: "Under the time, dot + count, all exactly vertically centered") ==============
+CHOSEN_DOT = {"place": "lead", "several": "count", "entry": "names", "centred": True}
+
+
+def rest_page():
+    """docs/screens/t1/labels-rest.html: the chosen dots, and the parts still open: the # chips above or below the
+    line, and Settings › Labels as direct controls or a page per label (with the dot), images inlined."""
+    import base64
+    import io
+    import html as H
+    from PIL import Image
+
+    def fig(cap, d):
+        buf = io.BytesIO()
+        Image.open(ss.render(d, 360, 740)).convert("L").save(buf, "WEBP", quality=80)
+        return '<figure><img width="300" src="data:image/webp;base64,%s"><figcaption>%s</figcaption></figure>' % (base64.b64encode(buf.getvalue()).decode("ascii"), H.escape(cap))
+
+    r = score_f(CHOSEN_DOT)
+    sec = '<h3>The chosen dots</h3><p class="dim">Under the time or mark, one dot and its count; every dot on one vertical line (strays %d px), titles %s px, no row height added.</p><div class="flex">%s</div>' % (
+        r["column"], r["title_room"], fig("Today and Pages, the chosen dots", f_doc(CHOSEN_DOT)))
+    sec += '<h3>The # suggestions: above or below the line</h3><div class="flex">%s%s</div>' % (
+        fig("Above: the line stays put while you type; reach 2.81", c_doc({"place": "above"}, "#h")),
+        fig("Below (the hint line's place): reach 2.49, the line moves up 25 px", c_doc({"place": "below"}, "#h")))
+    sec += '<h3>Settings › Labels</h3><div class="flex">%s%s%s</div>' % (
+        fig("Direct controls: 17 actions, 6 controls a row", d_doc({"form": "direct"}, "list")),
+        fig("A page per label: the list (23 actions, 2 controls a row)", d_doc({"form": "detail"}, "list")),
+        fig("…a label's page: name, colour, scope, what carries it, Delete", d_doc({"form": "detail"}, "detail")))
+    css = "body{font:14px/1.4 system-ui,sans-serif;padding:16px;background:#f4f4f2;color:#1d1d1b}h3{font-size:15px;margin:20px 0 6px}.dim{color:#6b6b66}.flex{display:flex;gap:12px;flex-wrap:wrap}figure{margin:0;max-width:300px}figcaption{font-size:12px;color:#6b6b66}"
+    out = ('<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>T1.7 labels, the rest</title><style>%s</style></head><body>'
+           '<h1 style="font-size:20px">T1.7 Labels: the chosen dots, and the parts still open</h1>%s</body></html>') % (css, sec)
+    with open(os.path.join(v2.OUT, "labels-rest.html"), "w", encoding="utf-8", newline=chr(10)) as fh:
+        fh.write(out)
+    print(len(out), r)
+
+
+if __name__ == "__main__" and "rest" in sys.argv[1:]:
+    rest_page()

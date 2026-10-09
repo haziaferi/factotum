@@ -1169,3 +1169,8 @@ Mockups: `docs/screens/t1/labels-options.html`.
 - **Opening the view:** 2 actions with tappable dots, 3 from the item's page.
 
 Drawn: `docs/screens/t1/labels-dots.html` (`labels-f.json`).
+- **Owner's choice (2026-10-09): "Under the time, dot + count, all exactly vertically centered."**
+  - Every dot sits on one vertical line: the count hangs beside its dot without moving it (measured stray: 0 px, from 5 px).
+  - The time or mark and its dot are centred together in the row.
+  - Titles keep 232 px; no row height is added.
+  - Drawn with the parts still open (the # chips above or below the line; Settings › Labels as direct controls or a page per label): `docs/screens/t1/labels-rest.html`.
