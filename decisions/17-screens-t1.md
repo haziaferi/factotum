@@ -1499,3 +1499,21 @@ Drawn: `docs/screens/t1/labels-dots.html` (`labels-f.json`).
 - The T1.8 section is in `docs/screens/t1/screens.html`, at the top; the separate page is removed.
 - To keep the page under the 512 KiB that viewers accept, `tier_t1.fit_size` first shrinks each inlined image to the width it is shown at, then lowers WebP quality in steps. It stopped at quality 20, which is still readable, at 513 KB.
 - Next, in order of dependency: the data-layer work the T1.8 vocabulary owes, then T1.9.
+
+**T1.9 empty and error states, the owner's answers (2026-10-09).** The rule from 2026-10-07 stands: one plain sentence and one action, with no illustration, no cheer and no guilt. Failures show a banner under the header (T1.8 F).
+- **Scope (all four):**
+  - empty screens;
+  - screens filtered to nothing (search, a label filter, a selection, a Trash section);
+  - errors and their words (banners and field errors);
+  - first run and loading.
+- **Empty form:** score all four with a control:
+  - a sentence and a centred button;
+  - a sentence where the first row would be, with the capture line as the action;
+  - the capture line's placeholder alone;
+  - a sentence and one greyed example row.
+- **Today done against Today with nothing planned:** score one sentence against two, with the "Done today" fold kept or not.
+- **Axes:**
+  - the four axes, as in T1.8;
+  - tone, measured: word count, reading grade, and a check for cheer, praise or blame;
+  - references captured on the phone and the desktop (placeholder data only);
+  - Windows scored too.
