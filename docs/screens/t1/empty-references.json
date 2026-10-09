@@ -1,0 +1,597 @@
+{
+  "note": "Captured 2026-10-09 in three passes (the last 23:07-23:23 with Do Not Disturb on) over adb on a OnePlus 6T (8ad59cbb, 1080x2340, 1 dp = 2.625 px) from uiautomator dumps, with a screenshot check before every tap. Geometry and wording only; screenshots are gitignored in _screens-sources/empty/. bounds_dp = [x, y, w, h] of the whole message block (icon/illustration + text + button) unless 'seen' says otherwise. Wording is verbatim; ' | ' joins separate text lines. Screens showing the owner's items or account (Todoist, TickTick drawer, Microsoft To Do lists, Notion, Fossify Calendar, Etar week view, Mnemo All/Ease) were measured without screenshots; Notion was wording and geometry only. Passes 1 and 2 were cut short by other apps' heads-up notifications (Daylio, Telegram). Track & Graph was skipped (it opened on its tutorial). Fossify Clock was looked at only and has no empty state (two default alarms, one default timer). Error entries with form 'other' record silent behaviour (no message) for an empty required field.",
+  "empty": [
+    {
+      "app": "com.tendril.app.debug",
+      "platform": "android",
+      "form": "centred",
+      "has_illustration": false,
+      "text": "Nothing due",
+      "action": "Add a task",
+      "bounds_dp": [
+        139,
+        384,
+        133,
+        136
+      ],
+      "seen": "Tasks tab, Tasks filter, 'Today' dropdown, debug build with no data. Small check-mark icon (~27 dp) above the text, then text 'Nothing due' [154,420,103,27], then tonal pill button 'Add a task' [139,466,133,54]. FAB 'Add task' [331,669,63,63] is also there. English UI, not Italian."
+    },
+    {
+      "app": "com.tendril.app.debug",
+      "platform": "android",
+      "form": "centred",
+      "has_illustration": false,
+      "text": "No habits yet",
+      "action": "Add a habit",
+      "bounds_dp": [
+        137,
+        384,
+        138,
+        136
+      ],
+      "seen": "Tasks tab, Habits filter ('By time' and 'Day' dropdowns). Flame icon above; text [150,420,110,27]; button [137,466,138,54]; FAB 'Add habit'."
+    },
+    {
+      "app": "com.tendril.app.debug",
+      "platform": "android",
+      "form": "centred",
+      "has_illustration": false,
+      "text": "Nothing due",
+      "action": null,
+      "bounds_dp": [
+        154,
+        420,
+        103,
+        63
+      ],
+      "seen": "Tasks tab, Merged filter: check icon and 'Nothing due' [154,456,103,27], with no button (unlike the Tasks filter); the FAB stays."
+    },
+    {
+      "app": "com.tendril.app.debug",
+      "platform": "android",
+      "form": "centred",
+      "has_illustration": false,
+      "text": "No pages yet",
+      "action": "New page",
+      "bounds_dp": [
+        141,
+        384,
+        129,
+        135
+      ],
+      "seen": "Pages tab: page icon, text [150,420,112,27], button [141,465,129,54]. One label chip 'Sample label' (earlier test data) sits above it at [18,95,131,54]."
+    },
+    {
+      "app": "com.tendril.app.debug",
+      "platform": "android",
+      "form": "placeholder",
+      "has_illustration": false,
+      "text": "Title",
+      "action": null,
+      "bounds_dp": [
+        36,
+        127,
+        340,
+        54
+      ],
+      "seen": "'Add task' bottom sheet: the empty title field shows only its placeholder 'Title'."
+    },
+    {
+      "app": "com.hazia.chronicle.debug",
+      "platform": "android",
+      "form": "centred",
+      "has_illustration": false,
+      "text": "Search | Find entries, sessions, reminders and items by their text.",
+      "action": null,
+      "bounds_dp": [
+        34,
+        398,
+        343,
+        121
+      ],
+      "seen": "Search screen before typing: magnifier icon, title 'Search' [178,442,56,26], body [34,476,343,43]; field placeholder 'Labels, notes, names…'."
+    },
+    {
+      "app": "com.hazia.chronicle.debug",
+      "platform": "android",
+      "form": "centred",
+      "has_illustration": false,
+      "text": "Remind | Add a reminder with the + button. Nothing scheduled right now.",
+      "action": null,
+      "bounds_dp": [
+        34,
+        222,
+        343,
+        144
+      ],
+      "seen": "Remind tab, no reminders: bell icon at about y 222-267, title 'Remind' [176,288,59,26], body [34,323,343,43]; FAB 'Add reminder'. The block sits high, not at the vertical centre."
+    },
+    {
+      "app": "com.hazia.chronicle.debug",
+      "platform": "android",
+      "form": "centred",
+      "has_illustration": false,
+      "text": "Charts | Build a chart to compare activities and trackers over time. Tap + to start.",
+      "action": null,
+      "bounds_dp": [
+        34,
+        336,
+        343,
+        136
+      ],
+      "seen": "Charts tab, no charts: line icon at about y 336-368, title 'Charts' [180,394,52,26], body [34,429,343,43]; FAB 'New chart'."
+    },
+    {
+      "app": "com.hazia.chronicle.debug",
+      "platform": "android",
+      "form": "placeholder",
+      "has_illustration": false,
+      "text": "Walk 30m yesterday · Steps 8500 · Meditated",
+      "action": null,
+      "bounds_dp": [
+        73,
+        125,
+        304,
+        52
+      ],
+      "seen": "Track tab, expanded Quick add field [17,108,377,86]: an example-sentence placeholder that teaches the syntax."
+    },
+    {
+      "app": "com.hazia.mnemo",
+      "platform": "android",
+      "form": "centred",
+      "has_illustration": false,
+      "text": "Nothing in Schedule. Tap + to add one.",
+      "action": null,
+      "bounds_dp": [
+        80,
+        486,
+        253,
+        19
+      ],
+      "seen": "Schedule tab (0 reminders): one line of text only, with no icon and no button; FAB 'Add schedule reminder'. The tabs show counts ('All · 1', 'Ease · 1', 'Schedule', 'Alert'). The All and Ease tabs hold a reminder the owner may have made, so no screenshot or wording was recorded from them."
+    },
+    {
+      "app": "com.hazia.mnemo",
+      "platform": "android",
+      "form": "placeholder",
+      "has_illustration": false,
+      "text": "Title | Notes",
+      "action": null,
+      "bounds_dp": [
+        17,
+        116,
+        377,
+        187
+      ],
+      "seen": "'New schedule reminder' editor: empty outlined fields showing their labels 'Title' [17,116,377,70] and 'Notes' [17,207,377,96]."
+    },
+    {
+      "app": "com.hazia.equipoise",
+      "platform": "android",
+      "form": "other",
+      "has_illustration": false,
+      "text": null,
+      "action": null,
+      "bounds_dp": [
+        21,
+        52,
+        310,
+        279
+      ],
+      "seen": "Ledger tab with nothing answered today: three question headings ('How much of today was masking?', 'How demanding was today?', 'Did you get real recovery?') with unselected text chips. There is no empty message. Nothing was selected."
+    },
+    {
+      "app": "org.tasks",
+      "platform": "android",
+      "form": "other",
+      "has_illustration": false,
+      "text": null,
+      "action": null,
+      "bounds_dp": [
+        0,
+        91,
+        411,
+        60
+      ],
+      "seen": "'Le mie attività' (My tasks) list with no open tasks: no message, icon or button. Only the collapsed 'Completate' (Completed) header row shows; the rest of the screen is blank. FAB 'Crea nuova attività'."
+    },
+    {
+      "app": "com.todoist",
+      "platform": "android",
+      "form": "other",
+      "has_illustration": false,
+      "text": "Venerdì, 9 ott",
+      "action": null,
+      "bounds_dp": [
+        19,
+        266,
+        101,
+        23
+      ],
+      "seen": "'Oggi' (Today) view: today's date section header in grey with no rows and no message under it. An overdue section of the owner's sits above it, so this is not Todoist's all-clear Today state, which was not reachable. No screenshot."
+    },
+    {
+      "app": "com.todoist",
+      "platform": "android",
+      "form": "placeholder",
+      "has_illustration": false,
+      "text": "Attività, progetti e altro",
+      "action": null,
+      "bounds_dp": [
+        60,
+        116,
+        181,
+        26
+      ],
+      "seen": "Search screen (from 'Naviga') before typing: placeholder 'Tasks, projects and more' in the pill field [9,99,394,60]; below it is a 'Visti di recente' (Recently viewed) list of views, not an empty message. No screenshot, because it opens from a screen showing the account name."
+    },
+    {
+      "app": "com.ticktick.task",
+      "platform": "android",
+      "form": "illustration",
+      "has_illustration": true,
+      "text": "Cosa vuoi cercare | Basta inserire le parole chiave per effettuare la ricerca.",
+      "action": null,
+      "bounds_dp": [
+        0,
+        192,
+        411,
+        261
+      ],
+      "seen": "Search screen before typing (opened from the drawer): binoculars illustration above, title [0,390,411,20], body [0,416,411,37]. English: 'What do you want to search for / Just type keywords to search.' Field placeholder 'Ricerca'; scope chips 'Attività' and 'Elenco'."
+    },
+    {
+      "app": "com.anydo",
+      "platform": "android",
+      "form": "other",
+      "has_illustration": false,
+      "text": null,
+      "action": null,
+      "bounds_dp": [
+        11,
+        266,
+        390,
+        168
+      ],
+      "seen": "'TUTTE LE ATTIVITÀ' (All tasks): the empty date groups 'Domani', 'A breve', 'In Futuro' (Tomorrow, Upcoming, Someday) are bold headers [11,y,390,56] with a '+' on the right and no rows or message. The bottom input pill has the placeholder 'Voglio...' (I want...) [86,754,273,56]."
+    },
+    {
+      "app": "com.microsoft.todos",
+      "platform": "android",
+      "form": "other",
+      "has_illustration": true,
+      "text": null,
+      "action": "Suggerimenti",
+      "bounds_dp": [
+        0,
+        30,
+        411,
+        779
+      ],
+      "seen": "'La mia giornata' (My Day) with 0 tasks: full-bleed background photo under the title 'La mia giornata / venerdì 9 ottobre', with no empty text. One pill button 'Suggerimenti' (Suggestions) [125,774,162,36] and a FAB."
+    },
+    {
+      "app": "com.microsoft.todos",
+      "platform": "android",
+      "form": "illustration",
+      "has_illustration": true,
+      "text": "Le attività con scadenze o promemoria sono visualizzate qui.",
+      "action": null,
+      "bounds_dp": [
+        69,
+        274,
+        274,
+        323
+      ],
+      "seen": "'Pianificato' (Planned) with 0 tasks: calendar-page illustration above the text in one TextView [69,274,274,323]. English: 'Tasks with due dates or reminders show here.' Filter pills 'Questa settimana' and 'Per scadenza' stay on top."
+    },
+    {
+      "app": "com.google.android.apps.tasks",
+      "platform": "android",
+      "form": "illustration",
+      "has_illustration": true,
+      "text": "Nessuna attività speciale | Contrassegna le attività importanti con una stella per trovarle facilmente qui",
+      "action": null,
+      "bounds_dp": [
+        84,
+        263,
+        244,
+        381
+      ],
+      "seen": "'Speciali' (Starred) tab: illustration (person holding a star) inside the list card, header [84,512,244,62], body [84,582,244,62]. English: 'No starred tasks / Mark important tasks with a star to find them easily here'."
+    },
+    {
+      "app": "com.google.android.keep",
+      "platform": "android",
+      "form": "centred",
+      "has_illustration": false,
+      "text": "Le note con promemoria imminenti vengono visualizzate qui",
+      "action": null,
+      "bounds_dp": [
+        0,
+        322,
+        411,
+        196
+      ],
+      "seen": "'Promemoria' (Reminders) with none: a large (~120 dp) outline bell above the text, both in one TextView [0,322,411,196]. English: 'Notes with upcoming reminders show here'."
+    },
+    {
+      "app": "org.isoron.uhabits",
+      "platform": "android",
+      "form": "placeholder",
+      "has_illustration": false,
+      "text": "ad es. Esercizio | ad es. Ti sei allenato oggi? | (Opzionale)",
+      "action": null,
+      "bounds_dp": [
+        8,
+        108,
+        395,
+        369
+      ],
+      "seen": "'Crea abitudine' (Create habit), Yes/No type: example placeholders in the outlined fields Nome [8,108,309,56], Domanda [8,185,395,56] and Note [8,421,395,56]. The type picker before it is two cards whose example questions sit under the titles ('Sì o No' / 'Misurabile')."
+    }
+  ],
+  "noresult": [
+    {
+      "app": "com.tendril.app.debug",
+      "platform": "android",
+      "form": "centred",
+      "has_illustration": false,
+      "text": "No pages match 'zqxjw'",
+      "action": null,
+      "bounds_dp": [
+        104,
+        395,
+        203,
+        65
+      ],
+      "seen": "Pages > Search pages with 'zqxjw': magnifier icon above, then the text [104,433,203,27], which quotes the query; full-screen search with only a Close X."
+    },
+    {
+      "app": "com.hazia.chronicle.debug",
+      "platform": "android",
+      "form": "centred",
+      "has_illustration": false,
+      "text": "Nothing found | No matches for \"zqxjw\".",
+      "action": null,
+      "bounds_dp": [
+        127,
+        405,
+        157,
+        104
+      ],
+      "seen": "Search with 'zqxjw': magnifier icon, title 'Nothing found' [152,452,108,26], body [127,487,157,22] quoting the query."
+    },
+    {
+      "app": "org.tasks",
+      "platform": "android",
+      "form": "illustration",
+      "has_illustration": true,
+      "text": "Qui non ci sono attività.",
+      "action": null,
+      "bounds_dp": [
+        98,
+        433,
+        215,
+        206
+      ],
+      "seen": "Bottom-bar Cerca (search) with 'zqxjw', keyboard dismissed: 180 dp grey outline inbox picture [115,433,180,180] above the text [98,613,215,26]. English: 'There are no tasks here.' The query is not echoed."
+    },
+    {
+      "app": "com.todoist",
+      "platform": "android",
+      "form": "illustration",
+      "has_illustration": true,
+      "text": "Nessun risultato per “zqxjw”...",
+      "action": "Cerca attività completate",
+      "bounds_dp": [
+        95,
+        219,
+        221,
+        290
+      ],
+      "seen": "Search 'zqxjw', 'Principali' (Top) tab of the Principali/Attività/Descrizioni/Progetti/Sezioni scope tabs: colour illustration (hands and socks) 218 dp [97,219,218,218], title [95,437,221,21] (English: 'No results for \"zqxjw\"...', ellipsis is in the text), text button 'Cerca attività completate' (English: 'Search completed tasks') [104,458,203,51], and a help icon 'Scopri come perfezionare la tua ricerca' (English: 'Learn how to refine your search') at [17,424,69,52]."
+    },
+    {
+      "app": "com.ticktick.task",
+      "platform": "android",
+      "form": "illustration",
+      "has_illustration": true,
+      "text": "Non hai ancora trovato ciò che stavi cercando?Prova la ricerca su cloud.",
+      "action": "RICERCA NEL CLOUD",
+      "bounds_dp": [
+        17,
+        240,
+        377,
+        300
+      ],
+      "seen": "Search 'zqxjw': the same binoculars illustration, text [17,429,377,42] (two lines on screen; the dump has no space after '?'), outlined button [99,497,213,43]. English: 'Still haven't found what you were looking for? Try cloud search.' The query is not echoed."
+    },
+    {
+      "app": "com.microsoft.todos",
+      "platform": "android",
+      "form": "illustration",
+      "has_illustration": true,
+      "text": "La ricerca non ha dato risultati.",
+      "action": null,
+      "bounds_dp": [
+        58,
+        306,
+        295,
+        268
+      ],
+      "seen": "Search 'zqxjw': magnifier-with-question-mark illustration above the text, one TextView [58,306,295,268]. English: 'The search returned no results.'"
+    },
+    {
+      "app": "com.google.android.keep",
+      "platform": "android",
+      "form": "centred",
+      "has_illustration": false,
+      "text": "Nessuna nota corrispondente",
+      "action": null,
+      "bounds_dp": [
+        92,
+        331,
+        228,
+        177
+      ],
+      "seen": "Search 'zqxjw' (from Reminders): large outline magnifier above the text, one TextView [92,331,228,177]. English: 'No matching notes'. Search placeholder 'Cerca su Keep'."
+    },
+    {
+      "app": "net.cozic.joplin",
+      "platform": "android",
+      "form": "other",
+      "has_illustration": false,
+      "text": null,
+      "action": null,
+      "bounds_dp": [
+        8,
+        103,
+        395,
+        60
+      ],
+      "seen": "Search 'zqxjw', also after Enter: the list area under the field stays blank, with no message. Field placeholder 'Search notes, notebooks...' (English, untranslated) [75,103,318,60]."
+    },
+    {
+      "app": "notion.id",
+      "platform": "android",
+      "form": "centred",
+      "has_illustration": false,
+      "text": "Nessuna pagina trovata | Alcuni risultati potrebbero trovarsi tra le tue pagine eliminate",
+      "action": null,
+      "bounds_dp": [
+        52,
+        229,
+        308,
+        68
+      ],
+      "seen": "Search 'zqxjw', no screenshot (owner's workspace): text only, title [112,229,188,22], grey body [52,256,308,41]. English: 'No pages found / Some results may be in your deleted pages'. An AI row above it reads 'Chiedi all'AI “zqxjw”' [67,138,134,22]. The placeholder before typing is 'Cerca qualsiasi cosa...'."
+    },
+    {
+      "app": "org.fossify.calendar",
+      "platform": "android",
+      "form": "inline",
+      "has_illustration": false,
+      "text": "Nessun elemento trovato.",
+      "action": null,
+      "bounds_dp": [
+        0,
+        116,
+        411,
+        21
+      ],
+      "seen": "Search field in the top bar, 'zqxjw': one grey italic line at the top of the results area, where the first row would be. English: 'No items found.' No screenshot (the calendar grid holds the owner's events)."
+    },
+    {
+      "app": "ws.xsoh.etar",
+      "platform": "android",
+      "form": "other",
+      "has_illustration": false,
+      "text": null,
+      "action": null,
+      "bounds_dp": [
+        0,
+        99,
+        411,
+        191
+      ],
+      "seen": "Overflow › Cerca, 'zqxjw': no message. The agenda shows 'Tocca per vedere gli eventi precedenti a: 9 ago 2026' [0,99,411,69], a today header 'OGGI, VENERDÌ / 9 ottobre' with nothing under it, and 'Tocca per vedere gli eventi successivi a: 16 dic 2026' [0,221,411,69]."
+    }
+  ],
+  "done": [
+    {
+      "app": "com.google.android.apps.tasks",
+      "platform": "android",
+      "form": "illustration",
+      "has_illustration": true,
+      "text": "Tutte le attività sono state completate | Ben fatto!",
+      "action": null,
+      "bounds_dp": [
+        84,
+        254,
+        244,
+        353
+      ],
+      "seen": "'My Tasks' with every task completed: celebrating-person illustration, header [84,512,244,64], body [84,585,244,22]; collapsed 'Completate (4)' card below. English: 'All tasks completed / Well done!'. PRAISES ('Ben fatto!'). Reached without completing anything (the state was already there)."
+    },
+    {
+      "app": "com.anydo",
+      "platform": "android",
+      "form": "other",
+      "has_illustration": false,
+      "text": null,
+      "action": null,
+      "bounds_dp": [
+        0,
+        155,
+        411,
+        112
+      ],
+      "seen": "Completed my own two sample tasks under 'Oggi' (Today): the rows stay in place, struck through with a grey check and a delete X. No message, no praise, no animation seen."
+    }
+  ],
+  "error": [
+    {
+      "app": "com.tendril.app.debug",
+      "platform": "android",
+      "form": "other",
+      "has_illustration": false,
+      "text": null,
+      "action": null,
+      "bounds_dp": [
+        324,
+        760,
+        65,
+        50
+      ],
+      "seen": "'Add task' sheet, empty title, tapped 'Add' [324,760,65,50]: the sheet closed and nothing was created, with no message. A silent discard rather than an error."
+    },
+    {
+      "app": "com.hazia.mnemo",
+      "platform": "android",
+      "form": "other",
+      "has_illustration": false,
+      "text": null,
+      "action": null,
+      "bounds_dp": [
+        17,
+        771,
+        377,
+        38
+      ],
+      "seen": "'New schedule reminder' with empty title: the full-width 'Save' button [17,771,377,38] is greyed (disabled) and there is no message. It was not tapped, because a one-off at 23:50 tonight would have been a night alarm."
+    },
+    {
+      "app": "com.hazia.chronicle.debug",
+      "platform": "android",
+      "form": "other",
+      "has_illustration": false,
+      "text": null,
+      "action": null,
+      "bounds_dp": [
+        17,
+        108,
+        377,
+        86
+      ],
+      "seen": "Track > Quick add, empty field, Enter key: nothing happens and there is no message."
+    },
+    {
+      "app": "org.isoron.uhabits",
+      "platform": "android",
+      "form": "inline",
+      "has_illustration": false,
+      "text": "Non può essere lasciato vuoto",
+      "action": null,
+      "bounds_dp": [
+        85,
+        155,
+        228,
+        38
+      ],
+      "seen": "'Crea abitudine', SALVA with empty Nome: a red error icon appears inside the Nome field; the text shows as the standard EditText error popup under the icon only after focusing the field. Wording read from the screen (the popup is not in the accessibility dump), bounds from the screenshot. English: 'Cannot be left empty'. Nothing was saved."
+    }
+  ],
+  "loading": []
+}
