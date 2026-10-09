@@ -541,7 +541,7 @@ SCORERS = {"a": score_a, "b": score_b, "c": score_c, "d": score_d, "e": score_e,
 CONTROLS = {
     "a": ({"place": "control"}, "a notice in the middle of the screen over a shade, with Undo and OK"),
     "b": ({"timing": 2, "stack": "stack", "way": "trash", "limit": 0}, "2 s, every toast stacked with no limit, and no way back but what Trash and the folds hold"),
-    "c": ({"form": "dialog", "order": "near", "labels": "verbs", "confirm": "tap", "control": True}, "\"Are you sure?\" with Yes and No, Yes filled under the thumb, a tap confirms"),
+    "c": ({"form": "dialog", "order": "near", "labels": "generic", "confirm": "tap", "control": True}, "\"Are you sure?\" with Yes and No, Yes filled under the thumb, a tap confirms"),
     "d": ({"form": "dialog", "answer": "stacked", "words": "marks", "control": True}, "a dialog at once, stacked versions, marks only, and no Later: it must be answered"),
     "e": ({"when": "control"}, "all three at first run, no explanation, asked again at every start until granted"),
     "f": ({"form": "control"}, "a dialog at every failure, \"Error 13\", OK only"),

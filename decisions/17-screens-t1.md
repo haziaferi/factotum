@@ -1260,3 +1260,16 @@ Drawn: `docs/screens/t1/labels-dots.html` (`labels-f.json`).
 - **F, failures:**
   - A banner under the header and a dot on the Hub are both on the front.
   - A toast ranks below even the control: once it fades, nothing shows that anything failed.
+
+**T1.8 references, the Windows desktop (2026-10-09).** In `docs/screens/t1/toast-references.json`, geometry and labels only.
+- **Windows 11 notifications:** bottom right, above the taskbar. The user's setting is 5 s (`MessageDuration`). Repeats did not show, so stacking was not observed.
+- **Notion desktop:** "Moved to Trash · Restore" at the bottom of the page area, up at 4 s and gone by 8 s. The way back is Trash.
+- **Joplin desktop:**
+  - Deleting needs no dialog. "La nota è stata spostata nel cestino · Annulla" ("The note was moved to the trash · Undo") sits bottom right and was up at about 5 s.
+  - Emptying the trash opens a centred dialog, with the destructive command link on top: opened and cancelled.
+- **Not captured:**
+  - the phone: adb lost it, as wireless debugging refuses the connection;
+  - Windows Explorer: the grant allows clicks only, and Recycle Bin would show the owner's files;
+  - Obsidian desktop: its vault is the owner's.
+- **Leftovers for the owner:** "Sample toast 1" in Notion's Trash and in Joplin's trash. Four test notifications sit in Windows' notification centre.
+- **With the reference distance on the axes:** the controls of B to F lose. The C control first matched Joplin's dialog: its "Yes/No" had been described as verbs, so it is now "generic" and it loses. A's control still stays on the front, on nearness.

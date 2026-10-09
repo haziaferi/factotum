@@ -975,7 +975,7 @@
   "v": {
    "form": "dialog",
    "order": "near",
-   "labels": "verbs",
+   "labels": "generic",
    "confirm": "tap",
    "control": true
   },

@@ -1,0 +1,17 @@
+{
+ "note": "T1.8 references, geometry and UI labels only (screenshots not kept). Windows desktop captured 2026-10-09 with sample items made for the purpose (Notion: a 'Sample toast 1' page, now in Notion's Trash; Joplin: a 'Sample toast 1' note, now in Joplin's trash; the empty-trash dialog was opened and cancelled). The phone captures are pending: adb lost the phone (wireless debugging refused the connection). Each value is mapped to the scorer's variants; timing_s keeps what was seen. null = not observed.",
+ "a": [
+  {"app": "Windows 11 notifications", "platform": "windows", "place": "bar", "seen": "bottom right of the screen, above the taskbar, with the app name, two lines and an Undo button"},
+  {"app": "Notion (desktop)", "platform": "windows", "place": "bar", "seen": "bottom of the page area, near its centre: 'Moved to Trash' and Restore"},
+  {"app": "Joplin (desktop)", "platform": "windows", "place": "bar", "seen": "bottom right corner of the window: 'La nota è stata spostata nel cestino' and Annulla (Undo)"}
+ ],
+ "b": [
+  {"app": "Windows 11 notifications", "platform": "windows", "timing": 4, "timing_s": 5, "seen": "HKCU Control Panel\\Accessibility MessageDuration = 5 (the user's setting); gone between 4 and 6 s in screenshots", "stack": null, "way": null},
+  {"app": "Notion (desktop)", "platform": "windows", "timing": 7, "timing_s": "4-8", "seen": "up at 1 s and 4 s, gone by 8 s", "stack": null, "way": "trash"},
+  {"app": "Joplin (desktop)", "platform": "windows", "timing": null, "timing_s": ">5", "seen": "still up, fading, at about 5 s", "stack": null, "way": "trash"}
+ ],
+ "c": [
+  {"app": "Joplin (desktop)", "platform": "windows", "form": "dialog", "order": "away", "labels": "verbs", "confirm": "tap", "title": "Questo eliminerà definitivamente tutti gli elementi nel cestino. Continuare?", "buttons": ["Svuota cestino", "Annulla"], "seen": "centred over the window; the destructive choice first, on top, as a command link"}
+ ],
+ "e": []
+}
