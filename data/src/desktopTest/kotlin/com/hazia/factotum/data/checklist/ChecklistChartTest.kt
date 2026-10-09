@@ -70,6 +70,29 @@ class ChecklistChartTest {
     // Checklists
 
     @Test
+    fun aChecklistAndAChartAreDeletedForeverOnlyFromTheTrash() {
+        val list = go { checklists.create("Morning") }
+        val tea = go { checklists.addItem(list, "Tea") }
+        val reading = go { activities.create("Reading") }
+        val chart = go { charts.create(ChartType.BAR, 7, listOf(SourceKind.ACTIVITY to reading)) }
+
+        assertFailsWith<IllegalArgumentException> { go { checklists.purge(list) } }
+        assertFailsWith<IllegalArgumentException> { go { charts.purge(chart) } }
+        go { checklists.delete(list) }
+        go { charts.delete(chart) }
+        assertEquals(listOf(chart), go { charts.trashed() }.map { it.id })
+
+        go { checklists.purge(list) }
+        go { charts.purge(chart) }
+        assertEquals(emptyList(), go { checklists.trashed() })
+        assertEquals(emptyList(), go { charts.trashed() })
+        assertEquals(emptyList(), go { db.checklistDao().items(listOf(tea)) })
+        assertEquals(emptyList(), go { db.chartDao().allSources() })
+        assertEquals(listOf(reading), go { activities.activities() }.map { it.id })
+        assertEquals(setOf(list, chart), go { db.syncDao().purges() }.map { it.id }.toSet())
+    }
+
+    @Test
     fun aResetClearsATickMadeBeforeItEvenWhenTheTickSyncsAfter() = two(1) { a, b ->
         syncthing.now = 1_000
         val list = go { a.checklists.create("Morning") }

@@ -113,9 +113,23 @@ internal class ChartRepository(
         writes.edit(CHART_SOURCE, chartSourceId(chartId, kind, sourceId), GONE, { live(chartId) }) { s -> mapOf("deleted_at" to s.hlc) }
 
     /** The live charts, in gallery order. */
-    suspend fun charts(): List<SavedChart> = dao.allCharts().filter { it.deletedAt == null }.sortedWith(compareBy({ it.sortKey }, { it.id })).map { c ->
-        val sources = dao.sourcesOf(c.id).filter { it.deletedAt == null }.sortedWith(compareBy({ it.sortKey }, { it.id }))
-        SavedChart(c.id, ChartType.valueOf(c.chartType), c.name, c.rangeDays.toInt(), sources.map { SourceKind.valueOf(it.sourceKind) to it.sourceId })
+    suspend fun charts(): List<SavedChart> = dao.allCharts().filter { it.deletedAt == null }.sortedWith(compareBy({ it.sortKey }, { it.id })).map { it.toChart() }
+
+    /** The charts in the Trash. */
+    suspend fun trashed(): List<SavedChart> = dao.allCharts().filter { it.deletedAt != null }.sortedBy { it.id }.map { it.toChart() }
+
+    /**
+     * "Delete forever", from the Trash (owner, 2026-10-09): the purge travels, and its sources go by
+     * the foreign key. What it charted is untouched.
+     */
+    suspend fun purge(id: String) = writes.write({
+        requireNotNull(dao.charts(listOf(id)).singleOrNull()?.takeIf { it.deletedAt != null }) { "only a chart in the Trash is deleted forever" }
+        mapOf(SAVED_CHART to listOf(id))
+    }) { store, _ -> writes.merger.purge(store, id) }
+
+    private suspend fun SavedChartEntity.toChart(): SavedChart {
+        val sources = dao.sourcesOf(id).filter { it.deletedAt == null }.sortedWith(compareBy({ it.sortKey }, { it.id }))
+        return SavedChart(id, ChartType.valueOf(chartType), name, rangeDays.toInt(), sources.map { SourceKind.valueOf(it.sourceKind) to it.sourceId })
     }
 
     /** Each source's days on chart [chartId] at [now]: the [SavedChart.rangeDays] personal days up to the one [now] is in. */

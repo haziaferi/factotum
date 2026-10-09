@@ -21,7 +21,7 @@ data class ChecklistItem(val id: String, val text: String, val checked: Boolean)
  * Chronicle's checklists (decision 14): standalone lists, each run again by a reset. Lists and items
  * keep a manual order, a new list first (owner, 2026-10-03); a deletion wins over an edit made apart
  * and is undone from the Trash; a list deleted takes its live items with it, in one stamp, and
- * comes back with them.
+ * comes back with them. Delete forever, from the Trash, takes it for good (owner, 2026-10-09).
  */
 internal class ChecklistRepository(
     db: FactotumDatabase,
@@ -92,6 +92,15 @@ internal class ChecklistRepository(
         val s = clock.tick()
         (targets.getValue(CHECKLIST) + targets.getValue(CHECKLIST_ITEM)).forEach { store.put(requireNotNull(store.row(it)).edit(GONE, s, mapOf("deleted_at" to null))) }
     }
+
+    /**
+     * "Delete forever", from the Trash (owner, 2026-10-09): the purge travels, and its items go by the
+     * foreign key, as a page's blocks go with it.
+     */
+    suspend fun purge(id: String) = writes.write({
+        requireNotNull(dao.checklists(listOf(id)).singleOrNull()?.takeIf { it.deletedAt != null }) { "only a checklist in the Trash is deleted forever" }
+        mapOf(CHECKLIST to listOf(id))
+    }) { store, _ -> writes.merger.purge(store, id) }
 
     /** The live checklists, in their order. */
     suspend fun checklists(): List<Checklist> =
