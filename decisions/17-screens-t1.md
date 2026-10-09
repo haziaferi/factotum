@@ -1138,9 +1138,10 @@ Mockups: `docs/screens/t1/labels-options.html`.
 **T1.7, the owner's answers and the scoring that followed (2026-10-09):**
 - **B, the picker (chosen):** a sheet with a grid; all labels shown, in alphabetical order; the search-and-create box below them.
 - **A, the chip:** "depends on whether the label can be tapped to open a screen with all elements belonging to that label". Scored as part E: a label view, a filter, or a mark only, with the chip's target at 28 or 32 dp (owner's exception to 48 dp).
-  - **A label view beats the filter on every measure:** both take 2 actions; the filter shows only the screen it is on.
+  - **A label view and the filter tie on every scored axis** (both take 2 actions, same reach, room and clutter). They differ only in what they show: the view gathers every kind, the filter only the screen it is on. That column is in the table but on no axis. (Corrected 2026-10-09: this line first said the view beat the filter "on every measure".)
   - **A label view against a mark only:** 2 actions against 10 (searching #health). The view's costs are mis-tap exposure (4.5–7.7% of a row's area) and reach to a small target (Fitts 3.6–3.8).
-  - **32 dp against 28 dp:** reach 3.59 against 3.78, for 1 px more height and about 1% more exposure.
+  - **32 dp against 28 dp:** reach 3.59 against 3.78, for 1 px more height and about 1% more exposure. On the rank sums 28 dp comes out ahead (inline text: 76.5 against 84.5), because exposure and height count against 32; 32 wins on reach alone.
+- **Score tables (every variant of A–F, raw measures, rank-sum axes, the front, the gate):** `docs/screens/t1/labels-scores.html`, from `label_opt.py scores`. Part C's reach and line movement and part F's chosen dot are measured there, not copied. No control variant was run in T1.7.
   - **A tappable chip below the title** loses 2 rows below the bar; after the title, none.
 - **C, the `#` suggestions:** the owner asked to score chips above the line against below it. With the same keyboard:
   - below: the line moves 25 px, reach 2.49;

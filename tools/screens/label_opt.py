@@ -796,3 +796,140 @@ def rest_page():
 
 if __name__ == "__main__" and "rest" in sys.argv[1:]:
     rest_page()
+
+
+# ==== the score tables: every variant of every part, its measures, its axes and the front ===============================
+SCORE_AXES = {
+    # part: {axis: (measure, ...)}; a measure prefixed "-" counts more as better
+    "a": {"Clutter": ("clutter",), "Apart": ("-apart",), "Density": ("-title_room", "extra_h", "rows_lost", "hidden", "lines"), "Refs": ("ref_distance",)},
+    "b": {"Ease": ("actions", "reach"), "Clutter": ("clutter", "covered", "controls"), "Shown": ("-labels_seen",), "Refs": ("ref_distance",)},
+    "c": {"Ease": ("actions", "reach"), "Calm": ("clutter", "line_move"), "Shown": ("-shown",), "Refs": ("ref_distance",)},
+    "d": {"Ease": ("actions",), "Clutter": ("clutter", "controls_per_row"), "Refs": ("ref_distance",)},
+    "e": {"Ease": ("see_all", "reach"), "Clutter": ("clutter", "exposure"), "Density": ("-title_room", "extra_h", "rows_lost")},
+    "f": {"Density": ("-title_room", "extra_h", "rows_lost"), "Order": ("column",), "Ease": ("see_all",), "Clutter": ("clutter",)},
+}
+SCORE_COLS = {
+    "a": ["title_room", "extra_h", "rows_lost", "hidden", "lines", "truncated", "min_text", "apart", "clutter", "ref_distance"],
+    "b": ["actions", "reach", "covered", "controls", "labels_seen", "clutter", "ref_distance"],
+    "c": ["actions", "reach", "line_move", "shown", "clutter", "ref_distance"],
+    "d": ["actions", "controls_per_row", "clutter", "ref_distance"],
+    "e": ["see_all", "complete", "reach", "exposure", "chips", "title_room", "extra_h", "rows_lost", "clutter"],
+    "f": ["title_room", "extra_h", "rows_lost", "column", "see_all", "reach", "exposure", "clutter"],
+}
+SCORE_HELP = {
+    "title_room": "px the title keeps (more is better)", "extra_h": "px added to a row", "rows_lost": "rows pushed off Today",
+    "hidden": "labels not shown", "lines": "extra lines", "truncated": "names cut", "min_text": "smallest text px",
+    "apart": "label kinds told apart (of 3; more is better)", "clutter": "edge density, light and dark averaged (lower is calmer)",
+    "ref_distance": "share of the 8 captured apps that draw it differently", "actions": "taps and keys over the part's tasks",
+    "reach": "Fitts ID from the thumb (lower is easier)", "covered": "share of the screen covered", "controls": "controls on screen",
+    "labels_seen": "labels visible, of 12", "line_move": "px the capture line moves when suggestions appear",
+    "shown": "suggestions visible", "controls_per_row": "controls on each Settings row",
+    "see_all": "actions to see everything carrying a label, and back",
+    "complete": "1 = the view shows every kind (tasks, pages, entries)", "exposure": "tap area per row, share of the row",
+    "chips": "chips that are targets", "column": "px the dots stray from one vertical line",
+}
+
+
+def c_line_move(v):
+    """How far the capture line moves when the suggestions appear: the line's ⋯ with "#h" typed, against "#zq" (no match)
+    on the inline variant, which keeps the line where it is with nothing shown."""
+    def y(vv, typed):
+        return [x for x in ss.measure(c_doc(vv, typed), 360, 740)["taps"] if x["name"] == "More"][0]["y"]
+    return abs(round(y(v, "#h") - y({"place": "inline"}, "#zq")))
+
+
+def scores_page():
+    """docs/screens/t1/labels-scores.html: one table per part, every variant, raw measures, rank-sum axes, the front."""
+    import html as H
+    with open(os.path.join(v2.OUT, "label-references.json"), encoding="utf-8") as fh:
+        refs = json.load(fh)["apps"]
+    keys = {"a": ("look", "placement"), "b": ("container", "shape"), "c": ("suggest",), "d": ("manage",)}
+    titles = {"a": "A. Chip look × overflow × placement (on Today's rows)", "b": "B. The picker: container × shape",
+              "c": "C. # suggestions on the capture line", "d": "D. Settings › Labels",
+              "e": "E. What tapping a label does × target size × placement × look",
+              "f": "F. The label as a dot: place × several × entry"}
+    chosen = {"b": {"container": "sheet", "shape": "grid"}, "f": dict(CHOSEN_DOT)}
+    tasks = {"b": "Tasks: a = add Health; b = add three labels; c = remove one; d = create Garden.",
+             "c": "Tasks: a = \"#he\" then Health; b = \"#h\" then Home (the second match); c = \"#garden\", a new label.",
+             "d": "Tasks: a = rename Health; b = scope Books; c = delete Calm; d = move Projects up; e = see what carries Health; f = colour Home."}
+    out = []
+    for p in "abcdef":
+        with open(os.path.join(v2.OUT, "labels-%s.json" % p), encoding="utf-8") as fh:
+            rows = json.load(fh)
+        if p == "c":
+            for r in rows:
+                r["reach"] = c_reach(r["v"]) if r["shown"] else None
+                r["line_move"] = c_line_move(r["v"])
+        if p == "f":
+            rows.append(dict(v=dict(CHOSEN_DOT), **score_f(CHOSEN_DOT)))
+        for r in rows:
+            if p in keys:
+                v = dict(r["v"])
+                v.setdefault("suggest", {"below": "chips", "above": "chips"}.get(v.get("place"), v.get("place")))
+                v.setdefault("manage", v.get("form"))
+                r["ref_distance"] = ref_distance(v, keys[p], refs)
+        ok = [r for r in rows if not r.get("small") and not r.get("unseen")]
+        axes = SCORE_AXES[p]
+        for r in ok:  # nothing to reach ranks as no cost in F (the dot is no target), as unreachable elsewhere
+            r["_reach"] = r.get("reach") if r.get("reach") is not None else (0 if p == "f" else 99)
+        for axis, ks in axes.items():
+            for r in ok:
+                r[axis] = 0
+            for k in ks:
+                sign, k2 = (-1, k[1:]) if k.startswith("-") else (1, k)
+                k2 = "_reach" if k2 == "reach" else k2
+                for r, rk in zip(ok, v2.ranks(ok, k2, sign)):
+                    r[axis] += rk
+        ax = list(axes)
+        for r in ok:
+            r["front"] = not any(all(o[a] <= r[a] for a in ax) and any(o[a] < r[a] for a in ax) for o in ok if o is not r)
+            r["total"] = sum(r[a] for a in ax)
+        order = sorted(rows, key=lambda r: (r not in ok, not r.get("front"), r.get("total", 1e9)))
+        vk = list(dict.fromkeys(k for r in rows for k in r["v"]))
+        cols = SCORE_COLS[p]
+
+        def cell(x):
+            if x is None:
+                return "—"
+            if isinstance(x, bool):
+                return "yes" if x else "no"
+            return "%g" % x if isinstance(x, (int, float)) else H.escape(str(x))
+        head = "".join("<th>%s</th>" % k for k in vk) + \
+            "".join('<th title="%s">%s</th>' % (H.escape(SCORE_HELP.get(c, "")), c) for c in cols) + \
+            "".join("<th class=ax>%s</th>" % a for a in ax) + "<th class=ax>sum</th><th>front</th><th>gate</th>"
+        body = []
+        for r in order:
+            gate = "pass" if r in ok else "fails: " + H.escape(", ".join(r.get("small", []) + r.get("unseen", [])))
+            cls = " ".join(c for c in ("ch" if chosen.get(p) == r["v"] else "", "fr" if r.get("front") else "", "fail" if r not in ok else "") if c)
+            body.append('<tr class="%s">%s%s%s<td class=ax>%s</td><td>%s</td><td>%s</td></tr>' % (
+                cls, "".join("<td>%s</td>" % cell(r["v"].get(k, "")) for k in vk),
+                "".join("<td>%s</td>" % cell(r.get(c)) for c in cols),
+                "".join("<td class=ax>%g</td>" % r[a] if r in ok else "<td class=ax>—</td>" for a in ax),
+                "%g" % r["total"] if r in ok else "—", "★" if r.get("front") else "", gate))
+        axis_line = "; ".join("<b>%s</b> = rank-sum of %s" % (a, ", ".join(k.lstrip("-") + (" (more is better)" if k.startswith("-") else "") for k in ks)) for a, ks in axes.items())
+        out.append('<h2 id="%s">%s</h2><p class=dim>%d variants · %d pass the gate · %d on the Pareto front (★). %s</p>'
+                   '<p class=dim>Axes, lower is better: %s.</p><div class=wrap><table><tr>%s</tr>%s</table></div>' % (
+                       p, titles[p], len(rows), len(ok), sum(1 for r in ok if r.get("front")), tasks.get(p, ""), axis_line, head, "".join(body)))
+    legend = "".join("<li><b>%s</b>: %s</li>" % (k, H.escape(v)) for k, v in SCORE_HELP.items())
+    doc = """<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Label Score Tables</title>
+<style>:root{--bg:#fafafa;--fg:#1c1c1c;--dim:#777;--line:#ddd;--ch:#dcdcdc;--fr:#f0f0f0}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#121212;--fg:#eee;--dim:#999;--line:#333;--ch:#3a3a3a;--fr:#1f1f1f}}
+:root[data-theme=dark]{--bg:#121212;--fg:#eee;--dim:#999;--line:#333;--ch:#3a3a3a;--fr:#1f1f1f}
+body{background:var(--bg);color:var(--fg);font:14px/1.45 system-ui,sans-serif;margin:0;padding:16px;max-width:1500px}
+.dim{color:var(--dim)}.wrap{overflow-x:auto}table{border-collapse:collapse;font-size:12.5px;font-variant-numeric:tabular-nums}
+th,td{border-bottom:1px solid var(--line);padding:4px 7px;text-align:left;white-space:nowrap}th{background:var(--bg)}
+.ax{border-left:1px solid var(--line)}tr.fr{background:var(--fr)}tr.ch{background:var(--ch);font-weight:700}tr.fail td{color:var(--dim)}
+li{margin:2px 0}</style></head><body>
+<h1>T1.7 labels: score tables</h1>
+<p>Every variant scored, generated from the measured files (labels-a…f.json) by <code>python tools/screens/label_opt.py scores</code>.
+Measures come from headless Edge at 360×740: targets, reach, row heights, and clutter rendered light and dark. Axes are rank sums within a part (lower is better); ★ marks the Pareto front; <b>bold</b> rows are the owner's choices so far; grey rows failed the gate (a target under 48 dp where no exception was set, or a target that cannot be reached).</p>
+<p class=dim>No deliberate control (a variant built to lose) was included in T1.7: the losers are the gate failures and the dominated rows.</p>
+%s<h2>Measures</h2><ul>%s</ul></body></html>""" % ("".join(out), legend)
+    path = os.path.join(v2.OUT, "labels-scores.html")
+    with open(path, "w", encoding="utf-8", newline=chr(10)) as fh:
+        fh.write(doc)
+    print(path)
+
+
+if __name__ == "__main__" and "scores" in sys.argv[1:]:
+    scores_page()
