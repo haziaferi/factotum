@@ -1411,3 +1411,33 @@ Drawn: `docs/screens/t1/labels-dots.html` (`labels-f.json`).
   - a screen's own actions: header, header ⋯, bottom bar, floating button.
   
   It is scored alongside the selection start, the mixed selection and the Trash's Pages section. The first G (a single placement for all four screens) is superseded.
+
+**T1.8, where actions live, scored (2026-10-09)** (`tools/screens/actions_opt.py`; tables `toasts-scores.html#i`, `#n`, `#s`, `#m` and `#t`).
+- **Two fixes to the ranking, made for every part:**
+  - Fitts IDs within 0.05 bits are now a tie; a 0.002-bit gap had put M's control on the front.
+  - The project's clutter tolerance (0.002) now applies under the keys these tables rank; it had been silently off for all of T1.8.
+  - With them, H's and M's controls lose, and keeping a draft (H) joins the front.
+- **I, an element's own actions:**
+  - A long-press menu takes 8 actions, the same as a ⋯ in each row. The ⋯ costs 60 px of title room (147 against 207) but can be seen at rest.
+  - The element's page takes 12 actions.
+  - The selection bar takes 10 (When and Delete in the bar, Label and Reminder behind its ⋯) and is off the front.
+  - **The control (a glyph strip on every row) stays on the front:** fewest actions (4), at 35 px of title room.
+- **N, a screen's own actions:**
+  - Bottom bar: reach 1.68, but 56 px less room.
+  - Header: 4 controls.
+  - Floating button and header ⋯: 2 taps each.
+  - All four are on the front. Control: off the front; 4 of 4 do better.
+- **S, how a selection starts:**
+  - Dragging down the left column takes 5 actions but clashes with scrolling.
+  - A long press takes 7.
+  - The long-press menu's Select takes 9.
+  - Select as a screen action takes 9, and can be seen at rest.
+  - **The control (⚙ › Select) stays on the front:** its separate page is the calmest by edge density.
+  - **Coupling:**
+    - the selection bar (I) goes with a long press that selects (S): 10 + 7 = 17;
+    - the long-press menu (I) goes with its Select (S): 8 + 9 = 17.
+    
+    The two models tie when taken together.
+- **M, a mixed selection:** each action where it applies, with a count, takes 3 actions; only shared actions take 5. Both are on the front. Control (no counts, Done touching two of four silently): off.
+- **T, Trash's Pages section:** one group per page takes 7 actions and reads 4 rows before the target, against 9 and 10 for one list. The control loses.
+- **Controls still on a front:** A (nearness), C (nearest the references), I (fewest actions), S (calmest page). Each wins one axis and loses the rest.

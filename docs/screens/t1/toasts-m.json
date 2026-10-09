@@ -1,0 +1,37 @@
+[
+ {
+  "v": {
+   "offer": "shared"
+  },
+  "actions": 5,
+  "silent_subset": 0,
+  "bar_buttons": 2,
+  "reach": 3.924,
+  "small": [],
+  "clutter": 0.0407
+ },
+ {
+  "v": {
+   "offer": "each"
+  },
+  "actions": 3,
+  "silent_subset": 0,
+  "bar_buttons": 3,
+  "reach": 3.924,
+  "small": [],
+  "clutter": 0.0397
+ },
+ {
+  "v": {
+   "offer": "control"
+  },
+  "why": "every action any of them has, with no counts: Done touches two of four silently",
+  "control": true,
+  "actions": 3,
+  "silent_subset": 1,
+  "bar_buttons": 3,
+  "reach": 3.922,
+  "small": [],
+  "clutter": 0.0415
+ }
+]

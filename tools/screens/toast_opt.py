@@ -37,6 +37,10 @@ THUMB = P.THUMB            # (180, 700), the right thumb's rest on a 360x740 pho
 THUMB_KB = (180, 615)      # with the keyboard up, the thumb rests on it (as T1.3)
 READ_WPM = 238             # Brysbaert 2019
 OUT = v2.OUT
+# Fitts IDs closer than 0.05 bits are a tie: below what the drawings can tell apart (found 2026-10-09: a 0.002 gap put a control on the front)
+v2.TOL.setdefault("_clutter", v2.TOL["clutter"]); v2.TOL.setdefault("_desk_clutter", v2.TOL["clutter"])  # the project's clutter tolerance, under the keys these tables rank
+for _k in ("_reach", "_desk_reach", "_reach_keep"):
+    v2.TOL.setdefault(_k, 0.05)
 
 
 def fitts(frm, tap):
@@ -840,6 +844,7 @@ def ranked(p):
     return rows, ok, axes
 
 
+DRAW = {}  # drawings of parts registered by actions_opt
 TITLES = {"g": "G. Where actions sit, the same on every screen, and their text", "h": "H. Closing the capture sheet with text not added", "a": "A. Where the toast sits", "b": "B. How long Undo lasts, several in a row, the way back", "c": "C. The dialogs: empty Trash, discard changes",
           "d": "D. The sync clash", "e": "E. Permission asks: when", "f": "F. Failures"}
 
@@ -968,8 +973,10 @@ def options_page():
                 ps = g_parts(v)
                 figs.append("".join(fig((cap + " · " if i == 0 else "…") + n, doc(ps[k][0], extra=G_CSS)) for i, (k, n) in enumerate(
                     (("trash", "Trash, two selected"), ("trash0", "Trash"), ("item", "an item"), ("label", "a label"), ("page", "a page")))))
-            else:
+            elif p == "h":
                 figs.append(fig(cap, h_doc(v)))
+            else:  # parts registered by actions_opt
+                figs.append("".join(fig(cap if i == 0 else "…", d) for i, d in enumerate(DRAW[p](v))))
         if p == "b":
             figs.append(fig("Way back: ⋯ in the header, Undo and History", b_way_doc("menu")) + fig("Way back: ⚙ › Recently done", b_way_doc("recent")) +
                         fig("Way back: ⚙ › Trash", b_way_doc("trash")))

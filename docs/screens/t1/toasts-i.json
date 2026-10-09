@@ -1,0 +1,59 @@
+[
+ {
+  "v": {
+   "place": "menu"
+  },
+  "actions": 8,
+  "reach": 2.82,
+  "title_room": 207,
+  "seen_at_rest": 0,
+  "small": [],
+  "clutter": 0.0371
+ },
+ {
+  "v": {
+   "place": "selbar"
+  },
+  "actions": 10,
+  "reach": 2.82,
+  "title_room": 207,
+  "seen_at_rest": 0,
+  "small": [],
+  "clutter": 0.0371
+ },
+ {
+  "v": {
+   "place": "dots"
+  },
+  "actions": 8,
+  "reach": 2.937,
+  "title_room": 147,
+  "seen_at_rest": 1,
+  "small": [],
+  "clutter": 0.0379
+ },
+ {
+  "v": {
+   "place": "page"
+  },
+  "actions": 12,
+  "reach": 2.82,
+  "title_room": 207,
+  "seen_at_rest": 1,
+  "small": [],
+  "clutter": 0.0371
+ },
+ {
+  "v": {
+   "place": "control"
+  },
+  "why": "a strip of four glyph buttons on every row, always shown",
+  "control": true,
+  "actions": 4,
+  "reach": 2.676,
+  "title_room": 35,
+  "seen_at_rest": 1,
+  "small": [],
+  "clutter": 0.0428
+ }
+]

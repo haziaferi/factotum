@@ -1,0 +1,64 @@
+[
+ {
+  "v": {
+   "place": "header"
+  },
+  "actions": 6,
+  "reach": 3.909,
+  "header_controls": 4.0,
+  "room_px": 612,
+  "sort_stray": 0,
+  "small": [],
+  "clutter": 0.0282
+ },
+ {
+  "v": {
+   "place": "overflow"
+  },
+  "actions": 12,
+  "reach": 3.91,
+  "header_controls": 3.0,
+  "room_px": 612,
+  "sort_stray": 0,
+  "small": [],
+  "clutter": 0.0279
+ },
+ {
+  "v": {
+   "place": "bottom"
+  },
+  "actions": 6,
+  "reach": 1.679,
+  "header_controls": 2.0,
+  "room_px": 556,
+  "sort_stray": 0,
+  "small": [],
+  "clutter": 0.0298
+ },
+ {
+  "v": {
+   "place": "fab"
+  },
+  "actions": 12,
+  "reach": 1.919,
+  "header_controls": 2.0,
+  "room_px": 612,
+  "sort_stray": 0,
+  "small": [],
+  "clutter": 0.0288
+ },
+ {
+  "v": {
+   "place": "control"
+  },
+  "why": "each screen its own way: Today's in the header, Pages' in a bottom bar, Reminders' behind a floating button",
+  "control": true,
+  "actions": 8,
+  "reach": 2.502,
+  "header_controls": 2.7,
+  "room_px": 593,
+  "sort_stray": 227,
+  "small": [],
+  "clutter": 0.0287
+ }
+]

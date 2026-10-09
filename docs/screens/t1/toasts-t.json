@@ -1,0 +1,34 @@
+[
+ {
+  "v": {
+   "pages": "grouped"
+  },
+  "actions": 7,
+  "scan_rows": 4.0,
+  "rows_shown": 4,
+  "small": [],
+  "clutter": 0.0332
+ },
+ {
+  "v": {
+   "pages": "flat"
+  },
+  "actions": 9,
+  "scan_rows": 10.0,
+  "rows_shown": 9,
+  "small": [],
+  "clutter": 0.0494
+ },
+ {
+  "v": {
+   "pages": "control"
+  },
+  "why": "no sections: every kind in one list, with no path",
+  "control": true,
+  "actions": 9,
+  "scan_rows": 11.0,
+  "rows_shown": 11,
+  "small": [],
+  "clutter": 0.035
+ }
+]

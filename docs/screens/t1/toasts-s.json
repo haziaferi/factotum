@@ -1,0 +1,59 @@
+[
+ {
+  "v": {
+   "start": "longpress"
+  },
+  "actions": 7,
+  "gesture_clash": 0,
+  "seen_at_rest": 0,
+  "reach": 3.587,
+  "small": [],
+  "clutter": 0.0388
+ },
+ {
+  "v": {
+   "start": "menu"
+  },
+  "actions": 9,
+  "gesture_clash": 0,
+  "seen_at_rest": 0,
+  "reach": 2.334,
+  "small": [],
+  "clutter": 0.0317
+ },
+ {
+  "v": {
+   "start": "screen"
+  },
+  "actions": 9,
+  "gesture_clash": 0,
+  "seen_at_rest": 1,
+  "reach": 3.91,
+  "small": [],
+  "clutter": 0.0374
+ },
+ {
+  "v": {
+   "start": "drag"
+  },
+  "actions": 5,
+  "gesture_clash": 1,
+  "seen_at_rest": 0,
+  "reach": 3.587,
+  "small": [],
+  "clutter": 0.0388
+ },
+ {
+  "v": {
+   "start": "control"
+  },
+  "why": "Select lives in ⚙ › Select, a page of its own",
+  "control": true,
+  "actions": 13,
+  "gesture_clash": 0,
+  "seen_at_rest": 1,
+  "reach": null,
+  "small": [],
+  "clutter": 0.0169
+ }
+]
