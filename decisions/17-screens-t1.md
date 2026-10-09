@@ -1273,3 +1273,47 @@ Drawn: `docs/screens/t1/labels-dots.html` (`labels-f.json`).
   - Obsidian desktop: its vault is the owner's.
 - **Leftovers for the owner:** "Sample toast 1" in Notion's Trash and in Joplin's trash. Four test notifications sit in Windows' notification centre.
 - **With the reference distance on the axes:** the controls of B to F lose. The C control first matched Joplin's dialog: its "Yes/No" had been described as verbs, so it is now "generic" and it loses. A's control still stays on the front, on nearness.
+
+**T1.8 references, the phone (2026-10-09, USB).** Twelve apps, added to `toast-references.json` (`platform: android`). Geometry and labels only. Timing came from on-device hashes of the toast's screen rows every ~0.2 s; no images were kept.
+- **Undo toasts:**
+  - At the bottom: Tasks.org, and TickTick (an icon-only round button).
+  - Anchored above the FAB: Todoist, Google Tasks, Keep.
+  - None at all: Tendril, Chronicle, Mnemo, Any.do, MS To Do, Joplin Android, Notion Android, Loop.
+- **Timings:** Google Tasks 3 s, Tasks.org 4 s, TickTick 5 s, Keep 8 s, Todoist 9.5 s.
+- **Several in a row:** Tasks.org, TickTick and Keep replace the toast.
+- **Way back:** mostly Trash or a completed section; Todoist has an activity list.
+- **Dialogs:**
+  - Every Android one is centred, with the destructive choice on the right (near the thumb), and confirmed by a tap.
+  - Tasks.org ("OK") and Loop ("NO/SI") use generic labels, so they were recorded as `generic`, not verbs.
+  - Joplin's desktop puts the destructive choice on top, its Android app on the right.
+- **Permission asks:** Joplin Android asks for geolocation when the first note is made (need).
+- **With every reference on the axes:**
+  - **C's control reaches the front again.** "Yes/No" on a centred dialog under the thumb is what Tasks.org and Loop do, so it is nearest the references. The reference distance rewards it for being common practice; it loses on every other axis. Reported as measured.
+  - A's control stays on the front (nearness).
+  - B, D, E and F's controls lose.
+  - The leaders do not change, except that C's dialogs now favour the destructive choice near the thumb, matching every Android reference.
+- **Not captured, and why:**
+  - Equipoise: no deletable items without making wellbeing data.
+  - Fossify Calendar and Etar: samples would sync into the owner's Google calendars.
+  - Fossify Clock: real alarms.
+  - Track & Graph: its first-run tutorial.
+  - Obsidian: an owner's note was open.
+- **Incidents:**
+  - Any.do deleted three samples permanently at once, through an in-row delete with no confirmation and no Undo.
+  - The Tasks.org delete dialog was confirmed for the agent's own samples; Tasks.org shows no bin.
+  - A stray "o" was typed into Chronicle's quick-add, then removed.
+- **Leftovers for the owner to clear:**
+  - Tendril: Sample toast 1–5 in Trash.
+  - Chronicle: Sample toast 1 archived.
+  - Tasks.org: 1–3 completed.
+  - Todoist: 1–6 completed; they also counted toward the daily goal.
+  - TickTick: 1–2 completed, 3–6 deleted.
+  - Any.do: 4–5 active.
+  - MS To Do: 1–2 completed, 3–5 active.
+  - Google Tasks: 1–4 completed.
+  - Keep: 1–5 in its bin, which Keep empties after 7 days.
+  - Joplin Android: 1–3 in notes, 4–5 in its bin.
+  - Loop: 1 archived.
+  - Notion: 1–3 in Trash; with the desktop's, four sample pages in all.
+  - Joplin desktop: 1 in its trash.
+  - Windows: four test notifications.

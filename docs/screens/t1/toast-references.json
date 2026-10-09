@@ -1,17 +1,53 @@
 {
- "note": "T1.8 references, geometry and UI labels only (screenshots not kept). Windows desktop captured 2026-10-09 with sample items made for the purpose (Notion: a 'Sample toast 1' page, now in Notion's Trash; Joplin: a 'Sample toast 1' note, now in Joplin's trash; the empty-trash dialog was opened and cancelled). The phone captures are pending: adb lost the phone (wireless debugging refused the connection). Each value is mapped to the scorer's variants; timing_s keeps what was seen. null = not observed.",
+ "note": "T1.8 references, geometry and UI labels only (screenshots not kept). Windows desktop captured 2026-10-09 with sample items made for the purpose (Notion: a 'Sample toast 1' page, now in Notion's Trash; Joplin: a 'Sample toast 1' note, now in Joplin's trash; the empty-trash dialog was opened and cancelled). Each value is mapped to the scorer's variants; timing_s keeps what was seen. null = not observed. The phone apps were captured on 2026-10-09 over USB on the OnePlus 6T (1 dp = 2.625 px), platform \"android\"; bounds_dp are [x, y, w, h] from uiautomator; timing_s comes from on-device screen-row hashes every ~0.2 s (nothing stored), timing is the nearest of 4, 7, 10 or \"next\". Apps listed with place null showed no undo toast at all after completing or deleting a sample item.",
  "a": [
   {"app": "Windows 11 notifications", "platform": "windows", "place": "bar", "seen": "bottom right of the screen, above the taskbar, with the app name, two lines and an Undo button"},
   {"app": "Notion (desktop)", "platform": "windows", "place": "bar", "seen": "bottom of the page area, near its centre: 'Moved to Trash' and Restore"},
-  {"app": "Joplin (desktop)", "platform": "windows", "place": "bar", "seen": "bottom right corner of the window: 'La nota è stata spostata nel cestino' and Annulla (Undo)"}
+  {"app": "Joplin (desktop)", "platform": "windows", "place": "bar", "seen": "bottom right corner of the window: 'La nota è stata spostata nel cestino' and Annulla (Undo)"},
+  {"app": "Tasks.org", "platform": "android", "place": "bar", "bounds_dp": [9, 690, 394, 51], "text": "Attività completata", "buttons": ["Annulla l'ultima azione"], "seen": "just above the bottom app bar (docked FAB); after a delete the same bar read '0 eliminati' with no button"},
+  {"app": "Todoist", "platform": "android", "place": "anchored", "bounds_dp": [13, 613, 386, 51], "text": "Completata.", "buttons": ["Annulla"], "seen": "sits right above the quick-add FAB; the first completion ever showed a taller variant [13, 592, 386, 73] with a greeting naming the account"},
+  {"app": "TickTick", "platform": "android", "place": "bar", "bounds_dp": [0, 692, 86, 86], "text": null, "buttons": [], "seen": "a round icon-only undo button (snackbar_action, no label) at bottom left, level with the FAB, just above the bottom navigation; same for complete and delete"},
+  {"app": "Google Tasks", "platform": "android", "place": "anchored", "bounds_dp": [9, 693, 394, 53], "text": "Attività completata", "buttons": ["Annulla"], "seen": "full-width bar right above the FAB; delete read 'Attività eliminata' in the same place"},
+  {"app": "Google Keep", "platform": "android", "place": "anchored", "bounds_dp": [9, 650, 394, 53], "text": "Nota spostata nel Cestino", "buttons": ["Annulla"], "seen": "full-width bar right above the FAB"},
+  {"app": "Tendril (debug)", "platform": "android", "place": null, "bounds_dp": null, "text": null, "buttons": null, "seen": "no toast after completing or moving a task to Trash"},
+  {"app": "Chronicle (debug)", "platform": "android", "place": null, "bounds_dp": null, "text": null, "buttons": null, "seen": "no toast after archiving an activity (delete is a permanent dialog, cancelled)"},
+  {"app": "Mnemo", "platform": "android", "place": null, "bounds_dp": null, "text": null, "buttons": null, "seen": "no toast after Done; delete is a permanent dialog (cancelled)"},
+  {"app": "Any.do", "platform": "android", "place": null, "bounds_dp": null, "text": null, "buttons": null, "seen": "no toast; completing reveals an in-row delete button that deletes at once"},
+  {"app": "Microsoft To Do", "platform": "android", "place": null, "bounds_dp": null, "text": null, "buttons": null, "seen": "no toast after completing; delete is a permanent dialog (cancelled)"},
+  {"app": "Joplin (Android)", "platform": "android", "place": null, "bounds_dp": null, "text": null, "buttons": null, "seen": "no toast after completing a to-do or deleting a note (unlike the desktop)"},
+  {"app": "Notion (Android)", "platform": "android", "place": null, "bounds_dp": null, "text": null, "buttons": null, "seen": "no toast seen top or bottom after Sposta nel cestino from the page's Azioni sheet"},
+  {"app": "Loop Habit Tracker", "platform": "android", "place": null, "bounds_dp": null, "text": null, "buttons": null, "seen": "no toast after archiving a habit; delete is a permanent dialog (cancelled)"}
  ],
  "b": [
   {"app": "Windows 11 notifications", "platform": "windows", "timing": 4, "timing_s": 5, "seen": "HKCU Control Panel\\Accessibility MessageDuration = 5 (the user's setting); gone between 4 and 6 s in screenshots", "stack": null, "way": null},
   {"app": "Notion (desktop)", "platform": "windows", "timing": 7, "timing_s": "4-8", "seen": "up at 1 s and 4 s, gone by 8 s", "stack": null, "way": "trash"},
-  {"app": "Joplin (desktop)", "platform": "windows", "timing": null, "timing_s": ">5", "seen": "still up, fading, at about 5 s", "stack": null, "way": "trash"}
+  {"app": "Joplin (desktop)", "platform": "windows", "timing": null, "timing_s": ">5", "seen": "still up, fading, at about 5 s", "stack": null, "way": "trash"},
+  {"app": "Tasks.org", "platform": "android", "timing": 4, "timing_s": 4.0, "stack": "replace", "way": "trash", "seen": "up 0.2 s to 4.3-4.5 s for complete and delete; three deletes in a row left one bar; completed tasks sit in a 'Completate' section, deleted ones in no visible bin"},
+  {"app": "Todoist", "platform": "android", "timing": 10, "timing_s": 9.5, "stack": null, "way": "recent", "seen": "up from the first frame to 9.6-9.8 s; the three-in-a-row test was interrupted by a daily-goal celebration screen; overflow offers 'Visualizza attività' (activity)"},
+  {"app": "TickTick", "platform": "android", "timing": 4, "timing_s": 5.0, "stack": "replace", "way": "trash", "seen": "gone at 4.9-5.1 s; three quick deletes left one undo button; 'Completate' list in the drawer, no Cestino entry visible"},
+  {"app": "Google Tasks", "platform": "android", "timing": 4, "timing_s": 3.0, "stack": null, "way": "trash", "seen": "up 0.2 s to 3.1-3.25 s; completed tasks in a collapsible 'Completate (n)' section"},
+  {"app": "Google Keep", "platform": "android", "timing": 7, "timing_s": 8.0, "stack": "replace", "way": "trash", "seen": "up 0.2 s to 8.1-8.3 s; three quick deletes left one bar with the same text; Cestino in the drawer"},
+  {"app": "Tendril (debug)", "platform": "android", "timing": null, "timing_s": null, "stack": null, "way": "trash", "seen": "Trash icon opens a bottom sheet with Restore and Delete forever per item"},
+  {"app": "Chronicle (debug)", "platform": "android", "timing": null, "timing_s": null, "stack": null, "way": null, "seen": "archived activity sits in an 'Archived' section"},
+  {"app": "Mnemo", "platform": "android", "timing": null, "timing_s": null, "stack": null, "way": null, "seen": null},
+  {"app": "Any.do", "platform": "android", "timing": null, "timing_s": null, "stack": null, "way": null, "seen": null},
+  {"app": "Microsoft To Do", "platform": "android", "timing": null, "timing_s": null, "stack": null, "way": "trash", "seen": "completed tasks in a 'Completato' section"},
+  {"app": "Joplin (Android)", "platform": "android", "timing": null, "timing_s": null, "stack": null, "way": "trash", "seen": "Cestino in the sidebar"},
+  {"app": "Notion (Android)", "platform": "android", "timing": null, "timing_s": null, "stack": null, "way": "trash", "seen": null}
  ],
  "c": [
-  {"app": "Joplin (desktop)", "platform": "windows", "form": "dialog", "order": "away", "labels": "verbs", "confirm": "tap", "title": "Questo eliminerà definitivamente tutti gli elementi nel cestino. Continuare?", "buttons": ["Svuota cestino", "Annulla"], "seen": "centred over the window; the destructive choice first, on top, as a command link"}
+  {"app": "Joplin (desktop)", "platform": "windows", "form": "dialog", "order": "away", "labels": "verbs", "confirm": "tap", "title": "Questo eliminerà definitivamente tutti gli elementi nel cestino. Continuare?", "buttons": ["Svuota cestino", "Annulla"], "seen": "centred over the window; the destructive choice first, on top, as a command link"},
+  {"app": "Chronicle (debug)", "platform": "android", "form": "dialog", "order": "near", "labels": "verbs", "confirm": "tap", "title": "Delete activity?", "buttons": ["Cancel", "Delete"], "bounds_dp": [34, 301, 343, 268], "seen": "message says sessions and goals go too and suggests Archive instead; cancelled"},
+  {"app": "Mnemo", "platform": "android", "form": "dialog", "order": "near", "labels": "verbs", "confirm": "tap", "title": "Delete this reminder?", "buttons": ["Cancel", "Delete"], "bounds_dp": [34, 292, 343, 286], "seen": "message: removed from synced devices, can't be undone; cancelled"},
+  {"app": "Tasks.org", "platform": "android", "form": "dialog", "order": "near", "labels": "generic", "confirm": "tap", "title": "Eliminare le attività selezionate?", "buttons": ["Annulla", "OK"], "bounds_dp": [36, 384, 339, 103], "seen": "confirmed for own samples (undo bar follows)"},
+  {"app": "Todoist", "platform": "android", "form": "dialog", "order": "near", "labels": "verbs", "confirm": "tap", "title": "Vuoi eliminare l'attività?", "buttons": ["Annulla", "Elimina"], "bounds_dp": [36, 330, 339, 211], "seen": "cancelled"},
+  {"app": "Microsoft To Do", "platform": "android", "form": "dialog", "order": "near", "labels": "verbs", "confirm": "tap", "title": "Elimina attività", "buttons": ["ANNULLA", "ELIMINA"], "bounds_dp": [27, 349, 357, 172], "seen": "message: 'eliminare definitivamente'; cancelled"},
+  {"app": "Google Tasks", "platform": "android", "form": "dialog", "order": "near", "labels": "verbs", "confirm": "tap", "title": "Eliminare tutte le attività completate?", "buttons": ["Annulla", "Elimina"], "bounds_dp": [36, 304, 339, 262], "seen": "delete-all-completed; cancelled"},
+  {"app": "Google Keep", "platform": "android", "form": "dialog", "order": "near", "labels": "verbs", "confirm": "tap", "title": "Svuotare il Cestino?", "buttons": ["Annulla", "Svuota Cestino"], "bounds_dp": [36, 328, 339, 214], "seen": "empty-trash; cancelled. The move-to-trash ask 'Eliminare la nota?' [36, 321, 339, 228] has the same order"},
+  {"app": "Joplin (Android)", "platform": "android", "form": "dialog", "order": "near", "labels": "verbs", "confirm": "tap", "title": null, "buttons": ["Annulla", "Svuota cestino"], "bounds_dp": [17, 357, 377, 156], "seen": "empty-trash prompt with a message and no title; destructive button on the right, the reverse of the desktop; cancelled"},
+  {"app": "Loop Habit Tracker", "platform": "android", "form": "dialog", "order": "near", "labels": "generic", "confirm": "tap", "title": "Eliminare l'abitudine?", "buttons": ["NO", "SI"], "bounds_dp": [27, 344, 357, 182], "seen": "Yes/No words, not verbs; cancelled"}
  ],
- "e": []
+ "e": [
+  {"app": "Joplin (Android)", "platform": "android", "when": "need", "seen": "in-app prompt 'Salva geolocalizzazione?' when the first note was created (answered No); not an OS permission dialog"}
+ ]
 }
