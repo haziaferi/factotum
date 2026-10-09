@@ -1540,3 +1540,33 @@ Drawn: `docs/screens/t1/labels-dots.html` (`labels-f.json`).
 - **The banner's words:** all three real wordings are on the front. "Sync folder unreachable. Changes are kept on this phone." + Fix is the only one that says the data is safe.
 - **First run:** straight to an empty Today (0 taps), against one sheet (1 tap) and a tour (3 taps).
 - **Loading:** what is already on the device at once (progressive), or skeleton rows. Both cause no layout shift.
+
+**T1.9, the owner's choices (2026-10-09):**
+- **Failure banner:** "what": "Sync folder unreachable." with Fix.
+- **Today with nothing to show:** "nothing here". One sentence, "Nothing here.", whether everything is done or nothing was planned. The "Done today · n" fold stays, as decision 15 has it, when something was done.
+- **Empty screens:** centred: one sentence and one button in the middle.
+- **A field's error:** inline: a line under the field.
+- **Filtered to nothing:** centred, naming what was looked for ('No pages match "zqxjw".'), with no button: the search field's ✕ or the filter chip clears it.
+- **First run:** a three-card tour before Today.
+- **Loading:** what is already on this device at once; newer rows slide in.
+
+**The data-layer work the T1.8 vocabulary owed (done 2026-10-09, SPEC v0.39, schema 24):**
+- **Commits:**
+  - `2261987`: schema 24. Archive dropped (the activity and tracker `archived` columns, `setArchived`, archive in search); checklists carry a label; labels on every item kind; a property's Trash columns.
+  - `5162a64`: Restore and Trash listings for items and trackers.
+  - `bf35f00`: Trash for activities, labels, canvas cards and a database's properties, options and views.
+  - `a322b60`: Delete forever for checklists and charts.
+  - `f647d14`: `VocabularyTest`. The gate walks every kind through delete, Trash, restore, delete and purge; a mutant that emptied the charts' Trash listing failed it. It also checks a reminder on a row's task (it already worked) and Skip on a standalone reminder.
+  - `0693fd3`: SPEC v0.39, including corrections to §3.7, §3.10 and §3.12, which had become false.
+- **Tests:** core 312, data 378 → 390, all passing; the gate was rerun here: 4 of 4.
+- **Not done:**
+  - an Empty Trash call and a combined Trash listing (each kind has its own);
+  - Delete forever for checklist lines;
+  - time spans, readings and check-ins are untouched.
+- **Open questions** (the agent made the smallest choice for each), in `decisions/17` until the owner answers:
+  - restoring a part whose whole is in Trash is refused;
+  - restoring a label or option whose name was taken since is refused;
+  - the newly labelled kinds get "everything" labels, with no new scopes;
+  - a labelled task's tracked time now counts in its label's total;
+  - the old purges still accept a live row;
+  - a deleted activity's running timer keeps running.
