@@ -1317,3 +1317,34 @@ Drawn: `docs/screens/t1/labels-dots.html` (`labels-f.json`).
   - Notion: 1–3 in Trash; with the desktop's, four sample pages in all.
   - Joplin desktop: 1 in its trash.
   - Windows: four test notifications.
+
+**T1.8, the owner's choices (2026-10-09):**
+1. **The toast sits anchored:** above the capture line when the sheet is open, otherwise above the bar.
+   - Undoing an Add reopens the screen or sheet that was in use, with everything typed just before "done" put back.
+2. **Undo:**
+   - 7 s;
+   - several in a row merge into one toast;
+   - the toast can be swiped sideways to free the screen;
+   - the way back once it has gone is Trash and "Done today" only.
+3. **Destructive confirmation:**
+   - In place, near the thumb, held.
+   - **To rescore, for consistency across screens:** the header and button placement. The text in buttons should be shorter, or combined with glyphs.
+   - The owner asked what "Discard changes" does. Answer: nothing in a page. A page saves as it is typed (the SPEC lets every keystroke write to the database), so leaving a page loses no edits; the dialog drawn for it was a state the data layer does not have. Unsaved text exists only in the capture sheet or the full form before Add.
+   - Trash gets multi-select on its rows, to restore or delete forever the selection.
+4. **Sync clash:** a card on Today, versions stacked, words.
+5. **Failures:** a banner under the header.
+
+**Asked next (2026-10-09):**
+- **Unsaved capture text:** score it (keep a draft; discard with an Undo toast; hold to discard in place).
+- **Screens that place their actions the same way:**
+  - Trash, an item's page, a label's page, pages and databases;
+  - "Hold to empty trash" belongs to Trash alone.
+- **Placements to score, all four, with a control:**
+  - in the header, top right;
+  - a bottom action bar;
+  - floating near the thumb;
+  - behind a ⋯ belonging to the single element, aligned top right within the element's bounds (for example a row).
+- **Button text, all three, with "Hold to empty trash" as the control:**
+  - glyph and one word;
+  - one word only;
+  - glyph only, the word shown while held.
