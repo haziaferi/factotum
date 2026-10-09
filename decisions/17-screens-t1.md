@@ -1570,3 +1570,14 @@ Drawn: `docs/screens/t1/labels-dots.html` (`labels-f.json`).
   - a labelled task's tracked time now counts in its label's total;
   - the old purges still accept a live row;
   - a deleted activity's running timer keeps running.
+
+**The owner's answers to the data-layer questions (2026-10-10):**
+1. Restoring a part whose whole is in Trash stays refused.
+2. Restoring a label or option whose name was taken since stays refused.
+3. "The user needs to be able to choose a label, which will be able to tie elements across different screens."
+   - Read as: any label can be put on any element, so labels are global.
+   - A label's scope (Everything / Activities / Trackers, ADR 08 and the owner's 2026-10-02 answer) is removed from the data layer.
+   - The scope row on a label's page leaves the screens: T1.7's label page, and the inventory.
+4. "Labels do not have trackers attached to them nor can they amount to a total, aside from how many elements have that label."
+   - The label time total (ADR 08, owner 2026-10-02) is removed.
+   - A label's only number is the count of what carries it.
