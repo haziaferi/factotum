@@ -135,7 +135,7 @@ class VocabularyTest {
             go { k.restore(id) }
             assertTrue(go { k.live(id) }, "${k.name}: restored is live")
             assertFalse(id in go { k.trashed() }, "${k.name}: restored is out of the Trash")
-            if (k.name !in PURGES_A_LIVE_ONE) assertFailsWith<IllegalArgumentException>("${k.name}: Delete forever is from the Trash only") { go { k.purge(id) } }
+            assertFailsWith<IllegalArgumentException>("${k.name}: Delete forever is from the Trash only") { go { k.purge(id) } }
             go { k.delete(id) }
             go { k.purge(id) }
             assertFalse(go { k.held(id) }, "${k.name}: deleted forever is gone")
@@ -203,13 +203,5 @@ class VocabularyTest {
         assertEquals(LocalDateTime(LocalDate(2026, 10, 6), LocalTime(8, 0)), next())
         val week = go { occurrences.occurrences(pills, LocalDateTime(oct5, LocalTime(0, 0)), LocalDateTime(LocalDate(2026, 10, 8), LocalTime(0, 0))) }
         assertEquals(listOf(6, 7), week.map { it.at.day })
-    }
-
-    private companion object {
-        /**
-         * The kinds whose purge, older than the Trash, still takes a live one too (the sync tests purge
-         * live tasks); the screens offer Delete forever in the Trash only.
-         */
-        val PURGES_A_LIVE_ONE = setOf("task", "event", "standalone reminder", "habit", "tracker")
     }
 }

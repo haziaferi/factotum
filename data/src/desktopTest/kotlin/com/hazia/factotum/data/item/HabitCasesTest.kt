@@ -197,7 +197,9 @@ class HabitCasesTest {
     fun purgingATrackerPurgesItsHabits() {
         val water = runBlocking { habits.create("water", monday) }
         val tracker = runBlocking { items.item(water) }!!.trackerId!!
+        assertFailsWith<IllegalArgumentException> { runBlocking { trackers.purge(tracker) } }
 
+        runBlocking { trackers.delete(tracker) }
         runBlocking { trackers.purge(tracker) }
 
         assertEquals(null, runBlocking { items.item(water) })

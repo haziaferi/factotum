@@ -170,13 +170,19 @@ internal class ItemRepository(
     }
 
     /**
-     * "Delete forever" (ADR 01): the purge travels; subtasks, completions and tracked time go by the
-     * foreign keys. An activity is deleted forever by `ActivityRepository`, which takes its goals too.
+     * "Delete forever" (ADR 01), from the Trash only (owner, 2026-10-09): the purge travels; subtasks,
+     * completions and tracked time go by the foreign keys. An activity is deleted forever by
+     * `ActivityRepository`, which takes its goals too. A purge from a peer is the import's own
+     * (`Merger.import`), and applies to a row live here too.
      */
     suspend fun purge(id: String) {
         pageOfRowTask(id)?.takeIf { db.pageDao().pages(listOf(it)).singleOrNull()?.deletedAt != null }?.let { return purgePage(db, writes, it) }
-        require(dao.items(listOf(id)).singleOrNull()?.kind != ItemKind.ACTIVITY.name) { "an activity is deleted forever by ActivityRepository, with its goals" }
-        writes.write(mapOf(ITEM to listOf(id))) { store -> merger.purge(store, id) }
+        writes.write({
+            val item = requireNotNull(dao.items(listOf(id)).singleOrNull()) { "no item $id" }
+            require(item.kind != ItemKind.ACTIVITY.name) { "an activity is deleted forever by ActivityRepository, with its goals" }
+            require(item.deletedAt != null) { "only an item in the Trash is deleted forever" }
+            mapOf(ITEM to listOf(id))
+        }) { store, _ -> merger.purge(store, id) }
     }
 
     /**

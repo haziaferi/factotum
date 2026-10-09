@@ -203,6 +203,9 @@ class FolderSyncTest {
         a.purge(gone)
         a.export()
         w.syncthing.session("A", "B")
+        // The row is live on B when the purge arrives: the import applies it all the same.
+        assertEquals(setOf(gone), b.rows().keys)
+        assertEquals(false, runBlocking { b.items.item(gone) }?.deleted)
         b.import()
 
         assertTrue(b.rows().isEmpty())

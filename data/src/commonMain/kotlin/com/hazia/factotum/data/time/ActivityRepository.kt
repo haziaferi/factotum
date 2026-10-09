@@ -37,6 +37,8 @@ internal class ActivityRepository(
     private val writes: LocalWrites,
     private val newId: () -> String,
     private val personal: PersonalSettings,
+    /** The wall clock as a local date-time: a deleted activity's running timer stops then. */
+    private val now: () -> LocalDateTime = ::localNow,
 ) {
     private val items = db.itemDao()
     private val times = db.timeDao()
@@ -62,12 +64,17 @@ internal class ActivityRepository(
         return items.liveActivities().map { Activity(it.id, it.title, it.icon, it.color, it.sortOrder, label(it.labelId)) }
     }
 
-    /** Moves [id] to the Trash with its live spans and goals, in one write and one stamp (Chronicle's `ActivityRepository.delete`). */
+    /**
+     * Moves [id] to the Trash with its live spans and goals, in one write and one stamp (Chronicle's
+     * `ActivityRepository.delete`). Its running timers stop first, as a deleted item's do (owner,
+     * 2026-10-02), so a restore brings them back ended, not running.
+     */
     suspend fun delete(id: String) = writes.write({
         activity(id)
         mapOf(ITEM to listOf(id), TIME_SPAN to times.liveSpansOf(listOf(id)), GOAL to goals.goalsOf(ACTIVITY, id).map { it.id })
     }) { store, targets ->
         val s = clock.tick()
+        endRunning(store, targets.getValue(TIME_SPAN), now(), s)
         store.put(requireNotNull(store.row(id)) { "no activity $id" }.edit(SCHEDULE, s, mapOf("deleted_at" to s.hlc)))
         for (span in targets.getValue(TIME_SPAN)) store.put(requireNotNull(store.row(span)).edit(GONE, s, mapOf("deleted_at" to s.hlc)))
         for (goal in targets.getValue(GOAL)) store.put(requireNotNull(store.row(goal)).edit(WHOLE, s, mapOf("deleted_at" to s.hlc)))

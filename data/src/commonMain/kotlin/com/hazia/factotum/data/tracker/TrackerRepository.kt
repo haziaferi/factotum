@@ -144,10 +144,11 @@ internal class TrackerRepository(
     suspend fun trashed(): List<Tracker> = dao.allTrackers().filter { it.deletedAt != null }.map { it.toTracker() }
 
     /**
-     * "Delete forever": the purges travel. Its habits, readings and choices go by the foreign keys;
+     * "Delete forever", from the Trash only (owner, 2026-10-09): the purges travel. Its habits, readings and choices go by the foreign keys;
      * its goals, which name it without one (Chronicle), are purged with it.
      */
     suspend fun purge(trackerId: String) = writes.write({
+        require(requireNotNull(dao.trackers(listOf(trackerId)).singleOrNull()) { "no tracker $trackerId" }.deletedAt != null) { "only a tracker in the Trash is deleted forever" }
         mapOf(TRACKER to listOf(trackerId), GOAL to dao.everyGoalOf("TRACKER", trackerId))
     }) { store, targets ->
         writes.merger.purge(store, trackerId)

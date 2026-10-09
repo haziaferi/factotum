@@ -102,7 +102,10 @@ class ItemCasesTest {
         val parent = runBlocking { items.createTask("tax form", MONDAY) }
         val child = runBlocking { items.createTask("find receipts", parentId = parent) }
         runBlocking { items.resolve(parent, LocalDateTime(MONDAY, LocalTime(0, 0)), Outcome.DONE) }
+        // Delete forever is the Trash's (owner, 2026-10-09).
+        assertFailsWith<IllegalArgumentException> { runBlocking { items.purge(parent) } }
 
+        runBlocking { items.delete(parent) }
         runBlocking { items.purge(parent) }
 
         assertNull(runBlocking { items.item(child) })
@@ -217,6 +220,8 @@ class ItemCasesTest {
         val theirs = runBlocking { db.syncedTables().getValue(ITEM).load(listOf(child)) }.single().groups.getValue(SCHEDULE)
         runBlocking { db.syncDao().putAsks(listOf(AskEntity(child, SCHEDULE, RecordCodec.encodeGroup(theirs)))) }
 
+        runBlocking { items.delete(parent) }
+        assertEquals(1, runBlocking { items.questions() }.size)
         runBlocking { items.purge(parent) }
 
         assertEquals(emptyList(), runBlocking { items.questions() })

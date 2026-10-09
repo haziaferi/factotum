@@ -72,7 +72,7 @@ internal class Factotum(
     val habits = HabitRepository(db, writes, newId, settings)
     val trackers = TrackerRepository(db, writes, newId)
     val time = TimeRepository(db, writes, newId, settings)
-    val activities = ActivityRepository(db, writes, newId, settings)
+    val activities = ActivityRepository(db, writes, newId, settings, now)
     val labels = LabelRepository(db, writes, newId)
     val checkIns = CheckInRepository(db, writes, newId, settings)
     val pages = PageRepository(db, writes, newId, wallMillis, now)

@@ -52,7 +52,7 @@ class TimeCasesTest {
         habits = HabitRepository(db, writes, newId, FixedSettings())
         trackers = TrackerRepository(db, writes, newId, now = { now })
         time = TimeRepository(db, writes, newId, FixedSettings())
-        activities = ActivityRepository(db, writes, newId, FixedSettings())
+        activities = ActivityRepository(db, writes, newId, FixedSettings(), now = { now })
     }
 
     @After fun close() = db.close()
@@ -99,6 +99,7 @@ class TimeCasesTest {
         val report = task()
         runBlocking { time.logManual(report, at(5, 9), at(5, 10)) }
 
+        runBlocking { items.delete(report) }
         runBlocking { items.purge(report) }
 
         assertEquals(emptyList(), runBlocking { db.timeDao().allSpans() })
@@ -154,6 +155,22 @@ class TimeCasesTest {
         assertEquals(emptyList(), runBlocking { db.timeDao().spans(listOf(span)) })
         assertEquals(emptyList(), runBlocking { db.trackerDao().goals(listOf(goal)) })
         assertEquals(emptyList(), runBlocking { activities.trashed() })
+    }
+
+    @Test
+    fun deletingAnActivityStopsItsRunningTimerAndARestoreBringsItBackEnded() {
+        val reading = runBlocking { activities.create("Reading") }
+        val span = runBlocking { time.start(reading, at(5, 9)) }
+        now = at(5, 10)
+
+        runBlocking { activities.delete(reading) }
+        assertEquals(emptyList(), runBlocking { time.running() })
+        now = at(5, 15)
+        runBlocking { activities.restore(reading) }
+
+        assertEquals(emptyList(), runBlocking { time.running() })
+        assertEquals(at(5, 10), runBlocking { time.spansOn(monday, reading) }.single { it.id == span }.end)
+        assertEquals(60, minutes(itemId = reading))
     }
 
     @Test

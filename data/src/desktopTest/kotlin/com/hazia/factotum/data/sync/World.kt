@@ -104,7 +104,8 @@ internal class World(private val dir: File, seed: Int, private val segmentBytes:
             record(rowId)
         }
 
-        fun purge(rowId: String) = runBlocking { items.purge(rowId) }
+        /** Delete forever as a person does it (owner, 2026-10-09): to the Trash, then out of it. A peer applies it through its import. */
+        fun purge(rowId: String) = runBlocking { items.delete(rowId); items.purge(rowId) }
 
         private fun record(rowId: String) {
             for ((g, v) in rows().getValue(rowId).groups) {
