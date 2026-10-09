@@ -1599,3 +1599,8 @@ Drawn: `docs/screens/t1/labels-dots.html` (`labels-f.json`).
   - Windows too.
 - **References:** calendars, the task apps' item pages, alarm apps, the source apps. Placeholder data only. Alarms are set only in daytime and deleted after.
 - **What a calendar day holds:** score what to show (events only, with tasks, everything) and filters for it.
+- **Done (2026-10-10, verified here: core 312, data 392, all passing):**
+  - `d445298`: a deleted activity's timer stops; Delete forever of items and trackers works from Trash only. A peer's purge stays the import's own path.
+  - `c88c0be`: schema 25. The label scope is dropped (`applies_to` and its stamp; `offeredFor` removed, `labels()` is what pickers offer); the label time total is removed; `LabelRepository.carrying()` counts the live elements carrying a label.
+  - `9923b16`: SPEC v0.40.
+  - The ADR 07 case `chronicle-activity-and-category-totals` is marked superseded for its category half.
