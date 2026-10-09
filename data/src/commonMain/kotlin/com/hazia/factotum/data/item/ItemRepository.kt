@@ -248,7 +248,7 @@ internal fun itemRow(
         "icon" to null, "color" to null, "sort_order" to null,
     )),
     SCHEDULE to Group(s, mapOf<String, Any?>("pause_from" to null, "pause_until" to null, "duration_min" to null) + schedule),
-    STATUS to Group(s, mapOf("status" to status?.name, "importance" to importance, "capacity_rank" to capacityRank, "archived" to null)),
+    STATUS to Group(s, mapOf("status" to status?.name, "importance" to importance, "capacity_rank" to capacityRank)),
     LABELLED to Group(s, mapOf("label_id" to null)),
 ))
 

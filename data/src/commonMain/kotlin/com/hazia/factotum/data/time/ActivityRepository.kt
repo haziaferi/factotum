@@ -10,7 +10,6 @@ import com.hazia.factotum.data.item.ITEM
 import com.hazia.factotum.data.item.ItemKind
 import com.hazia.factotum.data.item.MIDNIGHT
 import com.hazia.factotum.data.item.SCHEDULE
-import com.hazia.factotum.data.item.STATUS
 import com.hazia.factotum.data.item.WHOLE
 import com.hazia.factotum.data.item.itemRow
 import com.hazia.factotum.data.item.schedule
@@ -22,7 +21,7 @@ import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.LocalTime
 
 /** An activity; [labelId] is its label (Chronicle's category) as it reads now: a merged one's successor, none once deleted. */
-data class Activity(val id: String, val name: String, val icon: String?, val color: Long?, val archived: Boolean, val sortOrder: Double?, val labelId: String? = null)
+data class Activity(val id: String, val name: String, val icon: String?, val color: Long?, val sortOrder: Double?, val labelId: String? = null)
 
 /** A goal on an activity's time against its target, in whole minutes, as Chronicle shows it. */
 data class TimeGoalProgress(val minutes: Long, val targetMinutes: Long)
@@ -51,23 +50,15 @@ internal class ActivityRepository(
             val s = clock.tick()
             val row = itemRow(id, s, ItemKind.ACTIVITY, name, null, schedule(null, null, null, null, null), null, 0, null)
                 .edit(DETAILS, s, mapOf("icon" to icon, "color" to color))
-                .edit(STATUS, s, mapOf("archived" to false))
             writes.merger.created(store, row)
         }
         return id
     }
 
-    /** The live activities in their manual order, archived ones only when asked. */
-    suspend fun activities(withArchived: Boolean = false): List<Activity> {
+    /** The live activities in their manual order. */
+    suspend fun activities(): List<Activity> {
         val label = resolver(labelDao.allLabels())
-        return items.liveActivities()
-            .filter { withArchived || it.archived != true }
-            .map { Activity(it.id, it.title, it.icon, it.color, it.archived == true, it.sortOrder, label(it.labelId)) }
-    }
-
-    suspend fun setArchived(id: String, archived: Boolean) {
-        activity(id)
-        writes.edit(ITEM, id, STATUS) { mapOf("archived" to archived) }
+        return items.liveActivities().map { Activity(it.id, it.title, it.icon, it.color, it.sortOrder, label(it.labelId)) }
     }
 
     /**

@@ -23,7 +23,7 @@ internal const val SCOPE = "scope"
 internal const val ORDER = "order"
 internal const val GONE = "gone"
 
-/** A link's own group on an item or tracker: setting or clearing a label never overwrites anything else there. */
+/** A link's own group on an item, a tracker or a checklist: setting or clearing a label never overwrites anything else there. */
 internal const val LABELLED = "label"
 
 /**
@@ -75,6 +75,9 @@ internal interface LabelDao {
 
     @Query("SELECT id FROM tracker WHERE label_id IN (:labelIds) AND deleted_at IS NULL")
     suspend fun trackersLabelled(labelIds: List<String>): List<String>
+
+    @Query("SELECT id FROM checklist WHERE label_id IN (:labelIds) AND deleted_at IS NULL")
+    suspend fun checklistsLabelled(labelIds: List<String>): List<String>
 }
 
 internal fun labelTable(dao: LabelDao) =

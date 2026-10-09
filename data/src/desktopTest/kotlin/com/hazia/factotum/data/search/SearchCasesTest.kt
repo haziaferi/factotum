@@ -154,15 +154,14 @@ class SearchCasesTest {
     }
 
     @Test
-    fun whatWasWrittenUnderAnArchivedActivityStaysFindableButItsNameAndAnythingDeletedDoNot() {
+    fun whatWasWrittenUnderAnActivityOrATrackerIsFoundWithItsOwnerUntilBothAreDeleted() {
         val walk = runBlocking { activities.create("Quantum walk") }
         val span = runBlocking { time.logManual(walk, at(5, 7), at(5, 8), "quantum park") }
         val mood = runBlocking { trackers.create("Quantum mood", TrackerType.RATING) }
         val log = runBlocking { trackers.log(mood, at(5, 9), rating = 3, note = "quantum note") }
 
-        runBlocking { activities.setArchived(walk, true) }
-        runBlocking { db.useWriterConnection { it.execSQL("UPDATE tracker SET archived = 1 WHERE id = '$mood'") } }
-        assertEquals(setOf(span to "Quantum walk", log to "Quantum mood"), find("quantum").map { it.id to it.owner }.toSet())
+        assertEquals(setOf(walk, span, mood, log), ids("quantum").toSet())
+        assertEquals(setOf(span to "Quantum walk", log to "Quantum mood"), find("quantum").filter { it.id == span || it.id == log }.map { it.id to it.owner }.toSet())
 
         runBlocking { activities.delete(walk) }
         runBlocking { trackers.delete(mood) }

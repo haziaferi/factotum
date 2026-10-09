@@ -64,15 +64,13 @@ internal data class ItemEntity(
     @ColumnInfo(name = "schedule_settles_device") val scheduleSettlesDevice: String?,
     val status: String?,
     val importance: Long,
-    /** An ACTIVITY put away: kept, with its time, but no longer offered (ADR 07). */
-    val archived: Boolean?,
     @ColumnInfo(name = "capacity_rank") val capacityRank: Long?,
     @ColumnInfo(name = "status_hlc") val statusHlc: Long,
     @ColumnInfo(name = "status_device") val statusDevice: String,
     /**
-     * An ACTIVITY's or a HABIT's label (ADR 08), in a group of its own. No foreign key: a label is
-     * never deleted for good, and readers take a deleted or merged one as none or its successor
-     * (as Tendril's habit label had none).
+     * An item's label (ADR 08, amended 2026-10-09: every kind carries one), in a group of its own.
+     * No foreign key: readers take a deleted, purged or merged one as none or its successor (as
+     * Tendril's habit label had none).
      */
     @ColumnInfo(name = "label_id") val labelId: String? = null,
     @ColumnInfo(name = "label_hlc", defaultValue = "0") val labelHlc: Long = 0,

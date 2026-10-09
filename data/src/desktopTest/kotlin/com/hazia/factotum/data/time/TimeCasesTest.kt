@@ -111,7 +111,7 @@ class TimeCasesTest {
         runBlocking { time.logManual(reading, at(5, 20), at(5, 20, 40)) }
 
         assertEquals(40, minutes(itemId = reading))
-        assertEquals(listOf(Activity(reading, "Reading", "book", 0xFF336699, false, null)), runBlocking { activities.activities() })
+        assertEquals(listOf(Activity(reading, "Reading", "book", 0xFF336699, null)), runBlocking { activities.activities() })
     }
 
     @Test
@@ -142,7 +142,7 @@ class TimeCasesTest {
         val left = runBlocking { db.timeDao().spans(listOf(span)) }.single()
         assertTrue(left.deletedAt != null)
         assertTrue(runBlocking { db.trackerDao().goals(listOf(goal)) }.single().deletedAt != null)
-        assertEquals(listOf(untimed), runBlocking { activities.activities(withArchived = true) }.map { it.id })
+        assertEquals(listOf(untimed), runBlocking { activities.activities() }.map { it.id })
     }
 
     @Test
@@ -385,24 +385,19 @@ class TimeCasesTest {
     }
 
     @Test
-    fun activitiesArchiveAndKeepTheirOrderAndTheirColumnsStayTheirs() {
+    fun activitiesKeepTheirOrderAndTheirColumnsStayTheirs() {
         val chess = runBlocking { activities.create("Chess") }
         val reading = runBlocking { activities.create("Reading") }
         val piano = runBlocking { activities.create("Piano") }
         runBlocking { items.setSortOrder(piano, 1.0) }
         runBlocking { items.setSortOrder(reading, 1.5) }
         runBlocking { items.setSortOrder(chess, 2.0) }
-        runBlocking { activities.setArchived(chess, true) }
 
-        assertEquals(listOf(piano, reading), runBlocking { activities.activities() }.map { it.id })
-        assertEquals(listOf(piano, reading, chess), runBlocking { activities.activities(withArchived = true) }.map { it.id })
+        assertEquals(listOf(piano, reading, chess), runBlocking { activities.activities() }.map { it.id })
         val report = task()
-        assertFailsWith<IllegalArgumentException> { runBlocking { activities.setArchived(report, true) } }
         refused("UPDATE item SET icon = 'book' WHERE id = '$report'")
         refused("UPDATE item SET color = 1 WHERE id = '$report'")
-        refused("UPDATE item SET archived = 0 WHERE id = '$report'")
         refused("UPDATE item SET sort_order = 1.0 WHERE id = '$report'")
-        refused("UPDATE item SET archived = NULL WHERE id = '$reading'")
         refused("UPDATE item SET start_date = '2026-10-05' WHERE id = '$reading'")
     }
 

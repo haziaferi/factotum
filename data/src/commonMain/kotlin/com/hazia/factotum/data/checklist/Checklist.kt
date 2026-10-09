@@ -12,6 +12,7 @@ import com.hazia.factotum.core.sync.Group
 import com.hazia.factotum.core.sync.Row
 import com.hazia.factotum.core.sync.Stamp
 import com.hazia.factotum.data.item.EntityTable
+import com.hazia.factotum.data.label.LABELLED
 
 internal const val CHECKLIST = "checklist"
 internal const val CHECKLIST_ITEM = "checklist_item"
@@ -34,7 +35,7 @@ internal const val GONE = "gone"
  * write to every item: an item reads as ticked only when ticked after it (owner, 2026-10-03), so a
  * tick from before a reset is cleared even when it syncs after it.
  */
-@Entity(tableName = CHECKLIST)
+@Entity(tableName = CHECKLIST, indices = [Index("label_id")])
 internal data class ChecklistEntity(
     @PrimaryKey val id: String,
     val name: String,
@@ -48,6 +49,13 @@ internal data class ChecklistEntity(
     @ColumnInfo(name = "deleted_at") val deletedAt: Long?,
     @ColumnInfo(name = "gone_hlc") val goneHlc: Long,
     @ColumnInfo(name = "gone_device") val goneDevice: String,
+    /**
+     * Its label (ADR 08, amended 2026-10-09), in a group of its own, as on an item; no foreign key.
+     * A list made before labels has no group until one is put on it.
+     */
+    @ColumnInfo(name = "label_id") val labelId: String? = null,
+    @ColumnInfo(name = "label_hlc") val labelHlc: Long? = null,
+    @ColumnInfo(name = "label_device") val labelDevice: String? = null,
 )
 
 @Entity(
@@ -102,16 +110,19 @@ internal fun ChecklistEntity.toRow() = Row(CHECKLIST, id, mapOf(
     ORDER to stamped(orderHlc, orderDevice, mapOf("sort_key" to sortKey)),
     RUN to stamped(runHlc, runDevice, emptyMap()),
     GONE to stamped(goneHlc, goneDevice, mapOf("deleted_at" to deletedAt)),
-))
+) + listOfNotNull(labelHlc?.let { LABELLED to stamped(it, requireNotNull(labelDevice), mapOf("label_id" to labelId)) }))
 
 internal fun Row.toChecklistEntity(): ChecklistEntity {
     val name = groups.getValue(NAME)
     val order = groups.getValue(ORDER)
     val run = groups.getValue(RUN)
     val gone = groups.getValue(GONE)
+    // A line written before checklists carried labels has no such group: no label.
+    val label = groups[LABELLED]
     return ChecklistEntity(
         id, name.values["name"] as String, name.stamp.hlc, name.stamp.device, order.values["sort_key"] as String, order.stamp.hlc, order.stamp.device,
         run.stamp.hlc, run.stamp.device, gone.values["deleted_at"] as Long?, gone.stamp.hlc, gone.stamp.device,
+        label?.values?.get("label_id") as String?, label?.stamp?.hlc, label?.stamp?.device,
     )
 }
 

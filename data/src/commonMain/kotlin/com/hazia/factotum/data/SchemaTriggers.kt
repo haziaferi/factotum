@@ -100,9 +100,11 @@ internal object SchemaTriggers : RoomDatabase.Callback() {
     /**
      * ADR 02's kind rules; ADR 03's (a standalone reminder has a status and always a date and time);
      * ADR 06's (a habit has a tracker, which nothing else has, and only a habit pauses, has a block
-     * or a length, rolls, or is planned); ADR 07's (only an activity has an icon, a colour or an
-     * archived flag, and it has no dates; an activity or a habit has a manual order); ADR 08's (an
-     * activity or a habit carries a label). In COALESCE, as a NULL inside would let the row through.
+     * or a length, rolls, or is planned); ADR 07's (only an activity has an icon or a colour, and it
+     * has no dates; an activity or a habit has a manual order); ADR 08's, amended 2026-10-09 (every
+     * kind carries a label: activities and habits, and tasks, events and reminders too). In COALESCE,
+     * as a NULL inside would let the row through; the label's kinds are compared with IS, as the
+     * recurrence kinds are.
      */
     private val itemRules = """
         COALESCE(
@@ -118,9 +120,8 @@ internal object SchemaTriggers : RoomDatabase.Callback() {
             AND (NEW.pause_until IS NULL OR (NEW.pause_from IS NOT NULL AND NEW.pause_until >= NEW.pause_from))
             AND (NEW.duration_min IS NULL OR NEW.duration_min > 0)
             AND (NEW.kind = 'ACTIVITY' OR (NEW.icon IS NULL AND NEW.color IS NULL))
-            AND (NEW.archived IS NOT NULL) = (NEW.kind = 'ACTIVITY')
             AND (NEW.sort_order IS NULL OR NEW.kind IN ('ACTIVITY', 'HABIT'))
-            AND (NEW.label_id IS NULL OR NEW.kind IN ('ACTIVITY', 'HABIT'))
+            AND (NEW.label_id IS NULL OR NEW.kind IS 'ACTIVITY' OR NEW.kind IS 'HABIT' OR NEW.kind IS 'TASK' OR NEW.kind IS 'EVENT' OR NEW.kind IS 'REMINDER')
             AND (NEW.kind <> 'ACTIVITY' OR (NEW.start_date IS NULL AND NEW.start_time IS NULL AND NEW.due_date IS NULL AND NEW.recurrence_kind IS NULL)),
         0)
         AND $recurrenceRules

@@ -42,7 +42,7 @@ internal class TrackerRepository(
         return Row(TRACKER, id, mapOf(
             WHOLE to Group(s, mapOf(
                 "name" to name, "type" to type.name, "unit" to unit, "unit_label" to unitLabel, "default_number" to defaultNumber,
-                "default_bool" to null, "default_rating" to null, "polarity" to "NEUTRAL", "archived" to false, "sort_order" to 0L,
+                "default_bool" to null, "default_rating" to null, "polarity" to "NEUTRAL", "sort_order" to 0L,
                 "deleted_at" to null,
             )),
             LABELLED to Group(s, mapOf("label_id" to null)),

@@ -7,6 +7,7 @@ import com.hazia.factotum.core.sync.Row
 import com.hazia.factotum.core.sync.Stamp
 import com.hazia.factotum.data.FactotumDatabase
 import com.hazia.factotum.data.LocalWrites
+import com.hazia.factotum.data.label.LABELLED
 import com.hazia.factotum.data.label.nfc
 import com.hazia.factotum.data.page.automatic
 import com.hazia.factotum.data.page.byHand
@@ -44,6 +45,7 @@ internal class ChecklistRepository(
                 ORDER to Group(s, mapOf("sort_key" to key)),
                 RUN to Group(s, emptyMap()),
                 GONE to Group(s, mapOf("deleted_at" to null)),
+                LABELLED to Group(s, mapOf("label_id" to null)),
             )))
         }
         return id

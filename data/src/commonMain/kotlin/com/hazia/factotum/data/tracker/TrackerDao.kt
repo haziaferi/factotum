@@ -32,7 +32,6 @@ internal data class TrackerEntity(
     @ColumnInfo(name = "default_rating") val defaultRating: Long?,
     /** HIGHER_IS_BETTER, LOWER_IS_BETTER or NEUTRAL. */
     val polarity: String,
-    val archived: Boolean,
     @ColumnInfo(name = "sort_order") val sortOrder: Long,
     @ColumnInfo(name = "deleted_at") val deletedAt: Long?,
     val hlc: Long,

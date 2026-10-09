@@ -7,6 +7,7 @@ import com.hazia.factotum.core.sync.Group
 import com.hazia.factotum.core.sync.Row
 import com.hazia.factotum.data.FactotumDatabase
 import com.hazia.factotum.data.LocalWrites
+import com.hazia.factotum.data.checklist.CHECKLIST
 import com.hazia.factotum.data.item.ITEM
 import com.hazia.factotum.data.item.ItemKind
 import com.hazia.factotum.data.page.MADE
@@ -25,8 +26,8 @@ internal expect fun nfc(text: String): String
 internal fun labelKey(name: String): String = nameKey(nfc(name))
 
 /**
- * Labels (ADR 08): one vocabulary for activities, habits and trackers (and pages, with ADR 12),
- * each carrying at most one. Names are unique ignoring case; a sync that finds two merges them
+ * Labels (ADR 08): one vocabulary for every item, trackers and checklists (amended 2026-10-09),
+ * each carrying at most one, and pages (ADR 12), which carry many. Names are unique ignoring case; a sync that finds two merges them
  * ([mergeDuplicates]). A label's scope only decides where it is offered: narrowing it leaves what
  * already carries it alone (owner, 2026-10-02).
  *
@@ -43,6 +44,7 @@ internal class LabelRepository(
     private val items = db.itemDao()
     private val trackers = db.trackerDao()
     private val pages = db.pageDao()
+    private val checklists = db.checklistDao()
     private val clock = writes.clock
 
     /** A new label, last in the order, coloured from its name unless [color] is given (Tendril). */
@@ -87,11 +89,11 @@ internal class LabelRepository(
     suspend fun delete(id: String) = writes.write({
         live(id)
         val same = dao.allLabels().let { all -> val r = resolver(all); all.map { it.id }.filter { r(it) == id } }
-        mapOf(LABEL to listOf(id), ITEM to dao.itemsLabelled(same), TRACKER to dao.trackersLabelled(same))
+        mapOf(LABEL to listOf(id), ITEM to dao.itemsLabelled(same), TRACKER to dao.trackersLabelled(same), CHECKLIST to dao.checklistsLabelled(same))
     }) { store, targets ->
         val s = clock.tick()
         store.put(requireNotNull(store.row(id)).edit(GONE, s, mapOf("deleted_at" to s.hlc)))
-        for (member in targets.getValue(ITEM) + targets.getValue(TRACKER)) {
+        for (member in targets.getValue(ITEM) + targets.getValue(TRACKER) + targets.getValue(CHECKLIST)) {
             store.put(requireNotNull(store.row(member)).edit(LABELLED, s, mapOf("label_id" to null)))
         }
     }
@@ -103,20 +105,31 @@ internal class LabelRepository(
     suspend fun offeredFor(scope: LabelScope): List<Label> =
         labels().filter { it.appliesTo == LabelScope.ALL || it.appliesTo == scope }
 
-    /** The label the activity or habit [itemId] carries now: a merged one reads as the label it went into, a deleted one as none. */
+    /** The label the item [itemId] carries now: a merged one reads as the label it went into, a deleted or purged one as none. */
     suspend fun labelOf(itemId: String): String? = items.items(listOf(itemId)).singleOrNull()?.labelId.let(resolver(dao.allLabels()))
 
     /** The label the tracker [trackerId] carries now, read as [labelOf] reads one. */
     suspend fun trackerLabelOf(trackerId: String): String? = trackers.trackers(listOf(trackerId)).singleOrNull()?.labelId.let(resolver(dao.allLabels()))
 
-    /** Puts [labelId] on the activity or habit [itemId], or takes its label off with null. */
+    /**
+     * Puts [labelId] on the item [itemId], or takes its label off with null. Every kind carries one
+     * (ADR 08, amended 2026-10-09); all but an activity are offered the labels for everything.
+     */
     suspend fun label(itemId: String, labelId: String?) = writes.write({
         val item = requireNotNull(items.items(listOf(itemId)).singleOrNull()?.takeIf { it.deletedAt == null }) { "no item $itemId" }
-        val kind = ItemKind.valueOf(item.kind)
-        require(kind == ItemKind.ACTIVITY || kind == ItemKind.HABIT) { "a ${item.kind} carries no label" }
-        labelId?.let { offered(it, if (kind == ItemKind.ACTIVITY) LabelScope.ACTIVITY else LabelScope.ALL) }
+        labelId?.let { offered(it, if (item.kind == ItemKind.ACTIVITY.name) LabelScope.ACTIVITY else LabelScope.ALL) }
         mapOf(ITEM to listOf(itemId))
     }) { store, _ -> setLabel(store, itemId, labelId) }
+
+    /** Puts [labelId] on the checklist [checklistId] (ADR 08, amended 2026-10-09), or takes it off with null. */
+    suspend fun labelChecklist(checklistId: String, labelId: String?) = writes.write({
+        requireNotNull(checklists.checklists(listOf(checklistId)).singleOrNull()?.takeIf { it.deletedAt == null }) { "no checklist $checklistId" }
+        labelId?.let { offered(it, LabelScope.ALL) }
+        mapOf(CHECKLIST to listOf(checklistId))
+    }) { store, _ -> setLabel(store, checklistId, labelId) }
+
+    /** The label the checklist [checklistId] carries now, read as [labelOf] reads one. */
+    suspend fun checklistLabelOf(checklistId: String): String? = checklists.checklists(listOf(checklistId)).singleOrNull()?.labelId.let(resolver(dao.allLabels()))
 
     /** Puts [labelId] on the tracker [trackerId] (Chronicle's category), or takes it off with null. */
     suspend fun labelTracker(trackerId: String, labelId: String?) = writes.write({
@@ -190,8 +203,9 @@ internal class LabelRepository(
         }
     }
 
+    /** A checklist made before labels has no label group yet: [Row.set] adds it. */
     private fun setLabel(store: StagedStore, id: String, labelId: String?) =
-        store.put(requireNotNull(store.row(id)).edit(LABELLED, clock.tick(), mapOf("label_id" to labelId)))
+        store.put(requireNotNull(store.row(id)).set(LABELLED, clock.tick(), mapOf("label_id" to labelId)))
 
     /** Changes one part of the live label [id], after [check], inside the write. */
     private suspend fun change(id: String, group: String, check: suspend () -> Unit = {}, values: () -> Map<String, Any?>) = writes.write({

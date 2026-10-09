@@ -82,7 +82,7 @@ class LabelCasesTest {
     }
 
     @Test
-    fun chronicleOneCategoryPerRow_aSecondLabelReplacesTheFirstAndAnyKindElseCarriesNone() {
+    fun chronicleOneCategoryPerRow_aSecondLabelReplacesTheFirstOnEveryKind() {
         val leisure = runBlocking { labels.create("Leisure") }
         val study = runBlocking { labels.create("Study") }
         val reading = runBlocking { activities.create("Reading") }
@@ -94,9 +94,16 @@ class LabelCasesTest {
 
         assertEquals(study, labelOf(reading))
         assertEquals(leisure, trackerLabelOf(mood))
+        // ADR 08, amended (owner, 2026-10-09): tasks, events, reminders and checklists carry one too.
         val report = runBlocking { items.createTask("report", monday) }
-        assertFailsWith<IllegalArgumentException> { runBlocking { labels.label(report, study) } }
-        refused("UPDATE item SET label_id = '$study' WHERE id = '$report'")
+        val talk = runBlocking { items.createEvent("talk", monday) }
+        runBlocking { labels.label(report, leisure) }
+        runBlocking { labels.label(report, study) }
+        runBlocking { labels.label(talk, study) }
+        assertEquals(study, labelOf(report))
+        assertEquals(study, labelOf(talk))
+        val onlyActivities = runBlocking { labels.create("Hobby", LabelScope.ACTIVITY) }
+        assertFailsWith<IllegalArgumentException> { runBlocking { labels.label(report, onlyActivities) } }
     }
 
     @Test
@@ -444,6 +451,36 @@ class LabelCasesTest {
             assertEquals(Triple(null, 0L, ""), Triple(walk.labelId, walk.labelHlc, walk.labelDevice))
             assertEquals(Triple(null, 0L, ""), Triple(mood.labelId, mood.labelHlc, mood.labelDevice))
             assertEquals(listOf("s"), runBlocking { upgraded.timeDao().allSpans() }.map { it.id })
+        } finally {
+            upgraded.close()
+        }
+    }
+
+    @Test
+    fun aVersion23DatabaseLosesTheArchivedFlagsAndItsChecklistsTakeALabel() {
+        val file = File(tmp.root, "v23.db")
+        createAtVersion(file, 23) { c ->
+            c.execSQL(
+                "INSERT INTO item (id, kind, title, details_hlc, details_device, schedule_hlc, schedule_device, importance, status_hlc, status_device, archived) " +
+                    "VALUES ('walk', 'ACTIVITY', 'Walk', 1, 'A', 1, 'A', 0, 1, 'A', 1)",
+            )
+            c.execSQL("INSERT INTO tracker (id, name, type, polarity, archived, sort_order, hlc, device) VALUES ('mood', 'Mood', 'RATING', 'NEUTRAL', 1, 0, 1, 'A')")
+            c.execSQL(
+                "INSERT INTO checklist (id, name, name_hlc, name_device, sort_key, order_hlc, order_device, run_hlc, run_device, deleted_at, gone_hlc, gone_device) " +
+                    "VALUES ('morning', 'Morning', 1, 'A', 'a', 1, 'A', 1, 'A', NULL, 1, 'A')",
+            )
+        }
+
+        val upgraded = openFactotumDatabase(file).database
+        try {
+            // Archive is dropped (owner, 2026-10-09): what was archived is simply live.
+            assertEquals(listOf("walk"), runBlocking { upgraded.itemDao().items(listOf("walk")) }.map { it.id })
+            assertEquals(listOf("mood"), runBlocking { upgraded.trackerDao().trackers(listOf("mood")) }.map { it.id })
+            val writes = LocalWrites(upgraded, runBlocking { upgraded.syncDao().loadClock("A") { 1_000 } })
+            val here = LabelRepository(upgraded, writes) { "new-label" }
+            val leisure = runBlocking { here.create("Leisure") }
+            runBlocking { here.labelChecklist("morning", leisure) }
+            assertEquals(leisure, runBlocking { here.checklistLabelOf("morning") })
         } finally {
             upgraded.close()
         }

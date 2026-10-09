@@ -3,6 +3,7 @@ package com.hazia.factotum.data
 import androidx.room.AutoMigration
 import androidx.room.ConstructedBy
 import androidx.room.Database
+import androidx.room.DeleteColumn
 import androidx.room.RoomDatabase
 import androidx.room.RoomDatabaseConstructor
 import androidx.room.migration.AutoMigrationSpec
@@ -169,7 +170,7 @@ import com.hazia.factotum.data.sync.LostEntity
         AutoMigration(from = 5, to = 6), AutoMigration(from = 6, to = 7), AutoMigration(from = 7, to = 8, spec = SeedBlocks::class),
         AutoMigration(from = 8, to = 9), AutoMigration(from = 9, to = 10), AutoMigration(from = 10, to = 11), AutoMigration(from = 11, to = 12), AutoMigration(from = 12, to = 13),
         AutoMigration(from = 13, to = 14), AutoMigration(from = 14, to = 15), AutoMigration(from = 15, to = 16), AutoMigration(from = 16, to = 17), AutoMigration(from = 17, to = 18), AutoMigration(from = 18, to = 19), AutoMigration(from = 19, to = 20), AutoMigration(from = 20, to = 21), AutoMigration(from = 21, to = 22),
-        AutoMigration(from = 22, to = 23),
+        AutoMigration(from = 22, to = 23), AutoMigration(from = 23, to = 24, spec = DropArchived::class),
     ],
 )
 @ConstructedBy(FactotumDatabaseConstructor::class)
@@ -223,6 +224,17 @@ internal class SeedBlocks : AutoMigrationSpec {
     override fun onPostMigrate(connection: SQLiteConnection) = seedBlocks(connection)
 }
 
+/**
+ * Version 24 (owner, 2026-10-09): Archive is dropped, as the Trash keeps everything until Delete
+ * forever, so the activity's and the tracker's archived flags go; checklists carry a label, and a
+ * database's columns go to the Trash.
+ */
+@DeleteColumn.Entries(
+    DeleteColumn(tableName = "item", columnName = "archived"),
+    DeleteColumn(tableName = "tracker", columnName = "archived"),
+)
+internal class DropArchived : AutoMigrationSpec
+
 // Room's KSP processor generates the actual for each target.
 @Suppress("KotlinNoActualForExpect")
 expect object FactotumDatabaseConstructor : RoomDatabaseConstructor<FactotumDatabase>
@@ -230,4 +242,4 @@ expect object FactotumDatabaseConstructor : RoomDatabaseConstructor<FactotumData
 const val DATABASE_NAME = "factotum.db"
 
 /** The schema's version; a file below it is upgraded by Room's migrations on open. */
-internal const val SCHEMA_VERSION = 23
+internal const val SCHEMA_VERSION = 24

@@ -84,7 +84,10 @@ internal data class PageDatabaseEntity(
 
 internal fun shellId(pageId: String) = "database:$pageId"
 
-/** A column of a database (ADR 12: the schema is upserted by id and deleted only by a purge). */
+/**
+ * A column of a database (ADR 12: the schema is upserted by id). Deleting one moves it to the Trash
+ * (owner, 2026-10-09), its values kept, so a restore brings them back; a purge deletes it for good.
+ */
 @Entity(
     tableName = PROPERTY,
     foreignKeys = [ForeignKey(PageEntity::class, ["id"], ["database_id"], onDelete = ForeignKey.CASCADE, deferred = true)],
@@ -123,6 +126,10 @@ internal data class PropertyEntity(
     @ColumnInfo(name = "task_role") val taskRole: String? = null,
     @ColumnInfo(name = "role_hlc") val roleHlc: Long? = null,
     @ColumnInfo(name = "role_device") val roleDevice: String? = null,
+    /** In the Trash since, a group of its own; a column never deleted has none (one made before the Trash had none either). */
+    @ColumnInfo(name = "deleted_at") val deletedAt: Long? = null,
+    @ColumnInfo(name = "gone_hlc") val goneHlc: Long? = null,
+    @ColumnInfo(name = "gone_device") val goneDevice: String? = null,
 )
 
 /**
@@ -338,7 +345,8 @@ internal fun PropertyEntity.toRow() = Row(PROPERTY, id, mapOf(
     PLACE to stamped(placeHlc, placeDevice, mapOf("sort_key" to sortKey)),
 ) + listOfNotNull(formulaHlc?.let {
     FORMULA to stamped(it, requireNotNull(formulaDevice), mapOf("expression" to formula, "rollup_relation" to rollupRelation, "rollup_target" to rollupTarget, "rollup_aggregation" to rollupAggregation))
-}, roleHlc?.let { TASK_ROLE to stamped(it, requireNotNull(roleDevice), mapOf("task_role" to taskRole)) }))
+}, roleHlc?.let { TASK_ROLE to stamped(it, requireNotNull(roleDevice), mapOf("task_role" to taskRole)) },
+    goneHlc?.let { GONE to stamped(it, requireNotNull(goneDevice), mapOf("deleted_at" to deletedAt)) }))
 
 internal fun Row.toPropertyEntity(): PropertyEntity {
     val made = groups.getValue(MADE)
@@ -349,6 +357,8 @@ internal fun Row.toPropertyEntity(): PropertyEntity {
     val formula = groups[FORMULA]
     // Only a column ever bound to a task field has the group.
     val role = groups[TASK_ROLE]
+    // Only a column ever deleted has the group.
+    val gone = groups[GONE]
     return PropertyEntity(
         id, made.values["database_id"] as String, made.stamp.hlc, made.stamp.device,
         name.values["name"] as String, name.stamp.hlc, name.stamp.device,
@@ -358,6 +368,7 @@ internal fun Row.toPropertyEntity(): PropertyEntity {
         formula?.values?.get("expression") as String?, formula?.values?.get("rollup_relation") as String?, formula?.values?.get("rollup_target") as String?,
         formula?.values?.get("rollup_aggregation") as String?, formula?.stamp?.hlc, formula?.stamp?.device,
         role?.values?.get("task_role") as String?, role?.stamp?.hlc, role?.stamp?.device,
+        gone?.values?.get("deleted_at") as Long?, gone?.stamp?.hlc, gone?.stamp?.device,
     ).also { p -> PropertyType.valueOf(p.type); p.rollupAggregation?.let(RollupAggregation::valueOf); p.taskRole?.let(TaskRole::valueOf) }
 }
 

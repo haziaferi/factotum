@@ -43,13 +43,12 @@ internal enum class SearchKind(val isName: Boolean) { ITEM(true), TRACKER(true),
 private class Source(val kind: SearchKind, val table: String, val text: String, val live: String, val watched: List<String>)
 
 /*
- * ADR 10's sources. A deleted row, a blank text, and an archived activity's or tracker's own name
- * leave the index; what was written under an archived one stays (owner, 2026-10-03). Whether what
- * a hit belongs to is itself deleted is read when searching.
+ * ADR 10's sources. A deleted row and a blank text leave the index (archiving was dropped, owner
+ * 2026-10-09). Whether what a hit belongs to is itself deleted is read when searching.
  */
 private val SOURCES = listOf(
-    Source(SearchKind.ITEM, "item", "$.title", "$.deleted_at IS NULL AND COALESCE($.archived, 0) = 0 AND TRIM($.title) <> ''", listOf("title", "deleted_at", "archived")),
-    Source(SearchKind.TRACKER, "tracker", "$.name", "$.deleted_at IS NULL AND $.archived = 0 AND TRIM($.name) <> ''", listOf("name", "deleted_at", "archived")),
+    Source(SearchKind.ITEM, "item", "$.title", "$.deleted_at IS NULL AND TRIM($.title) <> ''", listOf("title", "deleted_at")),
+    Source(SearchKind.TRACKER, "tracker", "$.name", "$.deleted_at IS NULL AND TRIM($.name) <> ''", listOf("name", "deleted_at")),
     Source(
         SearchKind.READING, "tracker_reading", "TRIM(COALESCE($.label, '') || ' ' || COALESCE($.note, ''))",
         "$.deleted_at IS NULL AND TRIM(COALESCE($.label, '') || ' ' || COALESCE($.note, '')) <> ''", listOf("label", "note", "deleted_at"),

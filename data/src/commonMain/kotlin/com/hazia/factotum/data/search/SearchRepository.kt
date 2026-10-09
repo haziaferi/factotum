@@ -20,7 +20,7 @@ import kotlinx.datetime.LocalTime
  * page's title), BLOCK (a block's text), CHECKLIST (a checklist's name) or CHECKLIST_ITEM (an item's
  * text); [text] is what matched, with [snippet] marking the
  * matched words between characters 2 and 3; [owner] names what a Log, a session, a block or an
- * item belongs to, archived or not; [at] is the hit's own time; [done]
+ * item belongs to; [at] is the hit's own time; [done]
  * marks a finished thing: a task or reminder done or skipped, an event that has ended (owner, 2026-10-03).
  */
 data class SearchHit(
