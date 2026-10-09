@@ -70,6 +70,25 @@ class ReminderCasesTest {
     }
 
     @Test
+    fun aRestoredStandaloneReminderFiresAgainWithTheReminderItsDeletionTook() {
+        val pills = runBlocking { reminders.createStandalone("pills", MONDAY, LocalTime(8, 0)) }
+        val reminder = runBlocking { reminders.remindersOf(pills) }.single()
+        val fires = firesAt(reminder)
+
+        // Its last reminder deleted, the item goes with it, in one stamp; restoring the item brings both back.
+        runBlocking { reminders.delete(reminder) }
+        assertEquals(null, firesAt(reminder))
+        assertEquals(listOf(pills), runBlocking { items.trashed() }.map { it.id })
+        runBlocking { items.restore(pills) }
+        assertEquals(fires, firesAt(reminder))
+
+        runBlocking { items.delete(pills) }
+        assertEquals(null, firesAt(reminder))
+        runBlocking { items.restore(pills) }
+        assertEquals(fires, firesAt(reminder))
+    }
+
+    @Test
     fun tendrilCascade_aDeletedTaskSilencesItsReminderAndAPurgedOneRemovesIt() {
         val task = runBlocking { items.createTask("call", MONDAY, LocalTime(14, 0)) }
         val reminder = runBlocking { reminders.add(task, -5) }

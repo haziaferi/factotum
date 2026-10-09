@@ -116,6 +116,16 @@ internal interface ItemDao {
     @Query("SELECT id FROM item WHERE parent_id = :id AND deleted_at IS NULL")
     suspend fun liveChildren(id: String): List<String>
 
+    @Query("SELECT * FROM item WHERE parent_id = :id")
+    suspend fun children(id: String): List<ItemEntity>
+
+    /** Everything in the Trash; [ItemRepository.trashed] picks what is shown there by itself. */
+    @Query("SELECT * FROM item WHERE deleted_at IS NOT NULL ORDER BY id")
+    suspend fun deletedItems(): List<ItemEntity>
+
+    @Query("SELECT * FROM item WHERE tracker_id = :trackerId")
+    suspend fun habitsOf(trackerId: String): List<ItemEntity>
+
     @Query("SELECT id FROM item WHERE tracker_id = :trackerId AND deleted_at IS NULL")
     suspend fun liveHabitsOf(trackerId: String): List<String>
 

@@ -22,6 +22,7 @@ import org.junit.rules.TemporaryFolder
 import java.io.File
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import kotlin.test.fail
@@ -63,6 +64,27 @@ class ItemCasesTest {
         val day = runBlocking { items.day(MONDAY, showReminders = false) }.map { it.id }
 
         assertEquals(listOf(m.event, m.call, m.tax, m.plants), day)
+    }
+
+    @Test
+    fun aRestoredTaskBringsBackTheSubtasksItsDeletionTookAndNotOneDeletedBefore() {
+        val parent = runBlocking { items.createTask("tax form", MONDAY) }
+        val receipts = runBlocking { items.createTask("find receipts", parentId = parent) }
+        val copies = runBlocking { items.createTask("make copies", parentId = parent) }
+        runBlocking { items.delete(copies) }
+        runBlocking { items.delete(parent) }
+
+        // The Trash shows each thing once: the receipts come back with their parent.
+        assertEquals(listOf(parent, copies), runBlocking { items.trashed() }.map { it.id })
+        assertFailsWith<IllegalArgumentException> { runBlocking { items.restore(copies) } }
+
+        runBlocking { items.restore(parent) }
+        assertEquals(listOf(false, false, true), listOf(parent, receipts, copies).map { runBlocking { items.item(it) }!!.deleted })
+        assertEquals(listOf(copies), runBlocking { items.trashed() }.map { it.id })
+
+        runBlocking { items.restore(copies) }
+        assertEquals(false, runBlocking { items.item(copies) }!!.deleted)
+        assertFailsWith<IllegalArgumentException> { runBlocking { items.restore(copies) } }
     }
 
     @Test

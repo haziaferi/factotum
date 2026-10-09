@@ -9,6 +9,7 @@ import com.hazia.factotum.data.label.LABELLED
 import com.hazia.factotum.data.page.changePageTitle
 import com.hazia.factotum.data.page.pageOfRowTask
 import com.hazia.factotum.data.page.purgePage
+import com.hazia.factotum.data.page.restorePage
 import com.hazia.factotum.data.page.trashPage
 import com.hazia.factotum.data.reminder.ALERT
 import com.hazia.factotum.data.reminder.REMINDER
@@ -127,12 +128,54 @@ internal class ItemRepository(
     }
 
     /**
+     * Restores [id] from the Trash (owner, 2026-10-09), as an edit with a new stamp, so it syncs as
+     * any change does: with it come the subtasks its deletion took and, for a standalone reminder,
+     * the reminders that went with it, each deleted in that one stamp; a subtask deleted by hand
+     * before stays in the Trash. A row's task comes back with its row, as they are one thing. A
+     * subtask whose parent, or a habit whose tracker, is in the Trash waits for it; an activity is
+     * restored with its time by `ActivityRepository`.
+     */
+    suspend fun restore(id: String) {
+        pageOfRowTask(id)?.takeIf { db.pageDao().pages(listOf(it)).singleOrNull()?.deletedAt != null }?.let { return restorePage(db, writes, it) }
+        writes.write({
+            val item = requireNotNull(dao.items(listOf(id)).singleOrNull()?.takeIf { it.deletedAt != null }) { "item $id is not in the Trash" }
+            require(item.kind != ItemKind.ACTIVITY.name) { "an activity is restored with its time, by ActivityRepository" }
+            require(item.parentId?.let { p -> dao.items(listOf(p)).singleOrNull()?.deletedAt == null } ?: true) { "subtask $id waits for its parent" }
+            require(item.trackerId?.let { t -> db.trackerDao().trackers(listOf(t)).singleOrNull()?.deletedAt == null } ?: true) { "habit $id waits for its tracker" }
+            mapOf(
+                ITEM to listOf(id) + dao.children(id).filter { it.deletedAt == item.deletedAt }.map { it.id },
+                REMINDER to if (item.kind == ItemKind.REMINDER.name) reminders.everyReminderOf(id).filter { it.deletedAt == item.deletedAt }.map { it.id } else emptyList(),
+            )
+        }) { store, targets ->
+            val s = clock.tick()
+            targets.getValue(ITEM).forEach { store.put(requireNotNull(store.row(it)).edit(SCHEDULE, s, mapOf("deleted_at" to null))) }
+            targets.getValue(REMINDER).forEach { store.put(requireNotNull(store.row(it)).edit(ALERT, s, mapOf("deleted_at" to null))) }
+        }
+    }
+
+    /**
+     * The tasks, events, standalone reminders and habits in the Trash, each once: not a subtask or
+     * a habit that comes back with its parent or tracker, nor a row's task (its row is in the pages'
+     * Trash), nor an activity (`ActivityRepository.trashed`).
+     */
+    suspend fun trashed(): List<Item> {
+        val gone = dao.deletedItems()
+        val goneIds = gone.associateBy { it.id }
+        val goneTrackers = gone.mapNotNull { it.trackerId }.distinct().let { ids -> db.trackerDao().trackers(ids) }.filter { it.deletedAt != null }.associateBy { it.id }
+        return gone.filter { i ->
+            i.kind != ItemKind.ACTIVITY.name && pageOfRowTask(i.id) == null &&
+                i.parentId?.let(goneIds::get)?.deletedAt != i.deletedAt &&
+                i.trackerId?.let(goneTrackers::get)?.deletedAt != i.deletedAt
+        }.map { it.toItem() }
+    }
+
+    /**
      * "Delete forever" (ADR 01): the purge travels; subtasks, completions and tracked time go by the
-     * foreign keys. An activity is never deleted forever (owner, 2026-10-02), so no time is lost to it.
+     * foreign keys. An activity is deleted forever by `ActivityRepository`, which takes its goals too.
      */
     suspend fun purge(id: String) {
         pageOfRowTask(id)?.takeIf { db.pageDao().pages(listOf(it)).singleOrNull()?.deletedAt != null }?.let { return purgePage(db, writes, it) }
-        require(dao.items(listOf(id)).singleOrNull()?.kind != ItemKind.ACTIVITY.name) { "an activity is deleted, never deleted forever" }
+        require(dao.items(listOf(id)).singleOrNull()?.kind != ItemKind.ACTIVITY.name) { "an activity is deleted forever by ActivityRepository, with its goals" }
         writes.write(mapOf(ITEM to listOf(id))) { store -> merger.purge(store, id) }
     }
 

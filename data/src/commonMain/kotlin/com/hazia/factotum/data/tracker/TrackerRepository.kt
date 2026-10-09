@@ -20,6 +20,8 @@ import kotlinx.datetime.LocalTime
 
 enum class TrackerType { NUMBER, BOOLEAN, RATING, CHOICE }
 
+data class Tracker(val id: String, val name: String, val type: TrackerType)
+
 /**
  * Trackers (Chronicle's, SPEC §0.1.5) as far as habits need them: making one, Logging on it and
  * undoing a Log, its goals, and deleting it, which takes the habits that use it (owner,
@@ -117,6 +119,31 @@ internal class TrackerRepository(
     }
 
     /**
+     * Restores [trackerId] from the Trash (owner, 2026-10-09), with the habits and goals its deletion
+     * took, in that one stamp; a habit or goal deleted by hand before stays deleted. A new stamp, so
+     * the restore syncs as any edit does.
+     */
+    suspend fun restore(trackerId: String) = writes.write({
+        val tracker = requireNotNull(dao.trackers(listOf(trackerId)).singleOrNull()?.takeIf { it.deletedAt != null }) { "tracker $trackerId is not in the Trash" }
+        mapOf(
+            TRACKER to listOf(trackerId),
+            ITEM to items.habitsOf(trackerId).filter { it.deletedAt == tracker.deletedAt }.map { it.id },
+            GOAL to dao.goals(dao.everyGoalOf("TRACKER", trackerId)).filter { it.deletedAt == tracker.deletedAt }.map { it.id },
+        )
+    }) { store, targets ->
+        val s = clock.tick()
+        store.put(requireNotNull(store.row(trackerId)).edit(WHOLE, s, mapOf("deleted_at" to null)))
+        for (habit in targets.getValue(ITEM)) store.put(requireNotNull(store.row(habit)).edit(SCHEDULE, s, mapOf("deleted_at" to null)))
+        for (goal in targets.getValue(GOAL)) store.put(requireNotNull(store.row(goal)).edit(WHOLE, s, mapOf("deleted_at" to null)))
+    }
+
+    /** The live trackers, by name. */
+    suspend fun trackers(): List<Tracker> = dao.allTrackers().filter { it.deletedAt == null }.map { it.toTracker() }.sortedWith(compareBy({ it.name.lowercase() }, { it.id }))
+
+    /** The trackers in the Trash. */
+    suspend fun trashed(): List<Tracker> = dao.allTrackers().filter { it.deletedAt != null }.map { it.toTracker() }
+
+    /**
      * "Delete forever": the purges travel. Its habits, readings and choices go by the foreign keys;
      * its goals, which name it without one (Chronicle), are purged with it.
      */
@@ -134,6 +161,8 @@ internal fun goalRow(id: String, s: Stamp, targetType: String, targetId: String,
         "target_type" to targetType, "target_id" to targetId, "period" to period, "value" to value, "kind" to kind,
         "completion_mode" to "AUTO", "achieved_at" to null, "deleted_at" to null,
     ))))
+
+private fun TrackerEntity.toTracker() = Tracker(id, name, TrackerType.valueOf(type))
 
 internal fun TrackerReadingEntity.toLog() =
     Log(LocalDateTime.parse(at), yes = boolValue, rating = ratingValue?.toInt(), number = numberValue, choiceId = choiceId)

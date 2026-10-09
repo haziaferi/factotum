@@ -27,6 +27,7 @@ import org.junit.rules.TemporaryFolder
 import java.io.File
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 import kotlin.test.fail
 
@@ -168,6 +169,28 @@ class HabitCasesTest {
 
         runBlocking { trackers.delete(runBlocking { items.item(water) }!!.trackerId!!) }
         assertTrue(runBlocking { items.item(water) }!!.deleted)
+    }
+
+    @Test
+    fun aRestoredTrackerBringsBackTheHabitsAndGoalsItsDeletionTook() {
+        val water = runBlocking { habits.create("water", monday, type = TrackerType.NUMBER, amountPerLog = 1.0, dailyGoal = 8.0) }
+        val tracker = runBlocking { items.item(water) }!!.trackerId!!
+        val tea = runBlocking { habits.create("tea", monday, trackerId = tracker) }
+        val goal = runBlocking { db.trackerDao().everyGoalOf("TRACKER", tracker) }
+        runBlocking { items.delete(tea) }
+        runBlocking { trackers.delete(tracker) }
+
+        assertEquals(listOf(tracker), runBlocking { trackers.trashed() }.map { it.id })
+        // The habit its deletion took waits for it; the one deleted by hand before is the Trash's own.
+        assertEquals(listOf(tea), runBlocking { items.trashed() }.map { it.id })
+        assertFailsWith<IllegalArgumentException> { runBlocking { items.restore(water) } }
+
+        runBlocking { trackers.restore(tracker) }
+        assertEquals(listOf(tracker), runBlocking { trackers.trackers() }.map { it.id })
+        assertEquals(false, runBlocking { items.item(water) }!!.deleted)
+        assertEquals(true, runBlocking { items.item(tea) }!!.deleted)
+        assertEquals(goal, runBlocking { db.trackerDao().goals(goal) }.filter { it.deletedAt == null }.map { it.id })
+        assertEquals(emptyList(), runBlocking { trackers.trashed() })
     }
 
     @Test

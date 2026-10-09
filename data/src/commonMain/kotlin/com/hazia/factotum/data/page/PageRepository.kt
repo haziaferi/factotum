@@ -113,17 +113,7 @@ internal class PageRepository(
     suspend fun trash(id: String) = trashPage(db, writes, id, now())
 
     /** Restores [id] and the pages under it that went to the trash with it. */
-    suspend fun restore(id: String) = writes.write({
-        val pages = dao.allPages()
-        val page = requireNotNull(pages.firstOrNull { it.id == id && it.deletedAt != null }) { "page $id is not in the trash" }
-        val back = listOf(id) + branch(id, pages) { it.deletedAt == page.deletedAt }.map { it.id }
-        // Only the tasks trashed with the pages: one let go of earlier, when rows stopped being tasks, stays.
-        mapOf(PAGE to back, ITEM to rowTasks(db, back) { it.deletedAt == page.deletedAt })
-    }) { store, targets ->
-        val s = clock.tick()
-        targets.getValue(PAGE).forEach { store.put(requireNotNull(store.row(it)).edit(GONE, s, mapOf("deleted_at" to null))) }
-        targets.getValue(ITEM).forEach { store.put(requireNotNull(store.row(it)).edit(SCHEDULE, automatic(s), mapOf("deleted_at" to null))) }
-    }
+    suspend fun restore(id: String) = restorePage(db, writes, id)
 
     /**
      * "Delete forever", from the trash: the page and the trashed pages under it, for good, with
@@ -575,6 +565,19 @@ internal suspend fun trashPage(db: FactotumDatabase, writes: LocalWrites, id: St
         targets.getValue(ITEM).forEach { store.put(requireNotNull(store.row(it)).edit(SCHEDULE, automatic(s), mapOf("deleted_at" to s.hlc))) }
         endRunning(store, targets.getValue(TIME_SPAN), at, s)
     }
+}
+
+/** Restores [id] and the pages under it that went to the trash with it, with the tasks of those that are rows. */
+internal suspend fun restorePage(db: FactotumDatabase, writes: LocalWrites, id: String) = writes.write({
+    val pages = db.pageDao().allPages()
+    val page = requireNotNull(pages.firstOrNull { it.id == id && it.deletedAt != null }) { "page $id is not in the trash" }
+    val back = listOf(id) + branch(id, pages) { it.deletedAt == page.deletedAt }.map { it.id }
+    // Only the tasks trashed with the pages: one let go of earlier, when rows stopped being tasks, stays.
+    mapOf(PAGE to back, ITEM to rowTasks(db, back) { it.deletedAt == page.deletedAt })
+}) { store, targets ->
+    val s = writes.clock.tick()
+    targets.getValue(PAGE).forEach { store.put(requireNotNull(store.row(it)).edit(GONE, s, mapOf("deleted_at" to null))) }
+    targets.getValue(ITEM).forEach { store.put(requireNotNull(store.row(it)).edit(SCHEDULE, automatic(s), mapOf("deleted_at" to null))) }
 }
 
 /**

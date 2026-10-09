@@ -79,6 +79,9 @@ internal interface ReminderDao {
     @Query("SELECT * FROM reminder WHERE item_id = :itemId AND deleted_at IS NULL ORDER BY id")
     suspend fun remindersOf(itemId: String): List<ReminderEntity>
 
+    @Query("SELECT * FROM reminder WHERE item_id = :itemId ORDER BY id")
+    suspend fun everyReminderOf(itemId: String): List<ReminderEntity>
+
     @Query(
         "SELECT r.id AS reminderId, i.id AS itemId, i.start_date AS startDate, i.start_time AS startTime, " +
             "r.offset_min AS offsetMin, r.anchor_time AS anchorTime, r.snoozed_until AS snoozedUntil, r.snoozed_from AS snoozedFrom, " +
