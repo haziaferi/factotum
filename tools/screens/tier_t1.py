@@ -1037,6 +1037,7 @@ def main():
             # superseded explorations live on their own page (superseded.html), linked where they were: screens.html keeps
             # the approved screens only and stays small enough for viewers that cap a page's size (owner, 2026-10-08: the
             # T1.5 + T1.6 section "did not render")
+            '<p><b>T1.8 Toasts, dialogs and actions</b> has a page of its own (this one is at the size viewers accept): <a href="screens-t1-8.html">screens-t1-8.html</a>.</p>',
             __import__("label_opt").labels_section(),  # T1.7, approved 2026-10-09
             __import__("when_page").section(), '<p class="dim">Superseded: the T1.5 date and time picker approved earlier on 2026-10-08, in <a href="superseded.html#t1-5old">superseded.html</a>.</p>',
             s14, s13, '<p class="dim">Superseded: the T1.3 exploration of where ✓ and ▤ go, in <a href="superseded.html#t1-3r">superseded.html</a>.</p>',
