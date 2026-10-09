@@ -1,7 +1,5 @@
-"""docs/screens/t1/screens-t1-8.html: T1.8 toasts, dialogs and actions, drawn as the owner decided them (decision 17,
-2026-10-09), images inlined as greyscale WebP. A page of its own: screens.html is at the size viewers accept.
-
-    python tools/screens/t18_page.py
+"""The T1.8 section of docs/screens/t1/screens.html: toasts, dialogs and actions as the owner approved them (decision 17,
+2026-10-09), images inlined as greyscale WebP. tier_t1.py builds the page.
 """
 import base64
 import html as H
@@ -97,27 +95,18 @@ def uri(doc, w=360, h=740, show=300):
     return "data:image/webp;base64," + base64.b64encode(buf.getvalue()).decode("ascii")
 
 
-def main():
+def section():
+    """The approved T1.8 section, for screens.html (owner, 2026-10-09: "add this in the screens HTML file")."""
     figs = "".join('<figure><img src="%s" width="300" alt="%s"><figcaption>%s</figcaption></figure>' % (uri(f()), H.escape(c), H.escape(c)) for c, f in STATES)
     desk = '<figure><img src="%s" width="560" alt="Windows"><figcaption>Windows: the toast at the foot of the column the action was in</figcaption></figure>' % uri(T.a_desk({"place": "anchored"}), 1100, 660, 560)
     rows = "".join("<tr><td>%s</td><td>%s</td><td>%s</td></tr>" % tuple(H.escape(x) for x in r) for r in TABLE)
-    page = """<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Toasts And Dialogs</title>
-<style>:root{--bg:#f4f4f2;--fg:#1d1d1b;--dim:#6b6b66;--line:#ddd}@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#141414;--fg:#eee;--dim:#9a9a94;--line:#333}}
-:root[data-theme=dark]{--bg:#141414;--fg:#eee;--dim:#9a9a94;--line:#333}
-body{background:var(--bg);color:var(--fg);font:14px/1.45 system-ui,sans-serif;margin:0;padding:16px;max-width:1300px}.dim{color:var(--dim)}
-table{border-collapse:collapse;font-size:13px}td,th{border-bottom:1px solid var(--line);padding:5px 8px;text-align:left;vertical-align:top}
-.refs{display:flex;gap:14px;flex-wrap:wrap;align-items:flex-start}figure{margin:0;max-width:300px}figcaption{font-size:12px;color:var(--dim)}
-.tag{font-size:12px;border:1px solid var(--dim);border-radius:10px;padding:1px 8px;vertical-align:middle}</style></head><body>
-<p><a href="screens.html">‹ T1, the other approved screens</a></p>
-<section id="t1-8"><h2>T1.8 Toasts, dialogs and actions <span class="tag">decided, awaiting approval</span></h2>
-<p>Decision 17, 2026-10-09. Every part was scored with a control (<a href="toasts-scores.html">the tables</a>, <a href="toasts-options.html">every option drawn</a>); the words follow <a href="actions-inventory.md">the actions inventory</a>: Delete moves to Trash, Restore and Delete forever live in Trash, and only Delete forever and Empty Trash are held.</p>
-<h3>Decided by</h3><table><tr><th>Part</th><th>Choice and its measure</th><th>Scored as</th></tr>%s</table>
-<h3>Phone</h3><div class="refs">%s</div><h3>Windows</h3><div class="refs">%s</div></section></body></html>""" % (rows, figs, desk)
-    path = os.path.join(T.OUT, "screens-t1-8.html")
-    with open(path, "w", encoding="utf-8", newline="\n") as fh:
-        fh.write(page)
-    print(path, len(page))
+    return ('<section id="t1-8"><h2>T1.8 Toasts, dialogs and actions <span class="tag">approved</span></h2>'
+            '<p>Decision 17, approved 2026-10-09. Every part was scored with a control (<a href="toasts-scores.html">the tables</a>, '
+            '<a href="toasts-options.html">every option drawn</a>); the words follow <a href="actions-inventory.md">the actions inventory</a>: '
+            'Delete moves to Trash, Restore and Delete forever live in Trash, and only Delete forever and Empty Trash are held.</p>'
+            '<h3>Decided by</h3><table><tr><th>Part</th><th>Choice and its measure</th><th>Scored as</th></tr>%s</table>'
+            '<h3>Phone</h3><div class="refs">%s</div><h3>Windows</h3><div class="refs">%s</div></section>') % (rows, figs, desk)
 
 
 if __name__ == "__main__":
-    main()
+    print(len(section()))

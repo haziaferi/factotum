@@ -601,6 +601,46 @@ STATES_T13_A2 = [
 ]
 
 
+def fit_size(page, limit=516_000):  # 512 KiB, the size viewers accept, less a margin
+    """Keeps screens.html under the size viewers accept by re-encoding its inlined WebP images at a lower quality, in
+    steps, until it fits (owner, 2026-10-09: every approved screen in this one file)."""
+    import base64
+    import io
+    import re
+    from PIL import Image
+    pat = re.compile(r"data:image/webp;base64,([A-Za-z0-9+/=]+)")
+    if len(page.encode("utf-8")) > limit:
+        # first, each image no larger than it is shown (its width attribute), which loses nothing a viewer sees
+        def shrink(m):
+            tag = m.group(0)
+            w = re.search(r'width="(\d+)"', tag)
+            src = pat.search(tag)
+            if not w or not src:
+                return tag
+            im = Image.open(io.BytesIO(base64.b64decode(src.group(1))))
+            show = int(w.group(1))
+            if im.width <= show:
+                return tag
+            im = im.resize((show, round(im.height * show / im.width)), Image.LANCZOS)
+            buf = io.BytesIO()
+            im.save(buf, "WEBP", quality=60)
+            return tag.replace(src.group(0), "data:image/webp;base64," + base64.b64encode(buf.getvalue()).decode("ascii"))
+        page = re.sub(r"<img[^>]*>", shrink, page)
+        print("screens.html, images at their shown width ->", len(page.encode("utf-8")))
+    q = 50
+    while len(page.encode("utf-8")) > limit and q >= 20:
+        def one(m):
+            im = Image.open(io.BytesIO(base64.b64decode(m.group(1))))
+            buf = io.BytesIO()
+            im.save(buf, "WEBP", quality=q)
+            data = buf.getvalue()
+            return "data:image/webp;base64," + base64.b64encode(data).decode("ascii") if len(data) < len(m.group(1)) * 3 // 4 else m.group(0)
+        page = pat.sub(one, page)
+        print("screens.html re-encoded at quality", q, "->", len(page.encode("utf-8")))
+        q -= 10
+    return page
+
+
 def t13_extra(o, r):
     # taps from Today to a saved item, typing excluded: open capture (1) + Add (1) for the line options; the form
     # needs a tap per field to set date, time, repeat and kind (4) plus open and save
@@ -1037,13 +1077,13 @@ def main():
             # superseded explorations live on their own page (superseded.html), linked where they were: screens.html keeps
             # the approved screens only and stays small enough for viewers that cap a page's size (owner, 2026-10-08: the
             # T1.5 + T1.6 section "did not render")
-            '<p><b>T1.8 Toasts, dialogs and actions</b> has a page of its own (this one is at the size viewers accept): <a href="screens-t1-8.html">screens-t1-8.html</a>.</p>',
+            __import__("t18_page").section(),  # T1.8, approved 2026-10-09
             __import__("label_opt").labels_section(),  # T1.7, approved 2026-10-09
             __import__("when_page").section(), '<p class="dim">Superseded: the T1.5 date and time picker approved earlier on 2026-10-08, in <a href="superseded.html#t1-5old">superseded.html</a>.</p>',
             s14, s13, '<p class="dim">Superseded: the T1.3 exploration of where ✓ and ▤ go, in <a href="superseded.html#t1-3r">superseded.html</a>.</p>',
             s12, s11, "</body></html>"]
     with open(os.path.join(OUT, "screens.html"), "w", encoding="utf-8", newline="\n") as fh:
-        fh.write("\n".join(page))
+        fh.write(fit_size("\n".join(page)))
     sup = page[:4] + ['<p><a href="screens.html">‹ The approved screens</a></p>', s15, s13r, "</body></html>"]
     sup[1] = sup[1].replace("<title>Factotum T1 shared parts</title>", "<title>Factotum T1 superseded</title>")
     sup[2] = '<h1>T1 · Superseded explorations</h1><p class="dim">Kept for the record (decision 17); the approved screens are in screens.html.</p>'
