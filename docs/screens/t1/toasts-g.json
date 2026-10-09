@@ -1,0 +1,200 @@
+[
+ {
+  "v": {
+   "place": "header",
+   "labels": "glyphword"
+  },
+  "actions": 21,
+  "reach": 3.93,
+  "spread_px": 6,
+  "ways_in": 2,
+  "back_px": 279,
+  "room_px": 612,
+  "words": 1.0,
+  "small": [],
+  "clutter": 0.0239
+ },
+ {
+  "v": {
+   "place": "header",
+   "labels": "word"
+  },
+  "actions": 20,
+  "reach": 3.929,
+  "spread_px": 3,
+  "ways_in": 2,
+  "back_px": 286,
+  "room_px": 612,
+  "words": 1.0,
+  "small": [],
+  "clutter": 0.0237
+ },
+ {
+  "v": {
+   "place": "header",
+   "labels": "glyph"
+  },
+  "actions": 20,
+  "reach": 3.931,
+  "spread_px": 0,
+  "ways_in": 2,
+  "back_px": 292,
+  "room_px": 612,
+  "words": 0.0,
+  "small": [],
+  "clutter": 0.0228
+ },
+ {
+  "v": {
+   "place": "bottom",
+   "labels": "glyphword"
+  },
+  "actions": 16,
+  "reach": 1.234,
+  "spread_px": 44,
+  "ways_in": 1,
+  "back_px": 694,
+  "room_px": 620,
+  "words": 1.0,
+  "small": [],
+  "clutter": 0.0192
+ },
+ {
+  "v": {
+   "place": "bottom",
+   "labels": "word"
+  },
+  "actions": 16,
+  "reach": 1.239,
+  "spread_px": 44,
+  "ways_in": 1,
+  "back_px": 694,
+  "room_px": 620,
+  "words": 1.0,
+  "small": [],
+  "clutter": 0.0186
+ },
+ {
+  "v": {
+   "place": "bottom",
+   "labels": "glyph"
+  },
+  "actions": 16,
+  "reach": 1.233,
+  "spread_px": 44,
+  "ways_in": 1,
+  "back_px": 694,
+  "room_px": 620,
+  "words": 0.0,
+  "small": [],
+  "clutter": 0.0169
+ },
+ {
+  "v": {
+   "place": "fab",
+   "labels": "glyphword"
+  },
+  "actions": 26,
+  "reach": 1.919,
+  "spread_px": 0,
+  "ways_in": 2,
+  "back_px": 657,
+  "room_px": 612,
+  "words": 1.0,
+  "small": [],
+  "clutter": 0.0233
+ },
+ {
+  "v": {
+   "place": "fab",
+   "labels": "word"
+  },
+  "actions": 26,
+  "reach": 1.919,
+  "spread_px": 0,
+  "ways_in": 2,
+  "back_px": 657,
+  "room_px": 612,
+  "words": 1.0,
+  "small": [],
+  "clutter": 0.0233
+ },
+ {
+  "v": {
+   "place": "fab",
+   "labels": "glyph"
+  },
+  "actions": 26,
+  "reach": 1.919,
+  "spread_px": 0,
+  "ways_in": 2,
+  "back_px": 657,
+  "room_px": 612,
+  "words": 0.0,
+  "small": [],
+  "clutter": 0.0233
+ },
+ {
+  "v": {
+   "place": "element",
+   "labels": "glyphword"
+  },
+  "actions": 25,
+  "reach": 3.825,
+  "spread_px": 26,
+  "ways_in": 2,
+  "back_px": 273,
+  "room_px": 612,
+  "words": 1.0,
+  "small": [],
+  "clutter": 0.023
+ },
+ {
+  "v": {
+   "place": "element",
+   "labels": "word"
+  },
+  "actions": 25,
+  "reach": 3.826,
+  "spread_px": 27,
+  "ways_in": 2,
+  "back_px": 273,
+  "room_px": 612,
+  "words": 1.0,
+  "small": [],
+  "clutter": 0.0229
+ },
+ {
+  "v": {
+   "place": "element",
+   "labels": "glyph"
+  },
+  "actions": 25,
+  "reach": 3.827,
+  "spread_px": 28,
+  "ways_in": 2,
+  "back_px": 273,
+  "room_px": 612,
+  "words": 0.0,
+  "small": [],
+  "clutter": 0.0225
+ },
+ {
+  "v": {
+   "place": "mixed",
+   "labels": "mixed",
+   "control": true
+  },
+  "why": "each screen its own way: Trash a bottom bar with \"Hold to delete forever\", the item the header in words, the label a floating glyph, the page an element ⋯ with glyph and word",
+  "control": true,
+  "actions": 22,
+  "reach": 2.997,
+  "spread_px": 304,
+  "ways_in": 3,
+  "back_px": 273,
+  "room_px": 614,
+  "words": 0.83,
+  "small": [],
+  "clutter": 0.0226
+ }
+]

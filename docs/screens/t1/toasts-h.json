@@ -1,0 +1,52 @@
+[
+ {
+  "v": {
+   "close": "draft"
+  },
+  "resume_actions": 1,
+  "discard_actions": 3,
+  "lost_unasked": 0,
+  "holds_user": 0,
+  "reach": 3.79,
+  "small": [],
+  "clutter": 0.0393
+ },
+ {
+  "v": {
+   "close": "undo"
+  },
+  "resume_actions": 29,
+  "discard_actions": 1,
+  "lost_unasked": 1,
+  "holds_user": 0,
+  "reach": 2.02,
+  "small": [],
+  "clutter": 0.0426
+ },
+ {
+  "v": {
+   "close": "hold"
+  },
+  "resume_actions": 29,
+  "discard_actions": 2,
+  "lost_unasked": 0,
+  "holds_user": 1,
+  "reach": 2.508,
+  "small": [],
+  "clutter": 0.0351
+ },
+ {
+  "v": {
+   "close": "control"
+  },
+  "why": "a dialog, \"Discard draft?\", Discard or Keep editing, nothing kept",
+  "control": true,
+  "resume_actions": 29,
+  "discard_actions": 2,
+  "lost_unasked": 0,
+  "holds_user": 1,
+  "reach": 2.865,
+  "small": [],
+  "clutter": 0.0344
+ }
+]

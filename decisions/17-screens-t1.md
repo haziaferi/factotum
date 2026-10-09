@@ -1348,3 +1348,19 @@ Drawn: `docs/screens/t1/labels-dots.html` (`labels-f.json`).
   - glyph and one word;
   - one word only;
   - glyph only, the word shown while held.
+
+**T1.8, parts G and H scored (2026-10-09)** (`toast_opt.py g h`; tables `toasts-scores.html#g`, `#h`; drawings `toasts-options.html`).
+- **G, where actions sit and their text:**
+  - **The bottom action bar is the front leader with every text.** It takes 16 actions in all (against 20–26), reach 1.23 (against 1.9–3.9), and one way in. Delete sits 694 px from Back, against 273–292 in the header.
+  - Its Delete strays 44 px across the four screens, because the screens carry different numbers of actions. The header strays 0–6 px.
+  - Not measured: the bottom bar takes the nav bar's place on these pages, so going elsewhere needs Back first.
+  - Glyph with word and word only tie (sum 28.5). Glyph only is calmer but carries no words (32.5).
+  - The floating button is consistent (0 px) but needs 2 taps for everything (26 actions).
+  - The header with glyphs is on the front; the element ⋯ is not.
+  - Control (each screen its own way): 304 px stray and 3 ways in; 11 of 12 do better.
+- **H, closing the capture sheet with text not added:**
+  - The draft keeps the text (resuming takes 1 action against 29) but is off the front. Two flaws are named, not fixed:
+    - each axis sums ranks, so a 1-against-29 gap counts as one rank step;
+    - edge density reads the shaded dialog as calm.
+  - **The control (a "Discard draft?" dialog) stays on the front:** it ties hold-in-place on every count, and its shade lowers clutter.
+  - Undo (gone after 7 s) leads the sums, but loses the text unasked once the toast has gone.

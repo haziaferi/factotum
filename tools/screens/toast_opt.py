@@ -535,9 +535,239 @@ def score_f(v):
             "rows_visible": m.get("rows_visible"), "clutter": clutter_of(lambda th: f_doc(v, th))}
 
 
+# ==== Part G: where actions sit, the same way on every screen, and how their buttons read (owner, 2026-10-09) ==============
+"""
+  place   header (top right, beside the title; what does not fit goes behind ⋯ there), bottom (an action bar at the foot,
+          in the nav bar's place on these pages; ⋯ for what does not fit), fab (one floating button at the lower right
+          opening the actions; a screen with a single action shows it directly), element (a ⋯ inside the element it
+          acts on, top right of its bounds: the item's card, the label's card, the page's title block; a Trash
+          selection is acted on from the selection bar that replaces the header)
+  labels  glyphword ("↺ Restore"), word ("Restore"), glyph ("↺"; the word shows while held, and as a tooltip on Windows)
+  Screens: Trash (two rows selected: Restore, Delete forever held; and Empty, held, which belongs to Trash alone), an
+  item's page (Move, Skip, Label, Delete), a label's page (Delete), a page (Move, Duplicate, Export, Delete). Deleting
+  goes to Trash with an Undo toast; only Delete forever and Empty are held (they cannot be undone).
+  Tasks: every action once; Trash's two need a long press on one row and a tap on the other first.
+  Measured: actions, reach (Fitts' ID from the thumb to each entry point: the button, ⋯ or the floating button),
+  consistency (how far Delete's entry point strays across the four screens, px, and how many different ways in there
+  are), safety (Delete's entry point from Back, the most tapped control on these pages, px, the nearest of the four),
+  room for content (px of body height), clutter, words shown.
+  Control: each screen its own way (Trash a bottom bar, the item the header, the label a floating button, the page an
+  element ⋯) and its own text ("Hold to delete forever", words, glyphs).
+"""
+G_SPACE = {"place": ["header", "bottom", "fab", "element"], "labels": ["glyphword", "word", "glyph"]}
+G_ACTIONS = {
+    "trash": [("Restore", "↺", "Restore", "tap"), ("Delete forever", "🗑", "Delete", "hold")],
+    "item": [("Move", "➜", "Move", "tap"), ("Skip", "⤼", "Skip", "tap"), ("Label", "●", "Label", "tap"), ("Delete", "🗑", "Delete", "tap")],
+    "label": [("Delete", "🗑", "Delete", "tap")],
+    "page": [("Move", "➜", "Move", "tap"), ("Duplicate", "⧉", "Duplicate", "tap"), ("Export", "⇪", "Export", "tap"), ("Delete", "🗑", "Delete", "tap")],
+}
+EMPTY = ("Empty", "🗑", "Empty", "hold")
+G_CSS = """
+.act2{min-width:48px;height:48px;padding:0 10px;display:inline-flex;align-items:center;justify-content:center;gap:5px;font-size:14px;font-weight:600;flex:none;border-radius:24px}
+.act2.hold{box-shadow:inset 0 -3px 0 var(--dim)}
+.abar{height:64px;display:flex;align-items:center;justify-content:space-around;background:var(--zone2);flex:none;padding:0 6px}
+.fab2{position:absolute;right:16px;bottom:88px;width:56px;height:56px;border-radius:18px;background:var(--ink);color:var(--bg);display:grid;place-items:center;font-size:20px;z-index:5}
+.card2{position:relative;background:var(--zone);border-radius:14px;padding:12px 56px 12px 14px;min-height:72px}
+.card2 .ed{position:absolute;right:4px;top:4px}
+.card2 h3{margin:0 0 4px;font-size:18px}.card2 .d{color:var(--dim);font-size:13px}
+.sel{background:var(--zone2)}.ck3{width:22px;height:22px;border-radius:6px;box-shadow:inset 0 0 0 2px var(--dim);margin-right:10px;flex:none}.ck3.on{background:var(--ink)}
+.trow{min-height:56px;display:flex;align-items:center;padding:0 14px;border-bottom:1px solid var(--zone2);font-size:15px}.trow .t{flex:1}.trow .d{color:var(--dim);font-size:13px}
+"""
+
+
+def g_label(a, mode):
+    name, glyph, word, kind = a
+    if mode == "long":
+        return ("Hold to %s" % name.lower()) if kind == "hold" else name
+    return {"glyphword": "%s %s" % (glyph, word), "word": word, "glyph": glyph}[mode]
+
+
+def g_btn(a, mode):
+    return '<span class="act2%s" data-tap="A %s" aria-label="%s">%s</span>' % (" hold" if a[3] == "hold" else "", a[0], a[0], g_label(a, mode))
+
+
+_WIDTHS = {}
+
+
+def g_widths(mode):
+    """Each action's button width with this text, measured on the laid-out page."""
+    if mode not in _WIDTHS:
+        acts = {a[0]: a for s in G_ACTIONS.values() for a in s}
+        acts[EMPTY[0]] = EMPTY
+        body = "".join(g_btn(a, mode) for a in acts.values())
+        d = doc(kit.phone(kit.header("x"), '<div style="display:flex;flex-wrap:wrap">%s</div>' % body, ""), extra=G_CSS)
+        _WIDTHS[mode] = {x["name"][2:]: x["w"] for x in ss.measure(d, 360, 740)["taps"] if x["name"].startswith("A ")}
+    return _WIDTHS[mode]
+
+
+def g_fit(acts, mode, room):
+    """What fits in the room, in order; the rest goes behind ⋯ (which takes 48 px when needed)."""
+    w = g_widths(mode)
+    if sum(w[a[0]] for a in acts) <= room:
+        return acts, []
+    shown, used = [], 48
+    for a in acts:
+        if used + w[a[0]] <= room:
+            shown.append(a)
+            used += w[a[0]]
+        else:
+            break
+    return shown, acts[len(shown):]
+
+
+def g_screen(screen, place, mode, selecting=True):
+    """One screen's phone html, its actions placed and labelled; returns (html, {action: entry tap name})."""
+    acts = list(G_ACTIONS[screen]) if (screen != "trash" or selecting) else [EMPTY]
+    back = ("‹", "Back") if not (screen == "trash" and selecting) else ("✕", "Back")
+    title = {"trash": "2 selected" if selecting else "Trash", "item": "Task", "label": "Health", "page": kit.ud("Garden plan")}[screen]
+    entry = {}
+    head_acts, bottom, overlay = "", kit.bar("Today"), ""
+    if screen == "trash":
+        rows = "".join('<div class="trow%s" data-tap="Row %d">%s<span class="t">%s</span><span class="d">%s</span></div>' % (
+            " sel" if selecting and i < 2 else "", i, ('<span class="ck3%s"></span>' % (" on" if i < 2 else "")) if selecting else "", kit.ud(n), d)
+            for i, (n, d) in enumerate((("Return library books", "today"), ("Garden plan draft", "2 Oct"), ("Old shopping list", "28 Sep"), ("Call the bank", "25 Sep"))))
+        body = '<div class="c2">%s</div>' % rows
+    elif screen == "item":
+        body = '<div class="page2"><div class="card2"><h3>%s</h3><div class="d">Tue 6 Oct · 15:00 · ● Home</div>%%s</div></div>' % kit.ud("Call the bank")
+    elif screen == "label":
+        body = '<div class="page2"><div class="card2"><h3>Health</h3><div class="d">Everything · 12 items</div>%s</div><div class="mi2"><span class="t">Colour</span><span class="dt"></span></div></div>'
+    else:
+        body = '<div class="page2"><div class="card2"><h3>%s</h3><div class="d">Pages › Home</div>%%s</div><p>%s</p><p>%s</p></div>' % (
+            kit.ud("Garden plan"), kit.ud("Raised beds go along the south fence."), kit.ud("Tomatoes in the second bed, beans in the third."))
+    in_card = ""
+    if place == "header" or (place == "element" and screen == "trash"):
+        shown, rest = g_fit(acts, mode, 360 - 16 - 48 - 110)
+        head_acts = "".join(g_btn(a, mode) for a in shown) + (kit.icon_button("⋯", "More") if rest else "")
+        entry = {a[0]: "A " + a[0] for a in shown}
+        entry.update({a[0]: "More" for a in rest})
+    elif place == "bottom":
+        shown, rest = g_fit(acts, mode, 348)
+        bottom = '<div class="abar">%s%s</div>' % ("".join(g_btn(a, mode) for a in shown), kit.icon_button("⋯", "More") if rest else "")
+        entry = {a[0]: "A " + a[0] for a in shown}
+        entry.update({a[0]: "More" for a in rest})
+    elif place == "fab":
+        if len(acts) == 1:
+            overlay = '<span class="fab2" data-tap="A %s">%s</span>' % (acts[0][0], g_label(acts[0], "glyph"))
+            entry = {acts[0][0]: "A " + acts[0][0]}
+        else:
+            overlay = '<span class="fab2" data-tap="FAB">⋯</span>'
+            entry = {a[0]: "FAB" for a in acts}
+    else:  # element
+        in_card = '<span class="ed">%s</span>' % kit.icon_button("⋯", "Element")
+        entry = {a[0]: "Element" for a in acts}
+        if screen == "trash" and not selecting:  # the list is the element: its ⋯ above the rows
+            body = '<div class="c2"><div class="card2" style="min-height:48px;padding:4px 56px 4px 14px"><div class="d">4 items</div>%s</div>%s</div>' % (in_card, body[len('<div class="c2">'):-len("</div>")])
+    if "%s" in body:
+        body = body % in_card
+    header = '<div class="hdr">%s<span class="ttl">%s</span>%s</div>' % (kit.icon_button(*back), title, head_acts)
+    return kit.phone(header, body, bottom)[:-len("</div>")] + overlay + "</div>", entry
+
+
+G_MODES = {"trash": "long", "trash0": "long", "item": "word", "label": "glyph", "page": "glyphword"}
+
+
+def g_parts(v):
+    """{screen: (html, entry)} for the four screens, Trash in selection and not."""
+    out = {}
+    for sc in ("trash", "item", "label", "page"):
+        place, mode = v["place"], v["labels"]
+        if v.get("control"):
+            place = {"trash": "bottom", "item": "header", "label": "fab", "page": "element"}[sc]
+            mode = G_MODES[sc]
+        out[sc] = g_screen(sc, place, mode)
+        if sc == "trash":
+            out["trash0"] = g_screen(sc, place, mode, selecting=False)
+    return out
+
+
+def score_g(v):
+    parts = g_parts(v)
+    actions, ids, entries, words, shown_btns = 0, [], {}, 0, 0
+    back_d, rooms, clutters = [], [], []
+    for sc, (html, entry) in parts.items():
+        d = doc(html, extra=G_CSS)
+        m = ss.measure(d, 360, 740)
+        tp = {x["name"]: x for x in m["taps"]}
+        acts = [EMPTY] if sc == "trash0" else G_ACTIONS[sc]
+        for a in acts:
+            e_ = entry[a[0]]
+            cost = 1 if e_.startswith("A ") else 2
+            actions += cost + (2 if sc == "trash" else 0)          # Trash: long press one row, tap the other
+            x = tp.get(e_)
+            if x:
+                ids.append(fitts(THUMB, x))
+            if a[0] in ("Delete", "Delete forever") and x:
+                entries[sc] = (x["x"], x["y"], "direct" if cost == 1 else e_)
+                b = tp.get("Back")
+                if b:
+                    back_d.append(math.hypot(x["x"] - b["x"], x["y"] - b["y"]))
+        mode = G_MODES.get(sc, v["labels"]) if v.get("control") else v["labels"]
+        for x in m["taps"]:
+            if x["name"].startswith("A ") and x.get("seen"):
+                shown_btns += 1
+                words += 0 if mode == "glyph" else 1
+        if sc != "trash0":
+            rooms.append(probe(d, "t18-g-room-" + sc + "-" + "-".join(str(x) for x in v.values()),
+                               "(function(){var b=document.querySelector('.body');return b?Math.round(b.getBoundingClientRect().height):0})()"))
+            clutters.append(sum(ss.edge_density(ss.render(doc(html, th, G_CSS), 360, 740)) for th in ("light", "dark")) / 2)
+    pts = [(e[0], e[1]) for e in entries.values()]
+    cx, cy = sum(p[0] for p in pts) / len(pts), sum(p[1] for p in pts) / len(pts)
+    spread = sum(math.hypot(p[0] - cx, p[1] - cy) for p in pts) / len(pts)
+    forms = len({e[2] for e in entries.values()})
+    small = sorted({"%s %dx%d" % (x["name"], x["w"], x["h"]) for sc, (html, _) in parts.items()
+                    for x in ss.measure(doc(html, extra=G_CSS), 360, 740)["taps"] if x.get("seen") and x["name"].startswith(("A ", "FAB", "Element", "More")) and (x["w"] < 48 or x["h"] < 48)})
+    return {"actions": actions, "reach": round(sum(ids) / max(1, len(ids)), 3), "spread_px": round(spread), "ways_in": forms,
+            "back_px": round(min(back_d)) if back_d else 0, "room_px": round(sum(rooms) / len(rooms)), "words": round(words / max(1, shown_btns), 2),
+            "small": small, "clutter": round(sum(clutters) / len(clutters), 4)}
+
+
+# ==== Part H: closing the capture sheet with text not yet added (owner, 2026-10-09) ======================================
+"""
+  close  draft (the text stays; the closed line shows "Draft" and it is there when the sheet opens again), undo (the text
+         goes; a toast, "Draft discarded · Undo", for 7 s), hold (closing turns ⋯ into "Hold to discard" in place; a tap
+         elsewhere keeps the sheet open)
+  Tasks: (h1) leave now and finish the item later (the typed text: 28 characters); (h2) throw the text away.
+  Counted: actions; text lost without being asked to (undo: once the toast has gone); whether the sheet holds the user
+  until they decide. Measured: reach to the decision, clutter of the state.
+  Control: a dialog, "Discard draft?", Discard or Keep editing, and nothing kept.
+"""
+H_SPACE = {"close": ["draft", "undo", "hold"]}
+TYPED_LEN = len("Call the bank about the card")
+
+
+def h_doc(v, theme="light"):
+    c = v["close"]
+    if c == "draft":
+        phone = today_html().replace('+ <span>Add…</span>', '+ <span>Add…</span><span style="margin-left:auto;font-size:12px;color:var(--dim)">Draft: %s</span>' % kit.ud("Call the bank about…"), 1)
+        phone = phone.replace('data-tap="Capture"', 'data-tap="Capture"', 1)
+        return doc(phone, theme)
+    if c == "undo":
+        return doc(with_overlay(today_html(), toast("Draft discarded", "bottom:84px;top:auto")), theme)
+    cap = t.cap_v4("typed")
+    if c == "hold":
+        cap = re.sub(r'<span[^>]*data-tap="More"[^>]*>.*?</span>', '<span class="btn fill hold" data-tap="Discard" style="font-size:13px;padding:0 12px">🗑 Hold</span>', cap, count=1)
+        return doc(cap, theme)
+    return doc(with_overlay(cap, '<div class="scrim"></div><div class="dlg" style="top:220px"><h4>Discard draft?</h4><p>What you typed is lost.</p><div class="btns">'
+                            '<span class="btn text" data-tap="Keep">Keep editing</span><span class="btn fill" data-tap="Discard">Discard</span></div></div>'), theme)
+
+
+def score_h(v):
+    c = v["close"]
+    resume = {"draft": 1, "undo": 1 + TYPED_LEN, "hold": 1 + TYPED_LEN, "control": 1 + TYPED_LEN}[c]   # open the sheet (+ retype)
+    toss = {"draft": 3, "undo": 1, "hold": 2, "control": 2}[c]       # draft: open, clear, close; hold: close, hold; control: close, Discard
+    lost = {"draft": 0, "undo": 1, "hold": 0, "control": 0}[c]
+    holds = {"draft": 0, "undo": 0, "hold": 1, "control": 1}[c]
+    tp = taps(h_doc(v))
+    target = tp.get({"draft": "Capture", "undo": "Undo", "hold": "Discard", "control": "Discard"}[c])
+    return {"resume_actions": resume, "discard_actions": toss, "lost_unasked": lost, "holds_user": holds,
+            "reach": round(fitts(THUMB_KB if c in ("hold", "control") else THUMB, target), 3) if target else None,
+            "small": sorted({"%s %dx%d" % (x["name"], x["w"], x["h"]) for x in tp.all if x.get("seen") and x["name"] in ("Discard", "Keep", "Undo") and (x["w"] < 48 or x["h"] < 48)}),
+            "clutter": clutter_of(lambda th: h_doc(v, th))}
+
+
 # ==== running, controls, ranking ========================================================================================
-SPACES = {"a": A_SPACE, "b": B_SPACE, "c": C_SPACE, "d": D_SPACE, "e": E_SPACE, "f": F_SPACE}
-SCORERS = {"a": score_a, "b": score_b, "c": score_c, "d": score_d, "e": score_e, "f": score_f}
+SPACES = {"a": A_SPACE, "b": B_SPACE, "c": C_SPACE, "d": D_SPACE, "e": E_SPACE, "f": F_SPACE, "g": G_SPACE, "h": H_SPACE}
+SCORERS = {"a": score_a, "b": score_b, "c": score_c, "d": score_d, "e": score_e, "f": score_f, "g": score_g, "h": score_h}
 CONTROLS = {
     "a": ({"place": "control"}, "a notice in the middle of the screen over a shade, with Undo and OK"),
     "b": ({"timing": 2, "stack": "stack", "way": "trash", "limit": 0}, "2 s, every toast stacked with no limit, and no way back but what Trash and the folds hold"),
@@ -545,6 +775,8 @@ CONTROLS = {
     "d": ({"form": "dialog", "answer": "stacked", "words": "marks", "control": True}, "a dialog at once, stacked versions, marks only, and no Later: it must be answered"),
     "e": ({"when": "control"}, "all three at first run, no explanation, asked again at every start until granted"),
     "f": ({"form": "control"}, "a dialog at every failure, \"Error 13\", OK only"),
+    "g": ({"place": "mixed", "labels": "mixed", "control": True}, "each screen its own way: Trash a bottom bar with \"Hold to delete forever\", the item the header in words, the label a floating glyph, the page an element ⋯ with glyph and word"),
+    "h": ({"close": "control"}, "a dialog, \"Discard draft?\", Discard or Keep editing, nothing kept"),
 }
 AXES = {
     "a": {"Ease": ("continue_actions", "reach", "desk_reach"), "Cover": ("hidden", "desk_hidden", "line_covered", "clutter", "desk_clutter"), "Notice": ("-undo_seen", "look", "desk_look")},
@@ -553,6 +785,8 @@ AXES = {
     "d": {"Ease": ("actions", "reach"), "Calm": ("interrupts", "must_answer", "hidden", "clutter"), "Seen": ("-signal_px2",), "Legibility": ("versions_h", "-named")},
     "e": {"Ease": ("before_use", "actions", "reach"), "Safety": ("silent_fail",), "Calm": ("repeats", "-context")},  # clutter left out: the three are different screens
     "f": {"Seen": ("-noticed", "-persists"), "Ease": ("fix_actions",), "Calm": ("blocks", "hidden", "-rows_visible", "clutter")},
+    "g": {"Ease": ("actions", "reach"), "Consistency": ("spread_px", "ways_in"), "Safety": ("-back_px",), "Calm": ("-room_px", "clutter"), "Legibility": ("-words",)},
+    "h": {"Ease": ("resume_actions", "discard_actions", "reach"), "Safety": ("lost_unasked",), "Calm": ("holds_user", "clutter")},
 }
 
 
@@ -606,14 +840,14 @@ def ranked(p):
     return rows, ok, axes
 
 
-TITLES = {"a": "A. Where the toast sits", "b": "B. How long Undo lasts, several in a row, the way back", "c": "C. The dialogs: empty Trash, discard changes",
+TITLES = {"g": "G. Where actions sit, the same on every screen, and their text", "h": "H. Closing the capture sheet with text not added", "a": "A. Where the toast sits", "b": "B. How long Undo lasts, several in a row, the way back", "c": "C. The dialogs: empty Trash, discard changes",
           "d": "D. The sync clash", "e": "E. Permission asks: when", "f": "F. Failures"}
 
 
 def scores_page():
     import html as H
     out, lost = [], {}
-    for p in "abcdef":
+    for p in sorted(SPACES):
         if not os.path.exists(os.path.join(OUT, "toasts-%s.json" % p)):
             continue
         rows, ok, axes = ranked(p)
@@ -707,7 +941,9 @@ def options_page():
         return " · ".join("%s %g" % (a, r[a]) for a in axes) + " · sum %g" % r["total"] if "total" in r else "failed the gate"
 
     secs = []
-    for p in "abcdef":
+    for p in sorted(SPACES):
+        if not os.path.exists(os.path.join(OUT, "toasts-%s.json" % p)):
+            continue
         rows, ok, axes = ranked(p)
         fr = sorted([r for r in ok if r.get("front") and not r.get("control")], key=lambda r: r["total"])[:4]
         ctl = next(r for r in rows if r.get("control"))
@@ -726,8 +962,14 @@ def options_page():
                 figs.append(fig(cap + " · Today", doc(d_today(v))) + ("" if v["form"] == "dialog" else fig("…the answer", doc(d_page(v)))))
             elif p == "e":
                 figs.append(fig(cap, e_doc(v)))
-            else:
+            elif p == "f":
                 figs.append(fig(cap, f_doc(v)))
+            elif p == "g":
+                ps = g_parts(v)
+                figs.append("".join(fig((cap + " · " if i == 0 else "…") + n, doc(ps[k][0], extra=G_CSS)) for i, (k, n) in enumerate(
+                    (("trash", "Trash, two selected"), ("trash0", "Trash"), ("item", "an item"), ("label", "a label"), ("page", "a page")))))
+            else:
+                figs.append(fig(cap, h_doc(v)))
         if p == "b":
             figs.append(fig("Way back: ⋯ in the header, Undo and History", b_way_doc("menu")) + fig("Way back: ⚙ › Recently done", b_way_doc("recent")) +
                         fig("Way back: ⚙ › Trash", b_way_doc("trash")))
@@ -744,7 +986,7 @@ def options_page():
 
 
 if __name__ == "__main__":
-    for p in "abcdef":
+    for p in sorted(SPACES):
         if p in sys.argv[1:]:
             run_part(p)
     if "scores" in sys.argv[1:]:
