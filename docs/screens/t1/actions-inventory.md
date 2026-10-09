@@ -21,7 +21,7 @@ Where the owner's answers go beyond the data layer or the SPEC, the work is list
 | **Restore** | It comes back from Trash, to where it was. | In Trash only. |
 | **Delete forever** | It is gone for good, on every device. Held. | In Trash only. |
 | **Empty Trash** | Delete forever for everything in Trash. Held. | Trash, fixed top right (owner). |
-| **Rename** | Changes the element's name. | Everything except what is recorded: a tracker's readings (Logs), time spans, check-in entries, a chart's recorded points. |
+| **Rename** | Changes the element's name. | Everything except what is attached to a tracker or recorded for a chart: habits (they are a tracker's), a tracker's readings (Logs), time spans, check-in entries, a chart's recorded points (owner, 2026-10-09). |
 | **Remove** | Takes one thing off another; nothing is deleted. | A label off an element, a reminder off a task, a line off a canvas. |
 | **Undo** | Reverses the last action, from its toast only. | The toast. |
 
@@ -34,7 +34,7 @@ Every element that can be deleted has all three of **Delete** (to Trash), **Rest
 | Task | ✓ Done | ✓ | ✓ if it repeats | ✓ **gap** | ✓ | ✓ order | importance; an occurrence: change this day / week / from now on |
 | Event | — | ✓ | ✓ if it repeats | ✓ **gap** | ✓ | — | an occurrence as for a task |
 | Reminder / alarm | — (no Done) | ✓ date, time, repeat | ✓ Skip for today, if it fires on several days | ✓ **gap** | — | — | alert: notification or alarm; Snooze while ringing |
-| Habit | ✓ Log | ✓ (plan the week, time blocks) | — | ✓ | ✓ | — | pause / resume; undo the log |
+| Habit (no Rename) | ✓ Log | ✓ (plan the week, time blocks) | — | ✓ | ✓ | — | pause / resume; undo the log |
 | Tracker | ✓ Log | — | — | ✓ | — | — | goals; undo the last log |
 | Activity (time) | — (start / stop) | — | — | ✓ | — | — | goals; its time spans: edit, Delete (no Rename: recorded) |
 | Checklist | — | — | — | ✓ **gap** | — | ✓ | reset; its lines: Check, edit, Move, Delete |
@@ -95,15 +95,13 @@ A selection offers only what makes sense for many at once, and only what every s
    - Activities, canvas cards and labels have a delete with no Trash.
    - Charts have no Delete forever.
 3. **Delete forever** for checklists.
-4. **Archive is dropped** (owner): `ActivityRepository.setArchived` leaves the screens. What becomes of activities Chronicle had already archived is an open question below.
+4. **Archive is dropped from the data layer too** (owner, 2026-10-09: there is only placeholder data). The archived flag on activities, `ActivityRepository.setArchived` and its import mapping are removed, with a schema bump.
 5. **Delete forever on an activity:** this reverses the owner's 2026-10-02 rule that an activity is never deleted forever, so that no tracked time is lost. Deleting an activity forever takes its time spans with it, and its labels' time totals shrink. Its time spans keep a plain Delete **?**
 6. **Labels on tasks, events, reminders and checklists:** an ADR 08 amendment. It needs a `label_id` on those rows, a schema bump, and scope values for them.
 7. **A reminder on a database row,** when rows are tasks.
 8. **Skip for today** on a reminder: a standalone reminder is an item, so `OccurrenceRepository.skip` should serve it. To check with a test.
 
 **Still open:**
-- Activities that Chronicle archived, once Archive is gone: show them as live, or put them in Trash?
-- Rename: a habit is linked to its tracker. Is a habit renamed on its own, or does it take its tracker's name?
 - Should a database's properties, options and views go through Trash? (ADR 12 deletes a property forever at once.)
 - Sort on Reminders and on Pages.
 - How a selection starts, and what a mixed selection offers.

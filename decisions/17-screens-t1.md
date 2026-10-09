@@ -1398,3 +1398,6 @@ Drawn: `docs/screens/t1/labels-dots.html` (`labels-f.json`).
   - Inventory draft 4. Open:
     - what becomes of activities Chronicle had archived;
     - whether a habit, linked to its tracker, is renamed on its own.
+- **Owner, 2026-10-09:**
+  - There is only placeholder data, so Chronicle's archived flag leaves the data layer (column, repository method, import).
+  - Habits cannot be renamed, as they are attached to a tracker.
