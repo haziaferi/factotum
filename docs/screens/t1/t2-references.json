@@ -1,5 +1,5 @@
 {
- "note": "T2 capture, four runs on the OnePlus 6T. Geometry in dp (1 dp = 2.625 px) and the apps' own labels only. Run 1 2026-10-10 01:27-02:06: stopped early at Mnemo after a scripted multi-tap hit a reminder's inline Snooze (see _screens-sources/t2/notes.md). Run 2 2026-10-10 13:26-15:16 (daytime): one tap per command with a fresh screenshot before each, only own 'Sample alarm N' items touched, one test alarm at a time, each deleted after; lock screen not tested (phone kept unlocked). Run 2 covered the reminders of simplereminder, rereminder and medtimer, and org.fossify.clock's alarm. It stopped at 15:10 when another adb session took the phone's foreground. Not reached: cyclicalarms, Mnemo ringing, chronicle and equipoise item and calendar pages. Run 3 2026-10-10 18:23-18:46 (same rules): deleted the Fossify leftover 'Sample alarm 4'; cyclicalarms 1.6.2 blocks on a 'Permissions Required' screen (Display Over Other Apps, an Android Settings toggle) so nothing was captured; Mnemo 'Sample alarm M' rang 18:35 as a heads-up (captured, not tapped); chronicle item page captured via 'Sample toast T2' (deleted), chronicle has no calendar/day view; equipoise 0.5 has only Check in / Ledger / Settings, so no item page or calendar exists to capture. Not reached: none; not capturable: cyclicalarms ring, equipoise item/calendar. Run 4 2026-10-10 19:28-19:37, after the owner granted Cyclic Alarms 'Display over other apps' and dealt with MedTimer's battery card: cyclicalarms editor and ring captured ('Sample alarm 5' set 19:31, rang 19:33:00, dismissed 19:33:51, deleted 19:34:31); medtimer's Panoramica captured (it held only our own run-2 event).",
+ "note": "T2 capture, four runs on the OnePlus 6T. Geometry in dp (1 dp = 2.625 px) and the apps' own labels only. Run 1 2026-10-10 01:27-02:06: stopped early at Mnemo after a scripted multi-tap hit a reminder's inline Snooze (see _screens-sources/t2/notes.md). Run 2 2026-10-10 13:26-15:16 (daytime): one tap per command with a fresh screenshot before each, only own 'Sample alarm N' items touched, one test alarm at a time, each deleted after; lock screen not tested (phone kept unlocked). Run 2 covered the reminders of simplereminder, rereminder and medtimer, and org.fossify.clock's alarm. It stopped at 15:10 when another adb session took the phone's foreground. Not reached: cyclicalarms, Mnemo ringing, chronicle and equipoise item and calendar pages. Run 3 2026-10-10 18:23-18:46 (same rules): deleted the Fossify leftover 'Sample alarm 4'; cyclicalarms 1.6.2 blocks on a 'Permissions Required' screen (Display Over Other Apps, an Android Settings toggle) so nothing was captured; Mnemo 'Sample alarm M' rang 18:35 as a heads-up (captured, not tapped); chronicle item page captured via 'Sample toast T2' (deleted), chronicle has no calendar/day view; equipoise 0.5 has only Check in / Ledger / Settings, so no item page or calendar exists to capture. Not reached: none; not capturable: cyclicalarms ring, equipoise item/calendar. Run 4 2026-10-10 19:28-19:37, after the owner granted Cyclic Alarms 'Display over other apps' and dealt with MedTimer's battery card: cyclicalarms editor and ring captured ('Sample alarm 5' set 19:31, rang 19:33:00, dismissed 19:33:51, deleted 19:34:31); medtimer's Panoramica captured (it held only our own run-2 event). Run 5 2026-10-10 19:45-19:50: Fossify Clock ringing over the locked phone (full screen, slide knob); the phone was never unlocked.",
  "item": [
   {
    "app": "org.tasks",
@@ -480,6 +480,31 @@
    ],
    "ring_skip": null,
    "seen": "v1.6.2. The new-alarm editor is a dialog over the list. List card (377x254dp): chip 'CYCLIC · EVERY 3D', snooze chip '5m', enable switch, big time, sound preview chip, label, and Edit / Delete buttons 168x51dp; Delete removes the alarm at once with no confirm. Header shows the live clock, 'Next: <day> <time> (Xh Ym)' and an Alarm History button. Ringing with the phone UNLOCKED = full-screen activity 'ALARM RINGING': a bell in a circle, time 07:33 PM, label, a 'Snooze Duration' row with -/+ [230,609,51,51] and [325,609,51,51]dp, a filled 'Snooze (5m)' button [26,679,360,64] and an outlined 'Dismiss' button [26,759,360,62]dp (a single tap; no slide or hold, no challenge). It also posts a heads-up (category alarm, importance 4, full-screen intent) with DISMISS and SNOOZE (5M), which was not touched. Dismiss returned to the launcher; a cyclic alarm then reschedules (next 'mar 07:33 PM (71h 59m)'). Captures: _screens-sources/t2/cyclicalarms-new-alarm*.png, cyclicalarms-list.png, cyclicalarms-ring*.png (+ .xml)"
+  },
+  {
+   "app": "org.fossify.clock",
+   "platform": "android, locked",
+   "editor_fields": null,
+   "snooze_minutes": 10,
+   "snooze_choices": "as the unlocked entry (fixed 10 min from Settings)",
+   "ring_duration": null,
+   "challenge": null,
+   "skip_next": null,
+   "form": "full",
+   "dismiss": "slide",
+   "dismiss_bounds_dp": [
+    290,
+    500,
+    75,
+    75
+   ],
+   "snooze_bounds_dp": [
+    46,
+    500,
+    75,
+    75
+   ],
+   "seen": "Run 5, 2026-10-10 19:45-19:50, phone locked and asleep, never unlocked. One-off 'Sample_alarm_L' made without UI (SET_ALARM to org.fossify.clock with SKIP_UI) for 19:49; it rang at 19:49:03 as a full-screen AlarmActivity over the lock screen: title and time at the top, a 75dp knob (reminder_draggable [168,500,75,75]) between 'Posponi' (snooze) at left and 'Ignora' (dismiss) at right, the targets' centres 122dp from the knob's; neither side reacts to a tap. Dismissed with one slide of the knob to Ignora; the phone stayed locked. Unlocked, the same app shows a heads-up with tap buttons (entry above). The disabled one-off is left in Fossify's list: deleting it needs the phone unlocked."
   }
  ]
 }

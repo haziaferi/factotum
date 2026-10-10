@@ -132,6 +132,13 @@
    "dismiss": "tap",
    "snooze": "choices",
    "skip": null
+  },
+  {
+   "app": "org.fossify.clock",
+   "form": "full",
+   "dismiss": "slide",
+   "snooze": "one",
+   "skip": null
   }
  ]
 }
