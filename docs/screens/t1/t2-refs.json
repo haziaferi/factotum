@@ -34,6 +34,11 @@
    "app": "com.tendril.app.debug",
    "form": "inplace",
    "save": null
+  },
+  {
+   "app": "com.hazia.chronicle.debug",
+   "form": "page",
+   "save": null
   }
  ],
  "cal": [
@@ -112,6 +117,20 @@
    "form": "headsup",
    "dismiss": "tap",
    "snooze": "one",
+   "skip": null
+  },
+  {
+   "app": "com.hazia.mnemo",
+   "form": "headsup",
+   "dismiss": "tap",
+   "snooze": "one",
+   "skip": null
+  },
+  {
+   "app": "com.beemasfincon.cyclicalarms",
+   "form": null,
+   "dismiss": null,
+   "snooze": null,
    "skip": null
   }
  ]

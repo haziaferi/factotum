@@ -1,5 +1,5 @@
 {
- "note": "T2 capture, two runs on the OnePlus 6T. Geometry in dp (1 dp = 2.625 px) and the apps' own labels only. Run 1 2026-10-10 01:27-02:06: stopped early at Mnemo after a scripted multi-tap hit a reminder's inline Snooze (see _screens-sources/t2/notes.md). Run 2 2026-10-10 13:26-15:16 (daytime): one tap per command with a fresh screenshot before each, only own 'Sample alarm N' items touched, one test alarm at a time, each deleted after; lock screen not tested (phone kept unlocked). Run 2 covered the reminders of simplereminder, rereminder and medtimer, and org.fossify.clock's alarm. It stopped at 15:10 when another adb session took the phone's foreground. Not reached: cyclicalarms, Mnemo ringing, chronicle and equipoise item and calendar pages.",
+ "note": "T2 capture, three runs on the OnePlus 6T. Geometry in dp (1 dp = 2.625 px) and the apps' own labels only. Run 1 2026-10-10 01:27-02:06: stopped early at Mnemo after a scripted multi-tap hit a reminder's inline Snooze (see _screens-sources/t2/notes.md). Run 2 2026-10-10 13:26-15:16 (daytime): one tap per command with a fresh screenshot before each, only own 'Sample alarm N' items touched, one test alarm at a time, each deleted after; lock screen not tested (phone kept unlocked). Run 2 covered the reminders of simplereminder, rereminder and medtimer, and org.fossify.clock's alarm. It stopped at 15:10 when another adb session took the phone's foreground. Not reached: cyclicalarms, Mnemo ringing, chronicle and equipoise item and calendar pages. Run 3 2026-10-10 18:23-18:46 (same rules): deleted the Fossify leftover 'Sample alarm 4'; cyclicalarms 1.6.2 blocks on a 'Permissions Required' screen (Display Over Other Apps, an Android Settings toggle) so nothing was captured; Mnemo 'Sample alarm M' rang 18:35 as a heads-up (captured, not tapped); chronicle item page captured via 'Sample toast T2' (deleted), chronicle has no calendar/day view; equipoise 0.5 has only Check in / Ledger / Settings, so no item page or calendar exists to capture. Not reached: none; not capturable: cyclicalarms ring, equipoise item/calendar.",
  "item": [
   {
    "app": "org.tasks",
@@ -168,6 +168,30 @@
     63
    ],
    "seen": "Sample toast 5 restored from Trash then trashed again; tapping the title opens nothing. Add-task SHEET (411x555 from y255): Title, Has date, Date chip, Has time, Repeats (None/Daily/Weekly/Monthly), Has deadline; Cancel / Add text buttons"
+  },
+  {
+   "app": "com.hazia.chronicle.debug",
+   "platform": "android",
+   "open": "page",
+   "fields": [
+    "Title (header)",
+    "Start",
+    "Log session",
+    "Chart mode chips: Trend / Hour / Weekday / Month day",
+    "Range segments: Day / Week (default) / Month / Quarter",
+    "Total + bar chart by weekday",
+    "Goals (+ Add goal)",
+    "Recent sessions"
+   ],
+   "actions": "header (Back, Pin to widget, Rename, More = Archive / Delete) + Start / Log session buttons 182x51",
+   "save": "n/a (activity page shows stats; name via Rename; create sheet has 'Add activity' button)",
+   "bounds_dp": [
+    0,
+    30,
+    411,
+    724
+   ],
+   "seen": "Chronicle 0.66, an activity tracker (bottom nav Track / Data / Charts / Remind, 96x55 each). Tapping a row title opens the activity's page (bottom nav stays); the row's play button starts a timer. Create = SHEET 'New activity' (drag handle, full height): Name, Colour (wheel + Lightness slider + Hex colour), Icon row (Timer, Reading, Running, Gym, Work, Coding, Meditation, Music...), Category (None / + Add category), 'Add activity' button 369x51 at the bottom. Delete asks 'Delete activity?' (sessions and goals go too; suggests Archive); no trash. Sample toast T2 created 18:41, deleted 18:44. No calendar, day or agenda view exists in Chronicle; the nearest is the page's Day/Week/Month/Quarter range. Header controls were reached by keyboard focus because the Mnemo heads-up covered them."
   }
  ],
  "calendar": [
@@ -376,6 +400,62 @@
    "ring_snooze_choices": [],
    "ring_skip": null,
    "seen": "new-alarm editor is a dialog over the list; delete is not in the editor. Sort dialog 'Ordina per': creation order / alarm time / day and time / custom. Ringing over the unlocked launcher = heads-up card 411x171dp at the top (title = label, text = time) with two outlined buttons POSPONI (snooze) and IGNORA (dismiss), plus a full-screen intent that the unlocked phone showed as a heads-up. Gradual volume. Lock screen not tested. Rings: 14:40 and 14:50 (stopped by the owner by accident: dismissed, not snoozed), 15:00 captured and snoozed once (next 15:10), and 15:10:30 rang until the 5-min timeout because another session had the foreground. Capture: _screens-sources/t2/fossify-ring-headsup.png"
+  },
+  {
+   "app": "com.hazia.mnemo",
+   "platform": "android",
+   "editor_fields": [
+    "Title",
+    "Notes",
+    "Skin (Cycladic / Clay & Umber)",
+    "Schedule (One-off/Recurring/Random)",
+    "Date chip",
+    "Time chip (radial dial, minutes snap to 5)",
+    "Sound (Device default)",
+    "Vibration (Default/Off/Short pulse/Long pulse)",
+    "Nagging: Repeat until dismissed (off)",
+    "Exact timing: Use exact alarm (uses more battery) (on)",
+    "Save"
+   ],
+   "snooze_minutes": null,
+   "snooze_choices": "not seen: Settings has no snooze length, only 'Nagging reminders: Repeat every 5 minutes until dismissed' (slider); the ringing card's SNOOZE was not tapped",
+   "ring_duration": "no looping alarm audio: one notification sound (usage NOTIFICATION, channel per reminder), importance 4, category alarm, full-screen intent; the heads-up stayed on screen from 18:35 for over 10 min",
+   "challenge": null,
+   "skip_next": null,
+   "form": "headsup",
+   "dismiss": "tap",
+   "dismiss_bounds_dp": [
+    152,
+    100,
+    108,
+    52
+   ],
+   "snooze_bounds_dp": [
+    21,
+    100,
+    109,
+    52
+   ],
+   "gap_dp": 22,
+   "centre_distance_dp": 130,
+   "ring_snooze_choices": [],
+   "ring_skip": null,
+   "seen": "editor header 'Cancel' + 'New alert reminder' (opened by + on the Alert tab; Mode is not a field on create), Save at the bottom. Ringing over the unlocked launcher = heads-up card [4,39,403,127]dp: title = reminder title, then three outlined buttons SNOOZE [21,100,109,52], DONE [152,100,108,52], EDIT [282,100,109,52]dp, gaps 22dp. The phone was unlocked, so the full-screen 'takeover in its own skin' (Settings text) was not seen. A one-off left the list as soon as it fired (Alert 0, All 0), so there was no row to delete; the heads-up was not tapped (rule). Sample alarm M saved 18:30, rang 18:35:00. Capture: _screens-sources/t2/mnemo-ring-headsup.png"
+  },
+  {
+   "app": "com.beemasfincon.cyclicalarms",
+   "platform": "android",
+   "editor_fields": null,
+   "snooze_minutes": null,
+   "snooze_choices": null,
+   "ring_duration": null,
+   "challenge": null,
+   "skip_next": null,
+   "form": null,
+   "dismiss": null,
+   "dismiss_bounds_dp": null,
+   "snooze_bounds_dp": null,
+   "seen": "not captured. v1.6.2 opens on 'Permissions Required' ('Display Over Other Apps', reason: lock screen alarm popup, red Grant button); the app cannot be used until it is granted, and granting is an Android Settings permission toggle (not allowed). It declares SYSTEM_ALERT_WINDOW, USE_FULL_SCREEN_INTENT, SCHEDULE_EXACT_ALARM, USE_EXACT_ALARM, POST_NOTIFICATIONS. Capture: _screens-sources/t2/cyclicalarms-permission-gate.png"
   }
  ]
 }
