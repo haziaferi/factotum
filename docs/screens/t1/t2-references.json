@@ -1,5 +1,5 @@
 {
- "note": "T2 capture 2026-10-10 01:27-02:06 on the OnePlus 6T. Geometry in dp (1 dp = 2.625 px) and the apps' own labels only. Run STOPPED early at Mnemo: one tap went to a reminder's inline Snooze by a scripting mistake, and the restore could not be saved (see _screens-sources/t2/notes.md). Not reached: reminders in simplereminder, rereminder, medtimer; alarms in fossify clock and cyclicalarms; the item pages and calendars of chronicle and equipoise.",
+ "note": "T2 capture, two runs on the OnePlus 6T. Geometry in dp (1 dp = 2.625 px) and the apps' own labels only. Run 1 2026-10-10 01:27-02:06: stopped early at Mnemo after a scripted multi-tap hit a reminder's inline Snooze (see _screens-sources/t2/notes.md). Run 2 2026-10-10 13:26-15:16 (daytime): one tap per command with a fresh screenshot before each, only own 'Sample alarm N' items touched, one test alarm at a time, each deleted after; lock screen not tested (phone kept unlocked). Run 2 covered the reminders of simplereminder, rereminder and medtimer, and org.fossify.clock's alarm. It stopped at 15:10 when another adb session took the phone's foreground. Not reached: cyclicalarms, Mnemo ringing, chronicle and equipoise item and calendar pages.",
  "item": [
   {
    "app": "org.tasks",
@@ -289,7 +289,93 @@
     "Save"
    ],
    "seen": "tabs All / Ease / Schedule / Alert with counts; editor header Cancel + 'New ease reminder', Save at the bottom"
+  },
+  {
+   "app": "felixwiemuth.simplereminder",
+   "platform": "android",
+   "sort": null,
+   "row": "time chip (55x32, green when scheduled, amber once due) + text on one line, card 396x41; rows grouped under day headers ('Oggi — sabato 10 ott', 'Due')",
+   "skip": null,
+   "editor_fields": [
+    "Reminder text (optional)",
+    "Nagging switch (no label)",
+    "Date with -/+ day steppers",
+    "Time (radial picker, keyboard toggle)",
+    "ADD / OK"
+   ],
+   "seen": "tabs CURRENT / TEMPLATES; overflow = Settings, Help, About (no sort). Editor is a dialog (AddReminderDialogActivity); tapping a row reopens the same dialog as 'Edit reminder', prefilled with the current time, and it has no delete. Delete or reschedule: long-press a row to get an action mode with Reschedule and Delete. Delete is immediate, with no confirm and no undo. At fire time: a notification 'Reminder' / text, importance 4, no action buttons, no full-screen; the row moved to 'Due'. Sample alarm 1 fired at 13:38."
+  },
+  {
+   "app": "com.olaf.rereminder",
+   "platform": "android",
+   "sort": null,
+   "row": "card 369x129: progress ring with bell icon (51), name, 'Every 30 min', enable switch; chips 'Every day · all day' and a live countdown 'in 29:56'. Above: an 'All reminders' master card with a switch and 'Next: <name> in mm:ss'",
+   "skip": null,
+   "editor_fields": [
+    "Name",
+    "Colour (6 swatches)",
+    "Notification text",
+    "Insert a value (placeholder menu)",
+    "Timing: Repeat every (30 min)",
+    "Starts (Right away; dialog 'First reminder' with chips Right away / Today / Tomorrow / Next Monday + month calendar + 'Pick a time')",
+    "Schedule switch ('Runs at any time')",
+    "Alerts: Play sound, Vibrate",
+    "Save (top right)",
+    "Delete timer (bottom of the edit page)"
+   ],
+   "seen": "interval (loop) reminders, not dated ones. Empty state 'No reminders yet' with a 'Create your first Reminder' button; FAB 'New reminder' 170x47. Delete asks to confirm ('Delete this timer?'). Sample alarm 2 was deleted before it fired."
+  },
+  {
+   "app": "com.futsch1.medtimer",
+   "platform": "android",
+   "sort": "manual drag (handle 'Sposta medicinale' on each medicine row); no sort menu",
+   "row": "medicines list: name, 'N promemoria', reminder times, drag handle. The overview (Panoramica) was not seen: two info cards (battery optimisation, exact reminders off) filled the screen, and dismissing them was left to the owner",
+   "skip": "no skip in the notification (actions Preso = taken, Posticipa = snooze). The overview's filter bar has Preso / Saltato (skipped) / Attivato / Pianificato",
+   "editor_fields": [
+    "Medicine page: name, icon/colour, Settings, Notes, Tags, Stock, Calendar; Promemoria list",
+    "Add reminder: 4 kinds (time-based, continuous interval, interval within a daily window, stock-out)",
+    "Time-based: Dose, Orario",
+    "Advanced: Promemoria abilitato, Intervallo di date attivo, Istruzioni di dosaggio, Promemoria per la dose successiva (follow-up), Promemoria ciclico, weekdays, days of month, Impostazioni aggiuntive"
+   ],
+   "seen": "bottom nav Panoramica / Farmaci / Analisi; week strip with day chips 44x51 above the filter bar. Medicine overflow: settings, notes, tags, stock, calendar, enable/disable all reminders, Duplica, Elimina (confirmed 'Vuoi davvero eliminare il farmaco?'). Sample alarm 3 fired at 14:10 as a normal-priority notification (importance 3, no heads-up)."
   }
  ],
- "alarm": []
+ "alarm": [
+  {
+   "app": "org.fossify.clock",
+   "platform": "android",
+   "editor_fields": [
+    "Time (radial picker, minutes snap to 5)",
+    "Weekday chips L M M G V S D (none = one-off, labelled '(Oggi)' / '(Domani)')",
+    "Vibrazione checkbox",
+    "Sound (Spring)",
+    "Etichetta (label)",
+    "Annulla / OK"
+   ],
+   "snooze_minutes": 10,
+   "snooze_choices": "Settings: 'Usa sempre lo stesso tempo di ripetizione' (on) + 'Tempo di ripetizione' 10 min; with the switch off the app would ask at snooze time (not tested)",
+   "ring_duration": "5 min (setting 'Durata della suoneria'), then a 'missed alarm' notification",
+   "challenge": null,
+   "skip_next": null,
+   "form": "headsup",
+   "dismiss": "tap",
+   "dismiss_bounds_dp": [
+    216,
+    118,
+    173,
+    52
+   ],
+   "snooze_bounds_dp": [
+    21,
+    118,
+    173,
+    52
+   ],
+   "gap_dp": 22,
+   "centre_distance_dp": 195,
+   "ring_snooze_choices": [],
+   "ring_skip": null,
+   "seen": "new-alarm editor is a dialog over the list; delete is not in the editor. Sort dialog 'Ordina per': creation order / alarm time / day and time / custom. Ringing over the unlocked launcher = heads-up card 411x171dp at the top (title = label, text = time) with two outlined buttons POSPONI (snooze) and IGNORA (dismiss), plus a full-screen intent that the unlocked phone showed as a heads-up. Gradual volume. Lock screen not tested. Rings: 14:40 and 14:50 (stopped by the owner by accident: dismissed, not snoozed), 15:00 captured and snoozed once (next 15:10), and 15:10:30 rang until the 5-min timeout because another session had the foreground. Capture: _screens-sources/t2/fossify-ring-headsup.png"
+  }
+ ]
 }
