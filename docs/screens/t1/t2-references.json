@@ -1,0 +1,295 @@
+{
+ "note": "T2 capture 2026-10-10 01:27-02:06 on the OnePlus 6T. Geometry in dp (1 dp = 2.625 px) and the apps' own labels only. Run STOPPED early at Mnemo: one tap went to a reminder's inline Snooze by a scripting mistake, and the restore could not be saved (see _screens-sources/t2/notes.md). Not reached: reminders in simplereminder, rereminder, medtimer; alarms in fossify clock and cyclicalarms; the item pages and calendars of chronicle and equipoise.",
+ "item": [
+  {
+   "app": "org.tasks",
+   "platform": "android",
+   "open": "page",
+   "fields": [
+    "Title",
+    "Start date",
+    "Due date",
+    "Repeat",
+    "Priority",
+    "List",
+    "Tags",
+    "Subtasks",
+    "Reminder",
+    "Description",
+    "Location",
+    "Attachment",
+    "Add to calendar",
+    "Timer",
+    "Created/Modified/Completed"
+   ],
+   "actions": "header (Save left, Delete right)",
+   "save": "Save button (check icon, top-left)",
+   "bounds_dp": [
+    0,
+    99,
+    411,
+    711
+   ],
+   "seen": "Sample toast 3 via drawer > Filtri > Modificate di recente (recently modified); rows 69dp; footer card 'Troppe informazioni?' (too much info?) offers reordering/removing fields"
+  },
+  {
+   "app": "com.ticktick.task",
+   "platform": "android",
+   "open": "sheet",
+   "fields": [
+    "List",
+    "Priority",
+    "Date & reminder",
+    "Title",
+    "Description",
+    "Tag",
+    "Checklist",
+    "Attachment"
+   ],
+   "actions": "header of sheet (list, priority flag, ⋯) + bottom icon bar; ⋯ = Pin, Share, Won't do, Delete, Add subtask, Attachment, Tag, Task activity, More",
+   "save": "autosave",
+   "bounds_dp": [
+    0,
+    496,
+    411,
+    314
+   ],
+   "seen": "Sample toast 2 (completed); 'Data e Promemoria' = date and reminder; 'Non lo farò' = won't do"
+  },
+  {
+   "app": "com.microsoft.todos",
+   "platform": "android",
+   "open": "page",
+   "fields": [
+    "Title",
+    "Importance star",
+    "Steps",
+    "Add to My Day",
+    "Reminder",
+    "Due date",
+    "Repeat",
+    "Add file",
+    "Note"
+   ],
+   "actions": "header (close) + footer (created date, delete)",
+   "save": "autosave",
+   "bounds_dp": [
+    0,
+    30,
+    411,
+    779
+   ],
+   "seen": "Sample toast 5; 'Aggiungi sottoattività' = add step, 'Aggiungi a La mia giornata' = add to My Day, 'Promemoria' = reminder, 'Aggiungi scadenza' = add due date, 'Ripeti' = repeat, 'Aggiungi nota' = add note (card 394x218)"
+  },
+  {
+   "app": "com.google.android.apps.tasks",
+   "platform": "android",
+   "open": "page",
+   "fields": [
+    "List",
+    "Title",
+    "Completion date",
+    "Details",
+    "Deadline",
+    "Date/time"
+   ],
+   "actions": "header (back, ⋯ with only Delete) + bottom text button (mark complete/uncompleted)",
+   "save": "autosave",
+   "bounds_dp": [
+    0,
+    30,
+    411,
+    779
+   ],
+   "seen": "Sample toast 4 (completed); 'Aggiungi dettagli' = add details, 'Aggiungi scadenza' = add deadline, 'Aggiungi data/ora' = add date/time, rows 51dp; no subtask row on a completed task"
+  },
+  {
+   "app": "com.anydo",
+   "platform": "android",
+   "open": "page",
+   "fields": [
+    "Breadcrumb (list)",
+    "Title",
+    "Mark complete",
+    "Add to My Day",
+    "Reminder",
+    "List",
+    "Tags",
+    "Subtasks (+AI suggest)",
+    "Notes",
+    "Attachments FAB"
+   ],
+   "actions": "header (context menu left: Focus, Restore, Archive; Save right) + FAB attach",
+   "save": "Save button (text, top-right)",
+   "bounds_dp": [
+    0,
+    30,
+    411,
+    779
+   ],
+   "seen": "Sample toast 5 (done); 'Segna come completato' = mark complete, 'Aggiungi Etichette' = add tags, 'SOTTO ATTIVITÀ' = subtasks, 'Suggerire' = suggest (AI)"
+  },
+  {
+   "app": "com.todoist",
+   "platform": "android",
+   "open": "sheet",
+   "fields": [
+    "Task name (natural language)",
+    "Project",
+    "Date",
+    "menu: Extract tasks, Description, Attachment, Priority, Reminder, Labels, Deadline (PRO), Location (PRO), Customise quick add"
+   ],
+   "actions": "inline chip row + popup menu",
+   "save": "send button 'Aggiungi' (add)",
+   "bounds_dp": [
+    9,
+    389,
+    394,
+    134
+   ],
+   "seen": "QUICK ADD sheet only, not an item page: no sample exists, and a created sample could only be removed by a permanent delete (no trash)"
+  },
+  {
+   "app": "com.tendril.app.debug",
+   "platform": "android",
+   "open": "inplace",
+   "fields": [
+    "row: checkbox, title, date",
+    "Start timer",
+    "Reminders",
+    "⋯: Postpone, Add a step, Set deadline, Urgency, Move to Trash"
+   ],
+   "actions": "inline icons + menu ⋯",
+   "save": "n/a (no item page)",
+   "bounds_dp": [
+    0,
+    149,
+    411,
+    63
+   ],
+   "seen": "Sample toast 5 restored from Trash then trashed again; tapping the title opens nothing. Add-task SHEET (411x555 from y255): Title, Has date, Date chip, Has time, Repeats (None/Daily/Weekly/Monthly), Has deadline; Cancel / Add text buttons"
+  }
+ ],
+ "calendar": [
+  {
+   "app": "org.fossify.calendar",
+   "platform": "android",
+   "views": [
+    "day",
+    "week",
+    "month",
+    "month+day",
+    "year",
+    "agenda"
+   ],
+   "default": "month",
+   "shows": "events only (no tasks or reminders seen)",
+   "filter": "toolbar button 'Filtra gli eventi per calendario' + quick-filter chips per calendar under the grid",
+   "month_lines_per_cell": 3,
+   "month_titles_cut": true,
+   "month_cell_dp": [
+    59,
+    101
+   ],
+   "day_hours_visible": null,
+   "day_hour_row_dp": null,
+   "week_hours_visible": 8.8,
+   "week_hour_row_dp": 64,
+   "add": "FAB 'Nuovo evento' 60x60",
+   "seen": "view picker 'Cambia vista' (change view) dialog: Vista giornaliera/settimanale/mensile/mensile + giornaliera/annuale, Lista semplice degli eventi (simple event list); day view is an event LIST (56dp rows), not an hour grid; titles clipped without ellipsis; opened on the last-used view"
+  },
+  {
+   "app": "ws.xsoh.etar",
+   "platform": "android",
+   "views": [
+    "day",
+    "week",
+    "month",
+    "agenda"
+   ],
+   "default": "week",
+   "shows": "events only",
+   "filter": "calendar checkboxes in the left drawer",
+   "month_lines_per_cell": 4,
+   "month_titles_cut": true,
+   "month_cell_dp": [
+    59,
+    118
+   ],
+   "day_hours_visible": 10.8,
+   "day_hour_row_dp": 68.6,
+   "week_hours_visible": 9.5,
+   "week_hour_row_dp": 68.6,
+   "add": "FAB 'Nuovo evento' 60x47",
+   "seen": "drawer: Giorno, Settimana, Mese, Agenda; month titles wrap over up to 4 lines, broken mid-word (1 event per cell seen); 'Oggi' = today button"
+  },
+  {
+   "app": "com.cron.calendar",
+   "platform": "android",
+   "views": [
+    "3-day"
+   ],
+   "default": "3-day",
+   "shows": "events (device calendars, no login)",
+   "filter": null,
+   "month_lines_per_cell": null,
+   "month_titles_cut": null,
+   "day_hours_visible": null,
+   "day_hour_row_dp": null,
+   "week_hours_visible": 6.2,
+   "week_hour_row_dp": 107,
+   "add": "bottom-sheet '+' (disabled without account); no FAB",
+   "seen": "3-day grid, 'Tutto il giorno' (all day) strip, month title chevron unfolds a week strip; bottom sheet 'Nessuna riunione in programma' (no meetings scheduled); the menu button closed the app, so the view list was not seen"
+  },
+  {
+   "app": "com.tendril.app.debug",
+   "platform": "android",
+   "views": [
+    "day",
+    "week",
+    "month",
+    "agenda"
+   ],
+   "default": "day",
+   "shows": "scheduled items + an Unscheduled tray (empty on this build)",
+   "filter": "Layers, in the ⋯ menu",
+   "month_lines_per_cell": null,
+   "month_titles_cut": null,
+   "month_cell_dp": [
+    56,
+    54
+   ],
+   "day_hours_visible": null,
+   "day_hour_row_dp": null,
+   "week_hours_visible": null,
+   "week_hour_row_dp": null,
+   "add": "quick-add field under the day header (349x54)",
+   "seen": "view dropdown chip in the header; day = list ('Nothing scheduled'), week = 7 day cards 376x76, month = 56x54 cells; agenda 'Nothing in the next 30 days'; 'Unscheduled · 0' tray"
+  }
+ ],
+ "reminders": [
+  {
+   "app": "com.hazia.mnemo",
+   "platform": "android",
+   "sort": null,
+   "row": "mode label + next date/time on line 1 with inline Snooze and Done; title on line 2 (card 377x90)",
+   "skip": null,
+   "editor_fields": [
+    "Title",
+    "Notes",
+    "Mode (edit only: Ease/Schedule/Alert)",
+    "Skin",
+    "Schedule (One-off/Recurring/Random)",
+    "Date",
+    "Time",
+    "Sound",
+    "Vibration (Default/Off/Short pulse/Long pulse)",
+    "Nagging: Repeat until dismissed",
+    "Exact timing: Use exact alarm",
+    "Save"
+   ],
+   "seen": "tabs All / Ease / Schedule / Alert with counts; editor header Cancel + 'New ease reminder', Save at the bottom"
+  }
+ ],
+ "alarm": []
+}
