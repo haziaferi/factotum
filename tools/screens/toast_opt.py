@@ -979,7 +979,7 @@ def options_page():
             elif p == "h":
                 figs.append(fig(cap, h_doc(v)))
             else:  # parts registered by actions_opt
-                figs.append("".join(fig(cap if i == 0 else "…", d) for i, d in enumerate(DRAW[p](v))))
+                figs.append("".join((fig(cap if i == 0 else "…", d, 1100, 660, 420) if '<div class="desk">' in d else fig(cap if i == 0 else "…", d)) for i, d in enumerate(DRAW[p](v))))  # a Windows drawing at its own size
         if p == "b":
             figs.append(fig("Way back: ⋯ in the header, Undo and History", b_way_doc("menu")) + fig("Way back: ⚙ › Recently done", b_way_doc("recent")) +
                         fig("Way back: ⚙ › Trash", b_way_doc("trash")))

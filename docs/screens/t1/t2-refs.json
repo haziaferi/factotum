@@ -1,0 +1,118 @@
+{
+ "page": [
+  {
+   "app": "org.tasks",
+   "form": "page",
+   "save": "button"
+  },
+  {
+   "app": "com.ticktick.task",
+   "form": "sheet",
+   "save": "auto"
+  },
+  {
+   "app": "com.microsoft.todos",
+   "form": "page",
+   "save": "auto"
+  },
+  {
+   "app": "com.google.android.apps.tasks",
+   "form": "page",
+   "save": "auto"
+  },
+  {
+   "app": "com.anydo",
+   "form": "page",
+   "save": "button"
+  },
+  {
+   "app": "com.todoist",
+   "form": "sheet",
+   "save": null
+  },
+  {
+   "app": "com.tendril.app.debug",
+   "form": "inplace",
+   "save": null
+  }
+ ],
+ "cal": [
+  {
+   "app": "org.fossify.calendar",
+   "default": "month",
+   "switch": "menu"
+  },
+  {
+   "app": "ws.xsoh.etar",
+   "default": "week",
+   "switch": "menu"
+  },
+  {
+   "app": "com.cron.calendar",
+   "default": "week",
+   "switch": null
+  },
+  {
+   "app": "com.tendril.app.debug",
+   "default": "day",
+   "switch": "menu"
+  }
+ ],
+ "day": [
+  {
+   "app": "org.fossify.calendar",
+   "show": "events",
+   "filter": "chips"
+  },
+  {
+   "app": "ws.xsoh.etar",
+   "show": "events",
+   "filter": "menu"
+  },
+  {
+   "app": "com.cron.calendar",
+   "show": "events",
+   "filter": "none"
+  },
+  {
+   "app": "com.tendril.app.debug",
+   "show": "tasks",
+   "filter": "menu"
+  }
+ ],
+ "rem": [
+  {
+   "app": "com.hazia.mnemo",
+   "order": null,
+   "group": "flat",
+   "skip": null
+  },
+  {
+   "app": "felixwiemuth.simplereminder",
+   "order": "next",
+   "group": "days",
+   "skip": null
+  },
+  {
+   "app": "com.olaf.rereminder",
+   "order": null,
+   "group": "flat",
+   "skip": null
+  },
+  {
+   "app": "com.futsch1.medtimer",
+   "order": "manual",
+   "group": "flat",
+   "skip": null
+  }
+ ],
+ "alarm": [
+  {
+   "app": "org.fossify.clock",
+   "form": "headsup",
+   "dismiss": "tap",
+   "snooze": "one",
+   "skip": null
+  }
+ ]
+}

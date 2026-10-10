@@ -1,0 +1,328 @@
+[
+ {
+  "v": {
+   "order": "next",
+   "group": "days",
+   "skip": "selection"
+  },
+  "rows_seen": 8,
+  "soonest_at": 1,
+  "disorder": 0.0,
+  "skip_actions": 2,
+  "skip_hidden": 0,
+  "skip_accident": 0,
+  "reach_skip": 3.914,
+  "small": [],
+  "clutter": 0.0572,
+  "desk_clutter": 0.0256
+ },
+ {
+  "v": {
+   "order": "next",
+   "group": "days",
+   "skip": "swipe"
+  },
+  "rows_seen": 8,
+  "soonest_at": 1,
+  "disorder": 0.0,
+  "skip_actions": 1,
+  "skip_hidden": 1,
+  "skip_accident": 1,
+  "reach_skip": 3.39,
+  "small": [],
+  "clutter": 0.0572,
+  "desk_clutter": 0.0256
+ },
+ {
+  "v": {
+   "order": "next",
+   "group": "days",
+   "skip": "page"
+  },
+  "rows_seen": 8,
+  "soonest_at": 1,
+  "disorder": 0.0,
+  "skip_actions": 3,
+  "skip_hidden": 0,
+  "skip_accident": 0,
+  "reach_skip": 3.436,
+  "small": [],
+  "clutter": 0.0572,
+  "desk_clutter": 0.0256
+ },
+ {
+  "v": {
+   "order": "next",
+   "group": "flat",
+   "skip": "selection"
+  },
+  "rows_seen": 10,
+  "soonest_at": 1,
+  "disorder": 0.0,
+  "skip_actions": 2,
+  "skip_hidden": 0,
+  "skip_accident": 0,
+  "reach_skip": 3.914,
+  "small": [],
+  "clutter": 0.0649,
+  "desk_clutter": 0.0286
+ },
+ {
+  "v": {
+   "order": "next",
+   "group": "flat",
+   "skip": "swipe"
+  },
+  "rows_seen": 10,
+  "soonest_at": 1,
+  "disorder": 0.0,
+  "skip_actions": 1,
+  "skip_hidden": 1,
+  "skip_accident": 1,
+  "reach_skip": 3.454,
+  "small": [],
+  "clutter": 0.0649,
+  "desk_clutter": 0.0286
+ },
+ {
+  "v": {
+   "order": "next",
+   "group": "flat",
+   "skip": "page"
+  },
+  "rows_seen": 10,
+  "soonest_at": 1,
+  "disorder": 0.0,
+  "skip_actions": 3,
+  "skip_hidden": 0,
+  "skip_accident": 0,
+  "reach_skip": 3.436,
+  "small": [],
+  "clutter": 0.0649,
+  "desk_clutter": 0.0286
+ },
+ {
+  "v": {
+   "order": "title",
+   "group": "days",
+   "skip": "selection"
+  },
+  "rows_seen": 8,
+  "soonest_at": 3,
+  "disorder": 0.133,
+  "skip_actions": 2,
+  "skip_hidden": 0,
+  "skip_accident": 0,
+  "reach_skip": 3.914,
+  "small": [],
+  "clutter": 0.0569,
+  "desk_clutter": 0.0255
+ },
+ {
+  "v": {
+   "order": "title",
+   "group": "days",
+   "skip": "swipe"
+  },
+  "rows_seen": 8,
+  "soonest_at": 3,
+  "disorder": 0.133,
+  "skip_actions": 1,
+  "skip_hidden": 1,
+  "skip_accident": 1,
+  "reach_skip": 3.39,
+  "small": [],
+  "clutter": 0.0569,
+  "desk_clutter": 0.0255
+ },
+ {
+  "v": {
+   "order": "title",
+   "group": "days",
+   "skip": "page"
+  },
+  "rows_seen": 8,
+  "soonest_at": 3,
+  "disorder": 0.133,
+  "skip_actions": 3,
+  "skip_hidden": 0,
+  "skip_accident": 0,
+  "reach_skip": 3.436,
+  "small": [],
+  "clutter": 0.0569,
+  "desk_clutter": 0.0255
+ },
+ {
+  "v": {
+   "order": "title",
+   "group": "flat",
+   "skip": "selection"
+  },
+  "rows_seen": 10,
+  "soonest_at": 8,
+  "disorder": 0.622,
+  "skip_actions": 2,
+  "skip_hidden": 0,
+  "skip_accident": 0,
+  "reach_skip": 3.914,
+  "small": [],
+  "clutter": 0.0644,
+  "desk_clutter": 0.0286
+ },
+ {
+  "v": {
+   "order": "title",
+   "group": "flat",
+   "skip": "swipe"
+  },
+  "rows_seen": 10,
+  "soonest_at": 8,
+  "disorder": 0.622,
+  "skip_actions": 1,
+  "skip_hidden": 1,
+  "skip_accident": 1,
+  "reach_skip": 3.454,
+  "small": [],
+  "clutter": 0.0644,
+  "desk_clutter": 0.0286
+ },
+ {
+  "v": {
+   "order": "title",
+   "group": "flat",
+   "skip": "page"
+  },
+  "rows_seen": 10,
+  "soonest_at": 8,
+  "disorder": 0.622,
+  "skip_actions": 3,
+  "skip_hidden": 0,
+  "skip_accident": 0,
+  "reach_skip": 3.436,
+  "small": [],
+  "clutter": 0.0644,
+  "desk_clutter": 0.0286
+ },
+ {
+  "v": {
+   "order": "manual",
+   "group": "days",
+   "skip": "selection"
+  },
+  "rows_seen": 8,
+  "soonest_at": 3,
+  "disorder": 0.067,
+  "skip_actions": 2,
+  "skip_hidden": 0,
+  "skip_accident": 0,
+  "reach_skip": 3.914,
+  "small": [],
+  "clutter": 0.0572,
+  "desk_clutter": 0.0256
+ },
+ {
+  "v": {
+   "order": "manual",
+   "group": "days",
+   "skip": "swipe"
+  },
+  "rows_seen": 8,
+  "soonest_at": 3,
+  "disorder": 0.067,
+  "skip_actions": 1,
+  "skip_hidden": 1,
+  "skip_accident": 1,
+  "reach_skip": 3.39,
+  "small": [],
+  "clutter": 0.0572,
+  "desk_clutter": 0.0256
+ },
+ {
+  "v": {
+   "order": "manual",
+   "group": "days",
+   "skip": "page"
+  },
+  "rows_seen": 8,
+  "soonest_at": 3,
+  "disorder": 0.067,
+  "skip_actions": 3,
+  "skip_hidden": 0,
+  "skip_accident": 0,
+  "reach_skip": 3.436,
+  "small": [],
+  "clutter": 0.0572,
+  "desk_clutter": 0.0256
+ },
+ {
+  "v": {
+   "order": "manual",
+   "group": "flat",
+   "skip": "selection"
+  },
+  "rows_seen": 10,
+  "soonest_at": 7,
+  "disorder": 0.467,
+  "skip_actions": 2,
+  "skip_hidden": 0,
+  "skip_accident": 0,
+  "reach_skip": 3.914,
+  "small": [],
+  "clutter": 0.0649,
+  "desk_clutter": 0.0288
+ },
+ {
+  "v": {
+   "order": "manual",
+   "group": "flat",
+   "skip": "swipe"
+  },
+  "rows_seen": 10,
+  "soonest_at": 7,
+  "disorder": 0.467,
+  "skip_actions": 1,
+  "skip_hidden": 1,
+  "skip_accident": 1,
+  "reach_skip": 3.454,
+  "small": [],
+  "clutter": 0.0649,
+  "desk_clutter": 0.0288
+ },
+ {
+  "v": {
+   "order": "manual",
+   "group": "flat",
+   "skip": "page"
+  },
+  "rows_seen": 10,
+  "soonest_at": 7,
+  "disorder": 0.467,
+  "skip_actions": 3,
+  "skip_hidden": 0,
+  "skip_accident": 0,
+  "reach_skip": 3.436,
+  "small": [],
+  "clutter": 0.0649,
+  "desk_clutter": 0.0288
+ },
+ {
+  "v": {
+   "order": "made",
+   "group": "days",
+   "skip": "page menu",
+   "control": true
+  },
+  "why": "oldest made first, day headers, three-line rows, Skip only in the page's ⋯ menu",
+  "control": true,
+  "rows_seen": 5,
+  "soonest_at": 7,
+  "disorder": 0.467,
+  "skip_actions": 4,
+  "skip_hidden": 0,
+  "skip_accident": 0,
+  "reach_skip": 3.696,
+  "small": [],
+  "clutter": 0.0584,
+  "desk_clutter": 0.0252
+ }
+]
