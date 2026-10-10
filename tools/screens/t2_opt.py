@@ -1,6 +1,6 @@
 """T2 items, calendar and alarms (decision 17, owner's answers 2026-10-10), scored as T1.8 and T1.9 were, a control per part.
 
-    python tools/screens/t2_opt.py page cal day rem alarm     score parts (t2-<part>.json)
+    python tools/screens/t2_opt.py page cal day rem alarm     score parts (docs/screens/t2/t2-<part>.json)
     python tools/screens/t2_opt.py page_html scores           t2-options.html, t2-scores.html (fails if a control wins)
 
 Parts:
@@ -22,7 +22,7 @@ Modelled, and so assumptions:
     target is one risk, the share that misses Snooze another (added 2026-10-10: without it the control, a small Snooze
     word, reached the front); and a blind slap anywhere on the screen, whose risk is the share of the screen that dismisses
     on a tap.
-References: docs/screens/t1/t2-references.json (the phone captures), normalised into t2-refs.json by this script.
+References: docs/screens/t2/t2-references.json (the phone captures), normalised into t2-refs.json by this script.
 """
 import json
 import math
@@ -767,6 +767,7 @@ def build_refs():
 
 # ==== the tables and pages through toast_opt's machinery =========================================================================
 T.PREFIX, T.REFS, T.NAME = "t2", "t2-refs.json", "T2 items, calendar and alarms"
+T.OUT = os.path.join(os.path.dirname(T.OUT), "t2")   # T2's files live in docs/screens/t2 (owner, 2026-10-10)
 T.SPACES = {"page": PAGE_SPACE, "cal": CAL_SPACE, "day": DAY_SPACE, "rem": REM_SPACE, "alarm": ALARM_SPACE}
 T.SCORERS = {"page": score_page, "cal": score_cal, "day": score_day, "rem": score_rem, "alarm": score_alarm}
 T.CONTROLS = {
