@@ -1,5 +1,5 @@
 {
- "note": "T2 capture, three runs on the OnePlus 6T. Geometry in dp (1 dp = 2.625 px) and the apps' own labels only. Run 1 2026-10-10 01:27-02:06: stopped early at Mnemo after a scripted multi-tap hit a reminder's inline Snooze (see _screens-sources/t2/notes.md). Run 2 2026-10-10 13:26-15:16 (daytime): one tap per command with a fresh screenshot before each, only own 'Sample alarm N' items touched, one test alarm at a time, each deleted after; lock screen not tested (phone kept unlocked). Run 2 covered the reminders of simplereminder, rereminder and medtimer, and org.fossify.clock's alarm. It stopped at 15:10 when another adb session took the phone's foreground. Not reached: cyclicalarms, Mnemo ringing, chronicle and equipoise item and calendar pages. Run 3 2026-10-10 18:23-18:46 (same rules): deleted the Fossify leftover 'Sample alarm 4'; cyclicalarms 1.6.2 blocks on a 'Permissions Required' screen (Display Over Other Apps, an Android Settings toggle) so nothing was captured; Mnemo 'Sample alarm M' rang 18:35 as a heads-up (captured, not tapped); chronicle item page captured via 'Sample toast T2' (deleted), chronicle has no calendar/day view; equipoise 0.5 has only Check in / Ledger / Settings, so no item page or calendar exists to capture. Not reached: none; not capturable: cyclicalarms ring, equipoise item/calendar.",
+ "note": "T2 capture, four runs on the OnePlus 6T. Geometry in dp (1 dp = 2.625 px) and the apps' own labels only. Run 1 2026-10-10 01:27-02:06: stopped early at Mnemo after a scripted multi-tap hit a reminder's inline Snooze (see _screens-sources/t2/notes.md). Run 2 2026-10-10 13:26-15:16 (daytime): one tap per command with a fresh screenshot before each, only own 'Sample alarm N' items touched, one test alarm at a time, each deleted after; lock screen not tested (phone kept unlocked). Run 2 covered the reminders of simplereminder, rereminder and medtimer, and org.fossify.clock's alarm. It stopped at 15:10 when another adb session took the phone's foreground. Not reached: cyclicalarms, Mnemo ringing, chronicle and equipoise item and calendar pages. Run 3 2026-10-10 18:23-18:46 (same rules): deleted the Fossify leftover 'Sample alarm 4'; cyclicalarms 1.6.2 blocks on a 'Permissions Required' screen (Display Over Other Apps, an Android Settings toggle) so nothing was captured; Mnemo 'Sample alarm M' rang 18:35 as a heads-up (captured, not tapped); chronicle item page captured via 'Sample toast T2' (deleted), chronicle has no calendar/day view; equipoise 0.5 has only Check in / Ledger / Settings, so no item page or calendar exists to capture. Not reached: none; not capturable: cyclicalarms ring, equipoise item/calendar. Run 4 2026-10-10 19:28-19:37, after the owner granted Cyclic Alarms 'Display over other apps' and dealt with MedTimer's battery card: cyclicalarms editor and ring captured ('Sample alarm 5' set 19:31, rang 19:33:00, dismissed 19:33:51, deleted 19:34:31); medtimer's Panoramica captured (it held only our own run-2 event).",
  "item": [
   {
    "app": "org.tasks",
@@ -352,16 +352,16 @@
   {
    "app": "com.futsch1.medtimer",
    "platform": "android",
-   "sort": "manual drag (handle 'Sposta medicinale' on each medicine row); no sort menu",
-   "row": "medicines list: name, 'N promemoria', reminder times, drag handle. The overview (Panoramica) was not seen: two info cards (battery optimisation, exact reminders off) filled the screen, and dismissing them was left to the owner",
-   "skip": "no skip in the notification (actions Preso = taken, Posticipa = snooze). The overview's filter bar has Preso / Saltato (skipped) / Attivato / Pianificato",
+   "sort": "none in the overview (events are in time order; the overflow has only settings, export/clear history, medicine export, backup); medicines list: manual drag",
+   "row": "Panoramica (overview): title 'Panoramica - <month year>' + overflow; week strip with prev/next arrows [0,106,51,51]/[360,106,51,51]dp and 7 day chips 44x51dp (day name above the number, today filled); below it an outlined filter bar [109,168,193,51]dp of four icon toggles Preso / Saltato / Attivato / Pianificato (~47x51dp each, icons only); then one row per dose event: a round status button 51x51dp at the left (icon = state, e.g. X for Saltato) and a card [73,230,325,60]dp with a calendar icon + time on line 1 and 'name (dose)' on line 2; extended FAB 'Registra la dose aggiuntiva' (log an extra dose) 245x60dp at the bottom right. Medicines list (Farmaci): name, 'N promemoria', reminder times, drag handle",
+   "skip": "in the overview: the row's round status button and the event sheet 'Modifica l'evento' (opened by tapping the row card), whose top toggle is Preso / Saltato, with fields Nome del farmaco, Dose, Ricordato (Orario, Data), Saltato/Preso time (Orario, Data), Note. Not in the notification (actions Preso, Posticipa)",
    "editor_fields": [
     "Medicine page: name, icon/colour, Settings, Notes, Tags, Stock, Calendar; Promemoria list",
     "Add reminder: 4 kinds (time-based, continuous interval, interval within a daily window, stock-out)",
     "Time-based: Dose, Orario",
     "Advanced: Promemoria abilitato, Intervallo di date attivo, Istruzioni di dosaggio, Promemoria per la dose successiva (follow-up), Promemoria ciclico, weekdays, days of month, Impostazioni aggiuntive"
    ],
-   "seen": "bottom nav Panoramica / Farmaci / Analisi; week strip with day chips 44x51 above the filter bar. Medicine overflow: settings, notes, tags, stock, calendar, enable/disable all reminders, Duplica, Elimina (confirmed 'Vuoi davvero eliminare il farmaco?'). Sample alarm 3 fired at 14:10 as a normal-priority notification (importance 3, no heads-up)."
+   "seen": "bottom nav Panoramica / Farmaci / Analisi; week strip with day chips 44x51 above the filter bar. Medicine overflow: settings, notes, tags, stock, calendar, enable/disable all reminders, Duplica, Elimina (confirmed 'Vuoi davvero eliminare il farmaco?'). Sample alarm 3 fired at 14:10 as a normal-priority notification (importance 3, no heads-up). Run 4 (19:35): the overview showed only our own run-2 event 'Sample alarm 3 (1)', 14:10, already Saltato at 16:01 (the medicine was deleted in run 2). The event sheet was opened and closed with Back and nothing was changed. The filter toggles were not tapped. Captures: medtimer-overview.png, medtimer-edit-event.png"
   }
  ],
  "alarm": [
@@ -445,17 +445,41 @@
   {
    "app": "com.beemasfincon.cyclicalarms",
    "platform": "android",
-   "editor_fields": null,
-   "snooze_minutes": null,
-   "snooze_choices": null,
+   "editor_fields": [
+    "Alarm Time (hour and minute boxes with up/down chevrons, AM/PM toggle, preview '-> 7:33 PM')",
+    "Label (optional)",
+    "Weekly Days / Cyclic Days (segmented, Cyclic default)",
+    "Cyclic Configuration: Every N days (default 3), Start Date (date picker)",
+    "Snooze Duration: chips 5m/10m/15m/20m/30m + Custom N minutes",
+    "Alarm Sound: Pick from device + built-in tones (card shows 'High Pitch')",
+    "Cancel / Save Alarm"
+   ],
+   "snooze_minutes": 5,
+   "snooze_choices": "set per alarm in the editor: 5/10/15/20/30 min chips or Custom minutes (default 5); the ringing screen also has a -/+ snooze stepper",
    "ring_duration": null,
    "challenge": null,
    "skip_next": null,
-   "form": null,
-   "dismiss": null,
-   "dismiss_bounds_dp": null,
-   "snooze_bounds_dp": null,
-   "seen": "not captured. v1.6.2 opens on 'Permissions Required' ('Display Over Other Apps', reason: lock screen alarm popup, red Grant button); the app cannot be used until it is granted, and granting is an Android Settings permission toggle (not allowed). It declares SYSTEM_ALERT_WINDOW, USE_FULL_SCREEN_INTENT, SCHEDULE_EXACT_ALARM, USE_EXACT_ALARM, POST_NOTIFICATIONS. Capture: _screens-sources/t2/cyclicalarms-permission-gate.png"
+   "form": "full",
+   "dismiss": "tap",
+   "dismiss_bounds_dp": [
+    26,
+    759,
+    360,
+    62
+   ],
+   "snooze_bounds_dp": [
+    26,
+    679,
+    360,
+    64
+   ],
+   "gap_dp": 16,
+   "centre_distance_dp": 79,
+   "ring_snooze_choices": [
+    "-/+ stepper, 5m default"
+   ],
+   "ring_skip": null,
+   "seen": "v1.6.2. The new-alarm editor is a dialog over the list. List card (377x254dp): chip 'CYCLIC · EVERY 3D', snooze chip '5m', enable switch, big time, sound preview chip, label, and Edit / Delete buttons 168x51dp; Delete removes the alarm at once with no confirm. Header shows the live clock, 'Next: <day> <time> (Xh Ym)' and an Alarm History button. Ringing with the phone UNLOCKED = full-screen activity 'ALARM RINGING': a bell in a circle, time 07:33 PM, label, a 'Snooze Duration' row with -/+ [230,609,51,51] and [325,609,51,51]dp, a filled 'Snooze (5m)' button [26,679,360,64] and an outlined 'Dismiss' button [26,759,360,62]dp (a single tap; no slide or hold, no challenge). It also posts a heads-up (category alarm, importance 4, full-screen intent) with DISMISS and SNOOZE (5M), which was not touched. Dismiss returned to the launcher; a cyclic alarm then reschedules (next 'mar 07:33 PM (71h 59m)'). Captures: _screens-sources/t2/cyclicalarms-new-alarm*.png, cyclicalarms-list.png, cyclicalarms-ring*.png (+ .xml)"
   }
  ]
 }

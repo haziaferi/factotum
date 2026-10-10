@@ -128,9 +128,9 @@
   },
   {
    "app": "com.beemasfincon.cyclicalarms",
-   "form": null,
-   "dismiss": null,
-   "snooze": null,
+   "form": "full",
+   "dismiss": "tap",
+   "snooze": "choices",
    "skip": null
   }
  ]

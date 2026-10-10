@@ -758,6 +758,8 @@ def build_refs():
         out["rem"].append({"app": r["app"], "order": order, "group": group, "skip": None})
     for r in src["alarm"]:
         sn = "one" if (r.get("snooze_minutes") or r.get("snooze_bounds_dp")) else None   # one Snooze button, its length set elsewhere
+        if "stepper" in (r.get("snooze_choices") or ""):
+            sn = "choices"   # the length is picked on the ringing screen (Cyclic Alarms' -/+)
         out["alarm"].append({"app": r["app"], "form": r.get("form"), "dismiss": r.get("dismiss"), "snooze": sn, "skip": None})
     with open(os.path.join(T.OUT, "t2-refs.json"), "w", encoding="utf-8", newline="\n") as fh:
         json.dump(out, fh, indent=1, ensure_ascii=False)
