@@ -155,4 +155,4 @@ All eight are still on the front, but now on real trade-offs (`t2-cal.json`):
 | day + tabs | 50 | 0 | 1 | 10.0 / 10.0 | 1 |
 | control (year) | 90 | 4 | 0 | 0 / 0 | 2 |
 
-The menu options each sit 1 to 4.5 above their tabs twin.
+The menu options each sit 1.5 to 4.5 above their tabs twin.
