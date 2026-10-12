@@ -11,10 +11,10 @@
   "desk_legible_share": 1.0,
   "clash_cost": 2.0,
   "switch_actions": 1,
-  "reach_switch": 3.79,
+  "reach_switch": 3.812,
   "small": [],
   "clutter": 0.0532,
-  "desk_clutter": 0.0371
+  "desk_clutter": 0.0372
  },
  {
   "v": {
@@ -28,10 +28,10 @@
   "desk_legible_share": 1.0,
   "clash_cost": 1.0,
   "switch_actions": 1,
-  "reach_switch": 3.812,
+  "reach_switch": 3.79,
   "small": [],
-  "clutter": 0.0539,
-  "desk_clutter": 0.0288
+  "clutter": 0.0538,
+  "desk_clutter": 0.0287
  },
  {
   "v": {
@@ -45,7 +45,7 @@
   "desk_legible_share": 1.0,
   "clash_cost": 1.0,
   "switch_actions": 1,
-  "reach_switch": 3.812,
+  "reach_switch": 3.79,
   "small": [],
   "clutter": 0.0446,
   "desk_clutter": 0.0382

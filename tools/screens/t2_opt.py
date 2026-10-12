@@ -290,7 +290,7 @@ def score_page(v):
   Control: the year view by default (twelve small months, no titles), the views behind ⚙ › Calendar view.
 """
 CAL_SPACE = {"default": ["month", "week", "3day"], "switch": ["tabs"]}
-VIEWS = ["month", "week", "3day"]   # owner, 2026-10-13: Day and Agenda dropped (3 days and the week planner dominate them), tabs picked
+VIEWS = ["week", "month", "3day"]   # owner, 2026-10-13: Week (default) · Month · 3 days, in that order; Day and Agenda dropped as tabs
 # (day of October, start, end, title, kind) ; end None: no time span; start None: no time (all day, or a task)
 EVENTS = [
     (2, 10.0, 11.0, "Plumber", "event"), (5, 9.0, 9.75, "Dentist", "event"), (5, 15.0, None, "Call the bank", "reminder"),
@@ -564,7 +564,7 @@ def planner_html(days):
             i = sum(1 for x in evs if x[1] is None or x[1] <= NOW)
             parts = rows.split('</div>')
             rows = '</div>'.join(parts[:i]) + ('</div>' if i else "") + '<div class="now agn"></div>' + '</div>'.join(parts[i:])
-        cells.append('<div class="pcell"><div class="dayh%s">%s %d</div>%s</div>' % (" today" if d == TODAY_D else "", DAYNAME[(d - 5) % 7], d, rows))
+        cells.append('<div class="pcell" data-tap="Day %d"><div class="dayh%s">%s %d</div>%s</div>' % (d, " today" if d == TODAY_D else "", DAYNAME[(d - 5) % 7], d, rows))
     if len(days) == 7:
         order = [0, 4, 1, 5, 2, 6, 3]   # Mon to Thu down the left, Fri to Sun down the right
         grid = "".join(cells[i] for i in order) + '<div class="pcell"></div>'
@@ -627,7 +627,8 @@ def score_wk(v):
           each a list in time order), lanes (the hours split into a column per kind; the untimed at the top of their lane)
   show    events (events only), tasks (events, tasks and reminders), everything (all that Today shows for the day)
   filter  none (fixed), chips (All · Events · Tasks · Routines: 1 tap), menu (✎ › Show: 2 actions)
-  The day: Mon 5 Oct, Today's eight rows (tier_t1.KINDS); now is 10:15.
+  The day: Mon 5 Oct, Today's eight rows (tier_t1.KINDS); now is 10:15. This is the Day screen: tapping a day in
+  Week or Month opens it (owner, 2026-10-13); its header has ‹ back and ✎.
   Measured off the laid-out page, every item tagged with its kind and time:
     kind_sep     for each pair of kinds shown, the share of three preattentive channels that differ: region (the zone,
                  lane or section the kind sits in), shape (height, width and corner radius of its mark, bucketed), and the
@@ -639,6 +640,8 @@ def score_wk(v):
   Control: everything in one list in the order made, every row alike (no mark, no time column, the time on a second
   line), the filter only in ⚙ › Calendar › Layers (3 actions).
 """
+# The Day screen (owner, 2026-10-13): tapping a day in Week or Month opens it, so it is pushed: ‹ back, ✎ for Show.
+DAY_HEADER = kit.header("Mon 5 Oct", (("✎", "Edit"),), ("‹", "Back"))
 DAY_SPACE = {"layout": ["timeline", "shaped", "grid", "sections", "lanes"], "show": ["events", "tasks", "everything"], "filter": ["none", "chips", "menu"]}
 KIND_CLASS = {"event": "event", "task": "task", "reminder": "reminder", "habit": "routine", "checklist": "routine", "reading": "routine"}
 KIND_GLYPH = {"event": "▭", "task": "◦", "reminder": "◴", "routine": "↻"}
@@ -743,11 +746,11 @@ def day_phone(v):
     if v.get("control"):
         rows = "".join('<div class="di same" data-tap="Open item" data-kind="%s" data-time="%s"><span class="tt">%s</span><span class="sub">%s</span></div>' % (
             KIND_CLASS[k[0]], k[2] and (int(k[2][:2]) + int(k[2][3:]) / 60) or "", kit.ud(e(k[1])), (k[2] or "No time") + " · Today") for k in t.KINDS)
-        return kit.phone(header("Mon 5 Oct"), '<div class="zone dz" data-region="list">%s</div>' % rows, kit.bar("Calendar"))
+        return kit.phone(DAY_HEADER, '<div class="zone dz" data-region="list">%s</div>' % rows, kit.bar("Calendar"))
     body = day_body(v["layout"], v["show"])
     if v["filter"] == "chips":
         body = '<div class="fchips">%s</div>' % "".join('<span class="%s" data-tap="Show %s">%s</span>' % ("on" if i == 0 else "", n, n) for i, n in enumerate(("All", "Events", "Tasks", "Routines"))) + body
-    return kit.phone(header("Mon 5 Oct"), body, kit.bar("Calendar"))
+    return kit.phone(DAY_HEADER, body, kit.bar("Calendar"))
 
 
 def day_doc(v, theme="light"):

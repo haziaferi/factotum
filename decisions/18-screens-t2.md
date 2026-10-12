@@ -1,8 +1,8 @@
 # 18. Screens T2: items, calendar and alarms
 
 Status: **in progress.**
-- Approved: the alarm ringing and an item's page (owner, 2026-10-12).
-- Still open: the Reminders list, what a calendar day holds, and Calendar.
+- Approved: the alarm ringing and an item's page (owner, 2026-10-12); Calendar's views (owner, 2026-10-13).
+- Still open: the Reminders list, the Day screen (what a calendar day holds), and the Week and 3 days forms.
 
 The method is decision 15's: every screen, one at a time, before colour. The owner's T2 answers (2026-10-10) are at the end of `decisions/17-screens-t1.md`.
 
@@ -262,3 +262,27 @@ The owner:
 - **Week:** the week planner dominates 3 days as a default. It matches it on Now, Legibility, Conflicts and Switching, and shows seven days to its two. (Wednesday's only thing is at 18:00, below the fold on both screens; 3 days' horizon counts days whose things are on screen.) 3 days is calmer on the phone, the week planner on Windows.
 - **Month** stays on the front for its 29-day horizon alone.
 - **3 days** stays as a tab. This table is about which view Calendar opens on.
+
+## Calendar: decided (owner, 2026-10-13)
+
+The owner, asked whether 3 days should be dropped too:
+> "In order: Week (default), Month, 3 days. Once a day is tapped in Week or Month, a Day screen opens for the user."
+
+**Decided:**
+- **Tabs, in order:** Week · Month · 3 days. Week is the default (it had the lowest sum, 20).
+- **3 days stays.** It is the only time grid among the tabs: free time as space, length as height, clashes side by side. None of those were among the scored axes.
+- **The Day screen.** Tapping a day in Week (a planner cell) or Month (a cell) opens it. It is pushed, so its header has ‹ back and ✎ (Show).
+  - Day is no longer a tab but a screen. The part scored as "what a calendar day holds" is that screen, and its layout and filter are still the owner's pick.
+- **Not yet confirmed:** Week as the planner and 3 days as the wrapped grid. These are the forms the views are drawn and scored in.
+
+**In the scorer:** `VIEWS` is now week, month, 3day, and the planner cells carry `Day n`. The Day screen's header changed, so `cal`, `wk` and `day` are rescored with these drawings.
+
+**Rescored with these drawings:**
+- **Calendar:** unchanged. Week 20, 3 days 23, month 25.5, control 41.5.
+- **The Day screen (with everything shown):** the order holds:
+  - timeline + menu 186;
+  - sections + menu 197.5;
+  - shaped + menu 210;
+  - grid + chips 222;
+  - control 242.5.
+- **Lanes** drops off the front: its kind separation reads 0.667, no longer 0.889, under the new header, and its sum is 251.5. That is above the control's, though the control stays off the front.
