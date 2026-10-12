@@ -7,7 +7,7 @@ Parts:
   page   how an item's page opens (a full page, a sheet over the list, the row expanding in place), which fields it shows,
          and how it saves
   cal    the calendar's default view (month, week, day, agenda) and how the views are switched
-  day    what a calendar day holds (events; with tasks and reminders; everything) and the filter for it
+  day    what a calendar day holds (events; with tasks and reminders; everything), its layout, and the filter for it
   rem    the Reminders list: its order, day headers, and where Skip for today sits
   alarm  the alarm ringing: full screen or a heads-up card, the dismiss gesture, the snooze choices, where Skip for today sits
 
@@ -15,8 +15,10 @@ Measured from the drawings (headless Edge, 360x740 phone, 1100x660 Windows): rea
 targets seen, titles cut, events and hours on screen, clutter (edge density, light and dark), text size.
 Walked: actions for each task, along the paths written beside each part.
 Modelled, and so assumptions:
-  - the calendar questions (what is next, is Thursday afternoon free, what is on the 20th, how full is the week) and the
-    actions each view needs for them, written out in CAL_INVIEW;
+  - the calendar's clash cost (0 drawn side by side, 1 times written, 2 unseen) and the actions to see now (rescored
+    2026-10-12 on the owner's axes: Now, Horizon, Legibility, Conflicts, Switching);
+  - the day view's kind separation (three preattentive channels: region, shape, glyph) and time lookup (readables passed
+    in reading order; every readable when the order is not by time) (rescored 2026-10-12);
   - a half-asleep tap: aimed at Snooze's centre, it lands with a round Gaussian scatter of sigma 3 mm (19 dp), twice
     the ~1.5 mm of an alert adult (Bi, Li and Zhai 2013, FFitts law); the share that lands on a tap-to-dismiss or Skip
     target is one risk, the share that misses Snooze another (added 2026-10-10: without it the control, a small Snooze
@@ -97,6 +99,8 @@ CSS = """
 .hup .chs{display:flex;gap:6px;margin-bottom:8px}.hup .chs span{flex:1;min-height:48px;border-radius:14px;background:var(--zone2);display:grid;place-items:center;font-size:14px;font-weight:600}
 .lock{position:absolute;inset:0;background:#000;color:#ddd;z-index:35}
 .notif{position:absolute;left:12px;right:12px;top:300px;background:#222;color:#eee;border-radius:18px;padding:12px 14px;font-size:14px}
+.now{position:absolute;height:2px;background:var(--ink);z-index:3}.now.agn{position:static;margin:3px 0}
+.wkhead .today{color:var(--ink);font-weight:700}.dayh.today{color:var(--ink);font-weight:700}
 .notif .acts{display:flex;gap:8px;margin-top:6px}.notif .acts span{min-height:48px;display:grid;place-items:center;padding:0 12px;font-weight:600}
 """
 
@@ -264,11 +268,17 @@ def score_page(v):
 """
   default  month, week, day, agenda: what Calendar opens on
   switch   tabs (Month · Week · Day · Agenda under the header: 1 tap), menu (the view's name in the header, ▾: 2 taps)
-  Sample: Mon 5 Oct 2026 is today; a placeholder week of 13 things and a month of 21 (events, two tasks, a reminder).
-  Measured on each view's drawing: things seen, titles cut, hours seen (week and day); on Windows, the same view at
-  1100x660. Walked, the four questions (CAL_INVIEW): what is next today; is Thursday afternoon free; what is on the 20th;
-  how full is this week. Each costs the fewer of: answering in the default view, or switching (1 or 2) and answering
-  in the best other view.
+  Sample: Mon 5 Oct 2026 is today, now is 10:15; a placeholder month of 23 things (events, two tasks, a reminder), with
+  two clashes: School run against Dentist today, Call with Leo against Lunch with Sam on Thursday.
+  Rescored 2026-10-12 on the owner's axes (the first scoring, on four modelled questions, left all eight on the front):
+    Now          actions to see today and the current time: 0 when the default view marks today and draws the now line,
+                 1 when it marks today but shows no time (open the day), else 1 + the switch.
+    Horizon      days planned without scrolling: the span from the first to the last date whose things are on screen.
+    Legibility   characters of the titles readable on screen, per thing (a cut title counts its visible share).
+    Conflicts    per clash: 0 when both are on screen drawn side by side over their shared time, 1 when both are on
+                 screen with their times written (the reader works the clash out), 2 when it cannot be seen.
+    Switching    actions to change view (1 tabs, 2 menu) and the reach to the way.
+  Phone 360x740 and Windows 1100x660 (Horizon and Legibility on both); Calm as in every part.
   Control: the year view by default (twelve small months, no titles), the views behind ⚙ › Calendar view.
 """
 CAL_SPACE = {"default": ["month", "week", "day", "agenda"], "switch": ["tabs", "menu"]}
@@ -282,17 +292,12 @@ EVENTS = [
     (10, 20.0, 22.0, "Dinner at Ana's", "event"), (11, None, None, "Hike", "event"), (14, 17.0, 17.5, "Haircut", "event"),
     (14, 19.0, 20.0, "Mum's birthday dinner", "event"), (20, 8.5, 9.5, "Car service", "event"), (22, 19.0, 21.0, "Book club", "event"),
     (27, None, None, "Parents visit", "event"), (30, 21.0, 23.0, "Concert", "event"), (30, 9.0, 10.0, "Dentist check", "event"),
+    (5, 8.5, 9.25, "School run", "event"), (8, 13.0, 14.0, "Call with Leo", "event"),
 ]
+CLASHES = [("School run", "Dentist"), ("Lunch with Sam", "Call with Leo")]
 WEEK = range(5, 12)
 NOW = 10.25   # 10:15 on Mon 5 Oct
-# the questions, and what each view needs to answer them by itself (actions; 99: it cannot)
-CAL_Q = ["next", "thu_free", "the_20th", "week_full"]
-CAL_INVIEW = {
-    "month": {"next": 1, "thu_free": 1, "the_20th": 1, "week_full": 0},     # times are not in the cells: open the day; the week's row is seen
-    "week": {"next": 0, "thu_free": 0, "the_20th": 2, "week_full": 0},      # two swipes to the 20th's week
-    "day": {"next": 0, "thu_free": 3, "the_20th": 15, "week_full": 6},      # a swipe a day
-    "agenda": {"next": 0, "thu_free": 1, "the_20th": 3, "week_full": 1},    # scrolls; free time read from the times
-}
+TODAY_D = 5
 
 
 def hh(x):
@@ -301,7 +306,7 @@ def hh(x):
 
 def ev_html(ev, show_time=False):
     d, s, en, title, kind = ev
-    return '<div class="ev" data-tap="Open event"><span class="tt">%s%s</span></div>' % (hh(s) + " " if (show_time and s is not None) else "", kit.ud(e(title)))
+    return '<div class="ev" data-tap="Open event" data-day="%d"><span class="tt">%s%s</span></div>' % (d, hh(s) + " " if (show_time and s is not None) else "", kit.ud(e(title)))
 
 
 def month_html():
@@ -316,43 +321,62 @@ def month_html():
             n, out = day, False
         evs = [] if out else sorted([x for x in EVENTS if x[0] == day], key=lambda x: (x[1] is not None, x[1] or 0))
         inner = "".join(ev_html(x) for x in evs[:3]) + ('<div class="more">+%d</div>' % (len(evs) - 3) if len(evs) > 3 else "")
-        cells.append('<div class="c%s%s" data-tap="Day %d"><span class="n">%d</span>%s</div>' % (" out" if out else "", " today" if (day == 5 and not out) else "", n, n, inner))
+        cells.append('<div class="c%s%s" data-tap="Day %d"><span class="n">%d</span>%s</div>' % (" out" if out else "", " today" if (day == TODAY_D and not out) else "", n, n, inner))
     return '<div class="cal"><div class="mgrid">%s</div></div>' % "".join(cells)
 
 
-def timegrid(days, hour_px, first=7.0, gutter=34, with_tray=None):
-    """A time grid for the given days (columns); events placed by start and end."""
+def lanes_of(evs):
+    """Side-by-side columns for clashing events: (event, column, columns in its cluster)."""
+    evs = sorted(evs, key=lambda x: x[1])
+    out, cluster, ends = [], [], []
+    def flush():
+        n = max(c for _, c in cluster) + 1 if cluster else 1
+        out.extend((x, c, n) for x, c in cluster)
+    for x in evs:
+        end = x[2] if x[2] is not None else x[1] + 0.5
+        if cluster and x[1] >= max(ends):
+            flush()
+            cluster, ends = [], []
+        used = {c for (y, c), en in zip(cluster, ends) if en > x[1]}
+        col = min(c for c in range(len(cluster) + 1) if c not in used)
+        cluster.append((x, col))
+        ends.append(end)
+    flush()
+    return out
+
+
+def timegrid(days, hour_px, first=7.0, gutter=34):
+    """A time grid for the given days (columns); clashing events side by side; the now line on today."""
     hrs = "".join('<div class="hr" style="top:%dpx"><span>%02d</span></div>' % ((h - first) * hour_px, h) for h in range(int(first), 24))
     evs = []
     n = len(days)
     for ci, day in enumerate(days):
-        for x in EVENTS:
-            if x[0] != day or x[1] is None:
-                continue
+        for x, col, ncol in lanes_of([x for x in EVENTS if x[0] == day and x[1] is not None]):
             end = x[2] if x[2] is not None else x[1] + 0.5
             top = (x[1] - first) * hour_px
             h = max(16 if n > 1 else 34, (end - x[1]) * hour_px - 2)
-            left = "calc(%dpx + (100%% - %dpx) * %g + 1px)" % (gutter, gutter, ci / n)
-            width = "calc((100%% - %dpx) / %d - 2px)" % (gutter, n)
+            left = "calc(%dpx + (100%% - %dpx) * %g + 1px)" % (gutter, gutter, (ci + col / ncol) / n)
+            width = "calc((100%% - %dpx) / %d - 2px)" % (gutter, n * ncol)
             sub = '<span class="tm2">%s</span>' % (hh(x[1]) + ("–" + hh(x[2]) if x[2] else "")) if n == 1 else ""
-            evs.append('<div class="tev ev" data-tap="Open event" style="top:%dpx;height:%dpx;left:%s;width:%s"><span class="tt">%s</span>%s</div>' % (top, h, left, width, kit.ud(e(x[3])), sub))
-    return '<div class="tgrid" style="top:%dpx">%s%s</div>' % (-int((NOW - 1 - first) * hour_px) if False else 0, hrs, "".join(evs))
+            evs.append('<div class="tev ev" data-tap="Open event" data-day="%d" style="top:%dpx;height:%dpx;left:%s;width:%s"><span class="tt">%s</span>%s</div>' % (
+                day, top, h, left, width, kit.ud(e(x[3])), sub))
+        if day == TODAY_D:
+            evs.append('<div class="now" style="top:%dpx;left:calc(%dpx + (100%% - %dpx) * %g);width:calc((100%% - %dpx) / %d)"></div>' % (
+                (NOW - first) * hour_px, gutter, gutter, ci / n, gutter, n))
+    return '<div class="tgrid">%s%s</div>' % (hrs, "".join(evs))
 
 
 def week_html(hour_px=40):
-    head = '<div class="wkhead"><span style="flex:0 0 34px"></span>%s</div>' % "".join('<span data-tap="Day %d">%s %d</span>' % (d, w, d) for w, d in zip("MTWTFSS", WEEK))
+    head = '<div class="wkhead"><span style="flex:0 0 34px"></span>%s</div>' % "".join(
+        '<span data-tap="Day %d"%s>%s %d</span>' % (d, ' class="today"' if d == TODAY_D else "", w, d) for w, d in zip("MTWTFSS", WEEK))
     allday = [x for x in EVENTS if x[0] in WEEK and x[1] is None]
     strip = '<div class="wkhead" style="min-height:20px"><span style="flex:0 0 34px"></span>%s</div>' % "".join(
-        '<span>%s</span>' % "".join('<div class="ev" data-tap="Open event"><span class="tt">%s</span></div>' % kit.ud(e(x[3])) for x in allday if x[0] == d) for d in WEEK)
+        '<span>%s</span>' % "".join('<div class="ev" data-tap="Open event" data-day="%d"><span class="tt">%s</span></div>' % (x[0], kit.ud(e(x[3]))) for x in allday if x[0] == d) for d in WEEK)
     return head + strip + '<div class="cal">%s</div>' % timegrid(list(WEEK), hour_px)
 
 
-def day_html(hour_px=48, tray_items=None):
-    tray = ""
-    if tray_items:
-        tray = '<div class="tray">%s</div>' % "".join(
-            '<div class="row" data-tap="Open item"><span class="tm kind">%s</span><span class="t">%s</span></div>' % (g, kit.ud(e(n))) for g, n in tray_items)
-    return '<div class="dayh">Mon 5 Oct</div>' + tray + '<div class="cal">%s</div>' % timegrid([5], hour_px)
+def day_html(hour_px=48):
+    return '<div class="dayh today">Mon 5 Oct</div><div class="cal">%s</div>' % timegrid([TODAY_D], hour_px)
 
 
 def agenda_html():
@@ -361,10 +385,15 @@ def agenda_html():
         evs = sorted([x for x in EVENTS if x[0] == d], key=lambda x: (x[1] is not None, x[1] or 0))
         if not evs:
             continue
-        out.append('<div class="dayh">%s %d Oct</div>' % (["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"][(d - 5) % 7], d))
+        out.append('<div class="dayh%s">%s %d Oct</div>' % (" today" if d == TODAY_D else "", ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"][(d - 5) % 7], d))
+        nowed = d != TODAY_D
         for x in evs:
+            if not nowed and x[1] is not None and x[1] > NOW:
+                out.append('<div class="now agn"></div>')
+                nowed = True
             tm = (hh(x[1]) + ("<br>" + hh(x[2]) if x[2] else "")) if x[1] is not None else ("◦" if x[4] == "task" else "all day")
-            out.append('<div class="row ev" data-tap="Open event" style="background:none;font-size:15px;line-height:1.3;white-space:normal"><span class="tm">%s</span><span class="t tt">%s</span></div>' % (tm, kit.ud(e(x[3]))))
+            out.append('<div class="row ev" data-tap="Open event" data-day="%d" style="background:none;font-size:15px;line-height:1.3;white-space:normal"><span class="tm">%s</span><span class="t tt">%s</span></div>' % (
+                d, tm, kit.ud(e(x[3]))))
     return '<div class="cal" style="background:none">%s</div>' % "".join(out)
 
 
@@ -396,114 +425,259 @@ def cal_desk(view, switch, theme="light"):
     return desk_doc("Calendar", title, '<div style="flex:1;display:flex;flex-direction:column;gap:6px;min-width:0">%s</div>' % body, theme)
 
 
-DENSITY_JS = ("(function(){var c=document.querySelector('.cal')||document.body;var cb=c.getBoundingClientRect();var seen=0,cut=0,narrow=999;"
-              "document.querySelectorAll('.ev').forEach(function(e){var r=e.getBoundingClientRect();if(!r.height)return;"
-              "if(r.top>=Math.min(cb.top,r.top)&&r.bottom<=cb.bottom+1&&r.top<cb.bottom){seen++;var tt=e.querySelector('.tt')||e;"
-              "if(tt.scrollWidth>tt.clientWidth+1||tt.scrollHeight>tt.clientHeight+1)cut++;narrow=Math.min(narrow,Math.round(r.width))}});"
-              "var hrs=document.querySelectorAll('.hr');var hs=0;hrs.forEach(function(h){var r=h.getBoundingClientRect();if(r.top>=cb.top-1&&r.top<=cb.bottom)hs++});"
-              "return [seen,cut,hs,narrow]})()")
+CAL_JS = ("(function(){var c=document.querySelector('.cal')||document.body;var b=c.parentElement.getBoundingClientRect();var k=c.getBoundingClientRect();"
+          "var cb={top:b.top,left:b.left,right:b.right,bottom:k.bottom};"
+          "function vis(r){return r.height>0&&r.top>=cb.top-1&&r.bottom<=cb.bottom+1&&r.left>=cb.left-1&&r.right<=cb.right+1}var evs=[];"
+          "document.querySelectorAll('.ev').forEach(function(el){var r=el.getBoundingClientRect();if(!vis(r))return;var tt=el.querySelector('.tt')||el;"
+          "var txt=tt.textContent;var share=tt.scrollWidth>0?Math.min(1,tt.clientWidth/tt.scrollWidth):1;"
+          "evs.push({day:parseInt(el.dataset.day),chars:Math.round(txt.length*share*10)/10,title:(el.querySelector('.ud')||tt).textContent,"
+          "timed:/\\d\\d:\\d\\d/.test(el.textContent)?1:0,x:r.left,y:r.top,w:r.width,h:r.height})});"
+          "var tod=0,now=0;document.querySelectorAll('.today').forEach(function(el){var r=el.getBoundingClientRect();if(r.height>0&&r.bottom>0&&r.top<cb.bottom)tod=1});"
+          "document.querySelectorAll('.now').forEach(function(el){var r=el.getBoundingClientRect();if(r.top>=cb.top-1&&r.top<=cb.bottom+1)now=1});"
+          "return {evs:evs,today:tod,now:now}})()")
 
 
-def view_density(view, desk=False):
+def cal_read(view, switch, desk=False):
     if desk:
-        d = cal_desk(view, "tabs")
-        return T.probe(d, "t2-dens-desk-" + view, DENSITY_JS, 1100, 660)
-    return T.probe(doc(cal_phone(view, "tabs")), "t2-dens-" + view, DENSITY_JS)
+        return T.probe(cal_desk(view, switch), "t2-cal2-desk-%s-%s" % (view, switch), CAL_JS, 1100, 660)
+    return T.probe(doc(cal_phone(view, switch)), "t2-cal2-%s-%s" % (view, switch), CAL_JS)
+
+
+def horizon(rd):
+    days = [x["day"] for x in rd["evs"]]
+    return (max(days) - min(days) + 1) if days else 0
+
+
+def legible(rd):
+    return round(sum(x["chars"] for x in rd["evs"]) / len(rd["evs"]), 2) if rd["evs"] else 0
+
+
+def clash_cost(rd):
+    cost = []
+    for a, b in CLASHES:
+        ea = [x for x in rd["evs"] if x["title"] == a]
+        eb = [x for x in rd["evs"] if x["title"] == b]
+        if not (ea and eb):
+            cost.append(2)
+            continue
+        A_, B_ = ea[0], eb[0]
+        yover = min(A_["y"] + A_["h"], B_["y"] + B_["h"]) - max(A_["y"], B_["y"])
+        xover = min(A_["x"] + A_["w"], B_["x"] + B_["w"]) - max(A_["x"], B_["x"])
+        if yover > 2 and xover <= 1:
+            cost.append(0)
+        elif A_["timed"] and B_["timed"]:
+            cost.append(1)
+        else:
+            cost.append(2)
+    return sum(cost) / len(cost)
 
 
 def score_cal(v):
-    if v.get("control"):
-        d = doc(cal_phone("month", "control"))
-        tp = T.taps(d)
-        # the year view answers nothing by itself; ⚙ › Calendar view › a view = 3, then that view's actions
-        q = [3 + min(CAL_INVIEW[x][k] for x in VIEWS) for k in CAL_Q]
-        return {"q_actions": round(sum(q) / len(q), 2), "switch_actions": 3, "seen": 0, "cut": 0, "hours": 0, "narrow_px": 0,
-                "reach_switch": round(T.fitts(THUMB, tp["Settings"]), 3), "desk_seen": 0, "desk_cut": 0, "small": [],
-                "clutter": T.clutter_of(lambda th: doc(cal_phone("month", "control"), th)), "desk_clutter": dclutter(lambda th: cal_desk("month", "control", th))}
-    view, sw = v["default"], v["switch"]
-    cost = 1 if sw == "tabs" else 2
-    q = [min(CAL_INVIEW[view][k], cost + min(CAL_INVIEW[x][k] for x in VIEWS if x != view)) for k in CAL_Q]
-    seen, cut, hours, narrow = view_density(view)
-    dseen, dcut, _, _ = view_density(view, True)
+    ctl = v.get("control")
+    view, sw = ("month", "control") if ctl else (v["default"], v["switch"])
+    cost = 3 if ctl else (1 if sw == "tabs" else 2)
+    rd, rdd = cal_read(view, sw), cal_read(view, sw, True)
+    now_a = 0 if (rd["today"] and rd["now"]) else (1 if rd["today"] else 1 + cost)
     d = doc(cal_phone(view, sw))
     tp = T.taps(d)
-    way = tp.get("View month" if view != "month" else "View week") or tp.get("View menu")
-    return {"q_actions": round(sum(q) / len(q), 2), "switch_actions": cost, "seen": seen, "cut": cut, "hours": hours, "narrow_px": narrow if narrow < 999 else 0,
-            "reach_switch": round(T.fitts(THUMB, way), 3), "desk_seen": dseen, "desk_cut": dcut,
-            "small": small_of(tp, {"View menu", "View month", "View week", "View day", "View agenda"}),
+    way = tp["Settings"] if ctl else (tp.get("View month" if view != "month" else "View week") or tp.get("View menu"))
+    return {"now_actions": now_a, "horizon_days": horizon(rd), "desk_horizon_days": horizon(rdd), "legible_chars": legible(rd), "desk_legible_chars": legible(rdd),
+            "clash_cost": clash_cost(rd), "switch_actions": cost, "reach_switch": round(T.fitts(THUMB, way), 3),
+            "small": [] if ctl else small_of(tp, {"View menu", "View month", "View week", "View day", "View agenda"}),
             "clutter": T.clutter_of(lambda th: doc(cal_phone(view, sw), th)), "desk_clutter": dclutter(lambda th: cal_desk(view, sw, th))}
 
 
-# ==== Part day: what a calendar day holds, and its filter =====================================================================
+# ==== Part day: what a calendar day holds, its layout, and its filter ===========================================================
 """
-  show    events (events only), tasks (events, tasks and reminders), everything (events, tasks, reminders, habits,
-          checklists and readings: all that Today shows for the day)
-  filter  none (what the day holds is fixed), chips (All · Events · Tasks · Routines under the header: one tap shows one
-          kind, All again shows the setting), menu (✎ › Show: the kinds as switches; 2 actions)
-  The day: Mon 5 Oct, on the day view (things with no time in a tray above the hours). Counted: the day's things shown
-  of the 13 Today has (Today's own rows), the actions to see another set (none: it cannot, 99). Measured: titles cut,
-  hours seen (the tray pushes the hours down), clutter, and Windows' clutter (the day beside Today's column).
-  Control: everything on two-line rows, a filter only in ⚙ › Calendar › Layers (3 actions).
+  Rescored 2026-10-12 (owner: "the everything option looks too much like the control option"). The first scoring drew
+  every option as the same tray over the hours, so the control differed only in where the filter sat and in row height;
+  nothing measured whether a task, an event, a reminder and a routine can be told apart, or how fast the hour is found.
+  layout  timeline (one list in time order, the untimed first; each row a time or "—", the kind's mark, the title),
+          grid (the untimed in a tray above the hours; on the hours an event is a block over its span, a reminder a
+          round pin at its minute, a timed routine an outlined strip), sections (Events · Tasks · Reminders · Routines,
+          each a list in time order), lanes (the hours split into a column per kind; the untimed at the top of their lane)
+  show    events (events only), tasks (events, tasks and reminders), everything (all that Today shows for the day)
+  filter  none (fixed), chips (All · Events · Tasks · Routines: 1 tap), menu (✎ › Show: 2 actions)
+  The day: Mon 5 Oct, Today's eight rows (tier_t1.KINDS); now is 10:15.
+  Measured off the laid-out page, every item tagged with its kind and time:
+    kind_sep     for each pair of kinds shown, the share of three preattentive channels that differ: region (the zone,
+                 lane or section the kind sits in), shape (height, width and corner radius of its mark, bucketed), and the
+                 leading glyph. 1: every pair differs on all three; 0: the kinds look alike.
+    time_lookup  readables (items, hour labels, section headers) the eye passes to answer "what is at 09:00" and
+                 "what is at 15:00" (the second only when reminders show). When the reading order is in time order, the
+                 target's place in it; when it is not (sections), every readable, since nothing says where else 15:00 sits.
+    rows_seen, cut (titles cut), clutter, Windows' clutter.
+  Control: everything in one list in the order made, every row alike (no mark, no time column, the time on a second
+  line), the filter only in ⚙ › Calendar › Layers (3 actions).
 """
-DAY_SPACE = {"show": ["events", "tasks", "everything"], "filter": ["none", "chips", "menu"]}
-DAY_ALL = [x for x in EVENTS if x[0] == 5]   # Dentist, Call the bank, Pay the fine
-ROUTINE_ITEMS = [("↻", "Walk"), ("↻", "Water · 3 of 8"), ("≡", "Morning routine"), ("∿", "Sleep")]
-TODAY_TOTAL = len(t.KINDS) + 0   # the 8 rows Today shows for Mon 5 Oct
-SHOW_COUNT = {"events": 1, "tasks": 4, "everything": len(t.KINDS)}   # Dentist; + Pay the fine, Call the bank, Return library books; + 4 routines
+DAY_SPACE = {"layout": ["timeline", "grid", "sections", "lanes"], "show": ["events", "tasks", "everything"], "filter": ["none", "chips", "menu"]}
+KIND_CLASS = {"event": "event", "task": "task", "reminder": "reminder", "habit": "routine", "checklist": "routine", "reading": "routine"}
+KIND_GLYPH = {"event": "▭", "task": "◦", "reminder": "◴", "routine": "↻"}
+SECTION = {"event": "Events", "task": "Tasks", "reminder": "Reminders", "routine": "Routines"}
+SHOWS = {"events": ("event",), "tasks": ("event", "task", "reminder"), "everything": ("event", "task", "reminder", "routine")}
+SPAN = {"Dentist": 9.75}
+DAY_TARGETS = (("Dentist", 9.0), ("Call the bank", 15.0))
+TODAY_TOTAL = len(t.KINDS)
 
 
-def day_tray(show):
-    if show == "events":
-        return []
-    tray = [("◦", "Pay the fine"), ("◦", "Return library books")]
-    if show == "everything":
-        tray += ROUTINE_ITEMS
-    return tray
+def day_items(show):
+    """(title, kind class, start or None, end or None), from Today's rows."""
+    out = []
+    for k in t.KINDS:
+        kc = KIND_CLASS[k[0]]
+        if kc not in SHOWS[show]:
+            continue
+        st = None
+        if k[2]:
+            hh_, mm_ = k[2].split(":")
+            st = int(hh_) + int(mm_) / 60
+        out.append((k[1], kc, st, SPAN.get(k[1])))
+    return out
+
+
+def di(title, kc, st, cls="drow", style="", lead=None, glyph=True):
+    """One item, tagged for the probe."""
+    g = '<span class="g">%s</span>' % KIND_GLYPH[kc] if glyph else ""
+    ld = '<span class="tm">%s</span>' % lead if lead is not None else ""
+    return '<div class="di %s" data-tap="Open item" data-kind="%s" data-time="%s" style="%s">%s%s<span class="tt">%s</span></div>' % (
+        cls, kc, "" if st is None else st, style, ld, g, kit.ud(e(title)))
+
+
+def hours_axis(first, last, hour_px, gutter):
+    return "".join('<div class="hr" data-time="%d" style="top:%dpx"><span>%02d</span></div>' % (h, (h - first) * hour_px, h) for h in range(int(first), int(last) + 1))
+
+
+def placed(it, first, hour_px, left, width):
+    title, kc, st, en = it
+    top = (st - first) * hour_px
+    if kc == "event":
+        h = max(34, ((en or st + 0.5) - st) * hour_px - 2)
+        return di(title, kc, st, "blk", "top:%dpx;height:%dpx;left:%s;width:%s" % (top, h, left, width))
+    if kc == "reminder":
+        return di(title, kc, st, "pin", "top:%dpx;left:%s;width:%s" % (top + 2, left, width))
+    return di(title, kc, st, "strip", "top:%dpx;left:%s;width:%s" % (top + 2, left, width))
+
+
+def day_body(layout, show):
+    items = day_items(show)
+    untimed = [x for x in items if x[2] is None]
+    timed = sorted([x for x in items if x[2] is not None], key=lambda x: x[2])
+    if layout == "timeline":
+        rows = [di(x[0], x[1], None, lead="—") for x in untimed] + [di(x[0], x[1], x[2], lead=hh(x[2])) for x in timed]
+        return '<div class="zone dz" data-region="list">%s</div>' % "".join(rows)
+    if layout == "sections":
+        out = []
+        for kc in SHOWS[show]:
+            part = [x for x in untimed if x[1] == kc] + [x for x in timed if x[1] == kc]
+            if part:
+                out.append('<div class="zone dz" data-region="%s"><div class="dayh" data-head="1">%s</div>%s</div>' % (
+                    kc, SECTION[kc], "".join(di(x[0], x[1], x[2], lead=hh(x[2]) if x[2] is not None else "—") for x in part)))
+        return "".join(out)
+    first, hour_px, gutter = 7.0, 44, 34
+    if layout == "grid":
+        tray = '<div class="tray" data-region="tray">%s</div>' % "".join(di(x[0], x[1], None) for x in untimed) if untimed else ""
+        evs = "".join(placed(x, first, hour_px, "calc(%dpx + 2px)" % gutter, "calc(100%% - %dpx)" % (gutter + 4)) for x in timed)
+        return tray + '<div class="cal" data-region="grid"><div class="tgrid">%s%s</div></div>' % (hours_axis(first, 23, hour_px, gutter), evs)
+    # lanes
+    kinds = SHOWS[show]
+    n = len(kinds)
+    lane = lambda i: ("calc(%dpx + (100%% - %dpx) * %g + 1px)" % (gutter, gutter, i / n), "calc((100%% - %dpx) / %d - 2px)" % (gutter, n))
+    heads = '<div class="lanes"><span style="flex:0 0 %dpx"></span>%s</div>' % (gutter, "".join(
+        '<span data-region="lane-%s">%s%s</span>' % (kc, '<b class="lh">%s</b>' % SECTION[kc], "".join(di(x[0], x[1], None, "lchip") for x in untimed if x[1] == kc)) for kc in kinds))
+    evs = "".join(placed(x, first, hour_px, *lane(kinds.index(x[1]))) for x in timed)
+    return heads + '<div class="cal" data-region="grid"><div class="tgrid">%s%s</div></div>' % (hours_axis(first, 23, hour_px, gutter), evs)
+
+
+DAY_CSS = """
+.dz{flex:none}.di{display:flex;align-items:center;gap:8px;font-size:15px;color:var(--ink);min-width:0}
+.di .tt{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.di .g{width:18px;flex:none;text-align:center;color:var(--dim)}
+.di .tm{width:44px;flex:none;color:var(--dim);font-size:13px}
+.drow{min-height:48px;border-bottom:1px solid var(--zone2)}
+.blk{position:absolute;background:var(--zone2);border-radius:6px;padding:2px 4px;align-items:flex-start;font-size:13px;box-shadow:inset 3px 0 0 var(--dim)}
+.pin{position:absolute;height:22px;border-radius:11px;box-shadow:inset 0 0 0 1.5px var(--dim);padding:0 6px;font-size:13px;background:var(--zone)}
+.strip{position:absolute;height:22px;border-radius:2px;border:1px dashed var(--dim);padding:0 4px;font-size:13px}
+.lchip{min-height:28px;font-size:12px;border-radius:6px;background:var(--zone2);padding:0 3px;margin:1px 1px 0;gap:2px}
+.lchip .g{width:12px}
+.lanes{display:flex;flex:none;gap:0}.lanes>span{flex:1;min-width:0;display:flex;flex-direction:column}
+.lanes .lh{font-size:12px;color:var(--dim);font-weight:400;text-align:center;letter-spacing:.04em;text-transform:uppercase}
+.same{min-height:64px;border-bottom:1px solid var(--zone2);flex-direction:column;align-items:flex-start;justify-content:center;gap:0}
+.same .sub{font-size:13px;color:var(--dim)}
+"""
 
 
 def day_phone(v):
     if v.get("control"):
-        tray = [(g, n) for g, n in day_tray("everything")]
-        body = '<div class="dayh">Mon 5 Oct</div><div class="tray">%s</div>' % "".join(
-            '<div class="row" data-tap="Open item" style="min-height:64px"><span class="tm kind">%s</span><span class="t">%s<span class="sub">%s</span></span></div>' % (g, kit.ud(e(n)), "No time · Today") for g, n in tray) + '<div class="cal">%s</div>' % timegrid([5], 48)
-        return kit.phone(header("Mon 5 Oct"), body, kit.bar("Calendar"))
-    show, flt = v["show"], v["filter"]
-    events_only = show == "events"
-    grid_evs = None if not events_only else None
-    body = day_html(48, day_tray(show))
-    if not events_only and show == "tasks":
-        pass
-    # reminders are timed: Call the bank sits on the hours unless only events are shown
-    if events_only:
-        body = body.replace('data-tap="Open event" style="top:%dpx' % ((15.0 - 7) * 48), 'data-tap="Open event" hidden style="top:%dpx' % ((15.0 - 7) * 48))
-    if show == "everything":
-        body = body.replace('<div class="tgrid" style="top:0px">', '<div class="tgrid" style="top:0px"><div class="tev ev" data-tap="Open event" style="top:%dpx;height:22px;left:calc(34px + 1px);width:calc(100%% - 36px)"><span class="tt">%s</span></div>' % (
-            (14 - 7) * 48 + 24, kit.ud("Water · next block")), 1)
-    chip = ""
-    if flt == "chips":
+        rows = "".join('<div class="di same" data-tap="Open item" data-kind="%s" data-time="%s"><span class="tt">%s</span><span class="sub">%s</span></div>' % (
+            KIND_CLASS[k[0]], k[2] and (int(k[2][:2]) + int(k[2][3:]) / 60) or "", kit.ud(e(k[1])), (k[2] or "No time") + " · Today") for k in t.KINDS)
+        return kit.phone(header("Mon 5 Oct"), '<div class="zone dz" data-region="list">%s</div>' % rows, kit.bar("Calendar"))
+    body = day_body(v["layout"], v["show"])
+    if v["filter"] == "chips":
         body = '<div class="fchips">%s</div>' % "".join('<span class="%s" data-tap="Show %s">%s</span>' % ("on" if i == 0 else "", n, n) for i, n in enumerate(("All", "Events", "Tasks", "Routines"))) + body
     return kit.phone(header("Mon 5 Oct"), body, kit.bar("Calendar"))
 
 
+def day_doc(v, theme="light"):
+    return doc(day_phone(v), theme, DAY_CSS)
+
+
 def day_desk(v, theme="light"):
     inner = day_phone(v).split('<div class="body">', 1)[1].rsplit('<div class="bar">', 1)[0][:-len("</div>")]
-    return desk_doc("Calendar", "Mon 5 Oct", '<div class="dcol" style="width:380px;flex:none">%s</div><div style="flex:1;display:flex;flex-direction:column;gap:6px">%s</div>' % (
-        t.rows_today(t.row_d), inner), theme)
+    return desk_doc("Calendar", "Mon 5 Oct", '<div class="dcol" style="width:380px;flex:none">%s</div><div style="flex:1;display:flex;flex-direction:column;gap:6px;min-width:0">%s</div>' % (
+        t.rows_today(t.row_d), inner), theme, DAY_CSS)
+
+
+DAY_JS = ("(function(){var vb=(document.querySelector('.bar')||{getBoundingClientRect:function(){return {top:740}}}).getBoundingClientRect().top;var out=[];"
+          "document.querySelectorAll('.di,.hr,[data-head]').forEach(function(el){var r=el.getBoundingClientRect();if(!r.height&&!el.classList.contains('hr'))return;"
+          "var reg=el.closest('[data-region]');var g=el.querySelector('.g');var tt=el.querySelector('.tt');var cs=getComputedStyle(el);"
+          "out.push({it:el.classList.contains('di')?1:0,k:el.dataset.kind||'',time:el.dataset.time===undefined||el.dataset.time===''?null:parseFloat(el.dataset.time),"
+          "x:Math.round(r.left),y:Math.round(r.top),w:Math.round(r.width),h:Math.round(r.height),rad:cs.borderTopLeftRadius,dash:cs.borderTopStyle,"
+          "reg:reg?reg.dataset.region:'',g:g?g.textContent:'',seen:(r.top>=0&&r.bottom<=vb+1)?1:0,"
+          "cut:tt&&(tt.scrollWidth>tt.clientWidth+1)?1:0,title:tt?tt.textContent:''})});return out})()")
+
+
+def kind_sep(items):
+    kinds = sorted({x["k"] for x in items})
+    if len(kinds) < 2:
+        return 0.0   # one kind: nothing to tell apart; 0, so a day that shows less does not win Distinction by it
+    def modal(xs):
+        return max(set(xs), key=xs.count)
+    feat = {}
+    for k in kinds:
+        xs = [x for x in items if x["k"] == k]
+        feat[k] = (modal([x["reg"] for x in xs]),
+                   modal([(x["h"] // 12, round(x["w"] / 360 * 4), x["rad"], x["dash"]) for x in xs]),
+                   modal([x["g"] for x in xs]))
+    pairs = [(a, b) for i, a in enumerate(kinds) for b in kinds[i + 1:]]
+    return round(sum(sum(fa != fb for fa, fb in zip(feat[a], feat[b])) / 3 for a, b in pairs) / len(pairs), 3)
+
+
+def time_lookup(read, items):
+    order = sorted(read, key=lambda x: (x["y"] // 8, x["x"]))
+    times = [x["time"] for x in order if x["time"] is not None]
+    in_order = all(a <= b for a, b in zip(times, times[1:]))
+    costs = []
+    for title, _ in DAY_TARGETS:
+        idx = [i for i, x in enumerate(order) if x["it"] and x["title"] == title]
+        if idx:
+            costs.append(idx[0] + 1 if in_order else len(order))
+    return round(sum(costs) / len(costs), 2)
 
 
 def score_day(v):
-    d = doc(day_phone(v))
+    d = day_doc(v)
     tp = T.taps(d)
-    seen, cut, hours, _ = T.probe(d, "t2-day-%s" % key_of(v), DENSITY_JS)
+    read = T.probe(d, "t2-day2-%s" % key_of(v), DAY_JS)
+    items = [x for x in read if x["it"]]
     if v.get("control"):
         shown, other = len(t.KINDS), 3
     else:
-        shown = SHOW_COUNT[v["show"]]
+        shown = len(day_items(v["show"]))
         other = {"none": 99, "chips": 1, "menu": 2}[v["filter"]]
-    rows_seen = seen_count(tp, "Open item") + seen_count(tp, "Open event")
-    return {"shown": shown, "missed": TODAY_TOTAL - shown, "other_actions": other, "rows_seen": rows_seen, "cut": cut, "hours": hours,
+    return {"shown": shown, "missed": TODAY_TOTAL - shown, "other_actions": other, "kind_sep": kind_sep(items), "time_lookup": time_lookup(read, items),
+            "rows_seen": sum(x["seen"] for x in items), "cut": sum(x["cut"] for x in items if x["seen"]),
             "small": small_of(tp, {"Show All", "Show Events", "Show Tasks", "Show Routines"}),
-            "clutter": T.clutter_of(lambda th: doc(day_phone(v), th)), "desk_clutter": dclutter(lambda th: day_desk(v, th))}
+            "clutter": T.clutter_of(lambda th: day_doc(v, th)), "desk_clutter": dclutter(lambda th: day_desk(v, th))}
 
 
 # ==== Part rem: the Reminders list ===========================================================================================
@@ -782,24 +956,25 @@ T.SCORERS = {"page": score_page, "cal": score_cal, "day": score_day, "rem": scor
 T.CONTROLS = {
     "page": ({"form": "page", "fields": "fifteen", "save": "words", "control": True}, "a full page, fifteen fields on two lines, Cancel and Save in words top left, Delete filled at the foot, nothing kept without Save"),
     "cal": ({"default": "year", "switch": "settings", "control": True}, "the year view by default (twelve small months, no titles), the views behind ⚙"),
-    "day": ({"show": "everything", "filter": "settings", "control": True}, "everything on two-line rows, the filter only in ⚙ › Calendar › Layers"),
+    "day": ({"layout": "made", "show": "everything", "filter": "settings", "control": True}, "everything in one list in the order made, every row alike (no mark, no time column, the time on a second line), the filter only in ⚙ › Calendar › Layers"),
     "rem": ({"order": "made", "group": "days", "skip": "page menu", "control": True}, "oldest made first, day headers, three-line rows, Skip only in the page's ⋯ menu"),
     "alarm": ({"form": "headsup", "dismiss": "tap", "snooze": "six", "skip": "list", "control": True}, "a heads-up card, Dismiss filled and wide on the thumb's side, a small Snooze beside it, six lengths, Skip only from the list"),
 }
 T.AXES = {
     "page": {"Ease": ("edit_actions", "reach"), "Context": ("-context_rows",), "Safety": ("lost_on_back",), "Clarity": ("-fields_seen", "fields_below"), "Calm": ("clutter", "desk_clutter")},
-    "cal": {"Ease": ("q_actions", "switch_actions", "reach_switch"), "Density": ("-seen", "cut", "-hours", "-desk_seen", "desk_cut"), "Calm": ("clutter", "desk_clutter")},
-    "day": {"Completeness": ("missed",), "Ease": ("other_actions",), "Density": ("-rows_seen", "cut", "-hours"), "Calm": ("clutter", "desk_clutter")},
+    "cal": {"Now": ("now_actions",), "Horizon": ("-horizon_days", "-desk_horizon_days"), "Legibility": ("-legible_chars", "-desk_legible_chars"),
+            "Conflicts": ("clash_cost",), "Switching": ("switch_actions", "reach_switch"), "Calm": ("clutter", "desk_clutter")},
+    "day": {"Completeness": ("missed",), "Ease": ("other_actions", "time_lookup"), "Distinction": ("-kind_sep",), "Density": ("-rows_seen", "cut"), "Calm": ("clutter", "desk_clutter")},
     "rem": {"Clarity": ("soonest_at", "disorder"), "Ease": ("skip_actions", "reach_skip", "skip_hidden"), "Safety": ("skip_accident",), "Density": ("-rows_seen",), "Calm": ("clutter", "desk_clutter")},
     "alarm": {"Half-asleep": ("aim_risk", "slap_risk", "snooze_miss", "dismiss_pull"), "Ease": ("snooze_actions", "skip_actions", "lock_extra", "dismiss_effort_s", "reach"), "Choice": ("-snooze_choice",), "Calm": ("cover_kpx", "clutter")},
 }
 T.TITLES = {"page": "An item's page: how it opens, its fields, how it saves", "cal": "Calendar: the default view and the way between views",
-            "day": "What a calendar day holds, and its filter", "rem": "The Reminders list: order, day headers, Skip for today",
+            "day": "What a calendar day holds, its layout, and its filter", "rem": "The Reminders list: order, day headers, Skip for today",
             "alarm": "The alarm ringing: form, dismiss, snooze, Skip for today"}
 T.DRAW = {
     "page": lambda v: [doc(page_phone(k, v)) for k in FIELDS] + [page_desk(v)],
     "cal": lambda v: ([doc(cal_phone("month", "control"))] if v.get("control") else [doc(cal_phone(v["default"], v["switch"])), cal_desk(v["default"], v["switch"])]),
-    "day": lambda v: [doc(day_phone(v)), day_desk(v)],
+    "day": lambda v: [day_doc(v), day_desk(v)],
     "rem": lambda v: [doc(rem_phone(v)), doc(rem_skip_doc(v)), rem_desk(v)],
     "alarm": lambda v: [doc(alarm_phone(v))] + ([upcoming_doc()] if (not v.get("control") and v["skip"] == "upcoming") else []),
 }

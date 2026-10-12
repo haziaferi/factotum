@@ -81,3 +81,78 @@ Measured, for next and days (`t2-rem.json`):
 | swipe | 1 | 3.390 | 1 | 1 |
 
 In place dominates selection and page on every measure. Only swipe is cheaper, and T1's answer is "no swipes at all".
+
+## What a calendar day holds: rescored with a layout (2026-10-12)
+
+The owner: "the everything option looks too much like the control option, to be reviewed/rescored".
+
+**What was wrong:**
+- Every option was drawn as the same tray over the hours.
+- So the control differed only in where the filter sat and in row height.
+- Nothing measured whether the kinds can be told apart, or how fast an hour is found.
+
+**What changed.** A layout dimension was added. Each item is tagged with its kind and its time, and two measures are read off the laid-out page.
+
+**The layouts:**
+- **timeline:** one list in time order, the untimed first.
+- **grid:** a tray of the untimed above the hours. On the hours an event is a block, a reminder a round pin, and a timed routine a dashed strip.
+- **sections:** Events, Tasks, Reminders and Routines.
+- **lanes:** a column of hours per kind.
+
+**The measures:**
+- `kind_sep`: the share of three preattentive channels (region, shape, leading glyph) that differ between each pair of kinds.
+  - 1 means every pair differs on all three.
+  - A day showing one kind scores 0, since there is nothing to tell apart. It first scored 1, which let "events only" win Distinction by showing less; the 12 rows were corrected in place.
+- `time_lookup`: readables passed, in reading order, to answer "what is at 09:00" and "what is at 15:00". When the order is not by time (sections), it counts every readable.
+
+**The new control:**
+- everything in one list, in the order made;
+- every row alike: no mark, no time column, the time on a second line;
+- the filter in Settings.
+- It is now off the front: sum 191.5, against 143 for the best "everything" option.
+
+**Axes:** Completeness (missed), Ease (other_actions, time_lookup), Distinction (kind_sep), Density (rows_seen, cut), Calm.
+
+With everything shown (`t2-day.json`):
+
+| Layout + filter | Sum | Lookup | Kinds apart | Titles cut | On the front |
+|---|---|---|---|---|---|
+| timeline + menu | 143 | 7 | 0.333 | 0 | yes |
+| timeline + chips | 151 | 7 | 0.333 | 0 | yes |
+| sections + menu | 157.5 | 12 | 0.667 | 0 | yes |
+| grid + chips | 183.5 | 13 | 0.833 | 0 | yes |
+| lanes + chips | 193 | 13 | 0.889 | 4 | yes |
+| control | 191.5 | 8 | 0 | 0 | no |
+
+**The trade:**
+- The timeline finds an hour fastest but tells the kinds apart by glyph alone, which is the owner's objection.
+- The grid tells them apart on region and shape too, for six more readables.
+- Lanes cut four titles at phone width.
+
+## Calendar: rescored on the owner's axes (2026-10-12)
+
+The first scoring left all eight options on the front, tied on axes that did not tell them apart. It was redone on the owner's axes.
+
+**Axes:**
+- **Now:** actions to see today and the current time.
+- **Horizon:** the span of days whose things are on screen, phone and Windows.
+- **Legibility:** title characters readable per thing, phone and Windows.
+- **Conflicts:** two clashes were added to the sample, School run against Dentist today and Call with Leo against Lunch with Sam on Thursday.
+  - 0: drawn side by side;
+  - 1: times written, so the reader works the clash out;
+  - 2: unseen.
+- **Switching** and **Calm**, kept.
+
+**Drawing changes:** the week and day grids now set clashing events side by side, and draw a now line. The agenda draws the now line between rows.
+
+All eight are still on the front, but now on real trade-offs (`t2-cal.json`):
+
+| Default + switch | Sum | Now | Horizon (days) | Legible chars, phone / Windows | Clashes |
+|---|---|---|---|---|---|
+| week + tabs | 48.5 | 0 | 7 | 5.3 / 10.5 | 0 |
+| agenda + tabs | 48.5 | 0 | 4 | 9.4 / 9.4 | 1.5 |
+| month + tabs | 49.5 | 1 | 29 | 6.8 / 10.8 | 2 |
+| day + tabs | 50 | 0 | 1 | 10.0 / 10.0 | 1 |
+| control (year) | 90 | 4 | 0 | 0 / 0 | 2 |
+
+The menu options each sit 1 to 4.5 above their tabs twin.
