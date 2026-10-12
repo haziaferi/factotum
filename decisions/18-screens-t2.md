@@ -58,3 +58,26 @@ It had the lowest sum of the twelve options (49.5):
 - nothing is lost on leaving.
 
 On Windows, the row grows in Today's column.
+
+## The Reminders list: in-place Skip scored (2026-10-12)
+
+The owner's pick:
+- **next, days**;
+- and, for consistency, **Skip in the same in-place form as an item's page**.
+
+That form was not in the space. Added as `skip: inplace`:
+- the row grows in place as an item's page does;
+- its fields are listed, with **Skip for today** under When;
+- the skipped row folds into "Done today" (decision 15).
+- That makes 2 actions: the row, then Skip.
+
+Measured, for next and days (`t2-rem.json`):
+
+| Skip | Actions | Reach (bits) | Hidden | Set off by a scroll |
+|---|---|---|---|---|
+| **inplace** | **2** | **3.276** | 0 | 0 |
+| selection (T1.8 I) | 2 | 3.914 | 0 | 0 |
+| page | 3 | 3.436 | 0 | 0 |
+| swipe | 1 | 3.390 | 1 | 1 |
+
+In place dominates selection and page on every measure. Only swipe is cheaper, and T1's answer is "no swipes at all".

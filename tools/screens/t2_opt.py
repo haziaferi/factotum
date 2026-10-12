@@ -512,13 +512,14 @@ def score_day(v):
   group   days (Today · Tomorrow · This week · Later headers), flat
   skip    selection (T1.8 I: a long press selects, Skip for today sits in the selection's header: 2 actions),
           swipe (a swipe left on the row: 1 gesture, seen nowhere), page (the row opens its page, Skip for today
-          there, then ‹: 3)
+          there, then ‹: 3), inplace (owner, 2026-10-12: the row grows in place as an item's page does, T2 "inplace, all,
+          auto"; its fields with Skip for today under When: 2, the skipped row folds into "Done today")
   Ten placeholder reminders; now is Mon 5 Oct, 10:15. Measured: rows seen, where the soonest sits (its place in the
   list), the disorder against time (the share of pairs out of time order), reach to Skip, clutter, Windows' clutter.
   Counted: swipe can be set off by a sideways scroll (accident 1) and is found by no mark on screen (hidden 1).
   Control: oldest made first, day headers, every row on three lines, Skip only in the page's ⋯ menu (4 actions).
 """
-REM_SPACE = {"order": ["next", "title", "manual"], "group": ["days", "flat"], "skip": ["selection", "swipe", "page"]}
+REM_SPACE = {"order": ["next", "title", "manual"], "group": ["days", "flat"], "skip": ["selection", "swipe", "page", "inplace"]}
 # (title, next as hours from now, when text, repeat text, made order)
 REMS = [
     ("Call the bank", 4.75, "15:00", "Once", 3), ("Take vitamins", 21.75, "Tue<br>08:00", "Every day", 0), ("Stretch", 1.75, "12:00", "Every 2 hours", 5),
@@ -593,6 +594,14 @@ def rem_skip_doc(v):
         return base.replace(first, '<div style="display:flex;background:var(--zone2);border-radius:10px"><span class="skipb" data-tap="Skip" style="text-decoration:none;font-weight:600">Skip for today</span>%s</div>' % first.replace(
             'class="rrow"', 'class="rrow" style="flex:1;transform:translateX(0);background:var(--zone)"', 1), 1)
     r = rem_shown_order(v)[0]
+    if not ctl and v["skip"] == "inplace":
+        own = first.replace('data-tap="Open reminder"', 'data-tap="Close"', 1)
+        own = own[:-len("</div>")] + kit.icon_button("🗑", "Delete") + "</div>"
+        fl = [("◷", "When", kit.ud(r[2].replace("<br>", " "))), ("⤼", "Skip", "Skip for today"), ("↻", "Repeat", kit.ud(e(r[3]))),
+              ("♪", "Alert", kit.ud("Notification")), ("●", "Label", None), ("¶", "Notes", None)]
+        flds = "".join('<div class="fld%s" data-tap="%s"><i>%s</i><span class="v">%s</span></div>' % (
+            "" if val else " unset", n if n == "Skip" else "F " + n, g, val or ADD_WORD.get(n, "Add " + n.lower())) for g, n, val in fl)
+        return base.replace(first, '<div class="xp">%s%s</div>' % (own, flds), 1)
     flds = ('<div class="ipage"><div class="ttl2">%s</div><div class="fld"><i>◷</i><span class="v">%s</span></div><div class="fld"><i>↻</i><span class="v">%s</span></div></div>' % (
         kit.ud(e(r[0])), r[2].replace("<br>", " "), r[3]))
     if ctl:
@@ -616,7 +625,7 @@ def score_rem(v):
     pairs = [(a, b) for i, a in enumerate(shown) for b in shown[i + 1:]]
     disorder = sum(1 for a, b in pairs if a[1] > b[1]) / len(pairs)
     sk = T.taps(doc(rem_skip_doc(v)))
-    skip = 4 if ctl else {"selection": 2, "swipe": 1, "page": 3}[v["skip"]]
+    skip = 4 if ctl else {"selection": 2, "swipe": 1, "page": 3, "inplace": 2}[v["skip"]]
     hidden = 1 if (not ctl and v["skip"] == "swipe") else 0
     return {"rows_seen": seen_count(tp, "Open reminder"), "soonest_at": pos, "disorder": round(disorder, 3), "skip_actions": skip,
             "skip_hidden": hidden, "skip_accident": hidden, "reach_skip": round(T.fitts(THUMB, sk["Skip"]), 3),
