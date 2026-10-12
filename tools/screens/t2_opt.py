@@ -270,9 +270,11 @@ def score_page(v):
 
 # ==== Part cal: the calendar's default view and the way between views ======================================================
 """
-  default  month, week, 3day (Mon to Wed, today first: Fossify's default, added 2026-10-12 at the owner's ask), day,
-           agenda: what Calendar opens on
-  switch   tabs (Month · Week · 3 days · Day · Agenda under the header: 1 tap), menu (the view's name in the header, ▾: 2 taps)
+  default  month, week (drawn as the planner), 3day (Mon to Wed, today first, drawn as the wrapped grid): what Calendar
+           opens on. Day and Agenda were dropped (owner, 2026-10-13): 3 days dominates Day, and the week planner
+           matches or beats Agenda within the week. Week's and 3 days' forms are wk's best, pending the owner's pick.
+  switch   tabs (Month · Week · 3 days under the header: 1 tap; the owner picked tabs,
+           2026-10-13; the menu, the view's name in the header with ▾ at 2 taps, was scored before and dropped)
   Sample: Mon 5 Oct 2026 is today, now is 10:15; a placeholder month of 23 things (events, two tasks, a reminder), with
   two clashes: School run against Dentist today, Call with Leo against Lunch with Sam on Thursday.
   Rescored 2026-10-12 on the owner's axes (the first scoring, on four modelled questions, left all eight on the front):
@@ -287,8 +289,8 @@ def score_page(v):
   Phone 360x740 and Windows 1100x660 (Horizon and Legibility on both); Calm as in every part.
   Control: the year view by default (twelve small months, no titles), the views behind ⚙ › Calendar view.
 """
-CAL_SPACE = {"default": ["month", "week", "3day", "day", "agenda"], "switch": ["tabs", "menu"]}
-VIEWS = ["month", "week", "3day", "day", "agenda"]
+CAL_SPACE = {"default": ["month", "week", "3day"], "switch": ["tabs"]}
+VIEWS = ["month", "week", "3day"]   # owner, 2026-10-13: Day and Agenda dropped (3 days and the week planner dominate them), tabs picked
 # (day of October, start, end, title, kind) ; end None: no time span; start None: no time (all day, or a task)
 EVENTS = [
     (2, 10.0, 11.0, "Plumber", "event"), (5, 9.0, 9.75, "Dentist", "event"), (5, 15.0, None, "Call the bank", "reminder"),
@@ -386,6 +388,11 @@ def three_html(hour_px=40):
     return week_html(hour_px, range(TODAY_D, TODAY_D + 3))
 
 
+def three_wrap(hour_px=52):
+    """3 days as the wrapped grid (wk's best 3-day form)."""
+    return three_html(hour_px).replace('class="tev ev"', 'class="tev ev wrap"')
+
+
 def day_html(hour_px=48):
     return '<div class="dayh today">Mon 5 Oct</div><div class="cal">%s</div>' % timegrid([TODAY_D], hour_px)
 
@@ -408,7 +415,7 @@ def agenda_html():
     return '<div class="cal" style="background:none">%s</div>' % "".join(out)
 
 
-VIEW_HTML = {"month": month_html, "week": week_html, "3day": three_html, "day": day_html, "agenda": agenda_html}
+VIEW_HTML = {"month": month_html, "week": lambda: planner_html(WEEK), "3day": lambda: three_wrap(52), "day": day_html, "agenda": agenda_html}
 VIEW_NAME = {"month": "Month", "week": "Week", "3day": "3 days", "day": "Day", "agenda": "Agenda"}
 
 
@@ -429,7 +436,7 @@ def cal_desk(view, switch, theme="light"):
     if switch == "control":
         inner = cal_phone(view, switch).split('<div class="body">', 1)[1].rsplit('<div class="bar">', 1)[0][:-len("</div>")]
         return desk_doc("Calendar", "2026", '<div style="flex:1;display:flex;flex-direction:column">%s</div>' % inner, theme)
-    body = {"week": lambda: week_html(28), "3day": lambda: three_html(28)}.get(view, VIEW_HTML[view])()
+    body = {"week": lambda: planner_html(WEEK), "3day": lambda: three_wrap(40)}.get(view, VIEW_HTML[view])()
     if switch == "tabs":
         body = '<div class="vtabs" style="width:420px">%s</div>' % "".join('<span class="%s" data-tap="View %s">%s</span>' % ("on" if x == view else "", x, VIEW_NAME[x]) for x in VIEWS) + body
     title = "October 2026" + ("" if switch == "tabs" else ' <span class="vchip" data-tap="View menu" style="display:inline-flex">%s ▾</span>' % VIEW_NAME[view])

@@ -11,8 +11,8 @@
   "desk_events_seen": 15,
   "now_actions": 0,
   "small": [],
-  "clutter": 0.0561,
-  "desk_clutter": 0.0516
+  "clutter": 0.0547,
+  "desk_clutter": 0.051
  },
  {
   "v": {
@@ -26,8 +26,8 @@
   "desk_events_seen": 13,
   "now_actions": 0,
   "small": [],
-  "clutter": 0.0534,
-  "desk_clutter": 0.0416
+  "clutter": 0.052,
+  "desk_clutter": 0.041
  },
  {
   "v": {
@@ -41,8 +41,8 @@
   "desk_events_seen": 8,
   "now_actions": 0,
   "small": [],
-  "clutter": 0.0415,
-  "desk_clutter": 0.0204
+  "clutter": 0.0401,
+  "desk_clutter": 0.0198
  },
  {
   "v": {
@@ -56,8 +56,8 @@
   "desk_events_seen": 15,
   "now_actions": 0,
   "small": [],
-  "clutter": 0.0553,
-  "desk_clutter": 0.029
+  "clutter": 0.0539,
+  "desk_clutter": 0.0284
  },
  {
   "v": {
@@ -71,8 +71,8 @@
   "desk_events_seen": 7,
   "now_actions": 0,
   "small": [],
-  "clutter": 0.0531,
-  "desk_clutter": 0.0486
+  "clutter": 0.0516,
+  "desk_clutter": 0.048
  },
  {
   "v": {
@@ -86,8 +86,8 @@
   "desk_events_seen": 6,
   "now_actions": 0,
   "small": [],
-  "clutter": 0.0461,
-  "desk_clutter": 0.0383
+  "clutter": 0.0446,
+  "desk_clutter": 0.0377
  },
  {
   "v": {
@@ -101,8 +101,8 @@
   "desk_events_seen": 7,
   "now_actions": 0,
   "small": [],
-  "clutter": 0.038,
-  "desk_clutter": 0.0195
+  "clutter": 0.0365,
+  "desk_clutter": 0.0189
  },
  {
   "v": {
@@ -116,8 +116,8 @@
   "desk_events_seen": 7,
   "now_actions": 0,
   "small": [],
-  "clutter": 0.0359,
-  "desk_clutter": 0.0214
+  "clutter": 0.0344,
+  "desk_clutter": 0.0209
  },
  {
   "v": {
@@ -135,7 +135,7 @@
   "desk_events_seen": 15,
   "now_actions": 0,
   "small": [],
-  "clutter": 0.0567,
-  "desk_clutter": 0.0534
+  "clutter": 0.0552,
+  "desk_clutter": 0.0528
  }
 ]

@@ -233,3 +233,32 @@ The owner:
 - **3 days:**
   - wrap keeps the time grid and its clashes drawn, and reads whole;
   - the planner shows more things but leaves its cells mostly empty.
+
+## Calendar: Day and Agenda dropped, the default view rescored (owner, 2026-10-13)
+
+**The owner's question.** The owner asked at what percentage of similarity Agenda and Day become redundant with Today. The answer given: no similarity percentage decides it. A view is redundant when another screen answers everything it answers, at no greater cost. Content overlap was given for context:
+- everything Day shows, Today shows too;
+- about 44% of Agenda's first screen is today.
+
+**The dominance, from the scores:**
+- 3 days (wrap) is as good or better than Day on every measure.
+- The week planner matches or beats Agenda within the week. Agenda keeps only less clutter, and one list that scrolls on into the following weeks.
+
+**The owner:** "Drop Day and Agenda, then rescore the default view."
+
+**What changed in the scoring:**
+- **Tabs:** Month · Week · 3 days, tabs only (the owner's pick). The menu form is dropped.
+- **Forms:** Week is drawn as the planner and 3 days as the wrapped grid, `wk`'s best forms. Those two forms are pending the owner's pick; if they change, this is rescored.
+- **`wk`:** rescored for the new tabs, with the same ranking.
+
+| Default view | Sum | Now | Horizon, phone / Windows (days) | Legible, phone / Windows | Clashes | Clutter, phone / Windows | On the front |
+|---|---|---|---|---|---|---|---|
+| **week (planner)** | **20** | 0 | 7 / 7 | 1.0 / 1.0 | 1 | 0.054 / 0.029 | yes |
+| 3 days (wrap) | 23 | 0 | 2 / 2 | 1.0 / 1.0 | 1 | 0.045 / 0.038 | no |
+| month | 25.5 | 1 | 29 / 29 | 0.46 / 1.0 | 2 | 0.053 / 0.037 | yes |
+| control (year) | 41.5 | 4 | 0 / 0 | 0 / 0 | 2 | 0.085 / 0.035 | no |
+
+**Reading the table:**
+- **Week:** the week planner dominates 3 days as a default. It matches it on Now, Legibility, Conflicts and Switching, and shows seven days to its two. (Wednesday's only thing is at 18:00, below the fold on both screens; 3 days' horizon counts days whose things are on screen.) 3 days is calmer on the phone, the week planner on Windows.
+- **Month** stays on the front for its 29-day horizon alone.
+- **3 days** stays as a tab. This table is about which view Calendar opens on.
