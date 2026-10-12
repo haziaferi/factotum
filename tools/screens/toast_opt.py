@@ -846,6 +846,8 @@ def ranked(p):
 
 
 DRAW = {}  # drawings of parts registered by actions_opt
+POOL = {}  # part: the options to draw, when the owner has narrowed the part (default: the front)
+DRAW_MAX = {}  # part: how many options to draw (default 6)
 TITLES = {"g": "G. Where actions sit, the same on every screen, and their text", "h": "H. Closing the capture sheet with text not added", "a": "A. Where the toast sits", "b": "B. How long Undo lasts, several in a row, the way back", "c": "C. The dialogs: empty Trash, discard changes",
           "d": "D. The sync clash", "e": "E. Permission asks: when", "f": "F. Failures"}
 
@@ -953,7 +955,9 @@ def options_page():
         rows, ok, axes = ranked(p)
         # small parts: every option drawn (the owner chooses among them); large ones: the front, lowest sum first, up to four
         pool = [r for r in ok if not r.get("control")] if len(rows) <= 7 else [r for r in ok if r.get("front") and not r.get("control")]
-        fr = sorted(pool, key=lambda r: (not r.get("front"), r["total"]))[:6]
+        if p in POOL:   # a part whose owner has narrowed it (T2 Calendar: the tabs, every view drawn)
+            pool = POOL[p](ok)
+        fr = sorted(pool, key=lambda r: (not r.get("front"), r["total"]))[:DRAW_MAX.get(p, 6)]
         ctl = next(r for r in rows if r.get("control"))
         figs = []
         for r in fr + [ctl]:

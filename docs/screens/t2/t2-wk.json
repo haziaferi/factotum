@@ -1,0 +1,141 @@
+[
+ {
+  "v": {
+   "span": "week",
+   "form": "line"
+  },
+  "legible_share": 0.37,
+  "desk_legible_share": 0.965,
+  "clash_cost": 0.0,
+  "events_seen": 14,
+  "desk_events_seen": 15,
+  "now_actions": 0,
+  "small": [],
+  "clutter": 0.0561,
+  "desk_clutter": 0.0516
+ },
+ {
+  "v": {
+   "span": "week",
+   "form": "wrap"
+  },
+  "legible_share": 0.485,
+  "desk_legible_share": 1.0,
+  "clash_cost": 0.0,
+  "events_seen": 12,
+  "desk_events_seen": 13,
+  "now_actions": 0,
+  "small": [],
+  "clutter": 0.0534,
+  "desk_clutter": 0.0416
+ },
+ {
+  "v": {
+   "span": "week",
+   "form": "list"
+  },
+  "legible_share": 1.0,
+  "desk_legible_share": 1.0,
+  "clash_cost": 1.5,
+  "events_seen": 8,
+  "desk_events_seen": 8,
+  "now_actions": 0,
+  "small": [],
+  "clutter": 0.0415,
+  "desk_clutter": 0.0204
+ },
+ {
+  "v": {
+   "span": "week",
+   "form": "planner"
+  },
+  "legible_share": 1.0,
+  "desk_legible_share": 1.0,
+  "clash_cost": 1.0,
+  "events_seen": 15,
+  "desk_events_seen": 15,
+  "now_actions": 0,
+  "small": [],
+  "clutter": 0.0553,
+  "desk_clutter": 0.029
+ },
+ {
+  "v": {
+   "span": "3day",
+   "form": "line"
+  },
+  "legible_share": 0.952,
+  "desk_legible_share": 1.0,
+  "clash_cost": 1.0,
+  "events_seen": 7,
+  "desk_events_seen": 7,
+  "now_actions": 0,
+  "small": [],
+  "clutter": 0.0531,
+  "desk_clutter": 0.0486
+ },
+ {
+  "v": {
+   "span": "3day",
+   "form": "wrap"
+  },
+  "legible_share": 1.0,
+  "desk_legible_share": 1.0,
+  "clash_cost": 1.0,
+  "events_seen": 5,
+  "desk_events_seen": 6,
+  "now_actions": 0,
+  "small": [],
+  "clutter": 0.0461,
+  "desk_clutter": 0.0383
+ },
+ {
+  "v": {
+   "span": "3day",
+   "form": "list"
+  },
+  "legible_share": 1.0,
+  "desk_legible_share": 1.0,
+  "clash_cost": 1.5,
+  "events_seen": 7,
+  "desk_events_seen": 7,
+  "now_actions": 0,
+  "small": [],
+  "clutter": 0.038,
+  "desk_clutter": 0.0195
+ },
+ {
+  "v": {
+   "span": "3day",
+   "form": "planner"
+  },
+  "legible_share": 1.0,
+  "desk_legible_share": 1.0,
+  "clash_cost": 1.5,
+  "events_seen": 7,
+  "desk_events_seen": 7,
+  "now_actions": 0,
+  "small": [],
+  "clutter": 0.0359,
+  "desk_clutter": 0.0214
+ },
+ {
+  "v": {
+   "span": "week",
+   "form": "line",
+   "timed": "titles",
+   "control": true
+  },
+  "why": "the week grid, each title led by its time (09:00 Dentist), on one line",
+  "control": true,
+  "legible_share": 0.214,
+  "desk_legible_share": 0.758,
+  "clash_cost": 0.0,
+  "events_seen": 14,
+  "desk_events_seen": 15,
+  "now_actions": 0,
+  "small": [],
+  "clutter": 0.0567,
+  "desk_clutter": 0.0534
+ }
+]

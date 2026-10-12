@@ -201,3 +201,35 @@ With everything shown, and a filter:
 - All ten options are on the front.
 - 3-day fixes week's cut titles (0.56 → 0.96) but loses Thursday's clash and four days of horizon.
 - Week is the only view that draws both clashes side by side.
+
+## Week and 3 days: how they read (owner, 2026-10-13)
+
+The owner:
+- "There is no week view anymore". The options page drew six options per part, lowest sum first, so week and 3-day were scored but not drawn. The page now draws every tabs option for Calendar (`toast_opt.POOL`).
+- "By choosing the tabs version, I still need a 3 day and a week view with good legibility."
+
+**A new part, `wk`.** Week and 3 days under the tabs, each in four forms:
+- **line:** the grid, one-line titles;
+- **wrap:** the grid, titles wrapping, the hours taller;
+- **list:** each day a header with its things and times, empty days kept;
+- **planner:** the days as cells, as a paper week planner. The week is 2×4, Mon to Thu down the left and Fri to Sun down the right; 3 days is three full-width cells.
+
+**Legibility measured more strictly.** A title's words count only when read whole: on one line and inside their block. Wrap broke words mid-word in 43 px columns ("Farme / rs"), which the earlier share counted as read. This applies to `cal` too, so it was rescored. Its week figure drops from 0.56 to 0.37 and month's from 0.69 to 0.46.
+
+| Span + form | Sum | Legible, phone / Windows | Clashes | Things on screen, phone / Windows | On the front |
+|---|---|---|---|---|---|
+| **week + planner** | **31.5** | **1.0 / 1.0** | 1 (times) | **15 / 15** | yes |
+| week + list | 35 | 1.0 / 1.0 | 1.5 | 8 / 8 | yes |
+| 3 days + planner | 37 | 1.0 / 1.0 | 1.5 | 7 / 7 | yes |
+| week + wrap | 38 | 0.49 / 1.0 | 0 | 12 / 13 | yes |
+| 3 days + list | 38 | 1.0 / 1.0 | 1.5 | 7 / 7 | no |
+| week + line | 44 | 0.37 / 0.97 | 0 | 14 / 15 | yes |
+| **3 days + wrap** | 44 | **1.0 / 1.0** | 1 | 5 / 6 | yes |
+| 3 days + line | 46.5 | 0.95 / 1.0 | 1 | 7 / 7 | no |
+| control | 46 | 0.21 / 0.76 | 0 | 14 / 15 | no |
+
+**Notes on the results:**
+- **The week:** the planner has the lowest sum. It reads whole, and it shows the most things (all 15). It gives up only the side-by-side clash, which reads from the start times instead.
+- **3 days:**
+  - wrap keeps the time grid and its clashes drawn, and reads whole;
+  - the planner shows more things but leaves its cells mostly empty.
