@@ -613,6 +613,159 @@
  },
  {
   "v": {
+   "layout": "shaped",
+   "show": "events",
+   "filter": "none"
+  },
+  "shown": 1,
+  "missed": 7,
+  "other_actions": 99,
+  "kind_sep": 0.0,
+  "time_lookup": 1.0,
+  "rows_seen": 1,
+  "cut": 0,
+  "small": [],
+  "clutter": 0.0168,
+  "desk_clutter": 0.0178
+ },
+ {
+  "v": {
+   "layout": "shaped",
+   "show": "events",
+   "filter": "chips"
+  },
+  "shown": 1,
+  "missed": 7,
+  "other_actions": 1,
+  "kind_sep": 0.0,
+  "time_lookup": 1.0,
+  "rows_seen": 1,
+  "cut": 0,
+  "small": [],
+  "clutter": 0.0204,
+  "desk_clutter": 0.0191
+ },
+ {
+  "v": {
+   "layout": "shaped",
+   "show": "events",
+   "filter": "menu"
+  },
+  "shown": 1,
+  "missed": 7,
+  "other_actions": 2,
+  "kind_sep": 0.0,
+  "time_lookup": 1.0,
+  "rows_seen": 1,
+  "cut": 0,
+  "small": [],
+  "clutter": 0.0168,
+  "desk_clutter": 0.0178
+ },
+ {
+  "v": {
+   "layout": "shaped",
+   "show": "tasks",
+   "filter": "none"
+  },
+  "shown": 4,
+  "missed": 4,
+  "other_actions": 99,
+  "kind_sep": 0.667,
+  "time_lookup": 3.5,
+  "rows_seen": 4,
+  "cut": 0,
+  "small": [],
+  "clutter": 0.0312,
+  "desk_clutter": 0.0251
+ },
+ {
+  "v": {
+   "layout": "shaped",
+   "show": "tasks",
+   "filter": "chips"
+  },
+  "shown": 4,
+  "missed": 4,
+  "other_actions": 1,
+  "kind_sep": 0.667,
+  "time_lookup": 3.5,
+  "rows_seen": 4,
+  "cut": 0,
+  "small": [],
+  "clutter": 0.0348,
+  "desk_clutter": 0.0264
+ },
+ {
+  "v": {
+   "layout": "shaped",
+   "show": "tasks",
+   "filter": "menu"
+  },
+  "shown": 4,
+  "missed": 4,
+  "other_actions": 2,
+  "kind_sep": 0.667,
+  "time_lookup": 3.5,
+  "rows_seen": 4,
+  "cut": 0,
+  "small": [],
+  "clutter": 0.0312,
+  "desk_clutter": 0.0251
+ },
+ {
+  "v": {
+   "layout": "shaped",
+   "show": "everything",
+   "filter": "none"
+  },
+  "shown": 8,
+  "missed": 0,
+  "other_actions": 99,
+  "kind_sep": 0.667,
+  "time_lookup": 7.0,
+  "rows_seen": 8,
+  "cut": 0,
+  "small": [],
+  "clutter": 0.0539,
+  "desk_clutter": 0.0374
+ },
+ {
+  "v": {
+   "layout": "shaped",
+   "show": "everything",
+   "filter": "chips"
+  },
+  "shown": 8,
+  "missed": 0,
+  "other_actions": 1,
+  "kind_sep": 0.667,
+  "time_lookup": 7.0,
+  "rows_seen": 8,
+  "cut": 0,
+  "small": [],
+  "clutter": 0.0575,
+  "desk_clutter": 0.0387
+ },
+ {
+  "v": {
+   "layout": "shaped",
+   "show": "everything",
+   "filter": "menu"
+  },
+  "shown": 8,
+  "missed": 0,
+  "other_actions": 2,
+  "kind_sep": 0.667,
+  "time_lookup": 7.0,
+  "rows_seen": 8,
+  "cut": 0,
+  "small": [],
+  "clutter": 0.0539,
+  "desk_clutter": 0.0374
+ },
+ {
+  "v": {
    "layout": "made",
    "show": "everything",
    "filter": "settings",

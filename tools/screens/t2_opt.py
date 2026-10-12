@@ -266,23 +266,25 @@ def score_page(v):
 
 # ==== Part cal: the calendar's default view and the way between views ======================================================
 """
-  default  month, week, day, agenda: what Calendar opens on
-  switch   tabs (Month · Week · Day · Agenda under the header: 1 tap), menu (the view's name in the header, ▾: 2 taps)
+  default  month, week, 3day (Mon to Wed, today first: Fossify's default, added 2026-10-12 at the owner's ask), day,
+           agenda: what Calendar opens on
+  switch   tabs (Month · Week · 3 days · Day · Agenda under the header: 1 tap), menu (the view's name in the header, ▾: 2 taps)
   Sample: Mon 5 Oct 2026 is today, now is 10:15; a placeholder month of 23 things (events, two tasks, a reminder), with
   two clashes: School run against Dentist today, Call with Leo against Lunch with Sam on Thursday.
   Rescored 2026-10-12 on the owner's axes (the first scoring, on four modelled questions, left all eight on the front):
     Now          actions to see today and the current time: 0 when the default view marks today and draws the now line,
                  1 when it marks today but shows no time (open the day), else 1 + the switch.
     Horizon      days planned without scrolling: the span from the first to the last date whose things are on screen.
-    Legibility   characters of the titles readable on screen, per thing (a cut title counts its visible share).
+    Legibility   the readable share of each title on screen, averaged (1: every title whole). First measured as raw
+                 characters, which favoured views whose visible titles were longer; changed 2026-10-12.
     Conflicts    per clash: 0 when both are on screen drawn side by side over their shared time, 1 when both are on
                  screen with their times written (the reader works the clash out), 2 when it cannot be seen.
     Switching    actions to change view (1 tabs, 2 menu) and the reach to the way.
   Phone 360x740 and Windows 1100x660 (Horizon and Legibility on both); Calm as in every part.
   Control: the year view by default (twelve small months, no titles), the views behind ⚙ › Calendar view.
 """
-CAL_SPACE = {"default": ["month", "week", "day", "agenda"], "switch": ["tabs", "menu"]}
-VIEWS = ["month", "week", "day", "agenda"]
+CAL_SPACE = {"default": ["month", "week", "3day", "day", "agenda"], "switch": ["tabs", "menu"]}
+VIEWS = ["month", "week", "3day", "day", "agenda"]
 # (day of October, start, end, title, kind) ; end None: no time span; start None: no time (all day, or a task)
 EVENTS = [
     (2, 10.0, 11.0, "Plumber", "event"), (5, 9.0, 9.75, "Dentist", "event"), (5, 15.0, None, "Call the bank", "reminder"),
@@ -366,13 +368,18 @@ def timegrid(days, hour_px, first=7.0, gutter=34):
     return '<div class="tgrid">%s%s</div>' % (hrs, "".join(evs))
 
 
-def week_html(hour_px=40):
+def week_html(hour_px=40, days=WEEK):
+    names = dict(zip(WEEK, ("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun") if len(days) < 7 else "MTWTFSS"))
     head = '<div class="wkhead"><span style="flex:0 0 34px"></span>%s</div>' % "".join(
-        '<span data-tap="Day %d"%s>%s %d</span>' % (d, ' class="today"' if d == TODAY_D else "", w, d) for w, d in zip("MTWTFSS", WEEK))
-    allday = [x for x in EVENTS if x[0] in WEEK and x[1] is None]
+        '<span data-tap="Day %d"%s>%s %d</span>' % (d, ' class="today"' if d == TODAY_D else "", names[d], d) for d in days)
+    allday = [x for x in EVENTS if x[0] in days and x[1] is None]
     strip = '<div class="wkhead" style="min-height:20px"><span style="flex:0 0 34px"></span>%s</div>' % "".join(
-        '<span>%s</span>' % "".join('<div class="ev" data-tap="Open event" data-day="%d"><span class="tt">%s</span></div>' % (x[0], kit.ud(e(x[3]))) for x in allday if x[0] == d) for d in WEEK)
-    return head + strip + '<div class="cal">%s</div>' % timegrid(list(WEEK), hour_px)
+        '<span>%s</span>' % "".join('<div class="ev" data-tap="Open event" data-day="%d"><span class="tt">%s</span></div>' % (x[0], kit.ud(e(x[3]))) for x in allday if x[0] == d) for d in days)
+    return head + strip + '<div class="cal">%s</div>' % timegrid(list(days), hour_px)
+
+
+def three_html(hour_px=40):
+    return week_html(hour_px, range(TODAY_D, TODAY_D + 3))
 
 
 def day_html(hour_px=48):
@@ -397,8 +404,8 @@ def agenda_html():
     return '<div class="cal" style="background:none">%s</div>' % "".join(out)
 
 
-VIEW_HTML = {"month": month_html, "week": week_html, "day": day_html, "agenda": agenda_html}
-VIEW_NAME = {"month": "Month", "week": "Week", "day": "Day", "agenda": "Agenda"}
+VIEW_HTML = {"month": month_html, "week": week_html, "3day": three_html, "day": day_html, "agenda": agenda_html}
+VIEW_NAME = {"month": "Month", "week": "Week", "3day": "3 days", "day": "Day", "agenda": "Agenda"}
 
 
 def cal_phone(view, switch):
@@ -406,7 +413,7 @@ def cal_phone(view, switch):
         return kit.phone(header("2026"), '<div class="cal" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:8px;background:none">%s</div>' % "".join(
             '<div data-tap="Month %d" style="font-size:12px;color:var(--dim)"><b style="color:var(--ink)">%s</b><br>%s</div>' % (i, m, " ".join(str(n) for n in range(1, 29))) for i, m in enumerate(
                 ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"])), kit.bar("Calendar"))
-    title = "October 2026" if view in ("month", "agenda") else ("5–11 Oct" if view == "week" else "Mon 5 Oct")
+    title = "October 2026" if view in ("month", "agenda") else {"week": "5–11 Oct", "3day": "5–7 Oct"}.get(view, "Mon 5 Oct")
     if switch == "tabs":
         tabs = '<div class="vtabs">%s</div>' % "".join('<span class="%s" data-tap="View %s">%s</span>' % ("on" if x == view else "", x, VIEW_NAME[x]) for x in VIEWS)
         return kit.phone(header(title), tabs + VIEW_HTML[view](), kit.bar("Calendar"))
@@ -418,7 +425,7 @@ def cal_desk(view, switch, theme="light"):
     if switch == "control":
         inner = cal_phone(view, switch).split('<div class="body">', 1)[1].rsplit('<div class="bar">', 1)[0][:-len("</div>")]
         return desk_doc("Calendar", "2026", '<div style="flex:1;display:flex;flex-direction:column">%s</div>' % inner, theme)
-    body = VIEW_HTML[view]() if view != "week" else week_html(28)
+    body = {"week": lambda: week_html(28), "3day": lambda: three_html(28)}.get(view, VIEW_HTML[view])()
     if switch == "tabs":
         body = '<div class="vtabs" style="width:420px">%s</div>' % "".join('<span class="%s" data-tap="View %s">%s</span>' % ("on" if x == view else "", x, VIEW_NAME[x]) for x in VIEWS) + body
     title = "October 2026" + ("" if switch == "tabs" else ' <span class="vchip" data-tap="View menu" style="display:inline-flex">%s ▾</span>' % VIEW_NAME[view])
@@ -449,7 +456,8 @@ def horizon(rd):
 
 
 def legible(rd):
-    return round(sum(x["chars"] for x in rd["evs"]) / len(rd["evs"]), 2) if rd["evs"] else 0
+    """The readable share of each title on screen, averaged (raw characters favoured views whose visible titles were longer)."""
+    return round(sum(min(1, x["chars"] / max(1, len(x["title"]))) for x in rd["evs"]) / len(rd["evs"]), 3) if rd["evs"] else 0
 
 
 def clash_cost(rd):
@@ -481,9 +489,9 @@ def score_cal(v):
     d = doc(cal_phone(view, sw))
     tp = T.taps(d)
     way = tp["Settings"] if ctl else (tp.get("View month" if view != "month" else "View week") or tp.get("View menu"))
-    return {"now_actions": now_a, "horizon_days": horizon(rd), "desk_horizon_days": horizon(rdd), "legible_chars": legible(rd), "desk_legible_chars": legible(rdd),
+    return {"now_actions": now_a, "horizon_days": horizon(rd), "desk_horizon_days": horizon(rdd), "legible_share": legible(rd), "desk_legible_share": legible(rdd),
             "clash_cost": clash_cost(rd), "switch_actions": cost, "reach_switch": round(T.fitts(THUMB, way), 3),
-            "small": [] if ctl else small_of(tp, {"View menu", "View month", "View week", "View day", "View agenda"}),
+            "small": [] if ctl else small_of(tp, {"View menu", "View month", "View week", "View 3day", "View day", "View agenda"}),
             "clutter": T.clutter_of(lambda th: doc(cal_phone(view, sw), th)), "desk_clutter": dclutter(lambda th: cal_desk(view, sw, th))}
 
 
@@ -493,6 +501,8 @@ def score_cal(v):
   every option as the same tray over the hours, so the control differed only in where the filter sat and in row height;
   nothing measured whether a task, an event, a reminder and a routine can be told apart, or how fast the hour is found.
   layout  timeline (one list in time order, the untimed first; each row a time or "—", the kind's mark, the title),
+          shaped (added 2026-10-12 at the owner's ask: the timeline, each kind's row in the grid's shape: an event a filled
+          block, a reminder a round pill, a routine a dashed outline, a task a plain row),
           grid (the untimed in a tray above the hours; on the hours an event is a block over its span, a reminder a
           round pin at its minute, a timed routine an outlined strip), sections (Events · Tasks · Reminders · Routines,
           each a list in time order), lanes (the hours split into a column per kind; the untimed at the top of their lane)
@@ -510,7 +520,7 @@ def score_cal(v):
   Control: everything in one list in the order made, every row alike (no mark, no time column, the time on a second
   line), the filter only in ⚙ › Calendar › Layers (3 actions).
 """
-DAY_SPACE = {"layout": ["timeline", "grid", "sections", "lanes"], "show": ["events", "tasks", "everything"], "filter": ["none", "chips", "menu"]}
+DAY_SPACE = {"layout": ["timeline", "shaped", "grid", "sections", "lanes"], "show": ["events", "tasks", "everything"], "filter": ["none", "chips", "menu"]}
 KIND_CLASS = {"event": "event", "task": "task", "reminder": "reminder", "habit": "routine", "checklist": "routine", "reading": "routine"}
 KIND_GLYPH = {"event": "▭", "task": "◦", "reminder": "◴", "routine": "↻"}
 SECTION = {"event": "Events", "task": "Tasks", "reminder": "Reminders", "routine": "Routines"}
@@ -562,8 +572,9 @@ def day_body(layout, show):
     items = day_items(show)
     untimed = [x for x in items if x[2] is None]
     timed = sorted([x for x in items if x[2] is not None], key=lambda x: x[2])
-    if layout == "timeline":
-        rows = [di(x[0], x[1], None, lead="—") for x in untimed] + [di(x[0], x[1], x[2], lead=hh(x[2])) for x in timed]
+    if layout in ("timeline", "shaped"):
+        cls = (lambda kc: "drow " + {"event": "sev", "reminder": "srem", "routine": "srou"}.get(kc, "")) if layout == "shaped" else (lambda kc: "drow")
+        rows = [di(x[0], x[1], None, cls(x[1]), lead="—") for x in untimed] + [di(x[0], x[1], x[2], cls(x[1]), lead=hh(x[2])) for x in timed]
         return '<div class="zone dz" data-region="list">%s</div>' % "".join(rows)
     if layout == "sections":
         out = []
@@ -601,6 +612,9 @@ DAY_CSS = """
 .lchip .g{width:12px}
 .lanes{display:flex;flex:none;gap:0}.lanes>span{flex:1;min-width:0;display:flex;flex-direction:column}
 .lanes .lh{font-size:12px;color:var(--dim);font-weight:400;text-align:center;letter-spacing:.04em;text-transform:uppercase}
+.sev{background:var(--zone2);border-radius:8px;box-shadow:inset 3px 0 0 var(--dim);border-bottom:0;margin:2px 0;padding-left:6px}
+.srem{border-radius:24px;box-shadow:inset 0 0 0 1.5px var(--dim);border-bottom:0;margin:2px 0;padding-left:6px}
+.srou{border:1px dashed var(--dim);border-radius:2px;margin:2px 0;padding-left:6px}
 .same{min-height:64px;border-bottom:1px solid var(--zone2);flex-direction:column;align-items:flex-start;justify-content:center;gap:0}
 .same .sub{font-size:13px;color:var(--dim)}
 """
@@ -928,7 +942,7 @@ def build_refs():
         s = r.get("save", "")
         out["page"].append({"app": r["app"], "form": r.get("open"), "save": "auto" if "autosave" in s else ("button" if "Save" in s else None)})
     for r in src["calendar"]:
-        dflt = {"3-day": "week"}.get(r.get("default"), r.get("default"))
+        dflt = {"3-day": "3day"}.get(r.get("default"), r.get("default"))   # 3day is an option since 2026-10-12
         sw = "menu" if r["app"] in ("org.fossify.calendar", "ws.xsoh.etar", "com.tendril.app.debug") else None
         out["cal"].append({"app": r["app"], "default": dflt, "switch": sw})
         flt = {"org.fossify.calendar": "chips", "ws.xsoh.etar": "menu", "com.tendril.app.debug": "menu"}.get(r["app"], "none")
@@ -962,7 +976,7 @@ T.CONTROLS = {
 }
 T.AXES = {
     "page": {"Ease": ("edit_actions", "reach"), "Context": ("-context_rows",), "Safety": ("lost_on_back",), "Clarity": ("-fields_seen", "fields_below"), "Calm": ("clutter", "desk_clutter")},
-    "cal": {"Now": ("now_actions",), "Horizon": ("-horizon_days", "-desk_horizon_days"), "Legibility": ("-legible_chars", "-desk_legible_chars"),
+    "cal": {"Now": ("now_actions",), "Horizon": ("-horizon_days", "-desk_horizon_days"), "Legibility": ("-legible_share", "-desk_legible_share"),
             "Conflicts": ("clash_cost",), "Switching": ("switch_actions", "reach_switch"), "Calm": ("clutter", "desk_clutter")},
     "day": {"Completeness": ("missed",), "Ease": ("other_actions", "time_lookup"), "Distinction": ("-kind_sep",), "Density": ("-rows_seen", "cut"), "Calm": ("clutter", "desk_clutter")},
     "rem": {"Clarity": ("soonest_at", "disorder"), "Ease": ("skip_actions", "reach_skip", "skip_hidden"), "Safety": ("skip_accident",), "Density": ("-rows_seen",), "Calm": ("clutter", "desk_clutter")},

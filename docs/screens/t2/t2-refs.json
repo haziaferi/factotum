@@ -54,7 +54,7 @@
   },
   {
    "app": "com.cron.calendar",
-   "default": "week",
+   "default": "3day",
    "switch": null
   },
   {

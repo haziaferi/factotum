@@ -156,3 +156,48 @@ All eight are still on the front, but now on real trade-offs (`t2-cal.json`):
 | control (year) | 90 | 4 | 0 | 0 / 0 | 2 |
 
 The menu options each sit 1.5 to 4.5 above their tabs twin.
+
+## The two additions, scored (owner: "Score both additions first, then I'll pick", 2026-10-12)
+
+**Day view, `shaped`:**
+- the timeline's single list in time order;
+- each kind's row in the grid's shape: an event a filled block, a reminder a round pill, a routine a dashed outline, a task a plain row.
+- Only its 9 rows were scored and added to `t2-day.json`; the other 37 rows did not change.
+
+With everything shown, and a filter:
+
+| Layout + filter | Sum | Lookup | Kinds apart | Clutter | On the front |
+|---|---|---|---|---|---|
+| timeline + menu | 186 | 7 | 0.333 | 0.0425 | yes |
+| timeline + chips | 193.5 | 7 | 0.333 | 0.0461 | yes |
+| sections + menu | 199 | 12 | 0.667 | 0.0464 | yes |
+| **shaped + menu** | 212 | **7** | **0.667** | 0.0539 | yes |
+| **shaped + chips** | 216.5 | 7 | 0.667 | 0.0575 | yes |
+| grid + chips | 226 | 13 | 0.833 | 0.0559 | yes |
+| lanes + chips | 238 | 13 | 0.889 | 0.0541 | yes |
+| control | 242.5 | 8 | 0 | 0.0491 | no |
+
+- Shaped keeps the timeline's lookup (7) and doubles its separation (0.333 → 0.667), with shape and glyph differing.
+- It matches sections' separation for 5 fewer readables, at more clutter (the outlines and fills).
+- The grid still separates most (0.833, region too), for 6 more readables.
+- (The sums are higher than in the section above because 46 options are now ranked against each other, not 37.)
+
+**Calendar, `3day`:**
+- Monday to Wednesday, today first.
+- It adds a "3 days" tab, which changes the tabs on every option, so all 11 options were rescored.
+- Two corrections came with it:
+  - **References:** Fossify's 3-day default had been mapped to "week", for want of the option. It now maps to `3day`.
+  - **Legibility** is now the readable share of each title (1: whole). Raw characters favoured views whose visible titles happened to be longer, which put 3-day below week on Windows even though its titles are whole there. This supersedes the characters column in the table above.
+
+| Default + switch | Sum | Now | Horizon (days) | Legible share, phone / Windows | Clashes |
+|---|---|---|---|---|---|
+| agenda + tabs | 49.5 | 0 | 4 | 1.0 / 1.0 | 1.5 |
+| day + tabs | 58 | 0 | 1 | 1.0 / 1.0 | 1 |
+| month + tabs | 62 | 1 | 29 | 0.69 / 1.0 | 2 |
+| **3day + tabs** | 63.5 | 0 | 3 | **0.96** / 1.0 | 1 |
+| week + tabs | 65 | 0 | 7 | 0.56 / 0.97 | **0** |
+| control (year) | 109.5 | 4 | 0 | 0 / 0 | 2 |
+
+- All ten options are on the front.
+- 3-day fixes week's cut titles (0.56 → 0.96) but loses Thursday's clash and four days of horizon.
+- Week is the only view that draws both clashes side by side.

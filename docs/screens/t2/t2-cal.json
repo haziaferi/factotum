@@ -7,14 +7,14 @@
   "now_actions": 1,
   "horizon_days": 29,
   "desk_horizon_days": 29,
-  "legible_chars": 6.75,
-  "desk_legible_chars": 10.82,
+  "legible_share": 0.694,
+  "desk_legible_share": 1.0,
   "clash_cost": 2.0,
   "switch_actions": 1,
-  "reach_switch": 3.793,
+  "reach_switch": 3.798,
   "small": [],
-  "clutter": 0.0539,
-  "desk_clutter": 0.0374
+  "clutter": 0.0547,
+  "desk_clutter": 0.0377
  },
  {
   "v": {
@@ -24,8 +24,8 @@
   "now_actions": 1,
   "horizon_days": 29,
   "desk_horizon_days": 29,
-  "legible_chars": 6.75,
-  "desk_legible_chars": 10.82,
+  "legible_share": 0.694,
+  "desk_legible_share": 1.0,
   "clash_cost": 2.0,
   "switch_actions": 2,
   "reach_switch": 3.908,
@@ -41,14 +41,14 @@
   "now_actions": 0,
   "horizon_days": 7,
   "desk_horizon_days": 7,
-  "legible_chars": 5.34,
-  "desk_legible_chars": 10.47,
+  "legible_share": 0.562,
+  "desk_legible_share": 0.971,
   "clash_cost": 0.0,
   "switch_actions": 1,
-  "reach_switch": 3.818,
+  "reach_switch": 3.821,
   "small": [],
-  "clutter": 0.0554,
-  "desk_clutter": 0.0517
+  "clutter": 0.0561,
+  "desk_clutter": 0.052
  },
  {
   "v": {
@@ -58,8 +58,8 @@
   "now_actions": 0,
   "horizon_days": 7,
   "desk_horizon_days": 7,
-  "legible_chars": 5.34,
-  "desk_legible_chars": 10.47,
+  "legible_share": 0.562,
+  "desk_legible_share": 0.971,
   "clash_cost": 0.0,
   "switch_actions": 2,
   "reach_switch": 3.907,
@@ -69,20 +69,54 @@
  },
  {
   "v": {
+   "default": "3day",
+   "switch": "tabs"
+  },
+  "now_actions": 0,
+  "horizon_days": 3,
+  "desk_horizon_days": 3,
+  "legible_share": 0.957,
+  "desk_legible_share": 1.0,
+  "clash_cost": 1.0,
+  "switch_actions": 1,
+  "reach_switch": 3.821,
+  "small": [],
+  "clutter": 0.0531,
+  "desk_clutter": 0.0489
+ },
+ {
+  "v": {
+   "default": "3day",
+   "switch": "menu"
+  },
+  "now_actions": 0,
+  "horizon_days": 3,
+  "desk_horizon_days": 3,
+  "legible_share": 0.957,
+  "desk_legible_share": 1.0,
+  "clash_cost": 1.0,
+  "switch_actions": 2,
+  "reach_switch": 3.908,
+  "small": [],
+  "clutter": 0.052,
+  "desk_clutter": 0.0475
+ },
+ {
+  "v": {
    "default": "day",
    "switch": "tabs"
   },
   "now_actions": 0,
   "horizon_days": 1,
   "desk_horizon_days": 1,
-  "legible_chars": 10.0,
-  "desk_legible_chars": 10.0,
+  "legible_share": 1.0,
+  "desk_legible_share": 1.0,
   "clash_cost": 1.0,
   "switch_actions": 1,
-  "reach_switch": 3.818,
+  "reach_switch": 3.821,
   "small": [],
-  "clutter": 0.0489,
-  "desk_clutter": 0.037
+  "clutter": 0.0497,
+  "desk_clutter": 0.0373
  },
  {
   "v": {
@@ -92,8 +126,8 @@
   "now_actions": 0,
   "horizon_days": 1,
   "desk_horizon_days": 1,
-  "legible_chars": 10.0,
-  "desk_legible_chars": 10.0,
+  "legible_share": 1.0,
+  "desk_legible_share": 1.0,
   "clash_cost": 1.0,
   "switch_actions": 2,
   "reach_switch": 3.907,
@@ -109,14 +143,14 @@
   "now_actions": 0,
   "horizon_days": 4,
   "desk_horizon_days": 4,
-  "legible_chars": 9.38,
-  "desk_legible_chars": 9.38,
+  "legible_share": 1.0,
+  "desk_legible_share": 1.0,
   "clash_cost": 1.5,
   "switch_actions": 1,
-  "reach_switch": 3.818,
+  "reach_switch": 3.821,
   "small": [],
-  "clutter": 0.0421,
-  "desk_clutter": 0.0204
+  "clutter": 0.0428,
+  "desk_clutter": 0.0207
  },
  {
   "v": {
@@ -126,8 +160,8 @@
   "now_actions": 0,
   "horizon_days": 4,
   "desk_horizon_days": 4,
-  "legible_chars": 9.89,
-  "desk_legible_chars": 9.89,
+  "legible_share": 1.0,
+  "desk_legible_share": 1.0,
   "clash_cost": 1.5,
   "switch_actions": 2,
   "reach_switch": 3.908,
@@ -146,8 +180,8 @@
   "now_actions": 4,
   "horizon_days": 0,
   "desk_horizon_days": 0,
-  "legible_chars": 0,
-  "desk_legible_chars": 0,
+  "legible_share": 0,
+  "desk_legible_share": 0,
   "clash_cost": 2.0,
   "switch_actions": 3,
   "reach_switch": 3.941,
