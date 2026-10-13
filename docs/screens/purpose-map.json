@@ -253,7 +253,7 @@
    ],
    "new": "the owner's definition (2026-10-13): basic daily yes/no actions, a written cue per habit ordered by its block, an energy level (low/mid/high) with a filter on Habits and Today that resets each day, no history in the list",
    "tier": "T3a",
-   "status": "scored on the old axes; to rescore",
+   "status": "approved (T3a.1c, 2026-10-13): routines named; the New habit sheet T3a.2",
    "nav": [
     "Log a habit",
     "manage habits"
@@ -274,7 +274,7 @@
     "Chronicle checklists"
    ],
    "tier": "T3a",
-   "status": "merged into routines (owner, 2026-10-13); scored as part of Habits",
+   "status": "merged into routines; approved with the Habits list (2026-10-13)",
    "nav": [
     "tick a checklist"
    ],

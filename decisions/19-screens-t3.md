@@ -598,3 +598,20 @@ All four forms are on the front, within 3.5 of each other.
 - **T2:** all six parts show their picks (`t2_opt.T.PICKED`).
 - **T3:** the routines, the sheet and the premise box show their picks. Daily basics' first list, adding a habit with fields, and the first sentence fold as superseded. The first T3.1 presence scoring has no options page entry, so it is not drawn at all.
 - The scores pages keep every row.
+
+## T3a.1c approved: headers for routines, named (owner, 2026-10-13)
+
+"routines, named":
+- An if with two or more habits is a routine, under a header.
+- A routine shows the name the person wrote ("Morning routine") over its if ("After waking").
+- A routine with no name shows its if as the header.
+- A lone habit keeps its if as a small line above it.
+- Everything else is as approved: no glyph; energy chips with High on; Today's Log; done steps fold; the forecast with numbered steps an option, OFF by default.
+
+**Owed in the data layer, added:** a routine's optional name, kept on the if.
+
+**T3a Daily basics is complete:**
+- the Habits list (T3a.1c);
+- the New habit sheet (T3a.2, `habit-prototype.html`).
+
+Next: T3b Measuring (trackers, activities and timers, goals).

@@ -963,7 +963,8 @@ T.TITLES = {"habits2": "T3a.1c The Habits list: the optional name, and every if 
 T.DRAW = {"habits2": lambda v: [h2doc(habits2_phone(v)), habits2_desk(v)], "premise": lambda v: [premise_doc(v)], "hsheet": lambda v: [adoc(addhabit_phone({"control": True}))] if v.get("control") else [hsheet_doc(v, st) for _, _, st in HSTATES], "addsent": lambda v: [sdoc(addsent_phone(v))] + ([] if (v.get("control") or v["form"] == "fields") else [sdoc(addsent_phone(v, True))]), "routines": lambda v: [rdoc(routines_phone(v)), rdoc(routines_phone(v, "low")), routines_desk(v)], "addhabit": lambda v: [adoc(addhabit_phone(v))], "basics": lambda v: [bdoc(basics_phone(v)), basics_desk(v)], "habits": lambda v: [hdoc(habits_phone(v)), habits_desk(v)]}
 T.POOL = {}
 # the owner's picks (decision 19) shown, the rest folded; superseded parts folded whole (owner, 2026-10-13)
-T.PICKED = {"routines": [{"preview": "none", "seq": "plain"}, {"preview": "energy", "seq": "numbers"}], "hsheet": [{"blank": "inline"}], "premise": [{"premise": "same"}]}
+T.PICKED = {"routines": [{"preview": "none", "seq": "plain"}, {"preview": "energy", "seq": "numbers"}], "hsheet": [{"blank": "inline"}], "premise": [{"premise": "same"}],
+            "habits2": [{"group": "routines", "name": "named"}]}
 T.SUPERSEDED = {"habits": "re-cut by purpose; T3a.1 Daily basics replaced it", "basics": "routines replaced it (T3a.1b)",
                 "addhabit": "the open sentence replaced it (T3a.2b), then the prototype (T3a.2c)", "addsent": "the prototype sheet replaced it (T3a.2c)"}
 T.v2.TOL.setdefault("_reach_log", 0.05)

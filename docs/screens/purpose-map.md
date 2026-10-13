@@ -51,8 +51,8 @@ _the basic things that get a day done (make the bed, brush teeth, shower), as if
 
 | Screen | Comes from | New in Factotum | Tier | Status | Overlaps |
 |---|---|---|---|---|---|
-| Habits: today's basics as if-then cues (yes/no only) | Tendril habits (the data: blocks, Log, rolling, pause); Equipoise (the no-shame rules G05/G06, the low-capacity path) | the owner's definition (2026-10-13): basic daily yes/no actions, a written cue per habit ordered by its block, an energy level (low/mid/high) with a filter on Habits and Today that resets each day, no history in the list | T3a | scored on the old axes; to rescore | Routines (a named if-then holding ordered habits; routine checklists merged in), Capacity-scaled day (a shorter list on a low day) |
-| Routines (a named if-then holding ordered habits; routine checklists merged in) | Chronicle checklists | the routine as a parent if-then with ordered steps and a 'what to expect' header (owner, 2026-10-13) | T3a | merged into routines (owner, 2026-10-13); scored as part of Habits | Habits: today's basics as if-then cues (yes/no only) |
+| Habits: today's basics as if-then cues (yes/no only) | Tendril habits (the data: blocks, Log, rolling, pause); Equipoise (the no-shame rules G05/G06, the low-capacity path) | the owner's definition (2026-10-13): basic daily yes/no actions, a written cue per habit ordered by its block, an energy level (low/mid/high) with a filter on Habits and Today that resets each day, no history in the list | T3a | approved (T3a.1c, 2026-10-13): routines named; the New habit sheet T3a.2 | Routines (a named if-then holding ordered habits; routine checklists merged in), Capacity-scaled day (a shorter list on a low day) |
+| Routines (a named if-then holding ordered habits; routine checklists merged in) | Chronicle checklists | the routine as a parent if-then with ordered steps and a 'what to expect' header (owner, 2026-10-13) | T3a | merged into routines; approved with the Habits list (2026-10-13) | Habits: today's basics as if-then cues (yes/no only) |
 | Capacity-scaled day (a shorter list on a low day) | Equipoise G04 |  | T3a or T4 | pending; whether it moves across is to check in the SPEC | Today, Habits: today's basics as if-then cues (yes/no only) |
 
 ## P4 Measuring
@@ -164,4 +164,4 @@ _make the app work: settings, sync, trash, backup, lock, labels_
 - 2026-10-13: the habit Planner is dropped; its empty structure may be repurposed later for something other than habits. Habits repeat daily or on chosen weekdays; a habit's reminder is off by default, at its block's start or a set time.
 - 2026-10-13: a habit is added as an open if-then sentence; a routine (named by the user) carries the if and the time and holds ordered habits; routine checklists merge into routines; the energy filter hides steps above the level; the routine header's preview is scored.
 
-_55 screens; 5 with no parent app; 9 approved._
+_55 screens; 5 with no parent app; 10 approved._
