@@ -762,3 +762,44 @@ Under equal weights a sheet leads again (merged · grid · last · sheet · flat
 | merged · grid · none · inline · flat | 1.50 | 547.5 | 3.03 | 6.5 | the names only; one scroll fewer |
 
 Status: **scored, awaiting the owner's pick.**
+
+## T3b.1c The Measuring list, scroll counted (2026-10-13)
+
+The owner: fewer taps made the cards taller, which "increases the amount of scrolling needed to find the desired element and ... hides a lot of trackers that then need to be searched for".
+
+**Why T3b.1b missed it:**
+- Taps added at most one scroll per entry, over six entries near the top.
+- Find read rows in list order, whatever their height.
+
+**Changed:**
+- **Taps:** every item's typical log, weighted by how often it is logged, plus the scrolls to bring its control into view from where it sits (a page is the list area's height), or a search (3) when cheaper. Folded labels add the tap that opens one.
+- **Overview** replaces Find: the share of items in view, or behind a label header in view, and the screens the list spans.
+- **Sizes:** scored with 12 items and with 30 (owner); the worse rank counts (`max:` axes in `toast_opt.ranked`).
+- **Weights:** the logging frequencies are a placeholder profile (Water 6 a day … Weight 0.15). They are an assumption, not a measurement.
+
+**New options (owner):**
+- compact rows, where rating and choice chips fold into the row;
+- folding labels, all closed at first, each with its count;
+- most used first.
+
+Log is narrowed to sheet and inline, because default and stepper cannot reach a taps-led front. The spark is dropped (it lost on Judgment). That leaves 288 options; 24 are gated out for cut titles.
+
+**Found on the way:** the lead rule "within 0.1 taps of the best at both sizes" left the front empty: the best at 12 (merged · rows · flat · recent, 1.44) and the best at 30 (apart · grid · flat · recent, 2.00) are different designs. The lead is now the worse shortfall from each size's best, within 0.1 of the least.
+
+**Result:** the control lost. The front holds seven options, all flat · most used first · inline:
+
+| Option | Taps 12 / 30 | In view 12 / 30 | Says | Rank sum |
+|---|---|---|---|---|
+| apart · grid · last | 1.61 / 2.02 | 89% / 36% | every row | 905 |
+| merged · compact · none | 1.60 / 2.24 | 83% / 33% | names only | 923 |
+| merged · grid · last | 1.50 / 2.16 | 67% / 27% | every row | 1080 |
+| apart · grid · none | 1.61 / 2.00 | 89% / 36% | names only | 1093 |
+| merged · grid · today | 1.50 / 2.15 | 67% / 27% | 88% of rows | 1138 |
+| merged · rows · none | 1.44 / 2.15 | 75% / 27% | names only | 1212.5 |
+| merged · grid · none | 1.50 / 2.15 | 67% / 27% | names only | 1258.5 |
+
+**The trade the owner raised stays open:**
+- At 30 items, every leader shows about a third of the list.
+- Folding labels show everything (100%), but every log pays the tap that opens its label (2.5–2.6 at 30).
+
+Status: **put to the owner.**

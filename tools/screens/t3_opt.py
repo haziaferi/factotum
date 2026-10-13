@@ -4,6 +4,7 @@
     python tools/screens/t3_opt.py page_html scores       t3-options.html, t3-scores.html (fails if a control wins)
 
 Parts:
+  measure2 T3b.1c the Measuring list with scroll counted, at 12 and 30 items (owner, 2026-10-13): compact rows, folding labels, most used first
   measure  T3b.1b the Measuring list, taps first (owner, 2026-10-13): merged with activities or apart, a control per kind
   trackers T3b.1 the Trackers list: layout, what a row says, what Log does, grouping (owner, 2026-10-13)
   habits2  T3a.1c the Habits list: the optional name, every if as a header (owner, 2026-10-13)
@@ -21,6 +22,7 @@ control gate, the options and scores pages). Phone 360x740 and Windows 1100x660,
 References: docs/screens/t3/t3-references.json (Loop Habit Tracker, Tendril), normalised into t3-refs.json here.
 """
 import json
+import math
 import os
 import sys
 
@@ -1272,6 +1274,255 @@ def score_measure(v):
             "small": sorted(set(gate))}
 
 
+# ==== Part measure2: T3b.1c the Measuring list, scroll counted (owner, 2026-10-13) ================================================
+"""
+  The owner: fewer taps on the row made the cards taller, "increases the amount of scrolling needed to find the desired
+  element and ... hides a lot of trackers that then need to be searched for". T3b.1b counted at most one scroll per entry
+  for six entries near the top, and Find read rows in list order whatever their height. Here:
+  Taps     every item's typical log, weighted by how often it is logged (a placeholder profile: Water 6 a day ... Weight
+           0.15), plus the scrolls to bring its control into view from where it really sits (a page is the list area's
+           height), or a search (⌕, two letters, the result: 3) when cheaper; folded labels add the tap that opens one.
+           Scored with 12 items and with 30; the worse rank counts, and fewest taps leads at both (T.LEAD).
+  Overview the share of items in view, or behind a label header in view (one tap); the screens the list spans.
+  scope    merged, apart (as T3b.1b); layout rows, grid, compact (rows whose rating and choice chips fold into the row: a
+           tap on it opens them; single buttons stay); says none, today, last, today_last (the spark dropped: it lost on
+           Judgment in T3b.1b); log sheet, inline (default and stepper cannot reach a taps-led front); group flat, labels,
+           folding (labels as headers that open, all closed at first, each with its count); order manual, recent (the most
+           logged first; under labels, within each and the labels by their most logged)
+  Kept: Reach (mean over the controls in view), Recovery (the logged share written by one tap with no confirming step,
+  weighted), Glance, Judgment; Refs as information (owner). Gate: no title cut at either size; primary targets 48 dp,
+  chips 24 dp.
+  Control: T3b.1's dashboard, apart, in manual order.
+"""
+MEAS2_SPACE = {"scope": ["merged", "apart"], "layout": ["rows", "grid", "compact"], "says": ["none", "today", "last", "today_last"],
+               "log": ["sheet", "inline"], "group": ["flat", "labels", "folding"], "order": ["manual", "recent"]}
+
+
+def _it(n, k, lab, today, last, f, usual=None, cur=None, recent=None, running=False):
+    return {"n": n, "k": k, "lab": lab, "today": today, "last": last, "f": f, "usual": usual, "cur": cur, "recent": recent, "running": running}
+
+
+ITEMS12 = [
+    _it("Water", "number", "Health", "3 glasses today", "last 11:40", 6, "1 glass", 3), _it("Coffee", "number", "Health", "2 cups today", "last 09:15", 2, "1 cup", 2),
+    _it("Sleep", "number", "Health", "7.5 hours today", "last 07:10", 1), _it("Headache", "yesno", "Health", "", "last 3 Oct", 0.2),
+    _it("Mood", "rating", "Mind", "4 today", "last 10:20", 2), _it("Exercise", "number", "Moving", "", "last Sun", 0.5, "30 min", 0),
+    _it("Commute", "choice", "Moving", "Bike today", "last 08:30", 1.4, recent=["Bike", "Bus"]), _it("Knitting", "number", "Making", "", "last Sat", 0.3, "10 rows", 0),
+    _it("Studying", "number", "Making", "40 min today", "last 15:00", 1), _it("Reading", "activity", "Mind", "25 min today", "last 21:10", 1),
+    _it("Cleaning", "activity", "Home", "running 0:12", "last 10:05", 0.5, running=True), _it("Language practice", "activity", "Mind", "", "last Fri", 0.4),
+]
+ITEMS30 = ITEMS12 + [
+    _it("Tea", "number", "Health", "1 cup today", "last 16:00", 1.5, "1 cup", 1), _it("Steps", "number", "Moving", "4,200 today", "last 18:00", 1),
+    _it("Weight", "number", "Health", "", "last Mon", 0.15), _it("Vitamins", "yesno", "Health", "yes today", "last 08:00", 1),
+    _it("Energy", "rating", "Mind", "3 today", "last 12:00", 1.5), _it("Focus", "rating", "Mind", "", "last Sat", 0.8),
+    _it("Pain", "rating", "Health", "", "last 30 Sep", 0.3), _it("Snack", "choice", "Health", "Fruit today", "last 15:30", 1, recent=["Fruit", "Nuts"]),
+    _it("Pages", "number", "Mind", "", "last Sun", 0.6, "10 pages", 0), _it("Screen time", "number", "Mind", "", "last Sun", 0.5),
+    _it("Plants watered", "yesno", "Home", "", "last Thu", 0.3), _it("Social", "choice", "Mind", "", "last Fri", 0.3, recent=["Call", "Visit"]),
+    _it("Sketching", "number", "Making", "", "last Sat", 0.2, "1 sketch", 0), _it("Walking", "activity", "Moving", "30 min today", "last 13:10", 0.7),
+    _it("Cooking", "activity", "Home", "", "last Sun", 0.7), _it("Gardening", "activity", "Home", "", "last 4 Oct", 0.15),
+    _it("Guitar", "activity", "Making", "", "last Wed", 0.3), _it("Meditation", "activity", "Mind", "", "last Fri", 0.3),
+]
+M2_LABELS = ["Health", "Mind", "Moving", "Making", "Home"]
+M2_CSS = """
+.fhead{display:flex;align-items:center;min-height:48px;font-size:14px;font-weight:600;border-bottom:1px solid var(--zone2)}.fhead .t{flex:1}.fhead .c{color:var(--dim);font-weight:400;margin-right:8px}
+"""
+
+
+def m2doc(html, theme="light"):
+    return doc(html, theme, CSS + BASICS_CSS + TRK_CSS + MEAS_CSS + M2_CSS)
+
+
+def m2_says(it, v):
+    s = v["says"]
+    if it["running"]:
+        return "running 0:12"   # a running timer always says so
+    if s == "none":
+        return ""
+    if s == "today":
+        return it["today"]
+    if s == "last":
+        return it["last"]
+    return " · ".join(x for x in (it["today"], it["last"]) if x)
+
+
+def m2_ctrl(it, v):
+    """(right-hand control, chip line) for an item."""
+    n, k = it["n"], it["k"]
+    if k == "activity":
+        return ('<span class="play" data-tap="Stop %s"><span>■</span></span>' if it["running"] else '<span class="play" data-tap="Start %s"><span>▶</span></span>') % n, ""
+    log = '<span class="act" data-tap="Log %s"><span>Log</span></span>' % n
+    if v["log"] == "sheet" or (k == "number" and not it["usual"]):
+        return log, ""
+    if k == "number":
+        return '<span class="pill48" data-tap="Plus %s"><span>+ %s</span></span>' % (n, e(it["usual"])), ""
+    if k == "yesno":
+        return '<span class="pill48" data-tap="Yes %s"><span>Yes</span></span>' % n, ""
+    if v["layout"] == "compact":   # the chips fold into the row: a tap on it opens them
+        return '<span class="trail">▾</span>', ""
+    if k == "rating":
+        return "", '<span class="ichips">%s</span>' % "".join('<span data-tap="Chip %s %d">%d</span>' % (n, i, i) for i in range(1, 6))
+    return "", '<span class="ichips">%s<span data-tap="Chip %s more">…</span></span>' % ("".join('<span data-tap="Chip %s %s">%s</span>' % (n, c, c) for c in it["recent"]), n)
+
+
+def m2_item(it, v):
+    sub = m2_says(it, v)
+    subh = '<span class="bsub">%s</span>' % e(sub) if sub else ""
+    right, chips = m2_ctrl(it, v)
+    if v["layout"] == "grid":
+        return '<div class="kcard" data-tap="Open tracker" data-tr="%s"><span class="nm">%s</span>%s%s<span class="foot">%s</span></div>' % (
+            it["n"], kit.ud(e(it["n"])), subh, chips, right)
+    return '<div class="row krow mrow" data-tap="Open tracker" data-tr="%s"><span class="t"><span class="nm">%s</span>%s%s</span>%s</div>' % (
+        it["n"], kit.ud(e(it["n"])), subh, chips, right)
+
+
+def m2_items(v, items):
+    its = [it for it in items if v["scope"] == "merged" or it["k"] != "activity"]
+    if v["order"] == "recent":
+        its = sorted(its, key=lambda it: -it["f"])
+    return its
+
+
+def m2_labels(v, its):
+    labs = [lab for lab in M2_LABELS if any(it["lab"] == lab for it in its)]
+    if v["order"] == "recent":
+        labs = sorted(labs, key=lambda lab: -max(it["f"] for it in its if it["lab"] == lab))
+    return labs
+
+
+def m2_control_item(it):
+    have = it["cur"] or (1 if it["today"] else 0)
+    goal = max(1, (it["cur"] or 1) * 2)
+    pct = round(100 * have / goal)
+    ctl = m2_ctrl(it, {"log": "sheet", "layout": "grid"})[0]
+    return ('<div class="kcard" data-tap="Open tracker" data-tr="%s"><span class="nm">%s</span><span class="bsub"><span data-judge="1">%s/%s</span> · '
+            '<span data-judge="1">%d%%</span> · <span data-judge="1">streak %d</span></span><span class="pbar" data-judge="1"><b style="width:%d%%"></b></span>'
+            '<span class="foot">%s</span></div>') % (it["n"], kit.ud(e(it["n"])), have, goal, pct, len(it["n"]) % 7, min(100, pct), ctl)
+
+
+def measure2_body(v, items, closed=False):
+    if v.get("control"):
+        its = [it for it in items if it["k"] != "activity"]
+        link = '<div class="golink" data-tap="Open Activities"><span class="t">Activities</span>›</div>'
+        return '<div class="zone">%s<div class="kgrid">%s</div></div>' % (link, "".join(m2_control_item(it) for it in its))
+    its = m2_items(v, items)
+    wrap = (lambda h: '<div class="kgrid">%s</div>' % h) if v["layout"] == "grid" else (lambda h: h)
+    if v["group"] == "flat":
+        body = wrap("".join(m2_item(it, v) for it in its))
+    else:
+        body = ""
+        for lab in m2_labels(v, its):
+            part = [it for it in its if it["lab"] == lab]
+            if v["group"] == "labels":
+                body += '<div class="dayh" data-lab="%s">%s</div>' % (lab, lab) + wrap("".join(m2_item(it, v) for it in part))
+            else:
+                body += '<div class="fhead" data-lab="%s" data-tap="Label %s"><span class="t">%s</span><span class="c">%d</span>%s</div>' % (
+                    lab, lab, lab, len(part), "▸" if closed else "▾") + ("" if closed else wrap("".join(m2_item(it, v) for it in part)))
+    link = '<div class="golink" data-tap="Open Activities"><span class="t">Activities</span>›</div>' if v["scope"] == "apart" else ""
+    return '<div class="zone">%s%s</div>' % (link, body)
+
+
+def measure2_phone(v, items=ITEMS12, closed=False):
+    title = "Measuring" if (not v.get("control") and v["scope"] == "merged") else "Trackers"
+    return kit.phone(kit.header(title, (("⌕", "Search"), ("✎", "Edit")), ("‹", "Back")),
+                     '<div class="cap" data-tap="Capture">+ <span>New tracker…</span></div>' + measure2_body(v, items, closed), kit.bar("Hub"))
+
+
+def measure2_desk(v, theme="light"):
+    inner = measure2_phone(v, ITEMS12, v.get("group") == "folding").split('<div class="body">', 1)[1].rsplit('<div class="bar">', 1)[0][:-len("</div>")]
+    return desk_doc("Hub", "Measuring", '<div class="dcol" style="width:440px;flex:none">%s</div><div class="page" style="flex:1"></div>' % inner, theme,
+                    CSS + BASICS_CSS + TRK_CSS + MEAS_CSS + M2_CSS)
+
+
+M2_JS = ("(function(){var vb=document.querySelector('.bar').getBoundingClientRect().top;var o={vb:vb,items:[],heads:[],cut:0,judge:0,says:0,rows:0};"
+         "var z=document.querySelector('.zone');o.top=z?z.getBoundingClientRect().top:0;"
+         "document.querySelectorAll('[data-tr]').forEach(function(r){var b=r.getBoundingClientRect();var c=[];"
+         "r.querySelectorAll('[data-tap]').forEach(function(t){var q=t.getBoundingClientRect();c.push({n:t.dataset.tap,x:q.left+q.width/2,y:q.top+q.height/2,w:Math.round(q.width),h:Math.round(q.height)})});"
+         "var nm=r.querySelector('.nm'),s=r.querySelector('.bsub');var cut=0;[nm,s].forEach(function(x){if(x&&x.scrollWidth>x.clientWidth+1)cut++});o.cut+=cut;"
+         "if(b.bottom<=vb){o.rows++;if(s&&s.innerText.trim())o.says++}"
+         "o.items.push({tr:r.dataset.tr,top:b.top,bottom:b.bottom,c:c})});"
+         "document.querySelectorAll('[data-lab]').forEach(function(h){var b=h.getBoundingClientRect();o.heads.push({lab:h.dataset.lab,top:b.top,bottom:b.bottom})});"
+         "document.querySelectorAll('[data-judge]').forEach(function(j){var b=j.getBoundingClientRect();if(b.height&&b.bottom<=vb)o.judge++});return o})()")
+SEARCH_COST = 3   # ⌕, two letters, the result
+
+
+def m2_entry(it, v, ctl):
+    """Taps on screen for one typical log (activities: start, then stop)."""
+    k = it["k"]
+    log = "sheet" if ctl else v["log"]
+    if k == "activity":
+        return 2 if (not ctl and v["scope"] == "merged") else 4
+    if k == "number":
+        return 3 if not it["usual"] else (2 if log == "sheet" else 1)
+    if k == "yesno":
+        return 2 if log == "sheet" else 1
+    return 3 if log == "sheet" else (2 if v["layout"] == "compact" else 1)   # rating, choice
+
+
+def m2_measure(v, items, key):
+    ctl = v.get("control")
+    d = m2doc(measure2_phone(v, items))
+    pr = T.probe(d, key, M2_JS)
+    vb, top = pr["vb"], pr["top"]
+    page = vb - top
+    by = {x["tr"]: x for x in pr["items"]}
+    heads = {h["lab"]: h for h in pr["heads"]}
+    folding = (not ctl) and v["group"] == "folding"
+    if folding:   # all closed at first: label i's header sits at top + 48 i; opening one puts its items under it
+        labs = [h["lab"] for h in pr["heads"]]
+        folded_top = {lab: pr["heads"][0]["top"] + 48 * i for i, lab in enumerate(labs)}
+    tot = cost = 0.0
+    reach, oneshot, logged, in_view = [], 0.0, 0.0, 0
+    for it in items:
+        if it["k"] == "activity" and (ctl or v["scope"] == "apart"):
+            tot += it["f"]; cost += it["f"] * m2_entry(it, v, ctl)
+            continue
+        x = by[it["n"]]
+        bottom = x["bottom"]
+        extra = 0
+        if folding:
+            h = heads[it["lab"]]
+            bottom = folded_top[it["lab"]] + 48 + (x["bottom"] - h["bottom"])
+            extra = 1
+            if folded_top[it["lab"]] + 48 <= vb:
+                in_view += 1
+        elif bottom <= vb:
+            in_view += 1
+        scrolls = 0 if bottom <= vb else math.ceil((bottom - vb) / page)
+        visits = 2 if it["k"] == "activity" else 1
+        reach_cost = min(scrolls + extra, SEARCH_COST)
+        tot += it["f"]
+        cost += it["f"] * (m2_entry(it, v, ctl) + visits * reach_cost)
+        if it["k"] != "activity":
+            logged += it["f"]
+            if not ctl and v["log"] == "inline" and m2_entry(it, v, ctl) == 1:
+                oneshot += it["f"]
+        if not folding and x["c"] and x["bottom"] <= vb:
+            reach.append(x["c"][0])
+    if folding:   # the first tap is a label's header (48 high, the zone's width)
+        zw = 312
+        reach = [{"x": 180, "y": t + 24, "w": zw, "h": 48} for t in folded_top.values() if t + 48 <= vb]
+    shown = [it for it in items if not (it["k"] == "activity" and (ctl or v["scope"] == "apart"))]
+    span = (len(pr["heads"]) * 48 if folding else max(x["bottom"] for x in pr["items"]) - top) / page
+    gate = ["%s %dx%d" % (c["n"], c["w"], c["h"]) for x in pr["items"] if x["bottom"] <= vb for c in x["c"]
+            if (c["n"].startswith("Chip ") and (c["w"] < 24 or c["h"] < 24)) or
+            (c["n"].startswith(("Log ", "Plus ", "Yes ", "Start ", "Stop ")) and (c["w"] < 48 or c["h"] < 48))]
+    if pr["cut"]:
+        gate.append("titles cut %d" % pr["cut"])
+    return {"taps": round(cost / tot, 3), "overview": round(in_view / len(shown), 3), "screens": round(span, 2),
+            "reach": round(sum(T.fitts(THUMB, c) for c in reach) / len(reach), 3) if reach else 9,
+            "one_tap_writes": round(oneshot / logged, 3), "says_share": round(pr["says"] / max(1, pr["rows"]), 3),
+            "judgment_marks": pr["judge"], "gate": gate}
+
+
+def score_measure2(v):
+    a = m2_measure(v, ITEMS12, "t3-m2-12-%s" % key_of(v))
+    b = m2_measure(v, ITEMS30, "t3-m2-30-%s" % key_of(v))
+    running = (not v.get("control")) and v["scope"] == "merged"
+    return {"taps_12": a["taps"], "taps_30": b["taps"], "overview_12": a["overview"], "overview_30": b["overview"],
+            "screens_12": a["screens"], "screens_30": b["screens"], "reach": a["reach"], "one_tap_writes": a["one_tap_writes"],
+            "says_share": a["says_share"], "running_shown": 1 if running else 0, "judgment_marks": a["judgment_marks"],
+            "small": sorted(set(a["gate"] + ["30: " + g for g in b["gate"]]))}
+
+
 def build_refs():
     with open(os.path.join(T.OUT, "t3-references.json"), encoding="utf-8") as fh:
         src = json.load(fh)
@@ -1283,6 +1534,8 @@ def build_refs():
             out["habits"].append({"app": r["app"], "presence": "none", "group": "blocks", "log": "row", "amount": "plain"})
     out["basics"] = [{"app": "org.isoron.uhabits", "layout": None, "filter": None, "mark": "none", "done": "stay"},
                      {"app": "com.tendril.app.debug", "layout": "blocks", "filter": None, "mark": "none", "done": "stay"}]
+    out["measure2"] = [{"app": r["app"], "scope": "apart", "order": "manual", **{k: (x if k != "group" or x != "labels" else "folding") for k, x in r["as_space"].items()}}
+                       for r in src.get("trackers_list", [])]   # Chronicle's categories fold
     out["measure"] = [{"app": r["app"], "scope": "apart", **r["as_space"]} for r in src.get("trackers_list", [])]
     out["trackers"] = [{"app": r["app"], **r["as_space"]} for r in src.get("trackers_list", [])]
     with open(os.path.join(T.OUT, "t3-refs.json"), "w", encoding="utf-8", newline="\n") as fh:
@@ -1293,9 +1546,11 @@ def build_refs():
 T.PREFIX, T.REFS, T.NAME = "t3", "t3-refs.json", "T3 habits, trackers, time, goals, charts and checklists"
 T.OUT = os.path.join(os.path.dirname(M2.T.OUT), "t3")
 # T3.1 "habits" (presence, the first scoring) is kept in t3-habits-v1.json and in the code above; T3a replaced it (owner, 2026-10-13)
-T.SPACES = {"measure": MEAS_SPACE, "trackers": TRK_SPACE, "basics": BASICS_SPACE, "addhabit": ADD_SPACE, "routines": ROUT_SPACE, "addsent": SENT_SPACE, "hsheet": HSHEET_SPACE, "premise": PREMISE_SPACE, "habits2": H2_SPACE}
-T.SCORERS = {"measure": score_measure, "trackers": score_trackers, "basics": score_basics, "addhabit": score_addhabit, "routines": score_routines, "addsent": score_addsent, "hsheet": score_hsheet, "premise": score_premise, "habits2": score_habits2}
-T.CONTROLS = {"measure": ({"scope": "apart", "layout": "grid", "says": "goal", "log": "sheet", "group": "flat", "control": True},
+T.SPACES = {"measure2": MEAS2_SPACE, "measure": MEAS_SPACE, "trackers": TRK_SPACE, "basics": BASICS_SPACE, "addhabit": ADD_SPACE, "routines": ROUT_SPACE, "addsent": SENT_SPACE, "hsheet": HSHEET_SPACE, "premise": PREMISE_SPACE, "habits2": H2_SPACE}
+T.SCORERS = {"measure2": score_measure2, "measure": score_measure, "trackers": score_trackers, "basics": score_basics, "addhabit": score_addhabit, "routines": score_routines, "addsent": score_addsent, "hsheet": score_hsheet, "premise": score_premise, "habits2": score_habits2}
+T.CONTROLS = {"measure2": ({"scope": "apart", "layout": "grid", "says": "goal", "log": "sheet", "group": "flat", "order": "manual", "control": True},
+                           "T3b.1's dashboard: today against a goal ('3/8 · 38%'), a progress bar, a streak; Log through the sheet; activities apart"),
+              "measure": ({"scope": "apart", "layout": "grid", "says": "goal", "log": "sheet", "group": "flat", "control": True},
                           "T3b.1's dashboard: today against a goal ('3/8 · 38%'), a progress bar, a streak, the 7-day bars; Log through the sheet; activities apart"),
               "trackers": ({"layout": "grid", "says": "goal", "log": "sheet", "group": "flat", "control": True},
                            "a dashboard: each card with today against its goal ('3/8 · 38%'), a progress bar, a streak and the 7-day bars"),
@@ -1310,7 +1565,9 @@ T.CONTROLS = {"measure": ({"scope": "apart", "layout": "grid", "says": "goal", "
                          "the leading design with history added: a streak and a share of days on every row"),
               "habits": ({"presence": "streak", "group": "flat", "log": "cells", "amount": "percent", "control": True},
                          "Loop-like with streaks and a score: a streak and a percentage on every row, the last 4 days as ticks and crosses")}
-T.AXES = {"measure": {"Taps": ("taps_mean",), "Reach": ("reach_mean",), "Recovery": ("one_tap_writes",), "Glance": ("-says_share", "-running_shown"),
+T.AXES = {"measure2": {"Taps": ("max:taps_12|taps_30",), "Overview": ("max:-overview_12|-overview_30", "max:screens_12|screens_30"),
+                       "Reach": ("reach",), "Recovery": ("one_tap_writes",), "Glance": ("-says_share", "-running_shown"), "Judgment": ("judgment_marks",)},
+          "measure": {"Taps": ("taps_mean",), "Reach": ("reach_mean",), "Recovery": ("one_tap_writes",), "Glance": ("-says_share", "-running_shown"),
                       "Judgment": ("judgment_marks",), "Find": ("scan_steps",)},
           "trackers": {"Ease": ("taps_count", "reach_log"), "Predictable": ("log_varies", "unconfirmed"), "Glance": ("-says_share",),
                        "Judgment": ("judgment_marks",), "Find": ("scan_steps",), "Consistency": ("like_today",),
@@ -1330,8 +1587,8 @@ T.AXES = {"measure": {"Taps": ("taps_mean",), "Reach": ("reach_mean",), "Recover
                      "Choice": ("-filter_says_mid",), "Consistency": ("like_today",), "Density": ("-rows_seen", "cut"), "Calm": ("clutter", "desk_clutter")},
           "habits": {"Ease": ("log_actions", "reach_log"), "Presence": ("-presence_shown", "presence_marks"), "Calm": ("guilt_marks", "clutter", "desk_clutter"),
                      "Density": ("-rows_seen", "cut"), "Consistency": ("like_today",)}}
-T.TITLES = {"measure": "T3b.1b The Measuring list, taps first: merged with activities or apart, rows or cards, what Log does (a control per kind)", "trackers": "T3b.1 The Trackers list: rows or cards, what a row says, what Log does, grouping", "habits2": "T3a.1c The Habits list: the optional name, and every if as a header", "premise": "T3a.2d What tapping the premise box opens: nothing, or the ifs with the same connective", "hsheet": "T3a.2c The New habit sheet (prototype): the blanks as text boxes in the sentence, or opened above it", "addsent": "T3a.2b Adding a habit as an open sentence: the When sheet, in place, or fields; energy and routine as words or rows", "routines": "T3a.1b The Habits list with routines: the 'what to expect' preview, how the sequence shows", "addhabit": "T3a.2 Adding a habit: in place or a sheet, the If, the block", "basics": "T3a.1 Habits as Daily basics: layout, the energy filter, its mark, done today", "habits": "T3.1 The Habits list: presence, grouping, where Log sits, a count's amount"}
-T.DRAW = {"measure": lambda v: [mdoc(measure_phone(v)), measure_desk(v)], "trackers": lambda v: [tdoc(trackers_phone(v))] + ([] if v.get("control") else [tdoc(trackers_phone(v, True))]) + [trackers_desk(v)], "habits2": lambda v: [h2doc(habits2_phone(v)), habits2_desk(v)], "premise": lambda v: [premise_doc(v)], "hsheet": lambda v: [adoc(addhabit_phone({"control": True}))] if v.get("control") else [hsheet_doc(v, st) for _, _, st in HSTATES], "addsent": lambda v: [sdoc(addsent_phone(v))] + ([] if (v.get("control") or v["form"] == "fields") else [sdoc(addsent_phone(v, True))]), "routines": lambda v: [rdoc(routines_phone(v)), rdoc(routines_phone(v, "low")), routines_desk(v)], "addhabit": lambda v: [adoc(addhabit_phone(v))], "basics": lambda v: [bdoc(basics_phone(v)), basics_desk(v)], "habits": lambda v: [hdoc(habits_phone(v)), habits_desk(v)]}
+T.TITLES = {"measure2": "T3b.1c The Measuring list, scroll counted at 12 and 30 items: compact rows, folding labels, most used first", "measure": "T3b.1b The Measuring list, taps first: merged with activities or apart, rows or cards, what Log does (a control per kind)", "trackers": "T3b.1 The Trackers list: rows or cards, what a row says, what Log does, grouping", "habits2": "T3a.1c The Habits list: the optional name, and every if as a header", "premise": "T3a.2d What tapping the premise box opens: nothing, or the ifs with the same connective", "hsheet": "T3a.2c The New habit sheet (prototype): the blanks as text boxes in the sentence, or opened above it", "addsent": "T3a.2b Adding a habit as an open sentence: the When sheet, in place, or fields; energy and routine as words or rows", "routines": "T3a.1b The Habits list with routines: the 'what to expect' preview, how the sequence shows", "addhabit": "T3a.2 Adding a habit: in place or a sheet, the If, the block", "basics": "T3a.1 Habits as Daily basics: layout, the energy filter, its mark, done today", "habits": "T3.1 The Habits list: presence, grouping, where Log sits, a count's amount"}
+T.DRAW = {"measure2": lambda v: [m2doc(measure2_phone(v, ITEMS12, v.get("group") == "folding")), m2doc(measure2_phone(v, ITEMS30)), measure2_desk(v)], "measure": lambda v: [mdoc(measure_phone(v)), measure_desk(v)], "trackers": lambda v: [tdoc(trackers_phone(v))] + ([] if v.get("control") else [tdoc(trackers_phone(v, True))]) + [trackers_desk(v)], "habits2": lambda v: [h2doc(habits2_phone(v)), habits2_desk(v)], "premise": lambda v: [premise_doc(v)], "hsheet": lambda v: [adoc(addhabit_phone({"control": True}))] if v.get("control") else [hsheet_doc(v, st) for _, _, st in HSTATES], "addsent": lambda v: [sdoc(addsent_phone(v))] + ([] if (v.get("control") or v["form"] == "fields") else [sdoc(addsent_phone(v, True))]), "routines": lambda v: [rdoc(routines_phone(v)), rdoc(routines_phone(v, "low")), routines_desk(v)], "addhabit": lambda v: [adoc(addhabit_phone(v))], "basics": lambda v: [bdoc(basics_phone(v)), basics_desk(v)], "habits": lambda v: [hdoc(habits_phone(v)), habits_desk(v)]}
 T.POOL = {"trackers": lambda ok: [min((r for r in ok if r.get("front") and r["v"]["layout"] == lay and r["v"]["log"] == lg), key=lambda r: r["total"])
                                     for lay in ("rows", "grid") for lg in ("sheet", "default", "stepper")
                                     if any(r.get("front") and r["v"]["layout"] == lay and r["v"]["log"] == lg for r in ok)]
@@ -1339,12 +1596,16 @@ T.POOL = {"trackers": lambda ok: [min((r for r in ok if r.get("front") and r["v"
 T.POOL["measure"] = lambda ok: [r for r in ok if r.get("front")]   # the taps-led front
 T.DRAW_MAX["measure"] = 8
 T.LEAD["measure"] = ("taps_mean", 0.17)   # fewest taps first (owner, 2026-10-13); 0.17 is one tap in the six-entry walk
-T.REFS_INFO.add("measure")   # the references all log through a sheet: shown, not ranked (owner, 2026-10-13)
+T.REFS_INFO.add("measure")
+T.REFS_INFO.add("measure2")
+T.LEAD["measure2"] = [("taps_12", 0.1), ("taps_30", 0.1)]   # fewest taps first at both sizes; 0.1 = one tap more on one log in ten
+T.POOL["measure2"] = lambda ok: [r for r in ok if r.get("front")]
+T.DRAW_MAX["measure2"] = 8   # the references all log through a sheet: shown, not ranked (owner, 2026-10-13)
 T.DRAW_MAX["trackers"] = 10   # and the leader's family with each thing a row can say: whether a row says anything is the trade (Glance against Calm)   # the best of each family drawn: a front of 40 would draw one family
 # the owner's picks (decision 19) shown, the rest folded; superseded parts folded whole (owner, 2026-10-13)
 T.PICKED = {"routines": [{"preview": "none", "seq": "plain"}, {"preview": "energy", "seq": "numbers"}], "hsheet": [{"blank": "inline"}], "premise": [{"premise": "same"}],
             "habits2": [{"group": "routines", "name": "named"}]}
-T.SUPERSEDED = {"trackers": "P4 Measuring is scored taps first (owner, 2026-10-13): T3b.1b replaced it", "habits": "re-cut by purpose; T3a.1 Daily basics replaced it", "basics": "routines replaced it (T3a.1b)",
+T.SUPERSEDED = {"measure": "scroll was undercounted (owner, 2026-10-13): T3b.1c replaced it", "trackers": "P4 Measuring is scored taps first (owner, 2026-10-13): T3b.1b replaced it", "habits": "re-cut by purpose; T3a.1 Daily basics replaced it", "basics": "routines replaced it (T3a.1b)",
                 "addhabit": "the open sentence replaced it (T3a.2b), then the prototype (T3a.2c)", "addsent": "the prototype sheet replaced it (T3a.2c)"}
 T.v2.TOL.setdefault("_reach_log", 0.05)
 T.v2.TOL.setdefault("_reach_mean", 0.05)

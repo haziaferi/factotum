@@ -827,23 +827,34 @@ def ranked(p):
     axes = dict(AXES[p])
     if p not in REFS_INFO and any(r.get("ref_distance") is not None for r in ok):
         axes["Refs"] = ("ref_distance",)
+    def subkeys(k):   # "max:a|-b": the worse of several ranks counts (owner, 2026-10-13: the list scored at 12 and 30 items)
+        return k[4:].split("|") if k.startswith("max:") else [k]
     for r in ok:
-        for k in [k.lstrip("-") for ks in axes.values() for k in ks]:
+        for k in [s.lstrip("-") for ks in axes.values() for k in ks for s in subkeys(k)]:
             x = r.get(k)
             r["_" + k] = (99 if x is None else float(x))
     for a, ks in axes.items():
         for r in ok:
             r[a] = 0
         for k in ks:
-            sign, k2 = (-1, k[1:]) if k.startswith("-") else (1, k)
-            for r, rk in zip(ok, v2.ranks(ok, "_" + k2, sign)):
-                r[a] += rk
+            per = []
+            for sk in subkeys(k):
+                sign, k2 = (-1, sk[1:]) if sk.startswith("-") else (1, sk)
+                per.append(v2.ranks(ok, "_" + k2, sign))
+            for r, rks in zip(ok, zip(*per)):
+                r[a] += max(rks)
     ax = list(axes)
     lead = ok
     if p in LEAD:   # one measure leads (owner, 2026-10-13, P4 Measuring: fewest taps first); the rest break ties among those near the best
-        k, tol = LEAD[p]
-        best = min(r[k] for r in ok)
-        lead = [r for r in ok if r[k] <= best + tol]
+        keys = [LEAD[p]] if isinstance(LEAD[p], tuple) else LEAD[p]
+        best = {k: min(r[k] for r in ok) for k, _ in keys}
+        # several measures (one list at two sizes): the worse shortfall from each one's best counts (found 2026-10-13: the bests
+        # at 12 and 30 items came from different designs, and "within the tolerance of both" left the front empty)
+        for r in ok:
+            r["_shortfall"] = max(r[k] - best[k] for k, _ in keys)
+        least = min(r["_shortfall"] for r in ok)
+        tol = keys[0][1]
+        lead = [r for r in ok if r["_shortfall"] <= least + tol]
     for r in ok:
         r["front"] = r in lead and not any(all(o[a] <= r[a] for a in ax) and any(o[a] < r[a] for a in ax) for o in lead if o is not r)
         r["total"] = sum(r[a] for a in ax)
