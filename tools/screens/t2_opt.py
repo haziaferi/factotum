@@ -624,7 +624,12 @@ def score_wk(v):
           block, a reminder a round pill, a routine a dashed outline, a task a plain row),
           grid (the untimed in a tray above the hours; on the hours an event is a block over its span, a reminder a
           round pin at its minute, a timed routine an outlined strip), sections (Events · Tasks · Reminders · Routines,
-          each a list in time order), lanes (the hours split into a column per kind; the untimed at the top of their lane)
+          each a list in time order), lanes (the hours split into a column per kind; the untimed at the top of their lane),
+          hours (owner, 2026-10-13: the dropped calendar Day view brought back: a left column of all 24 hours, opened
+          scrolled to the day's first thing, the line at the current time, every thing an alike block with its times,
+          the untimed in a strip above the hours)
+  The line at the current time is drawn wherever a single time order allows it (timeline and shaped: between rows;
+  grid, lanes, hours: across the hours); sections has none. Measured as Now (0 shown, 1 not).
   show    events (events only), tasks (events, tasks and reminders), everything (all that Today shows for the day)
   filter  none (fixed), chips (All · Events · Tasks · Routines: 1 tap), menu (✎ › Show: 2 actions)
   The day: Mon 5 Oct, Today's eight rows (tier_t1.KINDS); now is 10:15. This is the Day screen: tapping a day in
@@ -642,7 +647,7 @@ def score_wk(v):
 """
 # The Day screen (owner, 2026-10-13): tapping a day in Week or Month opens it, so it is pushed: ‹ back, ✎ for Show.
 DAY_HEADER = kit.header("Mon 5 Oct", (("✎", "Edit"),), ("‹", "Back"))
-DAY_SPACE = {"layout": ["timeline", "shaped", "grid", "sections", "lanes"], "show": ["events", "tasks", "everything"], "filter": ["none", "chips", "menu"]}
+DAY_SPACE = {"layout": ["timeline", "shaped", "grid", "sections", "lanes", "hours"], "show": ["events", "tasks", "everything"], "filter": ["none", "chips", "menu"]}
 KIND_CLASS = {"event": "event", "task": "task", "reminder": "reminder", "habit": "routine", "checklist": "routine", "reading": "routine"}
 KIND_GLYPH = {"event": "▭", "task": "◦", "reminder": "◴", "routine": "↻"}
 SECTION = {"event": "Events", "task": "Tasks", "reminder": "Reminders", "routine": "Routines"}
@@ -690,13 +695,39 @@ def placed(it, first, hour_px, left, width):
     return di(title, kc, st, "strip", "top:%dpx;left:%s;width:%s" % (top + 2, left, width))
 
 
+NOW_LINE = '<div class="now" style="top:%dpx;left:%dpx;right:0"></div>'
+
+
+def placed_alike(it, first, hour_px, left, width):
+    """The old Day view's block: every kind alike, its times under its title."""
+    title, kc, st, en = it
+    end = en if en is not None else st + 0.5
+    h = max(34, (end - st) * hour_px - 2)
+    sub = '<span class="tm2">%s</span>' % (hh(st) + ("–" + hh(en) if en else ""))
+    return ('<div class="di blk alike" data-tap="Open item" data-kind="%s" data-time="%s" style="top:%dpx;height:%dpx;left:%s;width:%s">'
+            '<span class="g">%s</span><span class="tt">%s%s</span></div>') % (kc, st, (st - first) * hour_px, h, left, width, KIND_GLYPH[kc], kit.ud(e(title)), sub)
+
+
 def day_body(layout, show):
     items = day_items(show)
     untimed = [x for x in items if x[2] is None]
     timed = sorted([x for x in items if x[2] is not None], key=lambda x: x[2])
+    if layout == "hours":
+        first, hour_px, gutter = 0.0, 48, 34
+        shift = (min(x[2] for x in timed) if timed else 7) * hour_px   # opened at the day's first thing
+        strip = '<div class="hstrip" data-region="strip">%s</div>' % "".join(di(x[0], x[1], None, "lchip") for x in untimed) if untimed else ""
+        evs = "".join(placed_alike(x, first, hour_px, "calc(%dpx + 2px)" % gutter, "calc(100%% - %dpx)" % (gutter + 4)) for x in timed)
+        return strip + '<div class="cal" data-region="grid"><div class="tgrid" style="top:-%dpx;bottom:auto;height:%dpx">%s%s%s</div></div>' % (
+            shift, 24 * hour_px, hours_axis(first, 23, hour_px, gutter), evs, NOW_LINE % (NOW * hour_px, gutter))
     if layout in ("timeline", "shaped"):
         cls = (lambda kc: "drow " + {"event": "sev", "reminder": "srem", "routine": "srou"}.get(kc, "")) if layout == "shaped" else (lambda kc: "drow")
-        rows = [di(x[0], x[1], None, cls(x[1]), lead="—") for x in untimed] + [di(x[0], x[1], x[2], cls(x[1]), lead=hh(x[2])) for x in timed]
+        rows = [di(x[0], x[1], None, cls(x[1]), lead="—") for x in untimed]
+        nowed = False
+        for x in timed:
+            if not nowed and x[2] > NOW:
+                rows.append('<div class="now agn"></div>')
+                nowed = True
+            rows.append(di(x[0], x[1], x[2], cls(x[1]), lead=hh(x[2])))
         return '<div class="zone dz" data-region="list">%s</div>' % "".join(rows)
     if layout == "sections":
         out = []
@@ -710,7 +741,7 @@ def day_body(layout, show):
     if layout == "grid":
         tray = '<div class="tray" data-region="tray">%s</div>' % "".join(di(x[0], x[1], None) for x in untimed) if untimed else ""
         evs = "".join(placed(x, first, hour_px, "calc(%dpx + 2px)" % gutter, "calc(100%% - %dpx)" % (gutter + 4)) for x in timed)
-        return tray + '<div class="cal" data-region="grid"><div class="tgrid">%s%s</div></div>' % (hours_axis(first, 23, hour_px, gutter), evs)
+        return tray + '<div class="cal" data-region="grid"><div class="tgrid">%s%s%s</div></div>' % (hours_axis(first, 23, hour_px, gutter), evs, NOW_LINE % ((NOW - first) * hour_px, gutter))
     # lanes
     kinds = SHOWS[show]
     n = len(kinds)
@@ -718,7 +749,7 @@ def day_body(layout, show):
     heads = '<div class="lanes"><span style="flex:0 0 %dpx"></span>%s</div>' % (gutter, "".join(
         '<span data-region="lane-%s">%s%s</span>' % (kc, '<b class="lh">%s</b>' % SECTION[kc], "".join(di(x[0], x[1], None, "lchip") for x in untimed if x[1] == kc)) for kc in kinds))
     evs = "".join(placed(x, first, hour_px, *lane(kinds.index(x[1]))) for x in timed)
-    return heads + '<div class="cal" data-region="grid"><div class="tgrid">%s%s</div></div>' % (hours_axis(first, 23, hour_px, gutter), evs)
+    return heads + '<div class="cal" data-region="grid"><div class="tgrid">%s%s%s</div></div>' % (hours_axis(first, 23, hour_px, gutter), evs, NOW_LINE % ((NOW - first) * hour_px, gutter))
 
 
 DAY_CSS = """
@@ -730,6 +761,9 @@ DAY_CSS = """
 .blk{position:absolute;background:var(--zone2);border-radius:6px;padding:2px 4px;align-items:flex-start;font-size:13px;box-shadow:inset 3px 0 0 var(--dim)}
 .pin{position:absolute;height:22px;border-radius:11px;box-shadow:inset 0 0 0 1.5px var(--dim);padding:0 6px;font-size:13px;background:var(--zone)}
 .strip{position:absolute;height:22px;border-radius:2px;border:1px dashed var(--dim);padding:0 4px;font-size:13px}
+.hstrip{display:flex;flex-wrap:wrap;gap:4px;flex:none}.hstrip .lchip{padding:0 8px}
+.alike .tt{white-space:normal}.alike .tt .ud{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.alike .tm2{display:block;color:var(--dim);font-size:12px}
 .lchip{min-height:28px;font-size:12px;border-radius:6px;background:var(--zone2);padding:0 3px;margin:1px 1px 0;gap:2px}
 .lchip .g{width:12px}
 .lanes{display:flex;flex:none;gap:0}.lanes>span{flex:1;min-width:0;display:flex;flex-direction:column}
@@ -764,12 +798,15 @@ def day_desk(v, theme="light"):
 
 
 DAY_JS = ("(function(){var vb=(document.querySelector('.bar')||{getBoundingClientRect:function(){return {top:740}}}).getBoundingClientRect().top;var out=[];"
+          "document.querySelectorAll('.now').forEach(function(el){var r=el.getBoundingClientRect();var c=(el.closest('.cal')||el.parentElement).getBoundingClientRect();"
+          "out.push({it:0,nowl:1,time:null,x:0,y:Math.round(r.top),seen:(r.top>=Math.max(0,c.top)&&r.top<=Math.min(vb,c.bottom))?1:0})});"
           "document.querySelectorAll('.di,.hr,[data-head]').forEach(function(el){var r=el.getBoundingClientRect();if(!r.height&&!el.classList.contains('hr'))return;"
+          "var cc=el.closest('.cal');var above=cc&&r.bottom<=cc.getBoundingClientRect().top+1?1:0;"
           "var reg=el.closest('[data-region]');var g=el.querySelector('.g');var tt=el.querySelector('.tt');var cs=getComputedStyle(el);"
           "out.push({it:el.classList.contains('di')?1:0,k:el.dataset.kind||'',time:el.dataset.time===undefined||el.dataset.time===''?null:parseFloat(el.dataset.time),"
           "x:Math.round(r.left),y:Math.round(r.top),w:Math.round(r.width),h:Math.round(r.height),rad:cs.borderTopLeftRadius,dash:cs.borderTopStyle,"
           "reg:reg?reg.dataset.region:'',g:g?g.textContent:'',seen:(r.top>=0&&r.bottom<=vb+1)?1:0,"
-          "cut:tt&&(tt.scrollWidth>tt.clientWidth+1)?1:0,title:tt?tt.textContent:''})});return out})()")
+          "above:above,cut:tt&&(tt.scrollWidth>tt.clientWidth+1)?1:0,title:el.querySelector('.ud')?el.querySelector('.ud').textContent:(tt?tt.textContent:'')})});return out})()")
 
 
 def kind_sep(items):
@@ -789,7 +826,7 @@ def kind_sep(items):
 
 
 def time_lookup(read, items):
-    order = sorted(read, key=lambda x: (x["y"] // 8, x["x"]))
+    order = sorted([x for x in read if not x.get("nowl") and not x.get("above")], key=lambda x: (x["y"] // 8, x["x"]))   # hours scrolled out above are not passed
     times = [x["time"] for x in order if x["time"] is not None]
     in_order = all(a <= b for a, b in zip(times, times[1:]))
     costs = []
@@ -805,12 +842,13 @@ def score_day(v):
     tp = T.taps(d)
     read = T.probe(d, "t2-day2-%s" % key_of(v), DAY_JS)
     items = [x for x in read if x["it"]]
+    now = 0 if any(x.get("nowl") and x["seen"] for x in read) else 1
     if v.get("control"):
         shown, other = len(t.KINDS), 3
     else:
         shown = len(day_items(v["show"]))
         other = {"none": 99, "chips": 1, "menu": 2}[v["filter"]]
-    return {"shown": shown, "missed": TODAY_TOTAL - shown, "other_actions": other, "kind_sep": kind_sep(items), "time_lookup": time_lookup(read, items),
+    return {"shown": shown, "missed": TODAY_TOTAL - shown, "other_actions": other, "kind_sep": kind_sep(items), "time_lookup": time_lookup(read, items), "now_actions": now,
             "rows_seen": sum(x["seen"] for x in items), "cut": sum(x["cut"] for x in items if x["seen"]),
             "small": small_of(tp, {"Show All", "Show Events", "Show Tasks", "Show Routines"}),
             "clutter": T.clutter_of(lambda th: day_doc(v, th)), "desk_clutter": dclutter(lambda th: day_desk(v, th))}
@@ -1103,7 +1141,7 @@ T.AXES = {
             "Conflicts": ("clash_cost",), "Switching": ("switch_actions", "reach_switch"), "Calm": ("clutter", "desk_clutter")},
     "wk": {"Legibility": ("-legible_share", "-desk_legible_share"), "Conflicts": ("clash_cost",), "Density": ("-events_seen", "-desk_events_seen"),
            "Now": ("now_actions",), "Calm": ("clutter", "desk_clutter")},
-    "day": {"Completeness": ("missed",), "Ease": ("other_actions", "time_lookup"), "Distinction": ("-kind_sep",), "Density": ("-rows_seen", "cut"), "Calm": ("clutter", "desk_clutter")},
+    "day": {"Completeness": ("missed",), "Ease": ("other_actions", "time_lookup"), "Now": ("now_actions",), "Distinction": ("-kind_sep",), "Density": ("-rows_seen", "cut"), "Calm": ("clutter", "desk_clutter")},
     "rem": {"Clarity": ("soonest_at", "disorder"), "Ease": ("skip_actions", "reach_skip", "skip_hidden"), "Safety": ("skip_accident",), "Density": ("-rows_seen",), "Calm": ("clutter", "desk_clutter")},
     "alarm": {"Half-asleep": ("aim_risk", "slap_risk", "snooze_miss", "dismiss_pull"), "Ease": ("snooze_actions", "skip_actions", "lock_extra", "dismiss_effort_s", "reach"), "Choice": ("-snooze_choice",), "Calm": ("cover_kpx", "clutter")},
 }

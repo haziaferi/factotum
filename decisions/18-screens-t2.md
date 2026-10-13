@@ -286,3 +286,39 @@ The owner, asked whether 3 days should be dropped too:
   - grid + chips 222;
   - control 242.5.
 - **Lanes** drops off the front: its kind separation reads 0.667, no longer 0.889, under the new header, and its sum is 251.5. That is above the control's, though the control stays off the front.
+
+## The Day screen: the old Day view brought back as an option (owner, 2026-10-13)
+
+The owner asked to pick back up the previous Day view's design ("the vertical left column listing all hours and the line at the current time") and score it against the other options.
+
+**Added as layout `hours`:**
+- a left column of all 24 hours, opened scrolled to the day's first thing (07:00);
+- the line at the current time;
+- every thing drawn as an alike block, with its times under its title;
+- the untimed things in a strip above the hours.
+
+**Also changed, for fairness:**
+- The current-time line is now drawn in every layout with a single time order: between rows in timeline and shaped, across the hours in grid and lanes. Sections cannot carry it.
+- A **Now** axis was added (0: the current time shows, 1: it does not).
+- Lookup no longer counts the hours scrolled out above the screen.
+
+All 54 options were rescored; the control is still off the front. With everything shown:
+
+| Layout + filter | Sum | Lookup | Kinds apart | Now | Clutter, phone / Windows | On the front |
+|---|---|---|---|---|---|---|
+| timeline + menu | 238.5 | 7 | 0.333 | 0 | 0.044 / 0.033 | yes |
+| timeline + chips | 252 | 7 | 0.333 | 0 | 0.048 / 0.034 | yes |
+| **hours + chips** | **269.5** | 12 | **0.722** | 0 | 0.053 / 0.037 | yes |
+| hours + menu | 270 | 12 | 0.722 | 0 | 0.051 / 0.037 | yes |
+| sections + menu | 273.5 | 12 | 0.667 | 1 | 0.046 / 0.032 | yes |
+| shaped + menu | 276.5 | 7 | 0.667 | 0 | 0.056 / 0.039 | yes |
+| grid + chips | 285.5 | 12 | 0.833 | 0 | 0.058 / 0.040 | yes |
+| lanes + chips | 323 | 12 | 0.667 | 0 | 0.056 / 0.040 | no (4 titles cut) |
+| control | 327 | 8 | 0 | 1 | 0.049 / 0.033 | no |
+
+**What the scores say:**
+- Of the layouts on an hour grid, `hours` scores best. It is calmer than grid and shaped, and it tells the kinds apart about as well as they do (0.722), through its strip and glyphs rather than shapes.
+- It costs 5 more readables than the lists to find an hour.
+- It is the only layout that keeps the calendar's view of time: free time as space, length as height.
+
+(The sums are higher than before because 55 options are now ranked, not 46.)
