@@ -1,6 +1,6 @@
 # 19. Screens T3: habits, trackers, time, goals, charts and checklists
 
-Status: **T3.1 the Habits list approved (owner, 2026-10-13); next T3.2.** The method is decision 15's: every screen, one at a time, before colour, each scored with a control that must lose.
+Status: **re-cut by purpose (owner, 2026-10-13): T3a Daily basics, T3b Measuring, T3c Looking back; see `docs/screens/purpose-map.md`. T3a waits on three owner answers.** The method is decision 15's: every screen, one at a time, before colour, each scored with a control that must lose.
 
 **Already settled in the SPEC, and not asked again:**
 - **Habits (§3.6):**
@@ -117,3 +117,39 @@ An option that breaks this needs a measured reason that outweighs it, and the ow
 - **T3.1, the Habits list, recorded as approved** on that rule: days this month, flat, Log on the row (where Today's rows have it), plain amount.
   - It is on the front with a sum of 282.5: 1 action to Log, 0 guilt marks.
   - The habit's page as the place to Log scored lower (272.5), but takes 3 actions and breaks the rule.
+
+## T3 re-cut by purpose (owner, 2026-10-13)
+
+The owner observed that screens had been grouped and scored by the app they came from rather than by what they do ("Habits resembles Equipoise more than it does Calendar or Trackers"), and asked which screens share a purpose, and which have no parent app.
+
+The answer is the **purpose map**:
+- `docs/screens/purpose-map.json` holds it as data;
+- `docs/screens/purpose-map.md` renders it, through `tools/screens/purpose_map.py`.
+
+The script fails if any navigation screen or Hub entry is left unplaced, and a negative test showed it does.
+
+**The map:** 55 screens under 9 purposes; 5 have no parent app; 9 are approved. It shows six overlap groups:
+- three strong: daily basics; measuring; looking back;
+- two medium: planning the week; recording myself;
+- one weak and settled: what's next.
+
+**The owner's answers:**
+1. **T3 and T4 are re-cut by purpose:** T3a Daily basics, T3b Measuring, T3c Looking back. The cut is refined as the tiers go.
+2. **Checklists split.** Routine checklists join Daily basics; one-off lists (packing, shopping) stay lists.
+3. **The purpose map, once settled, decides how the Hub's elements are grouped.**
+
+**Habits, as the owner defines them (2026-10-13).** Very basic daily things that are easy to forget:
+- making the bed, brushing teeth, washing the face, showering;
+- held as if-then cues;
+- a clear reference on a day of depression or dissociation;
+- the least judgment possible.
+
+Quantities (water, exercise, studying, knitting) are trackers.
+
+**What this means for T3.1:**
+- Its approval stands for the rule it set: Log on the row, exactly Today's button. (The owner, 2026-10-13: "the Log button should be the same as the Today's page"; one consistency pass across screens comes later.)
+- Its scoring is redone as T3a on the axes proposed: Judgment, Cue, Day flow, Low-capacity ease, Consistency. Amount is dropped.
+- The three questions put to the owner are still open:
+  - whether habits are yes/no only;
+  - what the "if" is (a block, a written cue, or both);
+  - whether "a clear reference" is the list itself.
