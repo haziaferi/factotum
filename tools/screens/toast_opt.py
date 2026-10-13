@@ -825,7 +825,7 @@ def ranked(p):
             r["ref_distance"] = round(sum(parts) / len(parts), 3) if parts else None
     ok = [r for r in rows if not r.get("small")]
     axes = dict(AXES[p])
-    if any(r.get("ref_distance") is not None for r in ok):
+    if p not in REFS_INFO and any(r.get("ref_distance") is not None for r in ok):
         axes["Refs"] = ("ref_distance",)
     for r in ok:
         for k in [k.lstrip("-") for ks in axes.values() for k in ks]:
@@ -839,8 +839,13 @@ def ranked(p):
             for r, rk in zip(ok, v2.ranks(ok, "_" + k2, sign)):
                 r[a] += rk
     ax = list(axes)
+    lead = ok
+    if p in LEAD:   # one measure leads (owner, 2026-10-13, P4 Measuring: fewest taps first); the rest break ties among those near the best
+        k, tol = LEAD[p]
+        best = min(r[k] for r in ok)
+        lead = [r for r in ok if r[k] <= best + tol]
     for r in ok:
-        r["front"] = not any(all(o[a] <= r[a] for a in ax) and any(o[a] < r[a] for a in ax) for o in ok if o is not r)
+        r["front"] = r in lead and not any(all(o[a] <= r[a] for a in ax) and any(o[a] < r[a] for a in ax) for o in lead if o is not r)
         r["total"] = sum(r[a] for a in ax)
     return rows, ok, axes
 
@@ -850,6 +855,8 @@ POOL = {}  # part: the options to draw, when the owner has narrowed the part (de
 PICKED = {}  # part: [option dicts] the owner picked; the page shows them, folds the rest (owner, 2026-10-13)
 SUPERSEDED = {}  # part: why it was superseded; the page folds the whole part
 DRAW_MAX = {}  # part: how many options to draw (default 6)
+LEAD = {}  # part: (measure, tolerance): only options within the tolerance of the best can reach the front
+REFS_INFO = set()  # parts whose reference distance is shown, not ranked
 TITLES = {"g": "G. Where actions sit, the same on every screen, and their text", "h": "H. Closing the capture sheet with text not added", "a": "A. Where the toast sits", "b": "B. How long Undo lasts, several in a row, the way back", "c": "C. The dialogs: empty Trash, discard changes",
           "d": "D. The sync clash", "e": "E. Permission asks: when", "f": "F. Failures"}
 

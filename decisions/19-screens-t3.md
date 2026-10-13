@@ -749,4 +749,16 @@ Under equal weights a sheet leads again (merged · grid · last · sheet · flat
 - the fewest taps first (within 0.17), the other axes breaking ties;
 - or Taps counted twice, with Refs dropped.
 
-Status: **awaiting the owner's choice of weighting.**
+**The owner's weighting (2026-10-13):**
+- **Fewest taps first:** only options within 0.17 taps of the best (one tap in the six-entry walk) reach the front; the other axes break ties among them (`T.LEAD`).
+- **Refs is information only** on Measuring screens: shown in the tables, not ranked (`T.REFS_INFO`).
+
+**Result:** the control (3.0 taps) lost. The front has three options, all merged, cards, a control per kind:
+
+| Option | Taps | Rank sum | Reach (bits) | Find | Note |
+|---|---|---|---|---|---|
+| merged · grid · last · inline · labels | 1.67 | 387.5 | 3.05 | 4.33 | every row says when it was last logged |
+| merged · grid · spark · inline · labels | 1.67 | 424.5 | 2.91 | 4.33 | 9 empty-day ticks in view |
+| merged · grid · none · inline · flat | 1.50 | 547.5 | 3.03 | 6.5 | the names only; one scroll fewer |
+
+Status: **scored, awaiting the owner's pick.**

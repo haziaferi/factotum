@@ -1336,9 +1336,10 @@ T.POOL = {"trackers": lambda ok: [min((r for r in ok if r.get("front") and r["v"
                                     for lay in ("rows", "grid") for lg in ("sheet", "default", "stepper")
                                     if any(r.get("front") and r["v"]["layout"] == lay and r["v"]["log"] == lg for r in ok)]
                        + [r for r in ok if r["v"]["layout"] == "rows" and r["v"]["log"] == "sheet" and r["v"]["group"] == "labels" and r["v"]["says"] != "none"]}
-T.POOL["measure"] = lambda ok: [min(fam, key=lambda r: r["total"]) for sc in ("merged", "apart") for lg in ("inline", "default", "stepper", "sheet")
-                                for fam in [[r for r in ok if r.get("front") and r["v"]["scope"] == sc and r["v"]["log"] == lg]] if fam]   # the best of each scope and Log family
+T.POOL["measure"] = lambda ok: [r for r in ok if r.get("front")]   # the taps-led front
 T.DRAW_MAX["measure"] = 8
+T.LEAD["measure"] = ("taps_mean", 0.17)   # fewest taps first (owner, 2026-10-13); 0.17 is one tap in the six-entry walk
+T.REFS_INFO.add("measure")   # the references all log through a sheet: shown, not ranked (owner, 2026-10-13)
 T.DRAW_MAX["trackers"] = 10   # and the leader's family with each thing a row can say: whether a row says anything is the trade (Glance against Calm)   # the best of each family drawn: a front of 40 would draw one family
 # the owner's picks (decision 19) shown, the rest folded; superseded parts folded whole (owner, 2026-10-13)
 T.PICKED = {"routines": [{"preview": "none", "seq": "plain"}, {"preview": "energy", "seq": "numbers"}], "hsheet": [{"blank": "inline"}], "premise": [{"premise": "same"}],
