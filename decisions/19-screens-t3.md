@@ -565,3 +565,36 @@ The one-entity model depends on matching ifs: a retyped "waking" makes a second 
 **Owed in the data layer, added:**
 - a habit's several "at" times, each an occurrence shown on Today and the Day screen;
 - an untimed habit's manual order, defaulting to its creation order.
+
+## T3a.1c The Habits list: the optional name, and every if as a header (2026-10-13)
+
+> "Score the Habits screen (not the New habit screen) with the optional name included and showing every habit with an if, against the current proposed screens."
+
+**Part `habits2`.** Every form keeps the forecast OFF (the default), no glyph, the energy chips with High on, Today's Log and the fold. The control is every if as a checklist with progress. It loses at 36.
+
+| Form | Sum | Every habit in one shape | Names in view | Words per row | Header px | Rows seen | Clutter, phone / Windows |
+|---|---|---|---|---|---|---|---|
+| headers for routines only, **named** | **23.5** | no | 2 | 5.3 | 104 | 8 | 0.047 / 0.021 |
+| headers for routines only, no names (approved) | 24 | no | 0 | 4.8 | 68 | 8 | 0.045 / 0.020 |
+| every if a header, no names | 24.5 | yes | 0 | 5.3 | 149 | 7 | 0.042 / 0.019 |
+| every if a header, named | 27 | yes | 2 | 6.3 | 185 | 6 | 0.043 / 0.020 |
+
+All four forms are on the front, within 3.5 of each other.
+
+**What the scores say:**
+- **The name** adds a line per routine (36 px) and a few words, and makes the routines recognisable by the person's own words.
+- **Every if as a header** makes every habit one shape and is a little calmer. It costs header space: 149 px against 68, one row fewer in view.
+- **Since the name is optional,** "headers for routines only" with and without names are one design: a routine shows its name when the person has written one.
+
+## The options pages fold what was discarded (owner, 2026-10-13)
+
+> "Also remove or collapse all discarded screens."
+
+`toast_opt` takes two lists:
+- `PICKED`: a decided part shows its picks, with the options not picked and the control folded under "Not picked".
+- `SUPERSEDED`: a superseded part folds whole.
+
+**Applied:**
+- **T2:** all six parts show their picks (`t2_opt.T.PICKED`).
+- **T3:** the routines, the sheet and the premise box show their picks. Daily basics' first list, adding a habit with fields, and the first sentence fold as superseded. The first T3.1 presence scoring has no options page entry, so it is not drawn at all.
+- The scores pages keep every row.

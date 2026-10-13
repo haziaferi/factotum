@@ -1158,6 +1158,10 @@ T.DRAW = {
     "alarm": lambda v: [doc(alarm_phone(v))] + ([upcoming_doc()] if (not v.get("control") and v["skip"] == "upcoming") else []),
 }
 T.POOL["cal"] = lambda ok: [r for r in ok if r["v"].get("switch") == "tabs"]   # the owner picked tabs (2026-10-13): every view drawn
+# the owner's picks (decision 18): the options page shows them and folds what was not picked (owner, 2026-10-13)
+T.PICKED = {"page": [{"form": "inplace", "fields": "all", "save": "auto"}], "alarm": [{"form": "full", "dismiss": "slide", "snooze": "one", "skip": "upcoming"}],
+            "rem": [{"order": "next", "group": "days", "skip": "inplace"}], "cal": [{"default": "week", "switch": "tabs"}],
+            "wk": [{"span": "week", "form": "planner"}, {"span": "3day", "form": "wrap"}], "day": [{"layout": "hours", "show": "everything", "filter": "chips"}]}
 for _k in ("_reach_switch", "_reach_skip"):
     T.v2.TOL.setdefault(_k, 0.05)
 

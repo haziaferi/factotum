@@ -1,0 +1,85 @@
+[
+ {
+  "v": {
+   "group": "routines",
+   "name": "none"
+  },
+  "judgment_marks": 0,
+  "uniform": 0,
+  "names_in_view": 0,
+  "words_per_row": 4.75,
+  "header_px": 68,
+  "rows_seen": 8,
+  "cut": 0,
+  "small": [],
+  "clutter": 0.0454,
+  "desk_clutter": 0.0198
+ },
+ {
+  "v": {
+   "group": "routines",
+   "name": "named"
+  },
+  "judgment_marks": 0,
+  "uniform": 0,
+  "names_in_view": 2,
+  "words_per_row": 5.25,
+  "header_px": 104,
+  "rows_seen": 8,
+  "cut": 0,
+  "small": [],
+  "clutter": 0.0467,
+  "desk_clutter": 0.0208
+ },
+ {
+  "v": {
+   "group": "every",
+   "name": "none"
+  },
+  "judgment_marks": 0,
+  "uniform": 1,
+  "names_in_view": 0,
+  "words_per_row": 5.29,
+  "header_px": 149,
+  "rows_seen": 7,
+  "cut": 0,
+  "small": [],
+  "clutter": 0.0422,
+  "desk_clutter": 0.0194
+ },
+ {
+  "v": {
+   "group": "every",
+   "name": "named"
+  },
+  "judgment_marks": 0,
+  "uniform": 1,
+  "names_in_view": 2,
+  "words_per_row": 6.33,
+  "header_px": 185,
+  "rows_seen": 6,
+  "cut": 0,
+  "small": [],
+  "clutter": 0.0432,
+  "desk_clutter": 0.0198
+ },
+ {
+  "v": {
+   "group": "checklist",
+   "name": "progress",
+   "control": true
+  },
+  "why": "every if as a checklist with progress: '1/4 done · 25%'",
+  "control": true,
+  "judgment_marks": 10,
+  "uniform": 1,
+  "names_in_view": 0,
+  "words_per_row": 9.0,
+  "header_px": 170,
+  "rows_seen": 6,
+  "cut": 0,
+  "small": [],
+  "clutter": 0.0503,
+  "desk_clutter": 0.0215
+ }
+]

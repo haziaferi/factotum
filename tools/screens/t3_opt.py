@@ -4,6 +4,7 @@
     python tools/screens/t3_opt.py page_html scores       t3-options.html, t3-scores.html (fails if a control wins)
 
 Parts:
+  habits2  T3a.1c the Habits list: the optional name, every if as a header (owner, 2026-10-13)
   premise  T3a.2d what the premise box opens (owner, 2026-10-13; axes chosen by the owner)
   hsheet   T3a.2c the New habit sheet, scored from docs/screens/t3/habit-prototype.html (owner, 2026-10-13)
   addsent  T3a.2b adding a habit as an open sentence (owner, 2026-10-13)
@@ -824,6 +825,93 @@ def score_premise(v):
             "scan_rows": pr["rows"], "small": sorted(set(tiered_small(tp))), "clutter": T.clutter_of(lambda th: premise_doc(v, th))}
 
 
+# ==== Part habits2: T3a.1c the Habits list, the optional name and every if as a header (owner, 2026-10-13) =========================
+"""
+  The owner: "Score the Habits screen ... with the optional name included and showing every habit with an if, against
+  the current proposed screens." The forecast is OFF (the approved default), steps plain, no glyph, energy chips with
+  High on, Today's Log, done steps fold.
+  group  routines (the approved form: an if with two or more habits is a header with its steps; a lone habit has its
+         if as a small line above it), every (every if is a header, a lone habit sitting under its own if as a routine
+         of one)
+  name   none (the if is the header), named (a routine has a name the person wrote, "Morning routine", over its if;
+         an unnamed if keeps the if as its header)
+  Measured: words per row; rows seen; titles cut; whether every habit sits in the same shape (uniform); the routines'
+  names in view; header lines spent; clutter, Windows' clutter. Judgment marks for the control.
+  Control: the routine as a checklist with progress, "1/4 done · 25%" (as T3a.1b's).
+"""
+H2_SPACE = {"group": ["routines", "every"], "name": ["none", "named"]}
+H2_CSS = """
+.rhead .rn2{display:block;font-size:15px;font-weight:600}.rhead .rs2{display:block;font-size:12.5px;color:var(--dim)}
+.rhead.small{padding:8px 4px 0}.rhead.small .rn2{font-size:13px;font-weight:400;color:var(--dim)}
+"""
+
+
+def h2doc(html, theme="light"):
+    return doc(html, theme, CSS + BASICS_CSS + ROUT_CSS + H2_CSS)
+
+
+def h2_step(h):
+    return ('<div class="row" data-tap="Open habit"><span style="width:8px;flex:none"></span><span class="num"></span><span class="t"><span class="nm">%s</span></span>'
+            '<span class="act" data-tap="Log %s"><span>Log</span></span></div>') % (kit.ud(e(h[0])), h[0])
+
+
+def habits2_body(v):
+    ctl = v.get("control")
+    out, heads = [], 0
+    for name, sentence, block, steps in ROUTINES:
+        live = [h for h in steps if not h[3]]
+        routine = name is not None
+        if not routine and v.get("group") != "every" and not ctl:
+            for h in live:   # the approved lone habit: its if above it
+                out.append('<div class="row" data-tap="Open habit"><span class="t" style="padding-left:4px"><span class="bsub">%s</span><span class="nm">%s</span></span>'
+                           '<span class="act" data-tap="Log %s"><span>Log</span></span></div>' % (e(sentence), kit.ud(e(h[0])), h[0]))
+            continue
+        heads += 1
+        if ctl:
+            done = sum(1 for h in steps if h[3])
+            prog = '<span class="rp"><span data-judge="1">%d/%d done</span> · <span data-judge="1">%d%%</span></span>' % (done, len(steps), round(100 * done / len(steps)))
+            out.append('<div class="rhead" data-head="1"><span><span class="rn2">%s</span></span>%s</div>' % (e(sentence), prog))
+        elif routine and v["name"] == "named":
+            out.append('<div class="rhead" data-head="1" data-named="1"><span><span class="rn2">%s</span><span class="rs2">%s</span></span></div>' % (kit.ud(e(name)), e(sentence)))
+        else:
+            out.append('<div class="rhead%s" data-head="1"><span><span class="rn2">%s</span></span></div>' % ("" if routine else " small", e(sentence)))
+        out.append('<div class="rsteps">%s</div>' % "".join(h2_step(h) for h in live))
+    done_n = sum(1 for _, _, _, st in ROUTINES for h in st if h[3])
+    out.append('<div class="fold" data-tap="Done today"><span class="t">Done today · %d</span>▸</div>' % done_n)
+    chips = '<div class="fchips">%s</div>' % "".join('<span class="%s" data-tap="Energy %s">%s</span>' % ("on" if x == "High" else "", x, x) for x in ("Low", "Mid", "High"))
+    return chips + '<div class="zone">%s</div>' % "".join(out)
+
+
+def habits2_phone(v):
+    return kit.phone(kit.header("Habits", (("⌕", "Search"), ("✎", "Edit")), ("‹", "Back")),
+                     '<div class="cap" data-tap="Capture">+ <span>New habit…</span></div>' + habits2_body(v), kit.bar("Hub"))
+
+
+def habits2_desk(v, theme="light"):
+    inner = habits2_phone(v).split('<div class="body">', 1)[1].rsplit('<div class="bar">', 1)[0][:-len("</div>")]
+    return desk_doc("Hub", "Habits", '<div class="dcol" style="width:440px;flex:none">%s</div><div class="page" style="flex:1"></div>' % inner, theme, CSS + BASICS_CSS + ROUT_CSS + H2_CSS)
+
+
+H2_JS = ("(function(){var vb=document.querySelector('.bar').getBoundingClientRect().top;var o={rows:0,words:0,cut:0,judge:0,heads:0,named:0,headpx:0};"
+         "document.querySelectorAll('[data-tap=\"Open habit\"]').forEach(function(r){var b=r.getBoundingClientRect();if(!b.height||b.bottom>vb)return;o.rows++;"
+         "var t=r.querySelector('.t');o.words+=t?t.innerText.split(/\\s+/).filter(Boolean).length:0;r.querySelectorAll('.nm,.bsub').forEach(function(s){if(s.scrollWidth>s.clientWidth+1)o.cut++})});"
+         "document.querySelectorAll('[data-head]').forEach(function(h){var b=h.getBoundingClientRect();if(b.bottom>vb)return;o.heads++;o.headpx+=Math.round(b.height);"
+         "if(h.dataset.named)o.named++;o.words+=h.innerText.split(/\\s+/).filter(Boolean).length});"
+         "document.querySelectorAll('[data-judge]').forEach(function(j){var b=j.getBoundingClientRect();if(b.height&&b.bottom<=vb)o.judge++});return o})()")
+
+
+def score_habits2(v):
+    ctl = v.get("control")
+    d = h2doc(habits2_phone(v))
+    tp = T.taps(d)
+    pr = T.probe(d, "t3-h2-%s" % key_of(v), H2_JS)
+    units = pr["rows"] + pr["heads"]
+    return {"judgment_marks": pr["judge"], "uniform": 1 if (ctl or v["group"] == "every") else 0, "names_in_view": pr["named"],
+            "words_per_row": round(pr["words"] / max(1, pr["rows"]), 2), "header_px": pr["headpx"], "rows_seen": pr["rows"], "cut": pr["cut"],
+            "small": sorted(set(tiered_small(tp))),
+            "clutter": T.clutter_of(lambda th: h2doc(habits2_phone(v), th)), "desk_clutter": dclutter(lambda th: habits2_desk(v, th))}
+
+
 def build_refs():
     with open(os.path.join(T.OUT, "t3-references.json"), encoding="utf-8") as fh:
         src = json.load(fh)
@@ -843,9 +931,10 @@ def build_refs():
 T.PREFIX, T.REFS, T.NAME = "t3", "t3-refs.json", "T3 habits, trackers, time, goals, charts and checklists"
 T.OUT = os.path.join(os.path.dirname(M2.T.OUT), "t3")
 # T3.1 "habits" (presence, the first scoring) is kept in t3-habits-v1.json and in the code above; T3a replaced it (owner, 2026-10-13)
-T.SPACES = {"basics": BASICS_SPACE, "addhabit": ADD_SPACE, "routines": ROUT_SPACE, "addsent": SENT_SPACE, "hsheet": HSHEET_SPACE, "premise": PREMISE_SPACE}
-T.SCORERS = {"basics": score_basics, "addhabit": score_addhabit, "routines": score_routines, "addsent": score_addsent, "hsheet": score_hsheet, "premise": score_premise}
-T.CONTROLS = {"premise": ({"premise": "all", "control": True}, "the premise box opens every if, whatever the connective (the prototype before this scoring)"),
+T.SPACES = {"basics": BASICS_SPACE, "addhabit": ADD_SPACE, "routines": ROUT_SPACE, "addsent": SENT_SPACE, "hsheet": HSHEET_SPACE, "premise": PREMISE_SPACE, "habits2": H2_SPACE}
+T.SCORERS = {"basics": score_basics, "addhabit": score_addhabit, "routines": score_routines, "addsent": score_addsent, "hsheet": score_hsheet, "premise": score_premise, "habits2": score_habits2}
+T.CONTROLS = {"habits2": ({"group": "checklist", "name": "progress", "control": True}, "every if as a checklist with progress: '1/4 done · 25%'"),
+              "premise": ({"premise": "all", "control": True}, "the premise box opens every if, whatever the connective (the prototype before this scoring)"),
               "hsheet": ({"blank": "tendril", "control": True}, "Tendril's Add habit sheet: no weekdays, no energy (the new walk cannot be done)"),
               "addsent": ({"form": "tendril", "energy": "none", "routine": "none", "control": True}, "Tendril's sheet as it is, the cue last (as in T3a.2)"),
               "routines": ({"preview": "progress", "seq": "plain", "control": True}, "the routine as a checklist with progress: '1/4 done · 25%' under its name, the steps plain"),
@@ -855,7 +944,9 @@ T.CONTROLS = {"premise": ({"premise": "all", "control": True}, "the premise box 
                          "the leading design with history added: a streak and a share of days on every row"),
               "habits": ({"presence": "streak", "group": "flat", "log": "cells", "amount": "percent", "control": True},
                          "Loop-like with streaks and a score: a streak and a percentage on every row, the last 4 days as ticks and crosses")}
-T.AXES = {"premise": {"Ease": ("taps_join", "typed_join", "taps_new"), "Duplicate guard": ("-duplicate_guard",), "Room with keyboard": ("-sentence_in_view", "clutter"),
+T.AXES = {"habits2": {"Judgment": ("judgment_marks",), "Clarity": ("-uniform", "-names_in_view"), "Low capacity": ("words_per_row",),
+                      "Density": ("-rows_seen", "cut", "header_px"), "Calm": ("clutter", "desk_clutter")},
+          "premise": {"Ease": ("taps_join", "typed_join", "taps_new"), "Duplicate guard": ("-duplicate_guard",), "Room with keyboard": ("-sentence_in_view", "clutter"),
                       "Scan load": ("scan_rows",)},
           "hsheet": {"Ease": ("taps_join", "taps_new"), "Stability": ("sentence_moves",), "Clarity": ("-reads_as_sentence",), "Consistency": ("like_when",), "Calm": ("clutter",)},
           "addsent": {"Ease": ("taps", "keyboards", "taps_lone", "keyboards_lone", "reach", "hidden_targets"), "Clarity": ("-sentence_reads",),
@@ -868,9 +959,13 @@ T.AXES = {"premise": {"Ease": ("taps_join", "typed_join", "taps_new"), "Duplicat
                      "Choice": ("-filter_says_mid",), "Consistency": ("like_today",), "Density": ("-rows_seen", "cut"), "Calm": ("clutter", "desk_clutter")},
           "habits": {"Ease": ("log_actions", "reach_log"), "Presence": ("-presence_shown", "presence_marks"), "Calm": ("guilt_marks", "clutter", "desk_clutter"),
                      "Density": ("-rows_seen", "cut"), "Consistency": ("like_today",)}}
-T.TITLES = {"premise": "T3a.2d What tapping the premise box opens: nothing, or the ifs with the same connective", "hsheet": "T3a.2c The New habit sheet (prototype): the blanks as text boxes in the sentence, or opened above it", "addsent": "T3a.2b Adding a habit as an open sentence: the When sheet, in place, or fields; energy and routine as words or rows", "routines": "T3a.1b The Habits list with routines: the 'what to expect' preview, how the sequence shows", "addhabit": "T3a.2 Adding a habit: in place or a sheet, the If, the block", "basics": "T3a.1 Habits as Daily basics: layout, the energy filter, its mark, done today", "habits": "T3.1 The Habits list: presence, grouping, where Log sits, a count's amount"}
-T.DRAW = {"premise": lambda v: [premise_doc(v)], "hsheet": lambda v: [adoc(addhabit_phone({"control": True}))] if v.get("control") else [hsheet_doc(v, st) for _, _, st in HSTATES], "addsent": lambda v: [sdoc(addsent_phone(v))] + ([] if (v.get("control") or v["form"] == "fields") else [sdoc(addsent_phone(v, True))]), "routines": lambda v: [rdoc(routines_phone(v)), rdoc(routines_phone(v, "low")), routines_desk(v)], "addhabit": lambda v: [adoc(addhabit_phone(v))], "basics": lambda v: [bdoc(basics_phone(v)), basics_desk(v)], "habits": lambda v: [hdoc(habits_phone(v)), habits_desk(v)]}
+T.TITLES = {"habits2": "T3a.1c The Habits list: the optional name, and every if as a header", "premise": "T3a.2d What tapping the premise box opens: nothing, or the ifs with the same connective", "hsheet": "T3a.2c The New habit sheet (prototype): the blanks as text boxes in the sentence, or opened above it", "addsent": "T3a.2b Adding a habit as an open sentence: the When sheet, in place, or fields; energy and routine as words or rows", "routines": "T3a.1b The Habits list with routines: the 'what to expect' preview, how the sequence shows", "addhabit": "T3a.2 Adding a habit: in place or a sheet, the If, the block", "basics": "T3a.1 Habits as Daily basics: layout, the energy filter, its mark, done today", "habits": "T3.1 The Habits list: presence, grouping, where Log sits, a count's amount"}
+T.DRAW = {"habits2": lambda v: [h2doc(habits2_phone(v)), habits2_desk(v)], "premise": lambda v: [premise_doc(v)], "hsheet": lambda v: [adoc(addhabit_phone({"control": True}))] if v.get("control") else [hsheet_doc(v, st) for _, _, st in HSTATES], "addsent": lambda v: [sdoc(addsent_phone(v))] + ([] if (v.get("control") or v["form"] == "fields") else [sdoc(addsent_phone(v, True))]), "routines": lambda v: [rdoc(routines_phone(v)), rdoc(routines_phone(v, "low")), routines_desk(v)], "addhabit": lambda v: [adoc(addhabit_phone(v))], "basics": lambda v: [bdoc(basics_phone(v)), basics_desk(v)], "habits": lambda v: [hdoc(habits_phone(v)), habits_desk(v)]}
 T.POOL = {}
+# the owner's picks (decision 19) shown, the rest folded; superseded parts folded whole (owner, 2026-10-13)
+T.PICKED = {"routines": [{"preview": "none", "seq": "plain"}, {"preview": "energy", "seq": "numbers"}], "hsheet": [{"blank": "inline"}], "premise": [{"premise": "same"}]}
+T.SUPERSEDED = {"habits": "re-cut by purpose; T3a.1 Daily basics replaced it", "basics": "routines replaced it (T3a.1b)",
+                "addhabit": "the open sentence replaced it (T3a.2b), then the prototype (T3a.2c)", "addsent": "the prototype sheet replaced it (T3a.2c)"}
 T.v2.TOL.setdefault("_reach_log", 0.05)
 T.v2.TOL.setdefault("_reach_filter", 0.05)
 

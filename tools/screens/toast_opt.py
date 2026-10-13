@@ -847,6 +847,8 @@ def ranked(p):
 
 DRAW = {}  # drawings of parts registered by actions_opt
 POOL = {}  # part: the options to draw, when the owner has narrowed the part (default: the front)
+PICKED = {}  # part: [option dicts] the owner picked; the page shows them, folds the rest (owner, 2026-10-13)
+SUPERSEDED = {}  # part: why it was superseded; the page folds the whole part
 DRAW_MAX = {}  # part: how many options to draw (default 6)
 TITLES = {"g": "G. Where actions sit, the same on every screen, and their text", "h": "H. Closing the capture sheet with text not added", "a": "A. Where the toast sits", "b": "B. How long Undo lasts, several in a row, the way back", "c": "C. The dialogs: empty Trash, discard changes",
           "d": "D. The sync clash", "e": "E. Permission asks: when", "f": "F. Failures"}
@@ -958,6 +960,8 @@ def options_page():
         if p in POOL:   # a part whose owner has narrowed it (T2 Calendar: the tabs, every view drawn)
             pool = POOL[p](ok)
         fr = sorted(pool, key=lambda r: (not r.get("front"), r["total"]))[:DRAW_MAX.get(p, 6)]
+        is_pick = lambda r: any(all(r["v"].get(k) == x for k, x in want.items()) for want in PICKED.get(p, []))
+        fr += [r for r in ok if is_pick(r) and r not in fr and not r.get("control")]   # a pick is drawn even off the first six
         ctl = next(r for r in rows if r.get("control"))
         figs = []
         for r in fr + [ctl]:
@@ -987,12 +991,23 @@ def options_page():
         if p == "b":
             figs.append(fig("Way back: ⋯ in the header, Undo and History", b_way_doc("menu")) + fig("Way back: ⚙ › Recently done", b_way_doc("recent")) +
                         fig("Way back: ⚙ › Trash", b_way_doc("trash")))
-        secs.append('<h2>%s</h2><p class=dim>Every option where there are seven or fewer (★ on the front), otherwise the front, lowest sum first; then the control. Every row is in <a href="%s-scores.html#%s">the tables</a>.</p><div class=flex>%s</div>' % (
-            TITLES[p], PREFIX, p, "".join(figs)))
+        rows_drawn = fr + [ctl]
+        note = '<p class=dim>Every row is in <a href="%s-scores.html#%s">the tables</a>.</p>' % (PREFIX, p)
+        if p in SUPERSEDED:
+            secs.append('<details><summary><b>%s</b>: superseded (%s)</summary>%s<div class=flex>%s</div></details>' % (TITLES[p], SUPERSEDED[p], note, "".join(figs)))
+        elif p in PICKED:
+            n = len(rows_drawn)
+            picked = [f for r, f in zip(rows_drawn, figs[:n]) if is_pick(r)]
+            rest = [f for r, f in zip(rows_drawn, figs[:n]) if not is_pick(r)] + figs[n:]
+            secs.append('<h2>%s <span class=dim>· picked</span></h2>%s<div class=flex>%s</div><details><summary>Not picked (%d), and the control</summary><div class=flex>%s</div></details>' % (
+                TITLES[p], note, "".join(picked), len(rest) - 1, "".join(rest)))
+        else:
+            secs.append('<h2>%s</h2><p class=dim>Every option where there are seven or fewer (★ on the front), otherwise the front, lowest sum first; then the control. Every row is in <a href="%s-scores.html#%s">the tables</a>.</p><div class=flex>%s</div>' % (
+                TITLES[p], PREFIX, p, "".join(figs)))
     page = ('<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Toast Options</title>'
             '<style>:root{--bg:#f4f4f2;--fg:#1d1d1b;--dim:#6b6b66}@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#141414;--fg:#eee;--dim:#9a9a94}}'
             ':root[data-theme=dark]{--bg:#141414;--fg:#eee;--dim:#9a9a94}body{background:var(--bg);color:var(--fg);font:14px/1.4 system-ui,sans-serif;margin:0;padding:16px}'
-            '.dim{color:var(--dim)}.flex{display:flex;gap:14px;flex-wrap:wrap;align-items:flex-start}figure{margin:0}figcaption{font-size:12px;max-width:420px}</style></head><body>'
+            '.dim{color:var(--dim)}.flex{display:flex;gap:14px;flex-wrap:wrap;align-items:flex-start}figure{margin:0}figcaption{font-size:12px;max-width:420px}details{margin:14px 0}summary{cursor:pointer;min-height:32px}</style></head><body>'
             '<h1 style="font-size:20px">%s: the options</h1>%s</body></html>') % (NAME, "".join(secs))
     with open(os.path.join(OUT, PREFIX + "-options.html"), "w", encoding="utf-8", newline=chr(10)) as fh:
         fh.write(page)
