@@ -1,0 +1,18 @@
+{
+ "habits": [
+  {
+   "app": "org.isoron.uhabits",
+   "presence": null,
+   "group": "flat",
+   "log": "cells",
+   "amount": "plain"
+  },
+  {
+   "app": "com.tendril.app.debug",
+   "presence": "none",
+   "group": "blocks",
+   "log": "row",
+   "amount": "plain"
+  }
+ ]
+}

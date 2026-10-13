@@ -1,0 +1,27 @@
+{
+ "about": "T3 phone references (decision 19). Placeholder habits only (Walk, Water), made for this survey in apps we installed or our own debug builds; screenshots in the gitignored _screens-sources/t3/. Bounds in dp (1080 px = 384 dp, density 450).",
+ "habits_list": [
+  {"app": "org.isoron.uhabits", "name": "Loop Habit Tracker 2.3.1", "captured": "2026-10-13",
+   "presence": "score ring left of the name (fills with the habit's score)",
+   "days_shown": "the last 4 days as columns, newest first; header row with weekday and date",
+   "missed_mark": "a grey cross on every day not done (yes/no habit); 0 glasses on a counted one",
+   "done_mark": "an accent tick",
+   "grouping": "flat, manual or sorted",
+   "log_from_list": "tap a day cell: a popup with a note field and two buttons, tick and cross (yesBtn [88,422,103,48], noBtn [192,422,103,48]); the cell itself is [189,133,48,48]",
+   "row_dp": [0, 133, 384, 48], "name_area_dp": [0, 133, 189, 48],
+   "header": "Abitudini; + add, filter, more"},
+  {"app": "com.tendril.app.debug", "name": "Tendril (source app)", "captured": "2026-10-13",
+   "presence": "none in the list",
+   "days_shown": "one day at a time (previous and next day arrows, the day's name)",
+   "missed_mark": "none",
+   "done_mark": "a checkbox (yes/no); a counted habit has a plus button, Add one more",
+   "grouping": "by time block (Morning 06:30-09:00, Midday, Afternoon, Evening, Night), then Any time today; empty blocks still listed",
+   "log_from_list": "1 tap: the checkbox, or the plus button for a count",
+   "rule_seen": "on the add-habit sheet, under a counted habit's daily number: 'A number you set for yourself. The row and the sheet count what you did; the number is shown once, in the sheet, and never as a fraction, a bar or a percentage.'",
+   "switches": "Tasks, Habits, Merged segments; By time and Day menus"}
+ ],
+ "habit_logging": [
+  {"app": "org.isoron.uhabits", "form": "popup over the list: note field above tick and cross buttons, 103x48 dp each"}
+ ],
+ "conflict_for_owner": "T1's approved Today row for a counted habit reads '3 of 8 · next block 14:00', a fraction; Tendril's rule forbids fractions. Both forms are scored in T3.1."
+}
