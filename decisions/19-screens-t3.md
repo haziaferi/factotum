@@ -433,3 +433,63 @@ The taps are walked per path as written in the docstring. The field form's lone 
 - **The fields form** is quickest only for a habit going into a routine (4 taps). It never shows the rule as a sentence.
 
 **Recommended:** the When sheet, with energy and the routine as words of the sentence.
+
+## Ifs and routines, one entity (owner, 2026-10-13)
+
+> "From my understanding routines are just IFs with more than one habit under them. Am I mistaken?"
+
+**Not mistaken, and simpler.** The one entity is an if: a connective, a premise, days and a time, holding ordered habits.
+- An if with one habit shows as a lone habit.
+- An if with two or more habits shows as a routine.
+- A routine is never created as such. It appears when a second habit takes an if, and it disappears when only one habit is left on it.
+- **Proposed** (to be confirmed by the owner): the same if means the same connective, premise, days and time, chosen from the existing ifs rather than retyped; an optional name; the order set by dragging.
+
+## T3a.2c The New habit sheet: a prototype on the When sheet's pattern (owner, 2026-10-13)
+
+**What the owner rejected in the earlier drawings:**
+- Always-present chips of routines and ifs, which "could become numerous and excessively crowd the screen".
+- "Put it in", "New routine", "in a routine…".
+- The drawings themselves: "None of the screens proposed display the options available once each word is clicked, nor the text boxes for the user to fill in the blanks."
+
+**What the owner asked for instead:**
+- "a small line right above the picker sentence, e.g. 'Available IFs'". Choosing from it auto-fills the first part of the sentence, and the sheet grows upward only when needed.
+- Consistency with T1.5 + T1.6, minding the different axes.
+
+**Built:** the interactive prototype `docs/screens/t3/habit-prototype.html`, taking the When prototype's own parts:
+- the foot anchored and the sheet growing upward only;
+- the tappable words;
+- the weekday row and its shortcuts;
+- the dial with a typed field;
+- Undo and Redo, and the readout line.
+
+**New for habits:**
+- the blanks are text boxes, sized to their text;
+- "Available ifs · 5" opens upward, and choosing one fills the connective, premise, days and time;
+- a chosen if's words read dotted, and changing one says it changes the if for its habits;
+- the readout says what will happen: "Joins 'After waking' as step 5: 5 habits, shown as a routine", "A new if, with this one habit", or that a typed premise is already an if;
+- Add appears once the premise and the habit are written.
+
+The states are rendered from the prototype itself, as `when_page.py` renders the When sheet: `docs/screens/t3/habit/*.png`.
+
+**Scored (part `hsheet`):**
+- **The variant:** the blanks as text boxes in the sentence, or as words opening a text box above.
+- **The walks:** joining After waking; a new "After breakfast then floss, Mon Wed Fri, at 08:30, Low".
+- **The control:** Tendril's sheet, which cannot set weekdays or energy. It loses.
+
+**Two measures were corrected on the way:**
+- **The gate:** the "At" chip was 38 dp wide, under 48. It comes from the When prototype, which has the same defect. Chips get a 48 dp minimum here, and the When prototype goes on the consistency-pass list.
+- **The stability measure:** it first read the sentence's top, which moves by design as blanks fill and the sentence gains a line. The When rule is the foot's bottom, which now stays at one pixel in every state.
+
+| Variant | Join taps | New-if taps | Foot moves | Clutter |
+|---|---|---|---|---|
+| **text boxes in the sentence** | **5** | 15 | 0 px | 0.032 |
+| words opening a box above | 6 | 15 | 0 px | 0.031 |
+| control (Tendril's sheet) | 6 | cannot | n/a | 0.042 |
+
+**Recommended:** text boxes in the sentence. It answers the owner's "text boxes for the user to fill in the blanks" directly, and a chosen if puts the cursor in the habit's box.
+
+**The consistency pass (owner, 2026-10-13: "We will later discuss one consistency pass across screens") will take:**
+- the When prototype's chips under 48 dp ("At");
+- Today's Log button against the Habits page's;
+- Today showing trackers;
+- the forecast option's switch (Settings or editing the page).

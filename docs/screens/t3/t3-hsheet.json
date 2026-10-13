@@ -1,0 +1,41 @@
+[
+ {
+  "v": {
+   "blank": "inline"
+  },
+  "taps_join": 5,
+  "taps_new": 15,
+  "sentence_moves": 0,
+  "reads_as_sentence": 1,
+  "like_when": 0,
+  "small": [],
+  "clutter": 0.0315
+ },
+ {
+  "v": {
+   "blank": "chooser"
+  },
+  "taps_join": 6,
+  "taps_new": 15,
+  "sentence_moves": 0,
+  "reads_as_sentence": 1,
+  "like_when": 0,
+  "small": [],
+  "clutter": 0.0308
+ },
+ {
+  "v": {
+   "blank": "tendril",
+   "control": true
+  },
+  "why": "Tendril's Add habit sheet: no weekdays, no energy (the new walk cannot be done)",
+  "control": true,
+  "taps_join": 6,
+  "taps_new": 99,
+  "sentence_moves": 0,
+  "reads_as_sentence": 0,
+  "like_when": 1,
+  "small": [],
+  "clutter": 0.0421
+ }
+]

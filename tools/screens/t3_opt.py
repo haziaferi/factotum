@@ -4,6 +4,7 @@
     python tools/screens/t3_opt.py page_html scores       t3-options.html, t3-scores.html (fails if a control wins)
 
 Parts:
+  hsheet   T3a.2c the New habit sheet, scored from docs/screens/t3/habit-prototype.html (owner, 2026-10-13)
   addsent  T3a.2b adding a habit as an open sentence (owner, 2026-10-13)
   routines T3a.1b the Habits list with routines (owner, 2026-10-13): the preview, how the sequence shows
   addhabit T3a.2 adding a habit (owner, 2026-10-13: score in place against a sheet)
@@ -704,6 +705,66 @@ def score_addsent(v):
                 th, CSS + BASICS_CSS + ADD_CSS + ROUT_CSS + SENT_CSS))}
 
 
+# ==== Part hsheet: T3a.2c the New habit sheet, from its prototype (owner, 2026-10-13) ==============================================
+"""
+  docs/screens/t3/habit-prototype.html, built on T1.5 + T1.6's approved When sheet: the sentence held at the foot, the
+  sheet growing upward only, choosers above, Undo and Redo, the readout; "Available ifs" a small line above the sentence;
+  no routine word. Its states are rendered from the prototype itself (as when_page.py renders the When sheet).
+  blank  inline (the blanks are text boxes in the sentence), chooser (a blank is a word that opens a text box above)
+  Walked (taps, typing excluded; counted along the prototype's own controls):
+    join: "Open the curtains" into After waking, Low: Available ifs, the if, [the habit's box: inline it is focused
+          after the if is chosen; chooser 1], the energy word, Low, Add.
+    new:  "After breakfast then floss, Mon Wed Fri, at 08:30, Low": the connective and After (2), the premise box (1),
+          the habit box (1), the days word and Mo, We, Fr (4), the time word, At, the hour and the minutes (4), the energy
+          word and Low (2), Add (1).
+  Measured on the rendered states: whether the foot's bottom stays at one pixel in every state (the When sheet's rule),
+  targets under 48 dp (the gate), the default state's clutter.
+  Control: Tendril's Add habit sheet. It has no weekdays and no energy, so the new walk cannot be done (99).
+"""
+HSHEET_SPACE = {"blank": ["inline", "chooser"]}
+PROTO = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "docs", "screens", "t3", "habit-prototype.html")
+ONLY_PHONE = ("<style>body{padding:0!important}h1,.dim,.side{display:none!important}.wrap{display:block}"
+              ".phone{border-radius:0;box-shadow:none}</style>")
+HSTATES = [
+    ("empty", "Opened: the blanks waiting, Available ifs above the sentence", ""),
+    ("ifs", "Available ifs open: it grows upward; choosing one fills the if, its days and its time", "toggleIfs()"),
+    ("joined", "After waking chosen, the habit written: it joins as step 5", "pickIf(0);setText('habit','Open the curtains')"),
+    ("days", "A new if: the days word tapped (Every day, Weekdays, Weekends, or the days)",
+     "setConn('After');setText('premise','breakfast');setText('habit','Floss');S.days=new Set([0,2,4]);render();tapTok('days')"),
+    ("time", "The time tapped: No set time, At, From–to; the dial with a typed field",
+     "setConn('After');setText('premise','breakfast');setText('habit','Floss');S.days=new Set([0,2,4]);S.time.kind='at';S.time.a='08:30';render();tapTok('time')"),
+    ("energy", "The energy tapped: Low, Mid, High",
+     "setConn('After');setText('premise','breakfast');setText('habit','Floss');S.days=new Set([0,2,4]);S.time.kind='at';S.time.a='08:30';render();tapTok('energy')"),
+]
+# the When sheet's rule: the foot's bottom stays at one pixel (the sentence may gain a line as blanks fill, growing upward)
+SENT_TOP_JS = "(function(){var r=document.querySelector('.foot').getBoundingClientRect();return Math.round(r.bottom)})()"
+
+
+def hsheet_doc(v, setup):
+    page = open(PROTO, encoding="utf-8").read()
+    pre = "S.v.blank='%s';" % v["blank"]
+    return page.replace("</head>", ONLY_PHONE + "</head>").replace("</body>", "<script>%srender(true);%s</script></body>" % (pre, setup))
+
+
+def score_hsheet(v):
+    if v.get("control"):
+        d = adoc(addhabit_phone({"control": True}))
+        tp = T.taps(d)
+        return {"taps_join": 6, "taps_new": 99, "sentence_moves": 0, "reads_as_sentence": 0, "like_when": 1,
+                "small": small_of(tp, {x["name"] for x in tp.all if x["name"].startswith(("Cue", "Block", "Add", "Cancel"))}),
+                "clutter": T.clutter_of(lambda th: adoc(addhabit_phone({"control": True}), th))}
+    tops, small = [], []
+    for name, _, setup in HSTATES:
+        d = hsheet_doc(v, setup)
+        tops.append(T.probe(d, "t3-hs-%s-%s" % (v["blank"], name), SENT_TOP_JS))
+        tp = T.taps(d)
+        small += small_of(tp, {x["name"] for x in tp.all if x["name"].startswith(("Tok ", "Chip ", "If ", "Available", "Add", "Blank"))})
+    join = 1 + 1 + (0 if v["blank"] == "inline" else 1) + 2 + 1
+    new = 2 + 1 + 1 + 4 + 4 + 2 + 1
+    return {"taps_join": join, "taps_new": new, "sentence_moves": max(tops) - min(tops), "reads_as_sentence": 1, "like_when": 0,
+            "small": sorted(set(small)), "clutter": T.clutter_of(lambda th: hsheet_doc(v, "") .replace('data-theme="light"', 'data-theme="%s"' % th))}
+
+
 def build_refs():
     with open(os.path.join(T.OUT, "t3-references.json"), encoding="utf-8") as fh:
         src = json.load(fh)
@@ -723,9 +784,10 @@ def build_refs():
 T.PREFIX, T.REFS, T.NAME = "t3", "t3-refs.json", "T3 habits, trackers, time, goals, charts and checklists"
 T.OUT = os.path.join(os.path.dirname(M2.T.OUT), "t3")
 # T3.1 "habits" (presence, the first scoring) is kept in t3-habits-v1.json and in the code above; T3a replaced it (owner, 2026-10-13)
-T.SPACES = {"basics": BASICS_SPACE, "addhabit": ADD_SPACE, "routines": ROUT_SPACE, "addsent": SENT_SPACE}
-T.SCORERS = {"basics": score_basics, "addhabit": score_addhabit, "routines": score_routines, "addsent": score_addsent}
-T.CONTROLS = {"addsent": ({"form": "tendril", "energy": "none", "routine": "none", "control": True}, "Tendril's sheet as it is, the cue last (as in T3a.2)"),
+T.SPACES = {"basics": BASICS_SPACE, "addhabit": ADD_SPACE, "routines": ROUT_SPACE, "addsent": SENT_SPACE, "hsheet": HSHEET_SPACE}
+T.SCORERS = {"basics": score_basics, "addhabit": score_addhabit, "routines": score_routines, "addsent": score_addsent, "hsheet": score_hsheet}
+T.CONTROLS = {"hsheet": ({"blank": "tendril", "control": True}, "Tendril's Add habit sheet: no weekdays, no energy (the new walk cannot be done)"),
+              "addsent": ({"form": "tendril", "energy": "none", "routine": "none", "control": True}, "Tendril's sheet as it is, the cue last (as in T3a.2)"),
               "routines": ({"preview": "progress", "seq": "plain", "control": True}, "the routine as a checklist with progress: '1/4 done · 25%' under its name, the steps plain"),
               "addhabit": ({"form": "tendril", "cue": "last", "block": "where", "control": True},
                            "Tendril's sheet as it is, the cue last: schedule, every N, where, counts something, area, note, Cancel and Add"),
@@ -733,7 +795,8 @@ T.CONTROLS = {"addsent": ({"form": "tendril", "energy": "none", "routine": "none
                          "the leading design with history added: a streak and a share of days on every row"),
               "habits": ({"presence": "streak", "group": "flat", "log": "cells", "amount": "percent", "control": True},
                          "Loop-like with streaks and a score: a streak and a percentage on every row, the last 4 days as ticks and crosses")}
-T.AXES = {"addsent": {"Ease": ("taps", "keyboards", "taps_lone", "keyboards_lone", "reach", "hidden_targets"), "Clarity": ("-sentence_reads",),
+T.AXES = {"hsheet": {"Ease": ("taps_join", "taps_new"), "Stability": ("sentence_moves",), "Clarity": ("-reads_as_sentence",), "Consistency": ("like_when",), "Calm": ("clutter",)},
+          "addsent": {"Ease": ("taps", "keyboards", "taps_lone", "keyboards_lone", "reach", "hidden_targets"), "Clarity": ("-sentence_reads",),
                       "Safety": ("lost_on_back",), "Consistency": ("like_when",), "Context": ("-context_rows",), "Calm": ("clutter", "desk_clutter")},
           "routines": {"Judgment": ("judgment_marks",), "Expect": ("-forecast_facts", "-order_marked", "-low_says_hidden"), "Low capacity": ("words_per_row",),
                        "Density": ("-rows_seen", "cut"), "Calm": ("clutter", "desk_clutter")},
@@ -743,8 +806,8 @@ T.AXES = {"addsent": {"Ease": ("taps", "keyboards", "taps_lone", "keyboards_lone
                      "Choice": ("-filter_says_mid",), "Consistency": ("like_today",), "Density": ("-rows_seen", "cut"), "Calm": ("clutter", "desk_clutter")},
           "habits": {"Ease": ("log_actions", "reach_log"), "Presence": ("-presence_shown", "presence_marks"), "Calm": ("guilt_marks", "clutter", "desk_clutter"),
                      "Density": ("-rows_seen", "cut"), "Consistency": ("like_today",)}}
-T.TITLES = {"addsent": "T3a.2b Adding a habit as an open sentence: the When sheet, in place, or fields; energy and routine as words or rows", "routines": "T3a.1b The Habits list with routines: the 'what to expect' preview, how the sequence shows", "addhabit": "T3a.2 Adding a habit: in place or a sheet, the If, the block", "basics": "T3a.1 Habits as Daily basics: layout, the energy filter, its mark, done today", "habits": "T3.1 The Habits list: presence, grouping, where Log sits, a count's amount"}
-T.DRAW = {"addsent": lambda v: [sdoc(addsent_phone(v))] + ([] if (v.get("control") or v["form"] == "fields") else [sdoc(addsent_phone(v, True))]), "routines": lambda v: [rdoc(routines_phone(v)), rdoc(routines_phone(v, "low")), routines_desk(v)], "addhabit": lambda v: [adoc(addhabit_phone(v))], "basics": lambda v: [bdoc(basics_phone(v)), basics_desk(v)], "habits": lambda v: [hdoc(habits_phone(v)), habits_desk(v)]}
+T.TITLES = {"hsheet": "T3a.2c The New habit sheet (prototype): the blanks as text boxes in the sentence, or opened above it", "addsent": "T3a.2b Adding a habit as an open sentence: the When sheet, in place, or fields; energy and routine as words or rows", "routines": "T3a.1b The Habits list with routines: the 'what to expect' preview, how the sequence shows", "addhabit": "T3a.2 Adding a habit: in place or a sheet, the If, the block", "basics": "T3a.1 Habits as Daily basics: layout, the energy filter, its mark, done today", "habits": "T3.1 The Habits list: presence, grouping, where Log sits, a count's amount"}
+T.DRAW = {"hsheet": lambda v: [adoc(addhabit_phone({"control": True}))] if v.get("control") else [hsheet_doc(v, st) for _, _, st in HSTATES], "addsent": lambda v: [sdoc(addsent_phone(v))] + ([] if (v.get("control") or v["form"] == "fields") else [sdoc(addsent_phone(v, True))]), "routines": lambda v: [rdoc(routines_phone(v)), rdoc(routines_phone(v, "low")), routines_desk(v)], "addhabit": lambda v: [adoc(addhabit_phone(v))], "basics": lambda v: [bdoc(basics_phone(v)), basics_desk(v)], "habits": lambda v: [hdoc(habits_phone(v)), habits_desk(v)]}
 T.POOL = {}
 T.v2.TOL.setdefault("_reach_log", 0.05)
 T.v2.TOL.setdefault("_reach_filter", 0.05)

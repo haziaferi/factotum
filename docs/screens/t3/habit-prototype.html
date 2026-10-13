@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>New habit sheet</title>
+<!-- T3a.2c (owner, 2026-10-13; decision 19): adding a habit as an open sentence, built on T1.5 + T1.6's approved When sheet
+     (decision 17): the sentence held at the foot, the sheet growing upward only, the tapped word's chooser above it, Undo and
+     Redo under it, a readout line, the dial with a typed field, the weekday row with its shortcuts, impossible options not
+     drawn. New for habits (owner): the blanks are text boxes; "Available ifs" is a small line just above the sentence that
+     opens upward and fills the sentence's first part; no routine word, no "Put it in", no "New routine": a habit that takes
+     an existing if joins it, and an if with two or more habits is a routine. Greys only. -->
+<style>
+:root{--bg:#f4f4f2;--zone:#e9e9e6;--zone2:#d9d9d5;--ink:#1d1d1b;--dim:#6b6b66;--sheet:#fafaf8;--scrim:rgba(0,0,0,.16)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#121211;--zone:#1d1d1b;--zone2:#2c2c29;--ink:#ecece8;--dim:#9a9a94;--sheet:#1a1a18;--scrim:rgba(0,0,0,.4)}}
+:root[data-theme="dark"]{--bg:#121211;--zone:#1d1d1b;--zone2:#2c2c29;--ink:#ecece8;--dim:#9a9a94;--sheet:#1a1a18;--scrim:rgba(0,0,0,.4)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;padding:16px}
+h1{font-size:19px;margin:0 0 4px}.dim{color:var(--dim)}
+.wrap{display:flex;gap:24px;flex-wrap:wrap;align-items:flex-start}
+.side{max-width:460px;flex:1 1 300px}
+.side h2{font-size:15px;margin:18px 0 6px}
+.side button,.side select{font:inherit;color:var(--ink);background:var(--zone);border:1px solid var(--zone2);border-radius:999px;padding:6px 14px;cursor:pointer;margin:0 6px 6px 0;min-height:36px}
+.side label{display:block;margin:6px 0}
+.side ul{padding-left:18px;margin:4px 0}.side li{margin:2px 0}
+.phone{width:360px;height:740px;border-radius:28px;background:var(--bg);position:relative;overflow:hidden;box-shadow:0 0 0 1px var(--zone2);flex:none;max-width:100%}
+.list{padding:14px 12px}
+.list .hdr{font-size:17px;font-weight:600;padding:6px 4px 14px}
+.list .rowi{background:var(--zone);border-radius:12px;padding:12px;margin:0 0 8px;color:var(--dim)}
+.scrim{position:absolute;inset:0;background:var(--scrim)}
+.gesture{position:absolute;left:50%;bottom:8px;width:108px;height:4px;margin-left:-54px;border-radius:2px;background:var(--dim);opacity:.6;z-index:3}
+.sheet{position:absolute;left:0;right:0;bottom:0;max-height:732px;display:flex;flex-direction:column;background:var(--sheet);border-radius:20px 20px 0 0;padding:4px 12px 28px;box-shadow:0 -8px 24px rgba(0,0,0,.14)}
+.top{display:flex;justify-content:space-between;align-items:center;min-height:48px;flex:none}
+.top .ttl{font-weight:600;font-size:15px}
+.tap{min-height:48px;min-width:48px;display:inline-flex;align-items:center;justify-content:center;background:none;border:0;color:var(--ink);font:inherit;cursor:pointer;padding:0 4px}
+.tap:disabled{opacity:.35;cursor:default}
+.area{overflow:auto;min-height:0}
+.foot{flex:none;border-top:1px solid var(--zone2);padding-top:2px}
+.crow{display:flex;justify-content:space-between;align-items:center}
+.pill{min-height:48px;min-width:72px;border-radius:10px;border:0;box-shadow:inset 0 0 0 1px var(--zone2);background:transparent;color:var(--ink);font:inherit;font-size:15px;cursor:pointer;margin-right:6px}
+.pill.act{box-shadow:inset 0 0 0 2px var(--ink);font-weight:600}
+.dial{cursor:pointer;border-radius:50%;background:var(--zone);position:relative;margin:2px auto 4px}
+.dial span{position:absolute;width:40px;height:40px;transform:translate(-50%,-50%);border-radius:50%;display:grid;place-items:center;font-size:15px;pointer-events:none}
+.dial span.in{font-size:13px;color:var(--dim)}
+.dial span.on{background:var(--zone2);color:var(--ink);font-weight:600}
+.sent{font-size:17.5px;line-height:48px}
+.tok{display:inline-flex;align-items:center;justify-content:center;min-height:48px;min-width:48px;padding:0 2px;cursor:pointer;background:none;border:0;font:inherit;color:inherit}
+.tok b{font-weight:600;text-decoration:underline;text-decoration-color:var(--dim);text-underline-offset:4px}
+.tok.sm{min-height:48px;font-size:12.5px;color:var(--ink)}
+.tok.open b{text-decoration-thickness:2px;text-decoration-color:var(--ink)}
+.tok.inh b{font-weight:400;text-decoration-style:dotted}
+.tok.empty b{color:var(--dim);font-weight:400}
+/* a blank: a text box in the sentence (variant "inline") */
+.blank{font:inherit;font-weight:600;color:var(--ink);background:transparent;border:0;border-bottom:2px solid var(--dim);min-height:40px;padding:0 2px;min-width:48px;max-width:100%;outline:none}
+.blank:focus{border-bottom-color:var(--ink)}
+.blank::placeholder{color:var(--dim);font-weight:400}
+.tfld{font:inherit;font-size:17px;width:100%;min-height:48px;border-radius:10px;border:0;box-shadow:inset 0 0 0 1px var(--zone2);background:transparent;color:var(--ink);padding:0 12px;margin:4px 0}
+.chips{display:flex;flex-wrap:wrap;gap:0 6px;align-items:center}
+.chip{min-height:48px;min-width:48px;justify-content:center;display:inline-flex;align-items:center;cursor:pointer;background:none;border:0;font:inherit;color:var(--ink);padding:0}
+.chip span{display:inline-flex;align-items:center;height:32px;padding:0 12px;border-radius:999px;box-shadow:inset 0 0 0 1px var(--zone2);font-size:14px;white-space:nowrap}
+.chip.on span{background:var(--zone2);box-shadow:none;font-weight:600}
+.wd{display:grid;grid-template-columns:repeat(7,1fr);margin:0 -12px}.wd .chip{justify-content:center}
+.lab{font-size:12.5px;color:var(--dim);font-weight:600;min-width:52px;display:inline-flex;align-items:center;min-height:48px}
+.small{font-size:12.5px;color:var(--dim);line-height:18px;padding:2px 0}
+.ifrow{display:flex;justify-content:space-between;align-items:center;min-height:48px;width:100%;border:0;background:none;font:inherit;color:var(--ink);cursor:pointer;border-bottom:1px solid var(--zone2);padding:0 2px;text-align:left}
+.ifrow .n{font-size:12.5px;color:var(--dim)}
+.ifline{display:flex;justify-content:space-between;align-items:center}
+.note{font-size:12.5px;color:var(--dim)}
+@media (max-width:420px){body{padding:16px 8px}.phone{width:100%}}
+</style>
+</head>
+<body>
+<h1>New habit: one open sentence</h1>
+<p class="dim">T3a.2c (decision 19), on the When sheet's pattern (decision 17). Tap the underlined words; type in the blanks. Greys only; type and icons are placeholders.</p>
+<div class="wrap">
+  <div class="phone" id="phone">
+    <div class="list"><div class="hdr">Habits</div>
+      <div class="rowi">After waking</div><div class="rowi">After the walk · 08:30</div><div class="rowi">Before bed · 22:00–23:00</div></div>
+    <div class="scrim"></div>
+    <div class="sheet" id="sheet"></div>
+    <div class="gesture"></div>
+  </div>
+  <div class="side">
+    <h2>Variant to score</h2>
+    <label>The blanks:
+      <select id="vblank" onchange="S.v.blank=this.value;render(true)"><option value="inline">text boxes in the sentence</option><option value="chooser">a word that opens a text box above</option></select></label>
+    <h2>Rules</h2>
+    <ul class="note">
+      <li>If · After · Before · When · During, then the premise; "then" and the habit; the days; the time; the energy (owner).</li>
+      <li>Every day is the default and is written as "every day" here, but never on the list (owner).</li>
+      <li>"Available ifs" (owner): a small line above the sentence. It opens upward and fills the if, its days and its time. The habit then joins that if: an if with two or more habits is a routine.</li>
+      <li>A joined if's days and time are the if's: they read dotted, and changing them changes the if for every habit on it.</li>
+      <li>The time: no set time, at a time, or from a time to a time (on the dial with a typed field). A window may run past midnight.</li>
+      <li>Add is drawn only once the if's premise and the habit are written.</li>
+    </ul>
+    <h2>Theme</h2>
+    <button onclick="document.documentElement.dataset.theme='light'">Light</button><button onclick="document.documentElement.dataset.theme='dark'">Dark</button>
+  </div>
+</div>
+<script>
+const WD=["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
+// the ifs already on the Habits page (placeholder data)
+const IFS=[{conn:"After",premise:"waking",days:[0,1,2,3,4,5,6],time:{kind:"none",a:"07:00",b:"08:00"},habits:["Make the bed","Wash face","Brush teeth","Take meds"]},
+  {conn:"After",premise:"the walk",days:[0,1,2,3,4,5,6],time:{kind:"at",a:"08:30",b:"09:00"},habits:["Shower"]},
+  {conn:"After",premise:"lunch",days:[0,1,2,3,4,5,6],time:{kind:"none",a:"13:00",b:"14:00"},habits:["Tidy the desk"]},
+  {conn:"When",premise:"I get home",days:[0,3],time:{kind:"none",a:"18:00",b:"19:00"},habits:["Put a wash on"]},
+  {conn:"Before",premise:"bed",days:[0,1,2,3,4,5,6],time:{kind:"span",a:"22:00",b:"23:00"},habits:["Lay out clothes","Floss","Set the alarm"]}];
+const S={conn:"If",premise:"",habit:"",days:new Set([0,1,2,3,4,5,6]),time:{kind:"none",a:"08:00",b:"09:00"},energy:null,joined:null,
+  open:null,ifsOpen:false,v:{blank:"inline"}};
+// ---- undo and redo, as the When sheet: every change to the habit is a step ---------------------------------------------
+const KEYS=["conn","premise","habit","days","time","energy","joined"];
+function snap(){return JSON.stringify(KEYS.map(k=>k==="days"?[...S.days]:S[k]))}
+function restore(js){const a=JSON.parse(js);KEYS.forEach((k,i)=>{S[k]=k==="days"?new Set(a[i]):a[i]})}
+let past=[],future=[],shown=null;
+function undo(){if(!past.length)return;future.push(shown);shown=past.pop();restore(shown);render(true)}
+function redo(){if(!future.length)return;past.push(shown);shown=future.pop();restore(shown);render(true)}
+const $=s=>document.querySelector(s);
+const esc=s=>s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const toMin=s=>{const[h,m]=s.split(":").map(Number);return h*60+m};
+function tok(id,text,extra){return `<button class="tok${S.open===id?" open":""}${extra||""}" data-tap="Tok ${id}" onclick="tapTok('${id}')"><b>${text}</b></button>`}
+function chip(label,on,act){return `<button class="chip${on?" on":""}" data-tap="Chip ${label}" onclick="${act}"><span>${label}</span></button>`}
+// ---- the sentence ---------------------------------------------------------------------------------------------------
+function daysText(){const d=[...S.days].sort();if(d.length===7)return"every day";
+  if(d.length===5&&d.every((x,i)=>x===i))return"weekdays";if(d.length===2&&d[0]===5&&d[1]===6)return"weekends";return d.map(i=>WD[i]).join(", ")}
+function overnight(){return toMin(S.time.b)<=toMin(S.time.a)?" the next day":""}
+function timeText(){const t=S.time;if(t.kind==="none")return"no set time";if(t.kind==="at")return"at "+t.a;return`from ${t.a} to ${t.b}${overnight()}`}
+function blank(id,ph){
+  if(S.v.blank==="inline")return `<input class="blank" data-tap="Blank ${id}" id="b-${id}" placeholder="${ph}" value="${esc(S[id])}" style="width:${(S[id]?Math.max(S[id].length,3):ph.length)+1}ch" oninput="this.style.width=((this.value?Math.max(this.value.length,3):${ph.length})+1)+'ch'" onchange="setText('${id}',this.value)" onfocus="S.open=null;S.ifsOpen=${id==="premise"};renderArea()">`;
+  return S[id]?tok(id,esc(S[id])):tok(id,ph,(" empty"))}
+function sentence(){const inh=S.joined!==null?" inh":"";
+  return `${tok("conn",S.conn,inh)} ${S.joined!==null?tok("premise",esc(S.premise),inh):blank("premise","something")} then ${blank("habit","the habit")}, ${tok("days",daysText(),inh)}, ${tok("time",timeText(),inh)}, ${tok("energy",S.energy?S.energy.toLowerCase()+" energy":"energy",S.energy?"":" empty")}.`}
+function readout(){
+  if(S.joined!==null){const f=IFS[S.joined];const n=f.habits.length+1;
+    return `Joins “${f.conn} ${f.premise}” as step ${n}: ${n} habits, shown as a routine.`}
+  const match=IFS.findIndex(f=>f.conn===S.conn&&f.premise.trim().toLowerCase()===S.premise.trim().toLowerCase()&&S.premise.trim());
+  if(match>=0)return `“${S.conn} ${S.premise}” is already an if: choose it in Available ifs to join it.`;
+  return S.premise.trim()?"A new if, with this one habit.":""}
+// ---- choosers (above the sentence; the sheet grows upward only) ----------------------------------------------------------
+function ifsList(){return `<div class="small">Available ifs · choosing one fills the if, its days and its time</div>`+
+  IFS.map((f,i)=>`<button class="ifrow" data-tap="If ${f.conn} ${f.premise}" onclick="pickIf(${i})"><span>${f.conn} ${f.premise}${f.time.kind==="at"?" · "+f.time.a:f.time.kind==="span"?" · "+f.time.a+"–"+f.time.b:""}${f.days.length<7?" · "+f.days.map(i=>WD[i]).join(", "):""}</span><span class="n">${f.habits.length} ${f.habits.length===1?"habit":"habits"}</span></button>`).join("")}
+function inhNote(){return S.joined!==null?`<div class="small">This is the if's: changing it changes it for its ${IFS[S.joined].habits.length} habits.</div>`:""}
+function chooser(){const o=S.open;
+  if(S.ifsOpen&&!o)return ifsList();
+  if(!o)return"";let h="";
+  if(o==="conn")h=inhNote()+`<div class="chips">${["If","After","Before","When","During"].map(c=>chip(c,S.conn===c,`setConn('${c}')`)).join("")}</div>`;
+  if(o==="premise"||o==="habit")h=(o==="premise"?inhNote():"")+`<input class="tfld" id="t-${o}" placeholder="${o==="premise"?"something (waking, lunch, I get home)":"the habit (brush teeth)"}" value="${esc(S[o])}" onchange="setText('${o}',this.value)">`;
+  if(o==="days")h=inhNote()+`<div class="chips">${chip("Every day",S.days.size===7,"S.days=new Set([0,1,2,3,4,5,6]);render()")}${chip("Weekdays",[...S.days].sort().join()==="0,1,2,3,4","S.days=new Set([0,1,2,3,4]);render()")}${chip("Weekends",[...S.days].sort().join()==="5,6","S.days=new Set([5,6]);render()")}</div><div class="wd">${WD.map((w,i)=>chip(w.slice(0,2),S.days.has(i)&&S.days.size<7,`toggleDay(${i})`)).join("")}</div>`;
+  if(o==="time"){const t=S.time;h=inhNote()+`<div class="chips">${[["none","No set time"],["at","At"],["span","From–to"]].map(([k,l])=>chip(l,t.kind===k,`setKind('${k}')`)).join("")}</div>`;
+    if(t.kind!=="none"){const slots=t.kind==="at"?["a"]:["a","b"];if(!slots.includes(E.slot))E.slot="a";
+      h+=`<div class="chips">${t.kind==="span"?'<span class="lab">From</span>':""}${slots.map((s,i)=>(i===1?'<span class="small">&nbsp;to&nbsp;</span>':"")+`<button class="pill${E.slot===s?" act":""}" onclick="E.slot='${s}';E.stage='h';render(true)">${t[s]}</button>`).join("")}</div>`+dial()}}
+  if(o==="energy")h=`<div class="chips">${["Low","Mid","High"].map(x=>chip(x,S.energy===x,`S.energy='${x}';S.open=null;render()`)).join("")}</div><div class="small">The energy filter on Habits and Today shows it at this level and above.</div>`;
+  return h}
+// ---- the dial: T1.5's approved entry (hours, then minutes) with a typed field ---------------------------------------------
+const E={slot:"a",stage:"h"};const GAP=32;
+function dialGeom(){const R1=Math.round(GAP/(2*Math.PI/12)),R0=R1+40,C=R0+24;return{R1,R0,C,D:2*C}}
+function setKind(k){S.time.kind=k;E.slot="a";E.stage="h";render()}
+function pickHour(hh){const v=S.time[E.slot];S.time[E.slot]=String(hh).padStart(2,"0")+v.slice(2);E.stage="m";render()}
+function pickMin(mm){const v=S.time[E.slot];S.time[E.slot]=v.slice(0,3)+String(mm).padStart(2,"0");E.stage="h";if(S.time.kind==="span"&&E.slot==="a")E.slot="b";render()}
+function typed(v){if(/^([01]?\d|2[0-3]):?[0-5]\d$/.test(v)){const d=v.replace(":","").padStart(4,"0");S.time[E.slot]=d.slice(0,2)+":"+d.slice(2)}render()}
+function dial(){const v=S.time[E.slot],hh=+v.slice(0,2),mm=+v.slice(3);const{R0,R1,C,D}=dialGeom(),pos=(i,r)=>[C+r*Math.sin(i*Math.PI/6),C-r*Math.cos(i*Math.PI/6)];let labels="";
+  if(E.stage==="h"){for(let i=0;i<12;i++){const o=i===0?12:i,n=i===0?0:i+12,[x,y]=pos(i,R0),[x2,y2]=pos(i,R1);
+      labels+=`<span class="${hh===o?"on":""}" style="left:${x}px;top:${y}px">${o}</span><span class="in${hh===n?" on":""}" style="left:${x2}px;top:${y2}px">${String(n).padStart(2,"0")}</span>`}}
+  else{for(let i=0;i<12;i++){const[x,y]=pos(i,R0);labels+=`<span class="${Math.round(mm/5)%12===i?"on":""}" style="left:${x}px;top:${y}px">${String(i*5).padStart(2,"0")}</span>`}}
+  return `<div class="chips"><input class="fld tfld" style="width:96px" inputmode="numeric" value="${v}" title="Type a time (any minute)" onchange="typed(this.value)"><span class="small">&nbsp;${E.stage==="h"?"hour":"minutes"} · type for any minute</span></div><div class="dial" style="width:${D}px;height:${D}px" onclick="dialTap(event)">${labels}</div>`}
+function dialTap(ev){const{R0,R1,C}=dialGeom(),r=ev.currentTarget.getBoundingClientRect(),x=ev.clientX-r.left-C,y=ev.clientY-r.top-C,d=Math.hypot(x,y);
+  if(d<R1-28)return;const i=Math.round(((Math.atan2(x,-y)*180/Math.PI+360)%360)/30)%12;
+  if(E.stage==="h"){const inner=d<(R0+R1)/2;pickHour(inner?(i===0?0:i+12):(i===0?12:i))}else pickMin(i*5)}
+// ---- render: the sentence and its readout stay at the foot; the area above grows upward ---------------------------------------
+function ready(){return S.premise.trim()&&S.habit.trim()}
+function renderArea(){const a=$("#area");if(a)a.innerHTML=chooser()}
+function render(noStep){const now=snap();if(!noStep&&shown!==null&&now!==shown){past.push(shown);future=[]}shown=now;
+  $("#sheet").innerHTML=`<div class="top"><button class="tap" onclick="cancel()">Cancel</button><span class="ttl">New habit</span>${ready()?'<button class="tap" data-tap="Add" onclick="add()"><b>Add</b></button>':'<span style="min-width:48px"></span>'}</div>
+  <div class="area" id="area">${chooser()}</div>
+  <div class="foot"><div class="ifline"><button class="tok sm" data-tap="Available ifs" onclick="toggleIfs()"><b>Available ifs · ${IFS.length}</b>&nbsp;${S.ifsOpen?"▾":"▴"}</button>${S.joined!==null?'<button class="tok sm" data-tap="Unjoin" onclick="unjoin()"><b>A new if instead</b></button>':""}</div>
+  <div class="sent">${sentence()}</div>
+  <div class="crow"><span class="small"></span><span><button class="tap" title="Undo" ${past.length?"":"disabled"} onclick="undo()">↶</button><button class="tap" title="Redo" ${future.length?"":"disabled"} onclick="redo()">↷</button></span></div>
+  <div class="small">${readout()}</div></div>`}
+function tapTok(id){S.ifsOpen=false;S.open=S.open===id?null:id;render(true);if(id==="premise"||id==="habit"){const f=document.getElementById("t-"+id);if(f)f.focus()}}
+function setText(id,v){S[id]=v;if(id==="premise")S.joined=null;render()}
+function setConn(c){S.conn=c;if(S.joined===null){}S.open=null;render()}
+function toggleIfs(){S.ifsOpen=!S.ifsOpen;S.open=null;render(true)}
+function pickIf(i){const f=IFS[i];S.conn=f.conn;S.premise=f.premise;S.days=new Set(f.days);S.time=JSON.parse(JSON.stringify(f.time));S.joined=i;S.ifsOpen=false;S.open=null;render();
+  if(S.v.blank==="inline"){const b=document.getElementById("b-habit");if(b)b.focus()}}
+function unjoin(){S.joined=null;S.premise="";S.conn="If";S.days=new Set([0,1,2,3,4,5,6]);S.time={kind:"none",a:"08:00",b:"09:00"};render()}
+function toggleDay(i){if(S.days.size===7)S.days=new Set();S.days.has(i)?S.days.delete(i):S.days.add(i);if(S.days.size===0)S.days.add(i);render()}
+function add(){S.open=null;S.ifsOpen=false;render(true)}
+function cancel(){S.open=null;S.ifsOpen=false;render(true)}
+render();
+</script>
+</body>
+</html>
