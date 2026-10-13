@@ -301,7 +301,7 @@ Rescored with the approved drawings (the cue above the title, High on by default
 | sheet, text, from the cue | 64.5 | 7 | 2 | 3.16 | 1 | yes | no | 0.034 / 0.021 |
 | control (Tendril's sheet) | 63 | 5 | 2 | 1.72 | 1 | yes | no | 0.042 / 0.021 |
 
-All eight options and the control are on the front; the control is not.
+All eight options are on the front; the control is not.
 
 **Reading the table:**
 - **The sheet** is calmer and nearer the thumb. But one target sits below its fold, leaving loses the habit, and it is not how an item's page works.
