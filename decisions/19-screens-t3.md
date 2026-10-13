@@ -175,3 +175,57 @@ Quantities (water, exercise, studying, knitting) are trackers.
 - **The energy filter:** its state and its reset at the personal day's start.
 - **Today lists trackers:** which ones (a daily goal, pinned, or all) is part of the "future tinkering".
 - The SPEC amendment for all of the above.
+
+## T3a.1 Habits as Daily basics: scored (2026-10-13)
+
+**Part `basics` in `tools/screens/t3_opt.py`.** The first scoring is kept as `t3-habits-v1.json`.
+
+**Fixed in every option:**
+- yes/no habits;
+- T1's own Log button at the row's right;
+- no history on the list;
+- each habit's written cue, ordered by its block;
+- an energy filter (cumulative).
+
+The sample is eight placeholder basics: Make the bed, Take meds, Brush teeth, Shower, Tidy the desk, Put a wash on, Wash face, Floss.
+
+**The 54 options:**
+- **layout:** blocks with the cue under the title / flow, one list in the day's order / sentence ("After breakfast, brush teeth");
+- **filter:** chips (Low · Mid · High) / a single "Low energy only" switch / a menu under ✎;
+- **energy mark:** none / dots / a word;
+- **done:** folds into "Done today" as on Today / stays, ticked.
+
+**Axes:**
+- Judgment (history marks);
+- Cue (cue shown, day order);
+- Low capacity (words per row, actions and reach to filter, reach to Log);
+- Choice (the filter can say Mid);
+- Consistency (done folds as on Today);
+- Density;
+- Calm.
+
+**The control, changed once.** The first control was Loop-like: alphabetical, no cue, no filter, streaks and crosses. **It reached the front on Calm alone**: with no cue lines and no filter row, it drew the least. Making "no judgment" a gate would not do, because the machinery rightly counts a gated control as not lost. The new control is the leading design with history added ("streak 3 · 62%" on every row), so it isolates what the owner's rule forbids. It loses at 451.5: 14 history marks, 9.6 words per row against 4.6, and more clutter.
+
+**The front, lowest sums:**
+
+| Option | Sum | Words per row | Filter actions | Filter says Mid | Done like Today | Clutter, phone / Windows |
+|---|---|---|---|---|---|---|
+| flow, chips, none, stay | 291 | 4.6 | 1 | yes | no | 0.045 / 0.020 |
+| **blocks, chips, none, fold** | **300.5** | 4.6 | 1 | yes | **yes** | 0.047 / 0.021 |
+| flow, chips, none, fold | 311 | 4.6 | 1 | yes | yes | 0.043 / 0.020 |
+| blocks, chips, none, stay | 333 | 4.9 | 1 | yes | no | 0.049 / 0.021 |
+
+Averaged over each dimension, lower being better:
+
+| Dimension | Averages |
+|---|---|
+| filter | chips 364 < switch 391 < menu 416 |
+| energy mark | none 357 < dots 391 < word 424 |
+| layout | flow 367 ≈ blocks 375 < sentence 430 |
+| done | fold 390 ≈ stay 391 |
+
+**Recommended: blocks, chips, no energy mark, fold.**
+- Chips are the cheapest filter that can also say Mid.
+- An energy mark on the row only adds to read; the filter already does the sorting.
+- Fold keeps a Logged habit doing what it does on Today (the consistency rule).
+- Blocks show the "if" order the owner chose (answer c), at 7.5 above flow on the average.

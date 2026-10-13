@@ -14,5 +14,21 @@
    "log": "row",
    "amount": "plain"
   }
+ ],
+ "basics": [
+  {
+   "app": "org.isoron.uhabits",
+   "layout": null,
+   "filter": null,
+   "mark": "none",
+   "done": "stay"
+  },
+  {
+   "app": "com.tendril.app.debug",
+   "layout": "blocks",
+   "filter": null,
+   "mark": "none",
+   "done": "stay"
+  }
  ]
 }

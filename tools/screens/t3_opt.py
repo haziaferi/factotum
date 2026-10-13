@@ -4,6 +4,7 @@
     python tools/screens/t3_opt.py page_html scores       t3-options.html, t3-scores.html (fails if a control wins)
 
 Parts:
+  basics   T3a.1 Habits as Daily basics (owner, 2026-10-13): layout, the energy filter, its mark, done today
   habits   T3.1 the Habits list (Hub › Routines › Habits): how presence shows, grouping, where Log sits, and how a
            counted habit's amount reads
 
@@ -165,7 +166,7 @@ def habits_desk(v, theme="light"):
 HAB_JS = ("(function(){var vb=document.querySelector('.bar').getBoundingClientRect().top;var o={dots:0,emptypast:0,miss:0};"
           "document.querySelectorAll('.dots i').forEach(function(i){var r=i.getBoundingClientRect();if(r.bottom>vb)return;o.dots++;"
           "if(!i.classList.contains('on')&&!i.classList.contains('today'))o.emptypast++});"
-          "document.querySelectorAll('[data-cell=\"miss\"]').forEach(function(c){var r=c.getBoundingClientRect();if(r.bottom<=vb&&r.height)o.miss++});"
+          "document.querySelectorAll('[data-judge],[data-cell=\"miss\"]').forEach(function(c){var r=c.getBoundingClientRect();if(r.bottom<=vb&&r.height)o.miss++});"
           "var cut=0;document.querySelectorAll('.hrow .nm,.hrow .sub').forEach(function(s){var r=s.getBoundingClientRect();if(r.bottom<=vb&&s.scrollWidth>s.clientWidth+1)cut++});o.cut=cut;return o})()")
 
 
@@ -195,15 +196,156 @@ def score_habits(v):
             "clutter": T.clutter_of(lambda th: hdoc(habits_phone(v), th)), "desk_clutter": dclutter(lambda th: habits_desk(v, th))}
 
 
+# ==== Part basics: T3a.1 the Habits list, as Daily basics (owner, 2026-10-13) ====================================================
+"""
+  Rescored on the owner's definition: habits are very basic daily yes/no things that are easy to forget (make the bed,
+  brush teeth, wash the face, shower), held as if-then cues, with the least judgment possible; a clear reference on a
+  low day. The first scoring (t3-habits-v1.json) asked how presence shows; here no history is on the list at all.
+  Fixed in every option: yes/no only; T1's own Log button at the row's right (owner: "the same as the Today's page");
+  the cue is the habit's block (order) and its written cue (wording) (owner's answer c); each habit has an energy level
+  (low, mid, high), and a filter shows only what can be handled now (cumulative: Low shows low; Mid low and mid; unset
+  shows all), reset each personal day.
+  layout  blocks (under the block's name; the cue is the row's second line), flow (one list in the day's order, the cue as
+          the second line, no headers), sentence (under the block's name; the row reads "After breakfast, brush teeth")
+  filter  chips (Low · Mid · High under the header: 1 tap), switch (one "Low energy only" switch: 1 tap, low only), menu
+          (✎ › Energy: 2 actions)
+  mark    none, dots (●○○ for low, ●●○ mid, ●●● high at the row's end, before Log), word ("low" in the second line)
+  done    fold (a Logged habit folds into "Done today · n", as Today's rows do, decision 15), stay (ticked, in place)
+  Measured: judgment marks (anything that reads as history or a miss: streaks, scores, crosses, counts); the share of
+  rows whose cue shows; day order (pairs of rows out of the day's order); words read per row; actions and reach to show
+  only low-energy habits, and whether the filter can say Mid; reach to Log; likeness to Today's rows (Log, the fold);
+  rows seen, titles cut; clutter, Windows' clutter.
+  Control: the leading design (blocks, chips, no mark, fold) with history added: "streak 3 · 62%" on every row. The
+  first control (a Loop-like list: alphabetical, no cue, no filter, ticks and crosses) reached the front on Calm alone,
+  having no cue lines and no filter row to draw; this one isolates the one thing the owner's rule forbids.
+"""
+BASICS_SPACE = {"layout": ["blocks", "flow", "sentence"], "filter": ["chips", "switch", "menu"], "mark": ["none", "dots", "word"], "done": ["fold", "stay"]}
+# (title, cue, block, energy, logged today)
+BASICS = [
+    ("Make the bed", "After waking", "Morning", "low", True),
+    ("Take meds", "With breakfast", "Morning", "low", False),
+    ("Brush teeth", "After breakfast", "Morning", "low", False),
+    ("Shower", "After the walk", "Morning", "mid", False),
+    ("Tidy the desk", "After lunch", "Midday", "mid", False),
+    ("Put a wash on", "When I get home", "Afternoon", "high", False),
+    ("Wash face", "Before bed", "Night", "low", False),
+    ("Floss", "After brushing", "Night", "low", False),
+]
+BLOCK_ORDER = ["Morning", "Midday", "Afternoon", "Evening", "Night"]
+DOTS = {"low": "●○○", "mid": "●●○", "high": "●●●"}
+
+BASICS_CSS = """
+.bsub{display:block;font-size:13px;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row .t .nm{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.edots{flex:none;font-size:11px;letter-spacing:1px;color:var(--dim);width:34px;text-align:right}
+.fchips{display:flex;gap:6px;flex:none;overflow:hidden}
+.fchips span{min-height:48px;min-width:48px;justify-content:center;display:flex;align-items:center;padding:0 14px;border-radius:999px;font-size:14px;box-shadow:inset 0 0 0 1px var(--zone2);color:var(--dim)}
+.eswitch{display:flex;align-items:center;justify-content:space-between;min-height:48px;padding:0 4px;font-size:15px;flex:none}
+.eswitch b{width:44px;height:26px;border-radius:13px;background:var(--zone2);display:block;position:relative}
+.eswitch b:after{content:"";position:absolute;left:3px;top:3px;width:20px;height:20px;border-radius:50%;background:var(--bg)}
+.row.ticked .nm{text-decoration:line-through;color:var(--dim)}
+.cgrid{display:flex;flex:none}.cgrid span{width:48px;min-height:48px;display:grid;place-items:center;font-size:15px;color:var(--dim)}
+"""
+
+
+def bdoc(html, theme="light"):
+    return doc(html, theme, CSS + BASICS_CSS)
+
+
+def basics_row(h, v):
+    title, cue, block, energy, logged = h
+    if v["layout"] == "sentence":
+        name, sub = "%s, %s" % (cue, title[0].lower() + title[1:]), ""
+    else:
+        name, sub = title, cue
+    if v["mark"] == "word":
+        sub = (sub + " · " if sub else "") + energy
+    if v.get("history"):   # the control: a streak and a share of days on every row
+        sub += ' · <span data-judge="1">streak %d</span> · <span data-judge="1">%d%%</span>' % (len(title) % 5, 40 + (len(title) * 7) % 55)
+    mark = '<span class="edots">%s</span>' % DOTS[energy] if v["mark"] == "dots" else ""
+    act = '<span class="act" data-tap="Log %s"><span>Log</span></span>' % title if not logged else ""
+    return '<div class="row%s" data-tap="Open habit" data-cue="%s" data-block="%s"><span class="tm kind">↻</span><span class="t"><span class="nm">%s</span>%s</span>%s%s</div>' % (
+        " ticked" if (logged and v["done"] == "stay") else "", e(cue), block, kit.ud(e(name)), '<span class="bsub">%s</span>' % (sub if v.get("history") else e(sub)) if sub else "", mark, act)
+
+
+def basics_body(v):
+    if v.get("control"):   # the leading design with history added: what the owner's rule forbids, and nothing else
+        v = dict(v, layout="blocks", filter="chips", mark="none", done="fold", history=True)
+    top = ""
+    if v["filter"] == "chips":
+        top = '<div class="fchips">%s</div>' % "".join('<span data-tap="Energy %s">%s</span>' % (x, x) for x in ("Low", "Mid", "High"))
+    elif v["filter"] == "switch":
+        top = '<div class="eswitch" data-tap="Energy Low">Low energy only<b></b></div>'
+    live = [h for h in BASICS if not (h[4] and v["done"] == "fold")]
+    folded = [h for h in BASICS if h[4] and v["done"] == "fold"]
+    order = sorted(live, key=lambda h: BLOCK_ORDER.index(h[2]))
+    if v["layout"] == "flow":
+        body = "".join(basics_row(h, v) for h in order)
+    else:
+        body, last = "", None
+        for h in order:
+            if h[2] != last:
+                body += '<div class="dayh">%s</div>' % h[2]
+                last = h[2]
+            body += basics_row(h, v)
+    if folded:
+        body += '<div class="fold" data-tap="Done today"><span class="t">Done today · %d</span>▸</div>' % len(folded)
+    return top + '<div class="zone">%s</div>' % body
+
+
+def basics_phone(v):
+    return kit.phone(kit.header("Habits", (("⌕", "Search"), ("✎", "Edit")), ("‹", "Back")),
+                     '<div class="cap" data-tap="Capture">+ <span>New habit…</span></div>' + basics_body(v), kit.bar("Hub"))
+
+
+def basics_desk(v, theme="light"):
+    inner = basics_phone(v).split('<div class="body">', 1)[1].rsplit('<div class="bar">', 1)[0][:-len("</div>")]
+    return desk_doc("Hub", "Habits", '<div class="dcol" style="width:440px;flex:none">%s</div><div class="page" style="flex:1"></div>' % inner, theme, CSS + BASICS_CSS)
+
+
+BASICS_JS = ("(function(){var vb=document.querySelector('.bar').getBoundingClientRect().top;var rows=[],cut=0,miss=0;"
+             "document.querySelectorAll('[data-tap=\"Open habit\"]').forEach(function(r){var b=r.getBoundingClientRect();if(!b.height||b.bottom>vb)return;"
+             "var t=r.querySelector('.t');rows.push({cue:r.dataset.cue,block:r.dataset.block,text:t?t.innerText:'',cueshown:r.dataset.cue&&t&&t.innerText.indexOf(r.dataset.cue)>=0?1:0});"
+             "r.querySelectorAll('.nm,.bsub').forEach(function(s){if(s.scrollWidth>s.clientWidth+1)cut++})});"
+             "document.querySelectorAll('[data-judge],[data-cell=\"miss\"]').forEach(function(c){var b=c.getBoundingClientRect();if(b.height&&b.bottom<=vb)miss++});"
+             "return {rows:rows,cut:cut,miss:miss}})()")
+
+
+def score_basics(v):
+    ctl = v.get("control")
+    d = bdoc(basics_phone(v))
+    tp = T.taps(d)
+    pr = T.probe(d, "t3-basics-%s" % key_of(v), BASICS_JS)
+    rows = pr["rows"]
+    words = sum(len(r["text"].split()) for r in rows) / max(1, len(rows))
+    blocks = [BLOCK_ORDER.index(r["block"]) for r in rows]
+    pairs = [(a, b) for i, a in enumerate(blocks) for b in blocks[i + 1:]]
+    disorder = sum(1 for a, b in pairs if a > b) / max(1, len(pairs))
+    first_log = next((x for x in tp.all if x["name"].startswith("Log ") and x.get("seen")), None)
+    vv = dict(v, filter="chips") if ctl else v   # the control carries the leading design's chips
+    judgment = pr["miss"]   # marks of history on screen: streaks, shares of days, crosses
+    f_actions = {"chips": 1, "switch": 1, "menu": 2}[vv["filter"]]
+    f_reach = T.fitts(THUMB, tp["Energy Low"] if "Energy Low" in tp else tp["Edit"])
+    f_mid = 1 if vv["filter"] in ("chips", "menu") else 0
+    return {"judgment_marks": judgment, "cue_shown": round(sum(r["cueshown"] for r in rows) / max(1, len(rows)), 3), "disorder": round(disorder, 3),
+            "words_per_row": round(words, 2), "filter_actions": f_actions, "reach_filter": round(f_reach, 3), "filter_says_mid": f_mid,
+            "reach_log": round(T.fitts(THUMB, first_log), 3) if first_log else 9,
+            "like_today": 0 if (ctl or v["done"] == "fold") else 1, "rows_seen": len(rows), "cut": pr["cut"],
+            "small": small_of(tp, {x["name"] for x in tp.all if x["name"].startswith(("Log ", "Energy "))}),
+            "clutter": T.clutter_of(lambda th: bdoc(basics_phone(v), th)), "desk_clutter": dclutter(lambda th: basics_desk(v, th))}
+
+
 def build_refs():
     with open(os.path.join(T.OUT, "t3-references.json"), encoding="utf-8") as fh:
         src = json.load(fh)
-    out = {"habits": []}
+    out = {"habits": [], "basics": []}
     for r in src["habits_list"]:
         if r["app"] == "org.isoron.uhabits":
             out["habits"].append({"app": r["app"], "presence": None, "group": "flat", "log": "cells", "amount": "plain"})
         elif r["app"] == "com.tendril.app.debug":
             out["habits"].append({"app": r["app"], "presence": "none", "group": "blocks", "log": "row", "amount": "plain"})
+    out["basics"] = [{"app": "org.isoron.uhabits", "layout": None, "filter": None, "mark": "none", "done": "stay"},
+                     {"app": "com.tendril.app.debug", "layout": "blocks", "filter": None, "mark": "none", "done": "stay"}]
     with open(os.path.join(T.OUT, "t3-refs.json"), "w", encoding="utf-8", newline="\n") as fh:
         json.dump(out, fh, indent=1, ensure_ascii=False)
 
@@ -211,16 +353,22 @@ def build_refs():
 # ==== the tables and pages through toast_opt's machinery =========================================================================
 T.PREFIX, T.REFS, T.NAME = "t3", "t3-refs.json", "T3 habits, trackers, time, goals, charts and checklists"
 T.OUT = os.path.join(os.path.dirname(M2.T.OUT), "t3")
-T.SPACES = {"habits": HABITS_SPACE}
-T.SCORERS = {"habits": score_habits}
-T.CONTROLS = {"habits": ({"presence": "streak", "group": "flat", "log": "cells", "amount": "percent", "control": True},
+# T3.1 "habits" (presence, the first scoring) is kept in t3-habits-v1.json and in the code above; T3a replaced it (owner, 2026-10-13)
+T.SPACES = {"basics": BASICS_SPACE}
+T.SCORERS = {"basics": score_basics}
+T.CONTROLS = {"basics": ({"layout": "blocks", "filter": "chips", "mark": "streak", "done": "fold", "control": True},
+                         "the leading design with history added: a streak and a share of days on every row"),
+              "habits": ({"presence": "streak", "group": "flat", "log": "cells", "amount": "percent", "control": True},
                          "Loop-like with streaks and a score: a streak and a percentage on every row, the last 4 days as ticks and crosses")}
-T.AXES = {"habits": {"Ease": ("log_actions", "reach_log"), "Presence": ("-presence_shown", "presence_marks"), "Calm": ("guilt_marks", "clutter", "desk_clutter"),
+T.AXES = {"basics": {"Judgment": ("judgment_marks",), "Cue": ("-cue_shown", "disorder"), "Low capacity": ("words_per_row", "filter_actions", "reach_filter", "reach_log"),
+                     "Choice": ("-filter_says_mid",), "Consistency": ("like_today",), "Density": ("-rows_seen", "cut"), "Calm": ("clutter", "desk_clutter")},
+          "habits": {"Ease": ("log_actions", "reach_log"), "Presence": ("-presence_shown", "presence_marks"), "Calm": ("guilt_marks", "clutter", "desk_clutter"),
                      "Density": ("-rows_seen", "cut"), "Consistency": ("like_today",)}}
-T.TITLES = {"habits": "T3.1 The Habits list: presence, grouping, where Log sits, a count's amount"}
-T.DRAW = {"habits": lambda v: [hdoc(habits_phone(v)), habits_desk(v)]}
+T.TITLES = {"basics": "T3a.1 Habits as Daily basics: layout, the energy filter, its mark, done today", "habits": "T3.1 The Habits list: presence, grouping, where Log sits, a count's amount"}
+T.DRAW = {"basics": lambda v: [bdoc(basics_phone(v)), basics_desk(v)], "habits": lambda v: [hdoc(habits_phone(v)), habits_desk(v)]}
 T.POOL = {}
 T.v2.TOL.setdefault("_reach_log", 0.05)
+T.v2.TOL.setdefault("_reach_filter", 0.05)
 
 
 if __name__ == "__main__":
