@@ -1627,7 +1627,7 @@ T.DRAW_MAX["measure"] = 8
 T.LEAD["measure"] = ("taps_mean", 0.17)   # fewest taps first (owner, 2026-10-13); 0.17 is one tap in the six-entry walk
 T.REFS_INFO.add("measure")
 T.REFS_INFO.add("measure2")
-T.LEAD["measure2"] = [("taps_12", 0.1), ("taps_30", 0.1)]   # fewest taps first at both sizes; 0.1 = one tap more on one log in ten
+T.LEAD["measure2"] = [("taps_12", 0.25), ("taps_30", 0.25)]   # fewest taps first at both sizes, within 0.25 a log (one tap more in four logs; owner, 2026-10-13, widened from 0.1 for the hybrids)
 T.POOL["measure2"] = lambda ok: [r for r in ok if r.get("front")]
 T.DRAW_MAX["measure2"] = 8   # the references all log through a sheet: shown, not ranked (owner, 2026-10-13)
 T.DRAW_MAX["trackers"] = 10   # and the leader's family with each thing a row can say: whether a row says anything is the trade (Glance against Calm)   # the best of each family drawn: a front of 40 would draw one family

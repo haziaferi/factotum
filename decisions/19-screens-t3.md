@@ -823,4 +823,22 @@ Log is narrowed to sheet and inline, because default and stepper cannot reach a 
 
 **The trade:** the fit hybrid costs about 0.1 to 0.2 taps more a log (one more tap every 5 to 10 logs, on the rare items behind a label). For that, the whole list sits on one screen at both sizes.
 
-Status: **put to the owner** (pick, or widen the 0.1 tolerance).
+**The owner widened the lead to 0.25 taps a log** (one tap more in four logs). The front now holds 32 options, with the hybrids leading:
+
+| Option | Taps 12 / 30 | In view 12 / 30 | Spans at 30 | Moves |
+|---|---|---|---|---|
+| apart · rows · last · hybrid fit · recent | 1.83 / 2.39 | 100% / 100% | 0.91 | yes |
+| apart · grid · last · hybrid pinned · manual | 1.72 / 2.37 | 89% / 73% | 1.22 | no |
+| apart · grid · none · hybrid pinned · manual | 1.71 / 2.37 | 100% / 82% | 1.15 | no |
+| apart · grid · last · flat · manual | 1.66 / 2.18 | 89% / 36% | 2.45 | no |
+| merged · compact · last · flat · recent | 1.65 / 2.31 | 75% / 30% | 3.09 | yes |
+
+"last" and "today + last" tie: nothing here counts words.
+
+**Merged hybrids fall outside the lead** (2.68 at 30; best 2.00):
+- the activities lengthen the list;
+- a timer behind a folded label pays its tap twice, to start and to stop.
+
+So every hybrid leader is apart: trackers here, Activities one tap away.
+
+Status: **awaiting the owner's pick.**
