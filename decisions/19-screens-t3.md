@@ -702,3 +702,51 @@ Trackers are what is counted or rated; a habit is yes/no (T3a). The four kinds a
 Found on the way: `.tgrid` and `.trow` were already used by other scorers' styles; the cards collapsed to two. They are now `.kgrid`, `.krow` and `.kcard`.
 
 Status: **scored, awaiting the owner's pick.**
+
+## T3b.1b The Measuring list, taps first (2026-10-13)
+
+The owner: trackers belong to P4 Measuring, "one of the screens that can be busy in exchange for least taps to log data or start a timer". T3b.1 is superseded.
+
+**The owner's answers:**
+- Score one merged list (trackers and activities, with ▶ / ■ on an activity's row) against two screens.
+- A stray tap's write is an axis (Recovery).
+- Today's tracker rows wait for the consistency pass.
+- Judgment marks stay an axis.
+
+**The space** (`t3_opt.py`, part `measure`): 160 options plus the control.
+- scope: merged / apart;
+- layout, what a row says and grouping: as T3b.1;
+- Log: sheet / default / stepper / **inline**, a control per kind on the row:
+  - "+ 1 glass" for a number with a usual amount;
+  - Yes for yes/no;
+  - the five ratings as chips;
+  - the two most recent choices as chips, then …;
+  - a number with no usual amount keeps Log.
+
+**The walk:** a usual glass of water; 7.5 hours of sleep; Mood 4; Headache yes; Commute by bike; starting and stopping the Reading timer. A target out of view adds a scroll.
+
+**Axes:**
+- Taps (mean over the walk);
+- Reach (mean Fitts over the walk's targets);
+- Recovery (the share of logs written by one tap with no confirming step);
+- Glance (rows that say something; a running timer shown);
+- Judgment;
+- Find;
+- Refs.
+
+**Gate:** no title cut; primary targets at 48 dp, chips at 24 dp. 16 options are out, all for cut titles.
+
+**Found on the way:** reach to Water's Log alone put the control on the front, because its progress bar had pushed that one button nearer the thumb. Reach now averages the whole walk.
+
+**The control is still on the front (the gate fails), and the reason is the weighting:**
+- Recovery is exactly the price of fewer taps.
+- Refs rewards the sheet, which all three reference apps use.
+- With Calm and Density dropped, nothing charges the dashboard for its busyness.
+
+Under equal weights a sheet leads again (merged · grid · last · sheet · flat, 2.5 taps).
+
+**Taps-led previews** both pick **merged · grid · last · inline · labels**, at 1.67 taps against the control's 3.0:
+- the fewest taps first (within 0.17), the other axes breaking ties;
+- or Taps counted twice, with Refs dropped.
+
+Status: **awaiting the owner's choice of weighting.**

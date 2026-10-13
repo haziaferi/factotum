@@ -4,6 +4,7 @@
     python tools/screens/t3_opt.py page_html scores       t3-options.html, t3-scores.html (fails if a control wins)
 
 Parts:
+  measure  T3b.1b the Measuring list, taps first (owner, 2026-10-13): merged with activities or apart, a control per kind
   trackers T3b.1 the Trackers list: layout, what a row says, what Log does, grouping (owner, 2026-10-13)
   habits2  T3a.1c the Habits list: the optional name, every if as a header (owner, 2026-10-13)
   premise  T3a.2d what the premise box opens (owner, 2026-10-13; axes chosen by the owner)
@@ -1087,6 +1088,190 @@ def score_trackers(v):
             "clutter": T.clutter_of(lambda th: tdoc(trackers_phone(v), th)), "desk_clutter": dclutter(lambda th: trackers_desk(v, th))}
 
 
+# ==== Part measure: T3b.1b the Measuring list, taps first (owner, 2026-10-13) =====================================================
+"""
+  The owner: trackers belong to P4 Measuring, "one of the screens that can be busy in exchange for least taps to log data
+  or start a timer". Calm and Density are dropped; a cut title or a target under its floor is a gate, not a score.
+  Owner's answers: score one merged list against two screens; a stray tap's write is an axis (Recovery); Today's tracker
+  rows are settled in the consistency pass (no likeness-to-Today axis here); judgment marks stay an axis.
+  scope    merged (trackers and activities in one list, ▶ / ■ on an activity's row), apart (trackers only; an
+           "Activities ›" row opens the Activities screen, where ▶ is)
+  layout, says, group   as T3b.1
+  log      sheet, default, stepper (as T3b.1), inline (a control per kind on the row: "+ 1 glass" for a number with a usual
+           amount, Yes for yes/no, the five ratings as chips, the two most recent choices as chips and … for the rest; a
+           number with no usual amount keeps Log, which opens the sheet)
+  The walk (each entry a typical one): a usual glass of water; 7.5 hours of sleep (no usual amount: Log, typed, Log);
+  Mood 4; Headache yes; Commute by bike; and starting then stopping the Reading timer. A target not in view on the
+  phone adds one scroll. Taps are averaged over the walk.
+  Measured: taps (mean, scrolls included); reach to the first control; Recovery: the share of the five logs written by a
+  single tap with no confirming step (each one has Undo in a toast); Glance: the share of rows that say something, and
+  whether a running timer shows on this screen; Judgment marks; Find (rows read to locate one); Refs.
+  Gate: no title cut; primary targets (Log, +, Yes, ▶, ■, Activities) at 48 dp, chips at 24 dp (T3a's tiered rule).
+  Control: T3b.1's dashboard (cards with today against a goal, a progress bar, a streak, the 7-day bars), Log through
+  the sheet, activities apart.
+"""
+MEAS_SPACE = {"scope": ["merged", "apart"], "layout": ["rows", "grid"], "says": ["none", "today", "last", "today_last", "spark"],
+              "log": ["sheet", "default", "stepper", "inline"], "group": ["flat", "labels"]}
+# (name, label, today, last, running)
+ACTIVITIES = [("Reading", "Mind", "25 min today", "last 21:10", False), ("Cleaning", "Home", "running 0:12", "last 10:05", True),
+              ("Language practice", "Mind", "", "last Fri", False)]
+MEAS_LABELS = ["Health", "Mind", "Moving", "Making", "Home"]
+USUAL_YES = {"Headache"}   # a yes/no tracker's usual answer is Yes
+RECENT = {"Commute": ["Bike", "Bus"]}
+MEAS_CSS = """
+.mrow{align-items:flex-start;padding:4px 0}.mrow .t{padding:4px 0}
+.ichips{display:flex;gap:4px;margin-top:4px;flex-wrap:wrap}.ichips span{min-width:32px;height:32px;padding:0 8px;border-radius:16px;display:grid;place-items:center;font-size:13px;box-shadow:inset 0 0 0 1px var(--dim)}
+.pill48{min-height:48px;min-width:48px;display:grid;place-items:center;flex:none}.pill48 span{border-radius:999px;padding:4px 12px;font-size:13px;background:var(--zone2);color:var(--ink);white-space:nowrap}
+.kcard .pill48 span,.kcard .ichips span{background:var(--zone)}
+.play{width:48px;height:48px;display:grid;place-items:center;flex:none;font-size:15px}.play span{width:32px;height:32px;border-radius:16px;display:grid;place-items:center;background:var(--ink);color:var(--bg);font-size:12px}
+.golink{display:flex;align-items:center;min-height:48px;font-size:15px}.golink .t{flex:1}
+"""
+
+
+def mdoc(html, theme="light"):
+    return doc(html, theme, CSS + BASICS_CSS + TRK_CSS + MEAS_CSS)
+
+
+def m_ctrl(t, v):
+    """(right-hand control, chip line) for a tracker."""
+    name, kind, usual = t[0], t[1], t[5]
+    log = '<span class="act" data-tap="Log %s"><span>Log</span></span>' % name
+    if v["log"] in ("sheet",):
+        return log, ""
+    if v["log"] == "default":
+        return log, ""
+    if v["log"] == "stepper":
+        return (trk_log(t, v), "")
+    # inline
+    if kind == "number" and usual:
+        return '<span class="pill48" data-tap="Plus %s"><span>+ %s</span></span>' % (name, e(usual)), ""
+    if kind == "yesno":
+        return '<span class="pill48" data-tap="Yes %s"><span>Yes</span></span>' % name, ""
+    if kind == "rating":
+        return "", '<span class="ichips">%s</span>' % "".join('<span data-tap="Chip %s %d">%d</span>' % (name, i, i) for i in range(1, 6))
+    if kind == "choice":
+        return "", '<span class="ichips">%s<span data-tap="Chip %s more">…</span></span>' % ("".join('<span data-tap="Chip %s %s">%s</span>' % (name, c, c) for c in RECENT[name]), name)
+    return log, ""
+
+
+def m_item(t, v):
+    sub = trk_says(t, v)
+    subh = '<span class="bsub">%s</span>' % e(sub) if sub else ""
+    spark = trk_spark(t) if v["says"] == "spark" else ""
+    right, chips = m_ctrl(t, v)
+    if v["layout"] == "grid":
+        return '<div class="kcard" data-tap="Open tracker" data-tr="%s"><span class="nm">%s</span>%s%s%s<span class="foot">%s</span></div>' % (
+            t[0], kit.ud(e(t[0])), subh, spark, chips, right)
+    return '<div class="row krow mrow" data-tap="Open tracker" data-tr="%s"><span class="t"><span class="nm">%s</span>%s%s%s</span>%s</div>' % (
+        t[0], kit.ud(e(t[0])), subh, spark, chips, right)
+
+
+def m_act(a, v):
+    name, label, today, last, running = a
+    s = v["says"]
+    sub = "" if s == "none" else (today if s in ("today", "spark") else (last if s == "last" else " · ".join(x for x in (today, last) if x)))
+    if running:
+        sub = "running 0:12" if s == "none" else sub   # a running timer always says so
+    subh = '<span class="bsub">%s</span>' % e(sub) if sub else ""
+    ctl = ('<span class="play" data-tap="Stop %s"><span>■</span></span>' if running else '<span class="play" data-tap="Start %s"><span>▶</span></span>') % name
+    if v["layout"] == "grid":
+        return '<div class="kcard" data-tap="Open tracker" data-tr="%s" data-act="1"><span class="nm">%s</span>%s<span class="foot">%s</span></div>' % (name, kit.ud(e(name)), subh, ctl)
+    return '<div class="row krow mrow" data-tap="Open tracker" data-tr="%s" data-act="1"><span class="t"><span class="nm">%s</span>%s</span>%s</div>' % (name, kit.ud(e(name)), subh, ctl)
+
+
+def m_entries(v):
+    """The list in order: (label, html) for trackers, then activities when merged."""
+    out = [(t[2], m_item(t, v)) for t in TRACKERS]
+    if v["scope"] == "merged":
+        out += [(a[1], m_act(a, v)) for a in ACTIVITIES]
+    return out
+
+
+def measure_body(v):
+    if v.get("control"):
+        return trackers_body(v)
+    wrap = (lambda items: '<div class="kgrid">%s</div>' % items) if v["layout"] == "grid" else (lambda items: items)
+    ents = m_entries(v)
+    if v["group"] == "flat":
+        body = wrap("".join(h for _, h in ents))
+    else:
+        body = "".join('<div class="dayh">%s</div>' % lab + wrap("".join(h for l, h in ents if l == lab)) for lab in MEAS_LABELS if any(l == lab for l, _ in ents))
+    link = '<div class="golink" data-tap="Open Activities"><span class="t">Activities</span>›</div>' if v["scope"] == "apart" else ""
+    return '<div class="zone">%s%s</div>' % (link, body)
+
+
+def measure_phone(v):
+    title = "Measuring" if (not v.get("control") and v["scope"] == "merged") else "Trackers"
+    link = '<div class="golink" data-tap="Open Activities"><span class="t">Activities</span>›</div>' if v.get("control") else ""
+    return kit.phone(kit.header(title, (("⌕", "Search"), ("✎", "Edit")), ("‹", "Back")),
+                     '<div class="cap" data-tap="Capture">+ <span>New tracker…</span></div>' + (('<div class="zone">%s</div>' % link) if link else "") + measure_body(v), kit.bar("Hub"))
+
+
+def measure_desk(v, theme="light"):
+    inner = measure_phone(v).split('<div class="body">', 1)[1].rsplit('<div class="bar">', 1)[0][:-len("</div>")]
+    return desk_doc("Hub", "Measuring", '<div class="dcol" style="width:440px;flex:none">%s</div><div class="page" style="flex:1"></div>' % inner, theme,
+                    CSS + BASICS_CSS + TRK_CSS + MEAS_CSS)
+
+
+def m_walk(v):
+    """[(target name, taps)] for the walk: each entry's first target and its taps (typing a value counts one)."""
+    ctl = v.get("control")
+    log = "sheet" if ctl else v["log"]
+    inline = log == "inline"
+    w = [("Plus Water" if log in ("stepper", "inline") else "Log Water", 2 if log == "sheet" else 1),
+         ("Log Sleep", 3),
+         ("Chip Mood 4" if inline else "Log Mood", 1 if inline else 3),
+         ("Yes Headache" if inline else "Log Headache", 1 if (inline or log == "default") else 2),
+         ("Chip Commute Bike" if inline else "Log Commute", 1 if inline else 3)]
+    merged = (not ctl) and v["scope"] == "merged"
+    w.append(("Start Reading" if merged else "Open Activities", 2 if merged else 4))   # start, later stop (apart: Activities each time)
+    one_tap = sum(1 for n, k in w[:5] if k == 1)
+    return w, one_tap
+
+
+MEAS_JS = TRK_JS
+
+
+def m_scan(v):
+    if v.get("control"):
+        return trk_scan(v)
+    names = [(t[2], t[0]) for t in TRACKERS] + ([(a[1], a[0]) for a in ACTIVITIES] if v["scope"] == "merged" else [])
+    if v["group"] == "flat":
+        return round(sum(i + 1 for i in range(len(names))) / len(names), 3)
+    labs = [lab for lab in MEAS_LABELS if any(l == lab for l, _ in names)]
+    steps = [labs.index(l) + 1 + [n for ll, n in names if ll == l].index(n) + 1 for l, n in names]
+    return round(sum(steps) / len(steps), 3)
+
+
+def score_measure(v):
+    ctl = v.get("control")
+    d = mdoc(measure_phone(v))
+    tp = T.taps(d)
+    pr = T.probe(d, "t3-meas-%s" % key_of(v), MEAS_JS)
+    walk, one_tap = m_walk(v)
+    seen = {x["name"] for x in tp.all if x.get("seen")}
+    taps = [k + (0 if n in seen else 1) for n, k in walk]
+    # reach: every first target of the walk that is in view (one found on 2026-10-13: reach to Water's Log alone put the control on the front,
+    # its progress bar having pushed that one button nearer the thumb)
+    reach = [x for n, _ in walk for x in [next((y for y in tp.all if y["name"] == n and y.get("seen")), None)] if x]
+    gate = []
+    for x in tp.all:
+        if not x.get("seen"):
+            continue
+        n = x["name"]
+        floor = 24 if n.startswith("Chip ") else (48 if n.startswith(("Log ", "Plus ", "Minus ", "Yes ", "Start ", "Stop ", "Open Activities")) else None)
+        if floor and (x["w"] < floor or x["h"] < floor):
+            gate.append("%s %dx%d" % (n, x["w"], x["h"]))
+    if pr["cut"]:
+        gate.append("titles cut %d" % pr["cut"])
+    running = (not ctl) and v["scope"] == "merged"
+    return {"taps_mean": round(sum(taps) / len(taps), 3), "scrolls": sum(1 for n, _ in walk if n not in seen),
+            "reach_mean": round(sum(T.fitts(THUMB, x) for x in reach) / len(reach), 3) if reach else 9, "one_tap_writes": round(one_tap / 5, 3),
+            "says_share": round(pr["says"] / max(1, pr["rows"]), 3), "running_shown": 1 if running else 0,
+            "judgment_marks": pr["judge"], "scan_steps": m_scan(v), "rows_seen": pr["rows"], "words_per_row": round(pr["words"] / max(1, pr["rows"]), 2),
+            "small": sorted(set(gate))}
+
+
 def build_refs():
     with open(os.path.join(T.OUT, "t3-references.json"), encoding="utf-8") as fh:
         src = json.load(fh)
@@ -1098,6 +1283,7 @@ def build_refs():
             out["habits"].append({"app": r["app"], "presence": "none", "group": "blocks", "log": "row", "amount": "plain"})
     out["basics"] = [{"app": "org.isoron.uhabits", "layout": None, "filter": None, "mark": "none", "done": "stay"},
                      {"app": "com.tendril.app.debug", "layout": "blocks", "filter": None, "mark": "none", "done": "stay"}]
+    out["measure"] = [{"app": r["app"], "scope": "apart", **r["as_space"]} for r in src.get("trackers_list", [])]
     out["trackers"] = [{"app": r["app"], **r["as_space"]} for r in src.get("trackers_list", [])]
     with open(os.path.join(T.OUT, "t3-refs.json"), "w", encoding="utf-8", newline="\n") as fh:
         json.dump(out, fh, indent=1, ensure_ascii=False)
@@ -1107,9 +1293,11 @@ def build_refs():
 T.PREFIX, T.REFS, T.NAME = "t3", "t3-refs.json", "T3 habits, trackers, time, goals, charts and checklists"
 T.OUT = os.path.join(os.path.dirname(M2.T.OUT), "t3")
 # T3.1 "habits" (presence, the first scoring) is kept in t3-habits-v1.json and in the code above; T3a replaced it (owner, 2026-10-13)
-T.SPACES = {"trackers": TRK_SPACE, "basics": BASICS_SPACE, "addhabit": ADD_SPACE, "routines": ROUT_SPACE, "addsent": SENT_SPACE, "hsheet": HSHEET_SPACE, "premise": PREMISE_SPACE, "habits2": H2_SPACE}
-T.SCORERS = {"trackers": score_trackers, "basics": score_basics, "addhabit": score_addhabit, "routines": score_routines, "addsent": score_addsent, "hsheet": score_hsheet, "premise": score_premise, "habits2": score_habits2}
-T.CONTROLS = {"trackers": ({"layout": "grid", "says": "goal", "log": "sheet", "group": "flat", "control": True},
+T.SPACES = {"measure": MEAS_SPACE, "trackers": TRK_SPACE, "basics": BASICS_SPACE, "addhabit": ADD_SPACE, "routines": ROUT_SPACE, "addsent": SENT_SPACE, "hsheet": HSHEET_SPACE, "premise": PREMISE_SPACE, "habits2": H2_SPACE}
+T.SCORERS = {"measure": score_measure, "trackers": score_trackers, "basics": score_basics, "addhabit": score_addhabit, "routines": score_routines, "addsent": score_addsent, "hsheet": score_hsheet, "premise": score_premise, "habits2": score_habits2}
+T.CONTROLS = {"measure": ({"scope": "apart", "layout": "grid", "says": "goal", "log": "sheet", "group": "flat", "control": True},
+                          "T3b.1's dashboard: today against a goal ('3/8 · 38%'), a progress bar, a streak, the 7-day bars; Log through the sheet; activities apart"),
+              "trackers": ({"layout": "grid", "says": "goal", "log": "sheet", "group": "flat", "control": True},
                            "a dashboard: each card with today against its goal ('3/8 · 38%'), a progress bar, a streak and the 7-day bars"),
               "habits2": ({"group": "checklist", "name": "progress", "control": True}, "every if as a checklist with progress: '1/4 done · 25%'"),
               "premise": ({"premise": "all", "control": True}, "the premise box opens every if, whatever the connective (the prototype before this scoring)"),
@@ -1122,7 +1310,9 @@ T.CONTROLS = {"trackers": ({"layout": "grid", "says": "goal", "log": "sheet", "g
                          "the leading design with history added: a streak and a share of days on every row"),
               "habits": ({"presence": "streak", "group": "flat", "log": "cells", "amount": "percent", "control": True},
                          "Loop-like with streaks and a score: a streak and a percentage on every row, the last 4 days as ticks and crosses")}
-T.AXES = {"trackers": {"Ease": ("taps_count", "reach_log"), "Predictable": ("log_varies", "unconfirmed"), "Glance": ("-says_share",),
+T.AXES = {"measure": {"Taps": ("taps_mean",), "Reach": ("reach_mean",), "Recovery": ("one_tap_writes",), "Glance": ("-says_share", "-running_shown"),
+                      "Judgment": ("judgment_marks",), "Find": ("scan_steps",)},
+          "trackers": {"Ease": ("taps_count", "reach_log"), "Predictable": ("log_varies", "unconfirmed"), "Glance": ("-says_share",),
                        "Judgment": ("judgment_marks",), "Find": ("scan_steps",), "Consistency": ("like_today",),
                        "Density": ("-rows_seen", "cut", "words_per_row"), "Calm": ("clutter", "desk_clutter")},
           "habits2": {"Judgment": ("judgment_marks",), "Clarity": ("-uniform", "-names_in_view"), "Low capacity": ("words_per_row",),
@@ -1140,19 +1330,23 @@ T.AXES = {"trackers": {"Ease": ("taps_count", "reach_log"), "Predictable": ("log
                      "Choice": ("-filter_says_mid",), "Consistency": ("like_today",), "Density": ("-rows_seen", "cut"), "Calm": ("clutter", "desk_clutter")},
           "habits": {"Ease": ("log_actions", "reach_log"), "Presence": ("-presence_shown", "presence_marks"), "Calm": ("guilt_marks", "clutter", "desk_clutter"),
                      "Density": ("-rows_seen", "cut"), "Consistency": ("like_today",)}}
-T.TITLES = {"trackers": "T3b.1 The Trackers list: rows or cards, what a row says, what Log does, grouping", "habits2": "T3a.1c The Habits list: the optional name, and every if as a header", "premise": "T3a.2d What tapping the premise box opens: nothing, or the ifs with the same connective", "hsheet": "T3a.2c The New habit sheet (prototype): the blanks as text boxes in the sentence, or opened above it", "addsent": "T3a.2b Adding a habit as an open sentence: the When sheet, in place, or fields; energy and routine as words or rows", "routines": "T3a.1b The Habits list with routines: the 'what to expect' preview, how the sequence shows", "addhabit": "T3a.2 Adding a habit: in place or a sheet, the If, the block", "basics": "T3a.1 Habits as Daily basics: layout, the energy filter, its mark, done today", "habits": "T3.1 The Habits list: presence, grouping, where Log sits, a count's amount"}
-T.DRAW = {"trackers": lambda v: [tdoc(trackers_phone(v))] + ([] if v.get("control") else [tdoc(trackers_phone(v, True))]) + [trackers_desk(v)], "habits2": lambda v: [h2doc(habits2_phone(v)), habits2_desk(v)], "premise": lambda v: [premise_doc(v)], "hsheet": lambda v: [adoc(addhabit_phone({"control": True}))] if v.get("control") else [hsheet_doc(v, st) for _, _, st in HSTATES], "addsent": lambda v: [sdoc(addsent_phone(v))] + ([] if (v.get("control") or v["form"] == "fields") else [sdoc(addsent_phone(v, True))]), "routines": lambda v: [rdoc(routines_phone(v)), rdoc(routines_phone(v, "low")), routines_desk(v)], "addhabit": lambda v: [adoc(addhabit_phone(v))], "basics": lambda v: [bdoc(basics_phone(v)), basics_desk(v)], "habits": lambda v: [hdoc(habits_phone(v)), habits_desk(v)]}
+T.TITLES = {"measure": "T3b.1b The Measuring list, taps first: merged with activities or apart, rows or cards, what Log does (a control per kind)", "trackers": "T3b.1 The Trackers list: rows or cards, what a row says, what Log does, grouping", "habits2": "T3a.1c The Habits list: the optional name, and every if as a header", "premise": "T3a.2d What tapping the premise box opens: nothing, or the ifs with the same connective", "hsheet": "T3a.2c The New habit sheet (prototype): the blanks as text boxes in the sentence, or opened above it", "addsent": "T3a.2b Adding a habit as an open sentence: the When sheet, in place, or fields; energy and routine as words or rows", "routines": "T3a.1b The Habits list with routines: the 'what to expect' preview, how the sequence shows", "addhabit": "T3a.2 Adding a habit: in place or a sheet, the If, the block", "basics": "T3a.1 Habits as Daily basics: layout, the energy filter, its mark, done today", "habits": "T3.1 The Habits list: presence, grouping, where Log sits, a count's amount"}
+T.DRAW = {"measure": lambda v: [mdoc(measure_phone(v)), measure_desk(v)], "trackers": lambda v: [tdoc(trackers_phone(v))] + ([] if v.get("control") else [tdoc(trackers_phone(v, True))]) + [trackers_desk(v)], "habits2": lambda v: [h2doc(habits2_phone(v)), habits2_desk(v)], "premise": lambda v: [premise_doc(v)], "hsheet": lambda v: [adoc(addhabit_phone({"control": True}))] if v.get("control") else [hsheet_doc(v, st) for _, _, st in HSTATES], "addsent": lambda v: [sdoc(addsent_phone(v))] + ([] if (v.get("control") or v["form"] == "fields") else [sdoc(addsent_phone(v, True))]), "routines": lambda v: [rdoc(routines_phone(v)), rdoc(routines_phone(v, "low")), routines_desk(v)], "addhabit": lambda v: [adoc(addhabit_phone(v))], "basics": lambda v: [bdoc(basics_phone(v)), basics_desk(v)], "habits": lambda v: [hdoc(habits_phone(v)), habits_desk(v)]}
 T.POOL = {"trackers": lambda ok: [min((r for r in ok if r.get("front") and r["v"]["layout"] == lay and r["v"]["log"] == lg), key=lambda r: r["total"])
                                     for lay in ("rows", "grid") for lg in ("sheet", "default", "stepper")
                                     if any(r.get("front") and r["v"]["layout"] == lay and r["v"]["log"] == lg for r in ok)]
                        + [r for r in ok if r["v"]["layout"] == "rows" and r["v"]["log"] == "sheet" and r["v"]["group"] == "labels" and r["v"]["says"] != "none"]}
+T.POOL["measure"] = lambda ok: [min(fam, key=lambda r: r["total"]) for sc in ("merged", "apart") for lg in ("inline", "default", "stepper", "sheet")
+                                for fam in [[r for r in ok if r.get("front") and r["v"]["scope"] == sc and r["v"]["log"] == lg]] if fam]   # the best of each scope and Log family
+T.DRAW_MAX["measure"] = 8
 T.DRAW_MAX["trackers"] = 10   # and the leader's family with each thing a row can say: whether a row says anything is the trade (Glance against Calm)   # the best of each family drawn: a front of 40 would draw one family
 # the owner's picks (decision 19) shown, the rest folded; superseded parts folded whole (owner, 2026-10-13)
 T.PICKED = {"routines": [{"preview": "none", "seq": "plain"}, {"preview": "energy", "seq": "numbers"}], "hsheet": [{"blank": "inline"}], "premise": [{"premise": "same"}],
             "habits2": [{"group": "routines", "name": "named"}]}
-T.SUPERSEDED = {"habits": "re-cut by purpose; T3a.1 Daily basics replaced it", "basics": "routines replaced it (T3a.1b)",
+T.SUPERSEDED = {"trackers": "P4 Measuring is scored taps first (owner, 2026-10-13): T3b.1b replaced it", "habits": "re-cut by purpose; T3a.1 Daily basics replaced it", "basics": "routines replaced it (T3a.1b)",
                 "addhabit": "the open sentence replaced it (T3a.2b), then the prototype (T3a.2c)", "addsent": "the prototype sheet replaced it (T3a.2c)"}
 T.v2.TOL.setdefault("_reach_log", 0.05)
+T.v2.TOL.setdefault("_reach_mean", 0.05)
 T.v2.TOL.setdefault("_reach_filter", 0.05)
 
 

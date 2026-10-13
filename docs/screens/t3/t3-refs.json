@@ -31,6 +31,32 @@
    "done": "stay"
   }
  ],
+ "measure": [
+  {
+   "app": "com.hazia.chronicle.debug",
+   "scope": "apart",
+   "layout": "rows",
+   "says": "today_last",
+   "log": "sheet",
+   "group": "labels"
+  },
+  {
+   "app": "com.samco.trackandgraph",
+   "scope": "apart",
+   "layout": "grid",
+   "says": "last",
+   "log": "sheet",
+   "group": "flat"
+  },
+  {
+   "app": "org.isoron.uhabits",
+   "scope": "apart",
+   "layout": "rows",
+   "says": null,
+   "log": "sheet",
+   "group": "flat"
+  }
+ ],
  "trackers": [
   {
    "app": "com.hazia.chronicle.debug",
