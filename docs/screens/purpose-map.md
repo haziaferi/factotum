@@ -36,7 +36,7 @@ _see and act on what is due: commitments, deadlines, reminders_
 
 | Screen | Comes from | New in Factotum | Tier | Status | Overlaps |
 |---|---|---|---|---|---|
-| Today | Tendril (calendar and tasks for today); Mnemo Home |  | T1 | approved | Reminders list, Calendar: Week (planner) · Month · 3 days, Capacity-scaled day (a shorter list on a low day) |
+| Today | Tendril (calendar and tasks for today); Mnemo Home |  | T1 | approved; to revisit: trackers appear on Today, and the habits' energy filter (owner, 2026-10-13) | Reminders list, Calendar: Week (planner) · Month · 3 days, Capacity-scaled day (a shorter list on a low day) |
 | Calendar: Week (planner) · Month · 3 days | Tendril Calendar | Week as a paper-planner grid of day cells | T2 | approved | Habit planner (confirm the week into time blocks) |
 | Day screen (opened from a day) | Tendril day view |  | T2 | approved |  |
 | An item's page (in place) | Tendril item editor; Mnemo Edit |  | T2 | approved |  |
@@ -51,9 +51,9 @@ _the basic things that get a day done (make the bed, brush teeth, shower), as if
 
 | Screen | Comes from | New in Factotum | Tier | Status | Overlaps |
 |---|---|---|---|---|---|
-| Habits: today's basics as if-then cues | Tendril habits (the data: blocks, Log, rolling, pause); Equipoise (the no-shame rules G05/G06, the low-capacity path) | the owner's definition (2026-10-13): basic daily actions, cues, no history in the list | T3a | scored on the old axes; to rescore | Routine checklists (resettable, e.g. Morning routine), Capacity-scaled day (a shorter list on a low day) |
-| Routine checklists (resettable, e.g. Morning routine) | Chronicle checklists |  | T3a | pending (owner: routine checklists join Daily basics) | Habits: today's basics as if-then cues |
-| Capacity-scaled day (a shorter list on a low day) | Equipoise G04 |  | T3a or T4 | pending; whether it moves across is to check in the SPEC | Today, Habits: today's basics as if-then cues |
+| Habits: today's basics as if-then cues (yes/no only) | Tendril habits (the data: blocks, Log, rolling, pause); Equipoise (the no-shame rules G05/G06, the low-capacity path) | the owner's definition (2026-10-13): basic daily yes/no actions, a written cue per habit ordered by its block, an energy level (low/mid/high) with a filter on Habits and Today that resets each day, no history in the list | T3a | scored on the old axes; to rescore | Routine checklists (resettable, e.g. Morning routine), Capacity-scaled day (a shorter list on a low day) |
+| Routine checklists (resettable, e.g. Morning routine) | Chronicle checklists |  | T3a | pending (owner: routine checklists join Daily basics) | Habits: today's basics as if-then cues (yes/no only) |
+| Capacity-scaled day (a shorter list on a low day) | Equipoise G04 |  | T3a or T4 | pending; whether it moves across is to check in the SPEC | Today, Habits: today's basics as if-then cues (yes/no only) |
 
 ## P4 Measuring
 
@@ -148,7 +148,7 @@ _make the app work: settings, sync, trash, backup, lock, labels_
 
 | | Strength | Screens | Why |
 |---|---|---|---|
-| O1 | strong | Habits: today's basics as if-then cues, Routine checklists (resettable, e.g. Morning routine), Capacity-scaled day (a shorter list on a low day) | the basic things to get through today, with no judgment: a routine checklist is the owner's definition of habits; Equipoise's no-shame rules are the rules set for Habits |
+| O1 | strong | Habits: today's basics as if-then cues (yes/no only), Routine checklists (resettable, e.g. Morning routine), Capacity-scaled day (a shorter list on a low day) | the basic things to get through today, with no judgment: a routine checklist is the owner's definition of habits; Equipoise's no-shame rules are the rules set for Habits |
 | O2 | strong | Trackers (water, exercise, studying, knitting), Activities and timers (several at once), Goals, inside their tracker or activity | record an amount and aim at one: a timer is a way to enter a time amount; a goal always belongs to one tracker or one activity |
 | O3 | strong | This week (the weekly review), Saved charts, A tracker's detail and charts, Time totals, Stability trend (in words), Ledger and sensory history | see how things went over time; time totals is a chart of activities, tracker detail a chart of one tracker |
 | O4 | medium | Calendar: Week (planner) · Month · 3 days, Habit planner (confirm the week into time blocks), Time blocks (setup) | lay out the week; two things are now called a planner |
@@ -160,5 +160,6 @@ _make the app work: settings, sync, trash, backup, lock, labels_
 - 2026-10-13: re-cut T3 and T4 by purpose (T3a Daily basics, T3b Measuring, T3c Looking back); it is refined as we go.
 - 2026-10-13: Checklists split: routine checklists join Daily basics, one-off lists stay lists.
 - 2026-10-13: the purpose map, once settled, decides how the Hub's elements are grouped.
+- 2026-10-13: habits are yes/no only; trackers appear on Today; the if-then cue is the block (order) and a written cue (wording); a habit has an energy level, and Habits and Today get a filter for what can be handled now, reset each day.
 
 _55 screens; 5 with no parent app; 9 approved._

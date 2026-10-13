@@ -1,92 +1,1002 @@
 {
  "about": "Factotum's screens by purpose (owner, 2026-10-13): what each screen does, where it comes from (or that it is new), its tier and status, and what it overlaps with. It replaces grouping by source app, and it is what the Hub's groups are drawn from once it is settled. Rendered to purpose-map.md by tools/screens/purpose_map.py, which also checks that every screen in the navigation scoring (nav_score2.SCREENS) and every Hub entry (tier_t1.FEATURES) has a place here. A draft: it is refined as the tiers go.",
  "purposes": [
-  {"id": "P1", "name": "Catch and find", "job": "get something in, or get to anything, from anywhere"},
-  {"id": "P2", "name": "What's next", "job": "see and act on what is due: commitments, deadlines, reminders"},
-  {"id": "P3", "name": "Daily basics", "job": "the basic things that get a day done (make the bed, brush teeth, shower), as if-then cues, with no judgment; a clear reference on a low day"},
-  {"id": "P4", "name": "Measuring", "job": "record an amount (water, exercise, studying, knitting, time) and, if wanted, aim at one"},
-  {"id": "P5", "name": "Looking back", "job": "see how things went over time; a weekly review (owner, 2026-10-05)"},
-  {"id": "P6", "name": "Noticing myself", "job": "notice how I am, and what helps; event-driven (owner, 2026-10-05)"},
-  {"id": "P7", "name": "Planning the week", "job": "lay out the week: blocks, planned habits, outside calendars"},
-  {"id": "P8", "name": "Writing and knowing", "job": "write, keep and find what I know: pages, journal, databases, canvas, lists"},
-  {"id": "P9", "name": "Looking after the app", "job": "make the app work: settings, sync, trash, backup, lock, labels"}
+  {
+   "id": "P1",
+   "name": "Catch and find",
+   "job": "get something in, or get to anything, from anywhere"
+  },
+  {
+   "id": "P2",
+   "name": "What's next",
+   "job": "see and act on what is due: commitments, deadlines, reminders"
+  },
+  {
+   "id": "P3",
+   "name": "Daily basics",
+   "job": "the basic things that get a day done (make the bed, brush teeth, shower), as if-then cues, with no judgment; a clear reference on a low day"
+  },
+  {
+   "id": "P4",
+   "name": "Measuring",
+   "job": "record an amount (water, exercise, studying, knitting, time) and, if wanted, aim at one"
+  },
+  {
+   "id": "P5",
+   "name": "Looking back",
+   "job": "see how things went over time; a weekly review (owner, 2026-10-05)"
+  },
+  {
+   "id": "P6",
+   "name": "Noticing myself",
+   "job": "notice how I am, and what helps; event-driven (owner, 2026-10-05)"
+  },
+  {
+   "id": "P7",
+   "name": "Planning the week",
+   "job": "lay out the week: blocks, planned habits, outside calendars"
+  },
+  {
+   "id": "P8",
+   "name": "Writing and knowing",
+   "job": "write, keep and find what I know: pages, journal, databases, canvas, lists"
+  },
+  {
+   "id": "P9",
+   "name": "Looking after the app",
+   "job": "make the app work: settings, sync, trash, backup, lock, labels"
+  }
  ],
  "screens": [
-  {"id": "capture", "name": "Capture line (one line, parsed chips)", "purpose": "P1", "sources": ["Tendril QuickAddField (tokens)", "Chronicle QuickAdd card", "Mnemo quick-add widget"], "new": "the chips, corrected by a tap, and one line for every module", "tier": "T1.3", "status": "approved", "nav": ["capture"], "hub": []},
-  {"id": "search", "name": "Search and the quick switcher", "purpose": "P1", "sources": ["Tendril (Ctrl+K)"], "tier": "T6", "status": "pending", "nav": ["search"], "hub": []},
-  {"id": "hub", "name": "Hub sheet", "purpose": "P1", "sources": [], "new": "Factotum's own navigation (decision 15); its groups will follow this map", "tier": "T1.4", "status": "approved (groups to redo from this map)", "nav": [], "hub": []},
-  {"id": "widgets", "name": "Home-screen widgets (Android)", "purpose": "P1", "sources": ["Chronicle", "Mnemo", "Equipoise (one-tap energy)"], "tier": "none yet", "status": "pending (owner: they move across)", "nav": [], "hub": []},
-  {"id": "quickadd_win", "name": "Windows global quick-add", "purpose": "P1", "sources": ["Tendril QuickAddWindow"], "tier": "none yet", "status": "pending (owner: it moves across)", "nav": [], "hub": []},
-
-  {"id": "today", "name": "Today", "purpose": "P2", "sources": ["Tendril (calendar and tasks for today)", "Mnemo Home"], "tier": "T1", "status": "approved", "nav": ["today's agenda", "tick a task"], "hub": [], "overlaps": ["reminders", "calendar", "capacity_day"]},
-  {"id": "calendar", "name": "Calendar: Week (planner) · Month · 3 days", "purpose": "P2", "sources": ["Tendril Calendar"], "new": "Week as a paper-planner grid of day cells", "tier": "T2", "status": "approved", "nav": ["calendar day/week/month"], "hub": ["Week", "Month"], "overlaps": ["planner"]},
-  {"id": "day", "name": "Day screen (opened from a day)", "purpose": "P2", "sources": ["Tendril day view"], "tier": "T2", "status": "approved", "nav": [], "hub": ["Day"]},
-  {"id": "item", "name": "An item's page (in place)", "purpose": "P2", "sources": ["Tendril item editor", "Mnemo Edit"], "tier": "T2", "status": "approved", "nav": ["edit an item"], "hub": []},
-  {"id": "occurrence", "name": "This occurrence only (move, skip, edit one)", "purpose": "P2", "sources": ["Tendril (ADR 11)"], "tier": "none yet", "status": "pending", "nav": ["edit one occurrence"], "hub": []},
-  {"id": "reminders", "name": "Reminders list", "purpose": "P2", "sources": ["Mnemo Home", "Chronicle Remind"], "tier": "T2", "status": "approved", "nav": [], "hub": [], "overlaps": ["today"]},
-  {"id": "alarm", "name": "The alarm ringing, and Skip from upcoming", "purpose": "P2", "sources": ["Chronicle AlarmActivity", "Mnemo"], "tier": "T2", "status": "approved", "nav": [], "hub": []},
-  {"id": "missed", "name": "Missed alarm and 'alarms were stopped' notices", "purpose": "P2", "sources": ["Mnemo", "Chronicle"], "tier": "none yet", "status": "pending (they arrive)", "nav": [], "hub": []},
-
-  {"id": "habits", "name": "Habits: today's basics as if-then cues", "purpose": "P3", "sources": ["Tendril habits (the data: blocks, Log, rolling, pause)", "Equipoise (the no-shame rules G05/G06, the low-capacity path)"], "new": "the owner's definition (2026-10-13): basic daily actions, cues, no history in the list", "tier": "T3a", "status": "scored on the old axes; to rescore", "nav": ["Log a habit", "manage habits"], "hub": ["Habits"], "overlaps": ["routine_checklists", "capacity_day"]},
-  {"id": "routine_checklists", "name": "Routine checklists (resettable, e.g. Morning routine)", "purpose": "P3", "sources": ["Chronicle checklists"], "tier": "T3a", "status": "pending (owner: routine checklists join Daily basics)", "nav": ["tick a checklist"], "hub": ["Checklists"], "overlaps": ["habits"]},
-  {"id": "capacity_day", "name": "Capacity-scaled day (a shorter list on a low day)", "purpose": "P3", "sources": ["Equipoise G04"], "tier": "T3a or T4", "status": "pending; whether it moves across is to check in the SPEC", "nav": [], "hub": [], "overlaps": ["today", "habits"]},
-
-  {"id": "trackers", "name": "Trackers (water, exercise, studying, knitting)", "purpose": "P4", "sources": ["Chronicle Track"], "tier": "T3b", "status": "pending", "nav": ["tracker reading", "manage trackers"], "hub": ["Trackers"], "overlaps": ["activities", "goals"]},
-  {"id": "log_sheet", "name": "Log sheet (a number, a rating, yes or no, a choice)", "purpose": "P4", "sources": ["Chronicle", "Loop's picker (reference)"], "tier": "T3b", "status": "pending", "nav": [], "hub": []},
-  {"id": "activities", "name": "Activities and timers (several at once)", "purpose": "P4", "sources": ["Chronicle activities and sessions", "Tendril time logs"], "tier": "T3b", "status": "pending", "nav": ["start/stop a timer", "manage activities"], "hub": ["Activities"], "overlaps": ["trackers"]},
-  {"id": "timer_question", "name": "A timer past its limit (keep, end at a time, end at the limit)", "purpose": "P4", "sources": ["Factotum §3.7 (owner, 2026-10-02)"], "new": "the question itself", "tier": "T3b", "status": "pending (it arrives)", "nav": [], "hub": []},
-  {"id": "session_edit", "name": "Editing a session", "purpose": "P4", "sources": ["Chronicle"], "tier": "T3b", "status": "pending", "nav": [], "hub": []},
-  {"id": "goals", "name": "Goals, inside their tracker or activity", "purpose": "P4", "sources": ["Chronicle goals"], "tier": "T3b", "status": "pending", "nav": ["goals"], "hub": ["Goals"], "overlaps": ["trackers", "activities"]},
-
-  {"id": "this_week", "name": "This week (the weekly review)", "purpose": "P5", "sources": ["Tendril Review"], "tier": "T3c", "status": "pending", "nav": [], "hub": ["This week"], "overlaps": ["charts", "time_totals", "trend", "self_history"]},
-  {"id": "charts", "name": "Saved charts", "purpose": "P5", "sources": ["Chronicle Charts"], "tier": "T3c", "status": "pending", "nav": ["build a saved chart"], "hub": ["Charts"], "overlaps": ["tracker_detail", "time_totals"]},
-  {"id": "tracker_detail", "name": "A tracker's detail and charts", "purpose": "P5", "sources": ["Chronicle Data"], "tier": "T3c", "status": "pending", "nav": ["tracker detail and charts"], "hub": [], "overlaps": ["charts"]},
-  {"id": "time_totals", "name": "Time totals", "purpose": "P5", "sources": ["Tendril time logs", "Chronicle"], "tier": "T3c", "status": "pending", "nav": ["time totals"], "hub": ["Time totals"], "overlaps": ["charts"]},
-  {"id": "trend", "name": "Stability trend (in words)", "purpose": "P5", "sources": ["Equipoise"], "tier": "T3c or T4", "status": "pending", "nav": ["stability trend"], "hub": ["Trend"], "overlaps": ["this_week"]},
-  {"id": "self_history", "name": "Ledger and sensory history", "purpose": "P5", "sources": ["Equipoise"], "tier": "T3c or T4", "status": "pending", "nav": ["ledger/sensory history"], "hub": [], "overlaps": ["this_week"]},
-
-  {"id": "checkin", "name": "Check-in", "purpose": "P6", "sources": ["Equipoise (the grid)", "Tendril check-ins"], "tier": "T4", "status": "pending", "nav": ["check-in"], "hub": ["Check-in"]},
-  {"id": "regulate", "name": "Regulate sheet, and the outcome at the next open", "purpose": "P6", "sources": ["Equipoise"], "tier": "T4", "status": "pending (it arrives from the check-in)", "nav": [], "hub": []},
-  {"id": "ledger", "name": "Ledger (three masking scales, once a day)", "purpose": "P6", "sources": ["Equipoise"], "tier": "T4", "status": "pending", "nav": ["ledger (masking)"], "hub": ["Ledger"], "overlaps": ["journal"]},
-  {"id": "sensory", "name": "Sensory log", "purpose": "P6", "sources": ["Equipoise"], "tier": "T4", "status": "pending", "nav": ["sensory log"], "hub": ["Sensory"], "overlaps": ["journal"]},
-  {"id": "burnout", "name": "Burnout notice (a triggered state)", "purpose": "P6", "sources": ["Equipoise"], "tier": "T4", "status": "pending (it arrives)", "nav": [], "hub": []},
-  {"id": "onboarding", "name": "Onboarding question (what helps when low)", "purpose": "P6", "sources": ["Equipoise"], "tier": "T6", "status": "pending (once)", "nav": [], "hub": []},
-
-  {"id": "planner", "name": "Habit planner (confirm the week into time blocks)", "purpose": "P7", "sources": ["Tendril PlanView"], "tier": "none yet", "status": "pending; could be a mode of Calendar's Week", "nav": ["confirm the week (planner)"], "hub": ["Planner"], "overlaps": ["calendar"]},
-  {"id": "time_blocks", "name": "Time blocks (setup)", "purpose": "P7", "sources": ["Tendril"], "tier": "T6", "status": "pending", "nav": ["time blocks"], "hub": ["Time blocks"]},
-  {"id": "calendar_links", "name": "Outside calendars (links, on this device)", "purpose": "P7", "sources": ["Tendril"], "tier": "T6", "status": "pending", "nav": ["calendar links"], "hub": ["Calendars"]},
-
-  {"id": "journal", "name": "Journal (one page a day)", "purpose": "P8", "sources": ["Tendril Journal"], "tier": "T5", "status": "pending", "nav": ["today's journal", "past journal days"], "hub": ["Journal"], "overlaps": ["ledger", "sensory"]},
-  {"id": "page_tree", "name": "Page tree", "purpose": "P8", "sources": ["Tendril Pages"], "tier": "T5", "status": "pending", "nav": [], "hub": ["Tree"]},
-  {"id": "page", "name": "A page (blocks, images, labels)", "purpose": "P8", "sources": ["Tendril Pages"], "tier": "T5", "status": "pending", "nav": ["open a page"], "hub": []},
-  {"id": "database", "name": "Databases in pages (table, board, timeline views)", "purpose": "P8", "sources": [], "new": "decision 16 (O6): inline databases with views, to improve on Notion; the source apps had plain pages only", "tier": "T5", "status": "pending", "nav": ["database view"], "hub": []},
-  {"id": "canvas", "name": "Canvas and mind map", "purpose": "P8", "sources": ["Tendril Canvas"], "tier": "T5", "status": "pending", "nav": ["canvas"], "hub": []},
-  {"id": "templates", "name": "Templates", "purpose": "P8", "sources": ["Tendril"], "tier": "T5", "status": "pending", "nav": ["templates"], "hub": ["Templates"]},
-  {"id": "road_map", "name": "Road Map (links between pages)", "purpose": "P8", "sources": ["Tendril Road Map"], "tier": "T5", "status": "pending", "nav": ["Road Map"], "hub": ["Road Map"]},
-  {"id": "page_history", "name": "Page History (revisions, what a sync replaced)", "purpose": "P8", "sources": ["Factotum §3.12"], "new": "the sync-replaced notice and its History", "tier": "T5", "status": "pending", "nav": ["page History"], "hub": ["History"]},
-  {"id": "oneoff_lists", "name": "One-off lists (packing, shopping)", "purpose": "P8", "sources": ["Chronicle checklists"], "tier": "T5", "status": "pending (owner: they stay lists; where they live is open)", "nav": ["manage checklists"], "hub": []},
-
-  {"id": "settings", "name": "Settings ('On every device', 'On this device')", "purpose": "P9", "sources": ["all four apps"], "new": "the two sections (decision 15)", "tier": "T6", "status": "pending", "nav": ["settings"], "hub": ["Settings"]},
-  {"id": "sync_folder", "name": "Sync folder and its status", "purpose": "P9", "sources": [], "new": "ADR 13's folder layout", "tier": "T6", "status": "pending", "nav": ["sync folder"], "hub": []},
-  {"id": "sync_clash", "name": "The sync clash question", "purpose": "P9", "sources": [], "new": "ADR 01/11", "tier": "T1 (dialog)", "status": "approved as a dialog form", "nav": [], "hub": []},
-  {"id": "trash", "name": "Trash (Delete, Restore, Delete forever for every kind)", "purpose": "P9", "sources": [], "new": "one vocabulary for every kind (2026-10-09)", "tier": "T6", "status": "pending", "nav": ["trash"], "hub": ["Trash"]},
-  {"id": "backup", "name": "Backup", "purpose": "P9", "sources": ["Factotum §3.9"], "tier": "T6", "status": "pending", "nav": ["backup"], "hub": []},
-  {"id": "app_lock", "name": "App lock", "purpose": "P9", "sources": ["Chronicle (PIN)"], "tier": "T6", "status": "pending", "nav": ["app lock"], "hub": []},
-  {"id": "labels", "name": "Labels (one vocabulary, any element)", "purpose": "P9", "sources": ["Tendril areas", "Chronicle categories"], "new": "merged into one global vocabulary (2026-10-10)", "tier": "T1.7 (chips), T6 (manager)", "status": "chips approved; manager pending", "nav": ["labels"], "hub": ["Labels"]},
-  {"id": "about", "name": "About (llama.cpp's MIT notice)", "purpose": "P9", "sources": ["all four apps"], "tier": "T6", "status": "pending", "nav": ["about"], "hub": ["About"]},
-  {"id": "llm", "name": "On-device language model", "purpose": "P9", "sources": ["Equipoise (llama.cpp, no screen there)"], "new": "no app gave it a screen; where it sits is open", "tier": "none yet", "status": "pending (owner: it moves across)", "nav": [], "hub": []}
+  {
+   "id": "capture",
+   "name": "Capture line (one line, parsed chips)",
+   "purpose": "P1",
+   "sources": [
+    "Tendril QuickAddField (tokens)",
+    "Chronicle QuickAdd card",
+    "Mnemo quick-add widget"
+   ],
+   "new": "the chips, corrected by a tap, and one line for every module",
+   "tier": "T1.3",
+   "status": "approved",
+   "nav": [
+    "capture"
+   ],
+   "hub": []
+  },
+  {
+   "id": "search",
+   "name": "Search and the quick switcher",
+   "purpose": "P1",
+   "sources": [
+    "Tendril (Ctrl+K)"
+   ],
+   "tier": "T6",
+   "status": "pending",
+   "nav": [
+    "search"
+   ],
+   "hub": []
+  },
+  {
+   "id": "hub",
+   "name": "Hub sheet",
+   "purpose": "P1",
+   "sources": [],
+   "new": "Factotum's own navigation (decision 15); its groups will follow this map",
+   "tier": "T1.4",
+   "status": "approved (groups to redo from this map)",
+   "nav": [],
+   "hub": []
+  },
+  {
+   "id": "widgets",
+   "name": "Home-screen widgets (Android)",
+   "purpose": "P1",
+   "sources": [
+    "Chronicle",
+    "Mnemo",
+    "Equipoise (one-tap energy)"
+   ],
+   "tier": "none yet",
+   "status": "pending (owner: they move across)",
+   "nav": [],
+   "hub": []
+  },
+  {
+   "id": "quickadd_win",
+   "name": "Windows global quick-add",
+   "purpose": "P1",
+   "sources": [
+    "Tendril QuickAddWindow"
+   ],
+   "tier": "none yet",
+   "status": "pending (owner: it moves across)",
+   "nav": [],
+   "hub": []
+  },
+  {
+   "id": "today",
+   "name": "Today",
+   "purpose": "P2",
+   "sources": [
+    "Tendril (calendar and tasks for today)",
+    "Mnemo Home"
+   ],
+   "tier": "T1",
+   "status": "approved; to revisit: trackers appear on Today, and the habits' energy filter (owner, 2026-10-13)",
+   "nav": [
+    "today's agenda",
+    "tick a task"
+   ],
+   "hub": [],
+   "overlaps": [
+    "reminders",
+    "calendar",
+    "capacity_day"
+   ]
+  },
+  {
+   "id": "calendar",
+   "name": "Calendar: Week (planner) · Month · 3 days",
+   "purpose": "P2",
+   "sources": [
+    "Tendril Calendar"
+   ],
+   "new": "Week as a paper-planner grid of day cells",
+   "tier": "T2",
+   "status": "approved",
+   "nav": [
+    "calendar day/week/month"
+   ],
+   "hub": [
+    "Week",
+    "Month"
+   ],
+   "overlaps": [
+    "planner"
+   ]
+  },
+  {
+   "id": "day",
+   "name": "Day screen (opened from a day)",
+   "purpose": "P2",
+   "sources": [
+    "Tendril day view"
+   ],
+   "tier": "T2",
+   "status": "approved",
+   "nav": [],
+   "hub": [
+    "Day"
+   ]
+  },
+  {
+   "id": "item",
+   "name": "An item's page (in place)",
+   "purpose": "P2",
+   "sources": [
+    "Tendril item editor",
+    "Mnemo Edit"
+   ],
+   "tier": "T2",
+   "status": "approved",
+   "nav": [
+    "edit an item"
+   ],
+   "hub": []
+  },
+  {
+   "id": "occurrence",
+   "name": "This occurrence only (move, skip, edit one)",
+   "purpose": "P2",
+   "sources": [
+    "Tendril (ADR 11)"
+   ],
+   "tier": "none yet",
+   "status": "pending",
+   "nav": [
+    "edit one occurrence"
+   ],
+   "hub": []
+  },
+  {
+   "id": "reminders",
+   "name": "Reminders list",
+   "purpose": "P2",
+   "sources": [
+    "Mnemo Home",
+    "Chronicle Remind"
+   ],
+   "tier": "T2",
+   "status": "approved",
+   "nav": [],
+   "hub": [],
+   "overlaps": [
+    "today"
+   ]
+  },
+  {
+   "id": "alarm",
+   "name": "The alarm ringing, and Skip from upcoming",
+   "purpose": "P2",
+   "sources": [
+    "Chronicle AlarmActivity",
+    "Mnemo"
+   ],
+   "tier": "T2",
+   "status": "approved",
+   "nav": [],
+   "hub": []
+  },
+  {
+   "id": "missed",
+   "name": "Missed alarm and 'alarms were stopped' notices",
+   "purpose": "P2",
+   "sources": [
+    "Mnemo",
+    "Chronicle"
+   ],
+   "tier": "none yet",
+   "status": "pending (they arrive)",
+   "nav": [],
+   "hub": []
+  },
+  {
+   "id": "habits",
+   "name": "Habits: today's basics as if-then cues (yes/no only)",
+   "purpose": "P3",
+   "sources": [
+    "Tendril habits (the data: blocks, Log, rolling, pause)",
+    "Equipoise (the no-shame rules G05/G06, the low-capacity path)"
+   ],
+   "new": "the owner's definition (2026-10-13): basic daily yes/no actions, a written cue per habit ordered by its block, an energy level (low/mid/high) with a filter on Habits and Today that resets each day, no history in the list",
+   "tier": "T3a",
+   "status": "scored on the old axes; to rescore",
+   "nav": [
+    "Log a habit",
+    "manage habits"
+   ],
+   "hub": [
+    "Habits"
+   ],
+   "overlaps": [
+    "routine_checklists",
+    "capacity_day"
+   ]
+  },
+  {
+   "id": "routine_checklists",
+   "name": "Routine checklists (resettable, e.g. Morning routine)",
+   "purpose": "P3",
+   "sources": [
+    "Chronicle checklists"
+   ],
+   "tier": "T3a",
+   "status": "pending (owner: routine checklists join Daily basics)",
+   "nav": [
+    "tick a checklist"
+   ],
+   "hub": [
+    "Checklists"
+   ],
+   "overlaps": [
+    "habits"
+   ]
+  },
+  {
+   "id": "capacity_day",
+   "name": "Capacity-scaled day (a shorter list on a low day)",
+   "purpose": "P3",
+   "sources": [
+    "Equipoise G04"
+   ],
+   "tier": "T3a or T4",
+   "status": "pending; whether it moves across is to check in the SPEC",
+   "nav": [],
+   "hub": [],
+   "overlaps": [
+    "today",
+    "habits"
+   ]
+  },
+  {
+   "id": "trackers",
+   "name": "Trackers (water, exercise, studying, knitting)",
+   "purpose": "P4",
+   "sources": [
+    "Chronicle Track"
+   ],
+   "tier": "T3b",
+   "status": "pending",
+   "nav": [
+    "tracker reading",
+    "manage trackers"
+   ],
+   "hub": [
+    "Trackers"
+   ],
+   "overlaps": [
+    "activities",
+    "goals"
+   ]
+  },
+  {
+   "id": "log_sheet",
+   "name": "Log sheet (a number, a rating, yes or no, a choice)",
+   "purpose": "P4",
+   "sources": [
+    "Chronicle",
+    "Loop's picker (reference)"
+   ],
+   "tier": "T3b",
+   "status": "pending",
+   "nav": [],
+   "hub": []
+  },
+  {
+   "id": "activities",
+   "name": "Activities and timers (several at once)",
+   "purpose": "P4",
+   "sources": [
+    "Chronicle activities and sessions",
+    "Tendril time logs"
+   ],
+   "tier": "T3b",
+   "status": "pending",
+   "nav": [
+    "start/stop a timer",
+    "manage activities"
+   ],
+   "hub": [
+    "Activities"
+   ],
+   "overlaps": [
+    "trackers"
+   ]
+  },
+  {
+   "id": "timer_question",
+   "name": "A timer past its limit (keep, end at a time, end at the limit)",
+   "purpose": "P4",
+   "sources": [
+    "Factotum §3.7 (owner, 2026-10-02)"
+   ],
+   "new": "the question itself",
+   "tier": "T3b",
+   "status": "pending (it arrives)",
+   "nav": [],
+   "hub": []
+  },
+  {
+   "id": "session_edit",
+   "name": "Editing a session",
+   "purpose": "P4",
+   "sources": [
+    "Chronicle"
+   ],
+   "tier": "T3b",
+   "status": "pending",
+   "nav": [],
+   "hub": []
+  },
+  {
+   "id": "goals",
+   "name": "Goals, inside their tracker or activity",
+   "purpose": "P4",
+   "sources": [
+    "Chronicle goals"
+   ],
+   "tier": "T3b",
+   "status": "pending",
+   "nav": [
+    "goals"
+   ],
+   "hub": [
+    "Goals"
+   ],
+   "overlaps": [
+    "trackers",
+    "activities"
+   ]
+  },
+  {
+   "id": "this_week",
+   "name": "This week (the weekly review)",
+   "purpose": "P5",
+   "sources": [
+    "Tendril Review"
+   ],
+   "tier": "T3c",
+   "status": "pending",
+   "nav": [],
+   "hub": [
+    "This week"
+   ],
+   "overlaps": [
+    "charts",
+    "time_totals",
+    "trend",
+    "self_history"
+   ]
+  },
+  {
+   "id": "charts",
+   "name": "Saved charts",
+   "purpose": "P5",
+   "sources": [
+    "Chronicle Charts"
+   ],
+   "tier": "T3c",
+   "status": "pending",
+   "nav": [
+    "build a saved chart"
+   ],
+   "hub": [
+    "Charts"
+   ],
+   "overlaps": [
+    "tracker_detail",
+    "time_totals"
+   ]
+  },
+  {
+   "id": "tracker_detail",
+   "name": "A tracker's detail and charts",
+   "purpose": "P5",
+   "sources": [
+    "Chronicle Data"
+   ],
+   "tier": "T3c",
+   "status": "pending",
+   "nav": [
+    "tracker detail and charts"
+   ],
+   "hub": [],
+   "overlaps": [
+    "charts"
+   ]
+  },
+  {
+   "id": "time_totals",
+   "name": "Time totals",
+   "purpose": "P5",
+   "sources": [
+    "Tendril time logs",
+    "Chronicle"
+   ],
+   "tier": "T3c",
+   "status": "pending",
+   "nav": [
+    "time totals"
+   ],
+   "hub": [
+    "Time totals"
+   ],
+   "overlaps": [
+    "charts"
+   ]
+  },
+  {
+   "id": "trend",
+   "name": "Stability trend (in words)",
+   "purpose": "P5",
+   "sources": [
+    "Equipoise"
+   ],
+   "tier": "T3c or T4",
+   "status": "pending",
+   "nav": [
+    "stability trend"
+   ],
+   "hub": [
+    "Trend"
+   ],
+   "overlaps": [
+    "this_week"
+   ]
+  },
+  {
+   "id": "self_history",
+   "name": "Ledger and sensory history",
+   "purpose": "P5",
+   "sources": [
+    "Equipoise"
+   ],
+   "tier": "T3c or T4",
+   "status": "pending",
+   "nav": [
+    "ledger/sensory history"
+   ],
+   "hub": [],
+   "overlaps": [
+    "this_week"
+   ]
+  },
+  {
+   "id": "checkin",
+   "name": "Check-in",
+   "purpose": "P6",
+   "sources": [
+    "Equipoise (the grid)",
+    "Tendril check-ins"
+   ],
+   "tier": "T4",
+   "status": "pending",
+   "nav": [
+    "check-in"
+   ],
+   "hub": [
+    "Check-in"
+   ]
+  },
+  {
+   "id": "regulate",
+   "name": "Regulate sheet, and the outcome at the next open",
+   "purpose": "P6",
+   "sources": [
+    "Equipoise"
+   ],
+   "tier": "T4",
+   "status": "pending (it arrives from the check-in)",
+   "nav": [],
+   "hub": []
+  },
+  {
+   "id": "ledger",
+   "name": "Ledger (three masking scales, once a day)",
+   "purpose": "P6",
+   "sources": [
+    "Equipoise"
+   ],
+   "tier": "T4",
+   "status": "pending",
+   "nav": [
+    "ledger (masking)"
+   ],
+   "hub": [
+    "Ledger"
+   ],
+   "overlaps": [
+    "journal"
+   ]
+  },
+  {
+   "id": "sensory",
+   "name": "Sensory log",
+   "purpose": "P6",
+   "sources": [
+    "Equipoise"
+   ],
+   "tier": "T4",
+   "status": "pending",
+   "nav": [
+    "sensory log"
+   ],
+   "hub": [
+    "Sensory"
+   ],
+   "overlaps": [
+    "journal"
+   ]
+  },
+  {
+   "id": "burnout",
+   "name": "Burnout notice (a triggered state)",
+   "purpose": "P6",
+   "sources": [
+    "Equipoise"
+   ],
+   "tier": "T4",
+   "status": "pending (it arrives)",
+   "nav": [],
+   "hub": []
+  },
+  {
+   "id": "onboarding",
+   "name": "Onboarding question (what helps when low)",
+   "purpose": "P6",
+   "sources": [
+    "Equipoise"
+   ],
+   "tier": "T6",
+   "status": "pending (once)",
+   "nav": [],
+   "hub": []
+  },
+  {
+   "id": "planner",
+   "name": "Habit planner (confirm the week into time blocks)",
+   "purpose": "P7",
+   "sources": [
+    "Tendril PlanView"
+   ],
+   "tier": "none yet",
+   "status": "pending; could be a mode of Calendar's Week",
+   "nav": [
+    "confirm the week (planner)"
+   ],
+   "hub": [
+    "Planner"
+   ],
+   "overlaps": [
+    "calendar"
+   ]
+  },
+  {
+   "id": "time_blocks",
+   "name": "Time blocks (setup)",
+   "purpose": "P7",
+   "sources": [
+    "Tendril"
+   ],
+   "tier": "T6",
+   "status": "pending",
+   "nav": [
+    "time blocks"
+   ],
+   "hub": [
+    "Time blocks"
+   ]
+  },
+  {
+   "id": "calendar_links",
+   "name": "Outside calendars (links, on this device)",
+   "purpose": "P7",
+   "sources": [
+    "Tendril"
+   ],
+   "tier": "T6",
+   "status": "pending",
+   "nav": [
+    "calendar links"
+   ],
+   "hub": [
+    "Calendars"
+   ]
+  },
+  {
+   "id": "journal",
+   "name": "Journal (one page a day)",
+   "purpose": "P8",
+   "sources": [
+    "Tendril Journal"
+   ],
+   "tier": "T5",
+   "status": "pending",
+   "nav": [
+    "today's journal",
+    "past journal days"
+   ],
+   "hub": [
+    "Journal"
+   ],
+   "overlaps": [
+    "ledger",
+    "sensory"
+   ]
+  },
+  {
+   "id": "page_tree",
+   "name": "Page tree",
+   "purpose": "P8",
+   "sources": [
+    "Tendril Pages"
+   ],
+   "tier": "T5",
+   "status": "pending",
+   "nav": [],
+   "hub": [
+    "Tree"
+   ]
+  },
+  {
+   "id": "page",
+   "name": "A page (blocks, images, labels)",
+   "purpose": "P8",
+   "sources": [
+    "Tendril Pages"
+   ],
+   "tier": "T5",
+   "status": "pending",
+   "nav": [
+    "open a page"
+   ],
+   "hub": []
+  },
+  {
+   "id": "database",
+   "name": "Databases in pages (table, board, timeline views)",
+   "purpose": "P8",
+   "sources": [],
+   "new": "decision 16 (O6): inline databases with views, to improve on Notion; the source apps had plain pages only",
+   "tier": "T5",
+   "status": "pending",
+   "nav": [
+    "database view"
+   ],
+   "hub": []
+  },
+  {
+   "id": "canvas",
+   "name": "Canvas and mind map",
+   "purpose": "P8",
+   "sources": [
+    "Tendril Canvas"
+   ],
+   "tier": "T5",
+   "status": "pending",
+   "nav": [
+    "canvas"
+   ],
+   "hub": []
+  },
+  {
+   "id": "templates",
+   "name": "Templates",
+   "purpose": "P8",
+   "sources": [
+    "Tendril"
+   ],
+   "tier": "T5",
+   "status": "pending",
+   "nav": [
+    "templates"
+   ],
+   "hub": [
+    "Templates"
+   ]
+  },
+  {
+   "id": "road_map",
+   "name": "Road Map (links between pages)",
+   "purpose": "P8",
+   "sources": [
+    "Tendril Road Map"
+   ],
+   "tier": "T5",
+   "status": "pending",
+   "nav": [
+    "Road Map"
+   ],
+   "hub": [
+    "Road Map"
+   ]
+  },
+  {
+   "id": "page_history",
+   "name": "Page History (revisions, what a sync replaced)",
+   "purpose": "P8",
+   "sources": [
+    "Factotum §3.12"
+   ],
+   "new": "the sync-replaced notice and its History",
+   "tier": "T5",
+   "status": "pending",
+   "nav": [
+    "page History"
+   ],
+   "hub": [
+    "History"
+   ]
+  },
+  {
+   "id": "oneoff_lists",
+   "name": "One-off lists (packing, shopping)",
+   "purpose": "P8",
+   "sources": [
+    "Chronicle checklists"
+   ],
+   "tier": "T5",
+   "status": "pending (owner: they stay lists; where they live is open)",
+   "nav": [
+    "manage checklists"
+   ],
+   "hub": []
+  },
+  {
+   "id": "settings",
+   "name": "Settings ('On every device', 'On this device')",
+   "purpose": "P9",
+   "sources": [
+    "all four apps"
+   ],
+   "new": "the two sections (decision 15)",
+   "tier": "T6",
+   "status": "pending",
+   "nav": [
+    "settings"
+   ],
+   "hub": [
+    "Settings"
+   ]
+  },
+  {
+   "id": "sync_folder",
+   "name": "Sync folder and its status",
+   "purpose": "P9",
+   "sources": [],
+   "new": "ADR 13's folder layout",
+   "tier": "T6",
+   "status": "pending",
+   "nav": [
+    "sync folder"
+   ],
+   "hub": []
+  },
+  {
+   "id": "sync_clash",
+   "name": "The sync clash question",
+   "purpose": "P9",
+   "sources": [],
+   "new": "ADR 01/11",
+   "tier": "T1 (dialog)",
+   "status": "approved as a dialog form",
+   "nav": [],
+   "hub": []
+  },
+  {
+   "id": "trash",
+   "name": "Trash (Delete, Restore, Delete forever for every kind)",
+   "purpose": "P9",
+   "sources": [],
+   "new": "one vocabulary for every kind (2026-10-09)",
+   "tier": "T6",
+   "status": "pending",
+   "nav": [
+    "trash"
+   ],
+   "hub": [
+    "Trash"
+   ]
+  },
+  {
+   "id": "backup",
+   "name": "Backup",
+   "purpose": "P9",
+   "sources": [
+    "Factotum §3.9"
+   ],
+   "tier": "T6",
+   "status": "pending",
+   "nav": [
+    "backup"
+   ],
+   "hub": []
+  },
+  {
+   "id": "app_lock",
+   "name": "App lock",
+   "purpose": "P9",
+   "sources": [
+    "Chronicle (PIN)"
+   ],
+   "tier": "T6",
+   "status": "pending",
+   "nav": [
+    "app lock"
+   ],
+   "hub": []
+  },
+  {
+   "id": "labels",
+   "name": "Labels (one vocabulary, any element)",
+   "purpose": "P9",
+   "sources": [
+    "Tendril areas",
+    "Chronicle categories"
+   ],
+   "new": "merged into one global vocabulary (2026-10-10)",
+   "tier": "T1.7 (chips), T6 (manager)",
+   "status": "chips approved; manager pending",
+   "nav": [
+    "labels"
+   ],
+   "hub": [
+    "Labels"
+   ]
+  },
+  {
+   "id": "about",
+   "name": "About (llama.cpp's MIT notice)",
+   "purpose": "P9",
+   "sources": [
+    "all four apps"
+   ],
+   "tier": "T6",
+   "status": "pending",
+   "nav": [
+    "about"
+   ],
+   "hub": [
+    "About"
+   ]
+  },
+  {
+   "id": "llm",
+   "name": "On-device language model",
+   "purpose": "P9",
+   "sources": [
+    "Equipoise (llama.cpp, no screen there)"
+   ],
+   "new": "no app gave it a screen; where it sits is open",
+   "tier": "none yet",
+   "status": "pending (owner: it moves across)",
+   "nav": [],
+   "hub": []
+  }
  ],
  "overlap_groups": [
-  {"id": "O1", "strength": "strong", "screens": ["habits", "routine_checklists", "capacity_day"], "why": "the basic things to get through today, with no judgment: a routine checklist is the owner's definition of habits; Equipoise's no-shame rules are the rules set for Habits"},
-  {"id": "O2", "strength": "strong", "screens": ["trackers", "activities", "goals"], "why": "record an amount and aim at one: a timer is a way to enter a time amount; a goal always belongs to one tracker or one activity"},
-  {"id": "O3", "strength": "strong", "screens": ["this_week", "charts", "tracker_detail", "time_totals", "trend", "self_history"], "why": "see how things went over time; time totals is a chart of activities, tracker detail a chart of one tracker"},
-  {"id": "O4", "strength": "medium", "screens": ["calendar", "planner", "time_blocks"], "why": "lay out the week; two things are now called a planner"},
-  {"id": "O5", "strength": "medium", "screens": ["checkin", "ledger", "sensory", "journal"], "why": "note how I am; the journal is free writing, the rest structured and quick"},
-  {"id": "O6", "strength": "weak (settled)", "screens": ["today", "reminders", "calendar"], "why": "what is next; Reminders keeps managing repeating reminders as its own job"}
+  {
+   "id": "O1",
+   "strength": "strong",
+   "screens": [
+    "habits",
+    "routine_checklists",
+    "capacity_day"
+   ],
+   "why": "the basic things to get through today, with no judgment: a routine checklist is the owner's definition of habits; Equipoise's no-shame rules are the rules set for Habits"
+  },
+  {
+   "id": "O2",
+   "strength": "strong",
+   "screens": [
+    "trackers",
+    "activities",
+    "goals"
+   ],
+   "why": "record an amount and aim at one: a timer is a way to enter a time amount; a goal always belongs to one tracker or one activity"
+  },
+  {
+   "id": "O3",
+   "strength": "strong",
+   "screens": [
+    "this_week",
+    "charts",
+    "tracker_detail",
+    "time_totals",
+    "trend",
+    "self_history"
+   ],
+   "why": "see how things went over time; time totals is a chart of activities, tracker detail a chart of one tracker"
+  },
+  {
+   "id": "O4",
+   "strength": "medium",
+   "screens": [
+    "calendar",
+    "planner",
+    "time_blocks"
+   ],
+   "why": "lay out the week; two things are now called a planner"
+  },
+  {
+   "id": "O5",
+   "strength": "medium",
+   "screens": [
+    "checkin",
+    "ledger",
+    "sensory",
+    "journal"
+   ],
+   "why": "note how I am; the journal is free writing, the rest structured and quick"
+  },
+  {
+   "id": "O6",
+   "strength": "weak (settled)",
+   "screens": [
+    "today",
+    "reminders",
+    "calendar"
+   ],
+   "why": "what is next; Reminders keeps managing repeating reminders as its own job"
+  }
  ],
  "owner_answers": [
   "2026-10-13: re-cut T3 and T4 by purpose (T3a Daily basics, T3b Measuring, T3c Looking back); it is refined as we go.",
   "2026-10-13: Checklists split: routine checklists join Daily basics, one-off lists stay lists.",
-  "2026-10-13: the purpose map, once settled, decides how the Hub's elements are grouped."
+  "2026-10-13: the purpose map, once settled, decides how the Hub's elements are grouped.",
+  "2026-10-13: habits are yes/no only; trackers appear on Today; the if-then cue is the block (order) and a written cue (wording); a habit has an energy level, and Habits and Today get a filter for what can be handled now, reset each day."
  ]
 }

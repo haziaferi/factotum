@@ -153,3 +153,25 @@ Quantities (water, exercise, studying, knitting) are trackers.
   - whether habits are yes/no only;
   - what the "if" is (a block, a written cue, or both);
   - whether "a clear reference" is the list itself.
+
+## T3a Daily basics: the owner's answers (2026-10-13)
+
+1. **Habits are yes/no only.** Anything counted or rated is a tracker. **Trackers appear on Today**: Water stays on Today as a tracker row ("Today screen might need future tinkering").
+2. **The "if" is (c), both:**
+   - the time block sets the order;
+   - a short cue written per habit sets the wording ("After breakfast").
+3. **"A clear reference" is the list itself**, with no history on it. And a new feature:
+   > "when creating a Habit the user will select an energy level (low/mid/high) and in Today and the Habits screen they will have a filter to only show the habits they are able to handle at that moment. The filter resets every day at midnight."
+
+**Read as follows; each point is checked with the owner at the screen that shows it:**
+- **The filter is cumulative.** Low shows the low habits; Mid shows low and mid; High shows all. Unset means all.
+- **"Midnight" is the personal day boundary** (§3.6). It defaults to midnight, so the filter resets when the person's day starts.
+- **Where the filter's state lives is open.** It is either per device (DEVICE_STATE) or for the person on every device (PERSONAL). It is put to the owner with the filter.
+
+**Owed in the data layer**, built once T3a's screens settle the field shapes:
+- **Habits:** a HABIT is yes/no only. A rating or number habit becomes its tracker alone, and §3.6's number-habit rules (amount per Log, the DAY goal, today's and the month's amounts) move to trackers. Existing rows need a migration path.
+- **A habit's cue:** short text, synced in the item's details group.
+- **A habit's energy:** LOW, MID or HIGH, synced.
+- **The energy filter:** its state and its reset at the personal day's start.
+- **Today lists trackers:** which ones (a daily goal, pinned, or all) is part of the "future tinkering".
+- The SPEC amendment for all of the above.
