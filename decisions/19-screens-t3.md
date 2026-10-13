@@ -267,3 +267,44 @@ Rescored with the approved drawings (the cue above the title, High on by default
 - a HABIT's recurrence is daily or chosen weekdays only;
 - PLANNED and ROLLING are not offered for habits, and rows that have them need a migration path;
 - a reminder at the block's start or at a set time (both exist in §3.6b and §3.3).
+
+## T3a.2 Adding a habit: scored (2026-10-13)
+
+**Part `addhabit`.** The fields come in the owner's order:
+- the name;
+- If (the cue);
+- Block;
+- Energy (Low · Mid · High);
+- Repeat (Every day, or chosen days);
+- Reminder (off; at the block's start or at a set time);
+- Label;
+- Notes.
+
+**The 8 options:**
+- **form:** in place (the T1.3 capture line takes the name, then the new row grows in place, autosaved, as an item's page) / sheet (all fields, with Cancel and Add pinned at its foot);
+- **the If:** free text / suggested anchors as chips plus "Write your own";
+- **block:** chips / set by the chosen anchor.
+
+**The walk:** adding "Brush teeth", after breakfast, Morning, Low, every day.
+
+**The control:** Tendril's sheet as it is, with the cue last. It loses at 63, behind seven of the eight options.
+
+| Option | Sum | Taps | Keyboards | Reach | Hidden targets | Lost on leaving | Like an item's page | Clutter, phone / Windows |
+|---|---|---|---|---|---|---|---|---|
+| **in place, suggest, from the cue** | **47.5** | **4** | 1 | 3.45 | 0 | no | yes | 0.053 / 0.025 |
+| in place, suggest, chips | 48 | 5 | 1 | 3.08 | 0 | no | yes | 0.056 / 0.027 |
+| sheet, suggest, chips | 50.5 | 6 | 1 | 2.95 | 1 | yes | no | 0.041 / 0.021 |
+| in place, text, chips | 52.5 | 5 | 2 | 3.37 | 0 | no | yes | 0.048 / 0.023 |
+| sheet, suggest, from the cue | 52.5 | 5 | 1 | 3.02 | 1 | yes | no | 0.042 / 0.021 |
+| in place, text, from the cue | 55.5 | 6 | 2 | 3.42 | 0 | no | yes | 0.045 / 0.021 |
+| sheet, text, chips | 61 | 6 | 2 | 3.13 | 1 | yes | no | 0.038 / 0.021 |
+| sheet, text, from the cue | 64.5 | 7 | 2 | 3.16 | 1 | yes | no | 0.034 / 0.021 |
+| control (Tendril's sheet) | 63 | 5 | 2 | 1.72 | 1 | yes | no | 0.042 / 0.021 |
+
+All eight options and the control are on the front; the control is not.
+
+**Reading the table:**
+- **The sheet** is calmer and nearer the thumb. But one target sits below its fold, leaving loses the habit, and it is not how an item's page works.
+- **Suggested anchors** save a keyboard and set the block for free.
+
+**Recommended: in place, suggested anchors, the block set by the anchor.**

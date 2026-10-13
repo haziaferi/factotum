@@ -4,6 +4,7 @@
     python tools/screens/t3_opt.py page_html scores       t3-options.html, t3-scores.html (fails if a control wins)
 
 Parts:
+  addhabit T3a.2 adding a habit (owner, 2026-10-13: score in place against a sheet)
   basics   T3a.1 Habits as Daily basics (owner, 2026-10-13): layout, the energy filter, its mark, done today
   habits   T3.1 the Habits list (Hub › Routines › Habits): how presence shows, grouping, where Log sits, and how a
            counted habit's amount reads
@@ -339,6 +340,134 @@ def score_basics(v):
             "clutter": T.clutter_of(lambda th: bdoc(basics_phone(v), th)), "desk_clutter": dclutter(lambda th: basics_desk(v, th))}
 
 
+# ==== Part addhabit: T3a.2 adding a habit (owner, 2026-10-13: score both forms) ===================================================
+"""
+  The fields, in the owner's order of things: the habit's name; If (its cue, shown above it in the list); Block (its
+  order); Energy (Low, Mid, High); Repeat (Every day, or chosen days); Reminder (Off; at the block's start or at a set
+  time); Label; Notes. Habits are yes/no, so there is no amount.
+  form   inplace (the T1.3 capture line takes the name; the new row then grows in place in the list with its fields,
+         each change kept as made, as an item's page does, T2), sheet (a dedicated sheet over the list with every field
+         and Cancel and Add, as Tendril's Add habit; leaving without Add loses it)
+  cue    text (a free text field, "If…"), suggest (anchors as chips under the field: After waking, After breakfast, After
+         lunch, When I get home, Before bed; and Write your own)
+  block  chips (Morning, Midday, Afternoon, Evening, Night), from_cue (a chosen anchor sets the block, shown on the Block
+         line and changeable; a written cue leaves it to a tap)
+  Walked: adding "Brush teeth", after breakfast, Morning, Low energy, every day: taps (typing excluded), the times the
+  keyboard opens, reach to each target in order (Fitts from the thumb), fields seen without scrolling, the list's rows
+  still seen (context), lost on leaving, likeness to an item's page; clutter, Windows' clutter.
+  Control: Tendril's sheet as it is, cue last: the name, Schedule (Since last check-in, On the calendar), Every 1 day,
+  Where (six block chips and At a set time), Counts something, Area, a Note, and the cue as a last free text field,
+  Cancel and Add at the foot.
+"""
+ADD_SPACE = {"form": ["inplace", "sheet"], "cue": ["text", "suggest"], "block": ["chips", "from_cue"]}
+ANCHORS = [("After waking", "Morning"), ("After breakfast", "Morning"), ("After lunch", "Midday"), ("When I get home", "Afternoon"), ("Before bed", "Night")]
+
+ADD_CSS = """
+.achips{display:flex;flex-wrap:wrap;gap:6px;padding:4px 0 8px 40px}
+.achips span{min-height:40px;min-width:48px;justify-content:center;padding:0 12px;border-radius:999px;box-shadow:inset 0 0 0 1px var(--zone2);display:flex;align-items:center;font-size:13px;color:var(--ink)}
+.achips span.on{background:var(--zone2);font-weight:600;box-shadow:none}
+.achips.tall span{min-height:48px}
+.xp .achips span{box-shadow:inset 0 0 0 1px var(--dim)}
+.asheet .amid{flex:1;min-height:0;overflow:hidden}
+.fld .v small{display:block;color:var(--dim);font-size:12px}
+.asheet{position:absolute;left:0;right:0;bottom:0;top:96px;background:var(--bg);border-radius:20px 20px 0 0;box-shadow:0 -6px 24px rgba(0,0,0,.18);padding:8px 14px;overflow:hidden;z-index:30;display:flex;flex-direction:column}
+.asheet .afoot{display:flex;justify-content:flex-end;gap:8px;margin-top:auto;padding:8px 0}
+.asheet .afoot span{min-height:48px;min-width:72px;display:grid;place-items:center;font-weight:600;font-size:15px;border-radius:24px}
+.asheet .afoot span.add{background:var(--ink);color:var(--bg)}
+.atitle{font-size:20px;font-weight:600;padding:6px 4px 8px;border-bottom:1px solid var(--zone2)}
+"""
+
+
+def adoc(html, theme="light"):
+    return doc(html, theme, CSS + BASICS_CSS + ADD_CSS)
+
+
+def add_fields(v):
+    """The fields of a new habit, after "Brush teeth" is in: If, Block, Energy, Repeat, Reminder, Label, Notes."""
+    out = []
+    if v["cue"] == "suggest":
+        out.append('<div class="fld" data-tap="F If"><i>?</i><span class="v">If…<small>Choose or write when it comes</small></span></div>')
+        out.append('<div class="achips tall">%s</div>' % "".join('<span data-tap="Cue %s">%s</span>' % (a, a) for a, _ in ANCHORS[:4]) + "")
+        out[-1] = out[-1][:-len("</div>")] + '<span data-tap="Cue own">Write your own…</span></div>'
+    else:
+        out.append('<div class="fld" data-tap="Cue own"><i>?</i><span class="v" style="color:var(--dim)">If… (After breakfast)</span></div>')
+    if v["block"] == "chips":
+        out.append('<div class="fld"><i>◷</i><span class="v">Block</span></div><div class="achips tall">%s</div>' % "".join(
+            '<span data-tap="Block %s">%s</span>' % (b, b) for b in BLOCK_ORDER))
+    else:
+        out.append('<div class="fld" data-tap="Block"><i>◷</i><span class="v">Block<small>Set by the If, or tap to choose</small></span></div>')
+    out.append('<div class="fld"><i>◔</i><span class="v">Energy</span></div><div class="achips tall">%s</div>' % "".join(
+        '<span data-tap="Energy %s">%s</span>' % (x, x) for x in ("Low", "Mid", "High")))
+    out.append('<div class="fld" data-tap="F Repeat"><i>↻</i><span class="v">Every day</span></div>')
+    out.append('<div class="fld unset" data-tap="F Reminder"><i>◴</i><span class="v">No reminder</span></div>')
+    out.append('<div class="fld unset" data-tap="F Label"><i>●</i><span class="v">Add a label</span></div>')
+    out.append('<div class="fld unset" data-tap="F Notes"><i>¶</i><span class="v">Add notes</span></div>')
+    return "".join(out)
+
+
+def addhabit_phone(v):
+    base = basics_phone({"layout": "blocks", "filter": "chips", "mark": "none", "done": "fold"})
+    if v.get("control"):
+        form = ('<div class="asheet"><div class="atitle" data-tap="Title">Brush teeth</div><div class="amid">'
+                '<div class="fld"><i></i><span class="v">Schedule</span></div><div class="achips tall"><span class="on">Since last check-in</span><span>On the calendar</span></div>'
+                '<div class="fld"><i></i><span class="v">Every 1 · day · week · month</span></div>'
+                '<div class="fld"><i></i><span class="v">Where</span></div><div class="achips tall">%s<span>At a set time…</span></div>'
+                '<div class="fld"><i></i><span class="v">Counts something</span></div><div class="fld"><i></i><span class="v">Area</span></div>'
+                '<div class="fld"><i></i><span class="v">Note · Optional</span></div><div class="fld" data-tap="Cue own"><i></i><span class="v">If…</span></div></div>'
+                '<div class="afoot"><span data-tap="Cancel">Cancel</span><span class="add" data-tap="Add">Add</span></div></div>') % "".join(
+                    '<span data-tap="Block %s">%s</span>' % (b, b) for b in ["Any time"] + BLOCK_ORDER)
+        return base[:-len("</div>")] + form + "</div>"
+    if v["form"] == "sheet":
+        form = '<div class="asheet"><div class="atitle" data-tap="Title">Brush teeth</div><div class="amid">%s</div><div class="afoot"><span data-tap="Cancel">Cancel</span><span class="add" data-tap="Add">Add</span></div></div>' % add_fields(v)
+        return base[:-len("</div>")] + form + "</div>"
+    # in place: the new row sits in Any time until its block is set, grown with its fields
+    own = ('<div class="row" data-tap="Close"><span class="tm kind">↻</span><span class="t"><span class="nm">%s</span></span>%s</div>' % (
+        kit.ud("Brush teeth"), kit.icon_button("🗑", "Delete")))
+    xp = '<div class="xp">%s%s</div>' % (own, add_fields(v))
+    i = base.index('<div class="dayh">Morning</div>')
+    return base[:i] + xp + base[i:]
+
+
+def score_addhabit(v):
+    ctl = v.get("control")
+    d = adoc(addhabit_phone(v))
+    tp = T.taps(d)
+    names = [x["name"] for x in tp.all if x.get("seen")]
+    seq = []                                   # the targets tapped, in order, after the name is typed
+    keyboard = 1                               # the name
+    if ctl:
+        seq = ["Block Morning", "Cue own", "Add"]
+        keyboard += 1
+        energy = 99                            # no energy field
+    else:
+        if v["cue"] == "suggest":
+            seq.append("Cue After breakfast")
+        else:
+            seq.append("Cue own")
+            keyboard += 1
+        if v["block"] == "chips" or v["cue"] == "text":
+            seq.append("Block Morning" if v["block"] == "chips" else "Block")
+            if v["block"] == "from_cue":
+                seq.append("Block Morning")    # a written cue: open the block line, then choose
+        seq.append("Energy Low")
+        if v["form"] == "sheet":
+            seq.append("Add")
+        energy = 1
+    taps = 1 + 1 + len(seq)                    # New habit…, the name's ✓ (inplace) or the sheet's opening, then the sequence
+    found = [tp[n] for n in seq if n in tp]
+    hidden = sum(1 for n in seq if n in tp and not tp[n].get("seen")) + sum(1 for n in seq if n not in tp and n != "Block Morning")
+    reach = sum(T.fitts(THUMB, x) for x in found) / max(1, len(found))
+    fields_seen = sum(1 for x in tp.all if x.get("seen") and (x["name"].startswith("F ") or x["name"].startswith(("Cue", "Block", "Energy"))))
+    context = seen_count(tp, "Open habit")
+    lost = 1 if (ctl or v["form"] == "sheet") else 0
+    return {"taps": taps, "keyboard": keyboard, "reach": round(reach, 3), "hidden_targets": hidden, "energy_field": energy, "fields_seen": fields_seen,
+            "context_rows": context, "lost_on_back": lost, "like_item_page": 0 if (not ctl and v["form"] == "inplace") else 1,
+            "small": small_of(tp, {x["name"] for x in tp.all if x["name"].startswith(("Cue", "Block", "Energy", "Add", "Cancel"))}),
+            "clutter": T.clutter_of(lambda th: adoc(addhabit_phone(v), th)),
+            "desk_clutter": dclutter(lambda th: desk_doc("Hub", "Habits", '<div class="dcol" style="width:440px;flex:none">%s</div><div class="page" style="flex:1"></div>' % (
+                addhabit_phone(v).split('<div class="body">', 1)[1].rsplit('<div class="bar">', 1)[0][:-len("</div>")]), th, CSS + BASICS_CSS + ADD_CSS))}
+
+
 def build_refs():
     with open(os.path.join(T.OUT, "t3-references.json"), encoding="utf-8") as fh:
         src = json.load(fh)
@@ -358,18 +487,22 @@ def build_refs():
 T.PREFIX, T.REFS, T.NAME = "t3", "t3-refs.json", "T3 habits, trackers, time, goals, charts and checklists"
 T.OUT = os.path.join(os.path.dirname(M2.T.OUT), "t3")
 # T3.1 "habits" (presence, the first scoring) is kept in t3-habits-v1.json and in the code above; T3a replaced it (owner, 2026-10-13)
-T.SPACES = {"basics": BASICS_SPACE}
-T.SCORERS = {"basics": score_basics}
-T.CONTROLS = {"basics": ({"layout": "blocks", "filter": "chips", "mark": "streak", "done": "fold", "control": True},
+T.SPACES = {"basics": BASICS_SPACE, "addhabit": ADD_SPACE}
+T.SCORERS = {"basics": score_basics, "addhabit": score_addhabit}
+T.CONTROLS = {"addhabit": ({"form": "tendril", "cue": "last", "block": "where", "control": True},
+                           "Tendril's sheet as it is, the cue last: schedule, every N, where, counts something, area, note, Cancel and Add"),
+              "basics": ({"layout": "blocks", "filter": "chips", "mark": "streak", "done": "fold", "control": True},
                          "the leading design with history added: a streak and a share of days on every row"),
               "habits": ({"presence": "streak", "group": "flat", "log": "cells", "amount": "percent", "control": True},
                          "Loop-like with streaks and a score: a streak and a percentage on every row, the last 4 days as ticks and crosses")}
-T.AXES = {"basics": {"Judgment": ("judgment_marks",), "Cue": ("-cue_shown", "disorder"), "Low capacity": ("words_per_row", "filter_actions", "reach_filter", "reach_log"),
+T.AXES = {"addhabit": {"Ease": ("taps", "keyboard", "reach", "hidden_targets"), "Complete": ("energy_field",), "Context": ("-context_rows",),
+                       "Clarity": ("-fields_seen",), "Safety": ("lost_on_back",), "Consistency": ("like_item_page",), "Calm": ("clutter", "desk_clutter")},
+          "basics": {"Judgment": ("judgment_marks",), "Cue": ("-cue_shown", "disorder"), "Low capacity": ("words_per_row", "filter_actions", "reach_filter", "reach_log"),
                      "Choice": ("-filter_says_mid",), "Consistency": ("like_today",), "Density": ("-rows_seen", "cut"), "Calm": ("clutter", "desk_clutter")},
           "habits": {"Ease": ("log_actions", "reach_log"), "Presence": ("-presence_shown", "presence_marks"), "Calm": ("guilt_marks", "clutter", "desk_clutter"),
                      "Density": ("-rows_seen", "cut"), "Consistency": ("like_today",)}}
-T.TITLES = {"basics": "T3a.1 Habits as Daily basics: layout, the energy filter, its mark, done today", "habits": "T3.1 The Habits list: presence, grouping, where Log sits, a count's amount"}
-T.DRAW = {"basics": lambda v: [bdoc(basics_phone(v)), basics_desk(v)], "habits": lambda v: [hdoc(habits_phone(v)), habits_desk(v)]}
+T.TITLES = {"addhabit": "T3a.2 Adding a habit: in place or a sheet, the If, the block", "basics": "T3a.1 Habits as Daily basics: layout, the energy filter, its mark, done today", "habits": "T3.1 The Habits list: presence, grouping, where Log sits, a count's amount"}
+T.DRAW = {"addhabit": lambda v: [adoc(addhabit_phone(v))], "basics": lambda v: [bdoc(basics_phone(v)), basics_desk(v)], "habits": lambda v: [hdoc(habits_phone(v)), habits_desk(v)]}
 T.POOL = {}
 T.v2.TOL.setdefault("_reach_log", 0.05)
 T.v2.TOL.setdefault("_reach_filter", 0.05)
