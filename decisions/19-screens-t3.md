@@ -378,3 +378,21 @@ The cue field recorded earlier becomes the premise; the block is now set by the 
   So the line reads: the if, then the days when chosen, then a set time or a window ("After the walk · 08:30", "Before bed · 22:00–23:00", "When I get home · Mon, Thu"). "Every day" is the default, so it is not written; it had been under Morning routine but not on the lone habits.
 
 Rescored: energy and numbers stays on the front (60.5), and the control still loses (83).
+
+## T3a.1b The Habits list with routines: approved (owner, 2026-10-13)
+
+**Approved:**
+- routines with the if-then sentence in the header;
+- lone habits with their sentence line above;
+- no kind glyph;
+- energy chips, High by default;
+- Today's Log button;
+- done steps fold.
+
+**The forecast is optional:**
+> "the energy forecast with numbered steps should be optional, the user can set it to ON in Settings or by editing the page (to be determined). Default is OFF."
+
+- **Default (OFF):** a routine's steps are plain rows under its header, with no forecast.
+- **ON:** the header adds "4 steps · up to Mid", and the steps are numbered.
+- Read as one switch for both; to confirm.
+- Where the switch lives (Settings, or editing the page) is to be decided.
