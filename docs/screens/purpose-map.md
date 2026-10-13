@@ -100,7 +100,7 @@ _lay out the week: blocks, planned habits, outside calendars_
 
 | Screen | Comes from | New in Factotum | Tier | Status | Overlaps |
 |---|---|---|---|---|---|
-| Habit planner (confirm the week into time blocks) | Tendril PlanView |  | none yet | pending; could be a mode of Calendar's Week | Calendar: Week (planner) · Month · 3 days |
+| Habit planner (confirm the week into time blocks) | Tendril PlanView |  | none yet | dropped for habits (owner, 2026-10-13); its structure kept for a possible other use | Calendar: Week (planner) · Month · 3 days |
 | Time blocks (setup) | Tendril |  | T6 | pending |  |
 | Outside calendars (links, on this device) | Tendril |  | T6 | pending |  |
 
@@ -161,5 +161,6 @@ _make the app work: settings, sync, trash, backup, lock, labels_
 - 2026-10-13: Checklists split: routine checklists join Daily basics, one-off lists stay lists.
 - 2026-10-13: the purpose map, once settled, decides how the Hub's elements are grouped.
 - 2026-10-13: habits are yes/no only; trackers appear on Today; the if-then cue is the block (order) and a written cue (wording); a habit has an energy level, and Habits and Today get a filter for what can be handled now, reset each day.
+- 2026-10-13: the habit Planner is dropped; its empty structure may be repurposed later for something other than habits. Habits repeat daily or on chosen weekdays; a habit's reminder is off by default, at its block's start or a set time.
 
 _55 screens; 5 with no parent app; 9 approved._

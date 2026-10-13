@@ -1,6 +1,6 @@
 # 19. Screens T3: habits, trackers, time, goals, charts and checklists
 
-Status: **re-cut by purpose (owner, 2026-10-13): T3a Daily basics, T3b Measuring, T3c Looking back; see `docs/screens/purpose-map.md`. T3a waits on three owner answers.** The method is decision 15's: every screen, one at a time, before colour, each scored with a control that must lose.
+Status: **re-cut by purpose (owner, 2026-10-13): T3a Daily basics, T3b Measuring, T3c Looking back; see `docs/screens/purpose-map.md`. T3a.1 the Habits list approved; next, the Add Habit screen and the Planner.** The method is decision 15's: every screen, one at a time, before colour, each scored with a control that must lose.
 
 **Already settled in the SPEC, and not asked again:**
 - **Habits (§3.6):**
@@ -172,7 +172,7 @@ Quantities (water, exercise, studying, knitting) are trackers.
 - **Habits:** a HABIT is yes/no only. A rating or number habit becomes its tracker alone, and §3.6's number-habit rules (amount per Log, the DAY goal, today's and the month's amounts) move to trackers. Existing rows need a migration path.
 - **A habit's cue:** short text, synced in the item's details group.
 - **A habit's energy:** LOW, MID or HIGH, synced.
-- **The energy filter:** its state and its reset at the personal day's start.
+- **The energy filter:** a PERSONAL setting (owner): High by default, reset to High at the personal day's start.
 - **Today lists trackers:** which ones (a daily goal, pinned, or all) is part of the "future tinkering".
 - The SPEC amendment for all of the above.
 
@@ -229,3 +229,41 @@ Averaged over each dimension, lower being better:
 - An energy mark on the row only adds to read; the filter already does the sorting.
 - Fold keeps a Logged habit doing what it does on Today (the consistency rule).
 - Blocks show the "if" order the owner chose (answer c), at 7.5 above flow on the average.
+
+## T3a.1 Habits as Daily basics: approved (owner, 2026-10-13)
+
+**The pick:** blocks, chips, no energy mark, fold, with two changes from the owner:
+- **The "if" sits above the habit:** the cue is a small line above the title.
+- **The energy filter:**
+  > "Default filter is High (High + Medium + Low). Medium only includes Low. Low is standalone."
+
+  So High (the default) shows all, Mid shows low and mid, and Low shows low only. It resets to High when the personal day starts.
+- **Its setting is "one setting for you, on every device"** (PERSONAL, synced).
+
+Both changes are drawn, and the part is rescored with them.
+
+**Next, at the owner's ask: the Add Habit screen.** Since habits are daily, the habit Planner (a weekly re-assessment that confirms "n a week" habits into days) may be removed or repurposed.
+
+Rescored with the approved drawings (the cue above the title, High on by default):
+- the approved option sits on the front at 301;
+- the control loses at 450.5;
+- the order is unchanged.
+
+## The Add Habit screen and the Planner: the owner's answers (2026-10-13)
+
+1. **The habit Planner is dropped:**
+   > "Currently dropped, its empty structure might be repurposed for something other than habits in the future."
+
+   - Habits no longer use "n a week" or "n a day" (PLANNED). A habit twice a day is two habits, each with its own cue.
+   - The structure is kept, not deleted: the PLANNED kind, `core.plan` and `habit_block`'s planner columns stay in the data layer, unused by habits, for a possible later use.
+   - This is an owner-accepted exception to §0.1.5, as Tendril's Claude text verbs were. It drops a Tendril feature from habits.
+2. **A habit repeats daily, or on chosen weekdays.** Nothing else; rolling ("again N days after the last Log") is not offered for habits.
+3. **Adding a habit: both forms are scored, with a control:**
+   - the capture line, then the row growing in place with its fields (as an item's page, T2);
+   - a dedicated sheet (as Tendril's Add habit).
+4. **A habit's reminder is off by default.** When on, it is either at the start of its block or at a set time.
+
+**Owed in the data layer:**
+- a HABIT's recurrence is daily or chosen weekdays only;
+- PLANNED and ROLLING are not offered for habits, and rows that have them need a migration path;
+- a reminder at the block's start or at a set time (both exist in §3.6b and §3.3).

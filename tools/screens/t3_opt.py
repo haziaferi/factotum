@@ -203,8 +203,9 @@ def score_habits(v):
   low day. The first scoring (t3-habits-v1.json) asked how presence shows; here no history is on the list at all.
   Fixed in every option: yes/no only; T1's own Log button at the row's right (owner: "the same as the Today's page");
   the cue is the habit's block (order) and its written cue (wording) (owner's answer c); each habit has an energy level
-  (low, mid, high), and a filter shows only what can be handled now (cumulative: Low shows low; Mid low and mid; unset
-  shows all), reset each personal day.
+  (low, mid, high), and a filter shows only what can be handled now: High (the default) shows all, Mid shows low and
+  mid, Low shows low (owner, 2026-10-13); it resets to High when the personal day starts, and is one setting for the
+  person on every device (PERSONAL). The cue (the "if") sits above the habit's title (owner, 2026-10-13).
   layout  blocks (under the block's name; the cue is the row's second line), flow (one list in the day's order, the cue as
           the second line, no headers), sentence (under the block's name; the row reads "After breakfast, brush teeth")
   filter  chips (Low · Mid · High under the header: 1 tap), switch (one "Low energy only" switch: 1 tap, low only), menu
@@ -239,6 +240,7 @@ BASICS_CSS = """
 .row .t .nm{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .edots{flex:none;font-size:11px;letter-spacing:1px;color:var(--dim);width:34px;text-align:right}
 .fchips{display:flex;gap:6px;flex:none;overflow:hidden}
+.fchips span.on{background:var(--zone2);color:var(--ink);font-weight:600;box-shadow:none}
 .fchips span{min-height:48px;min-width:48px;justify-content:center;display:flex;align-items:center;padding:0 14px;border-radius:999px;font-size:14px;box-shadow:inset 0 0 0 1px var(--zone2);color:var(--dim)}
 .eswitch{display:flex;align-items:center;justify-content:space-between;min-height:48px;padding:0 4px;font-size:15px;flex:none}
 .eswitch b{width:44px;height:26px;border-radius:13px;background:var(--zone2);display:block;position:relative}
@@ -264,8 +266,10 @@ def basics_row(h, v):
         sub += ' · <span data-judge="1">streak %d</span> · <span data-judge="1">%d%%</span>' % (len(title) % 5, 40 + (len(title) * 7) % 55)
     mark = '<span class="edots">%s</span>' % DOTS[energy] if v["mark"] == "dots" else ""
     act = '<span class="act" data-tap="Log %s"><span>Log</span></span>' % title if not logged else ""
-    return '<div class="row%s" data-tap="Open habit" data-cue="%s" data-block="%s"><span class="tm kind">↻</span><span class="t"><span class="nm">%s</span>%s</span>%s%s</div>' % (
-        " ticked" if (logged and v["done"] == "stay") else "", e(cue), block, kit.ud(e(name)), '<span class="bsub">%s</span>' % (sub if v.get("history") else e(sub)) if sub else "", mark, act)
+    subh = '<span class="bsub">%s</span>' % (sub if v.get("history") else e(sub)) if sub else ""
+    # the cue (the "if") sits above the habit (owner, 2026-10-13)
+    return '<div class="row%s" data-tap="Open habit" data-cue="%s" data-block="%s"><span class="tm kind">↻</span><span class="t">%s<span class="nm">%s</span></span>%s%s</div>' % (
+        " ticked" if (logged and v["done"] == "stay") else "", e(cue), block, subh, kit.ud(e(name)), mark, act)
 
 
 def basics_body(v):
@@ -273,7 +277,7 @@ def basics_body(v):
         v = dict(v, layout="blocks", filter="chips", mark="none", done="fold", history=True)
     top = ""
     if v["filter"] == "chips":
-        top = '<div class="fchips">%s</div>' % "".join('<span data-tap="Energy %s">%s</span>' % (x, x) for x in ("Low", "Mid", "High"))
+        top = '<div class="fchips">%s</div>' % "".join('<span class="%s" data-tap="Energy %s">%s</span>' % ("on" if x == "High" else "", x, x) for x in ("Low", "Mid", "High"))
     elif v["filter"] == "switch":
         top = '<div class="eswitch" data-tap="Energy Low">Low energy only<b></b></div>'
     live = [h for h in BASICS if not (h[4] and v["done"] == "fold")]

@@ -613,7 +613,7 @@
     "Tendril PlanView"
    ],
    "tier": "none yet",
-   "status": "pending; could be a mode of Calendar's Week",
+   "status": "dropped for habits (owner, 2026-10-13); its structure kept for a possible other use",
    "nav": [
     "confirm the week (planner)"
    ],
@@ -997,6 +997,7 @@
   "2026-10-13: re-cut T3 and T4 by purpose (T3a Daily basics, T3b Measuring, T3c Looking back); it is refined as we go.",
   "2026-10-13: Checklists split: routine checklists join Daily basics, one-off lists stay lists.",
   "2026-10-13: the purpose map, once settled, decides how the Hub's elements are grouped.",
-  "2026-10-13: habits are yes/no only; trackers appear on Today; the if-then cue is the block (order) and a written cue (wording); a habit has an energy level, and Habits and Today get a filter for what can be handled now, reset each day."
+  "2026-10-13: habits are yes/no only; trackers appear on Today; the if-then cue is the block (order) and a written cue (wording); a habit has an energy level, and Habits and Today get a filter for what can be handled now, reset each day.",
+  "2026-10-13: the habit Planner is dropped; its empty structure may be repurposed later for something other than habits. Habits repeat daily or on chosen weekdays; a habit's reminder is off by default, at its block's start or a set time."
  ]
 }
