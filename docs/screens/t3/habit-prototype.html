@@ -149,7 +149,7 @@ function premiseFocus(id){S.open=null;if(id!=="premise"||S.v.premise==="none"){S
   S.ifsOpen=true;S.ifsFrom="premise";renderArea()}
 function ifsShown(){return IFS.map((f,i)=>[f,i]).filter(([f])=>S.ifsFrom!=="premise"||S.v.premise==="all"||f.conn===S.conn)}
 function ifsList(){const shown=ifsShown();
-  if(!shown.length)return `<div class="small">No “${S.conn}” ifs yet: this one will be the first.</div>`;
+  if(!shown.length)return "";   // none of this connective yet: nothing opens (owner, 2026-10-13)
   return `<div class="small">${S.ifsFrom==="premise"&&S.v.premise==="same"?"“"+S.conn+"” ifs":"Available ifs"} · choosing one fills the if, its days and its time</div>`+
   shown.map(([f,i])=>`<button class="ifrow" data-tap="If ${f.conn} ${f.premise}" onclick="pickIf(${i})"><span>${f.conn} ${f.premise}${f.time.kind==="at"?" · "+f.time.a:f.time.kind==="span"?" · "+f.time.a+"–"+f.time.b:""}${f.days.length<7?" · "+f.days.map(i=>WD[i]).join(", "):""}</span><span class="n">${f.habits.length} ${f.habits.length===1?"habit":"habits"}</span></button>`).join("")}
 function inhNote(){return S.joined!==null?`<div class="small">This is the if's: changing it changes it for its ${IFS[S.joined].habits.length} habits.</div>`:""}
@@ -161,7 +161,7 @@ function chooser(){const o=S.open;
   if(o==="days")h=inhNote()+`<div class="chips">${chip("Every day",S.days.size===7,"S.days=new Set([0,1,2,3,4,5,6]);render()")}${chip("Weekdays",[...S.days].sort().join()==="0,1,2,3,4","S.days=new Set([0,1,2,3,4]);render()")}${chip("Weekends",[...S.days].sort().join()==="5,6","S.days=new Set([5,6]);render()")}</div><div class="wd">${WD.map((w,i)=>chip(w.slice(0,2),S.days.has(i)&&S.days.size<7,`toggleDay(${i})`)).join("")}</div>`;
   if(o==="time"){const t=S.time;h=inhNote()+`<div class="chips">${[["none","No set time"],["at","At"],["span","From–to"]].map(([k,l])=>chip(l,t.kind===k,`setKind('${k}')`)).join("")}</div>`;
     if(t.kind!=="none"){const slots=t.kind==="at"?["a"].concat((t.more||[]).map((_,i)=>"m"+i)):["a","b"];if(!slots.includes(E.slot))E.slot="a";
-      h+=`<div class="chips">${t.kind==="span"?'<span class="lab">From</span>':""}${slots.map((s,i)=>(i===1?'<span class="small">&nbsp;to&nbsp;</span>':"")+`<input class="pill tbox${E.slot===s?" act":""}" id="tb-${s}" inputmode="numeric" value="${getT(s)}" title="Type a time (any minute)" onfocus="pickSlot('${s}')" onchange="E.slot='${s}';typed(this.value)">`).join("")}${t.kind==="at"?chip("+ time",false,"addTime()")+((t.more||[]).length?chip("− time",false,"dropTime()"):""):""}</div>`+dial()}}
+      h+=`<div class="chips">${t.kind==="span"?'<span class="lab">From</span>':""}${slots.map((s,i)=>(i>0?`<span class="small">&nbsp;${t.kind==="at"?"and":"to"}&nbsp;</span>`:"")+`<input class="pill tbox${E.slot===s?" act":""}" id="tb-${s}" inputmode="numeric" value="${getT(s)}" title="Type a time (any minute)" onfocus="pickSlot('${s}')" onchange="E.slot='${s}';typed(this.value)">`).join("")}${t.kind==="at"?chip("+ time",false,"addTime()")+((t.more||[]).length?chip("− time",false,"dropTime()"):""):""}</div>`+dial()}}
   if(o==="energy")h=`<div class="chips">${["Low","Mid","High"].map(x=>chip(x,S.energy===x,`S.energy='${x}';S.open=null;render()`)).join("")}</div><div class="small">The energy filter on Habits and Today shows it at this level and above.</div>`;
   return h}
 // ---- the dial: T1.5's approved entry (hours, then minutes) with a typed field ---------------------------------------------

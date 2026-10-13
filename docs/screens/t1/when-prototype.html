@@ -255,7 +255,7 @@ function chooser(){const o=S.open;if(!o)return"";let h="";
     if(t.kind==="none")return h;
     const slots=t.kind==="at"?t.times.map((x,i)=>"t"+i):["a","b"];
     if(!slots.includes(E.slot))E.slot=slots[0];
-    const pills=slots.map((s,i)=>(t.kind!=="at"&&i===1?`<span class="small">&nbsp;${t.kind==="span"?"to":"and"}&nbsp;</span>`:"")+
+    const pills=slots.map((s,i)=>(i>0?`<span class="small">&nbsp;${t.kind==="span"?"to":"and"}&nbsp;</span>`:"")+   // "and" between at's boxes too (owner, 2026-10-13)
       `<input class="pill tbox${E.slot===s?" act":""}" id="tb-${s}" inputmode="numeric" value="${getT(s)}" title="Type a time (any minute)" onfocus="pickSlot('${s}')" onchange="E.slot='${s}';typed(this.value)">`).join("");
     const lead=t.kind==="at"?"":`<span class="lab">${t.kind==="span"?"From":"Between"}</span>`;
     h+=`<div class="chips">${lead}${pills}${t.kind==="at"?chip("+ time",false,"addTime()")+(t.times.length>1?chip("− time",false,"S.time.times.pop();render()"):""):""}</div>`;

@@ -534,3 +534,34 @@ The one-entity model depends on matching ifs: a retyped "waking" makes a second 
 - "at" now takes "+ time" and "− time", as the When sheet's does: "at 08:00 and 20:30".
 - Each time is its own writable box.
 - **To confirm:** several times on one habit repeat it within the day, close to the "n a day" form dropped with the Planner.
+
+## T3a.2 The New habit sheet: approved (owner, 2026-10-13)
+
+**The owner's answers:**
+1. **The premise box opens the ifs of the same connective (B),** with no message when there are none:
+   > "B, but with no 'No "..." ifs yet: this one will be the first.' message when no other premise of the same kind exists yet."
+
+   Nothing opens instead.
+2. **Several "at" times are kept, with "and" between their boxes** so they read apart from "from–to":
+   > "between time boxes there should be an 'and' or '&' to differentiate it from 'from-to'."
+
+   - It is done in the habit sheet and in the When sheet. T1's rendered states are unaffected: none of them shows two times.
+   - A habit with several times is **"same habit, shown twice (or more) in screens where time constraints matter"** (Today, the Day screen).
+3. **The rest:**
+   - **Tap size:**
+     > "Tap size is fine on screen, might be adjusted once the app is phone tested."
+
+     The tiered rule stands until the phone test.
+   - **The sheet:** "This is the new habit sheet." It is approved: the blanks as text boxes in the sentence, Available ifs above it, B for the premise box, one writable time box per time.
+   - **Matching ifs:**
+     > "The same premise exists when the user selects the same IF, no need to work around it since the B option solves this."
+
+     Two habits share an if when it is chosen from the list; nothing else matches them.
+   - **Order:**
+     > "Untimed Habits are in chronological order (older first), and can be dragged to reorder them."
+
+**Asked again:** the optional name for a routine (an if with two or more habits). It would be a title such as "Morning routine" above its if ("After waking"); without it, the if is the header.
+
+**Owed in the data layer, added:**
+- a habit's several "at" times, each an occurrence shown on Today and the Day screen;
+- an untimed habit's manual order, defaulting to its creation order.
