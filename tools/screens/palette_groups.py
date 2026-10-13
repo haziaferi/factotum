@@ -427,7 +427,7 @@ def group_html(i, c):
             '<div class="row"><span style="color:var(--cal-a);font-weight:600">15:00</span><span class="t">Call the bank</span></div></div>'
             '<div class="z"><h4><span class="dot" style="background:var(--rou-a)"></span>Routines</h4>' +
             "".join('<div class="row"><span class="sq" style="border:1.4px solid var(--rou-a)"></span><span class="t">%s</span><span class="pill" style="background:var(--rou-t)">%s</span></div>' % (a, b)
-                    for a, b in (("Walk", "Log"), ("Water · 3 of 8", "Log"), ("Morning routine", "Open"))) + '</div>'
+                    for a, b in (("Walk", "Log"), ("Water · 3 glasses today", "Log"), ("Morning routine", "Open"))) + '</div>'
             # Owner, 2026-10-06: every icon one neutral colour for now, and the Journal card grey-ish off-white.
             '<div class="two"><div class="tile" style="background:var(--chk-t)">How are things? <span class="ico">›</span></div>'
             '<div class="tile" style="background:var(--chk-t)">Today\'s ledger <span class="ico">›</span></div>'

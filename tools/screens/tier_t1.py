@@ -161,7 +161,7 @@ KINDS = [
     ("task", "Pay the fine", "", "Done", "Due today · Car", ["Car"]),
     ("reminder", "Call the bank", "15:00", "Done", "Reminder · Money", ["Money"]),
     ("habit", "Walk", "", "Log", "Every day · Health", ["Health"]),
-    ("habit", "Water", "14:00", "Log", "3 of 8 · next block 14:00", ["Health"]),  # n a day: its next block's start
+    ("habit", "Water", "14:00", "Log", "3 glasses today · next block 14:00", ["Health"]),  # n a day: its next block's start
     ("checklist", "Morning routine", "07:00", "Open", "Checklist · 3 of 5", []),  # a set time
     ("reading", "Sleep", "", "Add", "Reading due · hours", ["Sleep"]),
     ("task", "Return library books", "", "Done", "Due today · Errands · repeats weekly", ["Errands", "Weekly"]),

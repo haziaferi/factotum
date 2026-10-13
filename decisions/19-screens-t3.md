@@ -1,6 +1,6 @@
 # 19. Screens T3: habits, trackers, time, goals, charts and checklists
 
-Status: **questions answered (owner, 2026-10-13); screens not started.** The method is decision 15's: every screen, one at a time, before colour, each scored with a control that must lose.
+Status: **T3.1 the Habits list approved (owner, 2026-10-13); next T3.2.** The method is decision 15's: every screen, one at a time, before colour, each scored with a control that must lose.
 
 **Already settled in the SPEC, and not asked again:**
 - **Habits (§3.6):**
@@ -98,3 +98,22 @@ Averaged over each dimension's options, lower being better:
 - **Presence:** a count of days reads best. Dots cost 13 marks per row, and their empty past days read as misses.
 - **The amount:** plain beats the fraction everywhere, which supports Tendril's rule over T1's approved "3 of 8".
 - **Log:** the page wins on reach and calm, at 3 actions to Log, against 1 on the row.
+
+## Consistency across screens; T1's counted-habit row amended (owner, 2026-10-13)
+
+Asked whether T1's approved Today row for a counted habit should drop its fraction ("3 of 8") for the plain amount ("3 glasses today"), so that Today and Habits read alike:
+> "Yes, let's aim for consistency across elements between screens."
+
+**A standing rule from now on.** The same element reads and acts the same on every screen:
+- its wording;
+- its marks;
+- where its action sits.
+
+An option that breaks this needs a measured reason that outweighs it, and the owner decides.
+
+**Applied:**
+- **T1's Today row for Water** now reads "3 glasses today · next block 14:00" (`tier_t1.KINDS`). T1's page was rebuilt.
+- **The T0 exploration tools that drew the old text** (`frames_all`, `colour_roles`, `module_palettes`, `module_personality`, `palette_groups`) now draw the new text too. Their pages are regenerated when the palette work resumes.
+- **T3.1, the Habits list, recorded as approved** on that rule: days this month, flat, Log on the row (where Today's rows have it), plain amount.
+  - It is on the front with a sum of 282.5: 1 action to Log, 0 guilt marks.
+  - The habit's page as the place to Log scored lower (272.5), but takes 3 actions and breaks the rule.

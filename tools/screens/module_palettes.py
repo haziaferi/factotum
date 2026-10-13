@@ -434,7 +434,7 @@ def screens():
             '<div class="z"><h4>Due today</h4>' + "".join(
                 '<div class="row"><span style="width:11px;height:11px;border-radius:3px;%s"></span><span class="t">%s</span><span class="pill" style="background:var(--%s)">%s</span></div>' % s
                 for s in [("background:var(--ink)", "Vitamins · done", "zone2", "✓"), ("border:1.4px solid var(--bp)", "Walk", "bpc", "Log"),
-                          ("border:1.4px solid var(--bs)", "Water · 3 of 8", "bsc", "Log"), ("border:1.4px solid var(--bt)", "Stretch", "btc", "Open"),
+                          ("border:1.4px solid var(--bs)", "Water · 3 glasses today", "bsc", "Log"), ("border:1.4px solid var(--bt)", "Stretch", "btc", "Open"),
                           ("border:1.4px dashed var(--dim)", "Read · paused", "zone2", "–")]) + '</div>'
             '<div class="z"><h4>Trackers · labelled</h4>' + chart + '</div>'
             '<div class="z"><h4>Walk · last 4 weeks</h4><div class="heat">' + "".join(

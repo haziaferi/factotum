@@ -491,7 +491,7 @@ def screens():
         '<div style="height:0;border-top:1.6px solid var(--ap);margin:1px 0"></div>'
         '<div class="row"><span class="dim">15:00</span>' + U("3px", "12px", "2px") + '<span class="t">Bank</span></div></div>'
         '<div class="z">' + zh("Routines due", "b") + '<div class="row">' + U() + '<span class="t">Walk</span><span class="pill" style="background:var(--bpc)">Log</span></div>'
-        '<div class="row">' + U() + '<span class="t">Water · 3 of 8</span><span class="pill" style="background:var(--bpc)">Log</span></div></div>'
+        '<div class="row">' + U() + '<span class="t">Water · 3 glasses today</span><span class="pill" style="background:var(--bpc)">Log</span></div></div>'
         '<div class="cols"><div class="z">' + zh("check-in", "c") + '<span class="pill" style="background:var(--cpc)">How are things?</span></div>'
         '<div class="z">' + zh("Ledger", "c") + '<div class="cells">' + "".join('<i style="background:var(--cq%d)"></i>' % v for v in (2, 1, 3)) + '</div></div></div>'
         '<div class="cols"><div class="z" style="background:var(--zone2)">' + zh("Journal") + 'Tuesday</div><div class="z">' + zh("Pinned") + '▸ 3 pages</div></div>'
@@ -537,7 +537,7 @@ def screens():
             '<div class="row">%s<span class="t">%s</span>%s</div>' % s for s in [
                 ('<span>✓</span>', 'Vitamins', '<span class="dim">done</span>'),
                 (U("11px", "11px"), 'Walk', '<span class="pill" style="background:var(--bpc)">Log</span>'),
-                (U("11px", "11px"), 'Water · 3 of 8', '<span class="pill" style="background:var(--bpc)">Log</span>'),
+                (U("11px", "11px"), 'Water · 3 glasses today', '<span class="pill" style="background:var(--bpc)">Log</span>'),
                 ('<span style="width:11px;height:11px;border:1.4px dashed var(--dim);border-radius:3px"></span>', '<span class="dim">Read · paused</span>', '<span class="dim">–</span>')]) + '</div>'
         '<div class="z">' + zh("Morning checklist") + '<div class="row"><span class="t">3 of 5</span></div><div style="height:6px;border-radius:3px;background:var(--bsc)"><div style="width:60%;height:100%;border-radius:3px;background:var(--bs)"></div></div></div>'
         '<div class="z">' + zh("Running") + '<div class="row">' + U() + '<span class="t">Stretch</span><span>0:08</span></div></div>'

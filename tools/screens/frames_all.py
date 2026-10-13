@@ -39,7 +39,7 @@ def it(text, small="", lead="", btn=""):
 
 AGENDA = [it("Dentist", "event", "09:00"), it("Pay the fine", "due today", "ck"), it("Call the bank", "reminder", "15:00"),
           it("Return library books", "", "ck")]
-ROUTINES = [it("Walk", "", "", "Log"), it("Water", "3 of 8 · next block 14:00", "", "Log"),
+ROUTINES = [it("Walk", "", "", "Log"), it("Water", "3 glasses today · next block 14:00", "", "Log"),
             it("Morning routine", "checklist 3/5", "", "Open"), it("Reading", "timer · 0:24 running", "", "Stop"),
             it("Sleep", "reading due", "", "Add")]
 

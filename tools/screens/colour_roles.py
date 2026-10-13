@@ -171,7 +171,7 @@ function screens() {
   const rou = `<div class="ph" style="--c-hdr:${resolve("hdr","rou")};--c-tab:${resolve("tab","rou")};--c-barico:${resolve("barico","rou")}">
    <div class="hd">Routines</div><div class="bd"><div class="tabs"><span class="on">Habits</span><span>Trackers</span><span>Charts</span></div>
    <div class="row"><span class="pill" style="background:color-mix(in oklch,${resolve("timer","rou",5,null)} 25%,var(--zone));box-shadow:inset 0 0 0 1px ${resolve("timer","rou",5,null)}">● Reading · 0:24 Stop</span></div>
-   <div class="z"><h4>Due today</h4>${[["Walk",null,3],["Water · 3 of 8",6,null],["Stretch",null,null],["Read · paused","p",null]].map(([n,o,l])=>{
+   <div class="z"><h4>Due today</h4>${[["Walk",null,3],["Water · 3 glasses today",6,null],["Stretch",null,null],["Read · paused","p",null]].map(([n,o,l])=>{
       const paused = o==="p"; const mk = paused ? resolve("paused","rou") : resolve("habitid","rou",o,l);
       return `<div class="row"><span class="dot" style="--u:${mk}"></span><span class="t" style="${paused?`color:${mk}`:""}">${n}</span><span class="pill" style="background:${paused?"var(--zone2)":resolve("log","rou")}">${paused?"–":"Log"}</span></div>`}).join("")}
    <div class="row"><span class="t">Morning routine 3/5</span><span style="width:60px;height:5px;border-radius:3px;background:var(--zone2);overflow:hidden"><i style="display:block;width:60%;height:100%;background:${resolve("checkprog","rou")}"></i></span></div></div>
