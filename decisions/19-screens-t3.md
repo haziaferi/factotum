@@ -366,3 +366,15 @@ The cue field recorded earlier becomes the premise; the block is now set by the 
 - **Energy and time forecast equally on the measures.** The energy form names the "mental load" the owner asked to convey, and it matches the energy filter's own words.
 
 **Recommended: energy, numbers.**
+
+**Two changes from the owner (2026-10-13), drawn and rescored:**
+- **No kind glyph on the Habits page.**
+  > "Since we already are in the Habits page, could the icon/glyph be removed?"
+
+  Every row there is a habit. The mark that tells kinds apart stays where kinds mix (Today, the Day screen, search). Steps keep their numbers, and lone habits line up with the routine headers.
+- **The sentence line shows only the parts that are set.**
+  > "If a habit has a set time or duration, it could be written next to the if, like days?"
+
+  So the line reads: the if, then the days when chosen, then a set time or a window ("After the walk · 08:30", "Before bed · 22:00–23:00", "When I get home · Mon, Thu"). "Every day" is the default, so it is not written; it had been under Morning routine but not on the lone habits.
+
+Rescored: energy and numbers stays on the front (60.5), and the control still loses (83).

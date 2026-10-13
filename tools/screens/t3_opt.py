@@ -422,7 +422,7 @@ def addhabit_phone(v):
         form = '<div class="asheet"><div class="atitle" data-tap="Title">Brush teeth</div><div class="amid">%s</div><div class="afoot"><span data-tap="Cancel">Cancel</span><span class="add" data-tap="Add">Add</span></div></div>' % add_fields(v)
         return base[:-len("</div>")] + form + "</div>"
     # in place: the new row sits in Any time until its block is set, grown with its fields
-    own = ('<div class="row" data-tap="Close"><span class="tm kind">↻</span><span class="t"><span class="nm">%s</span></span>%s</div>' % (
+    own = ('<div class="row" data-tap="Close"><span style="width:4px;flex:none"></span><span class="t"><span class="nm">%s</span></span>%s</div>' % (
         kit.ud("Brush teeth"), kit.icon_button("🗑", "Delete")))
     xp = '<div class="xp">%s%s</div>' % (own, add_fields(v))
     i = base.index('<div class="dayh">Morning</div>')
@@ -481,14 +481,18 @@ def score_addhabit(v):
   Measured: judgment marks; what the header forecasts (facts: steps, energy, time) and whether the order is marked;
   words per row; rows seen, titles cut; clutter, Windows' clutter; and on the Low-energy drawing, whether the header
   says how many steps show.
+  The sentence line shows only the parts that are set (owner, 2026-10-13): the if; the days when they are chosen
+  ("every day" is the default and is not written); a set time ("08:30") or a window ("22:00–23:00").
   Control: the routine as a checklist with progress: "1/4 done · 25%" under its name, the steps plain.
+  No kind glyph on any row (owner, 2026-10-13): every row on the Habits page is a habit; the mark that tells kinds
+  apart stays where kinds mix (Today, the Day screen, search).
 """
 ROUT_SPACE = {"preview": ["none", "steps", "energy", "time"], "seq": ["line", "numbers", "plain"]}
 # a routine: (name, sentence, block, [(habit, energy, minutes, logged)]); a lone habit: (None, if, block, [(habit, ...)])
 ROUTINES = [
-    ("Morning routine", "After waking · every day", "Morning", [("Make the bed", "low", 2, True), ("Wash face", "low", 2, False),
+    ("Morning routine", "After waking", "Morning", [("Make the bed", "low", 2, True), ("Wash face", "low", 2, False),
                                                               ("Brush teeth", "low", 3, False), ("Take meds", "low", 1, False)]),
-    (None, "After the walk", "Morning", [("Shower", "mid", 15, False)]),
+    (None, "After the walk · 08:30", "Morning", [("Shower", "mid", 15, False)]),
     (None, "After lunch", "Midday", [("Tidy the desk", "mid", 10, False)]),
     (None, "When I get home · Mon, Thu", "Afternoon", [("Put a wash on", "high", 10, False)]),
     ("Evening wind-down", "Before bed · 22:00–23:00", "Night", [("Lay out clothes", "mid", 5, False), ("Floss", "low", 2, False), ("Set the alarm", "low", 1, False)]),
@@ -508,7 +512,8 @@ def rdoc(html, theme="light"):
 
 def step_row(h, i, v):
     title, energy, mins, logged = h
-    lead = '<span class="num">%d</span>' % (i + 1) if v["seq"] == "numbers" else '<span class="tm kind">↻</span>'
+    # no kind glyph on the Habits page: every row is a habit (owner, 2026-10-13); the mark belongs where kinds mix
+    lead = '<span class="num">%d</span>' % (i + 1) if v["seq"] == "numbers" else '<span class="num"></span>'
     return '<div class="row" data-tap="Open habit" data-step="1"><span style="width:8px;flex:none"></span>%s<span class="t"><span class="nm">%s</span></span><span class="act" data-tap="Log %s"><span>Log</span></span></div>' % (
         lead, kit.ud(e(title)), title)
 
@@ -521,7 +526,7 @@ def routines_body(v, level="high"):
         live = [h for h in fits if not h[3]]
         if name is None:   # a lone habit: its "if" above it, as T3a.1
             for h in live:
-                out.append('<div class="row" data-tap="Open habit"><span class="tm kind">↻</span><span class="t"><span class="bsub">%s</span><span class="nm">%s</span></span>'
+                out.append('<div class="row" data-tap="Open habit"><span class="t" style="padding-left:4px"><span class="bsub">%s</span><span class="nm">%s</span></span>'
                            '<span class="act" data-tap="Log %s"><span>Log</span></span></div>' % (e(sentence), kit.ud(e(h[0])), h[0]))
             continue
         if ctl:
