@@ -1,8 +1,11 @@
 # 18. Screens T2: items, calendar and alarms
 
 Status: **in progress.**
-- Approved: the alarm ringing and an item's page (owner, 2026-10-12); Calendar's views (owner, 2026-10-13).
-- Still open: the Reminders list, the Day screen (what a calendar day holds), and the Week and 3 days forms.
+- Approved:
+  - the alarm ringing and an item's page (owner, 2026-10-12);
+  - Calendar's views (owner, 2026-10-13);
+  - the Day screen: hours with chips (owner, 2026-10-13).
+- Still open: the Reminders list, and the Week and 3 days forms.
 
 The method is decision 15's: every screen, one at a time, before colour. The owner's T2 answers (2026-10-10) are at the end of `decisions/17-screens-t1.md`.
 
@@ -322,3 +325,20 @@ All 54 options were rescored; the control is still off the front. With everythin
 - It is the only layout that keeps the calendar's view of time: free time as space, length as height.
 
 (The sums are higher than before because 55 options are now ranked, not 46.)
+
+## The Day screen: approved (owner, 2026-10-13)
+
+**The pick: hours, everything, chips.**
+- It is the old Day view, opened from a day tapped in Week or Month, with ‹ back and ✎:
+  - a left column of all 24 hours, opened at the day's first thing;
+  - the line at the current time;
+  - every thing as a block with its times;
+  - the untimed things in a strip above the hours.
+- It shows everything Today shows for that day.
+- Chips under the header (All · Events · Tasks · Routines) show one kind with one tap.
+
+It is on the front, with a sum of 269.5:
+- lookup 12;
+- kinds apart 0.722;
+- the current time shown;
+- clutter 0.053 on the phone and 0.037 on Windows.
