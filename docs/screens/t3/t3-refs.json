@@ -30,5 +30,28 @@
    "mark": "none",
    "done": "stay"
   }
+ ],
+ "trackers": [
+  {
+   "app": "com.hazia.chronicle.debug",
+   "layout": "rows",
+   "says": "today_last",
+   "log": "sheet",
+   "group": "labels"
+  },
+  {
+   "app": "com.samco.trackandgraph",
+   "layout": "grid",
+   "says": "last",
+   "log": "sheet",
+   "group": "flat"
+  },
+  {
+   "app": "org.isoron.uhabits",
+   "layout": "rows",
+   "says": null,
+   "log": "sheet",
+   "group": "flat"
+  }
  ]
 }

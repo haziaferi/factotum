@@ -4,6 +4,7 @@
     python tools/screens/t3_opt.py page_html scores       t3-options.html, t3-scores.html (fails if a control wins)
 
 Parts:
+  trackers T3b.1 the Trackers list: layout, what a row says, what Log does, grouping (owner, 2026-10-13)
   habits2  T3a.1c the Habits list: the optional name, every if as a header (owner, 2026-10-13)
   premise  T3a.2d what the premise box opens (owner, 2026-10-13; axes chosen by the owner)
   hsheet   T3a.2c the New habit sheet, scored from docs/screens/t3/habit-prototype.html (owner, 2026-10-13)
@@ -912,6 +913,180 @@ def score_habits2(v):
             "clutter": T.clutter_of(lambda th: h2doc(habits2_phone(v), th)), "desk_clutter": dclutter(lambda th: habits2_desk(v, th))}
 
 
+# ==== Part trackers: T3b.1 the Trackers list (Hub › Measuring › Trackers) ========================================================
+"""
+  Trackers are what is counted or rated (owner, 2026-10-13: water, exercise, studying, knitting); a habit is yes/no. The
+  four kinds are Chronicle's: a number with a unit, yes/no, a rating 1-5, a choice. Nine placeholder trackers under four
+  labels. Goals are their own screen (T3b): no goal shows here, and an amount reads plain (Tendril's rule, T3.1).
+  layout   rows (the list rows of Today and Habits), grid (two columns of cards, as Track & Graph)
+  says     none (the name only), today ("3 glasses today"), last ("last 11:40"), today_last (both, as Chronicle's
+           "1 today · last just now"), spark (today's amount and the last 7 days as small bars; a day with no reading is
+           a short tick on the baseline)
+  log      sheet (Today's Log opens the Log sheet, the tracker's usual amount filled in, Log there: 2 taps), default
+           (Log logs the usual amount at once and a toast offers Change and Undo; a tracker with no usual amount opens the
+           sheet), stepper (− n + on the row for a number with a usual amount; the others keep Log, opening the sheet)
+  group    flat (manual order), labels (under their labels, as Chronicle's categories)
+  Measured: taps to log a usual glass of water; reach to the first Log (Fitts from the thumb); whether Log acts alike on
+  every row (log_varies); writes made with no confirming step (unconfirmed: a pocket tap logs); the share of rows that
+  say something; judgment marks (empty-day ticks, fractions, percentages, streaks); the rows read on average to find a
+  tracker (scan_steps: a label header counts as one read); whether rows and Log look as Today's; rows seen, titles cut,
+  words per row; clutter, Windows' clutter.
+  Control: a dashboard as many tracker apps draw one: the grid, each card with today against its goal ("3/8 · 38%"), a
+  progress bar, a streak and the 7-day bars, Log through the sheet.
+"""
+TRK_SPACE = {"layout": ["rows", "grid"], "says": ["none", "today", "last", "today_last", "spark"], "log": ["sheet", "default", "stepper"], "group": ["flat", "labels"]}
+# (name, kind, label, today, last, usual amount (None: none), today's number for the stepper, last 7 days oldest first (None: no reading))
+TRACKERS = [
+    ("Water", "number", "Health", "3 glasses today", "last 11:40", "1 glass", 3, [6, 8, 5, 7, 8, 4, 3]),
+    ("Coffee", "number", "Health", "2 cups today", "last 09:15", "1 cup", 2, [2, 2, 1, 3, 2, 2, 2]),
+    ("Sleep", "number", "Health", "7.5 hours today", "last 07:10", None, None, [7, 6.5, 8, 7, None, 7.5, 7.5]),
+    ("Headache", "yesno", "Health", "", "last 3 Oct", None, None, [None, None, None, None, None, None, None]),
+    ("Mood", "rating", "Mind", "4 today", "last 10:20", None, None, [3, 4, None, 4, 3, 5, 4]),
+    ("Exercise", "number", "Moving", "", "last Sun", "30 min", 0, [30, None, 45, None, None, 30, None]),
+    ("Commute", "choice", "Moving", "Bike today", "last 08:30", None, None, ["Bike", "Bus", None, "Bike", "Bike", None, "Bike"]),
+    ("Knitting", "number", "Making", "", "last Sat", "10 rows", 0, [None, 20, None, None, 12, None, None]),
+    ("Studying", "number", "Making", "40 min today", "last 15:00", None, None, [60, 30, None, 45, None, 50, 40]),
+]
+TRK_LABELS = ["Health", "Mind", "Moving", "Making"]
+GOALS = {"Water": (3, 8), "Coffee": (2, 3), "Sleep": (7.5, 8), "Headache": (0, 0), "Mood": (4, 5), "Exercise": (0, 30), "Commute": (1, 1), "Knitting": (0, 20), "Studying": (40, 60)}
+TRK_CSS = """
+.krow .t{min-width:0}.krow .t .nm{font-size:15px}
+.spark{display:flex;align-items:flex-end;gap:2px;height:14px;margin-top:3px}.spark i{width:6px;background:var(--dim);border-radius:1px}.spark i.nil{height:2px!important;opacity:.5}
+.stp{display:flex;align-items:center;flex:none}.stp .sb{width:48px;height:48px;display:grid;place-items:center;font-size:18px;color:var(--ink)}
+.stp .sv{min-width:22px;text-align:center;font-size:15px;font-weight:600}
+.kgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:4px 0}
+.kcard{background:var(--zone2);border-radius:12px;padding:10px 10px 4px;min-height:104px;display:flex;flex-direction:column;min-width:0}
+.kcard .act span{background:var(--zone)}
+.kcard .nm{font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.kcard .foot{margin-top:auto;display:flex;justify-content:flex-end;align-items:center}
+.pbar{height:6px;border-radius:3px;background:var(--zone);margin-top:6px;overflow:hidden}.pbar b{display:block;height:100%;background:var(--ink)}
+.lsheet{position:absolute;left:0;right:0;bottom:0;background:var(--zone);border-radius:20px 20px 0 0;padding:14px 16px 20px;box-shadow:0 -8px 24px rgba(0,0,0,.14)}
+.lsheet h3{margin:0 0 10px;font-size:18px}.lsheet .amt{display:flex;align-items:center;justify-content:center;gap:12px;font-size:20px;margin:6px 0 14px}
+.lsheet .amt span{width:48px;height:48px;display:grid;place-items:center;border-radius:24px;box-shadow:inset 0 0 0 1.5px var(--dim)}
+.lsheet .go{min-height:48px;border-radius:24px;background:var(--ink);color:var(--bg);display:grid;place-items:center;font-weight:600}
+"""
+
+
+def tdoc(html, theme="light"):
+    return doc(html, theme, CSS + BASICS_CSS + TRK_CSS)
+
+
+def trk_says(t, v):
+    name, kind, label, today, last, usual, num, week = t
+    s = v["says"]
+    if s == "none":
+        return ""
+    if s in ("today", "spark"):
+        return today
+    if s == "last":
+        return last
+    return " · ".join(x for x in (today, last) if x)
+
+
+def trk_spark(t):
+    week = t[7]
+    nums = [x if isinstance(x, (int, float)) else (1 if x else None) for x in week]
+    top = max([x for x in nums if x] or [1])
+    return '<span class="spark">%s</span>' % "".join(
+        '<i class="nil" data-empty="1"></i>' if x is None else '<i style="height:%dpx"></i>' % max(3, round(14 * x / top)) for x in nums)
+
+
+def trk_log(t, v):
+    name = t[0]
+    if v["log"] == "stepper" and t[5]:
+        return '<span class="stp"><span class="sb" data-tap="Minus %s">−</span><span class="sv">%d</span><span class="sb" data-tap="Plus %s">+</span></span>' % (name, t[6], name)
+    return '<span class="act" data-tap="Log %s"><span>Log</span></span>' % name
+
+
+def trk_item(t, v):
+    sub = trk_says(t, v)
+    subh = '<span class="bsub">%s</span>' % e(sub) if sub else ""
+    spark = trk_spark(t) if v["says"] == "spark" else ""
+    if v["layout"] == "grid":
+        return '<div class="kcard" data-tap="Open tracker" data-tr="%s"><span class="nm">%s</span>%s%s<span class="foot">%s</span></div>' % (
+            t[0], kit.ud(e(t[0])), subh, spark, trk_log(t, v))
+    return '<div class="row krow" data-tap="Open tracker" data-tr="%s"><span class="t"><span class="nm">%s</span>%s%s</span>%s</div>' % (
+        t[0], kit.ud(e(t[0])), subh, spark, trk_log(t, v))
+
+
+def trk_control_item(t):
+    have, goal = GOALS[t[0]]
+    pct = round(100 * have / goal) if goal else 0
+    streak = {"Water": 13, "Coffee": 9, "Sleep": 2, "Headache": 0, "Mood": 3, "Exercise": 0, "Commute": 1, "Knitting": 0, "Studying": 2}[t[0]]
+    return ('<div class="kcard" data-tap="Open tracker" data-tr="%s"><span class="nm">%s</span><span class="bsub"><span data-judge="1">%s/%s</span> · '
+            '<span data-judge="1">%d%%</span> · <span data-judge="1">streak %d</span></span><span class="pbar" data-judge="1"><b style="width:%d%%"></b></span>%s'
+            '<span class="foot"><span class="act" data-tap="Log %s"><span>Log</span></span></span></div>') % (
+        t[0], kit.ud(e(t[0])), ("%g" % have), ("%g" % goal), pct, streak, min(100, pct), trk_spark(t), t[0])
+
+
+def trackers_body(v):
+    if v.get("control"):
+        return '<div class="zone"><div class="kgrid">%s</div></div>' % "".join(trk_control_item(t) for t in TRACKERS)
+    wrap = (lambda items: '<div class="kgrid">%s</div>' % items) if v["layout"] == "grid" else (lambda items: items)
+    if v["group"] == "flat":
+        body = wrap("".join(trk_item(t, v) for t in TRACKERS))
+    else:
+        body = "".join('<div class="dayh">%s</div>' % lab + wrap("".join(trk_item(t, v) for t in TRACKERS if t[2] == lab)) for lab in TRK_LABELS)
+    return '<div class="zone">%s</div>' % body
+
+
+def trackers_phone(v, after=False):
+    extra = ""
+    if after and not v.get("control"):   # the state after tapping Water's Log (or +)
+        if v["log"] == "sheet":
+            extra = ('<div class="scrim"></div><div class="lsheet"><h3>Water</h3><div class="amt"><span data-tap="Less">−</span>%s<span data-tap="More">+</span></div>'
+                     '<div class="go" data-tap="Log">Log</div></div>') % kit.ud("1 glass")
+        elif v["log"] == "default":
+            extra = ('<div class="toast"><span class="t">Water: 1 glass logged</span><span class="u" data-tap="Change">Change</span>'
+                     '<span class="u" data-tap="Undo">Undo</span></div>')
+    body = trackers_body(v)
+    if after and not v.get("control"):
+        body = body.replace("3 glasses today", "4 glasses today").replace('<span class="sv">3</span>', '<span class="sv">4</span>') if v["log"] != "sheet" else body
+    return kit.phone(kit.header("Trackers", (("⌕", "Search"), ("✎", "Edit")), ("‹", "Back")),
+                     '<div class="cap" data-tap="Capture">+ <span>New tracker…</span></div>' + body + extra, kit.bar("Hub"))
+
+
+def trackers_desk(v, theme="light"):
+    inner = trackers_phone(v).split('<div class="body">', 1)[1].rsplit('<div class="bar">', 1)[0][:-len("</div>")]
+    return desk_doc("Hub", "Trackers", '<div class="dcol" style="width:440px;flex:none">%s</div><div class="page" style="flex:1"></div>' % inner, theme,
+                    CSS + BASICS_CSS + TRK_CSS)
+
+
+TRK_JS = ("(function(){var vb=document.querySelector('.bar').getBoundingClientRect().top;var o={rows:0,words:0,cut:0,judge:0,says:0};"
+          "document.querySelectorAll('[data-tap=\"Open tracker\"]').forEach(function(r){var b=r.getBoundingClientRect();if(!b.height||b.bottom>vb)return;o.rows++;"
+          "var nm=r.querySelector('.nm'),s=r.querySelector('.bsub');o.words+=(nm?nm.innerText:'').split(/\\s+/).filter(Boolean).length+(s?s.innerText.split(/\\s+/).filter(Boolean).length:0);"
+          "if(s&&s.innerText.trim())o.says++;[nm,s].forEach(function(x){if(x&&x.scrollWidth>x.clientWidth+1)o.cut++})});"
+          "document.querySelectorAll('[data-judge],[data-empty]').forEach(function(j){var b=j.getBoundingClientRect();if(b.height&&b.bottom<=vb)o.judge++});return o})()")
+
+
+def trk_scan(v):
+    """The rows read, on average, to find a tracker: its place in the list; under labels, the headers read up to its own plus
+    its place under it."""
+    if v.get("control") or v["group"] == "flat":
+        return round(sum(i + 1 for i in range(len(TRACKERS))) / len(TRACKERS), 3)
+    steps = []
+    for t in TRACKERS:
+        g = TRK_LABELS.index(t[2])
+        within = [x[0] for x in TRACKERS if x[2] == t[2]].index(t[0])
+        steps.append(g + 1 + within + 1)
+    return round(sum(steps) / len(steps), 3)
+
+
+def score_trackers(v):
+    ctl = v.get("control")
+    d = tdoc(trackers_phone(v))
+    tp = T.taps(d)
+    pr = T.probe(d, "t3-trk-%s" % key_of(v), TRK_JS)
+    log = "sheet" if ctl else v["log"]
+    first = next((x for x in tp.all if x["name"] in ("Log Water", "Plus Water") and x.get("seen")), None)
+    return {"taps_count": {"sheet": 2, "default": 1, "stepper": 1}[log], "reach_log": round(T.fitts(THUMB, first), 3) if first else 9,
+            "log_varies": 0 if log == "sheet" else 1, "unconfirmed": 0 if log == "sheet" else 1,
+            "says_share": round(pr["says"] / max(1, pr["rows"]), 3), "judgment_marks": pr["judge"], "scan_steps": trk_scan(v),
+            "like_today": 0 if (not ctl and v["layout"] == "rows" and log != "stepper") else 1,
+            "rows_seen": pr["rows"], "cut": pr["cut"], "words_per_row": round(pr["words"] / max(1, pr["rows"]), 2),
+            "small": small_of(tp, {x["name"] for x in tp.all if x["name"].startswith(("Log ", "Plus ", "Minus "))}),
+            "clutter": T.clutter_of(lambda th: tdoc(trackers_phone(v), th)), "desk_clutter": dclutter(lambda th: trackers_desk(v, th))}
+
+
 def build_refs():
     with open(os.path.join(T.OUT, "t3-references.json"), encoding="utf-8") as fh:
         src = json.load(fh)
@@ -923,6 +1098,7 @@ def build_refs():
             out["habits"].append({"app": r["app"], "presence": "none", "group": "blocks", "log": "row", "amount": "plain"})
     out["basics"] = [{"app": "org.isoron.uhabits", "layout": None, "filter": None, "mark": "none", "done": "stay"},
                      {"app": "com.tendril.app.debug", "layout": "blocks", "filter": None, "mark": "none", "done": "stay"}]
+    out["trackers"] = [{"app": r["app"], **r["as_space"]} for r in src.get("trackers_list", [])]
     with open(os.path.join(T.OUT, "t3-refs.json"), "w", encoding="utf-8", newline="\n") as fh:
         json.dump(out, fh, indent=1, ensure_ascii=False)
 
@@ -931,9 +1107,11 @@ def build_refs():
 T.PREFIX, T.REFS, T.NAME = "t3", "t3-refs.json", "T3 habits, trackers, time, goals, charts and checklists"
 T.OUT = os.path.join(os.path.dirname(M2.T.OUT), "t3")
 # T3.1 "habits" (presence, the first scoring) is kept in t3-habits-v1.json and in the code above; T3a replaced it (owner, 2026-10-13)
-T.SPACES = {"basics": BASICS_SPACE, "addhabit": ADD_SPACE, "routines": ROUT_SPACE, "addsent": SENT_SPACE, "hsheet": HSHEET_SPACE, "premise": PREMISE_SPACE, "habits2": H2_SPACE}
-T.SCORERS = {"basics": score_basics, "addhabit": score_addhabit, "routines": score_routines, "addsent": score_addsent, "hsheet": score_hsheet, "premise": score_premise, "habits2": score_habits2}
-T.CONTROLS = {"habits2": ({"group": "checklist", "name": "progress", "control": True}, "every if as a checklist with progress: '1/4 done · 25%'"),
+T.SPACES = {"trackers": TRK_SPACE, "basics": BASICS_SPACE, "addhabit": ADD_SPACE, "routines": ROUT_SPACE, "addsent": SENT_SPACE, "hsheet": HSHEET_SPACE, "premise": PREMISE_SPACE, "habits2": H2_SPACE}
+T.SCORERS = {"trackers": score_trackers, "basics": score_basics, "addhabit": score_addhabit, "routines": score_routines, "addsent": score_addsent, "hsheet": score_hsheet, "premise": score_premise, "habits2": score_habits2}
+T.CONTROLS = {"trackers": ({"layout": "grid", "says": "goal", "log": "sheet", "group": "flat", "control": True},
+                           "a dashboard: each card with today against its goal ('3/8 · 38%'), a progress bar, a streak and the 7-day bars"),
+              "habits2": ({"group": "checklist", "name": "progress", "control": True}, "every if as a checklist with progress: '1/4 done · 25%'"),
               "premise": ({"premise": "all", "control": True}, "the premise box opens every if, whatever the connective (the prototype before this scoring)"),
               "hsheet": ({"blank": "tendril", "control": True}, "Tendril's Add habit sheet: no weekdays, no energy (the new walk cannot be done)"),
               "addsent": ({"form": "tendril", "energy": "none", "routine": "none", "control": True}, "Tendril's sheet as it is, the cue last (as in T3a.2)"),
@@ -944,7 +1122,10 @@ T.CONTROLS = {"habits2": ({"group": "checklist", "name": "progress", "control": 
                          "the leading design with history added: a streak and a share of days on every row"),
               "habits": ({"presence": "streak", "group": "flat", "log": "cells", "amount": "percent", "control": True},
                          "Loop-like with streaks and a score: a streak and a percentage on every row, the last 4 days as ticks and crosses")}
-T.AXES = {"habits2": {"Judgment": ("judgment_marks",), "Clarity": ("-uniform", "-names_in_view"), "Low capacity": ("words_per_row",),
+T.AXES = {"trackers": {"Ease": ("taps_count", "reach_log"), "Predictable": ("log_varies", "unconfirmed"), "Glance": ("-says_share",),
+                       "Judgment": ("judgment_marks",), "Find": ("scan_steps",), "Consistency": ("like_today",),
+                       "Density": ("-rows_seen", "cut", "words_per_row"), "Calm": ("clutter", "desk_clutter")},
+          "habits2": {"Judgment": ("judgment_marks",), "Clarity": ("-uniform", "-names_in_view"), "Low capacity": ("words_per_row",),
                       "Density": ("-rows_seen", "cut", "header_px"), "Calm": ("clutter", "desk_clutter")},
           "premise": {"Ease": ("taps_join", "typed_join", "taps_new"), "Duplicate guard": ("-duplicate_guard",), "Room with keyboard": ("-sentence_in_view", "clutter"),
                       "Scan load": ("scan_rows",)},
@@ -959,9 +1140,13 @@ T.AXES = {"habits2": {"Judgment": ("judgment_marks",), "Clarity": ("-uniform", "
                      "Choice": ("-filter_says_mid",), "Consistency": ("like_today",), "Density": ("-rows_seen", "cut"), "Calm": ("clutter", "desk_clutter")},
           "habits": {"Ease": ("log_actions", "reach_log"), "Presence": ("-presence_shown", "presence_marks"), "Calm": ("guilt_marks", "clutter", "desk_clutter"),
                      "Density": ("-rows_seen", "cut"), "Consistency": ("like_today",)}}
-T.TITLES = {"habits2": "T3a.1c The Habits list: the optional name, and every if as a header", "premise": "T3a.2d What tapping the premise box opens: nothing, or the ifs with the same connective", "hsheet": "T3a.2c The New habit sheet (prototype): the blanks as text boxes in the sentence, or opened above it", "addsent": "T3a.2b Adding a habit as an open sentence: the When sheet, in place, or fields; energy and routine as words or rows", "routines": "T3a.1b The Habits list with routines: the 'what to expect' preview, how the sequence shows", "addhabit": "T3a.2 Adding a habit: in place or a sheet, the If, the block", "basics": "T3a.1 Habits as Daily basics: layout, the energy filter, its mark, done today", "habits": "T3.1 The Habits list: presence, grouping, where Log sits, a count's amount"}
-T.DRAW = {"habits2": lambda v: [h2doc(habits2_phone(v)), habits2_desk(v)], "premise": lambda v: [premise_doc(v)], "hsheet": lambda v: [adoc(addhabit_phone({"control": True}))] if v.get("control") else [hsheet_doc(v, st) for _, _, st in HSTATES], "addsent": lambda v: [sdoc(addsent_phone(v))] + ([] if (v.get("control") or v["form"] == "fields") else [sdoc(addsent_phone(v, True))]), "routines": lambda v: [rdoc(routines_phone(v)), rdoc(routines_phone(v, "low")), routines_desk(v)], "addhabit": lambda v: [adoc(addhabit_phone(v))], "basics": lambda v: [bdoc(basics_phone(v)), basics_desk(v)], "habits": lambda v: [hdoc(habits_phone(v)), habits_desk(v)]}
-T.POOL = {}
+T.TITLES = {"trackers": "T3b.1 The Trackers list: rows or cards, what a row says, what Log does, grouping", "habits2": "T3a.1c The Habits list: the optional name, and every if as a header", "premise": "T3a.2d What tapping the premise box opens: nothing, or the ifs with the same connective", "hsheet": "T3a.2c The New habit sheet (prototype): the blanks as text boxes in the sentence, or opened above it", "addsent": "T3a.2b Adding a habit as an open sentence: the When sheet, in place, or fields; energy and routine as words or rows", "routines": "T3a.1b The Habits list with routines: the 'what to expect' preview, how the sequence shows", "addhabit": "T3a.2 Adding a habit: in place or a sheet, the If, the block", "basics": "T3a.1 Habits as Daily basics: layout, the energy filter, its mark, done today", "habits": "T3.1 The Habits list: presence, grouping, where Log sits, a count's amount"}
+T.DRAW = {"trackers": lambda v: [tdoc(trackers_phone(v))] + ([] if v.get("control") else [tdoc(trackers_phone(v, True))]) + [trackers_desk(v)], "habits2": lambda v: [h2doc(habits2_phone(v)), habits2_desk(v)], "premise": lambda v: [premise_doc(v)], "hsheet": lambda v: [adoc(addhabit_phone({"control": True}))] if v.get("control") else [hsheet_doc(v, st) for _, _, st in HSTATES], "addsent": lambda v: [sdoc(addsent_phone(v))] + ([] if (v.get("control") or v["form"] == "fields") else [sdoc(addsent_phone(v, True))]), "routines": lambda v: [rdoc(routines_phone(v)), rdoc(routines_phone(v, "low")), routines_desk(v)], "addhabit": lambda v: [adoc(addhabit_phone(v))], "basics": lambda v: [bdoc(basics_phone(v)), basics_desk(v)], "habits": lambda v: [hdoc(habits_phone(v)), habits_desk(v)]}
+T.POOL = {"trackers": lambda ok: [min((r for r in ok if r.get("front") and r["v"]["layout"] == lay and r["v"]["log"] == lg), key=lambda r: r["total"])
+                                    for lay in ("rows", "grid") for lg in ("sheet", "default", "stepper")
+                                    if any(r.get("front") and r["v"]["layout"] == lay and r["v"]["log"] == lg for r in ok)]
+                       + [r for r in ok if r["v"]["layout"] == "rows" and r["v"]["log"] == "sheet" and r["v"]["group"] == "labels" and r["v"]["says"] != "none"]}
+T.DRAW_MAX["trackers"] = 10   # and the leader's family with each thing a row can say: whether a row says anything is the trade (Glance against Calm)   # the best of each family drawn: a front of 40 would draw one family
 # the owner's picks (decision 19) shown, the rest folded; superseded parts folded whole (owner, 2026-10-13)
 T.PICKED = {"routines": [{"preview": "none", "seq": "plain"}, {"preview": "energy", "seq": "numbers"}], "hsheet": [{"blank": "inline"}], "premise": [{"premise": "same"}],
             "habits2": [{"group": "routines", "name": "named"}]}

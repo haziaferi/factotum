@@ -1,16 +1,34 @@
 {
- "about": "T3 phone references (decision 19). Placeholder habits only (Walk, Water), made for this survey in apps we installed or our own debug builds; screenshots in the gitignored _screens-sources/t3/. Bounds in dp (1080 px = 384 dp, density 450).",
+ "about": "T3 phone references (decision 19). Placeholder habits and trackers only (Walk, Water), made for this survey in apps we installed or our own debug builds; screenshots in the gitignored _screens-sources/t3/. Bounds in dp (1080 px = 384 dp, density 450).",
  "habits_list": [
-  {"app": "org.isoron.uhabits", "name": "Loop Habit Tracker 2.3.1", "captured": "2026-10-13",
+  {
+   "app": "org.isoron.uhabits",
+   "name": "Loop Habit Tracker 2.3.1",
+   "captured": "2026-10-13",
    "presence": "score ring left of the name (fills with the habit's score)",
    "days_shown": "the last 4 days as columns, newest first; header row with weekday and date",
    "missed_mark": "a grey cross on every day not done (yes/no habit); 0 glasses on a counted one",
    "done_mark": "an accent tick",
    "grouping": "flat, manual or sorted",
    "log_from_list": "tap a day cell: a popup with a note field and two buttons, tick and cross (yesBtn [88,422,103,48], noBtn [192,422,103,48]); the cell itself is [189,133,48,48]",
-   "row_dp": [0, 133, 384, 48], "name_area_dp": [0, 133, 189, 48],
-   "header": "Abitudini; + add, filter, more"},
-  {"app": "com.tendril.app.debug", "name": "Tendril (source app)", "captured": "2026-10-13",
+   "row_dp": [
+    0,
+    133,
+    384,
+    48
+   ],
+   "name_area_dp": [
+    0,
+    133,
+    189,
+    48
+   ],
+   "header": "Abitudini; + add, filter, more"
+  },
+  {
+   "app": "com.tendril.app.debug",
+   "name": "Tendril (source app)",
+   "captured": "2026-10-13",
    "presence": "none in the list",
    "days_shown": "one day at a time (previous and next day arrows, the day's name)",
    "missed_mark": "none",
@@ -18,10 +36,65 @@
    "grouping": "by time block (Morning 06:30-09:00, Midday, Afternoon, Evening, Night), then Any time today; empty blocks still listed",
    "log_from_list": "1 tap: the checkbox, or the plus button for a count",
    "rule_seen": "on the add-habit sheet, under a counted habit's daily number: 'A number you set for yourself. The row and the sheet count what you did; the number is shown once, in the sheet, and never as a fraction, a bar or a percentage.'",
-   "switches": "Tasks, Habits, Merged segments; By time and Day menus"}
+   "switches": "Tasks, Habits, Merged segments; By time and Day menus"
+  }
  ],
  "habit_logging": [
-  {"app": "org.isoron.uhabits", "form": "popup over the list: note field above tick and cross buttons, 103x48 dp each"}
+  {
+   "app": "org.isoron.uhabits",
+   "form": "popup over the list: note field above tick and cross buttons, 103x48 dp each"
+  }
  ],
- "conflict_for_owner": "T1's approved Today row for a counted habit reads '3 of 8 · next block 14:00', a fraction; Tendril's rule forbids fractions. Both forms are scored in T3.1."
+ "conflict_for_owner": "T1's approved Today row for a counted habit reads '3 of 8 · next block 14:00', a fraction; Tendril's rule forbids fractions. Both forms are scored in T3.1.",
+ "trackers_list": [
+  {
+   "app": "com.hazia.chronicle.debug",
+   "name": "Chronicle (source app), Data tab",
+   "captured": "2026-10-13",
+   "row": "a card per tracker: a kind glyph in a circle (# for a number), the name, a line under it, '+ Log' as a filled pill at the right",
+   "says": "'no entries yet'; after one reading '1 today · last just now'; an older one 'last 8d ago'",
+   "group": "category headers with a count and a fold chevron ('Uncategorised 2'); Checklists in the same screen below; Quick add (a typed log line) folded at the top",
+   "log": "+ Log opens a sheet: Quick (presets) with Set, a − value + stepper, Label, Note, When, Save (2 taps for a stepped 1); a 'Logged' toast",
+   "new_tracker": "a sheet: Name; Type chips Number, Yes / No, Rating, Choice; Unit chips (None, hours, km, times, pages, reps, steps, cal, Custom); 'Set a default value (1-tap logging)' switch; Direction (No preference, Higher is better, Lower is better); Category; Add tracker",
+   "activities": "the Track tab: activities as cards with a round play button (timer), 'last: 5 ott'; its + makes an activity (name, colour wheel, icon, category)",
+   "as_space": {
+    "layout": "rows",
+    "says": "today_last",
+    "log": "sheet",
+    "group": "labels"
+   }
+  },
+  {
+   "app": "com.samco.trackandgraph",
+   "name": "Track & Graph",
+   "captured": "2026-10-13",
+   "row": "a grid of two columns of cards: a ⋮ menu, the name centred, the last time under it ('No Data', '1 minuto fa'), a + at the bottom right; graphs and groups are cards in the same grid",
+   "says": "the last time only, never a value",
+   "group": "groups are cards that open; flat inside",
+   "log": "+ opens a dialog: date and time buttons, Value filled with 1 and the number keypad up, '+ Add a label' and '+ Add a note' folded as chips, Cancel and Add (2 taps); a three-page tutorial the first time",
+   "new_tracker": "a page: Tracker name, an optional description, 'This is a time or duration', Advanced options folded; Create",
+   "empty": "'Welcome to Track & Graph! Tap + in the top right and select Tracker to get started.'",
+   "as_space": {
+    "layout": "grid",
+    "says": "last",
+    "log": "sheet",
+    "group": "flat"
+   }
+  },
+  {
+   "app": "org.isoron.uhabits",
+   "name": "Loop Habit Tracker 2.3.1 (a measurable habit)",
+   "captured": "2026-10-13",
+   "row": "the habits list row: score ring, name, the last 4 days as cells each with the amount and unit ('0 glasses')",
+   "says": "a number per day in each cell",
+   "group": "flat",
+   "log": "a tap on a day cell opens a popup: Note, the value with the system number keypad, Salva (3 taps with typing)",
+   "as_space": {
+    "layout": "rows",
+    "says": null,
+    "log": "sheet",
+    "group": "flat"
+   }
+  }
+ ]
 }

@@ -42,6 +42,8 @@ The Hub's Routines card already lists Habits, Trackers, Activities, Checklists, 
 
 - **Loop Habit Tracker** (installed for the T1 survey on 2026-10-05): the sample habits "Walk" (from T1, with today ticked on 2026-10-13) and "Water" (measured: 8 glasses a day, added 2026-10-13).
 - **Tendril debug:** the sample habits "Walk" (Morning) and "Water" (any time, counts glasses, 8 a day), added 2026-10-13.
+- **Chronicle debug** (Data tab): the sample tracker "Water" (a number, no unit) with one reading of 1, added 2026-10-13. The tracker "Sleep", the activity "Reading" and one archived activity were there before and are not ours.
+- **Track & Graph** (already installed, never opened before): its intro and logging tutorial seen once; the sample tracker "Water" with one reading of 1, added 2026-10-13.
 
 ## T3.1 The Habits list: scored (2026-10-13)
 
@@ -615,3 +617,88 @@ All four forms are on the front, within 3.5 of each other.
 - the New habit sheet (T3a.2, `habit-prototype.html`).
 
 Next: T3b Measuring (trackers, activities and timers, goals).
+
+## T3b.1 The Trackers list: scored (2026-10-13)
+
+Trackers are what is counted or rated; a habit is yes/no (T3a). The four kinds are Chronicle's: a number with a unit, yes/no, a rating 1-5, a choice. No goal shows on this list: goals are their own T3b screen, and an amount reads plain, never as a fraction (T3.1, Tendril's rule).
+
+**References** (`docs/screens/t3/t3-references.json`, `trackers_list`; screenshots in `_screens-sources/t3/`):
+- **Chronicle** (source app), Data tab:
+  - each tracker is a card with a kind glyph (# for a number), its name, a line under it, and a filled "+ Log" pill;
+  - the line reads "no entries yet", then "1 today · last just now";
+  - category headers with a count and a fold;
+  - Checklists sit below on the same screen, and a folded Quick add line (typed logs) sits at the top;
+  - "+ Log" opens a sheet with six controls: Quick presets with Set, a − value + stepper, Label, Note, When, Save;
+  - its New tracker sheet: name; type (Number, Yes / No, Rating, Choice); unit chips; "Set a default value (1-tap logging)"; direction; category.
+- **Track & Graph:**
+  - two columns of cards: the name, the last time ("1 minuto fa"), never a value, and a + at the corner;
+  - graphs and groups are cards in the same grid;
+  - + opens a dialog: date, time, the value filled with 1 and the keypad up, label and note folded as chips, then Add.
+- **Loop**, a measurable habit:
+  - the last 4 days as cells with the amount and unit ("0 glasses");
+  - a cell opens a popup with a note and the value on the system keypad.
+
+**The space** (`tools/screens/t3_opt.py`, part `trackers`): 60 options plus the control. Nine placeholder trackers sit under four labels.
+- layout:
+  - rows: Today's and Habits' rows;
+  - grid: Track & Graph's cards.
+- what a row says:
+  - none: the name only;
+  - today: "3 glasses today";
+  - last: "last 11:40";
+  - today + last: Chronicle's line;
+  - spark: today and the last 7 days as small bars, with a day with no reading drawn as a tick.
+- what Log does:
+  - sheet: Today's Log opens the Log sheet with the usual amount filled in, so 2 taps;
+  - default: Log logs the usual amount at once, with a toast offering Change and Undo; a tracker with no usual amount opens the sheet;
+  - stepper: − n + on the row for a number with a usual amount; the others keep Log.
+- grouping:
+  - flat;
+  - labels.
+
+**Axes:** T2's practice plus the register (decision 19's defaults):
+- Ease: taps to log a usual glass; reach to the first Log.
+- Predictable: whether Log acts alike on every row; writes made with no confirming step.
+- Glance: the share of rows that say something.
+- Judgment: empty-day ticks, fractions, percentages, streaks.
+- Find: the rows read on average to find a tracker, a label header counting as one.
+- Consistency: rows and Log as Today's.
+- Density: rows seen, titles cut, words per row.
+- Calm: clutter, Windows' clutter.
+- Refs: distance from the three references.
+
+**Control:** a dashboard. Each card shows today against its goal ("3/8 · 38%"), a progress bar, a streak and the 7-day bars; Log goes through the sheet. **It lost:** rank sum 528, last but for nothing, with 52 judgment marks against 0.
+
+**Drawn** (`t3-options.html`): the best of each layout × Log family, plus the leader's family with each thing a row can say. The front holds 40 of 61, because eight axes leave room for many trade-offs.
+
+| Option | Sum | Front | Ease | Predictable | Glance | Judgment | Find | Consistency | Density | Calm | Refs |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| rows · none · sheet · labels | 296.5 | ★ | 91.5 | 22 | 55.5 | 24.5 | 15.5 | 10.5 | 45.5 | 16.5 | 15 |
+| rows · today · sheet · labels | 327.5 | ★ | 91.5 | 22 | 39 | 24.5 | 15.5 | 10.5 | 62 | 47.5 | 15 |
+| rows · last · sheet · labels | 331 | ★ | 91.5 | 22 | 13 | 24.5 | 15.5 | 10.5 | 99.5 | 50 | 4.5 |
+| grid · none · sheet · labels | 352.5 | ★ | 61 | 22 | 55.5 | 24.5 | 15.5 | 41 | 84.5 | 24.5 | 24 |
+| rows · none · default · labels | 361.5 | ★ | 61 | 83 | 55.5 | 24.5 | 15.5 | 10.5 | 45.5 | 16.5 | 49.5 |
+| rows · none · stepper · labels | 388 | ★ | 61 | 83 | 55.5 | 24.5 | 15.5 | 41 | 45.5 | 12.5 | 49.5 |
+| rows · today + last · sheet · labels | 389.5 | | 91.5 | 22 | 13 | 24.5 | 15.5 | 10.5 | 111.5 | 96.5 | 4.5 |
+| rows · spark · sheet · labels | 397.5 | ★ | 90 | 22 | 31.5 | 51.5 | 15.5 | 10.5 | 108.5 | 53 | 15 |
+| grid · none · stepper · labels | 415.5 | ★ | 30.5 | 83 | 55.5 | 24.5 | 15.5 | 41 | 84.5 | 22.5 | 58.5 |
+| grid · last · default · labels | 427.5 | ★ | 30.5 | 83 | 13 | 24.5 | 15.5 | 41 | 122 | 56.5 | 41.5 |
+| control | 528 | | 61 | 22 | 13 | 61 | 46 | 41 | 147 | 122 | 15 |
+
+**What the scores say:**
+- **Labels win on Find:** 4.1 rows read on average against 5.0.
+- **Rows win on Consistency and Density:** 9 rows seen against 7 cards.
+- **What a row says** is the one real trade:
+  - The name alone is calmest (clutter 0.033), but says nothing.
+  - "today" leaves the three trackers with nothing today bare.
+  - "last" says something on every row.
+  - "today + last" doubles the words (5.4 a row).
+  - The spark puts 15 empty-day ticks on screen, which counts as judgment.
+- **What Log does** trades Ease against Predictable:
+  - default and stepper log in 1 tap, but act differently on trackers with no usual amount, and write with no confirming step;
+  - sheet always opens the sheet, at 2 taps.
+- Today's Log button is the same pill in every option but the stepper. What Today's Log does on a counted row is decided here too, for the consistency pass.
+
+Found on the way: `.tgrid` and `.trow` were already used by other scorers' styles; the cards collapsed to two. They are now `.kgrid`, `.krow` and `.kcard`.
+
+Status: **scored, awaiting the owner's pick.**
