@@ -61,7 +61,7 @@ _record an amount (water, exercise, studying, knitting, time) and, if wanted, ai
 
 | Screen | Comes from | New in Factotum | Tier | Status | Overlaps |
 |---|---|---|---|---|---|
-| Trackers (water, exercise, studying, knitting) | Chronicle Track |  | T3b | pending | Activities and timers (several at once), Goals, inside their tracker or activity |
+| Trackers (water, exercise, studying, knitting) | Chronicle Track |  | T3b | approved (T3b.1c, 2026-10-13): the most used open with a control per kind, the rest under folded labels; activities on their own screen | Activities and timers (several at once), Goals, inside their tracker or activity |
 | Log sheet (a number, a rating, yes or no, a choice) | Chronicle; Loop's picker (reference) |  | T3b | pending |  |
 | Activities and timers (several at once) | Chronicle activities and sessions; Tendril time logs |  | T3b | pending | Trackers (water, exercise, studying, knitting) |
 | A timer past its limit (keep, end at a time, end at the limit) | Factotum §3.7 (owner, 2026-10-02) | the question itself | T3b | pending (it arrives) |  |
@@ -164,4 +164,4 @@ _make the app work: settings, sync, trash, backup, lock, labels_
 - 2026-10-13: the habit Planner is dropped; its empty structure may be repurposed later for something other than habits. Habits repeat daily or on chosen weekdays; a habit's reminder is off by default, at its block's start or a set time.
 - 2026-10-13: a habit is added as an open if-then sentence; a routine (named by the user) carries the if and the time and holds ordered habits; routine checklists merge into routines; the energy filter hides steps above the level; the routine header's preview is scored.
 
-_55 screens; 5 with no parent app; 10 approved._
+_55 screens; 5 with no parent app; 11 approved._

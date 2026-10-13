@@ -841,4 +841,24 @@ Log is narrowed to sheet and inline, because default and stepper cannot reach a 
 
 So every hybrid leader is apart: trackers here, Activities one tap away.
 
-Status: **awaiting the owner's pick.**
+**T3b.1c approved (owner, 2026-10-13): apart · rows · last · inline · hybrid fit · most used first.**
+- **The Trackers screen holds trackers only.** An "Activities ›" row opens the Activities screen, where ▶ / ■ are (T3b's next screen).
+- **The most used trackers sit open at the top**, as many as fit one phone screen above the folded labels, each with its control:
+  - "+ 1 glass" for a number with a usual amount;
+  - Yes for yes/no;
+  - the five ratings as chips;
+  - the two most recent choices, then …;
+  - Log (the sheet) for a number with no usual amount.
+- **The rest sit under their labels**, folded, each label with its count.
+- **Each row says when it was last logged** ("last 11:40").
+- **A one-tap log writes at once**, and a toast offers Undo.
+
+**Owed in the data layer, added:**
+- a tracker's usual amount (Chronicle's default value) and usual answer for yes/no;
+- a choice tracker's most recent choices;
+- the logging frequency or recency that orders the list and fills the open top;
+- which labels are open, as device state.
+
+**For the consistency pass:** Today's tracker rows against these controls (owner: decided there).
+
+Next: T3b.2 Activities (timers: where running timers show, several at once, the 12-hour question, editing a session).

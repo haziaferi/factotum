@@ -1633,7 +1633,8 @@ T.DRAW_MAX["measure2"] = 8   # the references all log through a sheet: shown, no
 T.DRAW_MAX["trackers"] = 10   # and the leader's family with each thing a row can say: whether a row says anything is the trade (Glance against Calm)   # the best of each family drawn: a front of 40 would draw one family
 # the owner's picks (decision 19) shown, the rest folded; superseded parts folded whole (owner, 2026-10-13)
 T.PICKED = {"routines": [{"preview": "none", "seq": "plain"}, {"preview": "energy", "seq": "numbers"}], "hsheet": [{"blank": "inline"}], "premise": [{"premise": "same"}],
-            "habits2": [{"group": "routines", "name": "named"}]}
+            "habits2": [{"group": "routines", "name": "named"}],
+            "measure2": [{"scope": "apart", "layout": "rows", "says": "last", "log": "inline", "group": "hybrid_fit", "order": "recent"}]}
 T.SUPERSEDED = {"measure": "scroll was undercounted (owner, 2026-10-13): T3b.1c replaced it", "trackers": "P4 Measuring is scored taps first (owner, 2026-10-13): T3b.1b replaced it", "habits": "re-cut by purpose; T3a.1 Daily basics replaced it", "basics": "routines replaced it (T3a.1b)",
                 "addhabit": "the open sentence replaced it (T3a.2b), then the prototype (T3a.2c)", "addsent": "the prototype sheet replaced it (T3a.2c)"}
 T.v2.TOL.setdefault("_reach_log", 0.05)
