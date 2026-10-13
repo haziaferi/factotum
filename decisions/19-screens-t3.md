@@ -308,3 +308,29 @@ All eight options are on the front; the control is not.
 - **Suggested anchors** save a keyboard and set the block for free.
 
 **Recommended: in place, suggested anchors, the block set by the anchor.**
+
+## Routines, and adding a habit as a sentence (owner, 2026-10-13)
+
+**The owner's proposal.** Instead of suggested anchors, which fit only once or twice a day and add to the screen, a habit is added as an open fill-in sentence:
+> If/After/Before/When/During [premise] then [habit], daily / days of the week (several), no set time / at [time] / from [start] to [end].
+
+And an "if" can be a parent: a routine the user names (e.g. "Morning routine") holds habits in the user's order. It shows that they belong to one sequence, and how much the series asks of the person, "an invisible 'what to expect' layer". The owner: "a 'complexity' addition to the creation step is worth it if it enhances the user's experience overall."
+
+**Assessed:**
+- **The sentence is T1.5 and T1.6's approved "When" sentence pattern.** It is consistent, not new. Defaults are filled (every day, no set time), so the minimum is two blanks.
+- **A routine is a behaviour chain:** each step cues the next.
+- **The routine's name replaces the block header.** It does not add a layer, and its header can carry a forecast, not history.
+- **A user's routine of ordered habits is a routine checklist,** so the strong overlap group O1 (Daily basics) resolves into one concept.
+
+**The owner's answers:**
+1. **The routine carries the "if" and the time.** The habits inside are ordered steps that inherit it. A habit outside any routine keeps its own sentence.
+2. **Routine checklists merge into routines.** Checklists remain only as one-off lists (packing, shopping).
+3. **With the energy filter on, steps above the level are hidden.** The routine stays, and its header says how many steps show ("2 of 3 steps").
+4. **The routine header's "what to expect" preview: score the forms.** None, steps, steps with the highest energy, steps with time, against a control.
+
+**Owed in the data layer:**
+- **A routine:** a name, its sentence (connective, premise, days, no time, at a time, or from and to), its ordered habits, and a habit's place in at most one routine.
+- **The merge with Chronicle's resettable checklists** (`checklist`, `checklist_item`): a routine checklist becomes a routine; a one-off list stays a checklist.
+- **A habit's own sentence:** connective, premise, days, time.
+
+The cue field recorded earlier becomes the premise; the block is now set by the sentence's time.

@@ -268,13 +268,13 @@
   },
   {
    "id": "routine_checklists",
-   "name": "Routine checklists (resettable, e.g. Morning routine)",
+   "name": "Routines (a named if-then holding ordered habits; routine checklists merged in)",
    "purpose": "P3",
    "sources": [
     "Chronicle checklists"
    ],
    "tier": "T3a",
-   "status": "pending (owner: routine checklists join Daily basics)",
+   "status": "merged into routines (owner, 2026-10-13); scored as part of Habits",
    "nav": [
     "tick a checklist"
    ],
@@ -283,7 +283,8 @@
    ],
    "overlaps": [
     "habits"
-   ]
+   ],
+   "new": "the routine as a parent if-then with ordered steps and a 'what to expect' header (owner, 2026-10-13)"
   },
   {
    "id": "capacity_day",
@@ -930,7 +931,7 @@
  "overlap_groups": [
   {
    "id": "O1",
-   "strength": "strong",
+   "strength": "strong (resolved 2026-10-13: routines of habits replace routine checklists)",
    "screens": [
     "habits",
     "routine_checklists",
@@ -998,6 +999,7 @@
   "2026-10-13: Checklists split: routine checklists join Daily basics, one-off lists stay lists.",
   "2026-10-13: the purpose map, once settled, decides how the Hub's elements are grouped.",
   "2026-10-13: habits are yes/no only; trackers appear on Today; the if-then cue is the block (order) and a written cue (wording); a habit has an energy level, and Habits and Today get a filter for what can be handled now, reset each day.",
-  "2026-10-13: the habit Planner is dropped; its empty structure may be repurposed later for something other than habits. Habits repeat daily or on chosen weekdays; a habit's reminder is off by default, at its block's start or a set time."
+  "2026-10-13: the habit Planner is dropped; its empty structure may be repurposed later for something other than habits. Habits repeat daily or on chosen weekdays; a habit's reminder is off by default, at its block's start or a set time.",
+  "2026-10-13: a habit is added as an open if-then sentence; a routine (named by the user) carries the if and the time and holds ordered habits; routine checklists merge into routines; the energy filter hides steps above the level; the routine header's preview is scored."
  ]
 }
