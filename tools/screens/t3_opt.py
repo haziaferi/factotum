@@ -4,6 +4,7 @@
     python tools/screens/t3_opt.py page_html scores       t3-options.html, t3-scores.html (fails if a control wins)
 
 Parts:
+  routines T3a.1b the Habits list with routines (owner, 2026-10-13): the preview, how the sequence shows
   addhabit T3a.2 adding a habit (owner, 2026-10-13: score in place against a sheet)
   basics   T3a.1 Habits as Daily basics (owner, 2026-10-13): layout, the energy filter, its mark, done today
   habits   T3.1 the Habits list (Hub › Routines › Habits): how presence shows, grouping, where Log sits, and how a
@@ -468,6 +469,113 @@ def score_addhabit(v):
                 addhabit_phone(v).split('<div class="body">', 1)[1].rsplit('<div class="bar">', 1)[0][:-len("</div>")]), th, CSS + BASICS_CSS + ADD_CSS))}
 
 
+# ==== Part routines: T3a.1b the Habits list with routines (owner, 2026-10-13) ===================================================
+"""
+  A routine (named by the person) carries the if-then sentence and its time; its habits are ordered steps under it. A
+  habit outside any routine keeps its own sentence (its "if" above it, T3a.1). Routine checklists merged in. Fixed from
+  the approvals: energy chips with High on by default; T1's Log button; a Logged step folds (as Today); with a lower
+  energy level the steps above it hide and the header says how many show.
+  preview  none, steps ("4 steps"), energy ("4 steps · up to Mid"), time ("4 steps · about 8 min", from each habit's
+           duration)
+  seq      line (a thin line joins the steps down the left), numbers (1, 2, 3 before each step), plain (rows only)
+  Measured: judgment marks; what the header forecasts (facts: steps, energy, time) and whether the order is marked;
+  words per row; rows seen, titles cut; clutter, Windows' clutter; and on the Low-energy drawing, whether the header
+  says how many steps show.
+  Control: the routine as a checklist with progress: "1/4 done · 25%" under its name, the steps plain.
+"""
+ROUT_SPACE = {"preview": ["none", "steps", "energy", "time"], "seq": ["line", "numbers", "plain"]}
+# a routine: (name, sentence, block, [(habit, energy, minutes, logged)]); a lone habit: (None, if, block, [(habit, ...)])
+ROUTINES = [
+    ("Morning routine", "After waking · every day", "Morning", [("Make the bed", "low", 2, True), ("Wash face", "low", 2, False),
+                                                              ("Brush teeth", "low", 3, False), ("Take meds", "low", 1, False)]),
+    (None, "After the walk", "Morning", [("Shower", "mid", 15, False)]),
+    (None, "After lunch", "Midday", [("Tidy the desk", "mid", 10, False)]),
+    (None, "When I get home · Mon, Thu", "Afternoon", [("Put a wash on", "high", 10, False)]),
+    ("Evening wind-down", "Before bed · 22:00–23:00", "Night", [("Lay out clothes", "mid", 5, False), ("Floss", "low", 2, False), ("Set the alarm", "low", 1, False)]),
+]
+LEVEL = {"low": 0, "mid": 1, "high": 2}
+ROUT_CSS = """
+.rhead{display:flex;align-items:flex-end;gap:8px;padding:10px 4px 2px}.rhead .rn{font-size:15px;font-weight:600}
+.rhead .rs{display:block;font-size:12px;color:var(--dim)}.rhead .rp{margin-left:auto;font-size:12px;color:var(--dim);white-space:nowrap}
+.rsteps{position:relative}.rsteps.joined:before{content:"";position:absolute;left:21px;top:14px;bottom:14px;width:1.5px;background:var(--dim);opacity:.5}
+.row .num{width:20px;flex:none;text-align:center;color:var(--dim);font-size:13px}
+"""
+
+
+def rdoc(html, theme="light"):
+    return doc(html, theme, CSS + BASICS_CSS + ROUT_CSS)
+
+
+def step_row(h, i, v):
+    title, energy, mins, logged = h
+    lead = '<span class="num">%d</span>' % (i + 1) if v["seq"] == "numbers" else '<span class="tm kind">↻</span>'
+    return '<div class="row" data-tap="Open habit" data-step="1"><span style="width:8px;flex:none"></span>%s<span class="t"><span class="nm">%s</span></span><span class="act" data-tap="Log %s"><span>Log</span></span></div>' % (
+        lead, kit.ud(e(title)), title)
+
+
+def routines_body(v, level="high"):
+    ctl = v.get("control")
+    out = []
+    for name, sentence, block, steps in ROUTINES:
+        fits = [h for h in steps if LEVEL[h[1]] <= LEVEL[level]]
+        live = [h for h in fits if not h[3]]
+        if name is None:   # a lone habit: its "if" above it, as T3a.1
+            for h in live:
+                out.append('<div class="row" data-tap="Open habit"><span class="tm kind">↻</span><span class="t"><span class="bsub">%s</span><span class="nm">%s</span></span>'
+                           '<span class="act" data-tap="Log %s"><span>Log</span></span></div>' % (e(sentence), kit.ud(e(h[0])), h[0]))
+            continue
+        if ctl:
+            done = sum(1 for h in steps if h[3])
+            prev = '<span data-judge="1">%d/%d done</span> · <span data-judge="1">%d%%</span>' % (done, len(steps), round(100 * done / len(steps)))
+        else:
+            n = len(fits)
+            shown = "%d of %d steps" % (n, len(steps)) if n < len(steps) else "%d steps" % n
+            top = max((h[1] for h in fits), key=lambda x: LEVEL[x]) if fits else "low"
+            prev = {"none": "" if n == len(steps) else shown, "steps": shown, "energy": "%s · up to %s" % (shown, top.capitalize()),
+                    "time": "%s · about %d min" % (shown, sum(h[2] for h in fits))}[v["preview"]]
+        out.append('<div class="rhead" data-routine="%s"><span><span class="rn">%s</span><span class="rs">%s</span></span><span class="rp" data-facts="%d">%s</span></div>' % (
+            name, kit.ud(e(name)), e(sentence), 0 if ctl else {"none": 0, "steps": 1, "energy": 2, "time": 2}[v["preview"]], prev))
+        cls = "rsteps joined" if (not ctl and v["seq"] == "line") else "rsteps"
+        out.append('<div class="%s">%s</div>' % (cls, "".join(step_row(h, i, v if not ctl else dict(v, seq="plain")) for i, h in enumerate(live))))
+    done_n = sum(1 for _, _, _, st in ROUTINES for h in st if h[3])
+    out.append('<div class="fold" data-tap="Done today"><span class="t">Done today · %d</span>▸</div>' % done_n)
+    chips = '<div class="fchips">%s</div>' % "".join('<span class="%s" data-tap="Energy %s">%s</span>' % ("on" if x.lower() == level else "", x, x) for x in ("Low", "Mid", "High"))
+    return chips + '<div class="zone">%s</div>' % "".join(out)
+
+
+def routines_phone(v, level="high"):
+    return kit.phone(kit.header("Habits", (("⌕", "Search"), ("✎", "Edit")), ("‹", "Back")),
+                     '<div class="cap" data-tap="Capture">+ <span>New habit…</span></div>' + routines_body(v, level), kit.bar("Hub"))
+
+
+def routines_desk(v, theme="light"):
+    inner = routines_phone(v).split('<div class="body">', 1)[1].rsplit('<div class="bar">', 1)[0][:-len("</div>")]
+    return desk_doc("Hub", "Habits", '<div class="dcol" style="width:440px;flex:none">%s</div><div class="page" style="flex:1"></div>' % inner, theme, CSS + BASICS_CSS + ROUT_CSS)
+
+
+ROUT_JS = ("(function(){var vb=document.querySelector('.bar').getBoundingClientRect().top;var o={rows:0,words:0,cut:0,judge:0,facts:0,heads:0,says_hidden:0};"
+           "document.querySelectorAll('[data-tap=\"Open habit\"]').forEach(function(r){var b=r.getBoundingClientRect();if(!b.height||b.bottom>vb)return;o.rows++;"
+           "var t=r.querySelector('.t');o.words+=t?t.innerText.split(/\\s+/).filter(Boolean).length:0;r.querySelectorAll('.nm,.bsub').forEach(function(s){if(s.scrollWidth>s.clientWidth+1)o.cut++})});"
+           "document.querySelectorAll('.rhead').forEach(function(h){var b=h.getBoundingClientRect();if(b.bottom>vb)return;o.heads++;var p=h.querySelector('.rp');"
+           "o.facts+=parseInt(p.dataset.facts||'0');if(/ of /.test(p.innerText))o.says_hidden++;o.words+=h.innerText.split(/\\s+/).filter(Boolean).length});"
+           "document.querySelectorAll('[data-judge]').forEach(function(j){var b=j.getBoundingClientRect();if(b.height&&b.bottom<=vb)o.judge++});return o})()")
+
+
+def score_routines(v):
+    ctl = v.get("control")
+    d = rdoc(routines_phone(v))
+    tp = T.taps(d)
+    pr = T.probe(d, "t3-rout-%s" % key_of(v), ROUT_JS)
+    low = T.probe(rdoc(routines_phone(v, "low")), "t3-rout-low-%s" % key_of(v), ROUT_JS)
+    units = pr["rows"] + pr["heads"]
+    return {"judgment_marks": pr["judge"], "forecast_facts": round(pr["facts"] / max(1, pr["heads"]), 2),
+            "order_marked": 0 if ctl else (1 if v["seq"] in ("line", "numbers") else 0),
+            "low_says_hidden": 1 if low["says_hidden"] else 0, "words_per_row": round(pr["words"] / max(1, units), 2),
+            "rows_seen": pr["rows"], "cut": pr["cut"],
+            "small": small_of(tp, {x["name"] for x in tp.all if x["name"].startswith(("Log ", "Energy "))}),
+            "clutter": T.clutter_of(lambda th: rdoc(routines_phone(v), th)), "desk_clutter": dclutter(lambda th: routines_desk(v, th))}
+
+
 def build_refs():
     with open(os.path.join(T.OUT, "t3-references.json"), encoding="utf-8") as fh:
         src = json.load(fh)
@@ -487,22 +595,25 @@ def build_refs():
 T.PREFIX, T.REFS, T.NAME = "t3", "t3-refs.json", "T3 habits, trackers, time, goals, charts and checklists"
 T.OUT = os.path.join(os.path.dirname(M2.T.OUT), "t3")
 # T3.1 "habits" (presence, the first scoring) is kept in t3-habits-v1.json and in the code above; T3a replaced it (owner, 2026-10-13)
-T.SPACES = {"basics": BASICS_SPACE, "addhabit": ADD_SPACE}
-T.SCORERS = {"basics": score_basics, "addhabit": score_addhabit}
-T.CONTROLS = {"addhabit": ({"form": "tendril", "cue": "last", "block": "where", "control": True},
+T.SPACES = {"basics": BASICS_SPACE, "addhabit": ADD_SPACE, "routines": ROUT_SPACE}
+T.SCORERS = {"basics": score_basics, "addhabit": score_addhabit, "routines": score_routines}
+T.CONTROLS = {"routines": ({"preview": "progress", "seq": "plain", "control": True}, "the routine as a checklist with progress: '1/4 done · 25%' under its name, the steps plain"),
+              "addhabit": ({"form": "tendril", "cue": "last", "block": "where", "control": True},
                            "Tendril's sheet as it is, the cue last: schedule, every N, where, counts something, area, note, Cancel and Add"),
               "basics": ({"layout": "blocks", "filter": "chips", "mark": "streak", "done": "fold", "control": True},
                          "the leading design with history added: a streak and a share of days on every row"),
               "habits": ({"presence": "streak", "group": "flat", "log": "cells", "amount": "percent", "control": True},
                          "Loop-like with streaks and a score: a streak and a percentage on every row, the last 4 days as ticks and crosses")}
-T.AXES = {"addhabit": {"Ease": ("taps", "keyboard", "reach", "hidden_targets"), "Complete": ("energy_field",), "Context": ("-context_rows",),
+T.AXES = {"routines": {"Judgment": ("judgment_marks",), "Expect": ("-forecast_facts", "-order_marked", "-low_says_hidden"), "Low capacity": ("words_per_row",),
+                       "Density": ("-rows_seen", "cut"), "Calm": ("clutter", "desk_clutter")},
+          "addhabit": {"Ease": ("taps", "keyboard", "reach", "hidden_targets"), "Complete": ("energy_field",), "Context": ("-context_rows",),
                        "Clarity": ("-fields_seen",), "Safety": ("lost_on_back",), "Consistency": ("like_item_page",), "Calm": ("clutter", "desk_clutter")},
           "basics": {"Judgment": ("judgment_marks",), "Cue": ("-cue_shown", "disorder"), "Low capacity": ("words_per_row", "filter_actions", "reach_filter", "reach_log"),
                      "Choice": ("-filter_says_mid",), "Consistency": ("like_today",), "Density": ("-rows_seen", "cut"), "Calm": ("clutter", "desk_clutter")},
           "habits": {"Ease": ("log_actions", "reach_log"), "Presence": ("-presence_shown", "presence_marks"), "Calm": ("guilt_marks", "clutter", "desk_clutter"),
                      "Density": ("-rows_seen", "cut"), "Consistency": ("like_today",)}}
-T.TITLES = {"addhabit": "T3a.2 Adding a habit: in place or a sheet, the If, the block", "basics": "T3a.1 Habits as Daily basics: layout, the energy filter, its mark, done today", "habits": "T3.1 The Habits list: presence, grouping, where Log sits, a count's amount"}
-T.DRAW = {"addhabit": lambda v: [adoc(addhabit_phone(v))], "basics": lambda v: [bdoc(basics_phone(v)), basics_desk(v)], "habits": lambda v: [hdoc(habits_phone(v)), habits_desk(v)]}
+T.TITLES = {"routines": "T3a.1b The Habits list with routines: the 'what to expect' preview, how the sequence shows", "addhabit": "T3a.2 Adding a habit: in place or a sheet, the If, the block", "basics": "T3a.1 Habits as Daily basics: layout, the energy filter, its mark, done today", "habits": "T3.1 The Habits list: presence, grouping, where Log sits, a count's amount"}
+T.DRAW = {"routines": lambda v: [rdoc(routines_phone(v)), rdoc(routines_phone(v, "low")), routines_desk(v)], "addhabit": lambda v: [adoc(addhabit_phone(v))], "basics": lambda v: [bdoc(basics_phone(v)), basics_desk(v)], "habits": lambda v: [hdoc(habits_phone(v)), habits_desk(v)]}
 T.POOL = {}
 T.v2.TOL.setdefault("_reach_log", 0.05)
 T.v2.TOL.setdefault("_reach_filter", 0.05)

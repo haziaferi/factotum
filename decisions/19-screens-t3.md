@@ -334,3 +334,35 @@ And an "if" can be a parent: a routine the user names (e.g. "Morning routine") h
 - **A habit's own sentence:** connective, premise, days, time.
 
 The cue field recorded earlier becomes the premise; the block is now set by the sentence's time.
+
+## T3a.1b The Habits list with routines: scored (2026-10-13)
+
+**Part `routines`.**
+- **The sample:** two routines and three lone habits:
+  - Morning routine (After waking · every day): Make the bed (done), Wash face, Brush teeth, Take meds;
+  - Evening wind-down (Before bed · 22:00–23:00): Lay out clothes, Floss, Set the alarm;
+  - lone: Shower, Tidy the desk, Put a wash on.
+- **The 12 options:** preview (none / steps / steps with the highest energy / steps with time) × sequence (a line / numbers / plain).
+- **The axes:**
+  - Judgment;
+  - Expect (forecast facts in the header, the order marked, and whether the Low-energy drawing says how many steps show);
+  - Low capacity (words per unit);
+  - Density;
+  - Calm.
+- **The control:** the routine as a checklist with progress ("1/4 done · 25%"). It loses at 83.5.
+
+| Option | Sum | Forecast facts | Order marked | Words | Clutter, phone / Windows | On the front |
+|---|---|---|---|---|---|---|
+| none, numbers | 54.5 | 0 | yes | 4.3 | 0.048 / 0.021 | yes |
+| steps, numbers | 55.5 | 1 | yes | 4.7 | 0.049 / 0.022 | yes |
+| **energy, numbers** ("4 steps · up to Mid") | **59.5** | **2** | yes | 5.5 | 0.051 / 0.022 | yes |
+| time, numbers ("4 steps · about 8 min") | 59.5 | 2 | yes | 5.5 | 0.051 / 0.023 | yes |
+| none, line | 58.5 | 0 | yes | 4.3 | 0.050 / 0.022 | no |
+| none, plain | 61.5 | 0 | no | 4.3 | 0.049 / 0.022 | no |
+
+**What the scores say:**
+- **Numbers mark the sequence** more calmly than a joining line, and both beat plain rows.
+- **A fuller forecast costs words.** "None" is cheapest because it forecasts nothing, which is the owner's reason for the header.
+- **Energy and time forecast equally on the measures.** The energy form names the "mental load" the owner asked to convey, and it matches the energy filter's own words.
+
+**Recommended: energy, numbers.**

@@ -1,0 +1,213 @@
+[
+ {
+  "v": {
+   "preview": "none",
+   "seq": "line"
+  },
+  "judgment_marks": 0,
+  "forecast_facts": 0.0,
+  "order_marked": 1,
+  "low_says_hidden": 1,
+  "words_per_row": 4.3,
+  "rows_seen": 8,
+  "cut": 0,
+  "small": [],
+  "clutter": 0.05,
+  "desk_clutter": 0.022
+ },
+ {
+  "v": {
+   "preview": "none",
+   "seq": "numbers"
+  },
+  "judgment_marks": 0,
+  "forecast_facts": 0.0,
+  "order_marked": 1,
+  "low_says_hidden": 1,
+  "words_per_row": 4.3,
+  "rows_seen": 8,
+  "cut": 0,
+  "small": [],
+  "clutter": 0.0479,
+  "desk_clutter": 0.0213
+ },
+ {
+  "v": {
+   "preview": "none",
+   "seq": "plain"
+  },
+  "judgment_marks": 0,
+  "forecast_facts": 0.0,
+  "order_marked": 0,
+  "low_says_hidden": 1,
+  "words_per_row": 4.3,
+  "rows_seen": 8,
+  "cut": 0,
+  "small": [],
+  "clutter": 0.0485,
+  "desk_clutter": 0.0215
+ },
+ {
+  "v": {
+   "preview": "steps",
+   "seq": "line"
+  },
+  "judgment_marks": 0,
+  "forecast_facts": 1.0,
+  "order_marked": 1,
+  "low_says_hidden": 1,
+  "words_per_row": 4.7,
+  "rows_seen": 8,
+  "cut": 0,
+  "small": [],
+  "clutter": 0.0512,
+  "desk_clutter": 0.0225
+ },
+ {
+  "v": {
+   "preview": "steps",
+   "seq": "numbers"
+  },
+  "judgment_marks": 0,
+  "forecast_facts": 1.0,
+  "order_marked": 1,
+  "low_says_hidden": 1,
+  "words_per_row": 4.7,
+  "rows_seen": 8,
+  "cut": 0,
+  "small": [],
+  "clutter": 0.0491,
+  "desk_clutter": 0.0218
+ },
+ {
+  "v": {
+   "preview": "steps",
+   "seq": "plain"
+  },
+  "judgment_marks": 0,
+  "forecast_facts": 1.0,
+  "order_marked": 0,
+  "low_says_hidden": 1,
+  "words_per_row": 4.7,
+  "rows_seen": 8,
+  "cut": 0,
+  "small": [],
+  "clutter": 0.0497,
+  "desk_clutter": 0.022
+ },
+ {
+  "v": {
+   "preview": "energy",
+   "seq": "line"
+  },
+  "judgment_marks": 0,
+  "forecast_facts": 2.0,
+  "order_marked": 1,
+  "low_says_hidden": 1,
+  "words_per_row": 5.5,
+  "rows_seen": 8,
+  "cut": 0,
+  "small": [],
+  "clutter": 0.0529,
+  "desk_clutter": 0.0231
+ },
+ {
+  "v": {
+   "preview": "energy",
+   "seq": "numbers"
+  },
+  "judgment_marks": 0,
+  "forecast_facts": 2.0,
+  "order_marked": 1,
+  "low_says_hidden": 1,
+  "words_per_row": 5.5,
+  "rows_seen": 8,
+  "cut": 0,
+  "small": [],
+  "clutter": 0.0508,
+  "desk_clutter": 0.0224
+ },
+ {
+  "v": {
+   "preview": "energy",
+   "seq": "plain"
+  },
+  "judgment_marks": 0,
+  "forecast_facts": 2.0,
+  "order_marked": 0,
+  "low_says_hidden": 1,
+  "words_per_row": 5.5,
+  "rows_seen": 8,
+  "cut": 0,
+  "small": [],
+  "clutter": 0.0514,
+  "desk_clutter": 0.0226
+ },
+ {
+  "v": {
+   "preview": "time",
+   "seq": "line"
+  },
+  "judgment_marks": 0,
+  "forecast_facts": 2.0,
+  "order_marked": 1,
+  "low_says_hidden": 1,
+  "words_per_row": 5.5,
+  "rows_seen": 8,
+  "cut": 0,
+  "small": [],
+  "clutter": 0.0533,
+  "desk_clutter": 0.0232
+ },
+ {
+  "v": {
+   "preview": "time",
+   "seq": "numbers"
+  },
+  "judgment_marks": 0,
+  "forecast_facts": 2.0,
+  "order_marked": 1,
+  "low_says_hidden": 1,
+  "words_per_row": 5.5,
+  "rows_seen": 8,
+  "cut": 0,
+  "small": [],
+  "clutter": 0.0511,
+  "desk_clutter": 0.0225
+ },
+ {
+  "v": {
+   "preview": "time",
+   "seq": "plain"
+  },
+  "judgment_marks": 0,
+  "forecast_facts": 2.0,
+  "order_marked": 0,
+  "low_says_hidden": 1,
+  "words_per_row": 5.5,
+  "rows_seen": 8,
+  "cut": 0,
+  "small": [],
+  "clutter": 0.0518,
+  "desk_clutter": 0.0227
+ },
+ {
+  "v": {
+   "preview": "progress",
+   "seq": "plain",
+   "control": true
+  },
+  "why": "the routine as a checklist with progress: '1/4 done · 25%' under its name, the steps plain",
+  "control": true,
+  "judgment_marks": 4,
+  "forecast_facts": 0.0,
+  "order_marked": 0,
+  "low_says_hidden": 0,
+  "words_per_row": 5.1,
+  "rows_seen": 8,
+  "cut": 0,
+  "small": [],
+  "clutter": 0.0509,
+  "desk_clutter": 0.0224
+ }
+]
