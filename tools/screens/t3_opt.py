@@ -4,6 +4,7 @@
     python tools/screens/t3_opt.py page_html scores       t3-options.html, t3-scores.html (fails if a control wins)
 
 Parts:
+  addsent  T3a.2b adding a habit as an open sentence (owner, 2026-10-13)
   routines T3a.1b the Habits list with routines (owner, 2026-10-13): the preview, how the sequence shows
   addhabit T3a.2 adding a habit (owner, 2026-10-13: score in place against a sheet)
   basics   T3a.1 Habits as Daily basics (owner, 2026-10-13): layout, the energy filter, its mark, done today
@@ -581,6 +582,128 @@ def score_routines(v):
             "clutter": T.clutter_of(lambda th: rdoc(routines_phone(v), th)), "desk_clutter": dclutter(lambda th: routines_desk(v, th))}
 
 
+# ==== Part addsent: T3a.2b adding a habit as an open sentence (owner, 2026-10-13) ===============================================
+"""
+  The owner's sentence: [If/After/Before/When/During] [premise] then [habit], [every day / days of the week], [no set
+  time / at a time / from a time to a time]. A routine carries its own sentence; a habit put in a routine inherits it.
+  Its words are tappable as in T1's approved When sheet (repeat_opt's .tok: underlined, 48 dp targets).
+  form    when (T1's When sheet pattern: a fixed-height sheet, the sentence pinned at its foot, the tapped word's chooser
+          above it), inplace (the new row grows in the list with the sentence inside it; a tapped word's chooser opens
+          under the sentence), fields (the earlier in-place form with fields, T3a.2's leader, as the baseline)
+  energy  sentence ("…, low energy" is a word of the sentence), chips (Low · Mid · High under it)
+  routine sentence ("…, in Morning routine", a word opening the routines and New routine), row (a line of its own)
+  Walked: adding "Brush teeth" into Morning routine, Low (the routine sets after waking, every day, no set time; so
+  the habit's own if is not asked): taps (typing excluded), keyboards, reach in order, hidden targets, the sentence
+  reads whole (the rule as one line a person can check), lost on leaving, likeness to T1's When sheet, clutter.
+  A second walk: a lone habit, "After breakfast then floss, Mon Wed Fri, at 08:30, Low": taps and keyboards.
+  Control: Tendril's sheet as it is, the cue last (as in T3a.2).
+"""
+SENT_SPACE = {"form": ["when", "inplace", "fields"], "energy": ["sentence", "chips"], "routine": ["sentence", "row"]}
+SENT_CSS = """
+.sent{font-size:17px;line-height:48px}.sent .tok{display:inline-flex;min-height:48px;align-items:center;justify-content:center;padding:0 2px;min-width:48px}
+.sent .tok b{font-weight:600;text-decoration:underline;text-decoration-color:var(--dim);text-underline-offset:4px}
+.wsheet{position:absolute;left:0;right:0;bottom:0;height:560px;background:var(--bg);border-radius:20px 20px 0 0;box-shadow:0 -6px 24px rgba(0,0,0,.18);padding:8px 14px;z-index:30;display:flex;flex-direction:column}
+.wsheet .choose{flex:1;min-height:0;overflow:hidden}.wsheet .foot{border-top:1px solid var(--zone2);padding-top:4px}
+.wsheet .ur{display:flex;gap:8px;font-size:13px;color:var(--dim)}.wsheet .ur span{min-height:48px;min-width:48px;display:grid;place-items:center}
+.wsheet .achips{padding-left:0}.xp .achips{padding-left:4px}
+.clab{font-size:12px;color:var(--dim);letter-spacing:.04em;text-transform:uppercase;padding:6px 0 2px}
+"""
+
+
+def sdoc(html, theme="light"):
+    return doc(html, theme, CSS + BASICS_CSS + ADD_CSS + ROUT_CSS + SENT_CSS)
+
+
+def tok(name, word):
+    return '<span class="tok" data-tap="Tok %s"><b>%s</b></span>' % (name, word)
+
+
+def sentence_html(v, lone=False):
+    """The habit's sentence, as typed so far: the habit is in, the routine (or the lone habit's if) to set."""
+    if lone:
+        s = "%s %s then %s, %s, %s" % (tok("conn", "After"), tok("premise", "breakfast"), tok("habit", "floss"), tok("days", "Mon, Wed, Fri"), tok("time", "at 08:30"))
+    else:
+        s = "%s %s then %s, %s, %s" % (tok("conn", "If"), tok("premise", "…"), tok("habit", "brush teeth"), tok("days", "every day"), tok("time", "no set time"))
+    if v["energy"] == "sentence":
+        s += ", " + tok("energy", "low energy" if lone else "energy…")
+    if v["routine"] == "sentence" and not lone:
+        s += ", " + tok("routine", "in a routine…")
+    return '<div class="sent">%s.</div>' % s
+
+
+def sent_extras(v, lone=False):
+    out = ""
+    if v["energy"] == "chips":
+        out += '<div class="clab">Energy</div><div class="achips tall">%s</div>' % "".join('<span data-tap="Energy %s">%s</span>' % (x, x) for x in ("Low", "Mid", "High"))
+    if v["routine"] == "row" and not lone:
+        out += '<div class="fld" data-tap="Routine"><i>≡</i><span class="v">Routine<small>None · tap to put it in one</small></span></div>'
+    return out
+
+
+def routine_chooser():
+    return '<div class="clab">Put it in</div><div class="achips tall">%s</div>' % "".join(
+        '<span data-tap="R %s">%s</span>' % (r, r) for r in ("Morning routine", "Evening wind-down", "New routine…"))
+
+
+def addsent_phone(v, lone=False):
+    base = routines_phone({"preview": "none", "seq": "plain"})
+    if v.get("control"):
+        return addhabit_phone({"control": True})
+    if v["form"] == "fields":
+        return addhabit_phone({"form": "inplace", "cue": "suggest", "block": "from_cue"})
+    chooser = routine_chooser() if not lone else ""
+    if v["form"] == "when":
+        sheet = ('<div class="wsheet"><div class="choose">%s%s</div><div class="foot">%s<div class="ur"><span data-tap="Undo">Undo</span><span data-tap="Redo">Redo</span></div></div></div>') % (
+            chooser, sent_extras(v, lone), sentence_html(v, lone))
+        return base[:-len("</div>")] + sheet + "</div>"
+    own = '<div class="row" data-tap="Close"><span class="t" style="padding-left:4px"><span class="nm">%s</span></span>%s</div>' % (kit.ud("Brush teeth" if not lone else "Floss"), kit.icon_button("🗑", "Delete"))
+    xp = '<div class="xp">%s%s%s%s</div>' % (own, sentence_html(v, lone), sent_extras(v, lone), chooser)
+    i = base.index('<div class="rhead"')
+    return base[:i] + xp + base[i:]
+
+
+def walk(v, lone=False):
+    """Taps after the name is typed in the capture line, and keyboards, for each walk."""
+    if v.get("control"):
+        return (1 + 1 + 4, 2) if not lone else (1 + 1 + 5, 2)   # New habit, Add; block, cue, Add (+ set time); the cue typed
+    if v["form"] == "fields":
+        # T3a.2's walk; a lone habit: New habit, ✓, the cue field (typed), the block line and Morning, Low, the Repeat
+        # field and Mon, Wed, Fri, the Reminder/time field, At and the dial: the same days and time as the sentence's
+        return (4, 1) if not lone else (2 + 1 + 2 + 1 + 4 + 3, 2)
+    taps = 2   # New habit…, the name's ✓
+    kb = 1
+    if not lone:
+        taps += 1 + 1                     # the routine word (or row), then Morning routine: it sets the if, days, time
+        taps += 1 if v["energy"] == "chips" else 2   # the chip; or the energy word, then Low
+    else:
+        taps += 2 + 1                     # the connective, then After; the premise
+        kb += 1                           # the premise typed
+        taps += 1 + 3                     # the days word, then Mon, Wed, Fri
+        taps += 1 + 2                     # the time word, then At, the dial (hour, minute: counted as 1 for the typed field)
+        taps += 1 if v["energy"] == "chips" else 2
+    return taps, kb
+
+
+def score_addsent(v):
+    ctl = v.get("control")
+    d = sdoc(addsent_phone(v))
+    tp = T.taps(d)
+    taps, kb = walk(v)
+    taps2, kb2 = walk(v, True)
+    want = ["R Morning routine"] + (["Energy Low"] if (not ctl and v.get("energy") == "chips" and v.get("form") != "fields") else [])
+    found = [tp[n] for n in want if n in tp]
+    hidden = sum(1 for n in want if n in tp and not tp[n].get("seen"))
+    reach = sum(T.fitts(THUMB, x) for x in found) / max(1, len(found)) if found else 3.5
+    reads = 1 if (not ctl and v["form"] in ("when", "inplace") and v["energy"] == "sentence" and v["routine"] == "sentence") else (0.5 if (not ctl and v["form"] in ("when", "inplace")) else 0)
+    return {"taps": taps, "keyboards": kb, "taps_lone": taps2, "keyboards_lone": kb2, "reach": round(reach, 3), "hidden_targets": hidden,
+            "sentence_reads": reads, "lost_on_back": 0 if (not ctl) else 1, "like_when": 0 if (not ctl and v["form"] == "when") else 1,
+            "context_rows": seen_count(tp, "Open habit"),
+            "small": small_of(tp, {x["name"] for x in tp.all if x["name"].startswith(("Tok ", "Energy", "R ", "Undo", "Redo"))}),
+            "clutter": T.clutter_of(lambda th: sdoc(addsent_phone(v), th)), "desk_clutter": dclutter(lambda th: desk_doc("Hub", "Habits",
+                '<div class="dcol" style="width:440px;flex:none">%s</div><div class="page" style="flex:1"></div>' % addsent_phone(v).split('<div class="body">', 1)[1].rsplit('<div class="bar">', 1)[0][:-len("</div>")],
+                th, CSS + BASICS_CSS + ADD_CSS + ROUT_CSS + SENT_CSS))}
+
+
 def build_refs():
     with open(os.path.join(T.OUT, "t3-references.json"), encoding="utf-8") as fh:
         src = json.load(fh)
@@ -600,16 +723,19 @@ def build_refs():
 T.PREFIX, T.REFS, T.NAME = "t3", "t3-refs.json", "T3 habits, trackers, time, goals, charts and checklists"
 T.OUT = os.path.join(os.path.dirname(M2.T.OUT), "t3")
 # T3.1 "habits" (presence, the first scoring) is kept in t3-habits-v1.json and in the code above; T3a replaced it (owner, 2026-10-13)
-T.SPACES = {"basics": BASICS_SPACE, "addhabit": ADD_SPACE, "routines": ROUT_SPACE}
-T.SCORERS = {"basics": score_basics, "addhabit": score_addhabit, "routines": score_routines}
-T.CONTROLS = {"routines": ({"preview": "progress", "seq": "plain", "control": True}, "the routine as a checklist with progress: '1/4 done · 25%' under its name, the steps plain"),
+T.SPACES = {"basics": BASICS_SPACE, "addhabit": ADD_SPACE, "routines": ROUT_SPACE, "addsent": SENT_SPACE}
+T.SCORERS = {"basics": score_basics, "addhabit": score_addhabit, "routines": score_routines, "addsent": score_addsent}
+T.CONTROLS = {"addsent": ({"form": "tendril", "energy": "none", "routine": "none", "control": True}, "Tendril's sheet as it is, the cue last (as in T3a.2)"),
+              "routines": ({"preview": "progress", "seq": "plain", "control": True}, "the routine as a checklist with progress: '1/4 done · 25%' under its name, the steps plain"),
               "addhabit": ({"form": "tendril", "cue": "last", "block": "where", "control": True},
                            "Tendril's sheet as it is, the cue last: schedule, every N, where, counts something, area, note, Cancel and Add"),
               "basics": ({"layout": "blocks", "filter": "chips", "mark": "streak", "done": "fold", "control": True},
                          "the leading design with history added: a streak and a share of days on every row"),
               "habits": ({"presence": "streak", "group": "flat", "log": "cells", "amount": "percent", "control": True},
                          "Loop-like with streaks and a score: a streak and a percentage on every row, the last 4 days as ticks and crosses")}
-T.AXES = {"routines": {"Judgment": ("judgment_marks",), "Expect": ("-forecast_facts", "-order_marked", "-low_says_hidden"), "Low capacity": ("words_per_row",),
+T.AXES = {"addsent": {"Ease": ("taps", "keyboards", "taps_lone", "keyboards_lone", "reach", "hidden_targets"), "Clarity": ("-sentence_reads",),
+                      "Safety": ("lost_on_back",), "Consistency": ("like_when",), "Context": ("-context_rows",), "Calm": ("clutter", "desk_clutter")},
+          "routines": {"Judgment": ("judgment_marks",), "Expect": ("-forecast_facts", "-order_marked", "-low_says_hidden"), "Low capacity": ("words_per_row",),
                        "Density": ("-rows_seen", "cut"), "Calm": ("clutter", "desk_clutter")},
           "addhabit": {"Ease": ("taps", "keyboard", "reach", "hidden_targets"), "Complete": ("energy_field",), "Context": ("-context_rows",),
                        "Clarity": ("-fields_seen",), "Safety": ("lost_on_back",), "Consistency": ("like_item_page",), "Calm": ("clutter", "desk_clutter")},
@@ -617,8 +743,8 @@ T.AXES = {"routines": {"Judgment": ("judgment_marks",), "Expect": ("-forecast_fa
                      "Choice": ("-filter_says_mid",), "Consistency": ("like_today",), "Density": ("-rows_seen", "cut"), "Calm": ("clutter", "desk_clutter")},
           "habits": {"Ease": ("log_actions", "reach_log"), "Presence": ("-presence_shown", "presence_marks"), "Calm": ("guilt_marks", "clutter", "desk_clutter"),
                      "Density": ("-rows_seen", "cut"), "Consistency": ("like_today",)}}
-T.TITLES = {"routines": "T3a.1b The Habits list with routines: the 'what to expect' preview, how the sequence shows", "addhabit": "T3a.2 Adding a habit: in place or a sheet, the If, the block", "basics": "T3a.1 Habits as Daily basics: layout, the energy filter, its mark, done today", "habits": "T3.1 The Habits list: presence, grouping, where Log sits, a count's amount"}
-T.DRAW = {"routines": lambda v: [rdoc(routines_phone(v)), rdoc(routines_phone(v, "low")), routines_desk(v)], "addhabit": lambda v: [adoc(addhabit_phone(v))], "basics": lambda v: [bdoc(basics_phone(v)), basics_desk(v)], "habits": lambda v: [hdoc(habits_phone(v)), habits_desk(v)]}
+T.TITLES = {"addsent": "T3a.2b Adding a habit as an open sentence: the When sheet, in place, or fields; energy and routine as words or rows", "routines": "T3a.1b The Habits list with routines: the 'what to expect' preview, how the sequence shows", "addhabit": "T3a.2 Adding a habit: in place or a sheet, the If, the block", "basics": "T3a.1 Habits as Daily basics: layout, the energy filter, its mark, done today", "habits": "T3.1 The Habits list: presence, grouping, where Log sits, a count's amount"}
+T.DRAW = {"addsent": lambda v: [sdoc(addsent_phone(v))] + ([] if (v.get("control") or v["form"] == "fields") else [sdoc(addsent_phone(v, True))]), "routines": lambda v: [rdoc(routines_phone(v)), rdoc(routines_phone(v, "low")), routines_desk(v)], "addhabit": lambda v: [adoc(addhabit_phone(v))], "basics": lambda v: [bdoc(basics_phone(v)), basics_desk(v)], "habits": lambda v: [hdoc(habits_phone(v)), habits_desk(v)]}
 T.POOL = {}
 T.v2.TOL.setdefault("_reach_log", 0.05)
 T.v2.TOL.setdefault("_reach_filter", 0.05)

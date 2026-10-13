@@ -1,0 +1,265 @@
+[
+ {
+  "v": {
+   "form": "when",
+   "energy": "sentence",
+   "routine": "sentence"
+  },
+  "taps": 6,
+  "keyboards": 1,
+  "taps_lone": 14,
+  "keyboards_lone": 2,
+  "reach": 3.435,
+  "hidden_targets": 0,
+  "sentence_reads": 1,
+  "lost_on_back": 0,
+  "like_when": 0,
+  "context_rows": 0,
+  "small": [],
+  "clutter": 0.0331,
+  "desk_clutter": 0.0208
+ },
+ {
+  "v": {
+   "form": "when",
+   "energy": "sentence",
+   "routine": "row"
+  },
+  "taps": 6,
+  "keyboards": 1,
+  "taps_lone": 14,
+  "keyboards_lone": 2,
+  "reach": 3.435,
+  "hidden_targets": 0,
+  "sentence_reads": 0.5,
+  "lost_on_back": 0,
+  "like_when": 0,
+  "context_rows": 0,
+  "small": [],
+  "clutter": 0.0343,
+  "desk_clutter": 0.0208
+ },
+ {
+  "v": {
+   "form": "when",
+   "energy": "chips",
+   "routine": "sentence"
+  },
+  "taps": 5,
+  "keyboards": 1,
+  "taps_lone": 13,
+  "keyboards_lone": 2,
+  "reach": 3.57,
+  "hidden_targets": 0,
+  "sentence_reads": 0.5,
+  "lost_on_back": 0,
+  "like_when": 0,
+  "context_rows": 0,
+  "small": [],
+  "clutter": 0.0344,
+  "desk_clutter": 0.0208
+ },
+ {
+  "v": {
+   "form": "when",
+   "energy": "chips",
+   "routine": "row"
+  },
+  "taps": 5,
+  "keyboards": 1,
+  "taps_lone": 13,
+  "keyboards_lone": 2,
+  "reach": 3.57,
+  "hidden_targets": 0,
+  "sentence_reads": 0.5,
+  "lost_on_back": 0,
+  "like_when": 0,
+  "context_rows": 0,
+  "small": [],
+  "clutter": 0.0356,
+  "desk_clutter": 0.0208
+ },
+ {
+  "v": {
+   "form": "inplace",
+   "energy": "sentence",
+   "routine": "sentence"
+  },
+  "taps": 6,
+  "keyboards": 1,
+  "taps_lone": 14,
+  "keyboards_lone": 2,
+  "reach": 2.798,
+  "hidden_targets": 0,
+  "sentence_reads": 1,
+  "lost_on_back": 0,
+  "like_when": 1,
+  "context_rows": 2,
+  "small": [],
+  "clutter": 0.0527,
+  "desk_clutter": 0.0249
+ },
+ {
+  "v": {
+   "form": "inplace",
+   "energy": "sentence",
+   "routine": "row"
+  },
+  "taps": 6,
+  "keyboards": 1,
+  "taps_lone": 14,
+  "keyboards_lone": 2,
+  "reach": 2.798,
+  "hidden_targets": 0,
+  "sentence_reads": 0.5,
+  "lost_on_back": 0,
+  "like_when": 1,
+  "context_rows": 2,
+  "small": [],
+  "clutter": 0.0539,
+  "desk_clutter": 0.0245
+ },
+ {
+  "v": {
+   "form": "inplace",
+   "energy": "chips",
+   "routine": "sentence"
+  },
+  "taps": 5,
+  "keyboards": 1,
+  "taps_lone": 13,
+  "keyboards_lone": 2,
+  "reach": 3.17,
+  "hidden_targets": 0,
+  "sentence_reads": 0.5,
+  "lost_on_back": 0,
+  "like_when": 1,
+  "context_rows": 1,
+  "small": [],
+  "clutter": 0.0547,
+  "desk_clutter": 0.0248
+ },
+ {
+  "v": {
+   "form": "inplace",
+   "energy": "chips",
+   "routine": "row"
+  },
+  "taps": 5,
+  "keyboards": 1,
+  "taps_lone": 13,
+  "keyboards_lone": 2,
+  "reach": 3.055,
+  "hidden_targets": 0,
+  "sentence_reads": 0.5,
+  "lost_on_back": 0,
+  "like_when": 1,
+  "context_rows": 0,
+  "small": [],
+  "clutter": 0.0542,
+  "desk_clutter": 0.0246
+ },
+ {
+  "v": {
+   "form": "fields",
+   "energy": "sentence",
+   "routine": "sentence"
+  },
+  "taps": 4,
+  "keyboards": 1,
+  "taps_lone": 13,
+  "keyboards_lone": 2,
+  "reach": 3.5,
+  "hidden_targets": 0,
+  "sentence_reads": 0,
+  "lost_on_back": 0,
+  "like_when": 1,
+  "context_rows": 0,
+  "small": [],
+  "clutter": 0.0553,
+  "desk_clutter": 0.0247
+ },
+ {
+  "v": {
+   "form": "fields",
+   "energy": "sentence",
+   "routine": "row"
+  },
+  "taps": 4,
+  "keyboards": 1,
+  "taps_lone": 13,
+  "keyboards_lone": 2,
+  "reach": 3.5,
+  "hidden_targets": 0,
+  "sentence_reads": 0,
+  "lost_on_back": 0,
+  "like_when": 1,
+  "context_rows": 0,
+  "small": [],
+  "clutter": 0.0553,
+  "desk_clutter": 0.0247
+ },
+ {
+  "v": {
+   "form": "fields",
+   "energy": "chips",
+   "routine": "sentence"
+  },
+  "taps": 4,
+  "keyboards": 1,
+  "taps_lone": 13,
+  "keyboards_lone": 2,
+  "reach": 3.5,
+  "hidden_targets": 0,
+  "sentence_reads": 0,
+  "lost_on_back": 0,
+  "like_when": 1,
+  "context_rows": 0,
+  "small": [],
+  "clutter": 0.0553,
+  "desk_clutter": 0.0247
+ },
+ {
+  "v": {
+   "form": "fields",
+   "energy": "chips",
+   "routine": "row"
+  },
+  "taps": 4,
+  "keyboards": 1,
+  "taps_lone": 13,
+  "keyboards_lone": 2,
+  "reach": 3.5,
+  "hidden_targets": 0,
+  "sentence_reads": 0,
+  "lost_on_back": 0,
+  "like_when": 1,
+  "context_rows": 0,
+  "small": [],
+  "clutter": 0.0553,
+  "desk_clutter": 0.0247
+ },
+ {
+  "v": {
+   "form": "tendril",
+   "energy": "none",
+   "routine": "none",
+   "control": true
+  },
+  "why": "Tendril's sheet as it is, the cue last (as in T3a.2)",
+  "control": true,
+  "taps": 6,
+  "keyboards": 2,
+  "taps_lone": 7,
+  "keyboards_lone": 2,
+  "reach": 3.5,
+  "hidden_targets": 0,
+  "sentence_reads": 0,
+  "lost_on_back": 1,
+  "like_when": 1,
+  "context_rows": 0,
+  "small": [],
+  "clutter": 0.0421,
+  "desk_clutter": 0.0206
+ }
+]

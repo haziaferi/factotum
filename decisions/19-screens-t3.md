@@ -396,3 +396,40 @@ Rescored: energy and numbers stays on the front (60.5), and the control still lo
 - **ON:** the header adds "4 steps · up to Mid", and the steps are numbered.
 - Read as one switch for both; to confirm.
 - Where the switch lives (Settings, or editing the page) is to be decided.
+
+## T3a.2b Adding a habit as an open sentence: scored (2026-10-13)
+
+**Part `addsent`.** It supersedes T3a.2's field form, which is kept here as the baseline.
+
+**The sentence's words are tappable**, as in T1's approved When sheet:
+> If/After… [premise] then [habit], [days], [time], plus energy and the routine.
+
+**The 12 options:**
+- **form:** the When sheet (fixed height, the sentence pinned at its foot, the chooser above) / the new row growing in place with the sentence inside / T3a.2's fields;
+- **energy:** a word of the sentence / chips under it;
+- **routine:** a word of the sentence / a row of its own.
+
+**Two walks:**
+- "Brush teeth" into Morning routine, Low. The routine sets the if, days and time.
+- A lone "After breakfast then floss, Mon Wed Fri, at 08:30, Low".
+
+The taps are walked per path as written in the docstring. The field form's lone walk first left out the days and the time, which every form needs; it was corrected before ranking.
+
+**The control:** Tendril's sheet. It loses at 97.5.
+
+| Option | Sum | Taps (routine / lone) | Reads as one sentence | Like T1's When | Clutter, phone / Windows | On the front |
+|---|---|---|---|---|---|---|
+| **When sheet, energy and routine as words** | **72.5** | 6 / 14 | yes | yes | 0.033 / 0.021 | yes |
+| When sheet, energy chips, routine as a word | 73.5 | 5 / 13 | partly | yes | 0.034 / 0.021 | yes |
+| When sheet, energy chips, routine row | 74 | 5 / 13 | partly | yes | 0.036 / 0.021 | no |
+| in place, energy chips, routine as a word | 79 | 5 / 13 | partly | no | 0.055 / 0.025 | yes |
+| in place, both as words | 79.5 | 6 / 14 | yes | no | 0.053 / 0.025 | yes |
+| fields (T3a.2) | 92 | 4 / 13 | no | no | 0.055 / 0.025 | no |
+| control (Tendril's sheet) | 97.5 | 6 / 7 | no | no | 0.042 / 0.021 | no |
+
+**Reading the table:**
+- **The When sheet** is the calmest form, and it is the pattern already approved for dates and repeats. Its fixed height keeps the sentence in one place.
+- **Putting energy and the routine in the sentence** costs one tap each against chips. In return, the whole rule reads back as one line to check.
+- **The fields form** is quickest only for a habit going into a routine (4 taps). It never shows the rule as a sentence.
+
+**Recommended:** the When sheet, with energy and the routine as words of the sentence.
