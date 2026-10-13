@@ -83,6 +83,8 @@ h1{font-size:19px;margin:0 0 4px}.dim{color:var(--dim)}
   </div>
   <div class="side">
     <h2>Variant to score</h2>
+    <label>Tapping the premise box opens:
+      <select onchange="S.v.premise=this.value;render(true)"><option value="same">the ifs with the same connective (B)</option><option value="none">nothing (A)</option><option value="all">every if (the control)</option></select></label>
     <label>The blanks:
       <select id="vblank" onchange="S.v.blank=this.value;render(true)"><option value="inline">text boxes in the sentence</option><option value="chooser">a word that opens a text box above</option></select></label>
     <h2>Rules</h2>
@@ -106,8 +108,8 @@ const IFS=[{conn:"After",premise:"waking",days:[0,1,2,3,4,5,6],time:{kind:"none"
   {conn:"After",premise:"lunch",days:[0,1,2,3,4,5,6],time:{kind:"none",a:"13:00",b:"14:00"},habits:["Tidy the desk"]},
   {conn:"When",premise:"I get home",days:[0,3],time:{kind:"none",a:"18:00",b:"19:00"},habits:["Put a wash on"]},
   {conn:"Before",premise:"bed",days:[0,1,2,3,4,5,6],time:{kind:"span",a:"22:00",b:"23:00"},habits:["Lay out clothes","Floss","Set the alarm"]}];
-const S={conn:"If",premise:"",habit:"",days:new Set([0,1,2,3,4,5,6]),time:{kind:"none",a:"08:00",b:"09:00"},energy:null,joined:null,
-  open:null,ifsOpen:false,v:{blank:"inline"}};
+const S={conn:"If",premise:"",habit:"",days:new Set([0,1,2,3,4,5,6]),time:{kind:"none",a:"08:00",b:"09:00",more:[]},energy:null,joined:null,
+  open:null,ifsOpen:false,ifsFrom:null,v:{blank:"inline",premise:"same"}};
 // ---- undo and redo, as the When sheet: every change to the habit is a step ---------------------------------------------
 const KEYS=["conn","premise","habit","days","time","energy","joined"];
 function snap(){return JSON.stringify(KEYS.map(k=>k==="days"?[...S.days]:S[k]))}
@@ -124,9 +126,14 @@ function chip(label,on,act){return `<button class="chip${on?" on":""}" data-tap=
 function daysText(){const d=[...S.days].sort();if(d.length===7)return"every day";
   if(d.length===5&&d.every((x,i)=>x===i))return"weekdays";if(d.length===2&&d[0]===5&&d[1]===6)return"weekends";return d.map(i=>WD[i]).join(", ")}
 function overnight(){return toMin(S.time.b)<=toMin(S.time.a)?" the next day":""}
-function timeText(){const t=S.time;if(t.kind==="none")return"no set time";if(t.kind==="at")return"at "+t.a;return`from ${t.a} to ${t.b}${overnight()}`}
+function timeText(){const t=S.time;if(t.kind==="none")return"no set time";if(t.kind==="at")return"at "+[t.a].concat(t.more||[]).join(" and ");return`from ${t.a} to ${t.b}${overnight()}`}
+// a slot is "a" or "b", or "m0", "m1"… for the times "+ time" adds to "at" (as the When sheet's)
+function getT(sl){return sl[0]==="m"?S.time.more[+sl.slice(1)]:S.time[sl]}
+function setT(sl,v){if(sl[0]==="m")S.time.more[+sl.slice(1)]=v;else S.time[sl]=v}
+function addTime(){S.time.more=(S.time.more||[]).concat(["20:30"]);E.slot="m"+(S.time.more.length-1);E.stage="h";render()}
+function dropTime(){S.time.more.pop();E.slot="a";render()}
 function blank(id,ph){
-  if(S.v.blank==="inline")return `<input class="blank" data-tap="Blank ${id}" id="b-${id}" placeholder="${ph}" value="${esc(S[id])}" style="width:${(S[id]?Math.max(S[id].length,3):ph.length)+1}ch" oninput="this.style.width=((this.value?Math.max(this.value.length,3):${ph.length})+1)+'ch'" onchange="setText('${id}',this.value)" onfocus="S.open=null;S.ifsOpen=${id==="premise"};renderArea()">`;
+  if(S.v.blank==="inline")return `<input class="blank" data-tap="Blank ${id}" id="b-${id}" placeholder="${ph}" value="${esc(S[id])}" style="width:${(S[id]?Math.max(S[id].length,3):ph.length)+1}ch" oninput="this.style.width=((this.value?Math.max(this.value.length,3):${ph.length})+1)+'ch'" onchange="setText('${id}',this.value)" onfocus="premiseFocus('${id}')">`;
   return S[id]?tok(id,esc(S[id])):tok(id,ph,(" empty"))}
 function sentence(){const inh=S.joined!==null?" inh":"";
   return `${tok("conn",S.conn,inh)} ${S.joined!==null?tok("premise",esc(S.premise),inh):blank("premise","something")} then ${blank("habit","the habit")}, ${tok("days",daysText(),inh)}, ${tok("time",timeText(),inh)}, ${tok("energy",S.energy?S.energy.toLowerCase()+" energy":"energy",S.energy?"":" empty")}.`}
@@ -137,8 +144,14 @@ function readout(){
   if(match>=0)return `“${S.conn} ${S.premise}” is already an if: choose it in Available ifs to join it.`;
   return S.premise.trim()?"A new if, with this one habit.":""}
 // ---- choosers (above the sentence; the sheet grows upward only) ----------------------------------------------------------
-function ifsList(){return `<div class="small">Available ifs · choosing one fills the if, its days and its time</div>`+
-  IFS.map((f,i)=>`<button class="ifrow" data-tap="If ${f.conn} ${f.premise}" onclick="pickIf(${i})"><span>${f.conn} ${f.premise}${f.time.kind==="at"?" · "+f.time.a:f.time.kind==="span"?" · "+f.time.a+"–"+f.time.b:""}${f.days.length<7?" · "+f.days.map(i=>WD[i]).join(", "):""}</span><span class="n">${f.habits.length} ${f.habits.length===1?"habit":"habits"}</span></button>`).join("")}
+// what the premise box opens: nothing (A), or the ifs that start with the chosen connective (B); the control opens them all
+function premiseFocus(id){S.open=null;if(id!=="premise"||S.v.premise==="none"){S.ifsOpen=false;renderArea();return}
+  S.ifsOpen=true;S.ifsFrom="premise";renderArea()}
+function ifsShown(){return IFS.map((f,i)=>[f,i]).filter(([f])=>S.ifsFrom!=="premise"||S.v.premise==="all"||f.conn===S.conn)}
+function ifsList(){const shown=ifsShown();
+  if(!shown.length)return `<div class="small">No “${S.conn}” ifs yet: this one will be the first.</div>`;
+  return `<div class="small">${S.ifsFrom==="premise"&&S.v.premise==="same"?"“"+S.conn+"” ifs":"Available ifs"} · choosing one fills the if, its days and its time</div>`+
+  shown.map(([f,i])=>`<button class="ifrow" data-tap="If ${f.conn} ${f.premise}" onclick="pickIf(${i})"><span>${f.conn} ${f.premise}${f.time.kind==="at"?" · "+f.time.a:f.time.kind==="span"?" · "+f.time.a+"–"+f.time.b:""}${f.days.length<7?" · "+f.days.map(i=>WD[i]).join(", "):""}</span><span class="n">${f.habits.length} ${f.habits.length===1?"habit":"habits"}</span></button>`).join("")}
 function inhNote(){return S.joined!==null?`<div class="small">This is the if's: changing it changes it for its ${IFS[S.joined].habits.length} habits.</div>`:""}
 function chooser(){const o=S.open;
   if(S.ifsOpen&&!o)return ifsList();
@@ -147,18 +160,18 @@ function chooser(){const o=S.open;
   if(o==="premise"||o==="habit")h=(o==="premise"?inhNote():"")+`<input class="tfld" id="t-${o}" placeholder="${o==="premise"?"something (waking, lunch, I get home)":"the habit (brush teeth)"}" value="${esc(S[o])}" onchange="setText('${o}',this.value)">`;
   if(o==="days")h=inhNote()+`<div class="chips">${chip("Every day",S.days.size===7,"S.days=new Set([0,1,2,3,4,5,6]);render()")}${chip("Weekdays",[...S.days].sort().join()==="0,1,2,3,4","S.days=new Set([0,1,2,3,4]);render()")}${chip("Weekends",[...S.days].sort().join()==="5,6","S.days=new Set([5,6]);render()")}</div><div class="wd">${WD.map((w,i)=>chip(w.slice(0,2),S.days.has(i)&&S.days.size<7,`toggleDay(${i})`)).join("")}</div>`;
   if(o==="time"){const t=S.time;h=inhNote()+`<div class="chips">${[["none","No set time"],["at","At"],["span","From–to"]].map(([k,l])=>chip(l,t.kind===k,`setKind('${k}')`)).join("")}</div>`;
-    if(t.kind!=="none"){const slots=t.kind==="at"?["a"]:["a","b"];if(!slots.includes(E.slot))E.slot="a";
-      h+=`<div class="chips">${t.kind==="span"?'<span class="lab">From</span>':""}${slots.map((s,i)=>(i===1?'<span class="small">&nbsp;to&nbsp;</span>':"")+`<input class="pill tbox${E.slot===s?" act":""}" id="tb-${s}" inputmode="numeric" value="${t[s]}" title="Type a time (any minute)" onfocus="pickSlot('${s}')" onchange="E.slot='${s}';typed(this.value)">`).join("")}</div>`+dial()}}
+    if(t.kind!=="none"){const slots=t.kind==="at"?["a"].concat((t.more||[]).map((_,i)=>"m"+i)):["a","b"];if(!slots.includes(E.slot))E.slot="a";
+      h+=`<div class="chips">${t.kind==="span"?'<span class="lab">From</span>':""}${slots.map((s,i)=>(i===1?'<span class="small">&nbsp;to&nbsp;</span>':"")+`<input class="pill tbox${E.slot===s?" act":""}" id="tb-${s}" inputmode="numeric" value="${getT(s)}" title="Type a time (any minute)" onfocus="pickSlot('${s}')" onchange="E.slot='${s}';typed(this.value)">`).join("")}${t.kind==="at"?chip("+ time",false,"addTime()")+((t.more||[]).length?chip("− time",false,"dropTime()"):""):""}</div>`+dial()}}
   if(o==="energy")h=`<div class="chips">${["Low","Mid","High"].map(x=>chip(x,S.energy===x,`S.energy='${x}';S.open=null;render()`)).join("")}</div><div class="small">The energy filter on Habits and Today shows it at this level and above.</div>`;
   return h}
 // ---- the dial: T1.5's approved entry (hours, then minutes) with a typed field ---------------------------------------------
 const E={slot:"a",stage:"h"};const GAP=32;
 function dialGeom(){const R1=Math.round(GAP/(2*Math.PI/12)),R0=R1+40,C=R0+24;return{R1,R0,C,D:2*C}}
-function setKind(k){S.time.kind=k;E.slot="a";E.stage="h";render()}
-function pickHour(hh){const v=S.time[E.slot];S.time[E.slot]=String(hh).padStart(2,"0")+v.slice(2);E.stage="m";render()}
-function pickMin(mm){const v=S.time[E.slot];S.time[E.slot]=v.slice(0,3)+String(mm).padStart(2,"0");E.stage="h";if(S.time.kind==="span"&&E.slot==="a")E.slot="b";render()}
-function typed(v){if(/^([01]?\d|2[0-3]):?[0-5]\d$/.test(v)){const d=v.replace(":","").padStart(4,"0");S.time[E.slot]=d.slice(0,2)+":"+d.slice(2)}render()}
-function dial(){const v=S.time[E.slot],hh=+v.slice(0,2),mm=+v.slice(3);const{R0,R1,C,D}=dialGeom(),pos=(i,r)=>[C+r*Math.sin(i*Math.PI/6),C-r*Math.cos(i*Math.PI/6)];let labels="";
+function setKind(k){S.time.kind=k;if(k!=="at")S.time.more=[];E.slot="a";E.stage="h";render()}
+function pickHour(hh){const v=getT(E.slot);setT(E.slot,String(hh).padStart(2,"0")+v.slice(2));E.stage="m";render()}
+function pickMin(mm){const v=getT(E.slot);setT(E.slot,v.slice(0,3)+String(mm).padStart(2,"0"));E.stage="h";if(S.time.kind==="span"&&E.slot==="a")E.slot="b";render()}
+function typed(v){if(/^([01]?\d|2[0-3]):?[0-5]\d$/.test(v)){const d=v.replace(":","").padStart(4,"0");setT(E.slot,d.slice(0,2)+":"+d.slice(2))}render()}
+function dial(){const v=getT(E.slot),hh=+v.slice(0,2),mm=+v.slice(3);const{R0,R1,C,D}=dialGeom(),pos=(i,r)=>[C+r*Math.sin(i*Math.PI/6),C-r*Math.cos(i*Math.PI/6)];let labels="";
   if(E.stage==="h"){for(let i=0;i<12;i++){const o=i===0?12:i,n=i===0?0:i+12,[x,y]=pos(i,R0),[x2,y2]=pos(i,R1);
       labels+=`<span class="${hh===o?"on":""}" style="left:${x}px;top:${y}px">${o}</span><span class="in${hh===n?" on":""}" style="left:${x2}px;top:${y2}px">${String(n).padStart(2,"0")}</span>`}}
   else{for(let i=0;i<12;i++){const[x,y]=pos(i,R0);labels+=`<span class="${Math.round(mm/5)%12===i?"on":""}" style="left:${x}px;top:${y}px">${String(i*5).padStart(2,"0")}</span>`}}
@@ -180,7 +193,7 @@ function render(noStep){const now=snap();if(!noStep&&shown!==null&&now!==shown){
 function tapTok(id){S.ifsOpen=false;S.open=S.open===id?null:id;render(true);if(id==="premise"||id==="habit"){const f=document.getElementById("t-"+id);if(f)f.focus()}}
 function setText(id,v){S[id]=v;if(id==="premise")S.joined=null;render()}
 function setConn(c){S.conn=c;if(S.joined===null){}S.open=null;render()}
-function toggleIfs(){S.ifsOpen=!S.ifsOpen;S.open=null;render(true)}
+function toggleIfs(){S.ifsOpen=!S.ifsOpen;S.ifsFrom="line";S.open=null;render(true)}
 function pickIf(i){const f=IFS[i];S.conn=f.conn;S.premise=f.premise;S.days=new Set(f.days);S.time=JSON.parse(JSON.stringify(f.time));S.joined=i;S.ifsOpen=false;S.open=null;render();
   if(S.v.blank==="inline"){const b=document.getElementById("b-habit");if(b)b.focus()}}
 function unjoin(){S.joined=null;S.premise="";S.conn="If";S.days=new Set([0,1,2,3,4,5,6]);S.time={kind:"none",a:"08:00",b:"09:00"};render()}

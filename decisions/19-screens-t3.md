@@ -507,3 +507,30 @@ The states are rendered from the prototype itself, as `when_page.py` renders the
    This is `tiered_small` in `t3_opt.py`. The earlier widening of the habit sheet's chips to 48 dp is withdrawn: the chips match the When sheet's again, and the "At" chip (38 dp) passes the tiered gate.
 
    The consistency-pass list drops "the When prototype's chips under 48 dp". It is no longer a defect under the tiered rule.
+
+## T3a.2d What the premise box opens, and "+ time" (owner, 2026-10-13)
+
+**The owner, on the prototype:**
+> "When tapping the premise, either the available IFs do not open or only the same kind are shown. Score both options."
+
+The axes are the owner's choice: Ease, Duplicate guard, Room with keyboard, Scan load.
+
+**Part `premise`.** The Available ifs line stays in both variants. The walk is in the sentence's order: After, the premise box, then join "waking". Measured with the keyboard up, as a 280 dp block at the foot.
+
+**The control:** the box opens every if, whatever the connective (the prototype as it was). It loses. With the keyboard up its list is cut after three rows.
+
+| Box opens | Taps to join | Typed to join | Duplicate guard | Rows to scan | Sentence in view | Clutter |
+|---|---|---|---|---|---|---|
+| nothing (A) | 5 | yes ("waking", then the readout says it exists) | no | 0 | yes | 0.034 |
+| **the same connective's ifs (B)** | **4** | **no** | **yes** | 3 | yes | 0.044 |
+
+Both variants are on the front:
+- **A** is calmer and has nothing to scan.
+- **B** joins in one tap less with nothing typed, and shows an existing premise before it is typed twice.
+
+The one-entity model depends on matching ifs: a retyped "waking" makes a second if instead of joining the routine. That makes the guard worth its three rows. **Recommended: B.**
+
+**"+ time" on "at"** (the owner: "'at' lacks the '+ time' button"):
+- "at" now takes "+ time" and "− time", as the When sheet's does: "at 08:00 and 20:30".
+- Each time is its own writable box.
+- **To confirm:** several times on one habit repeat it within the day, close to the "n a day" form dropped with the Planner.

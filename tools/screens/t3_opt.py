@@ -4,6 +4,7 @@
     python tools/screens/t3_opt.py page_html scores       t3-options.html, t3-scores.html (fails if a control wins)
 
 Parts:
+  premise  T3a.2d what the premise box opens (owner, 2026-10-13; axes chosen by the owner)
   hsheet   T3a.2c the New habit sheet, scored from docs/screens/t3/habit-prototype.html (owner, 2026-10-13)
   addsent  T3a.2b adding a habit as an open sentence (owner, 2026-10-13)
   routines T3a.1b the Habits list with routines (owner, 2026-10-13): the preview, how the sequence shows
@@ -780,6 +781,49 @@ def score_hsheet(v):
             "small": sorted(set(small)), "clutter": T.clutter_of(lambda th: hsheet_doc(v, "") .replace('data-theme="light"', 'data-theme="%s"' % th))}
 
 
+# ==== Part premise: T3a.2d what tapping the premise box opens (owner, 2026-10-13) ================================================
+"""
+  The owner: "When tapping the premise, either the available IFs do not open or only the same kind are shown. Score
+  both options." The Available ifs line above the sentence stays in both.
+  premise  none (the box opens nothing; the keyboard only), same (the box opens the ifs whose connective is the one
+           chosen: After shows After waking, After the walk, After lunch; one with none says so)
+  Axes (owner's choice): Ease, Duplicate guard, Room with keyboard, Scan load.
+  Walked in the sentence's order (connective, then the premise): joining After waking: the connective word and After
+  (2), the premise box (1), then same: the if (1); none: "waking" typed, the readout says it is already an if, the
+  Available ifs line (1), the if (1). Writing a new "During the commute": the same in both (the connective, the box,
+  typing). Measured with the keyboard up (a 280 dp block at the foot, the sheet above it): the ifs rows in view, whether
+  the sentence is in view, clutter.
+  Control: the box opens every if, whatever the connective (the prototype before this scoring).
+"""
+PREMISE_SPACE = {"premise": ["none", "same"]}
+KBD = ("<style>.sheet{bottom:280px!important;max-height:452px!important;padding-bottom:8px!important}.gesture{display:none}"
+       ".kbd{position:absolute;left:0;right:0;bottom:0;height:280px;background:#c9c9c4;z-index:5}</style>")
+PREMISE_JS = ("(function(){var vis=0;document.querySelectorAll('.ifrow').forEach(function(r){var b=r.getBoundingClientRect();if(b.height&&b.top>=0&&b.bottom<=460)vis++});"
+              "var f=document.querySelector('.sent').getBoundingClientRect();return {rows:vis,sentence:(f.top>=0&&f.bottom<=460)?1:0}})()")
+
+
+def premise_doc(v, theme="light"):
+    mode = "all" if v.get("control") else v["premise"]
+    page = open(PROTO, encoding="utf-8").read()
+    setup = "S.v.premise='%s';setConn('After');premiseFocus('premise');" % mode
+    page = page.replace('data-theme="light"', 'data-theme="%s"' % theme, 1)
+    return page.replace("</head>", ONLY_PHONE + KBD + "</head>").replace(
+        '<div class="gesture"></div>', '<div class="gesture"></div><div class="kbd"></div>', 1).replace(
+        "</body>", "<script>render(true);%s</script></body>" % setup)
+
+
+def score_premise(v):
+    ctl = v.get("control")
+    mode = "all" if ctl else v["premise"]
+    d = premise_doc(v)
+    pr = T.probe(d, "t3-prem-%s" % mode, PREMISE_JS)
+    tp = T.taps(d)
+    join_taps = 2 + 1 + (1 if mode in ("same", "all") else 2)
+    return {"taps_join": join_taps, "typed_join": 0 if mode in ("same", "all") else 1, "taps_new": 3,
+            "duplicate_guard": 1 if mode in ("same", "all") else 0, "rows_in_view": pr["rows"], "sentence_in_view": pr["sentence"],
+            "scan_rows": pr["rows"], "small": sorted(set(tiered_small(tp))), "clutter": T.clutter_of(lambda th: premise_doc(v, th))}
+
+
 def build_refs():
     with open(os.path.join(T.OUT, "t3-references.json"), encoding="utf-8") as fh:
         src = json.load(fh)
@@ -799,9 +843,10 @@ def build_refs():
 T.PREFIX, T.REFS, T.NAME = "t3", "t3-refs.json", "T3 habits, trackers, time, goals, charts and checklists"
 T.OUT = os.path.join(os.path.dirname(M2.T.OUT), "t3")
 # T3.1 "habits" (presence, the first scoring) is kept in t3-habits-v1.json and in the code above; T3a replaced it (owner, 2026-10-13)
-T.SPACES = {"basics": BASICS_SPACE, "addhabit": ADD_SPACE, "routines": ROUT_SPACE, "addsent": SENT_SPACE, "hsheet": HSHEET_SPACE}
-T.SCORERS = {"basics": score_basics, "addhabit": score_addhabit, "routines": score_routines, "addsent": score_addsent, "hsheet": score_hsheet}
-T.CONTROLS = {"hsheet": ({"blank": "tendril", "control": True}, "Tendril's Add habit sheet: no weekdays, no energy (the new walk cannot be done)"),
+T.SPACES = {"basics": BASICS_SPACE, "addhabit": ADD_SPACE, "routines": ROUT_SPACE, "addsent": SENT_SPACE, "hsheet": HSHEET_SPACE, "premise": PREMISE_SPACE}
+T.SCORERS = {"basics": score_basics, "addhabit": score_addhabit, "routines": score_routines, "addsent": score_addsent, "hsheet": score_hsheet, "premise": score_premise}
+T.CONTROLS = {"premise": ({"premise": "all", "control": True}, "the premise box opens every if, whatever the connective (the prototype before this scoring)"),
+              "hsheet": ({"blank": "tendril", "control": True}, "Tendril's Add habit sheet: no weekdays, no energy (the new walk cannot be done)"),
               "addsent": ({"form": "tendril", "energy": "none", "routine": "none", "control": True}, "Tendril's sheet as it is, the cue last (as in T3a.2)"),
               "routines": ({"preview": "progress", "seq": "plain", "control": True}, "the routine as a checklist with progress: '1/4 done · 25%' under its name, the steps plain"),
               "addhabit": ({"form": "tendril", "cue": "last", "block": "where", "control": True},
@@ -810,7 +855,9 @@ T.CONTROLS = {"hsheet": ({"blank": "tendril", "control": True}, "Tendril's Add h
                          "the leading design with history added: a streak and a share of days on every row"),
               "habits": ({"presence": "streak", "group": "flat", "log": "cells", "amount": "percent", "control": True},
                          "Loop-like with streaks and a score: a streak and a percentage on every row, the last 4 days as ticks and crosses")}
-T.AXES = {"hsheet": {"Ease": ("taps_join", "taps_new"), "Stability": ("sentence_moves",), "Clarity": ("-reads_as_sentence",), "Consistency": ("like_when",), "Calm": ("clutter",)},
+T.AXES = {"premise": {"Ease": ("taps_join", "typed_join", "taps_new"), "Duplicate guard": ("-duplicate_guard",), "Room with keyboard": ("-sentence_in_view", "clutter"),
+                      "Scan load": ("scan_rows",)},
+          "hsheet": {"Ease": ("taps_join", "taps_new"), "Stability": ("sentence_moves",), "Clarity": ("-reads_as_sentence",), "Consistency": ("like_when",), "Calm": ("clutter",)},
           "addsent": {"Ease": ("taps", "keyboards", "taps_lone", "keyboards_lone", "reach", "hidden_targets"), "Clarity": ("-sentence_reads",),
                       "Safety": ("lost_on_back",), "Consistency": ("like_when",), "Context": ("-context_rows",), "Calm": ("clutter", "desk_clutter")},
           "routines": {"Judgment": ("judgment_marks",), "Expect": ("-forecast_facts", "-order_marked", "-low_says_hidden"), "Low capacity": ("words_per_row",),
@@ -821,8 +868,8 @@ T.AXES = {"hsheet": {"Ease": ("taps_join", "taps_new"), "Stability": ("sentence_
                      "Choice": ("-filter_says_mid",), "Consistency": ("like_today",), "Density": ("-rows_seen", "cut"), "Calm": ("clutter", "desk_clutter")},
           "habits": {"Ease": ("log_actions", "reach_log"), "Presence": ("-presence_shown", "presence_marks"), "Calm": ("guilt_marks", "clutter", "desk_clutter"),
                      "Density": ("-rows_seen", "cut"), "Consistency": ("like_today",)}}
-T.TITLES = {"hsheet": "T3a.2c The New habit sheet (prototype): the blanks as text boxes in the sentence, or opened above it", "addsent": "T3a.2b Adding a habit as an open sentence: the When sheet, in place, or fields; energy and routine as words or rows", "routines": "T3a.1b The Habits list with routines: the 'what to expect' preview, how the sequence shows", "addhabit": "T3a.2 Adding a habit: in place or a sheet, the If, the block", "basics": "T3a.1 Habits as Daily basics: layout, the energy filter, its mark, done today", "habits": "T3.1 The Habits list: presence, grouping, where Log sits, a count's amount"}
-T.DRAW = {"hsheet": lambda v: [adoc(addhabit_phone({"control": True}))] if v.get("control") else [hsheet_doc(v, st) for _, _, st in HSTATES], "addsent": lambda v: [sdoc(addsent_phone(v))] + ([] if (v.get("control") or v["form"] == "fields") else [sdoc(addsent_phone(v, True))]), "routines": lambda v: [rdoc(routines_phone(v)), rdoc(routines_phone(v, "low")), routines_desk(v)], "addhabit": lambda v: [adoc(addhabit_phone(v))], "basics": lambda v: [bdoc(basics_phone(v)), basics_desk(v)], "habits": lambda v: [hdoc(habits_phone(v)), habits_desk(v)]}
+T.TITLES = {"premise": "T3a.2d What tapping the premise box opens: nothing, or the ifs with the same connective", "hsheet": "T3a.2c The New habit sheet (prototype): the blanks as text boxes in the sentence, or opened above it", "addsent": "T3a.2b Adding a habit as an open sentence: the When sheet, in place, or fields; energy and routine as words or rows", "routines": "T3a.1b The Habits list with routines: the 'what to expect' preview, how the sequence shows", "addhabit": "T3a.2 Adding a habit: in place or a sheet, the If, the block", "basics": "T3a.1 Habits as Daily basics: layout, the energy filter, its mark, done today", "habits": "T3.1 The Habits list: presence, grouping, where Log sits, a count's amount"}
+T.DRAW = {"premise": lambda v: [premise_doc(v)], "hsheet": lambda v: [adoc(addhabit_phone({"control": True}))] if v.get("control") else [hsheet_doc(v, st) for _, _, st in HSTATES], "addsent": lambda v: [sdoc(addsent_phone(v))] + ([] if (v.get("control") or v["form"] == "fields") else [sdoc(addsent_phone(v, True))]), "routines": lambda v: [rdoc(routines_phone(v)), rdoc(routines_phone(v, "low")), routines_desk(v)], "addhabit": lambda v: [adoc(addhabit_phone(v))], "basics": lambda v: [bdoc(basics_phone(v)), basics_desk(v)], "habits": lambda v: [hdoc(habits_phone(v)), habits_desk(v)]}
 T.POOL = {}
 T.v2.TOL.setdefault("_reach_log", 0.05)
 T.v2.TOL.setdefault("_reach_filter", 0.05)
