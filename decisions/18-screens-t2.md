@@ -1,11 +1,11 @@
 # 18. Screens T2: items, calendar and alarms
 
-Status: **in progress.**
+Status: **T2 approved in full (owner, 2026-10-13).**
 - Approved:
   - the alarm ringing and an item's page (owner, 2026-10-12);
   - Calendar's views (owner, 2026-10-13);
-  - the Day screen: hours with chips (owner, 2026-10-13).
-- Still open: the Reminders list, and the Week and 3 days forms.
+  - the Day screen: hours with chips (owner, 2026-10-13);
+  - the Week and 3 days forms, and the Reminders list (owner, 2026-10-13).
 
 The method is decision 15's: every screen, one at a time, before colour. The owner's T2 answers (2026-10-10) are at the end of `decisions/17-screens-t1.md`.
 
@@ -342,3 +342,14 @@ It is on the front, with a sum of 269.5:
 - kinds apart 0.722;
 - the current time shown;
 - clutter 0.053 on the phone and 0.037 on Windows.
+
+## The Week and 3 days forms and the Reminders list: approved (owner, 2026-10-13)
+
+"Both confirmed."
+- **Week:** the planner. The week is 2×4 day cells, Mon to Thu down the left and Fri to Sun down the right. Each cell lists its things with their start times, and tapping a cell opens the Day screen.
+- **3 days:** the wrapped grid. Today first, titles wrapping inside their blocks, and clashes side by side.
+- **The Reminders list:** soonest first, under day headers (Today · Tomorrow · This week · Later).
+  - A tap grows the row in place, as an item's page does.
+  - Skip for today sits under When, and the skipped row folds into "Done today".
+
+**T2 is complete.** The approved screens are drawn in `docs/screens/t2/screens.html`.
