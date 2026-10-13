@@ -96,5 +96,25 @@
     "group": "flat"
    }
   }
+ ],
+ "activities_list": [
+  {
+   "app": "com.hazia.chronicle.debug",
+   "name": "Chronicle (source app), Track tab",
+   "captured": "2026-10-13",
+   "row": "a card per activity: its icon in a tinted circle, the name, 'last: 5 ott', a round filled ▶ at the right",
+   "group": "category headers with a count and a fold ('Uncategorised 1'), Archived folded at the foot; Quick add (a typed log line) folded at the top",
+   "running": "a strip on Track while a session runs (feature-spec: 'Start, a strip on Track, Stop')",
+   "plan": "the Start button's menu: Start now, and Last used (the plan this activity last ran) or Last used… (the planner, when there is none); from Break Down Timer's timed run (feature-spec 2026-09-24)",
+   "new_activity": "a sheet: Name, Colour (a wheel, a shade slider, Hex), Icon (seven), Category",
+   "as_space": {
+    "layout": "rows",
+    "says": "last",
+    "arrange": "labels",
+    "running": "strip",
+    "past": "page",
+    "plan": "menu"
+   }
+  }
  ]
 }

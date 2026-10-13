@@ -31,6 +31,17 @@
    "done": "stay"
   }
  ],
+ "acts": [
+  {
+   "app": "com.hazia.chronicle.debug",
+   "layout": "rows",
+   "says": "last",
+   "arrange": "labels",
+   "running": "strip",
+   "past": "page",
+   "plan": "menu"
+  }
+ ],
  "measure2": [
   {
    "app": "com.hazia.chronicle.debug",

@@ -862,3 +862,38 @@ So every hybrid leader is apart: trackers here, Activities one tap away.
 **For the consistency pass:** Today's tracker rows against these controls (owner: decided there).
 
 Next: T3b.2 Activities (timers: where running timers show, several at once, the 12-hour question, editing a session).
+
+## T3b.2 The Activities list (2026-10-13)
+
+Taps first, as T3b.1c: within 0.25 a log, at 12 and 30 activities, the worse counting.
+
+**The owner's answers:**
+- **Axes for where a running timer shows** (T3b.3, next): taps to stop it, forgotten-timer risk, Today's calm, consistency.
+- **Sessions:** half live, half added afterwards.
+- **Running timers:** score every place for them in the list.
+- **Chronicle's "Last used"** is an addition, to be named differently. Here it is drawn as "Same as last". It is Break Down Timer's timed run: a length and chimes at fractions of it, remembered per activity. In Chronicle it is the Start button's menu: Start now, and Last used (or Last used…, the planner, when there is none).
+
+**The space** (`t3_opt.py`, part `acts`): 576 options plus the control.
+- layout: rows / grid;
+- says: last / today + last;
+- arrange: flat / most used first / labels / the hybrid (Trackers' pick);
+- running: pinned at the top / in place / a strip above the list;
+- a past session: the activity's page / a "+ time" chip on the row / typed into the capture line;
+- Same as last: a ▾ menu on ▶ / its own "↻ 25 min" chip / ▶ starts it (▾ holds Start now) / the page only.
+
+**The walk:** how often a live start uses Same as last is unknown, so it is scored at 25% and at 75%, the worse counting. The frequencies are a placeholder profile.
+
+**Result:** the control lost. 156 options are gated out, nearly all for cut titles: two chips beside ▶ squeeze a long name. The front holds 8 options:
+- **every one adds a past session through the capture line;**
+- **every one shows Same as last as its own chip.**
+
+| Option | Taps 12 / 30 | In view at 30 | Moves | Rank sum |
+|---|---|---|---|---|
+| grid · last · flat · strip | 2.65 / 2.99 | 27% | no | 1205.5 |
+| rows · last · hybrid · strip | 2.81 / 3.03 | 100% | yes | 1294.5 |
+| rows · last · most used · top or place | 2.59 / 3.09 | 30% | yes | 1382.5 |
+| grid · last · most used · strip | 2.56 / 2.86 | 27% | yes | 1402 |
+
+"last" and "today + last" tie, as in T3b.1c. The hybrid with a strip is the one like Trackers' pick.
+
+Status: **awaiting the owner's pick and the name for "Same as last".**
