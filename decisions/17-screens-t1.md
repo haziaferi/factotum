@@ -1604,3 +1604,13 @@ Drawn: `docs/screens/t1/labels-dots.html` (`labels-f.json`).
   - `c88c0be`: schema 25. The label scope is dropped (`applies_to` and its stamp; `offeredFor` removed, `labels()` is what pickers offer); the label time total is removed; `LabelRepository.carrying()` counts the live elements carrying a label.
   - `9923b16`: SPEC v0.40.
   - The ADR 07 case `chronicle-activity-and-category-totals` is marked superseded for its category half.
+
+**T1.5 + T1.6 amended (owner, 2026-10-13): one writable box per time.**
+> "the input box for time: there should be just one, writable, not both a display box and a input box."
+
+- Each time (at, or each end of from–to) is one box.
+- Tapping a box makes it the dial's target.
+- Typing in it sets the time to any minute.
+- The separate typed field under the dial is gone. A one-line hint reads "Hour on the dial, or type the time in its box".
+
+It is done in `when-prototype.html`, and T1's page was rebuilt from it. The habit sheet (T3a.2c) has the same change.

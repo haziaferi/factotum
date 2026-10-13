@@ -6,7 +6,7 @@
 <title>When sheet prototype</title>
 <!-- T1.5 + T1.6 merged (owner's workshop, 2026-10-08; decision 17): one sentence for dates, times and repeats.
      v2-v3 (owner): the sentence stays put at the foot (the sheet grows upward only, above the gesture bar); Undo and Redo under it;
-     times on T1.5's dial (hours, then minutes) with a typed field;
+     times on T1.5's dial (hours, then minutes); each time is one writable box, the dial's target when tapped (owner, 2026-10-13);
      impossible combinations are not drawn. Greys only; type Major Second (sentence 17.5 px, small 12.5 px). -->
 <style>
 :root{--bg:#f4f4f2;--zone:#e9e9e6;--zone2:#d9d9d5;--ink:#1d1d1b;--dim:#6b6b66;--sheet:#fafaf8;--scrim:rgba(0,0,0,.16)}
@@ -65,6 +65,7 @@ input[type=time].fld{width:96px}
 .day i{width:4px;height:4px;border-radius:50%;background:var(--dim)}
 .day.pad{visibility:hidden}
 .note{font-size:12.5px;color:var(--dim)}
+.tbox{width:88px;min-width:88px;text-align:center;font:inherit;font-size:15px;color:var(--ink)}
 @media (max-width:420px){body{padding:16px 8px}.phone{width:100%}}
 </style>
 </head>
@@ -255,7 +256,7 @@ function chooser(){const o=S.open;if(!o)return"";let h="";
     const slots=t.kind==="at"?t.times.map((x,i)=>"t"+i):["a","b"];
     if(!slots.includes(E.slot))E.slot=slots[0];
     const pills=slots.map((s,i)=>(t.kind!=="at"&&i===1?`<span class="small">&nbsp;${t.kind==="span"?"to":"and"}&nbsp;</span>`:"")+
-      `<button class="pill${E.slot===s?" act":""}" onclick="E.slot='${s}';E.stage='h';render(true)">${getT(s)}</button>`).join("");
+      `<input class="pill tbox${E.slot===s?" act":""}" id="tb-${s}" inputmode="numeric" value="${getT(s)}" title="Type a time (any minute)" onfocus="pickSlot('${s}')" onchange="E.slot='${s}';typed(this.value)">`).join("");
     const lead=t.kind==="at"?"":`<span class="lab">${t.kind==="span"?"From":"Between"}</span>`;
     h+=`<div class="chips">${lead}${pills}${t.kind==="at"?chip("+ time",false,"addTime()")+(t.times.length>1?chip("− time",false,"S.time.times.pop();render()"):""):""}</div>`;
     if(t.kind==="rtime")h+=`<div class="chips"><span class="lab">Times a day</span>${[1,2,3,4,6].map(k=>chip(k,t.k===k,`S.time.k=${k};render()`)).join("")}</div>`;
@@ -291,7 +292,8 @@ function dial(){const v=getT(E.slot),hh=+v.slice(0,2),mm=+v.slice(3);
   if(E.stage==="h"){for(let i=0;i<12;i++){const o=i===0?12:i,n=i===0?0:i+12,[x,y]=pos(i,R0),[x2,y2]=pos(i,R1);
       labels+=`<span class="${hh===o?"on":""}" style="left:${x}px;top:${y}px">${o}</span><span class="in${hh===n?" on":""}" style="left:${x2}px;top:${y2}px">${String(n).padStart(2,"0")}</span>`}}
   else{for(let i=0;i<12;i++){const[x,y]=pos(i,R0);labels+=`<span class="${Math.round(mm/5)%12===i?"on":""}" style="left:${x}px;top:${y}px">${String(i*5).padStart(2,"0")}</span>`}}
-  return `<div class="chips"><input class="fld" style="width:96px" inputmode="numeric" value="${v}" title="Type a time (any minute)" onchange="typed(this.value)"><span class="small">&nbsp;${E.stage==="h"?"hour":"minutes"} · type for any minute</span></div><div class="dial" style="width:${D}px;height:${D}px" onclick="dialTap(event)">${labels}</div>`}
+  return `<div class="small">${E.stage==="h"?"Hour":"Minutes"} on the dial, or type the time in its box</div><div class="dial" style="width:${D}px;height:${D}px" onclick="dialTap(event)">${labels}</div>`}
+function pickSlot(s){if(E.slot===s)return;E.slot=s;E.stage='h';render(true);const el=document.getElementById('tb-'+s);if(el){el.focus();el.select()}}
 function dialTap(ev){const{R0,R1,C}=dialGeom(),r=ev.currentTarget.getBoundingClientRect(),x=ev.clientX-r.left-C,y=ev.clientY-r.top-C,d=Math.hypot(x,y);
   if(d<R1-28)return;                                                     // the hub picks nothing
   const i=Math.round(((Math.atan2(x,-y)*180/Math.PI+360)%360)/30)%12;

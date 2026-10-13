@@ -489,7 +489,21 @@ The states are rendered from the prototype itself, as `when_page.py` renders the
 **Recommended:** text boxes in the sentence. It answers the owner's "text boxes for the user to fill in the blanks" directly, and a chosen if puts the cursor in the habit's box.
 
 **The consistency pass (owner, 2026-10-13: "We will later discuss one consistency pass across screens") will take:**
-- the When prototype's chips under 48 dp ("At");
 - Today's Log button against the Habits page's;
 - Today showing trackers;
 - the forecast option's switch (Settings or editing the page).
+
+## Two owner corrections (2026-10-13)
+
+1. **One writable time box** in the habit sheet and in T1.5 + T1.6's When sheet. The display pill and the typed field merge (decision 17 amended). Checked in the browser: tapping the "to" box makes it the dial's target, and typing sets it.
+2. **The 48 dp gate is not blanket:**
+   > "The 48 dp minimum cannot be a blanket choice applied to input screens, as it would bulk up every visible element and create an issue in visual priority across different elements."
+
+   **Proposed rule, applied from now on pending the owner's confirmation:**
+   - primary actions keep 48 dp (the sentence's words, Add, Log, Done, the bar);
+   - a control inside a chooser (a chip, a weekday, the dial's inner ring) needs WCAG 2.2 AA's 24 dp (2.5.8);
+   - visual size follows the element's priority, not the gate.
+
+   This is `tiered_small` in `t3_opt.py`. The earlier widening of the habit sheet's chips to 48 dp is withdrawn: the chips match the When sheet's again, and the "At" chip (38 dp) passes the tiered gate.
+
+   The consistency-pass list drops "the When prototype's chips under 48 dp". It is no longer a defect under the tiered rule.

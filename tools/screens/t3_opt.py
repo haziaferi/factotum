@@ -718,7 +718,7 @@ def score_addsent(v):
           the habit box (1), the days word and Mo, We, Fr (4), the time word, At, the hour and the minutes (4), the energy
           word and Low (2), Add (1).
   Measured on the rendered states: whether the foot's bottom stays at one pixel in every state (the When sheet's rule),
-  targets under 48 dp (the gate), the default state's clutter.
+  the tiered gate (tiered_small: 48 dp for primary actions, 24 dp for a chooser's controls), the default state's clutter.
   Control: Tendril's Add habit sheet. It has no weekdays and no energy, so the new walk cannot be done (99).
 """
 HSHEET_SPACE = {"blank": ["inline", "chooser"]}
@@ -740,6 +740,21 @@ HSTATES = [
 SENT_TOP_JS = "(function(){var r=document.querySelector('.foot').getBoundingClientRect();return Math.round(r.bottom)})()"
 
 
+def tiered_small(tp):
+    """The gate, tiered (owner, 2026-10-13: 48 dp "cannot be a blanket choice ... it would bulk up every visible element"):
+    primary actions keep 48 dp (the sentence's words, Add, Available ifs, an if to choose, the blanks); a control inside a
+    chooser (a chip, a weekday) needs WCAG 2.2 AA's 24 dp (2.5.8). Visual size is free; this checks hit areas only."""
+    out = []
+    for x in tp.all:
+        if not x.get("seen"):
+            continue
+        n = x["name"]
+        floor = 24 if n.startswith("Chip ") else (48 if n.startswith(("Tok ", "If ", "Available", "Add", "Blank")) else None)
+        if floor and (x["w"] < floor or x["h"] < floor):
+            out.append("%s %dx%d" % (n, x["w"], x["h"]))
+    return out
+
+
 def hsheet_doc(v, setup):
     page = open(PROTO, encoding="utf-8").read()
     pre = "S.v.blank='%s';" % v["blank"]
@@ -758,7 +773,7 @@ def score_hsheet(v):
         d = hsheet_doc(v, setup)
         tops.append(T.probe(d, "t3-hs-%s-%s" % (v["blank"], name), SENT_TOP_JS))
         tp = T.taps(d)
-        small += small_of(tp, {x["name"] for x in tp.all if x["name"].startswith(("Tok ", "Chip ", "If ", "Available", "Add", "Blank"))})
+        small += tiered_small(tp)
     join = 1 + 1 + (0 if v["blank"] == "inline" else 1) + 2 + 1
     new = 2 + 1 + 1 + 4 + 4 + 2 + 1
     return {"taps_join": join, "taps_new": new, "sentence_moves": max(tops) - min(tops), "reads_as_sentence": 1, "like_when": 0,

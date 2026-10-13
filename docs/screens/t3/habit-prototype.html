@@ -56,7 +56,7 @@ h1{font-size:19px;margin:0 0 4px}.dim{color:var(--dim)}
 .blank::placeholder{color:var(--dim);font-weight:400}
 .tfld{font:inherit;font-size:17px;width:100%;min-height:48px;border-radius:10px;border:0;box-shadow:inset 0 0 0 1px var(--zone2);background:transparent;color:var(--ink);padding:0 12px;margin:4px 0}
 .chips{display:flex;flex-wrap:wrap;gap:0 6px;align-items:center}
-.chip{min-height:48px;min-width:48px;justify-content:center;display:inline-flex;align-items:center;cursor:pointer;background:none;border:0;font:inherit;color:var(--ink);padding:0}
+.chip{min-height:48px;display:inline-flex;align-items:center;cursor:pointer;background:none;border:0;font:inherit;color:var(--ink);padding:0}
 .chip span{display:inline-flex;align-items:center;height:32px;padding:0 12px;border-radius:999px;box-shadow:inset 0 0 0 1px var(--zone2);font-size:14px;white-space:nowrap}
 .chip.on span{background:var(--zone2);box-shadow:none;font-weight:600}
 .wd{display:grid;grid-template-columns:repeat(7,1fr);margin:0 -12px}.wd .chip{justify-content:center}
@@ -66,6 +66,7 @@ h1{font-size:19px;margin:0 0 4px}.dim{color:var(--dim)}
 .ifrow .n{font-size:12.5px;color:var(--dim)}
 .ifline{display:flex;justify-content:space-between;align-items:center}
 .note{font-size:12.5px;color:var(--dim)}
+.tbox{width:88px;min-width:88px;text-align:center;font:inherit;font-size:15px;color:var(--ink)}
 @media (max-width:420px){body{padding:16px 8px}.phone{width:100%}}
 </style>
 </head>
@@ -90,7 +91,7 @@ h1{font-size:19px;margin:0 0 4px}.dim{color:var(--dim)}
       <li>Every day is the default and is written as "every day" here, but never on the list (owner).</li>
       <li>"Available ifs" (owner): a small line above the sentence. It opens upward and fills the if, its days and its time. The habit then joins that if: an if with two or more habits is a routine.</li>
       <li>A joined if's days and time are the if's: they read dotted, and changing them changes the if for every habit on it.</li>
-      <li>The time: no set time, at a time, or from a time to a time (on the dial with a typed field). A window may run past midnight.</li>
+      <li>The time: no set time, at a time, or from a time to a time. Each time is one writable box; tapped, it is the dial's target (owner). A window may run past midnight.</li>
       <li>Add is drawn only once the if's premise and the habit are written.</li>
     </ul>
     <h2>Theme</h2>
@@ -147,7 +148,7 @@ function chooser(){const o=S.open;
   if(o==="days")h=inhNote()+`<div class="chips">${chip("Every day",S.days.size===7,"S.days=new Set([0,1,2,3,4,5,6]);render()")}${chip("Weekdays",[...S.days].sort().join()==="0,1,2,3,4","S.days=new Set([0,1,2,3,4]);render()")}${chip("Weekends",[...S.days].sort().join()==="5,6","S.days=new Set([5,6]);render()")}</div><div class="wd">${WD.map((w,i)=>chip(w.slice(0,2),S.days.has(i)&&S.days.size<7,`toggleDay(${i})`)).join("")}</div>`;
   if(o==="time"){const t=S.time;h=inhNote()+`<div class="chips">${[["none","No set time"],["at","At"],["span","From–to"]].map(([k,l])=>chip(l,t.kind===k,`setKind('${k}')`)).join("")}</div>`;
     if(t.kind!=="none"){const slots=t.kind==="at"?["a"]:["a","b"];if(!slots.includes(E.slot))E.slot="a";
-      h+=`<div class="chips">${t.kind==="span"?'<span class="lab">From</span>':""}${slots.map((s,i)=>(i===1?'<span class="small">&nbsp;to&nbsp;</span>':"")+`<button class="pill${E.slot===s?" act":""}" onclick="E.slot='${s}';E.stage='h';render(true)">${t[s]}</button>`).join("")}</div>`+dial()}}
+      h+=`<div class="chips">${t.kind==="span"?'<span class="lab">From</span>':""}${slots.map((s,i)=>(i===1?'<span class="small">&nbsp;to&nbsp;</span>':"")+`<input class="pill tbox${E.slot===s?" act":""}" id="tb-${s}" inputmode="numeric" value="${t[s]}" title="Type a time (any minute)" onfocus="pickSlot('${s}')" onchange="E.slot='${s}';typed(this.value)">`).join("")}</div>`+dial()}}
   if(o==="energy")h=`<div class="chips">${["Low","Mid","High"].map(x=>chip(x,S.energy===x,`S.energy='${x}';S.open=null;render()`)).join("")}</div><div class="small">The energy filter on Habits and Today shows it at this level and above.</div>`;
   return h}
 // ---- the dial: T1.5's approved entry (hours, then minutes) with a typed field ---------------------------------------------
@@ -161,7 +162,8 @@ function dial(){const v=S.time[E.slot],hh=+v.slice(0,2),mm=+v.slice(3);const{R0,
   if(E.stage==="h"){for(let i=0;i<12;i++){const o=i===0?12:i,n=i===0?0:i+12,[x,y]=pos(i,R0),[x2,y2]=pos(i,R1);
       labels+=`<span class="${hh===o?"on":""}" style="left:${x}px;top:${y}px">${o}</span><span class="in${hh===n?" on":""}" style="left:${x2}px;top:${y2}px">${String(n).padStart(2,"0")}</span>`}}
   else{for(let i=0;i<12;i++){const[x,y]=pos(i,R0);labels+=`<span class="${Math.round(mm/5)%12===i?"on":""}" style="left:${x}px;top:${y}px">${String(i*5).padStart(2,"0")}</span>`}}
-  return `<div class="chips"><input class="fld tfld" style="width:96px" inputmode="numeric" value="${v}" title="Type a time (any minute)" onchange="typed(this.value)"><span class="small">&nbsp;${E.stage==="h"?"hour":"minutes"} · type for any minute</span></div><div class="dial" style="width:${D}px;height:${D}px" onclick="dialTap(event)">${labels}</div>`}
+  return `<div class="small">${E.stage==="h"?"Hour":"Minutes"} on the dial, or type the time in its box</div><div class="dial" style="width:${D}px;height:${D}px" onclick="dialTap(event)">${labels}</div>`}
+function pickSlot(s){if(E.slot===s)return;E.slot=s;E.stage='h';render(true);const el=document.getElementById('tb-'+s);if(el){el.focus();el.select()}}
 function dialTap(ev){const{R0,R1,C}=dialGeom(),r=ev.currentTarget.getBoundingClientRect(),x=ev.clientX-r.left-C,y=ev.clientY-r.top-C,d=Math.hypot(x,y);
   if(d<R1-28)return;const i=Math.round(((Math.atan2(x,-y)*180/Math.PI+360)%360)/30)%12;
   if(E.stage==="h"){const inner=d<(R0+R1)/2;pickHour(inner?(i===0?0:i+12):(i===0?12:i))}else pickMin(i*5)}
