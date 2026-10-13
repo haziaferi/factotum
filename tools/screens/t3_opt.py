@@ -1295,7 +1295,11 @@ def score_measure(v):
   Control: T3b.1's dashboard, apart, in manual order.
 """
 MEAS2_SPACE = {"scope": ["merged", "apart"], "layout": ["rows", "grid", "compact"], "says": ["none", "today", "last", "today_last"],
-               "log": ["sheet", "inline"], "group": ["flat", "labels", "folding"], "order": ["manual", "recent"]}
+               "log": ["sheet", "inline"], "group": ["flat", "labels", "folding", "hybrid_fit", "hybrid_6", "hybrid_pinned"],
+               "order": ["manual", "recent"]}
+# hybrid_*: the most used open at the top with their controls, the rest under folded labels with their counts (owner, 2026-10-13);
+# the open ones are as many as fit one screen above the folded labels (fit), the 6 most used (6), or six the person pins (pinned,
+# scored as the 6 most used: they differ in whether they move on their own as use changes, "moves")
 
 
 def _it(n, k, lab, today, last, f, usual=None, cur=None, recent=None, running=False):
@@ -1398,6 +1402,24 @@ def m2_control_item(it):
             '<span class="foot">%s</span></div>') % (it["n"], kit.ud(e(it["n"])), have, goal, pct, len(it["n"]) % 7, min(100, pct), ctl)
 
 
+def m2_top(v, items, its):
+    """The open items of a hybrid, the most used first."""
+    if v["group"] == "hybrid_fit":
+        n = m2_fit(v, items)
+    else:
+        n = 6
+    return sorted(its, key=lambda it: -it["f"])[:n]
+
+
+def m2_fit(v, items):
+    """How many of the most used fit one phone screen above the folded labels: measured on the list drawn flat, most used first."""
+    vf = dict(v, group="flat", order="recent")
+    pr = T.probe(m2doc(measure2_phone(vf, items)), "t3-m2fit-%d-%s" % (len(items), key_of(vf)), M2_JS)
+    labs = len({it["lab"] for it in m2_items(vf, items)})
+    room = pr["vb"] - 48 * labs
+    return sum(1 for x in pr["items"] if x["bottom"] <= room)
+
+
 def measure2_body(v, items, closed=False):
     if v.get("control"):
         its = [it for it in items if it["k"] != "activity"]
@@ -1405,10 +1427,15 @@ def measure2_body(v, items, closed=False):
         return '<div class="zone">%s<div class="kgrid">%s</div></div>' % (link, "".join(m2_control_item(it) for it in its))
     its = m2_items(v, items)
     wrap = (lambda h: '<div class="kgrid">%s</div>' % h) if v["layout"] == "grid" else (lambda h: h)
+    head = ""
+    if v["group"].startswith("hybrid"):
+        top = m2_top(v, items, its)
+        head = wrap("".join(m2_item(it, v) for it in top))
+        its = [it for it in its if it not in top]
     if v["group"] == "flat":
         body = wrap("".join(m2_item(it, v) for it in its))
     else:
-        body = ""
+        body = head
         for lab in m2_labels(v, its):
             part = [it for it in its if it["lab"] == lab]
             if v["group"] == "labels":
@@ -1427,7 +1454,7 @@ def measure2_phone(v, items=ITEMS12, closed=False):
 
 
 def measure2_desk(v, theme="light"):
-    inner = measure2_phone(v, ITEMS12, v.get("group") == "folding").split('<div class="body">', 1)[1].rsplit('<div class="bar">', 1)[0][:-len("</div>")]
+    inner = measure2_phone(v, ITEMS12, v.get("group", "") in ("folding", "hybrid_fit", "hybrid_6", "hybrid_pinned")).split('<div class="body">', 1)[1].rsplit('<div class="bar">', 1)[0][:-len("</div>")]
     return desk_doc("Hub", "Measuring", '<div class="dcol" style="width:440px;flex:none">%s</div><div class="page" style="flex:1"></div>' % inner, theme,
                     CSS + BASICS_CSS + TRK_CSS + MEAS_CSS + M2_CSS)
 
@@ -1465,7 +1492,8 @@ def m2_measure(v, items, key):
     page = vb - top
     by = {x["tr"]: x for x in pr["items"]}
     heads = {h["lab"]: h for h in pr["heads"]}
-    folding = (not ctl) and v["group"] == "folding"
+    folding = (not ctl) and (v["group"] == "folding" or v["group"].startswith("hybrid"))
+    open_top = {it["n"] for it in m2_top(v, items, m2_items(v, items))} if (not ctl and v["group"].startswith("hybrid")) else set()
     if folding:   # all closed at first: label i's header sits at top + 48 i; opening one puts its items under it
         labs = [h["lab"] for h in pr["heads"]]
         folded_top = {lab: pr["heads"][0]["top"] + 48 * i for i, lab in enumerate(labs)}
@@ -1478,7 +1506,7 @@ def m2_measure(v, items, key):
         x = by[it["n"]]
         bottom = x["bottom"]
         extra = 0
-        if folding:
+        if folding and it["n"] not in open_top:
             h = heads[it["lab"]]
             bottom = folded_top[it["lab"]] + 48 + (x["bottom"] - h["bottom"])
             extra = 1
@@ -1495,13 +1523,12 @@ def m2_measure(v, items, key):
             logged += it["f"]
             if not ctl and v["log"] == "inline" and m2_entry(it, v, ctl) == 1:
                 oneshot += it["f"]
-        if not folding and x["c"] and x["bottom"] <= vb:
+        if (not folding or it["n"] in open_top) and x["c"] and x["bottom"] <= vb:
             reach.append(x["c"][0])
-    if folding:   # the first tap is a label's header (48 high, the zone's width)
-        zw = 312
-        reach = [{"x": 180, "y": t + 24, "w": zw, "h": 48} for t in folded_top.values() if t + 48 <= vb]
+    if folding:   # a folded label's first tap is its header (48 high, the zone's width)
+        reach += [{"x": 180, "y": t + 24, "w": 312, "h": 48} for t in folded_top.values() if t + 48 <= vb]
     shown = [it for it in items if not (it["k"] == "activity" and (ctl or v["scope"] == "apart"))]
-    span = (len(pr["heads"]) * 48 if folding else max(x["bottom"] for x in pr["items"]) - top) / page
+    span = ((pr["heads"][0]["top"] - top + len(pr["heads"]) * 48) if (folding and pr["heads"]) else max(x["bottom"] for x in pr["items"]) - top) / page
     gate = ["%s %dx%d" % (c["n"], c["w"], c["h"]) for x in pr["items"] if x["bottom"] <= vb for c in x["c"]
             if (c["n"].startswith("Chip ") and (c["w"] < 24 or c["h"] < 24)) or
             (c["n"].startswith(("Log ", "Plus ", "Yes ", "Start ", "Stop ")) and (c["w"] < 48 or c["h"] < 48))]
@@ -1520,6 +1547,8 @@ def score_measure2(v):
     return {"taps_12": a["taps"], "taps_30": b["taps"], "overview_12": a["overview"], "overview_30": b["overview"],
             "screens_12": a["screens"], "screens_30": b["screens"], "reach": a["reach"], "one_tap_writes": a["one_tap_writes"],
             "says_share": a["says_share"], "running_shown": 1 if running else 0, "judgment_marks": a["judgment_marks"],
+            # items moving on their own as use changes: most used first, or a hybrid's open ones chosen by use
+            "moves": 0 if v.get("control") else (1 if (v["order"] == "recent" or v["group"] in ("hybrid_fit", "hybrid_6")) else 0),
             "small": sorted(set(a["gate"] + ["30: " + g for g in b["gate"]]))}
 
 
@@ -1566,7 +1595,7 @@ T.CONTROLS = {"measure2": ({"scope": "apart", "layout": "grid", "says": "goal", 
               "habits": ({"presence": "streak", "group": "flat", "log": "cells", "amount": "percent", "control": True},
                          "Loop-like with streaks and a score: a streak and a percentage on every row, the last 4 days as ticks and crosses")}
 T.AXES = {"measure2": {"Taps": ("max:taps_12|taps_30",), "Overview": ("max:-overview_12|-overview_30", "max:screens_12|screens_30"),
-                       "Reach": ("reach",), "Recovery": ("one_tap_writes",), "Glance": ("-says_share", "-running_shown"), "Judgment": ("judgment_marks",)},
+                       "Reach": ("reach",), "Recovery": ("one_tap_writes",), "Glance": ("-says_share", "-running_shown"), "Judgment": ("judgment_marks",), "Predictable": ("moves",)},
           "measure": {"Taps": ("taps_mean",), "Reach": ("reach_mean",), "Recovery": ("one_tap_writes",), "Glance": ("-says_share", "-running_shown"),
                       "Judgment": ("judgment_marks",), "Find": ("scan_steps",)},
           "trackers": {"Ease": ("taps_count", "reach_log"), "Predictable": ("log_varies", "unconfirmed"), "Glance": ("-says_share",),
@@ -1588,7 +1617,7 @@ T.AXES = {"measure2": {"Taps": ("max:taps_12|taps_30",), "Overview": ("max:-over
           "habits": {"Ease": ("log_actions", "reach_log"), "Presence": ("-presence_shown", "presence_marks"), "Calm": ("guilt_marks", "clutter", "desk_clutter"),
                      "Density": ("-rows_seen", "cut"), "Consistency": ("like_today",)}}
 T.TITLES = {"measure2": "T3b.1c The Measuring list, scroll counted at 12 and 30 items: compact rows, folding labels, most used first", "measure": "T3b.1b The Measuring list, taps first: merged with activities or apart, rows or cards, what Log does (a control per kind)", "trackers": "T3b.1 The Trackers list: rows or cards, what a row says, what Log does, grouping", "habits2": "T3a.1c The Habits list: the optional name, and every if as a header", "premise": "T3a.2d What tapping the premise box opens: nothing, or the ifs with the same connective", "hsheet": "T3a.2c The New habit sheet (prototype): the blanks as text boxes in the sentence, or opened above it", "addsent": "T3a.2b Adding a habit as an open sentence: the When sheet, in place, or fields; energy and routine as words or rows", "routines": "T3a.1b The Habits list with routines: the 'what to expect' preview, how the sequence shows", "addhabit": "T3a.2 Adding a habit: in place or a sheet, the If, the block", "basics": "T3a.1 Habits as Daily basics: layout, the energy filter, its mark, done today", "habits": "T3.1 The Habits list: presence, grouping, where Log sits, a count's amount"}
-T.DRAW = {"measure2": lambda v: [m2doc(measure2_phone(v, ITEMS12, v.get("group") == "folding")), m2doc(measure2_phone(v, ITEMS30)), measure2_desk(v)], "measure": lambda v: [mdoc(measure_phone(v)), measure_desk(v)], "trackers": lambda v: [tdoc(trackers_phone(v))] + ([] if v.get("control") else [tdoc(trackers_phone(v, True))]) + [trackers_desk(v)], "habits2": lambda v: [h2doc(habits2_phone(v)), habits2_desk(v)], "premise": lambda v: [premise_doc(v)], "hsheet": lambda v: [adoc(addhabit_phone({"control": True}))] if v.get("control") else [hsheet_doc(v, st) for _, _, st in HSTATES], "addsent": lambda v: [sdoc(addsent_phone(v))] + ([] if (v.get("control") or v["form"] == "fields") else [sdoc(addsent_phone(v, True))]), "routines": lambda v: [rdoc(routines_phone(v)), rdoc(routines_phone(v, "low")), routines_desk(v)], "addhabit": lambda v: [adoc(addhabit_phone(v))], "basics": lambda v: [bdoc(basics_phone(v)), basics_desk(v)], "habits": lambda v: [hdoc(habits_phone(v)), habits_desk(v)]}
+T.DRAW = {"measure2": lambda v: [m2doc(measure2_phone(v, ITEMS12, v.get("group", "") in ("folding", "hybrid_fit", "hybrid_6", "hybrid_pinned"))), m2doc(measure2_phone(v, ITEMS30)), measure2_desk(v)], "measure": lambda v: [mdoc(measure_phone(v)), measure_desk(v)], "trackers": lambda v: [tdoc(trackers_phone(v))] + ([] if v.get("control") else [tdoc(trackers_phone(v, True))]) + [trackers_desk(v)], "habits2": lambda v: [h2doc(habits2_phone(v)), habits2_desk(v)], "premise": lambda v: [premise_doc(v)], "hsheet": lambda v: [adoc(addhabit_phone({"control": True}))] if v.get("control") else [hsheet_doc(v, st) for _, _, st in HSTATES], "addsent": lambda v: [sdoc(addsent_phone(v))] + ([] if (v.get("control") or v["form"] == "fields") else [sdoc(addsent_phone(v, True))]), "routines": lambda v: [rdoc(routines_phone(v)), rdoc(routines_phone(v, "low")), routines_desk(v)], "addhabit": lambda v: [adoc(addhabit_phone(v))], "basics": lambda v: [bdoc(basics_phone(v)), basics_desk(v)], "habits": lambda v: [hdoc(habits_phone(v)), habits_desk(v)]}
 T.POOL = {"trackers": lambda ok: [min((r for r in ok if r.get("front") and r["v"]["layout"] == lay and r["v"]["log"] == lg), key=lambda r: r["total"])
                                     for lay in ("rows", "grid") for lg in ("sheet", "default", "stepper")
                                     if any(r.get("front") and r["v"]["layout"] == lay and r["v"]["log"] == lg for r in ok)]

@@ -802,4 +802,25 @@ Log is narrowed to sheet and inline, because default and stepper cannot reach a 
 - At 30 items, every leader shows about a third of the list.
 - Folding labels show everything (100%), but every log pays the tap that opens its label (2.5–2.6 at 30).
 
-Status: **put to the owner.**
+**The owner's answers:**
+- Score the hybrid: the most used open at the top with their controls, the rest under folded labels with counts.
+- Score all three ways of choosing the open ones:
+  - **fit:** as many as fit one screen above the labels;
+  - **6:** the 6 most used;
+  - **pinned:** six the person pins, scored as the 6 most used.
+
+**Added with them:** Predictable, which is whether items move on their own as use changes. That covers most used first, and a hybrid whose open ones are chosen by use. Without it, 6 and pinned would score the same. It breaks ties only. There are now 576 options, 48 of them gated out for cut titles.
+
+**Result:** the control lost. The front holds eleven options, all flat with controls on the row; manual order joins it, because it does not move. The hybrids miss the lead by 0.09 to 0.19 taps a log:
+
+| Option | Taps 12 / 30 | In view 12 / 30 | Spans at 30 |
+|---|---|---|---|
+| hybrid fit (apart · rows · none · recent) | 1.78 / 2.28 | 100% / 100% | 0.97 screens |
+| hybrid 6 (apart · rows · none · recent) | 1.69 / 2.33 | 89% / 64% | 1.24 |
+| hybrid pinned (apart · rows · none · manual) | 1.71 / 2.33 | 89% / 73% | 1.24 |
+| front leader (apart · grid · last · flat · manual) | 1.66 / 2.18 | 89% / 36% | 2.45 |
+| fewest at 30 (apart · grid · none · flat · recent) | 1.61 / 2.00 | 89% / 36% | 2.35 |
+
+**The trade:** the fit hybrid costs about 0.1 to 0.2 taps more a log (one more tap every 5 to 10 logs, on the rare items behind a label). For that, the whole list sits on one screen at both sizes.
+
+Status: **put to the owner** (pick, or widen the 0.1 tolerance).
