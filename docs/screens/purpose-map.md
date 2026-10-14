@@ -61,7 +61,7 @@ _record an amount (water, exercise, studying, knitting, time) and, if wanted, ai
 
 | Screen | Comes from | New in Factotum | Tier | Status | Overlaps |
 |---|---|---|---|---|---|
-| Trackers (water, exercise, studying, knitting) | Chronicle Track |  | T3b | approved (T3b.1c, 2026-10-13): the most used open with a control per kind, the rest under folded labels; activities on their own screen | Activities and timers (several at once), Goals, inside their tracker or activity |
+| Trackers (water, exercise, studying, knitting) | Chronicle Track |  | T3b | approved as one Measuring screen with activities (T3b.1d, 2026-10-14): Recent (collapsible) + folded labels, one-tap controls, running strip, Paced chip | Activities and timers (several at once), Goals, inside their tracker or activity |
 | Log sheet (a number, a rating, yes or no, a choice) | Chronicle; Loop's picker (reference) |  | T3b | pending |  |
 | Activities and timers (several at once) | Chronicle activities and sessions; Tendril time logs |  | T3b | pending | Trackers (water, exercise, studying, knitting) |
 | A timer past its limit (keep, end at a time, end at the limit) | Factotum §3.7 (owner, 2026-10-02) | the question itself | T3b | pending (it arrives) |  |

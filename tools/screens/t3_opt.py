@@ -1899,7 +1899,7 @@ def m3_top(v, items):
         return by_use[:6]
     vf = dict(v, group="flat", order="recent")
     pr = T.probe(m3doc(measure3_phone(vf, items)), "t3-m3fit-%d-%s" % (len(items), key_of(vf)), M2_JS)
-    room = pr["vb"] - 48 * len({it["lab"] for it in items})
+    room = pr["vb"] - 48 * (len({it["lab"] for it in items}) + (1 if v.get("recent_head") else 0))   # a Recent header takes a row too
     fit = {x["tr"] for x in pr["items"] if x["bottom"] <= room}
     return [it for it in by_use if it["n"] in fit]
 
@@ -1932,8 +1932,11 @@ def measure3_body(v, items, closed=False):
         its = [it for it in its if not it["running"]]
     if v["group"].startswith("hybrid"):
         top = [it for it in m3_top(v, items) if it in its]
+        if v.get("recent_head"):   # the open top as a collapsible label of its own, "Recent" (owner, 2026-10-14)
+            head += '<div class="fhead" data-rhead="1" data-tap="Label Recent"><span class="t">Recent</span><span class="c">%d</span>▾</div>' % len(top)
         head += wrap("".join(m3_item(it, v) for it in top))
-        its = [it for it in its if it not in top]
+        if not v.get("recent_head"):   # under a Recent header the open ones also stay in their labels: folding Recent hides nothing (2026-10-14)
+            its = [it for it in its if it not in top]
     if v["group"] == "flat":
         body = head + wrap("".join(m3_item(it, v) for it in its))
     else:
@@ -2291,7 +2294,8 @@ T.DRAW_MAX["trackers"] = 10   # and the leader's family with each thing a row ca
 # the owner's picks (decision 19) shown, the rest folded; superseded parts folded whole (owner, 2026-10-13)
 T.PICKED = {"routines": [{"preview": "none", "seq": "plain"}, {"preview": "energy", "seq": "numbers"}], "hsheet": [{"blank": "inline"}], "premise": [{"premise": "same"}],
             "habits2": [{"group": "routines", "name": "named"}],
-            "measure2": [{"scope": "apart", "layout": "rows", "says": "last", "log": "inline", "group": "hybrid_fit", "order": "recent"}]}
+            "measure2": [{"scope": "apart", "layout": "rows", "says": "last", "log": "inline", "group": "hybrid_fit", "order": "recent"}],
+            "measure3": [{"layout": "rows", "says": "last", "log": "inline", "group": "hybrid_fit", "order": "recent", "running": "strip", "past": "page", "plan": "chip"}]}
 T.SUPERSEDED = {"measure2": "trackers and activities are one screen (owner, 2026-10-14): T3b.1d replaced it; its pick shaped T3b.1d's space",
                 "acts": "trackers and activities are one screen (owner, 2026-10-14): T3b.1d replaced it", "measure": "scroll was undercounted (owner, 2026-10-13): T3b.1c replaced it", "trackers": "P4 Measuring is scored taps first (owner, 2026-10-13): T3b.1b replaced it", "habits": "re-cut by purpose; T3a.1 Daily basics replaced it", "basics": "routines replaced it (T3a.1b)",
                 "addhabit": "the open sentence replaced it (T3a.2b), then the prototype (T3a.2c)", "addsent": "the prototype sheet replaced it (T3a.2c)"}

@@ -982,4 +982,40 @@ Most put running timers in **a strip at the top** (52 of 82), and **most used fi
 
 **The leaders are the Trackers pick (T3b.1c: rows · last · inline · hybrid fit · most used) with the activities merged in,** running timers in a strip, and the Paced timer chip. Rows and grid are within 0.06 taps of each other.
 
-Status: **awaiting the owner's pick (T3b.1d and T3b.4).**
+**What "page" and "row" were** (asked by the owner):
+- They are how a past session is added: on the activity's page, or a "+ time" chip beside ▶.
+- They drew alike because the open top at 12 items holds only logged trackers; the chip appears only on timed rows (10 of them at 40 items).
+- They score alike because the capture line is never slower.
+- So the chip only adds width; page (with the capture line) is chosen.
+
+**T3b.1d approved (owner, 2026-10-14): rows · last · inline · hybrid fit · most used · running strip · page · Paced chip.**
+- One **Measuring** screen for trackers and activities.
+- **Running timers in a strip at the top**, each with ■.
+- **A "Recent" section** (the owner: it "needs to be collapsible like other labels, otherwise it always holds a part of the screen busy"):
+  - the most used, as many as fit one screen;
+  - **under its own collapsible header**, with its count, like every label.
+- **Each row:**
+  - says when it was last logged or run;
+  - carries its one-tap control: "+ usual" / Yes / rating chips / recent choices / Log for a number with no usual amount;
+  - a timed row has ▶ and its Paced timer's last interval as a "↻ 25 min" chip.
+- **Every other item under folded labels** with their counts.
+- **A past session:** the capture line ("Studying 40 min"), or the activity's page.
+
+**Taken with it** (not asked):
+- **Recent is a shortcut, not a place.** Its items also stay under their own labels, so folding Recent hides nothing (Health counts 12 with Water, not 11).
+- **Recent starts open, and its state is remembered**, as the labels' is (device state).
+
+**What the header costs, measured:**
+- It takes one row, so one item fewer fits open: 2 at 12 items, 1 at 40.
+- Taps rise from 1.66 / 2.38 to 1.75 / 2.44.
+- Overview stays 100% at both sizes, and the list still spans 0.91 of a screen at 40.
+- With Recent folded, its items cost the label's one tap, as any other.
+
+**Owed in the data layer, added:**
+- the logging frequency or recency that fills Recent;
+- Recent's and each label's open state (device state);
+- a Paced timer's remembered run per activity (what it keeps is asked with T3b.4).
+
+**Superseded:** T3b.1c's separate Trackers screen (its pick lives on inside T3b.1d) and T3b.2's separate Activities list.
+
+Status: **T3b.1d approved; T3b.4 (the Paced timer sheet) awaiting the owner's pick.**
