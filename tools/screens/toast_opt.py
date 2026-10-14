@@ -51,6 +51,16 @@ def fitts(frm, tap):
 def probe(document, key, expr, w=360, h=740):
     """One value read off the laid-out page (the marker split so the regex never matches the script itself; the DOM dump
     writes the id back with quotes)."""
+    if os.environ.get("SCREENS_CDP", "1") == "1":   # one browser kept open per worker (2026-10-14: cold starts held the CPU at 100%)
+        import cdp
+        import threading
+        os.makedirs(ss.CACHE, exist_ok=True)
+        src = os.path.join(ss.CACHE, key + ".html")
+        tmp = "%s.%d.%d.tmp" % (src, os.getpid(), threading.get_ident())
+        with open(tmp, "w", encoding="utf-8", newline="\n") as fh:
+            fh.write(document)
+        os.replace(tmp, src)
+        return cdp.evaluate(ss.EDGE, ss.CACHE, src, expr, w + 300, h + 300)
     js = '<script>document.body.insertAdjacentHTML("beforeend","<pre id=__pr"+"obe>"+JSON.stringify(%s)+"</pre>")</script>' % expr
     res = ss._edge(["--dump-dom"], True, key, document.replace("</body>", js + "</body>"), w + 300, h + 300)
     return json.loads(re.search(r'<pre id="__probe">(.*?)</pre>', res.stdout, re.S).group(1).replace("&quot;", '"'))

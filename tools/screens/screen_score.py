@@ -103,10 +103,13 @@ def _edge(args, out_flag, key, doc, w, h):
     with open(tmp, "w", encoding="utf-8", newline="\n") as fh:
         fh.write(doc)
     os.replace(tmp, src)
-    with tempfile.TemporaryDirectory() as prof:
-        return subprocess.run([EDGE, "--headless=new", "--disable-gpu", "--hide-scrollbars", "--force-device-scale-factor=1",
-                               "--window-size=%d,%d" % (w, h), "--user-data-dir=" + prof, "--virtual-time-budget=3000"] + args +
-                              ["file:///" + src.replace("\\", "/")], capture_output=True, timeout=120, text=out_flag)
+    # one profile per worker thread, reused (2026-10-14): a fresh profile per launch wrote hundreds of files each time, and
+    # the antivirus scanning them held the CPU at 100% through a 10,000-option run; a profile serves one Edge at a time
+    prof = os.path.join(CACHE, "profile-%d" % threading.get_ident())
+    return subprocess.run([EDGE, "--headless=new", "--disable-gpu", "--hide-scrollbars", "--force-device-scale-factor=1",
+                           "--no-first-run", "--disable-extensions", "--disable-background-networking", "--disable-component-update",
+                           "--window-size=%d,%d" % (w, h), "--user-data-dir=" + prof, "--virtual-time-budget=3000"] + args +
+                          ["file:///" + src.replace("\\", "/")], capture_output=True, timeout=120, text=out_flag)
 
 
 def render(doc, w, h):
