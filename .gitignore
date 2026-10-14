@@ -56,3 +56,7 @@ _screens-sources/
 
 # run_part resume records (tools/screens/toast_opt.py)
 *.partial.jsonl
+
+# drawings cache for the Paced timer try page
+tools/screens/.cache-pace/
+docs/screens/t3/pace-imgs.json

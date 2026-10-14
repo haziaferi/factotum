@@ -1,0 +1,464 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Paced Timer Trial</title>
+<style>
+:root{--bg:#f4f4f2;--fg:#1d1d1b;--dim:#6b6b66;--zone:#fbfbfa;--zone2:#e6e6e2;--line:#cfcfca;--ink:#1d1d1b;--inv:#f4f4f2}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1b1b1a;--fg:#ececea;--dim:#9a9a94;--zone:#242423;--zone2:#34342f;--line:#4a4a45;--ink:#ececea;--inv:#1b1b1a}}
+:root[data-theme="dark"]{--bg:#1b1b1a;--fg:#ececea;--dim:#9a9a94;--zone:#242423;--zone2:#34342f;--line:#4a4a45;--ink:#ececea;--inv:#1b1b1a}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.45 system-ui,"Segoe UI",Roboto,sans-serif}
+main{max-width:1240px;margin:0 auto;padding:16px}
+h1{font-size:22px;margin:4px 0 4px}h2{font-size:17px;margin:28px 0 8px}
+p.note{color:var(--dim);margin:4px 0 12px;max-width:820px}
+.cols{display:grid;grid-template-columns:minmax(240px,320px) 360px;gap:20px;align-items:start}
+@media (max-width:1000px){.cols{grid-template-columns:1fr}.phone{margin:0 auto}}
+.panel{background:var(--zone);border-radius:14px;padding:12px;box-shadow:0 0 0 1px var(--zone2)}
+.panel h3{margin:0 0 8px;font-size:14px;color:var(--dim);font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+.pick{display:flex;flex-direction:column;gap:6px}
+.pick button,.tasks button{all:unset;cursor:pointer;padding:8px 10px;border-radius:10px;box-shadow:inset 0 0 0 1px var(--line)}
+.pick button.on,.tasks button.on{background:var(--zone2);box-shadow:none;font-weight:600}
+.pick small,.tasks small{display:block;color:var(--dim);font-weight:400}
+.tasks{display:flex;flex-direction:column;gap:6px;margin-top:12px}
+.tasks .ok{color:var(--dim)}
+.act{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.btn{all:unset;cursor:pointer;padding:9px 14px;border-radius:20px;background:var(--ink);color:var(--inv);font-weight:600}
+.btn.ghost{background:none;color:var(--fg);box-shadow:inset 0 0 0 1px var(--line);font-weight:500}
+.btn:focus-visible,.pick button:focus-visible,.tasks button:focus-visible{outline:2px solid var(--fg);outline-offset:2px}
+.live{margin-top:12px;font-variant-numeric:tabular-nums;color:var(--dim)}
+.live b{color:var(--fg)}
+/* the phone */
+.phone{position:relative;width:360px;height:740px;border-radius:22px;background:var(--bg);overflow:hidden;box-shadow:0 0 0 1px var(--line);user-select:none;touch-action:none}
+.ph-h{height:56px;display:flex;align-items:center;gap:8px;padding:0 8px;font-size:18px;font-weight:600}
+.ph-h .bk{width:48px;height:48px;display:grid;place-items:center;color:var(--dim)}
+.ph-b{padding:4px 16px 16px}
+.idle{position:absolute;inset:0;background:color-mix(in srgb,var(--bg) 82%,transparent);display:grid;place-items:center;text-align:center;padding:24px;color:var(--dim);z-index:9}
+.sent{font-size:19px;line-height:2.4}
+.tok{border-bottom:2px dotted var(--dim);padding:0 2px;display:inline-block;min-height:48px;line-height:48px;cursor:pointer}
+.box{display:inline-block;min-width:64px;min-height:44px;line-height:44px;padding:0 10px;border-radius:10px;box-shadow:inset 0 0 0 1.5px var(--dim);text-align:center;font-size:17px;margin:0 2px;cursor:pointer}
+.box.ed{box-shadow:inset 0 0 0 2.5px var(--ink)}
+.sm{font-size:14px;color:var(--dim)}
+.x{display:inline-grid;place-items:center;width:40px;height:40px;color:var(--dim);cursor:pointer;vertical-align:middle}
+.add{color:var(--dim)}
+.prow{display:flex;align-items:center;min-height:52px;border-bottom:1px solid var(--zone2);font-size:16px;cursor:pointer}
+.prow .t{flex:1;color:var(--dim)}
+.sec{margin-top:14px;font-size:13px;color:var(--dim)}
+.line{position:relative;height:64px;margin:10px 6px 4px;cursor:pointer}
+.line .bar{position:absolute;left:0;right:0;top:22px;height:8px;border-radius:4px;background:var(--zone2)}
+.line .mk{position:absolute;top:2px;width:44px;height:48px;margin-left:-22px;display:grid;place-items:center;cursor:grab}
+.line .mk i{width:12px;height:28px;border-radius:4px;background:var(--ink)}
+.line .mk.rest i{width:16px;background:none;box-shadow:inset 0 0 0 3px var(--ink)}
+.line .mk.sel i{outline:2px solid var(--dim);outline-offset:3px}
+.line .mk em{position:absolute;top:-14px;font-style:normal;font-size:11px;color:var(--fg);white-space:nowrap}
+.line .lab{position:absolute;top:48px;font-size:11px;color:var(--dim);transform:translateX(-50%)}
+.seg{display:flex;border-radius:24px;box-shadow:inset 0 0 0 1px var(--dim);overflow:hidden;margin:8px 0}
+.seg span{flex:1;min-height:44px;display:grid;place-items:center;font-size:14px;cursor:pointer}
+.seg span.on{background:var(--zone2);font-weight:600}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.chips span{min-height:36px;padding:0 12px;border-radius:18px;display:grid;place-items:center;font-size:13px;box-shadow:inset 0 0 0 1px var(--dim);cursor:pointer}
+.list{font-size:13px;color:var(--dim);margin:8px 0;min-height:20px}
+.start{position:absolute;left:16px;right:16px;bottom:16px;min-height:52px;border-radius:26px;background:var(--ink);color:var(--inv);display:grid;place-items:center;font-weight:600;font-size:16px;cursor:pointer}
+.ring{display:block;margin:6px auto}
+.ring path{cursor:pointer}
+.toast{position:absolute;left:16px;right:16px;bottom:80px;background:var(--ink);color:var(--inv);padding:10px 12px;border-radius:12px;font-size:13px;z-index:8}
+.ov{position:absolute;inset:0;z-index:7;display:flex;flex-direction:column;justify-content:flex-end}
+.ov .scr{flex:1;background:rgba(0,0,0,.18)}
+.ov .pan{background:var(--zone);border-radius:18px 18px 0 0;padding:10px 12px 14px;box-shadow:0 -6px 20px rgba(0,0,0,.12)}
+.ov .ttl{font-size:13px;color:var(--dim);margin:2px 4px 8px}
+.ov .it{min-height:48px;display:flex;align-items:center;padding:0 8px;border-bottom:1px solid var(--zone2);cursor:pointer}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.grid span{min-height:48px;display:grid;place-items:center;border-radius:10px;box-shadow:inset 0 0 0 1px var(--line);cursor:pointer;font-variant-numeric:tabular-nums}
+.kp{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.kp span{min-height:52px;display:grid;place-items:center;border-radius:10px;background:var(--zone2);font-size:20px;cursor:pointer}
+.kp span.dn{background:var(--ink);color:var(--inv);font-size:15px;font-weight:600}
+.kpv{font-size:22px;text-align:center;margin:2px 0 8px;font-variant-numeric:tabular-nums;min-height:30px}
+/* results */
+.tbl{width:100%;border-collapse:collapse;font-size:13px;font-variant-numeric:tabular-nums}
+.tbl th,.tbl td{text-align:left;padding:6px 6px;border-bottom:1px solid var(--zone2);vertical-align:top}
+.tbl th{color:var(--dim);font-weight:600}
+.tbl select{font:inherit;background:var(--zone);color:var(--fg);border:1px solid var(--line);border-radius:6px}
+.wrap{overflow-x:auto}
+textarea{width:100%;height:120px;font:12px/1.4 ui-monospace,Consolas,monospace;background:var(--zone);color:var(--fg);border:1px solid var(--line);border-radius:8px;padding:8px}
+.gal{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px}
+.gal figure{margin:0}.gal img{width:100%;height:auto;border-radius:10px;box-shadow:0 0 0 1px var(--zone2)}
+.gal figcaption{font-size:12px;color:var(--dim);margin-top:4px}
+.gal figcaption b{color:var(--fg)}
+.gal2{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:18px}.gal2 figure{margin:0}.gal2 .two{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.gal2 img{width:100%;height:auto;border-radius:10px;box-shadow:0 0 0 1px var(--zone2)}.gal2 figcaption{font-size:12px;color:var(--dim);margin-top:4px}.gal2 figcaption b{color:var(--fg)}
+</style>
+</head>
+<body>
+<main>
+<h1>Paced timer: try the sheets</h1>
+<p class="note">The four sheets with the best totals in T3b.4, re-scored after the Consistency fix (When's sentence covers the run, not the pauses), and Break Down Timer as the control that must lose. Choose a sheet, choose a task, press <b>Begin</b>, then do the task on the phone. Every tap inside the phone is counted. <b>Start</b> checks the run against the task: a wrong Start counts as an error and says what differs (a pause may be half a minute off). Fixes count ⌫, deleted pauses, and a value set again. It is 13:00 in every task; runs 1–3 are the scored walk's, and a blank sheet starts at 45 min. Where the timer lives (sheet, page, screen, row) is scored separately (T3b.4b): the setup is drawn here as a plain panel.</p>
+<div class="cols">
+  <section class="panel">
+    <h3>Sheet</h3>
+    <div class="pick" id="sheets"></div>
+    <h3 style="margin-top:14px">Task</h3>
+    <div class="tasks" id="tasks"></div>
+    <div class="act">
+      <button class="btn" id="begin">Begin</button>
+      <button class="btn ghost" id="cant">Can't be done here</button>
+    </div>
+    <div class="live" id="live"></div>
+  </section>
+  <div class="phone" id="phone"></div>
+</div>
+  <section class="panel" style="margin-top:20px">
+    <h3>Your trial beside the scores</h3>
+    <div class="wrap"><table class="tbl" id="res"></table></div>
+    <p class="note" style="margin-top:10px">Cells: taps + keystrokes · seconds · errors · fixes. Taps 1–3 leave keystrokes out, as the scored walk does. "Est." is the scored walk for runs 1–3 (keyboards opened; mean reach; finest step in minutes; like When 0–1). Total is the Pareto rank sum (lower is better). Rate each sheet when you've tried it.</p>
+    <div class="act"><button class="btn ghost" id="exp">Copy results</button><button class="btn ghost" id="clr">Clear results</button></div>
+    <textarea id="out" readonly aria-label="Results as JSON" style="margin-top:8px;display:none"></textarea>
+  </section>
+<h2>Where it lives (T3b.4b), scored</h2>
+<p class="note">Each place running (left) and Today while it runs (right). Axes: App free while running; Taps to reach (from Measuring to Start and back on the list) and to return (from Today to Pause and Stop); Seen elsewhere (the time left and the next pause, without a tap). The notification is Android's, the same for every place, so it is not counted. Sorted by total; lower is better.</p>
+<div class="gal2" id="gal2"></div>
+<h2>Every mode × place, as drawn and scored</h2>
+<p class="note">The 18 combinations of T3b.4 and the control, from the scoring. Rings are gated: each slice is 12.6 dp, below the 24 dp floor.</p>
+<div class="gal" id="gal"></div>
+</main>
+<script>
+const DATA = __DATA__;
+const NOW = 13 * 60;
+const KEY = "factotum-pace-try-v1";
+const TASKS = [   // runs 1-3 are the scored walk's (T3b.4)
+  {id: "t1", name: "Run 1", text: "Reading for 25 minutes, with a chime halfway.", target: {S: 780, E: 805, p: [["chime", 792.5]]}},
+  {id: "t2", name: "Run 2", text: "Until 15:30, with a chime every 15 minutes.", target: {S: 780, E: 930, p: every(780, 930, 15, "chime")}},
+  {id: "t3", name: "Run 3", text: "From 14:00 to 15:30, with a 5-minute rest in the middle (14:45).", target: {S: 840, E: 930, p: [["rest", 885]]}},
+  {id: "t4w", name: "Repeat · whole run", text: "↻ remembers the whole run. Start last time's run again: 14:00–15:30, a 5-minute rest in the middle.",
+   pre: {startAt: 840, endKind: "at", endAt: 930, rules: [["rest", "half", 0]]}, target: {S: 840, E: 930, p: [["rest", 885]]}},
+  {id: "t4i", name: "Repeat · interval only", text: "↻ remembers the interval only. Start last time's run again: 14:00–15:30, a 5-minute rest in the middle.",
+   pre: {startAt: 840, endKind: "at", endAt: 930, rules: []}, target: {S: 840, E: 930, p: [["rest", 885]]}},
+  {id: "t5", name: "Change one pause", text: "This run is set: 25 minutes, a chime halfway. Move the chime to 13:20.",
+   pre: {startAt: null, endKind: "len", len: 25, rules: [["chime", "half", 0]]}, target: {S: 780, E: 805, p: [["chime", 800]]}}
+];
+function every(S, E, n, kind) { const o = []; for (let t = S + n; t < E - 0.01; t += n) o.push([kind, t]); return o; }
+const fmt = m => { m = Math.round(m); const h = Math.floor(m / 60) % 24, mm = ((m % 60) + 60) % 60; return String(h).padStart(2, "0") + ":" + String(mm).padStart(2, "0"); };
+const dur = m => m >= 60 ? (Math.floor(m / 60) + " h" + (m % 60 ? " " + (m % 60) + " min" : "")) : m + " min";
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;"}[c]));
+
+let sheet = DATA.sheets[0], task = TASKS[0], st = null, ui = {}, rec = null, store = load();
+function load() { try { return JSON.parse(localStorage.getItem(KEY)) || {results: {}, ratings: {}}; } catch (e) { return {results: {}, ratings: {}}; } }
+function save() { try { localStorage.setItem(KEY, JSON.stringify(store)); } catch (e) {} }
+
+/* ---- the run model: start (now or a time), end (a length or a time), pauses as rules ---- */
+function fresh() { return {startAt: null, endKind: "len", len: 45, endAt: null, pauses: []}; }   // not a task's length: every run is set
+function span(s) { const S = s.startAt == null ? NOW : s.startAt; const E = s.endKind === "len" ? S + s.len : s.endAt; return {S, E}; }
+function expand(s) {
+  const {S, E} = span(s), out = [];
+  for (const p of s.pauses) {
+    if (p.rule === "half") out.push([p.kind, S + (E - S) / 2]);
+    else if (p.rule === "at") out.push([p.kind, p.val]);
+    else if (p.rule === "every") for (const x of every(S, E, p.val, p.kind)) out.push(x);
+    else if (p.rule === "slice") out.push([p.kind, S + (E - S) * p.val / 60]);
+  }
+  return out.filter(x => x[1] > S && x[1] < E).sort((a, b) => a[1] - b[1]);
+}
+function fromPre(pre) {
+  const s = Object.assign(fresh(), pre); s.pauses = [];
+  const {S, E} = span(s);
+  for (const [kind, rule, val] of pre.rules || []) {
+    if (sheet.place === "sentence") s.pauses.push({kind, rule, val});
+    else if (sheet.place === "bdt") { const at = rule === "half" ? S + (E - S) / 2 : val; s.pauses.push({kind, rule: "slice", val: Math.round((at - S) / (E - S) * 60)}); }
+    else { const tmp = {startAt: s.startAt, endKind: s.endKind, len: s.len, endAt: s.endAt, pauses: [{kind, rule, val}]}; for (const [k, at] of expand(tmp)) s.pauses.push({kind: k, rule: "at", val: at, id: nid()}); }
+  }
+  return s;
+}
+let _id = 0; const nid = () => ++_id;
+function diff(s, t) {
+  const {S, E} = span(s), got = expand(s), why = [];
+  if (!(E > S)) return ["the end is not after the start"];
+  if (Math.abs(S - t.S) > 0.01) why.push("starts " + fmt(S) + ", the task wants " + fmt(t.S));
+  if (Math.abs(E - t.E) > 0.01) why.push("ends " + fmt(E) + ", the task wants " + fmt(t.E));
+  const same = got.length === t.p.length && got.every((x, i) => x[0] === t.p[i][0] && Math.abs(x[1] - t.p[i][1]) <= 0.5);   // within half a minute: a line snaps to minutes
+  if (!same) why.push("pauses: " + (got.length ? describe(got) : "none") + "; the task wants " + describe(t.p));
+  return why;
+}
+function describe(list) {
+  if (!list.length) return "none";
+  const k = {}; for (const [kind] of list) k[kind] = (k[kind] || 0) + 1;
+  const head = Object.entries(k).map(([kind, n]) => n + " " + (kind === "rest" ? (n > 1 ? "rests" : "rest") : (n > 1 ? "chimes" : "chime"))).join(", ");
+  const times = list.slice(0, 4).map(x => fmt(x[1]) + (x[0] === "rest" ? "–" + fmt(x[1] + 5) : "")).join(", ") + (list.length > 4 ? ", …" : "");
+  return head + " · " + times;
+}
+
+/* ---- trial bookkeeping ---- */
+function fix(key) { if (!rec) return; if (key == null || rec.edited[key]) rec.fixes++; if (key != null) rec.edited[key] = 1; }
+function begin() {
+  _id = 0; st = task.pre ? fromPre(task.pre) : fresh(); ui = {nk: "chime"};
+  rec = {taps: 0, keys: 0, errors: 0, fixes: 0, edited: {}, t0: performance.now()};
+  render(); tick();
+}
+function finish(result) {
+  const secs = rec ? (performance.now() - rec.t0) / 1000 : 0;
+  const r = store.results[sheet.id] = store.results[sheet.id] || {};
+  r[task.id] = result === "cant" ? {cant: true} : {taps: rec.taps, keys: rec.keys, secs: Math.round(secs * 10) / 10, errors: rec.errors, fixes: rec.fixes};
+  rec = null; save(); render(); side(); table();
+}
+function tick() {
+  const el = document.getElementById("live");
+  if (!rec) { el.innerHTML = "Press Begin to start the task. The phone resets to the task's starting state."; return; }
+  el.innerHTML = "<b>" + rec.taps + "</b> taps + <b>" + rec.keys + "</b> keys · <b>" + ((performance.now() - rec.t0) / 1000).toFixed(1) + "</b> s · <b>" + rec.errors + "</b> errors · <b>" + rec.fixes + "</b> fixes";
+  requestAnimationFrame(tick);
+}
+
+/* ---- the phone ---- */
+const phone = document.getElementById("phone");
+function render() {
+  if (!st) st = task.pre ? fromPre(task.pre) : fresh();
+  const bdt = sheet.place === "bdt";
+  let h = '<div class="ph-h"><span class="bk">‹</span>' + (bdt ? "Reading" : "Paced timer · Reading") + "</div><div class=\"ph-b\">";
+  h += bdt ? bdtHTML() : modeHTML() + '<div class="sec">Pauses</div>' + placeHTML();
+  const ps = expand(st); h += '<div class="list">' + (ps.length ? esc(describe(ps)) : "No pauses yet") + "</div></div>";
+  h += '<div class="start" data-a="start">▶ Start' + (bdt ? " ▾" : "") + "</div>";
+  if (ui.toast) h += '<div class="toast">' + esc(ui.toast) + "</div>";
+  h += overlayHTML();
+  if (!rec) h += '<div class="idle">' + esc(task.text) + "<br><br>Press Begin.</div>";
+  phone.innerHTML = h;
+}
+function box(f, txt) {
+  const ed = ui.kp && ui.kp.f === f;
+  return '<span class="box' + (ed ? " ed" : "") + '" data-a="kp:' + f + '">' + (ed ? (esc(ui.kp.buf) || "&nbsp;") : esc(txt)) + "</span>";
+}
+function modeHTML() {
+  const {S, E} = span(st);
+  if (sheet.mode === "fields") {
+    return '<div class="prow" data-a="m:starts"><span class="t">Starts</span>' + (st.startAt == null ? "Now" : "At " + fmt(st.startAt)) + " ▸</div>" +
+           '<div class="prow" data-a="m:ends"><span class="t">Ends</span>' + (st.endKind === "len" ? "After " + dur(st.len) : "At " + fmt(st.endAt)) + " ▸</div>" +
+           '<div class="sm" style="margin-top:6px">' + fmt(S) + "–" + fmt(E) + "</div>";
+  }
+  const word = st.startAt != null ? "From" : st.endKind === "len" ? "For" : "Until";
+  let h = '<div class="sent"><span class="tok" data-a="cyc">' + word + "</span> ";
+  if (word === "For") h += box("len", st.len + " min") + ' <span class="sm">· ends ' + fmt(E) + "</span>";
+  else if (word === "Until") h += box("endAt", fmt(st.endAt)) + ' <span class="sm">· ' + dur(E - S) + "</span>";
+  else h += box("startAt", fmt(st.startAt)) + " to " + box("endAt", fmt(E));
+  return h + "</div>";
+}
+function placeHTML() {
+  if (sheet.place === "sentence") {
+    let h = '<div class="sent">';
+    st.pauses.forEach((p, i) => {
+      const where = p.rule === "half" ? "halfway" : p.rule === "every" ? "every " + p.val + " min" : "at " + fmt(p.val);
+      const wbox = ui.kp && ui.kp.f === "p" + i;
+      h += "<div>with <span class=\"tok\" data-a=\"kind:" + i + "\">" + (p.kind === "rest" ? "a 5-min rest" : "a chime") + "</span> " +
+           (wbox ? box("p" + i, "") : '<span class="tok" data-a="where:' + i + '">' + where + "</span>") +
+           ' <span class="x" data-a="del:' + i + '" aria-label="Remove">×</span></div>';
+    });
+    return h + '<div><span class="tok add" data-a="add">+ pause</span></div></div>';
+  }
+  const {S, E} = span(st), L = Math.max(E - S, 1);
+  let h = '<div class="line" data-a="bar" id="line"><span class="bar"></span>';
+  for (const p of st.pauses) {
+    if (p.val <= S || p.val >= E) continue;
+    const x = (p.val - S) / L * 100;
+    h += '<span class="mk' + (p.kind === "rest" ? " rest" : "") + (ui.sel === p.id ? " sel" : "") + '" data-mk="' + p.id + '" style="left:' + x + '%">' +
+         (ui.drag && ui.drag.id === p.id ? "<em>" + fmt(p.val) + "</em>" : "") + "<i></i></span>";
+  }
+  for (const f of [0, 0.5, 1]) h += '<span class="lab" style="left:' + f * 100 + '%">' + fmt(S + L * f) + "</span>";
+  h += "</div>";
+  h += '<div class="sm">Tap the line to add a pause; drag a mark to move it; tap a mark to change or remove it.</div>';
+  h += '<div class="seg"><span class="' + (ui.nk === "chime" ? "on" : "") + '" data-a="nk:chime">Chime</span><span class="' + (ui.nk === "rest" ? "on" : "") + '" data-a="nk:rest">Rest · 5 min</span></div>';
+  if (sheet.place === "line_presets") h += '<div class="chips">' + [["½", 2], ["⅓", 3], ["¼", 4], ["every 15 min", "e15"], ["Clear", "clr"]].map(([t, v]) => '<span data-a="pre:' + v + '">' + t + "</span>").join("") + "</div>";
+  return h;
+}
+function bdtHTML() {
+  const {S, E} = span(st), on = new Set(st.pauses.map(p => p.val));
+  let h = '<div class="seg"><span class="' + (st.endKind === "len" ? "on" : "") + '" data-a="bm:len" aria-label="Length">⏱&#xFE0E;</span><span class="' + (st.endKind === "at" ? "on" : "") + '" data-a="bm:at" aria-label="Finish time">⏰&#xFE0E;</span></div>';
+  h += '<svg class="ring" width="240" height="240" viewBox="0 0 240 240">';
+  const cx = 120, cy = 120, r1 = 70, r2 = 112;
+  for (let i = 0; i < 60; i++) {
+    const a0 = 2 * Math.PI * i / 60 - Math.PI / 2, a1 = 2 * Math.PI * (i + 1) / 60 - Math.PI / 2;
+    const P = (r, a) => (cx + r * Math.cos(a)).toFixed(1) + " " + (cy + r * Math.sin(a)).toFixed(1);
+    h += '<path d="M' + P(r2, a0) + " L" + P(r2, a1) + " L" + P(r1, a1) + " L" + P(r1, a0) + ' Z" fill="' + (on.has(i) ? "var(--ink)" : "var(--zone2)") + '" stroke="var(--bg)" stroke-width="1" data-a="sl:' + i + '"/>';
+  }
+  h += '<circle cx="120" cy="120" r="62" fill="var(--zone)" data-a="bc"/><text x="120" y="118" text-anchor="middle" font-size="16" fill="var(--fg)" data-a="bc">' +
+       (st.endKind === "len" ? dur(st.len) : "until " + fmt(E)) + '</text><text x="120" y="138" text-anchor="middle" font-size="11" fill="var(--dim)" data-a="bc">tap to set</text></svg>';
+  h += '<div class="sm">' + st.pauses.length + " breaks placed · each slice is " + dur(Math.round((E - S) / 60 * 10) / 10).replace(/\.0 /, " ") + "</div>";
+  return h;
+}
+function overlayHTML() {
+  if (ui.kp) {
+    const lab = ui.kp.kind === "time" ? "Time (hhmm)" : "Minutes";
+    return '<div class="ov"><div class="scr" data-a="kpx"></div><div class="pan"><div class="ttl">' + lab + '</div><div class="kpv">' + (esc(ui.kp.buf) || "&nbsp;") + '</div><div class="kp">' +
+      ["1", "2", "3", "4", "5", "6", "7", "8", "9", "⌫", "0", "Done"].map(k => '<span class="' + (k === "Done" ? "dn" : "") + '" data-a="key:' + k + '">' + k + "</span>").join("") + "</div></div></div>";
+  }
+  if (ui.menu) {
+    return '<div class="ov"><div class="scr" data-a="mx"></div><div class="pan"><div class="ttl">' + esc(ui.menu.title) + "</div>" +
+      ui.menu.items.map(([t, a]) => '<div class="it" data-a="' + a + '">' + esc(t) + "</div>").join("") + "</div></div>";
+  }
+  if (ui.grid) {
+    return '<div class="ov"><div class="scr" data-a="gx"></div><div class="pan"><div class="ttl">' + esc(ui.grid.title) + '</div><div class="grid">' +
+      ui.grid.items.map(([t, a]) => '<span data-a="' + a + '">' + esc(t) + "</span>").join("") + "</div></div></div>";
+  }
+  return "";
+}
+
+/* ---- pickers ---- */
+const LENGTHS = [5, 10, 15, 20, 25, 30, 40, 45, 50, 60, 75, 90, 120, 150, 180, 240];
+function hourGrid(target) { ui.grid = {title: "Hour", items: Array.from({length: 16}, (_, i) => [String(i + 7).padStart(2, "0"), "gh:" + target + ":" + (i + 7)])}; }
+function minuteGrid(target, h) { ui.grid = {title: String(h).padStart(2, "0") + ":__", items: Array.from({length: 12}, (_, i) => [":" + String(i * 5).padStart(2, "0"), "gm:" + target + ":" + (h * 60 + i * 5)])}; }
+function lengthGrid(target) { ui.grid = {title: "Length", items: LENGTHS.map(m => [dur(m), "gl:" + target + ":" + m])}; }
+function parseTime(b) {
+  if (!b) return null; const n = b.length <= 2 ? [+b, 0] : [+b.slice(0, b.length - 2), +b.slice(-2)];
+  return n[0] < 24 && n[1] < 60 ? n[0] * 60 + n[1] : null;
+}
+function commitKp() {
+  const {f, kind, buf} = ui.kp; ui.kp = null;
+  if (!buf) return;
+  const val = kind === "time" ? parseTime(buf) : +buf;
+  if (val == null || !(val > 0 || kind === "time")) { ui.toast = "Not a " + (kind === "time" ? "time" : "length") + ": " + buf; return; }
+  fix(f);
+  if (f === "len") st.len = val;
+  else if (f === "startAt") { const L = span(st).E - span(st).S; st.startAt = val; if (st.endKind === "len") { st.endKind = "at"; st.endAt = val + L; } }
+  else if (f === "endAt") { st.endKind = "at"; st.endAt = val; }
+  else if (f[0] === "p") { const p = st.pauses[+f.slice(1)]; if (ui.kpRule === "every") { p.rule = "every"; p.val = val; } else { p.rule = "at"; p.val = val; } }
+}
+
+/* ---- taps and actions ---- */
+phone.addEventListener("pointerdown", e => {
+  if (!rec) return;
+  if (e.target.closest(".kp")) rec.keys++; else rec.taps++;   // keystrokes apart: the scored walk counts a keyboard, not its keys
+  const mk = e.target.closest("[data-mk]");
+  if (mk) { const p = st.pauses.find(q => q.id === +mk.dataset.mk); ui.drag = {id: p.id, x0: e.clientX, moved: false, from: p.val}; try { phone.setPointerCapture(e.pointerId); } catch (_) {} e.preventDefault(); }
+}, true);
+phone.addEventListener("pointermove", e => {
+  if (!ui.drag) return;
+  if (Math.abs(e.clientX - ui.drag.x0) > 4) ui.drag.moved = true;
+  if (!ui.drag.moved) return;
+  const line = document.getElementById("line").getBoundingClientRect(), {S, E} = span(st);
+  const p = st.pauses.find(q => q.id === ui.drag.id);
+  p.val = Math.min(E - 1, Math.max(S + 1, Math.round(S + (e.clientX - line.left) / line.width * (E - S))));
+  render();
+});
+phone.addEventListener("pointerup", e => {
+  if (!ui.drag) return;
+  const d = ui.drag; ui.drag = null; ui.marked = performance.now();
+  if (d.moved) fix("mk" + d.id);
+  else { ui.sel = d.id; ui.menu = {title: "Pause at " + fmt(st.pauses.find(q => q.id === d.id).val), items: [["Chime", "mk:chime"], ["Rest · 5 min", "mk:rest"], ["Remove", "mk:del"]]}; }
+  render();
+});
+phone.addEventListener("click", e => {
+  if (!rec) return;
+  const el = e.target.closest("[data-a]"); if (!el) return;
+  if (el.dataset.a === "bar" && performance.now() - (ui.marked || 0) < 500) return;   // the click that ends a press on a mark
+  const [a, b, c] = el.dataset.a.split(":");
+  ui.toast = null;
+  act(a, b, c, e, el);
+  render();
+});
+function act(a, b, c, e) {
+  const {S, E} = span(st);
+  if (a === "start") {
+    const why = diff(st, task.target);
+    if (why.length) { rec.errors++; ui.toast = "Not yet: " + why.join("; ") + "."; } else finish("ok");
+    return;
+  }
+  if (a === "cyc") {
+    if (st.startAt == null && st.endKind === "len") { st.endKind = "at"; st.endAt = E; }
+    else if (st.startAt == null) { st.startAt = 810; st.endAt = 810 + (E - S); }
+    else { st.len = E - S; st.startAt = null; st.endKind = "len"; }
+    return;
+  }
+  if (a === "kp") { ui.kp = {f: b, kind: b === "len" ? "min" : "time", buf: ""}; return; }
+  if (a === "key") {
+    if (b === "Done") return commitKp();
+    if (b === "⌫") { ui.kp.buf = ui.kp.buf.slice(0, -1); fix(null); return; }
+    if (ui.kp.buf.length < 4) ui.kp.buf += b; return;
+  }
+  if (a === "kpx") { ui.kp = null; return; }
+  if (a === "mx") { ui.menu = null; ui.sel = null; return; }
+  if (a === "gx") { ui.grid = null; return; }
+  /* fields */
+  if (a === "m") {
+    ui.menu = b === "starts" ? {title: "Starts", items: [["Now", "ms:now"], ["At a time…", "ms:at"]]} : {title: "Ends", items: [["After a length…", "me:len"], ["At a time…", "me:at"]]};
+    return;
+  }
+  if (a === "ms") { ui.menu = null; if (b === "now") { fix("startAt"); if (st.endKind === "at" && st.endAt <= NOW) { st.endKind = "len"; st.len = E - S; } st.startAt = null; } else hourGrid("startAt"); return; }
+  if (a === "me") { ui.menu = null; if (b === "len") lengthGrid("len"); else hourGrid("endAt"); return; }
+  if (a === "gh") { minuteGrid(b, +c); return; }
+  if (a === "gm") {
+    ui.grid = null; fix(b);
+    if (b === "startAt") { const L = E - S; st.startAt = +c; if (st.endKind === "len") st.len = L; }
+    else if (b === "endAt") { st.endKind = "at"; st.endAt = +c; }
+    else if (b === "bdtAt") { st.endKind = "at"; st.endAt = +c; }
+    return;
+  }
+  if (a === "gl") { ui.grid = null; fix("len"); st.endKind = "len"; st.len = +c; return; }
+  /* pause sentence */
+  if (a === "add") { st.pauses.push({kind: "chime", rule: "half", val: 0}); return; }
+  if (a === "del") { st.pauses.splice(+b, 1); fix(null); return; }
+  if (a === "kind") { const p = st.pauses[+b]; p.kind = p.kind === "rest" ? "chime" : "rest"; fix("k" + b); return; }
+  if (a === "where") { ui.menu = {title: "Where", items: [["halfway", "wh:" + b + ":half"], ["every 15 min", "wh:" + b + ":e15"], ["every… (minutes)", "wh:" + b + ":every"], ["at a time…", "wh:" + b + ":at"]]}; return; }
+  if (a === "wh") {
+    ui.menu = null; const p = st.pauses[+b];
+    if (c === "half") { fix("w" + b); p.rule = "half"; } else if (c === "e15") { fix("w" + b); p.rule = "every"; p.val = 15; }
+    else { ui.kpRule = c; ui.kp = {f: "p" + b, kind: c === "at" ? "time" : "min", buf: ""}; }
+    return;
+  }
+  /* line */
+  if (a === "nk") { ui.nk = b; return; }
+  if (a === "bar") {
+    const line = document.getElementById("line").getBoundingClientRect();
+    const at = Math.round(S + (e.clientX - line.left) / line.width * (E - S));
+    if (at > S && at < E) st.pauses.push({kind: ui.nk, rule: "at", val: at, id: nid()});
+    return;
+  }
+  if (a === "mk") {
+    const i = st.pauses.findIndex(q => q.id === ui.sel); ui.menu = null;
+    if (i >= 0) { if (b === "del") { st.pauses.splice(i, 1); fix(null); } else { st.pauses[i].kind = b; fix("mk" + ui.sel + "k"); } }
+    ui.sel = null; return;
+  }
+  if (a === "pre") {
+    const L = E - S, out = [];
+    if (b === "e15") for (const [, t] of every(S, E, 15, ui.nk)) out.push(t);
+    else if (b !== "clr") for (let k = 1; k < +b; k++) out.push(S + L * k / +b);
+    if (st.pauses.length) fix("pre");
+    st.pauses = out.map(t => ({kind: ui.nk, rule: "at", val: Math.round(t * 2) / 2, id: nid()}));
+    return;
+  }
+  /* Break Down Timer */
+  if (a === "bm") { if (b === "at" && st.endKind !== "at") { st.endKind = "at"; st.endAt = E; } else if (b === "len" && st.endKind !== "len") { st.endKind = "len"; st.len = E - S; } return; }
+  if (a === "bc") { if (st.endKind === "len") lengthGrid("len"); else hourGrid("bdtAt"); return; }
+  if (a === "sl") { const i = st.pauses.findIndex(p => p.val === +b); if (i >= 0) { st.pauses.splice(i, 1); fix(null); } else if (+b > 0) st.pauses.push({kind: "chime", rule: "slice", val: +b}); return; }
+}
+
+/* ---- side panel, results, gallery ---- */
+function side() {
+  document.getElementById("sheets").innerHTML = DATA.sheets.map(s => '<button class="' + (s === sheet ? "on" : "") + '" data-s="' + s.id + '">' + esc(s.label) + "<small>" + esc(s.sub) + "</small></button>").join("");
+  const r = store.results[sheet.id] || {};
+  document.getElementById("tasks").innerHTML = TASKS.map(t => '<button class="' + (t === task ? "on" : "") + '" data-t="' + t.id + '">' + esc(t.name) + (r[t.id] ? ' <span class="ok">' + (r[t.id].cant ? "· can't" : "· done") + "</span>" : "") + "<small>" + esc(t.text) + "</small></button>").join("");
+}
+document.getElementById("sheets").addEventListener("click", e => { const b = e.target.closest("[data-s]"); if (!b) return; sheet = DATA.sheets.find(s => s.id === b.dataset.s); rec = null; st = null; ui = {nk: "chime"}; side(); render(); tick(); });
+document.getElementById("tasks").addEventListener("click", e => { const b = e.target.closest("[data-t]"); if (!b) return; task = TASKS.find(t => t.id === b.dataset.t); rec = null; st = null; ui = {nk: "chime"}; side(); render(); tick(); });
+document.getElementById("begin").addEventListener("click", begin);
+document.getElementById("cant").addEventListener("click", () => { rec = rec || {taps: 0, keys: 0, errors: 0, fixes: 0, edited: {}, t0: performance.now()}; finish("cant"); });
+function table() {
+  const head = "<tr><th>Sheet</th>" + TASKS.map(t => "<th>" + esc(t.name) + "</th>").join("") + "<th>Taps 1–3<br>yours / est.</th><th>Est.</th><th>Total</th><th>Ease</th><th>Precision</th></tr>";
+  const rows = DATA.sheets.map(s => {
+    const r = store.results[s.id] || {}, rt = store.ratings[s.id] || {};
+    const cell = x => !x ? "—" : x.cant ? "can't" : x.taps + " + " + (x.keys || 0) + "k · " + x.secs + " s · " + x.errors + " · " + x.fixes;
+    const all3 = ["t1", "t2", "t3"].every(k => r[k] && !r[k].cant), mine = all3 ? r.t1.taps + r.t2.taps + r.t3.taps : "—";
+    const sel = k => '<select data-r="' + s.id + ":" + k + '" aria-label="' + k + " for " + esc(s.label) + '"><option value="">–</option>' + [1, 2, 3, 4, 5].map(n => "<option" + (rt[k] == n ? " selected" : "") + ">" + n + "</option>").join("") + "</select>";
+    const e = s.est;
+    return "<tr><td>" + esc(s.label) + "</td>" + TASKS.map(t => "<td>" + cell(r[t.id]) + "</td>").join("") + "<td>" + mine + " / " + e.taps + "</td><td>" +
+      e.keyboards + " kb · reach " + e.reach + " · step " + e.step_min + " · When " + e.like_when + "</td><td>" + (e.total == null ? "gated" : e.total) + "</td><td>" + sel("ease") + "</td><td>" + sel("precision") + "</td></tr>";
+  }).join("");
+  document.getElementById("res").innerHTML = head + rows;
+}
+document.getElementById("res").addEventListener("change", e => { const [id, k] = e.target.dataset.r.split(":"); (store.ratings[id] = store.ratings[id] || {})[k] = e.target.value ? +e.target.value : null; save(); });
+document.getElementById("exp").addEventListener("click", () => {
+  const out = document.getElementById("out"); out.style.display = "block";
+  out.value = JSON.stringify({page: "pace-try", sheets: DATA.sheets.map(s => s.id), results: store.results, ratings: store.ratings}, null, 1);
+  out.select(); try { navigator.clipboard.writeText(out.value); } catch (e) {}
+});
+document.getElementById("clr").addEventListener("click", () => { if (confirm("Clear every recorded trial and rating on this page?")) { store = {results: {}, ratings: {}}; save(); table(); side(); } });
+document.getElementById("gal").innerHTML = DATA.imgs.map(i => '<figure><img alt="' + esc(i.caption) + '" src="' + i.src + '"><figcaption><b>' + esc(i.caption) + "</b><br>" + esc(i.note) + "</figcaption></figure>").join("");
+document.getElementById("gal2").innerHTML = DATA.places.map(p => '<figure><div class="two">' + p.srcs.map((src, i) => '<img alt="' + esc(p.caption) + (i ? ", Today" : ", running") + '" src="' + src + '">').join("") + '</div><figcaption><b>' + esc(p.caption) + "</b><br>" + esc(p.note) + "</figcaption></figure>").join("");
+side(); render(); table(); tick();
+</script>
+</body>
+</html>

@@ -1018,4 +1018,63 @@ Most put running timers in **a strip at the top** (52 of 82), and **most used fi
 
 **Superseded:** T3b.1c's separate Trackers screen (its pick lives on inside T3b.1d) and T3b.2's separate Activities list.
 
-Status: **T3b.1d approved; T3b.4 (the Paced timer sheet) awaiting the owner's pick.**
+Status (then): **T3b.1d approved; T3b.4 (the Paced timer sheet) awaiting the owner's pick.**
+
+### T3b.4 re-scored, a trial page, and T3b.4b where the timer lives (2026-10-14)
+
+The owner asked for an interactive page to judge the Paced timer sheet, and set its axes:
+- **Taps counted live, time to finish, errors and fixes;** Ease and Precision rated by the owner.
+- **Consistency with When stops at the run's sentence.** It does not cover the pauses or the timer after the selection.
+- **Tasks:** the scored walk's three runs, repeating the remembered run, and changing one pause.
+- **Sheets:** the four best and Break Down Timer; every mode × place shown as an image.
+- **Results** shown beside the scores, not replacing them.
+
+**Two fixes to T3b.4's scoring:**
+- the pause sentence no longer earns When credit (the owner's ruling above);
+- the line was drawn with every mark and label at its left edge (`left:50%%` in a string never %-formatted), so its reach was measured on a broken drawing.
+
+**Re-scored front, by rank sum** (the controls lost):
+
+| Run · pauses | Taps | Keyboards | Step | Like When | Rank sum |
+|---|---|---|---|---|---|
+| sentence · sentence | 14 | 5 | 1 min | 1 | 33.5 |
+| sentence · line + presets | 12 | 4 | 1 min | 1 | 36 |
+| fields · sentence | 19 | 2 | 1 min | 0 | 37 |
+| sentence · line | 20 | 4 | 1 min | 1 | 37.5 |
+| switch · sentence | 13 | 5 | 1 min | 0.5 | 38.5 |
+| switch · line + presets | 11 | 4 | 1 min | 0.5 | 39.5 |
+| control (Break Down Timer) | 19, run 3 impossible | 0 | 2.5 min | 0 | 49.5 |
+
+**The trial page** `docs/screens/t3/pace-try.html` (built by `tools/screens/pace_try.py` from `pace_try.tmpl.html`; drawings by `pace_imgs.py` through one kept-open browser):
+- the first four rows above and the control, working: the sentence with a keypad, the fields with hour and minute grids, the line (tap to add, drag to move, tap a mark to change it), presets, and Break Down Timer's ring and pickers;
+- six tasks: runs 1–3, repeat with ↻ remembering the whole run, repeat with ↻ remembering the interval only, and moving one pause;
+- Start checks the run against the task, within half a minute for a pause (a line snaps to minutes). A wrong Start counts as an error and says what differs;
+- taps and keystrokes are counted apart, as the scored walk counts a keyboard opened, not its keys. Scripted trials came within 2 taps of the walk (16 / 14, 14 / 12): the page also counts Start;
+- results are kept in the viewer's browser and copied out as JSON.
+
+**T3b.4b Where the Paced timer lives** (part `paceplace`). A sheet that stays up while the timer runs keeps the rest of the app out of reach (owner). The owner's axes:
+- App free while running;
+- Taps to reach (from Measuring to Start, and back on the list) and to return (from Today to Pause and Stop);
+- Run seen elsewhere (the time left and the next pause, without a tap).
+
+The control is Break Down Timer's own full screen.
+
+The space:
+- **place:** a sheet that stays up, a sheet to set and the strip to run, the activity's page, its own screen, the Measuring row;
+- **elsewhere:** none, or a mark in every header (the time left; the next pause doesn't fit beside a title).
+
+The notification is Android's, the same for every place, so it isn't counted.
+
+| Place · elsewhere | App | Reach + return | Seen | Rank sum |
+|---|---|---|---|---|
+| sheet to set, strip to run · mark | free | 1 + 1 | 1 of 2 | 14.5 (front) |
+| the Measuring row · mark | free | 1 + 1 | 1 of 2 | 14.5 (front) |
+| the activity's page · mark | free | 2 + 1 | 1 of 2 | 20 |
+| its own screen · mark | free | 2 + 1 | 1 of 2 | 20 |
+| the Measuring row · none | free | 1 + 2 | 0 | 22.5 |
+| a sheet that stays up | blocked | 2 + 0 | 0 | 28 |
+| control (Break Down Timer's screen) | free | 2 + 3 | 0 | 30.5 |
+
+The mark decides most of this. It overlaps the open item "where running timers show" (Today strip, notification, bar mark, Measuring only), which is still to be scored with its own axes.
+
+Status: **T3b.1d approved; T3b.4 awaiting the owner's trial and pick; T3b.4b scored.**
