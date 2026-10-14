@@ -955,4 +955,31 @@ That is 18 options. The control is Break Down Timer as it is.
 | sentence · presets | 12 | 4 | no (9.4 min) | 1 | 50 |
 | control (Break Down Timer) | 19 and run 3 impossible | 0 | no (2.5 min) | 0 | 49.5 |
 
-Status: **T3b.4 scored; T3b.1d running.**
+Status: T3b.4 scored.
+
+### T3b.1d result (2026-10-14)
+
+**The run:**
+- 10,368 options plus the control, all scored.
+- 1,008 gated out, nearly all for cut titles.
+- The control lost (2.52 / 3.19 taps).
+- Scored through one kept-open browser (`tools/screens/cdp.py`), after a session end and the owner's CPU concern stopped the cold-start runs. 40 of 40 sampled options were identical across the two paths.
+
+**The front holds 82 options**, within 0.25 taps a use of the best at both sizes. Every one has:
+- **controls on the row** (inline);
+- **the Paced timer's last interval as its own chip** ("↻ 25 min").
+
+Most put running timers in **a strip at the top** (52 of 82), and **most used first** (64 of 82).
+
+**How a past session is added does not move the score.** T1.3's capture line is always there and is the cheaper way, so page / row / capture tie. Whatever is chosen, the capture line is the path. "last" and "today + last" also tie: nothing counts words.
+
+| Option | Taps 12 / 40 | In view 12 / 40 | Spans at 40 | Moves | Rank sum |
+|---|---|---|---|---|---|
+| grid · last · hybrid fit · most used · strip | 1.60 / 2.39 | 100% / 100% | 0.92 | yes | 30431 |
+| rows · last · hybrid fit · most used · strip | 1.66 / 2.38 | 100% / 100% | 0.92 | yes | 31485 |
+| grid · last · hybrid pinned · own order · strip | 1.66 / 2.31 | 75% / 38% | 1.41 | no | 35126 |
+| control (dashboard) | 2.52 / 3.19 | 67% / 20% | 4.45 | no | lost |
+
+**The leaders are the Trackers pick (T3b.1c: rows · last · inline · hybrid fit · most used) with the activities merged in,** running timers in a strip, and the Paced timer chip. Rows and grid are within 0.06 taps of each other.
+
+Status: **awaiting the owner's pick (T3b.1d and T3b.4).**
