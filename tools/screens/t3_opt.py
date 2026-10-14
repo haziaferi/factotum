@@ -2099,6 +2099,8 @@ PACE_CSS = """
 .pchips span.on{background:var(--zone2);box-shadow:none;font-weight:600}
 .plist{font-size:13px;color:var(--dim);margin:4px 0}.pstart{min-height:48px;border-radius:24px;background:var(--ink);color:var(--bg);display:grid;place-items:center;font-weight:600;margin-top:8px}
 .pring{display:block;margin:4px auto}
+.ptop{display:flex;justify-content:space-between;align-items:center;min-height:48px}.ptop b{font-size:15px}.ptap{min-height:48px;min-width:48px;display:inline-flex;align-items:center;justify-content:center;padding:0 4px}
+.parea{padding-bottom:6px}.pfoot{border-top:1px solid var(--zone2);padding-top:2px}.pfoot .plist{display:flex;align-items:center;justify-content:space-between}.ptok.open{border-bottom:2px solid var(--ink)}
 """
 
 
@@ -2131,32 +2133,40 @@ def p_ring():
             % "".join(out))
 
 
-def p_place_html(v):
+def p_placer_html(v):
+    """The placer, a chooser above the foot (the line, the ring, the presets), drawn open; none for the sentence."""
     pl = v["place"]
     out = ""
     if pl in ("ring", "ring_presets"):
         out += p_ring()
     if pl in ("line", "line_presets"):
         out += ('<div class="pline" data-line="1"><span class="bar"></span><span class="mk" style="left:50%" data-tap="Mark 1"><i></i></span>'
-                '<span class="lab" style="left:0">13:00</span><span class="lab" style="left:50%">13:12</span><span class="lab" style="left:100%">13:25</span></div>')
+                '<span class="lab" style="left:0;transform:none">13:00</span><span class="lab" style="left:50%">13:12</span><span class="lab" style="left:100%;transform:translateX(-100%)">13:25</span></div>')
     if pl in ("presets", "ring_presets", "line_presets"):
         out += '<div class="pchips">%s</div>' % "".join('<span class="%s" data-tap="Chip %s">%s</span>' % ("on" if c == "½" else "", c, c)
                                                       for c in ("½", "⅓", "¼ ¼ ¼", "every 15 min", "½ ¼ ⅛", "Split into…"))
-    if pl == "sentence":
-        out += ('<div class="psent">with <span class="ptok" data-tap="Tok kind">a chime</span> <span class="ptok" data-tap="Tok where">halfway</span>'
-                ' <span class="small" data-tap="Tok add">+ pause</span></div>')
-    else:
+    if pl != "sentence":
         out += '<div class="seg"><span class="on" data-tap="Kind Chime">Chime</span><span data-tap="Kind Rest">Rest · 5 min</span></div>'
-    out += '<div class="plist">1 chime · 13:12</div>'
     return out
+
+
+def p_pause_foot(v):
+    """The pauses in the pinned sentence: words of their own, or one word opening the placer."""
+    if v["place"] == "sentence":
+        return ('<div class="psent">with <span class="ptok" data-tap="Tok kind">a chime</span> <span class="ptok" data-tap="Tok where">halfway</span>'
+                ' <span class="small" data-tap="Tok add">+ pause</span></div>')
+    return '<div class="psent">with <span class="ptok open" data-tap="Tok pauses">1 pause</span></div>'
 
 
 def pace_phone(v):
     if v.get("control"):
         sheet = ('<div class="psheet"><h3>Reading</h3><div class="seg"><span class="on" data-tap="Mode For">⏱&#xFE0E;</span><span data-tap="Mode Until">⏰&#xFE0E;</span></div>%s'
                  '<div class="plist">1 breaks placed</div><div class="pstart" data-tap="Start">▶ Start ▾</div></div>') % p_ring()
-    else:
-        sheet = '<div class="psheet"><h3>Paced timer · Reading</h3>%s%s<div class="pstart" data-tap="Start">▶ Start</div></div>' % (p_mode_html(v), p_place_html(v))
+    else:   # the When sheet's pattern (decision 17, T3a.2c): Cancel, title, Start on top; the sentence pinned at the foot; a chooser above it
+        area = p_placer_html(v)
+        sheet = ('<div class="psheet"><div class="ptop"><span class="ptap" data-tap="Cancel">Cancel</span><b>Paced timer · Reading</b><span class="ptap" data-tap="Start"><b>Start</b></span></div>'
+                 '%s<div class="pfoot">%s%s<div class="plist">1 chime · 13:12 <span class="pur"><span class="ptap" data-tap="Undo">↶</span><span class="ptap" data-tap="Redo">↷</span></span></div></div></div>') % (
+                     '<div class="parea">%s</div>' % area if area else "", p_mode_html(v), p_pause_foot(v))
     return kit.phone(kit.header("Measuring", (("⌕", "Search"),), ("‹", "Back")), '<div class="scrim"></div>' + sheet, kit.bar("Hub"))
 
 
@@ -2164,8 +2174,8 @@ PACE_JS = ("(function(){var r=document.querySelector('[data-ring]');var o={ring:
            "var s=document.querySelector('.psheet').getBoundingClientRect();o.top=s.top;return o})()")
 # the walk, per option: (taps, keyboards) for runs 1, 2 and 3 (see the docstring)
 P_MODE = {"switch": [(1, 1), (2, 1), (3, 1)], "sentence": [(1, 1), (2, 1), (4, 1)], "fields": [(3, 0), (3, 0), (6, 0)]}
-P_PLACE = {"ring": [(1, 0), (9, 0), (3, 1)], "line": [(1, 0), (9, 0), (3, 1)], "presets": [(1, 0), (1, 0), (3, 1)], "sentence": [(1, 0), (3, 1), (3, 1)],
-           "ring_presets": [(1, 0), (1, 0), (3, 1)], "line_presets": [(1, 0), (1, 0), (3, 1)]}
+P_PLACE = {"ring": [(2, 0), (10, 0), (4, 1)], "line": [(2, 0), (10, 0), (4, 1)], "presets": [(2, 0), (2, 0), (4, 1)], "sentence": [(1, 0), (3, 1), (3, 1)],
+           "ring_presets": [(2, 0), (2, 0), (4, 1)], "line_presets": [(2, 0), (2, 0), (4, 1)]}   # the placers +1 a run: opened by the pauses word
 P_EXACT = {"ring": 0, "line": 1, "presets": 0, "sentence": 1, "ring_presets": 0, "line_presets": 1}
 P_STEP = {"ring": 2.5, "line": 1, "presets": 9.4, "sentence": 1, "ring_presets": 2.5, "line_presets": 1}   # minutes, a 150-min run (presets: its 1/16)
 
@@ -2176,7 +2186,9 @@ def score_pace(v):
     tp = T.taps(d)
     pr = T.probe(d, "t3-pace-%s" % key_of(v), PACE_JS)
     if ctl:   # BDT: the clock picker (centre, hour, minute, OK); runs 2's switch; run 3 cannot be made (no later start, no rest)
-        taps, kbd = 4 + 1 + (1 + 4 + 9), 0
+        # run 3 cannot be made: 9 taps, and the worst keyboard count any sheet needs for it, never none (an impossible
+        # run scored as keyboard-free put the control on the front through Ease, 2026-10-14)
+        taps, kbd = 4 + 1 + (1 + 4 + 9), max(m[2][1] + p[2][1] for m in P_MODE.values() for p in P_PLACE.values())
         exact, step, like = 0, 2.5, 0
     else:
         taps = sum(m[0] + p[0] for m, p in zip(P_MODE[v["mode"]], P_PLACE[v["place"]]))

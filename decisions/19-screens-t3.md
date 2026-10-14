@@ -1077,4 +1077,38 @@ The notification is Android's, the same for every place, so it isn't counted.
 
 The mark decides most of this. It overlaps the open item "where running timers show" (Today strip, notification, bar mark, Measuring only), which is still to be scored with its own axes.
 
-Status: **T3b.1d approved; T3b.4 awaiting the owner's trial and pick; T3b.4b scored.**
+Status (then): **T3b.1d approved; T3b.4 awaiting the owner's trial and pick; T3b.4b scored.**
+
+### T3b.4 on the When sheet's pattern (owner, 2026-10-14)
+
+> "The sentence is not pinned to the bottom and the sheet does not grow upwards only when needed, this is a consistency issue"
+
+**The pattern, as in T1's When sheet and T3a.2c's habit sheet:**
+- Cancel, the title and the action (Start) on top;
+- the sentence and its readout pinned in the foot, with Undo and Redo;
+- each chooser opening above the foot, so the sheet grows upward only while one is open: the keypad, the Where list, the fields' hour and minute grids, and the line or presets.
+- **The placer becomes a chooser.** In the line and presets variants, a "with [1 pause]" word in the sentence opens it, as the When sheet's time word opens the dial. That costs one tap per run that places a pause, and the walk counts it.
+
+**Checked in the browser:** the foot's bottom stays at 720 px in every state of every sheet; only the sheet's top moves.
+
+**Two measurement fixes on the way:**
+- `screen_score._edge` read `--dump-dom` in the locale's cp1252. The control's text-presentation selector (U+FE0E, added for greys) is a byte cp1252 cannot decode, and the measure failed. The DOM is now read as UTF-8.
+- **The control reached the front through Ease:** run 3, which it cannot make, was scored with no keyboard. An impossible run now counts the worst keyboard count any sheet needs for it, and the control loses (47).
+
+**Re-scored front, by rank sum:**
+
+| Run · pauses | Taps | Keyboards | Mean reach | Step | Like When | Rank sum |
+|---|---|---|---|---|---|---|
+| sentence · sentence | 14 | 5 | 2.006 | 1 min | 1 | 31 |
+| switch · sentence | 13 | 5 | 2.054 | 1 min | 0.5 | 33.5 |
+| fields · sentence | 19 | 2 | 1.927 | 1 min | 0 | 34 |
+| sentence · line + presets | 15 | 4 | 2.714 | 1 min | 1 | 36 |
+| sentence · line | 23 | 4 | 2.312 | 1 min | 1 | 39 |
+| control (Break Down Timer) | 19, run 3 impossible | 2 | 2.003 | 2.5 min | 0 | 47 |
+
+**What changed:**
+- Reach is worse for every sheet, because Start moved to the top row. That is the price of the pattern.
+- The placers lost the most, because of the extra tap.
+- The trial page's four sheets are now sentence · sentence, switch · sentence, fields · sentence and sentence · line + presets. The page gained the For | Until | From…to switch.
+
+Status: **T3b.1d approved; T3b.4 (When pattern) awaiting the owner's trial and pick; T3b.4b scored.**

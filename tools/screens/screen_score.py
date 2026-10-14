@@ -109,7 +109,8 @@ def _edge(args, out_flag, key, doc, w, h):
     return subprocess.run([EDGE, "--headless=new", "--disable-gpu", "--hide-scrollbars", "--force-device-scale-factor=1",
                            "--no-first-run", "--disable-extensions", "--disable-background-networking", "--disable-component-update",
                            "--window-size=%d,%d" % (w, h), "--user-data-dir=" + prof, "--virtual-time-budget=3000"] + args +
-                          ["file:///" + src.replace("\\", "/")], capture_output=True, timeout=120, text=out_flag)
+                          ["file:///" + src.replace("\\", "/")], capture_output=True, timeout=120, text=out_flag,
+                          encoding="utf-8" if out_flag else None, errors="replace" if out_flag else None)   # the DOM is UTF-8, not the locale's cp1252
 
 
 def render(doc, w, h):
