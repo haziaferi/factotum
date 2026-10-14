@@ -1,0 +1,283 @@
+[
+ {
+  "v": {
+   "mode": "switch",
+   "place": "ring"
+  },
+  "ring_slice_dp": 12.6,
+  "taps": 19,
+  "keyboards": 4,
+  "reach": 2.417,
+  "exact_any": 0,
+  "step_min": 2.5,
+  "like_when": 0.5,
+  "small": [
+   "ring slice 12.6 dp"
+  ]
+ },
+ {
+  "v": {
+   "mode": "switch",
+   "place": "line"
+  },
+  "ring_slice_dp": null,
+  "taps": 19,
+  "keyboards": 4,
+  "reach": 2.11,
+  "exact_any": 1,
+  "step_min": 1,
+  "like_when": 0.5,
+  "small": []
+ },
+ {
+  "v": {
+   "mode": "switch",
+   "place": "presets"
+  },
+  "ring_slice_dp": null,
+  "taps": 11,
+  "keyboards": 4,
+  "reach": 2.414,
+  "exact_any": 0,
+  "step_min": 9.4,
+  "like_when": 0.5,
+  "small": []
+ },
+ {
+  "v": {
+   "mode": "switch",
+   "place": "sentence"
+  },
+  "ring_slice_dp": null,
+  "taps": 13,
+  "keyboards": 5,
+  "reach": 1.861,
+  "exact_any": 1,
+  "step_min": 1,
+  "like_when": 1.5,
+  "small": []
+ },
+ {
+  "v": {
+   "mode": "switch",
+   "place": "ring_presets"
+  },
+  "ring_slice_dp": 12.6,
+  "taps": 11,
+  "keyboards": 4,
+  "reach": 2.659,
+  "exact_any": 0,
+  "step_min": 2.5,
+  "like_when": 0.5,
+  "small": [
+   "ring slice 12.6 dp"
+  ]
+ },
+ {
+  "v": {
+   "mode": "switch",
+   "place": "line_presets"
+  },
+  "ring_slice_dp": null,
+  "taps": 11,
+  "keyboards": 4,
+  "reach": 2.511,
+  "exact_any": 1,
+  "step_min": 1,
+  "like_when": 0.5,
+  "small": []
+ },
+ {
+  "v": {
+   "mode": "sentence",
+   "place": "ring"
+  },
+  "ring_slice_dp": 12.6,
+  "taps": 20,
+  "keyboards": 4,
+  "reach": 2.137,
+  "exact_any": 0,
+  "step_min": 2.5,
+  "like_when": 1,
+  "small": [
+   "ring slice 12.6 dp"
+  ]
+ },
+ {
+  "v": {
+   "mode": "sentence",
+   "place": "line"
+  },
+  "ring_slice_dp": null,
+  "taps": 20,
+  "keyboards": 4,
+  "reach": 1.969,
+  "exact_any": 1,
+  "step_min": 1,
+  "like_when": 1,
+  "small": []
+ },
+ {
+  "v": {
+   "mode": "sentence",
+   "place": "presets"
+  },
+  "ring_slice_dp": null,
+  "taps": 12,
+  "keyboards": 4,
+  "reach": 2.385,
+  "exact_any": 0,
+  "step_min": 9.4,
+  "like_when": 1,
+  "small": []
+ },
+ {
+  "v": {
+   "mode": "sentence",
+   "place": "sentence"
+  },
+  "ring_slice_dp": null,
+  "taps": 14,
+  "keyboards": 5,
+  "reach": 1.751,
+  "exact_any": 1,
+  "step_min": 1,
+  "like_when": 2,
+  "small": []
+ },
+ {
+  "v": {
+   "mode": "sentence",
+   "place": "ring_presets"
+  },
+  "ring_slice_dp": 12.6,
+  "taps": 12,
+  "keyboards": 4,
+  "reach": 2.539,
+  "exact_any": 0,
+  "step_min": 2.5,
+  "like_when": 1,
+  "small": [
+   "ring slice 12.6 dp"
+  ]
+ },
+ {
+  "v": {
+   "mode": "sentence",
+   "place": "line_presets"
+  },
+  "ring_slice_dp": null,
+  "taps": 12,
+  "keyboards": 4,
+  "reach": 2.461,
+  "exact_any": 1,
+  "step_min": 1,
+  "like_when": 1,
+  "small": []
+ },
+ {
+  "v": {
+   "mode": "fields",
+   "place": "ring"
+  },
+  "ring_slice_dp": 12.6,
+  "taps": 25,
+  "keyboards": 1,
+  "reach": 2.003,
+  "exact_any": 0,
+  "step_min": 2.5,
+  "like_when": 0,
+  "small": [
+   "ring slice 12.6 dp"
+  ]
+ },
+ {
+  "v": {
+   "mode": "fields",
+   "place": "line"
+  },
+  "ring_slice_dp": null,
+  "taps": 25,
+  "keyboards": 1,
+  "reach": 1.842,
+  "exact_any": 1,
+  "step_min": 1,
+  "like_when": 0,
+  "small": []
+ },
+ {
+  "v": {
+   "mode": "fields",
+   "place": "presets"
+  },
+  "ring_slice_dp": null,
+  "taps": 17,
+  "keyboards": 1,
+  "reach": 2.316,
+  "exact_any": 0,
+  "step_min": 9.4,
+  "like_when": 0,
+  "small": []
+ },
+ {
+  "v": {
+   "mode": "fields",
+   "place": "sentence"
+  },
+  "ring_slice_dp": null,
+  "taps": 19,
+  "keyboards": 2,
+  "reach": 1.59,
+  "exact_any": 1,
+  "step_min": 1,
+  "like_when": 1,
+  "small": []
+ },
+ {
+  "v": {
+   "mode": "fields",
+   "place": "ring_presets"
+  },
+  "ring_slice_dp": 12.6,
+  "taps": 17,
+  "keyboards": 1,
+  "reach": 2.479,
+  "exact_any": 0,
+  "step_min": 2.5,
+  "like_when": 0,
+  "small": [
+   "ring slice 12.6 dp"
+  ]
+ },
+ {
+  "v": {
+   "mode": "fields",
+   "place": "line_presets"
+  },
+  "ring_slice_dp": null,
+  "taps": 17,
+  "keyboards": 1,
+  "reach": 2.403,
+  "exact_any": 1,
+  "step_min": 1,
+  "like_when": 0,
+  "small": []
+ },
+ {
+  "v": {
+   "mode": "bdt",
+   "place": "bdt",
+   "control": true
+  },
+  "why": "Break Down Timer as it is: two mode icons, the clock picker, the 60-slice ring; no later start, no rests",
+  "control": true,
+  "ring_slice_dp": 12.6,
+  "taps": 19,
+  "keyboards": 0,
+  "reach": 2.003,
+  "exact_any": 0,
+  "step_min": 2.5,
+  "like_when": 0,
+  "small": []
+ }
+]

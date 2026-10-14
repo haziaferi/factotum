@@ -4,6 +4,8 @@
     python tools/screens/t3_opt.py page_html scores       t3-options.html, t3-scores.html (fails if a control wins)
 
 Parts:
+  pace     T3b.4 the Paced timer sheet, re-compared with Break Down Timer (owner, 2026-10-14)
+  measure3 T3b.1d the Measuring list, trackers and activities as one (owner, 2026-10-14), the full space at 12 and 40 items
   acts     T3b.2 the Activities list, taps first: running timers, a past session, Same as last (Chronicle's Last used)
   measure2 T3b.1c the Measuring list with scroll counted, at 12 and 30 items (owner, 2026-10-13): compact rows, folding labels, most used first
   measure  T3b.1b the Measuring list, taps first (owner, 2026-10-13): merged with activities or apart, a control per kind
@@ -1789,6 +1791,405 @@ def score_acts(v):
             "judgment_marks": a["judgment_marks"], "moves": moves, "small": sorted(set(a["gate"] + ["30: " + g for g in b["gate"]]))}
 
 
+# ==== Part measure3: T3b.1d the Measuring list, trackers and activities as one (owner, 2026-10-14) ================================
+"""
+  The owner: in Chronicle trackers and activities were both Data, the names only saying how each is measured ("water
+  cannot be a timed activity"); they belong on one screen. T3b.1c and T3b.2 scored one list from two sides. The data
+  layer does not change (owner: charts still need discrete readings and continuous spans).
+  Owner's answers: sizes 12 and 40 (28 logged, 12 timed); re-score everything (the full space); Chronicle's "Last used"
+  is the Paced timer (a beginning and an end, planned pauses; the last interval remembered per activity), its sheet
+  re-compared with Break Down Timer as its own part next. Here only where it starts from is scored.
+  An item's control follows how it is measured: a logged one as T3b.1c (inline: "+ usual", Yes, ratings, recent choices;
+  Log for a number with no usual amount; sheet: Log), a timed one ▶ / ■, with its Paced timer per `plan`.
+  layout   rows, grid, compact;  says  none, today, last, today_last;  log  sheet, inline
+  group    flat, labels, folding, hybrid_fit, hybrid_6, hybrid_pinned (T3b.1c);  order  manual, recent
+  running  top, place, strip (T3b.2);  past  page, row, capture (T3b.2);  plan  menu, chip, default, page (T3b.2; the chip
+           reads "↻ 25 min", the last interval)
+  The walk: every item's typical use, weighted by how often (a placeholder profile). Logged: as T3b.1c. Timed: half live
+  (a start, plain or Paced, then ■), half afterwards. The Paced share of live starts is unknown: 25% and 75%, the worse
+  counting. T1.3's capture line is always there ("water 2", "Studying 40 min": 3 actions, no scroll), as search is, so
+  an item costs the cheaper of its row (with the scrolls or a search to reach it) and the capture line.
+  Axes: Taps (12 and 40, Paced 25% and 75%, the worst rank), Overview, Reach, Recovery, Glance (rows that say something;
+  every running timer in view), Predictable (moves on its own), Judgment; Refs as information. Lead: fewest taps, within
+  0.25 a use. Gate: no title cut; 48 dp primaries, 24 dp chips.
+  Control: a dashboard: cards with today against a goal, a streak and a progress bar; Log and the Paced timer through
+  their sheet and page; running in place.
+"""
+MEAS3_SPACE = {"layout": ["rows", "grid", "compact"], "says": ["none", "today", "last", "today_last"], "log": ["sheet", "inline"],
+               "group": ["flat", "labels", "folding", "hybrid_fit", "hybrid_6", "hybrid_pinned"], "order": ["manual", "recent"],
+               "running": ["top", "place", "strip"], "past": ["page", "row", "capture"], "plan": ["menu", "chip", "default", "page"]}
+_PLANS = {"Reading": "25 min", "Language practice": "15 min", "Guitar": "20 min", "Meditation": "10 min", "Work": "50 min", "Writing": "25 min", "Yoga": "30 min"}
+
+
+def _m3(items):
+    out = []
+    for it in items:
+        it = dict(it)
+        if it["k"] == "activity":
+            it["plan"] = _PLANS.get(it["n"])
+            it["running"] = "0:12" if it["n"] == "Cleaning" else ("1:05" if it["n"] == "Work" else None)
+        else:
+            it["plan"], it["running"] = None, None
+        out.append(it)
+    return out
+
+
+ITEMS3_12 = _m3(ITEMS12)
+ITEMS3_40 = _m3(ITEMS30 + [
+    _it("Fruit", "number", "Health", "2 today", "last 13:00", 1, "1 piece", 2), _it("Sugar", "yesno", "Health", "", "last Mon", 0.4),
+    _it("Calm", "rating", "Mind", "", "last Sat", 0.5), _it("Lunch", "choice", "Health", "Home today", "last 13:00", 1, recent=["Home", "Out"]),
+    _it("Push-ups", "number", "Moving", "", "last Fri", 0.3, "10", 0), _it("Rows knitted", "number", "Making", "", "last 2 Oct", 0.1),
+    _it("Work", "activity", "Work", "3 h 10 min today", "last 08:40", 2), _it("Writing", "activity", "Making", "", "last Tue", 0.5),
+    _it("Yoga", "activity", "Moving", "", "last Mon", 0.3), _it("Email", "activity", "Work", "20 min today", "last 11:30", 1),
+])
+M3_LABELS = ["Health", "Mind", "Moving", "Making", "Home", "Work"]
+
+
+def m3doc(html, theme="light"):
+    return doc(html, theme, CSS + BASICS_CSS + TRK_CSS + MEAS_CSS + M2_CSS + ACTS_CSS)
+
+
+def m3_ctrls(it, v):
+    """(right-hand controls, chip line) for an item, by how it is measured."""
+    if it["k"] != "activity":
+        return m2_ctrl(it, v)
+    n = it["n"]
+    if it["running"]:
+        return '<span class="play" data-tap="Stop %s"><span>■</span></span>' % n, ""
+    out = ""
+    if v["past"] == "row":
+        out += '<span class="achip" data-tap="Time %s"><span>+ time</span></span>' % n
+    if v["plan"] == "chip" and it["plan"]:
+        out += '<span class="achip" data-tap="Paced %s"><span>↻ %s</span></span>' % (n, it["plan"])
+    out += '<span class="play" data-tap="Start %s"><span>▶</span></span>' % n
+    if v["plan"] in ("menu", "default"):
+        out += '<span class="pmenu" data-tap="Menu %s">▾</span>' % n
+    return '<span class="aright">%s</span>' % out, ""
+
+
+def m3_says(it, v):
+    if it["running"]:
+        return "running %s" % it["running"]
+    return m2_says(it, v)
+
+
+def m3_item(it, v):
+    sub = m3_says(it, v)
+    subh = '<span class="bsub">%s</span>' % e(sub) if sub else ""
+    right, chips = m3_ctrls(it, v)
+    if v["layout"] == "grid":
+        return '<div class="kcard" data-tap="Open tracker" data-tr="%s"><span class="nm">%s</span>%s%s<span class="foot">%s</span></div>' % (
+            it["n"], kit.ud(e(it["n"])), subh, chips, right)
+    return '<div class="row krow mrow" data-tap="Open tracker" data-tr="%s"><span class="t"><span class="nm">%s</span>%s%s</span>%s</div>' % (
+        it["n"], kit.ud(e(it["n"])), subh, chips, right)
+
+
+def m3_order(v, items):
+    its = list(items)
+    if v["order"] == "recent":
+        its = sorted(its, key=lambda it: -it["f"])
+    return its
+
+
+def m3_top(v, items):
+    """A hybrid's open items: the 6 most used, or as many of them as fit above the folded labels (measured on the list
+    drawn flat, most used first)."""
+    by_use = sorted(items, key=lambda it: -it["f"])
+    if v["group"] in ("hybrid_6", "hybrid_pinned"):
+        return by_use[:6]
+    vf = dict(v, group="flat", order="recent")
+    pr = T.probe(m3doc(measure3_phone(vf, items)), "t3-m3fit-%d-%s" % (len(items), key_of(vf)), M2_JS)
+    room = pr["vb"] - 48 * len({it["lab"] for it in items})
+    fit = {x["tr"] for x in pr["items"] if x["bottom"] <= room}
+    return [it for it in by_use if it["n"] in fit]
+
+
+def m3_control_item(it):
+    have = it["cur"] or (1 if it["today"] else 0)
+    goal = max(1, (it["cur"] or 1) * 2)
+    pct = round(100 * have / goal)
+    if it["k"] == "activity":
+        ctl = ('<span class="play" data-tap="Stop %s"><span>■</span></span>' if it["running"] else '<span class="play" data-tap="Start %s"><span>▶</span></span>') % it["n"]
+    else:
+        ctl = '<span class="act" data-tap="Log %s"><span>Log</span></span>' % it["n"]
+    return ('<div class="kcard" data-tap="Open tracker" data-tr="%s"><span class="nm">%s</span><span class="bsub"><span data-judge="1">%s/%s</span> · '
+            '<span data-judge="1">%d%%</span> · <span data-judge="1">streak %d</span></span><span class="pbar" data-judge="1"><b style="width:%d%%"></b></span>'
+            '<span class="foot">%s</span></div>') % (it["n"], kit.ud(e(it["n"])), have, goal, pct, len(it["n"]) % 7, min(100, pct), ctl)
+
+
+def measure3_body(v, items, closed=False):
+    if v.get("control"):
+        return '<div class="zone"><div class="kgrid">%s</div></div>' % "".join(m3_control_item(it) for it in items)
+    its = m3_order(v, items)
+    wrap = (lambda h: '<div class="kgrid">%s</div>' % h) if v["layout"] == "grid" else (lambda h: h)
+    strip = ""
+    if v["running"] == "strip":
+        strip = '<div class="astrip">%s</div>' % "".join('<div class="sr"><span class="t">%s · %s</span><span class="play" data-tap="Stop %s"><span>■</span></span></div>' % (
+            e(it["n"]), it["running"], it["n"]) for it in items if it["running"])
+    head = ""
+    if v["running"] == "top":   # pinned first while running (above any labels)
+        head = wrap("".join(m3_item(it, v) for it in its if it["running"]))
+        its = [it for it in its if not it["running"]]
+    if v["group"].startswith("hybrid"):
+        top = [it for it in m3_top(v, items) if it in its]
+        head += wrap("".join(m3_item(it, v) for it in top))
+        its = [it for it in its if it not in top]
+    if v["group"] == "flat":
+        body = head + wrap("".join(m3_item(it, v) for it in its))
+    else:
+        body = head
+        labs = [lab for lab in M3_LABELS if any(it["lab"] == lab for it in its)]
+        if v["order"] == "recent":
+            labs = sorted(labs, key=lambda lab: -max(it["f"] for it in its if it["lab"] == lab))
+        for lab in labs:
+            part = [it for it in its if it["lab"] == lab]
+            if v["group"] == "labels":
+                body += '<div class="dayh" data-lab="%s">%s</div>' % (lab, lab) + wrap("".join(m3_item(it, v) for it in part))
+            else:
+                body += '<div class="fhead" data-lab="%s" data-tap="Label %s"><span class="t">%s</span><span class="c">%d</span>%s</div>' % (
+                    lab, lab, lab, len(part), "▸" if closed else "▾") + ("" if closed else wrap("".join(m3_item(it, v) for it in part)))
+    return '<div class="zone">%s%s</div>' % (strip, body)
+
+
+def measure3_phone(v, items=ITEMS3_12, closed=False):
+    return kit.phone(kit.header("Measuring", (("⌕", "Search"), ("✎", "Edit")), ("‹", "Back")),
+                     '<div class="cap" data-tap="Capture">+ <span>Log, time or add…</span></div>' + measure3_body(v, items, closed), kit.bar("Hub"))
+
+
+def measure3_desk(v, theme="light"):
+    folds = v.get("group", "") in ("folding", "hybrid_fit", "hybrid_6", "hybrid_pinned")
+    inner = measure3_phone(v, ITEMS3_12, folds).split('<div class="body">', 1)[1].rsplit('<div class="bar">', 1)[0][:-len("</div>")]
+    return desk_doc("Hub", "Measuring", '<div class="dcol" style="width:440px;flex:none">%s</div><div class="page" style="flex:1"></div>' % inner, theme,
+                    CSS + BASICS_CSS + TRK_CSS + MEAS_CSS + M2_CSS + ACTS_CSS)
+
+
+CAPTURE_COST = 3   # T1.3's line: tap it, type ("water 2"), Add
+
+
+def m3_uses(it, v, ctl, p_paced):
+    """Taps on screen for an item's typical use (no reaching), and how many times the row must be reached; and the
+    capture line's cost for the same use (None: the line cannot do it)."""
+    if it["k"] != "activity":
+        return m2_entry(it, v, ctl), 1, CAPTURE_COST
+    plan = "page" if ctl else v["plan"]
+    past = "page" if ctl else v["past"]
+    plain = ({"menu": 1, "chip": 1, "default": 2, "page": 1}[plan]) if it["plan"] else 1
+    paced = ({"menu": 2, "chip": 1, "default": 1, "page": 2}[plan]) if it["plan"] else plain
+    start = p_paced * paced + (1 - p_paced) * plain
+    after = {"page": 4, "row": 3, "capture": 3}[past]
+    return (start, after), None, CAPTURE_COST
+
+
+def m3_measure(v, items, key):
+    ctl = v.get("control")
+    pr = T.probe(m3doc(measure3_phone(v, items)), key, M2_JS)
+    vb, top = pr["vb"], pr["top"]
+    page = vb - top
+    by = {}
+    for x in pr["items"]:
+        if x["tr"] not in by:
+            by[x["tr"]] = x
+    heads = {h["lab"]: h for h in pr["heads"]}
+    folding = (not ctl) and v["group"] != "flat" and v["group"] != "labels"
+    open_top = {it["n"] for it in m3_top(v, items)} if (not ctl and v["group"].startswith("hybrid")) else set()
+    if not ctl and v["running"] == "top":
+        open_top |= {it["n"] for it in items if it["running"]}
+    folded_top = {h["lab"]: pr["heads"][0]["top"] + 48 * i for i, h in enumerate(pr["heads"])} if (folding and pr["heads"]) else {}
+    strip = (not ctl) and v["running"] == "strip"
+    res = {}
+    for p_paced in (0.25, 0.75):
+        tot = cost = 0.0
+        for it in items:
+            x = by[it["n"]]
+            bottom, extra = x["bottom"], 0
+            if folding and it["n"] not in open_top:
+                h = heads[it["lab"]]
+                bottom = folded_top[it["lab"]] + 48 + (x["bottom"] - h["bottom"])
+                extra = 1
+            reach = min((0 if bottom <= vb else math.ceil((bottom - vb) / page)) + extra, SEARCH_COST)
+            on, _, cap = m3_uses(it, v, ctl, p_paced)
+            if it["k"] != "activity":
+                use = min(on + reach, cap)
+            else:
+                start, after = on
+                stop_reach = 0 if (strip or (it["running"] and not ctl and v["running"] == "top")) else reach
+                live = start + reach + 1 + stop_reach
+                afterwards = min(after + (0 if (not ctl and v["past"] == "capture") else reach), cap)
+                use = 0.5 * live + 0.5 * afterwards
+            tot += it["f"]
+            cost += it["f"] * use
+        res[p_paced] = round(cost / tot, 3)
+    in_view = 0
+    for it in items:
+        if folding and it["n"] not in open_top:
+            in_view += 1 if folded_top[it["lab"]] + 48 <= vb else 0
+        else:
+            in_view += 1 if by[it["n"]]["bottom"] <= vb else 0
+    running_seen = strip or all(by[it["n"]]["bottom"] <= vb for it in items if it["running"])
+    span = ((pr["heads"][0]["top"] - top + len(pr["heads"]) * 48) if (folding and pr["heads"]) else max(x["bottom"] for x in pr["items"]) - top) / page
+    reach_t = [x["c"][-1] for x in pr["items"] if x["c"] and x["bottom"] <= vb and not (folding and x["tr"] not in open_top)]
+    if folding:
+        reach_t += [{"x": 180, "y": t + 24, "w": 312, "h": 48} for t in folded_top.values() if t + 48 <= vb]
+    logged = sum(it["f"] for it in items if it["k"] != "activity")
+    oneshot = sum(it["f"] for it in items if it["k"] != "activity" and not ctl and v["log"] == "inline" and m2_entry(it, v, ctl) == 1)
+    gate = ["%s %dx%d" % (c["n"], c["w"], c["h"]) for x in pr["items"] if x["bottom"] <= vb for c in x["c"]
+            if (c["n"].startswith(("Chip ", "Time ", "Paced ", "Menu ")) and (c["w"] < 24 or c["h"] < 24)) or
+            (c["n"].startswith(("Log ", "Plus ", "Yes ", "Start ", "Stop ")) and (c["w"] < 48 or c["h"] < 48))]
+    if pr["cut"]:
+        gate.append("titles cut %d" % pr["cut"])
+    return {"t25": res[0.25], "t75": res[0.75], "overview": round(in_view / len(items), 3), "screens": round(span, 2),
+            "running_seen": 1 if running_seen else 0, "reach": round(sum(T.fitts(THUMB, c) for c in reach_t) / len(reach_t), 3) if reach_t else 9,
+            "one_tap_writes": round(oneshot / logged, 3), "says_share": round(pr["says"] / max(1, pr["rows"]), 3), "judgment_marks": pr["judge"], "gate": gate}
+
+
+def score_measure3(v):
+    a = m3_measure(v, ITEMS3_12, "t3-m3-12-%s" % key_of(v))
+    b = m3_measure(v, ITEMS3_40, "t3-m3-40-%s" % key_of(v))
+    ctl = v.get("control")
+    moves = 0 if ctl else (1 if (v["order"] == "recent" or v["group"] in ("hybrid_fit", "hybrid_6") or v["running"] == "top") else 0)
+    return {"taps_12_25": a["t25"], "taps_12_75": a["t75"], "taps_40_25": b["t25"], "taps_40_75": b["t75"],
+            "overview_12": a["overview"], "overview_40": b["overview"], "screens_12": a["screens"], "screens_40": b["screens"],
+            "running_seen": min(a["running_seen"], b["running_seen"]), "reach": a["reach"], "one_tap_writes": a["one_tap_writes"],
+            "says_share": a["says_share"], "judgment_marks": a["judgment_marks"], "moves": moves,
+            "small": sorted(set(a["gate"] + ["40: " + g for g in b["gate"]]))}
+
+
+# ==== Part pace: T3b.4 the Paced timer sheet (owner, 2026-10-14) =================================================================
+"""
+  The owner: Chronicle's "Last used" was wrongly named. It opens a different, more sophisticated kind of tracking, a run
+  with a beginning and an end and planned pauses: the Paced timer, remembering its last interval per activity
+  (the chip on the Measuring list starts that one). Re-compared with Break Down Timer (de.jepfa.bdt, captured
+  2026-10-14: presets cycled with ‹ ›, a pin; a length or finish-time switch of two icons; a 60-slice ring, a tap
+  toggling a numbered break labelled with its time; the system clock picker for the length; Repeat once / forever /
+  none under Start's ▾). Its breaks are instants (a chime); Chronicle's rests with a length were never built.
+  Owner's answers: pauses of both kinds (a chime, or a rest with a length); a beginning and an end by length, by
+  finish time, or from a later start; axes Taps, Ease, Precision, Consistency with When, target size as a gate;
+  every way of placing pauses scored.
+  mode    switch (For | Until | From as a segmented control, then one writable box per time), sentence (the When sheet's:
+          "For [25 min]", the first word cycling For, Until, From…to; one writable box per time), fields (Starts and Ends
+          rows, each opening a picker)
+  place   ring (BDT's 60 slices, a tap toggles a pause), line (a bar from start to end, a pause dragged to its minute
+          with a readout), presets (chips: ½, ⅓, ¼s, every 15 min, ½ ¼ ⅛, Split into…), sentence ("with [a chime]
+          [halfway]", the words cycling: halfway / every [n] / at [time]; chime / [n]-min rest), ring + presets,
+          line + presets
+  Each pause's kind under the placer (Chime | Rest [5 min]), but in the sentence, where it is a word.
+  The walk: (1) 25 min, a chime halfway; (2) until 15:30 (from 13:00), a chime every 15 min; (3) from 14:00 to 15:30,
+  a 5-min rest in the middle. Starting the remembered run is the list's chip, the same in every option, so not walked.
+  Measured: Taps (the walk's); Ease (keyboards opened; reach to the sheet's targets); Precision (a pause at any exact
+  minute; the smallest step on a 150-min run); Consistency with When (the run and the pauses as a sentence with
+  writable boxes). Gate: pause places 24 dp (a chooser's), Start 48 dp; a ring slice is its outer arc.
+  Control: Break Down Timer as it is (no later start, no rests: those runs count 9 taps each, as undoable).
+"""
+PACE_SPACE = {"mode": ["switch", "sentence", "fields"], "place": ["ring", "line", "presets", "sentence", "ring_presets", "line_presets"]}
+PACE_CSS = """
+.psheet{position:absolute;left:0;right:0;bottom:0;background:var(--zone);border-radius:20px 20px 0 0;padding:12px 16px 16px;box-shadow:0 -8px 24px rgba(0,0,0,.14);max-height:640px;overflow:hidden}
+.psheet h3{margin:0 0 8px;font-size:17px}.seg{display:flex;border-radius:24px;box-shadow:inset 0 0 0 1px var(--dim);overflow:hidden;margin-bottom:8px}
+.seg span{flex:1;min-height:48px;display:grid;place-items:center;font-size:14px}.seg span.on{background:var(--zone2);font-weight:600}
+.psent{font-size:19px;line-height:2.3}.ptok{border-bottom:2px dotted var(--dim);padding:0 2px;min-height:48px;display:inline-block;line-height:48px}
+.pbox{display:inline-block;min-width:64px;min-height:44px;line-height:44px;padding:0 10px;border-radius:10px;box-shadow:inset 0 0 0 1.5px var(--dim);text-align:center;font-size:17px;margin:0 2px}
+.prow{display:flex;align-items:center;min-height:48px;border-bottom:1px solid var(--zone2);font-size:15px}.prow .t{flex:1;color:var(--dim)}
+.pline{position:relative;height:56px;margin:8px 4px}.pline .bar{position:absolute;left:0;right:0;top:20px;height:8px;border-radius:4px;background:var(--zone2)}
+.pline .mk{position:absolute;top:0;width:48px;height:48px;margin-left:-24px;display:grid;place-items:center}.pline .mk i{width:14px;height:28px;border-radius:4px;background:var(--ink)}
+.pline .lab{position:absolute;top:44px;font-size:11px;color:var(--dim);transform:translateX(-50%)}
+.pchips{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}.pchips span{min-height:32px;min-width:32px;padding:0 10px;border-radius:16px;display:grid;place-items:center;font-size:13px;box-shadow:inset 0 0 0 1px var(--dim)}
+.pchips span.on{background:var(--zone2);box-shadow:none;font-weight:600}
+.plist{font-size:13px;color:var(--dim);margin:4px 0}.pstart{min-height:48px;border-radius:24px;background:var(--ink);color:var(--bg);display:grid;place-items:center;font-weight:600;margin-top:8px}
+.pring{display:block;margin:4px auto}
+"""
+
+
+def pdoc(html, theme="light"):
+    return doc(html, theme, CSS + PACE_CSS)
+
+
+def p_mode_html(v):
+    if v["mode"] == "switch":
+        return ('<div class="seg"><span class="on" data-tap="Mode For">For</span><span data-tap="Mode Until">Until</span><span data-tap="Mode From">From…to</span></div>'
+                '<div class="psent"><span class="pbox" data-tap="Box a">%s</span> · ends 13:25</div>') % kit.ud("25 min")
+    if v["mode"] == "sentence":
+        return '<div class="psent"><span class="ptok" data-tap="Tok For">For</span> <span class="pbox" data-tap="Box a">%s</span> <span class="small">· ends 13:25</span></div>' % kit.ud("25 min")
+    return ('<div class="prow" data-tap="Row Starts"><span class="t">Starts</span>Now ▸</div>'
+            '<div class="prow" data-tap="Row Ends"><span class="t">Ends</span>After 25 min ▸</div>')
+
+
+def p_ring():
+    import math as _m
+    cx = cy = 120
+    r1, r2 = 70, 112
+    out = []
+    for i in range(60):
+        a0, a1 = 2 * _m.pi * i / 60 - _m.pi / 2, 2 * _m.pi * (i + 1) / 60 - _m.pi / 2
+        pts = [(cx + r2 * _m.cos(a0), cy + r2 * _m.sin(a0)), (cx + r2 * _m.cos(a1), cy + r2 * _m.sin(a1)),
+               (cx + r1 * _m.cos(a1), cy + r1 * _m.sin(a1)), (cx + r1 * _m.cos(a0), cy + r1 * _m.sin(a0))]
+        d = "M%.1f %.1f L%.1f %.1f L%.1f %.1f L%.1f %.1f Z" % tuple(c for p in pts for c in p)
+        out.append('<path d="%s" fill="%s" stroke="var(--zone)" stroke-width="1" data-slice="%d"/>' % (d, "var(--ink)" if i == 30 else "var(--zone2)", i))
+    return ('<svg class="pring" data-ring="1" width="240" height="240" viewBox="0 0 240 240">%s<text x="120" y="126" text-anchor="middle" font-size="15" fill="var(--ink)">25 min</text></svg>'
+            % "".join(out))
+
+
+def p_place_html(v):
+    pl = v["place"]
+    out = ""
+    if pl in ("ring", "ring_presets"):
+        out += p_ring()
+    if pl in ("line", "line_presets"):
+        out += ('<div class="pline" data-line="1"><span class="bar"></span><span class="mk" style="left:50%%" data-tap="Mark 1"><i></i></span>'
+                '<span class="lab" style="left:0">13:00</span><span class="lab" style="left:50%%">13:12</span><span class="lab" style="left:100%%">13:25</span></div>')
+    if pl in ("presets", "ring_presets", "line_presets"):
+        out += '<div class="pchips">%s</div>' % "".join('<span class="%s" data-tap="Chip %s">%s</span>' % ("on" if c == "½" else "", c, c)
+                                                      for c in ("½", "⅓", "¼ ¼ ¼", "every 15 min", "½ ¼ ⅛", "Split into…"))
+    if pl == "sentence":
+        out += ('<div class="psent">with <span class="ptok" data-tap="Tok kind">a chime</span> <span class="ptok" data-tap="Tok where">halfway</span>'
+                ' <span class="small" data-tap="Tok add">+ pause</span></div>')
+    else:
+        out += '<div class="seg"><span class="on" data-tap="Kind Chime">Chime</span><span data-tap="Kind Rest">Rest · 5 min</span></div>'
+    out += '<div class="plist">1 chime · 13:12</div>'
+    return out
+
+
+def pace_phone(v):
+    if v.get("control"):
+        sheet = ('<div class="psheet"><h3>Reading</h3><div class="seg"><span class="on" data-tap="Mode For">⏱</span><span data-tap="Mode Until">⏰</span></div>%s'
+                 '<div class="plist">1 breaks placed</div><div class="pstart" data-tap="Start">▶ Start ▾</div></div>') % p_ring()
+    else:
+        sheet = '<div class="psheet"><h3>Paced timer · Reading</h3>%s%s<div class="pstart" data-tap="Start">▶ Start</div></div>' % (p_mode_html(v), p_place_html(v))
+    return kit.phone(kit.header("Measuring", (("⌕", "Search"),), ("‹", "Back")), '<div class="scrim"></div>' + sheet, kit.bar("Hub"))
+
+
+PACE_JS = ("(function(){var r=document.querySelector('[data-ring]');var o={ring:0,top:0};if(r){var b=r.getBoundingClientRect();o.ring=b.width}"
+           "var s=document.querySelector('.psheet').getBoundingClientRect();o.top=s.top;return o})()")
+# the walk, per option: (taps, keyboards) for runs 1, 2 and 3 (see the docstring)
+P_MODE = {"switch": [(1, 1), (2, 1), (3, 1)], "sentence": [(1, 1), (2, 1), (4, 1)], "fields": [(3, 0), (3, 0), (6, 0)]}
+P_PLACE = {"ring": [(1, 0), (9, 0), (3, 1)], "line": [(1, 0), (9, 0), (3, 1)], "presets": [(1, 0), (1, 0), (3, 1)], "sentence": [(1, 0), (3, 1), (3, 1)],
+           "ring_presets": [(1, 0), (1, 0), (3, 1)], "line_presets": [(1, 0), (1, 0), (3, 1)]}
+P_EXACT = {"ring": 0, "line": 1, "presets": 0, "sentence": 1, "ring_presets": 0, "line_presets": 1}
+P_STEP = {"ring": 2.5, "line": 1, "presets": 9.4, "sentence": 1, "ring_presets": 2.5, "line_presets": 1}   # minutes, a 150-min run (presets: its 1/16)
+
+
+def score_pace(v):
+    ctl = v.get("control")
+    d = pdoc(pace_phone(v))
+    tp = T.taps(d)
+    pr = T.probe(d, "t3-pace-%s" % key_of(v), PACE_JS)
+    if ctl:   # BDT: the clock picker (centre, hour, minute, OK); runs 2's switch; run 3 cannot be made (no later start, no rest)
+        taps, kbd = 4 + 1 + (1 + 4 + 9), 0
+        exact, step, like = 0, 2.5, 0
+    else:
+        taps = sum(m[0] + p[0] for m, p in zip(P_MODE[v["mode"]], P_PLACE[v["place"]]))
+        kbd = sum(m[1] + p[1] for m, p in zip(P_MODE[v["mode"]], P_PLACE[v["place"]]))
+        exact, step = P_EXACT[v["place"]], P_STEP[v["place"]]
+        like = {"sentence": 1, "switch": 0.5, "fields": 0}[v["mode"]] + (1 if v["place"] == "sentence" else 0)
+    seen = [x for x in tp.all if x.get("seen")]
+    reach = [T.fitts(THUMB, x) for x in seen if x["name"] not in ("Back", "Search", "Hub", "Today", "Calendar", "Pages", "Check-in")]
+    gate = ["%s %dx%d" % (x["name"], x["w"], x["h"]) for x in seen if
+            (x["name"].startswith(("Chip ", "Tok ", "Kind ", "Mark ", "Mode ", "Box ", "Row ")) and (x["w"] < 24 or x["h"] < 24)) or (x["name"] == "Start" and (x["w"] < 48 or x["h"] < 48))]
+    arc = round(3.14159 * pr["ring"] / 60, 1) if pr["ring"] else None
+    if arc is not None and arc < 24 and not ctl:   # the control keeps it measured, not gated: a gated control would not count as beaten
+        gate.append("ring slice %.1f dp" % arc)
+    return {"ring_slice_dp": arc, "taps": taps, "keyboards": kbd, "reach": round(sum(reach) / len(reach), 3) if reach else 9, "exact_any": exact, "step_min": step,
+            "like_when": like, "small": sorted(set(gate))}
+
+
 def build_refs():
     with open(os.path.join(T.OUT, "t3-references.json"), encoding="utf-8") as fh:
         src = json.load(fh)
@@ -1813,9 +2214,12 @@ def build_refs():
 T.PREFIX, T.REFS, T.NAME = "t3", "t3-refs.json", "T3 habits, trackers, time, goals, charts and checklists"
 T.OUT = os.path.join(os.path.dirname(M2.T.OUT), "t3")
 # T3.1 "habits" (presence, the first scoring) is kept in t3-habits-v1.json and in the code above; T3a replaced it (owner, 2026-10-13)
-T.SPACES = {"acts": ACTS_SPACE, "measure2": MEAS2_SPACE, "measure": MEAS_SPACE, "trackers": TRK_SPACE, "basics": BASICS_SPACE, "addhabit": ADD_SPACE, "routines": ROUT_SPACE, "addsent": SENT_SPACE, "hsheet": HSHEET_SPACE, "premise": PREMISE_SPACE, "habits2": H2_SPACE}
-T.SCORERS = {"acts": score_acts, "measure2": score_measure2, "measure": score_measure, "trackers": score_trackers, "basics": score_basics, "addhabit": score_addhabit, "routines": score_routines, "addsent": score_addsent, "hsheet": score_hsheet, "premise": score_premise, "habits2": score_habits2}
-T.CONTROLS = {"acts": ({"layout": "grid", "says": "last", "arrange": "flat", "running": "place", "past": "page", "plan": "page", "control": True},
+T.SPACES = {"pace": PACE_SPACE, "measure3": MEAS3_SPACE, "acts": ACTS_SPACE, "measure2": MEAS2_SPACE, "measure": MEAS_SPACE, "trackers": TRK_SPACE, "basics": BASICS_SPACE, "addhabit": ADD_SPACE, "routines": ROUT_SPACE, "addsent": SENT_SPACE, "hsheet": HSHEET_SPACE, "premise": PREMISE_SPACE, "habits2": H2_SPACE}
+T.SCORERS = {"pace": score_pace, "measure3": score_measure3, "acts": score_acts, "measure2": score_measure2, "measure": score_measure, "trackers": score_trackers, "basics": score_basics, "addhabit": score_addhabit, "routines": score_routines, "addsent": score_addsent, "hsheet": score_hsheet, "premise": score_premise, "habits2": score_habits2}
+T.CONTROLS = {"pace": ({"mode": "bdt", "place": "bdt", "control": True}, "Break Down Timer as it is: two mode icons, the clock picker, the 60-slice ring; no later start, no rests"),
+              "measure3": ({"layout": "grid", "says": "goal", "log": "sheet", "group": "flat", "order": "manual", "running": "place", "past": "page", "plan": "page", "control": True},
+                           "a dashboard: cards with today against a goal ('3/8 · 38%'), a streak and a progress bar; Log, a past session and the Paced timer through sheets and pages; running in place"),
+              "acts": ({"layout": "grid", "says": "last", "arrange": "flat", "running": "place", "past": "page", "plan": "page", "control": True},
                        "Chronicle's Track tab with a dashboard's marks: cards with a streak and a share of the week's goal, running in place, Same as last and Add time on the page only"),
               "measure2": ({"scope": "apart", "layout": "grid", "says": "goal", "log": "sheet", "group": "flat", "order": "manual", "control": True},
                            "T3b.1's dashboard: today against a goal ('3/8 · 38%'), a progress bar, a streak; Log through the sheet; activities apart"),
@@ -1834,7 +2238,10 @@ T.CONTROLS = {"acts": ({"layout": "grid", "says": "last", "arrange": "flat", "ru
                          "the leading design with history added: a streak and a share of days on every row"),
               "habits": ({"presence": "streak", "group": "flat", "log": "cells", "amount": "percent", "control": True},
                          "Loop-like with streaks and a score: a streak and a percentage on every row, the last 4 days as ticks and crosses")}
-T.AXES = {"acts": {"Taps": ("max:taps_12_25|taps_12_75|taps_30_25|taps_30_75",), "Overview": ("max:-overview_12|-overview_30", "max:screens_12|screens_30"),
+T.AXES = {"pace": {"Taps": ("taps",), "Ease": ("keyboards", "reach"), "Precision": ("-exact_any", "step_min"), "Consistency": ("-like_when",)},
+          "measure3": {"Taps": ("max:taps_12_25|taps_12_75|taps_40_25|taps_40_75",), "Overview": ("max:-overview_12|-overview_40", "max:screens_12|screens_40"),
+                       "Reach": ("reach",), "Recovery": ("one_tap_writes",), "Glance": ("-says_share", "-running_seen"), "Predictable": ("moves",), "Judgment": ("judgment_marks",)},
+          "acts": {"Taps": ("max:taps_12_25|taps_12_75|taps_30_25|taps_30_75",), "Overview": ("max:-overview_12|-overview_30", "max:screens_12|screens_30"),
                    "Reach": ("reach",), "Glance": ("-says_share", "-running_seen"), "Predictable": ("moves",), "Judgment": ("judgment_marks",)},
           "measure2": {"Taps": ("max:taps_12|taps_30",), "Overview": ("max:-overview_12|-overview_30", "max:screens_12|screens_30"),
                        "Reach": ("reach",), "Recovery": ("one_tap_writes",), "Glance": ("-says_share", "-running_shown"), "Judgment": ("judgment_marks",), "Predictable": ("moves",)},
@@ -1858,8 +2265,8 @@ T.AXES = {"acts": {"Taps": ("max:taps_12_25|taps_12_75|taps_30_25|taps_30_75",),
                      "Choice": ("-filter_says_mid",), "Consistency": ("like_today",), "Density": ("-rows_seen", "cut"), "Calm": ("clutter", "desk_clutter")},
           "habits": {"Ease": ("log_actions", "reach_log"), "Presence": ("-presence_shown", "presence_marks"), "Calm": ("guilt_marks", "clutter", "desk_clutter"),
                      "Density": ("-rows_seen", "cut"), "Consistency": ("like_today",)}}
-T.TITLES = {"acts": "T3b.2 The Activities list: running timers, adding a past session, Same as last (Chronicle's Last used)", "measure2": "T3b.1c The Measuring list, scroll counted at 12 and 30 items: compact rows, folding labels, most used first", "measure": "T3b.1b The Measuring list, taps first: merged with activities or apart, rows or cards, what Log does (a control per kind)", "trackers": "T3b.1 The Trackers list: rows or cards, what a row says, what Log does, grouping", "habits2": "T3a.1c The Habits list: the optional name, and every if as a header", "premise": "T3a.2d What tapping the premise box opens: nothing, or the ifs with the same connective", "hsheet": "T3a.2c The New habit sheet (prototype): the blanks as text boxes in the sentence, or opened above it", "addsent": "T3a.2b Adding a habit as an open sentence: the When sheet, in place, or fields; energy and routine as words or rows", "routines": "T3a.1b The Habits list with routines: the 'what to expect' preview, how the sequence shows", "addhabit": "T3a.2 Adding a habit: in place or a sheet, the If, the block", "basics": "T3a.1 Habits as Daily basics: layout, the energy filter, its mark, done today", "habits": "T3.1 The Habits list: presence, grouping, where Log sits, a count's amount"}
-T.DRAW = {"acts": lambda v: [adoc2(acts_phone(v, ACTS12, v.get("arrange") == "hybrid")), adoc2(acts_phone(v, ACTS30)), acts_desk(v)], "measure2": lambda v: [m2doc(measure2_phone(v, ITEMS12, v.get("group", "") in ("folding", "hybrid_fit", "hybrid_6", "hybrid_pinned"))), m2doc(measure2_phone(v, ITEMS30)), measure2_desk(v)], "measure": lambda v: [mdoc(measure_phone(v)), measure_desk(v)], "trackers": lambda v: [tdoc(trackers_phone(v))] + ([] if v.get("control") else [tdoc(trackers_phone(v, True))]) + [trackers_desk(v)], "habits2": lambda v: [h2doc(habits2_phone(v)), habits2_desk(v)], "premise": lambda v: [premise_doc(v)], "hsheet": lambda v: [adoc(addhabit_phone({"control": True}))] if v.get("control") else [hsheet_doc(v, st) for _, _, st in HSTATES], "addsent": lambda v: [sdoc(addsent_phone(v))] + ([] if (v.get("control") or v["form"] == "fields") else [sdoc(addsent_phone(v, True))]), "routines": lambda v: [rdoc(routines_phone(v)), rdoc(routines_phone(v, "low")), routines_desk(v)], "addhabit": lambda v: [adoc(addhabit_phone(v))], "basics": lambda v: [bdoc(basics_phone(v)), basics_desk(v)], "habits": lambda v: [hdoc(habits_phone(v)), habits_desk(v)]}
+T.TITLES = {"pace": "T3b.4 The Paced timer sheet: setting the run, placing pauses (chimes or rests)", "measure3": "T3b.1d The Measuring list: trackers and activities as one, each item's control by how it is measured", "acts": "T3b.2 The Activities list: running timers, adding a past session, Same as last (Chronicle's Last used)", "measure2": "T3b.1c The Measuring list, scroll counted at 12 and 30 items: compact rows, folding labels, most used first", "measure": "T3b.1b The Measuring list, taps first: merged with activities or apart, rows or cards, what Log does (a control per kind)", "trackers": "T3b.1 The Trackers list: rows or cards, what a row says, what Log does, grouping", "habits2": "T3a.1c The Habits list: the optional name, and every if as a header", "premise": "T3a.2d What tapping the premise box opens: nothing, or the ifs with the same connective", "hsheet": "T3a.2c The New habit sheet (prototype): the blanks as text boxes in the sentence, or opened above it", "addsent": "T3a.2b Adding a habit as an open sentence: the When sheet, in place, or fields; energy and routine as words or rows", "routines": "T3a.1b The Habits list with routines: the 'what to expect' preview, how the sequence shows", "addhabit": "T3a.2 Adding a habit: in place or a sheet, the If, the block", "basics": "T3a.1 Habits as Daily basics: layout, the energy filter, its mark, done today", "habits": "T3.1 The Habits list: presence, grouping, where Log sits, a count's amount"}
+T.DRAW = {"pace": lambda v: [pdoc(pace_phone(v))], "measure3": lambda v: [m3doc(measure3_phone(v, ITEMS3_12, v.get("group", "") not in ("flat", "labels"))), m3doc(measure3_phone(v, ITEMS3_40)), measure3_desk(v)], "acts": lambda v: [adoc2(acts_phone(v, ACTS12, v.get("arrange") == "hybrid")), adoc2(acts_phone(v, ACTS30)), acts_desk(v)], "measure2": lambda v: [m2doc(measure2_phone(v, ITEMS12, v.get("group", "") in ("folding", "hybrid_fit", "hybrid_6", "hybrid_pinned"))), m2doc(measure2_phone(v, ITEMS30)), measure2_desk(v)], "measure": lambda v: [mdoc(measure_phone(v)), measure_desk(v)], "trackers": lambda v: [tdoc(trackers_phone(v))] + ([] if v.get("control") else [tdoc(trackers_phone(v, True))]) + [trackers_desk(v)], "habits2": lambda v: [h2doc(habits2_phone(v)), habits2_desk(v)], "premise": lambda v: [premise_doc(v)], "hsheet": lambda v: [adoc(addhabit_phone({"control": True}))] if v.get("control") else [hsheet_doc(v, st) for _, _, st in HSTATES], "addsent": lambda v: [sdoc(addsent_phone(v))] + ([] if (v.get("control") or v["form"] == "fields") else [sdoc(addsent_phone(v, True))]), "routines": lambda v: [rdoc(routines_phone(v)), rdoc(routines_phone(v, "low")), routines_desk(v)], "addhabit": lambda v: [adoc(addhabit_phone(v))], "basics": lambda v: [bdoc(basics_phone(v)), basics_desk(v)], "habits": lambda v: [hdoc(habits_phone(v)), habits_desk(v)]}
 T.POOL = {"trackers": lambda ok: [min((r for r in ok if r.get("front") and r["v"]["layout"] == lay and r["v"]["log"] == lg), key=lambda r: r["total"])
                                     for lay in ("rows", "grid") for lg in ("sheet", "default", "stepper")
                                     if any(r.get("front") and r["v"]["layout"] == lay and r["v"]["log"] == lg for r in ok)]
@@ -1870,6 +2277,10 @@ T.LEAD["measure"] = ("taps_mean", 0.17)   # fewest taps first (owner, 2026-10-13
 T.REFS_INFO.add("measure")
 T.REFS_INFO.add("measure2")
 T.REFS_INFO.add("acts")
+T.REFS_INFO.add("measure3")
+T.LEAD["measure3"] = [("taps_12_25", 0.25), ("taps_12_75", 0.25), ("taps_40_25", 0.25), ("taps_40_75", 0.25)]   # fewest taps, within 0.25 a use
+T.POOL["measure3"] = lambda ok: [r for r in ok if r.get("front")]
+T.DRAW_MAX["measure3"] = 8
 T.LEAD["acts"] = [("taps_12_25", 0.25), ("taps_12_75", 0.25), ("taps_30_25", 0.25), ("taps_30_75", 0.25)]   # as T3b.1c: fewest taps, within 0.25 a log
 T.POOL["acts"] = lambda ok: [r for r in ok if r.get("front")]
 T.DRAW_MAX["acts"] = 8
@@ -1881,7 +2292,8 @@ T.DRAW_MAX["trackers"] = 10   # and the leader's family with each thing a row ca
 T.PICKED = {"routines": [{"preview": "none", "seq": "plain"}, {"preview": "energy", "seq": "numbers"}], "hsheet": [{"blank": "inline"}], "premise": [{"premise": "same"}],
             "habits2": [{"group": "routines", "name": "named"}],
             "measure2": [{"scope": "apart", "layout": "rows", "says": "last", "log": "inline", "group": "hybrid_fit", "order": "recent"}]}
-T.SUPERSEDED = {"measure": "scroll was undercounted (owner, 2026-10-13): T3b.1c replaced it", "trackers": "P4 Measuring is scored taps first (owner, 2026-10-13): T3b.1b replaced it", "habits": "re-cut by purpose; T3a.1 Daily basics replaced it", "basics": "routines replaced it (T3a.1b)",
+T.SUPERSEDED = {"measure2": "trackers and activities are one screen (owner, 2026-10-14): T3b.1d replaced it; its pick shaped T3b.1d's space",
+                "acts": "trackers and activities are one screen (owner, 2026-10-14): T3b.1d replaced it", "measure": "scroll was undercounted (owner, 2026-10-13): T3b.1c replaced it", "trackers": "P4 Measuring is scored taps first (owner, 2026-10-13): T3b.1b replaced it", "habits": "re-cut by purpose; T3a.1 Daily basics replaced it", "basics": "routines replaced it (T3a.1b)",
                 "addhabit": "the open sentence replaced it (T3a.2b), then the prototype (T3a.2c)", "addsent": "the prototype sheet replaced it (T3a.2c)"}
 T.v2.TOL.setdefault("_reach_log", 0.05)
 T.v2.TOL.setdefault("_reach_mean", 0.05)

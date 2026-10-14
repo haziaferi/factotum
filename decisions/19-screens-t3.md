@@ -897,3 +897,62 @@ Taps first, as T3b.1c: within 0.25 a log, at 12 and 30 activities, the worse cou
 "last" and "today + last" tie, as in T3b.1c. The hybrid with a strip is the one like Trackers' pick.
 
 Status: **awaiting the owner's pick and the name for "Same as last".**
+
+## T3b.1d Trackers and activities as one Measuring list, and T3b.4 the Paced timer (2026-10-14)
+
+**The owner:**
+- In Chronicle, trackers and activities were both Data; the names only said how each is measured (timers or logs; "water cannot be a timed activity"). They belong on one screen.
+- T3b.1c and T3b.2 re-used the same examples, which showed they were one list scored from two sides.
+- T3b.2 is superseded before its pick, and T3b.1c's pick shaped T3b.1d's space.
+
+**The owner's answers:**
+- **No data-layer change:** charts still need discrete readings and continuous spans.
+- **Sizes:** 12 and 40 items (28 logged, 12 timed).
+- **Re-score everything:** the full space, 10,368 options. `toast_opt.run_part` now scores in threads (`SCREENS_WORKERS`), and `screen_score`'s temp names carry the thread id.
+- **The Paced timer:** Chronicle's "Last used" was misnamed. It is a more sophisticated kind of tracking: a beginning and an end, planned pauses, and the last interval remembered per activity. It is re-compared with Break Down Timer and scored as T3b.4.
+
+**T3b.1d's walk:** T1.3's capture line is always there ("water 2", "Studying 40 min": 3 actions, no scroll), so an item costs the cheaper of its row and the capture line. Timed items: half live (plain or Paced, 25% and 75%), half afterwards.
+
+### T3b.4 The Paced timer sheet
+
+**Break Down Timer** (de.jepfa.bdt, captured 2026-10-14, screenshots in `_screens-sources/t3/bdt-*`):
+- presets cycle with ‹ ›, with a pin for the default;
+- a length / finish-time switch of two icons;
+- a 60-slice ring: a tap toggles a numbered break, labelled with its time ("30 min", or a clock time in finish mode);
+- the length is set through the system clock picker;
+- Start's ▾ holds Repeat once / forever / No repeat;
+- its breaks are instants (chimes).
+
+**The owner's answers:**
+- pauses of both kinds: a chime, or a rest with a length;
+- the run set by length, by finish time, or from a later start;
+- axes: Taps, Ease, Precision, Consistency with When, and target size as a gate;
+- every way of placing pauses scored.
+
+**The space** (part `pace`):
+- setting the run: a switch / a sentence like When / fields;
+- placing pauses: ring / line / presets / sentence / ring + presets / line + presets.
+
+That is 18 options. The control is Break Down Timer as it is.
+
+**The walk:**
+1. 25 min, a chime halfway;
+2. until 15:30, a chime every 15 min;
+3. from 14:00 to 15:30, a 5-min rest in the middle.
+
+**Result:**
+- The control lost. Run 3 cannot be made in Break Down Timer: no later start, no rests.
+- **Every ring option is gated out:** a 240 dp ring gives 12.6 dp of arc a slice, against a chooser's 24 dp floor. Break Down Timer's own ring has the same problem: it measures 12.6 dp, not gated (a gated control would not count as beaten).
+- The front holds 9:
+
+| Run · pauses | Taps | Keyboards | Exact minute (step) | Like When | Rank sum |
+|---|---|---|---|---|---|
+| fields · sentence | 19 | 2 | yes (1 min) | 1 | 30.5 |
+| sentence · sentence | 14 | 5 | yes (1 min) | 2 | 31.5 |
+| switch · sentence | 13 | 5 | yes (1 min) | 1.5 | 33 |
+| sentence · line + presets | 12 | 4 | yes (1 min) | 1 | 38 |
+| switch · line + presets | 11 | 4 | yes (1 min) | 0.5 | 41 |
+| sentence · presets | 12 | 4 | no (9.4 min) | 1 | 50 |
+| control (Break Down Timer) | 19 and run 3 impossible | 0 | no (2.5 min) | 0 | 49.5 |
+
+Status: **T3b.4 scored; T3b.1d running.**

@@ -796,10 +796,19 @@ AXES = {
 
 
 def run_part(p):
+    """Every option of a part, scored. SCREENS_WORKERS=n scores n at once: each score waits on headless Edge, so threads
+    run them side by side (2026-10-14: the merged Measuring list has ten thousand options); the order of rows is kept."""
+    combos = [dict(zip(SPACES[p], c)) for c in itertools.product(*SPACES[p].values())]
+    workers = int(os.environ.get("SCREENS_WORKERS", "1"))
+    if workers > 1:
+        from concurrent.futures import ThreadPoolExecutor
+        with ThreadPoolExecutor(workers) as ex:
+            scored = list(ex.map(SCORERS[p], combos))
+    else:
+        scored = [SCORERS[p](vv) for vv in combos]
     rows = []
-    for c in itertools.product(*SPACES[p].values()):
-        vv = dict(zip(SPACES[p], c))
-        rows.append(dict(v=vv, **SCORERS[p](vv)))
+    for vv, sc in zip(combos, scored):
+        rows.append(dict(v=vv, **sc))
         print(p, rows[-1], flush=True)
     cv, why = CONTROLS[p]
     rows.append(dict(v=cv, why=why, control=True, **SCORERS[p](cv)))

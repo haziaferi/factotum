@@ -30,6 +30,7 @@ import os
 import re
 import subprocess
 import tempfile
+import threading  # temp names carry the thread too: toast_opt.run_part scores in threads (2026-10-14)
 
 from PIL import Image, ImageFilter
 
@@ -98,7 +99,7 @@ def _load(name):
 def _edge(args, out_flag, key, doc, w, h):
     os.makedirs(CACHE, exist_ok=True)
     src = os.path.join(CACHE, key + ".html")
-    tmp = "%s.%d.tmp" % (src, os.getpid())  # parallel workers may write the same page: write aside, then swap in whole
+    tmp = "%s.%d.%d.tmp" % (src, os.getpid(), threading.get_ident())  # parallel workers may write the same page: write aside, then swap in whole
     with open(tmp, "w", encoding="utf-8", newline="\n") as fh:
         fh.write(doc)
     os.replace(tmp, src)
@@ -112,7 +113,7 @@ def render(doc, w, h):
     key = hashlib.sha256((doc + "%dx%d" % (w, h)).encode("utf-8")).hexdigest()[:20]
     png = os.path.join(CACHE, key + ".png")
     if not os.path.exists(png):
-        tmp = png.replace(".png", "-%d.tmp.png" % os.getpid())  # written aside, swapped in whole
+        tmp = png.replace(".png", "-%d-%d.tmp.png" % (os.getpid(), threading.get_ident()))  # written aside, swapped in whole
         _edge(["--screenshot=" + tmp], False, key, doc, w, h)
         if os.path.exists(tmp):
             os.replace(tmp, png)
@@ -138,7 +139,7 @@ def measure(doc, w, h):
     if not m:
         raise RuntimeError("measure failed: " + res.stderr[-400:])
     data = json.loads(m.group(1).replace("&quot;", '"').replace("&amp;", "&"))
-    tmp = "%s.%d.tmp" % (cached, os.getpid())
+    tmp = "%s.%d.%d.tmp" % (cached, os.getpid(), threading.get_ident())
     with open(tmp, "w", encoding="utf-8") as fh:
         json.dump(data, fh)
     os.replace(tmp, cached)
