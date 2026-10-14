@@ -800,12 +800,35 @@ def run_part(p):
     run them side by side (2026-10-14: the merged Measuring list has ten thousand options); the order of rows is kept."""
     combos = [dict(zip(SPACES[p], c)) for c in itertools.product(*SPACES[p].values())]
     workers = int(os.environ.get("SCREENS_WORKERS", "1"))
+    # each option is appended as it is scored, and a rerun skips those done (2026-10-14: a session's end stopped a 10,368-option
+    # run that kept everything in memory until the last one)
+    partial = os.path.join(OUT, ".%s-%s.partial.jsonl" % (PREFIX, p))
+    done = {}
+    if os.path.exists(partial):
+        with open(partial, encoding="utf-8") as fh:
+            for line in fh:
+                try:
+                    rec = json.loads(line)
+                except ValueError:
+                    continue   # a line cut off when the run stopped
+                done[json.dumps(rec["v"], sort_keys=True)] = rec["s"]
+    import threading
+    lock = threading.Lock()
+
+    def one(vv):
+        k = json.dumps(vv, sort_keys=True)
+        if k in done:
+            return done[k]
+        sc = SCORERS[p](vv)
+        with lock, open(partial, "a", encoding="utf-8", newline=chr(10)) as fh:
+            fh.write(json.dumps({"v": vv, "s": sc}, ensure_ascii=False) + chr(10))
+        return sc
     if workers > 1:
         from concurrent.futures import ThreadPoolExecutor
         with ThreadPoolExecutor(workers) as ex:
-            scored = list(ex.map(SCORERS[p], combos))
+            scored = list(ex.map(one, combos))
     else:
-        scored = [SCORERS[p](vv) for vv in combos]
+        scored = [one(vv) for vv in combos]
     rows = []
     for vv, sc in zip(combos, scored):
         rows.append(dict(v=vv, **sc))
@@ -815,6 +838,8 @@ def run_part(p):
     print(p, "control", rows[-1], flush=True)
     with open(os.path.join(OUT, PREFIX + "-%s.json" % p), "w", encoding="utf-8", newline=chr(10)) as fh:
         json.dump(rows, fh, indent=1, ensure_ascii=False)
+    if os.path.exists(partial):
+        os.remove(partial)   # the whole part is written: the partial record is spent
 
 
 def ranked(p):

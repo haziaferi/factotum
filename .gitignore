@@ -53,3 +53,6 @@ _fresh-eyes-*/
 
 # Source-app screenshots for the screens phase (debug builds with seed data; never committed, the repo is public)
 _screens-sources/
+
+# run_part resume records (tools/screens/toast_opt.py)
+*.partial.jsonl
