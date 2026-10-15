@@ -1583,4 +1583,18 @@ Status (then): **T3b.1d, T3b.4e and T3b.4f approved; T3b.4g scored, trial page f
 - a stop, then Undo, on the hold, at-once and confirm sheets: Reading runs again each time;
 - the strip's pause on the own-screen sheet.
 
-Status: **T3b.1d, T3b.4e and T3b.4f approved; T3b.4g scored, trial page fixed twice: awaiting the owner's trial and pick.**
+Status (then): **T3b.1d, T3b.4e and T3b.4f approved; T3b.4g scored, trial page fixed twice: awaiting the owner's trial and pick.**
+
+The page checked again (owner, 2026-10-16: "Check again if there's any issues in the HTML file"). The serious one: **taps were lost.**
+The phone was rebuilt every 100 ms, so a press that outlived one redraw lost its button and the click never fired.
+Measured with real mouse input (CDP), ten presses each on the card's pause, opening a card, and a tap-to-stop:
+2-5 of 10 landed at 60 ms, 0 of 10 at 180 and 300 ms. This is the likely cause of "Stop does nothing" (2026-10-15);
+the earlier checks used instant clicks, which slip between redraws. Now the phone redraws only when something changed,
+and a control acts when the finger lifts on the same control it went down on: 90 of 90 at every length.
+Also fixed: a stopped run's clock stood counting; times of day ignored the pause in progress; the view's Pause did nothing
+while a rest waited for a tap (it starts work now, as ▶ on the card does); Cleaning's own view had no Pause and no Undo;
+holding ■ on a card showed no progress; an end could be moved before now; the other tabs showed their keys as titles;
+the phone (360 px) overflowed a 375 px screen (now at most the page's width, no sideways scroll).
+Every task then walked on every sheet with real presses: all pass, no page errors.
+
+Status: **T3b.1d, T3b.4e and T3b.4f approved; T3b.4g scored, trial page fixed (lost taps): awaiting the owner's trial and pick.**

@@ -26,7 +26,7 @@ p.note{color:var(--dim);margin:4px 0 12px;max-width:860px}
 .btn.ghost{background:none;color:var(--fg);box-shadow:inset 0 0 0 1px var(--line);font-weight:500}
 .btn:focus-visible,.pick button:focus-visible,.tasks button:focus-visible{outline:2px solid var(--fg);outline-offset:2px}
 .live{margin-top:12px;font-variant-numeric:tabular-nums;color:var(--dim)}.live b{color:var(--fg)}
-.phone{position:relative;width:360px;height:740px;border-radius:22px;background:var(--bg);overflow:hidden;box-shadow:0 0 0 1px var(--line);user-select:none;display:flex;flex-direction:column}
+.phone{position:relative;width:min(360px,100%);height:740px;border-radius:22px;background:var(--bg);overflow:hidden;box-shadow:0 0 0 1px var(--line);user-select:none;display:flex;flex-direction:column}
 .hdr{height:56px;display:flex;align-items:center;gap:6px;padding:0 8px;font-size:19px;font-weight:600;flex:none}.hdr .ib{width:48px;height:48px;display:grid;place-items:center;color:var(--dim);cursor:pointer}
 .body{flex:1;overflow:auto;padding:4px 12px 12px}
 .bar{height:64px;display:flex;flex:none;border-top:1px solid var(--zone2)}.bar span{flex:1;display:grid;place-items:center;font-size:12px;color:var(--dim);cursor:pointer}.bar span.on{color:var(--fg);font-weight:600}
@@ -38,6 +38,7 @@ p.note{color:var(--dim);margin:4px 0 12px;max-width:860px}
 .rv .phase{font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--dim)}
 .bt2{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}.bt2 span{min-height:48px;border-radius:24px;display:grid;place-items:center;box-shadow:inset 0 0 0 1px var(--dim);font-size:14px;cursor:pointer;text-align:center}
 [data-hold]{touch-action:none;-webkit-touch-callout:none}
+.rs .stop.hold{position:relative;overflow:hidden}.rs .stop.hold i{position:absolute;left:8px;bottom:6px;height:3px;background:var(--fg);width:0;max-width:calc(100% - 16px)}
 .bt2 span.main{background:var(--ink);color:var(--inv);box-shadow:none}.bt2 span.hold{position:relative;overflow:hidden}.bt2 span.hold i{position:absolute;left:0;bottom:0;height:4px;background:var(--fg);width:0}
 .ed{display:flex;align-items:center;gap:4px;margin-top:10px}.ed .box{min-width:60px;height:44px;line-height:44px;text-align:center;border-radius:10px;box-shadow:inset 0 0 0 1.5px var(--dim)}
 .stp{width:32px;height:32px;display:inline-grid;place-items:center;font-size:20px;cursor:pointer}
@@ -98,7 +99,9 @@ function newCleaning(T0) { return {name: "Cleaning", S: T0 - 7, stopped: false, 
 let simStart = null;
 const simNow = () => simStart == null ? 0 : (performance.now() - simStart) / 1000 * SPEED;
 const clock = () => world.T0 + simNow();
-function runNow(r) { return (r.paused != null ? r.paused : clock()) - (r.pausedTotal || 0); }   // the run's own time
+function runNow(r) { return (r.paused != null ? r.paused : r.stopped ? r.stoppedAt : clock()) - (r.pausedTotal || 0); }
+// a time on the run's own clock, as a time of day: shifted by every pause, the current one included
+function wall(r, t) { return t + (r.pausedTotal || 0) + (r.paused != null && !r.stopped ? clock() - r.paused : 0); }   // the run's own time
 function phase(r) {
   const t = runNow(r);
   if (r.stopped) return {kind: "stopped"};
@@ -167,6 +170,7 @@ setInterval(tick, 100);
 
 /* ---- the phone ---- */
 const phone = document.getElementById("phone");
+let lastHTML = "";
 function hdr(title, back) { return '<div class="hdr">' + (back ? '<span class="ib" data-a="back">‹</span>' : "") + "<span>" + esc(title) + "</span></div>"; }
 function bar(on) { return '<div class="bar">' + [["today", "Today"], ["cal", "Calendar"], ["hub", "Hub"], ["pages", "Pages"], ["check", "Check-in"]].map(([k, t]) => '<span class="' + (on === k ? "on" : "") + '" data-a="go:' + k + '">' + t + "</span>").join("") + "</div>"; }
 function line(r) {
@@ -176,7 +180,7 @@ function line(r) {
   if (r.waiting) return r.name + " · rest over · tap to work";
   if (r.paused != null) return r.name + " · paused";
   if (p.kind === "rest") return r.name + " · rest · " + mmss(p.until - runNow(r));
-  return r.name + " · " + mmss(r.E - runNow(r)) + " left" + (p.next ? " · rest at " + fmt(p.next.t + r.pausedTotal) : "");
+  return r.name + " · " + mmss(r.E - runNow(r)) + " left" + (p.next ? " · rest at " + fmt(wall(r, p.next.t)) : "");
 }
 function strip() {
   let h = "";
@@ -190,7 +194,7 @@ function strip() {
     const hint = ui.hint && ui.hint.who === r.name && performance.now() < ui.hint.until;
     const pz = r.waiting ? "▶" : r.paused != null ? "▶" : "‖";   // pause and resume on the strip itself (owner, 2026-10-15)
     h += '<div class="rs" data-a="open:' + r.name + '"><span class="t">' + esc(txt) + ' <b>›</b></span><span class="ib2" data-a="spause:' + r.name + '" aria-label="' + (pz === "‖" ? "Pause " : "Resume ") + r.name + '">' + pz + "</span>" +
-         '<span class="ib2 stop" data-a="stop:' + r.name + '" data-hold="' + r.name + '" aria-label="Stop ' + r.name + '">' + (hint ? "hold ■" : "■") + "</span></div>";
+         '<span class="ib2 stop' + (C().stop === "long" ? " hold" : "") + '" data-a="stop:' + r.name + '" data-hold="' + r.name + '" aria-label="Stop ' + r.name + '">' + (hint ? "hold ■" : "■") + (C().stop === "long" ? "<i></i>" : "") + "</span></div>";
   }
   return h;
 }
@@ -202,17 +206,17 @@ function runView(r) {
   const p = phase(r), hold = C().stop === "long";
   let h = '<div class="rv"><div class="phase">' + (r.waiting ? "rest over" : r.paused != null ? "paused" : p.kind) + '</div><div class="big">' +
           (p.kind === "rest" ? mmss(p.until - runNow(r)) : mmss(r.E - runNow(r))) + '</div><div class="nx">' +
-          (p.kind === "rest" ? "of rest · then work until the end, " + fmt(r.E + r.pausedTotal) : (p.next ? "left · next: " + (isBdt() ? "a break" : "a 5-min rest") + " at " + fmt(p.next.t + r.pausedTotal) : "left · no more rests") + " · ends " + fmt(r.E + r.pausedTotal)) + "</div>";
+          (r.stopped ? "left when stopped" : p.kind === "over" ? "the run is over" : p.kind === "rest" ? "of rest · then work until the end, " + fmt(wall(r, r.E)) : (p.next ? "left · next: " + (isBdt() ? "a break" : "a 5-min rest") + " at " + fmt(wall(r, p.next.t)) : "left · no more rests") + " · ends " + fmt(wall(r, r.E))) + "</div>";
   if (r.waiting) h += '<div class="wait">Rest over<span class="go" data-a="work">Start working</span></div>';
   if (r.stopped) return h + (performance.now() < (r.undoUntil || 0) ? '<div class="wait">Stopped<span class="go" data-a="undo:' + r.name + '">Undo</span></div>' : '<div class="nx">Stopped.</div>') + "</div>";
-  if (!isBdt()) h += '<div class="bt2"><span class="main" data-a="pause">' + (r.paused != null && !r.waiting ? "▶ Resume" : "‖ Pause") + '</span><span data-a="skip">Skip</span><span data-a="plus">+5 min</span><span data-a="edit">Edit</span>' +
+  if (!isBdt()) h += '<div class="bt2"><span class="main" data-a="pause">' + (r.paused != null ? "▶ Resume" : "‖ Pause") + '</span><span data-a="skip">Skip</span><span data-a="plus">+5 min</span><span data-a="edit">Edit</span>' +
          '<span class="' + (hold ? "hold" : "") + '" data-a="stop:Reading" data-hold="Reading">' + (ui.hint && ui.hint.who === "Reading" && performance.now() < ui.hint.until ? "Hold to stop" : "■ Stop" + (hold ? " (hold)" : "")) + (hold ? "<i></i>" : "") + "</span></div>";
   else h += '<div class="bt2"><span class="main" data-a="pause">' + (r.paused != null ? "▶ Resume" : "‖ Pause") + '</span><span data-a="stop:Reading">■ Stop</span></div>';
-  if (ui.edit) h += '<div class="ed">Ends <span class="stp" data-a="ee:-5">−</span><span class="box">' + fmt(r.E + r.pausedTotal) + '</span><span class="stp" data-a="ee:5">+</span><span class="ib2" data-a="edit">Done</span></div>';
+  if (ui.edit) h += '<div class="ed">Ends <span class="stp" data-a="ee:-5">−</span><span class="box">' + fmt(wall(r, r.E)) + '</span><span class="stp" data-a="ee:5">+</span><span class="ib2" data-a="edit">Done</span></div>';
   return h + "</div>";
 }
 function render() {
-  if (!world) { const T0 = nowMin(); world = {T0, reading: newReading(T0, 3), cleaning: newCleaning(T0), screen: "today"}; world.E0 = world.reading.E; }
+  if (!world) { simStart = null; const T0 = nowMin(); world = {T0, reading: newReading(T0, 3), cleaning: newCleaning(T0), screen: "today"}; world.E0 = world.reading.E; }
   const w = world, sc = w.screen, r = w.reading;
   let h = "";
   const showToday = !isBdt() && C().today === "strip";
@@ -224,13 +228,16 @@ function render() {
     else h = hdr(isBdt() ? "Break Down Timer" : "Reading · running", true) + '<div class="body">' + runView(r) + "</div>" + (isBdt() ? "" : bar("hub"));
   } else if (sc === "Cleaning") {
     const c = w.cleaning;
-    h = hdr("Cleaning", true) + '<div class="body"><div class="rv"><div class="phase">' + (c.stopped ? "stopped" : "running") + '</div><div class="big">' + mmss(runNow(c) - c.S) +
-        '</div><div class="bt2"><span class="' + (C().stop === "long" ? "hold" : "") + '" data-a="stop:Cleaning" data-hold="Cleaning">■ Stop' + (C().stop === "long" ? " (hold)<i></i>" : "") + "</span></div></div></div>" + bar("hub");
-  } else h = hdr(sc) + '<div class="body"></div>' + bar("");
+    const lng = C().stop === "long" && !isBdt(), hc = ui.hint && ui.hint.who === "Cleaning" && performance.now() < ui.hint.until;
+    h = hdr("Cleaning", true) + '<div class="body"><div class="rv"><div class="phase">' + (c.stopped ? "stopped" : c.paused != null ? "paused" : "running") + '</div><div class="big">' + mmss(runNow(c) - c.S) + "</div>" +
+        (c.stopped ? (!isBdt() && performance.now() < (c.undoUntil || 0) ? '<div class="wait">Stopped<span class="go" data-a="undo:Cleaning">Undo</span></div>' : '<div class="nx">Stopped.</div>')
+                   : '<div class="bt2"><span class="main" data-a="spause:Cleaning">' + (c.paused != null ? "▶ Resume" : "‖ Pause") + '</span><span class="' + (lng ? "hold" : "") + '" data-a="stop:Cleaning" data-hold="Cleaning">' + (hc ? "Hold to stop" : "■ Stop" + (lng ? " (hold)" : "")) + (lng ? "<i></i>" : "") + "</span></div>") +
+        "</div></div>" + bar("hub");
+  } else h = hdr({cal: "Calendar", pages: "Pages", check: "Check-in"}[sc] || sc) + '<div class="body"></div>' + bar(sc);
   if (ui.toast && performance.now() < ui.toast.until) h += '<div class="toast"><span>' + esc(ui.toast.text) + "</span>" + (ui.toast.undo ? '<span class="u" data-a="undo">Undo</span>' : "") + "</div>";
   if (ui.confirm) h += '<div class="dlg"><div><p>End ' + esc(ui.confirm) + "?</p><div class=\"b\"><span data-a=\"cno\">Cancel</span><span data-a=\"cyes\">End</span></div></div></div>";
   if (!rec) h += '<div class="idle">' + esc(TASKS[taskId].text) + "<br><br>Press Begin.</div>";
-  phone.innerHTML = h;
+  if (h !== lastHTML) { phone.innerHTML = h; lastHTML = h; }
   if (ui.hold) { const el = phone.querySelector('[data-hold="' + ui.hold.who + '"] i'); if (el) el.style.width = Math.min(100, (performance.now() - ui.hold.t) / 5) + "%"; }
 }
 
@@ -246,34 +253,39 @@ function doStop(who, held) {
 }
 phone.addEventListener("pointerdown", e => {
   if (!rec) return; rec.taps++;
+  const d = e.target.closest("[data-a]"); ui.down = d ? d.dataset.a : null;
   const h = e.target.closest("[data-hold]");
   if (h && C().stop === "long" && !isBdt()) { ui.hold = {who: h.dataset.hold, t: performance.now()}; if (h.dataset.hold === "Reading") world.reading.log.push("stoptap"); }
 });
 function holdEnd() { if (ui.hold) { if (performance.now() - ui.hold.t < 500) ui.hint = {who: ui.hold.who, until: performance.now() + 2000}; ui.hold = null; render(); } }
-phone.addEventListener("pointerup", holdEnd);
-phone.addEventListener("pointercancel", () => { ui.hold = null; });
-phone.addEventListener("pointerleave", () => { ui.hold = null; });
+phone.addEventListener("pointerup", e => {
+  holdEnd();
+  const down = ui.down; ui.down = null;
+  if (!rec || !down) return;
+  const u = document.elementFromPoint(e.clientX, e.clientY), el = u && phone.contains(u) ? u.closest("[data-a]") : null;
+  if (el && el.dataset.a === down) act(down);   // the same control, though it may have been redrawn under the finger
+});
+phone.addEventListener("pointercancel", () => { ui.hold = null; ui.down = null; });
+phone.addEventListener("pointerleave", () => { ui.hold = null; ui.down = null; });
 phone.addEventListener("contextmenu", e => { if (e.target.closest("[data-hold]")) e.preventDefault(); });   // 5. a long press is the phone's menu otherwise
-phone.addEventListener("click", e => {
-  if (!rec) return;
-  const el = e.target.closest("[data-a]"); if (!el) return;
-  const [a, b] = el.dataset.a.split(":"); const w = world, r = w.reading;
-  if (a === "stop") { e.stopPropagation(); if (C().stop === "long" && !isBdt()) return; if (b === "Reading") r.log.push("stoptap"); doStop(b); render(); return; }
+function act(code) {
+  const [a, b] = code.split(":"); const w = world, r = w.reading;
+  if (a === "stop") { if (C().stop === "long" && !isBdt()) return; if (b === "Reading") r.log.push("stoptap"); doStop(b); render(); return; }
   if (a === "go") { w.screen = {today: "today", hub: "hub", measuring: "measuring"}[b] || b; ui.edit = false; }
   else if (a === "back") { w.screen = w.screen === "measuring" ? "hub" : (w.from || "measuring"); ui.edit = false; }
   else if (a === "open") { if (b === "Reading" || b === "Cleaning") { w.from = w.screen; w.screen = b; } }
-  else if (a === "spause") { e.stopPropagation(); const x = runOf(b); if (x.waiting) { act_work(x); } else if (x.paused == null) { x.paused = clock(); if (x === r) r.log.push("pause"); } else { x.pausedTotal += clock() - x.paused; x.paused = null; if (x === r) r.log.push("resume"); } }
-  else if (a === "pause") { if (r.waiting) return; if (r.paused == null) { r.paused = clock(); r.log.push("pause"); } else { r.pausedTotal += clock() - r.paused; r.paused = null; r.log.push("resume"); } }
+  else if (a === "spause") { const x = runOf(b); if (x.waiting) { act_work(x); } else if (x.paused == null) { x.paused = clock(); if (x === r) r.log.push("pause"); } else { x.pausedTotal += clock() - x.paused; x.paused = null; if (x === r) r.log.push("resume"); } }
+  else if (a === "pause") { if (r.waiting) { act_work(r); render(); return; } if (r.paused == null) { r.paused = clock(); r.log.push("pause"); } else { r.pausedTotal += clock() - r.paused; r.paused = null; r.log.push("resume"); } }
   else if (a === "work") act_work(r);
   else if (a === "skip") { const p = phase(r); if (p.kind === "rest") r.skipped.push(p.rest); else if (p.next) r.skipped.push(p.next); }   // the rest becomes work; the end stays
   else if (a === "plus") r.E += 5;
   else if (a === "edit") ui.edit = !ui.edit;
-  else if (a === "ee") r.E += +b;
+  else if (a === "ee") { if (r.E + +b > runNow(r) + 1) r.E += +b; }
   else if (a === "undo") { const x = runOf(b); x.stopped = false; x.undoUntil = 0; }
   else if (a === "cno") ui.confirm = null;
   else if (a === "cyes") { const who = ui.confirm; ui.confirm = null; doStop(who, true); }
   render();
-});
+}
 
 /* ---- side panel, results ---- */
 function side() {
@@ -282,8 +294,8 @@ function side() {
   document.getElementById("tasks").innerHTML = TASK_IDS.map(id => '<button class="' + (id === taskId ? "on" : "") + '" data-t="' + id + '">' + esc(TASKS[id].name) +
     (r[id] ? ' <span class="ok">' + (r[id].cant ? "· can't" : "· done") + "</span>" : "") + "<small>" + esc(TASKS[id].text) + "</small></button>").join("");
 }
-document.getElementById("sheets").addEventListener("click", e => { const b = e.target.closest("[data-s]"); if (!b) return; sheet = DATA.sheets.find(s => s.id === b.dataset.s); rec = null; world = null; side(); render(); });
-document.getElementById("tasks").addEventListener("click", e => { const b = e.target.closest("[data-t]"); if (!b) return; taskId = b.dataset.t; rec = null; world = null; side(); render(); });
+document.getElementById("sheets").addEventListener("click", e => { const b = e.target.closest("[data-s]"); if (!b) return; sheet = DATA.sheets.find(s => s.id === b.dataset.s); rec = null; world = null; ui = {}; side(); render(); });
+document.getElementById("tasks").addEventListener("click", e => { const b = e.target.closest("[data-t]"); if (!b) return; taskId = b.dataset.t; rec = null; world = null; ui = {}; side(); render(); });
 document.getElementById("begin").addEventListener("click", begin);
 document.getElementById("done").addEventListener("click", done);
 document.getElementById("cant").addEventListener("click", () => { rec = rec || {taps: 0, early: 0, t0: performance.now()}; finish("cant"); });
@@ -298,7 +310,7 @@ function table() {
 document.getElementById("exp").addEventListener("click", () => {
   const out = document.getElementById("out"); out.style.display = "block";
   out.value = JSON.stringify({page: "run-try T3b.4g", sheets: DATA.sheets.map(s => s.id), results: store.results}, null, 1);
-  out.select(); try { navigator.clipboard.writeText(out.value); } catch (e) {}
+  out.select(); try { navigator.clipboard.writeText(out.value).catch(() => {}); } catch (e) {}
 });
 document.getElementById("clr").addEventListener("click", () => { if (confirm("Clear every recorded trial on this page?")) { store = {results: {}}; save(); table(); side(); } });
 side(); render(); table(); tick();
