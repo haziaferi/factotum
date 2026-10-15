@@ -1198,4 +1198,55 @@ Status (then): **T3b.1d approved; T3b.4 (When pattern) awaiting the owner's tria
 
 Samples left on the phone: Zazen, Goodtime and Meditation (installed for this); one empty day schedule in Time Planner. To be removed when T3's survey ends, with the others.
 
-Status: **T3b.1d approved; T3b.4c scored, trial page rebuilt: awaiting the owner's trial and pick; T3b.4b scored.**
+Status (then): **T3b.1d approved; T3b.4c scored, trial page rebuilt: awaiting the owner's trial and pick; T3b.4b scored.**
+
+### T3b.4d A real dial for times; the ring as the whole run, for pauses as fractions (owner, 2026-10-15)
+
+**The owner's trial of T3b.4c:**
+- across five sheets, 1 drag in total: every run was typed;
+- the drag ring cost 19 taps and 5 fixes on run 1, and the clock face 2 errors;
+- Break Down Timer was marked "can't" on every task.
+
+**The owner's reasons:**
+1. With the sentence alone, numbers are typed with the phone's keyboard, not a keypad drawn on the screen.
+2. With a clock face, the boxes stay writable, but a tapped box opens a real dial at once: until and from–to set hours first, then minutes; a length on one face, hours on the outer ring and minutes on the inner one, adding up (1 h + 30 min = 1 h 30). Intervals are reworked around fractions.
+3. "The ring, in Break Down Timer especially, represents not 60 min but fractions of however long the timer is, no matter if it's 10 hours or 10 minutes." In T3b.4c the run was always a slice of something else (12 hours, a window, fixed tabs), "which is completely arbitrary and make it impossible for the user to adopt the visual selector over the sentence".
+4. The control lacked Break Down Timer's presets, so every break had to be placed by eye, which the real app never asks of you. A control weaker than the real app proves nothing.
+
+**The owner's answers:**
+- the ring divided three ways, all scored: a chosen split, fraction presets, a drag snapping to fractions;
+- rests as a span or as a point plus a length, both scored;
+- the 24-hour two-ring dial;
+- the eight axes, plus length-independence and visual adoption.
+
+**Break Down Timer's presets** (from the 2026-10-14 captures, `_screens-sources/t3/bdt-0*`): a "Break presets" bar cycled with ‹ › ("1/2" places one break halfway), with a pin. The full list is assumed (1/2 1/3 1/4 1/5 1/6 1/8 1/10 1/12): cycling it on the phone would overwrite the run set there.
+
+**The space** (part `pace4`, 50 options): time typed or by the dial × pauses by the sentence or the ring; the ring by division (chosen / presets / snap) × rest (span / point) × words beside × face (chooser / shown). The walk is T3b.4c's, with run 2's chimes as tenths of the run and the recovery moving a chime to 0.7 of it.
+
+**Result** (the control lost at 564.5):
+
+| # | Option | Rank sum | Taps | Kb | Drags | Without the keyboard |
+|---|---|---|---|---|---|---|
+| 1 | dial · ring · snap · span · words beside · chooser | 281 | 31 | 0 | 4 | 100% |
+| 2 | the same, the ring shown | 281.5 | 29 | 0 | 6 | 100% |
+| 3 | dial · ring · chosen split · span · words · chooser | 294.5 | 30 | 2 | 0 | 78% |
+| 4 | dial · ring · presets · span · words · chooser | 306.5 | 30 | 3 | 0 | 78% |
+| 10 | dial · the sentence only | 321.5 | 30 | 3 | 0 | 78% |
+| — | Break Down Timer, with its presets | 564.5 | 46, 3 steps impossible | 6 | 27 | 57% |
+
+**Reading the result:**
+- the dial beats typing;
+- a rest as a span of the ring beats a point plus a length;
+- the snapping drag leads, with the chosen split and the presets close behind.
+
+**The trial page** (rebuilt):
+- **Sheets:** the best of each division, the sentence typed with the phone's keyboard (the owner's baseline), and Break Down Timer with its presets.
+- **Boxes:** real fields (`inputmode="numeric"`) for the phone's keyboard. On the dial sheets a box opens the dial, and ⌨ types instead.
+- **The ring is the run:** pauses are stored as fractions of it, so they keep their place when the length changes.
+- **Snap:** a tap makes a chime, a drag makes a rest; tapping a chime removes it, and dragging one moves it.
+- **Chosen split and presets:** tapping a line toggles a chime, tapping a slice makes a rest, and dragging across slices makes a longer rest.
+- **Checked:** 19 scripted trials, each correct on Start.
+
+T3b.4c is superseded by T3b.4d.
+
+Status: **T3b.1d approved; T3b.4d scored, trial page rebuilt: awaiting the owner's trial and pick; T3b.4b scored.**

@@ -17,80 +17,58 @@ p.note{color:var(--dim);margin:4px 0 12px;max-width:860px}
 @media (max-width:760px){.cols{grid-template-columns:1fr}.phone{margin:0 auto}}
 .panel{background:var(--zone);border-radius:14px;padding:12px;box-shadow:0 0 0 1px var(--zone2)}
 .panel h3{margin:0 0 8px;font-size:14px;color:var(--dim);font-weight:600;text-transform:uppercase;letter-spacing:.04em}
-.pick,.tasks{display:flex;flex-direction:column;gap:6px}
-.tasks{margin-top:12px}
+.pick,.tasks{display:flex;flex-direction:column;gap:6px}.tasks{margin-top:12px}
 .pick button,.tasks button{all:unset;cursor:pointer;padding:8px 10px;border-radius:10px;box-shadow:inset 0 0 0 1px var(--line)}
 .pick button.on,.tasks button.on{background:var(--zone2);box-shadow:none;font-weight:600}
-.pick small,.tasks small{display:block;color:var(--dim);font-weight:400}
-.tasks .ok{color:var(--dim)}
+.pick small,.tasks small{display:block;color:var(--dim);font-weight:400}.tasks .ok{color:var(--dim)}
 .act{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
 .btn{all:unset;cursor:pointer;padding:9px 14px;border-radius:20px;background:var(--ink);color:var(--inv);font-weight:600}
 .btn.ghost{background:none;color:var(--fg);box-shadow:inset 0 0 0 1px var(--line);font-weight:500}
 .btn:focus-visible,.pick button:focus-visible,.tasks button:focus-visible{outline:2px solid var(--fg);outline-offset:2px}
 .live{margin-top:12px;font-variant-numeric:tabular-nums;color:var(--dim)}.live b{color:var(--fg)}
-/* the phone */
-.phone{position:relative;width:360px;height:740px;border-radius:22px;background:var(--bg);overflow:hidden;box-shadow:0 0 0 1px var(--line);user-select:none;touch-action:none}
+.phone{position:relative;width:360px;height:740px;border-radius:22px;background:var(--bg);overflow:hidden;box-shadow:0 0 0 1px var(--line);user-select:none}
 .idle{position:absolute;inset:0;background:color-mix(in srgb,var(--bg) 84%,transparent);display:grid;place-items:center;text-align:center;padding:24px;color:var(--dim);z-index:9}
 .bgl{position:absolute;inset:0;padding:8px 12px;color:var(--dim)}.bgh{font-size:18px;font-weight:600;padding:10px 4px 14px;color:var(--fg)}.bgr{background:var(--zone);border-radius:12px;padding:12px;margin:0 0 8px}
 .scrim2{position:absolute;inset:0;background:rgba(0,0,0,.18)}
 .sheet{position:absolute;left:0;right:0;bottom:0;max-height:732px;display:flex;flex-direction:column;background:var(--zone);border-radius:20px 20px 0 0;padding:4px 12px 16px;box-shadow:0 -8px 24px rgba(0,0,0,.14)}
 .top{display:flex;justify-content:space-between;align-items:center;min-height:48px;flex:none}.top .ttl{font-weight:600;font-size:15px}
 .tap{min-height:48px;min-width:48px;display:inline-flex;align-items:center;justify-content:center;padding:0 4px;cursor:pointer}.tap.off{opacity:.35}
-.area{overflow-y:auto;overflow-x:hidden;min-height:0;padding-bottom:6px}.area .ttl{font-size:13px;color:var(--dim);margin:2px 4px 8px}
+.area{overflow-y:auto;overflow-x:hidden;min-height:0;padding-bottom:6px}.area .ttl,.ov .ttl{font-size:13px;color:var(--dim);margin:2px 4px 6px;display:flex;justify-content:space-between;align-items:center}
 .area .it{min-height:48px;display:flex;align-items:center;padding:0 8px;border-bottom:1px solid var(--zone2);cursor:pointer}
 .foot{flex:none;border-top:1px solid var(--zone2);padding-top:2px}
 .crow{display:flex;justify-content:space-between;align-items:center}.crow .small{font-size:12.5px;color:var(--dim)}
 .sent{font-size:18px;line-height:2.3}
 .tok{border-bottom:2px dotted var(--dim);padding:0 2px;display:inline-block;min-height:48px;line-height:48px;cursor:pointer}.tok.open{border-bottom:2px solid var(--fg)}
-.box{display:inline-block;min-width:56px;min-height:44px;line-height:44px;padding:0 8px;border-radius:10px;box-shadow:inset 0 0 0 1.5px var(--dim);text-align:center;font-size:16px;margin:0 2px;cursor:pointer}
-.box.ed{box-shadow:inset 0 0 0 2.5px var(--ink)}.box.sm2{min-width:40px;min-height:36px;line-height:36px;font-size:15px}
+.box{display:inline-block;min-width:60px;min-height:44px;line-height:44px;padding:0 8px;border-radius:10px;box-shadow:inset 0 0 0 1.5px var(--dim);text-align:center;font-size:16px;margin:0 2px;cursor:pointer;background:transparent;color:var(--fg);border:0;font-family:inherit;vertical-align:middle}
+input.box{width:76px;outline:none;cursor:text}input.box:focus,.box.ed{box-shadow:inset 0 0 0 2.5px var(--ink)}
+input.box.sm2{width:52px;min-height:36px;line-height:36px;font-size:15px}
 .sm{font-size:14px;color:var(--dim)}
 .x{display:inline-grid;place-items:center;width:40px;height:40px;color:var(--dim);cursor:pointer;vertical-align:middle}
-.seg{display:flex;border-radius:24px;box-shadow:inset 0 0 0 1px var(--dim);overflow:hidden;margin:6px 0}
-.seg>span{flex:1;min-height:48px;display:flex;align-items:center;justify-content:center;gap:4px;font-size:14px;cursor:pointer}.seg>span.on{background:var(--zone2);font-weight:600}
-.face{display:block;margin:2px auto;touch-action:none}
-.face text{pointer-events:none}
-.line{position:relative;height:64px;margin:12px 6px 4px;cursor:pointer;touch-action:none}
-.line .bar{position:absolute;left:0;right:0;top:24px;height:8px;border-radius:4px;background:var(--zone2)}
-.line .band{position:absolute;top:18px;height:20px;border-radius:6px;background:var(--line)}
-.line .mk{position:absolute;top:4px;width:40px;height:48px;margin-left:-20px;display:grid;place-items:center;cursor:grab}
-.line .mk i{width:10px;height:28px;border-radius:4px;background:var(--ink)}.line .mk.rest i{width:14px;background:none;box-shadow:inset 0 0 0 3px var(--ink)}
-.line .hd{position:absolute;top:4px;width:44px;height:48px;margin-left:-22px;display:grid;place-items:center;cursor:ew-resize}
-.line .hd i{width:22px;height:34px;border-radius:8px;background:var(--fg);box-shadow:0 0 0 3px var(--zone)}
-.line em{position:absolute;top:-12px;left:50%;transform:translateX(-50%);font-style:normal;font-size:11px;color:var(--fg);white-space:nowrap}
-.line .lab{position:absolute;top:52px;font-size:11px;color:var(--dim)}
-.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
-.grid span{min-height:48px;display:grid;place-items:center;border-radius:10px;box-shadow:inset 0 0 0 1px var(--line);cursor:pointer;font-variant-numeric:tabular-nums}
-.kp{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
-.kp span{min-height:50px;display:grid;place-items:center;border-radius:10px;background:var(--zone2);font-size:20px;cursor:pointer}
-.kp span.dn{background:var(--ink);color:var(--inv);font-size:15px;font-weight:600}
-.kpv{font-size:22px;text-align:center;margin:2px 0 6px;font-variant-numeric:tabular-nums;min-height:30px}
+.face{display:block;margin:2px auto;touch-action:none;cursor:pointer}.face text{pointer-events:none}
+.pbar{display:flex;align-items:center;justify-content:space-between;min-height:48px;border-bottom:1px solid var(--zone2)}.pbar b{font-variant-numeric:tabular-nums}
 .toast2{background:var(--ink);color:var(--inv);padding:8px 10px;border-radius:10px;font-size:13px;margin:0 0 6px}
-/* Break Down Timer (the control, as it is) */
 .ph-h{height:56px;display:flex;align-items:center;gap:8px;padding:0 8px;font-size:18px;font-weight:600}.ph-h .bk{width:48px;height:48px;display:grid;place-items:center;color:var(--dim)}
 .ph-b{padding:4px 16px 16px}.list{font-size:13px;color:var(--dim);margin:8px 0;min-height:20px}
+.seg{display:flex;border-radius:24px;box-shadow:inset 0 0 0 1px var(--dim);overflow:hidden;margin:6px 0}
+.seg>span{flex:1;min-height:48px;display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer}.seg>span.on{background:var(--zone2);font-weight:600}
 .start{position:absolute;left:16px;right:16px;bottom:16px;min-height:52px;border-radius:26px;background:var(--ink);color:var(--inv);display:grid;place-items:center;font-weight:600;font-size:16px;cursor:pointer}
 .toast{position:absolute;left:16px;right:16px;bottom:80px;background:var(--ink);color:var(--inv);padding:10px 12px;border-radius:12px;font-size:13px;z-index:8}
 .ov{position:absolute;inset:0;z-index:7;display:flex;flex-direction:column;justify-content:flex-end}.ov .scr{flex:1;background:rgba(0,0,0,.18)}
-.ov .pan{background:var(--zone);border-radius:18px 18px 0 0;padding:10px 12px 14px}.ov .ttl{font-size:13px;color:var(--dim);margin:2px 4px 8px}
-/* results */
+.ov .pan{background:var(--zone);border-radius:18px 18px 0 0;padding:10px 12px 14px}
 .tbl{width:100%;border-collapse:collapse;font-size:13px;font-variant-numeric:tabular-nums}
-.tbl th,.tbl td{text-align:left;padding:6px 6px;border-bottom:1px solid var(--zone2);vertical-align:top}
-.tbl th{color:var(--dim);font-weight:600}
+.tbl th,.tbl td{text-align:left;padding:6px 6px;border-bottom:1px solid var(--zone2);vertical-align:top}.tbl th{color:var(--dim);font-weight:600}
 .tbl select{font:inherit;background:var(--zone);color:var(--fg);border:1px solid var(--line);border-radius:6px}
 .wrap{overflow-x:auto}
 textarea{width:100%;height:120px;font:12px/1.4 ui-monospace,Consolas,monospace;background:var(--zone);color:var(--fg);border:1px solid var(--line);border-radius:8px;padding:8px}
 .gal{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:14px}
-.gal figure,.gal2 figure{margin:0}.gal img,.gal2 img{width:100%;height:auto;border-radius:10px;box-shadow:0 0 0 1px var(--zone2)}
-.gal figcaption,.gal2 figcaption{font-size:12px;color:var(--dim);margin-top:4px}.gal figcaption b,.gal2 figcaption b{color:var(--fg)}
-.gal2{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:18px}.gal2 .two{display:grid;grid-template-columns:1fr 1fr;gap:6px}
-details{margin-top:8px}summary{cursor:pointer;color:var(--dim)}
+.gal figure{margin:0}.gal img{width:100%;height:auto;border-radius:10px;box-shadow:0 0 0 1px var(--zone2)}
+.gal figcaption{font-size:12px;color:var(--dim);margin-top:4px}.gal figcaption b{color:var(--fg)}
 </style>
 </head>
 <body>
 <main>
-<h1>Paced timer: try the sheets (T3b.4c)</h1>
-<p class="note">The best sheet of each top placer from T3b.4c, the real clock face you asked about, and Break Down Timer as the control that must lose. Every task follows the time you press <b>Begin</b>. Pick a sheet and a task, press Begin, and do the task on the phone. Taps, keystrokes and drags are counted apart; <b>Start</b> checks the run against the task (a pause may be half a minute off) and says what differs. Fixes count ⌫, a removed pause, Undo and Redo, and a value set again. The sheets follow the When pattern: Cancel, the title and Start on top; the sentence pinned at the foot; a chooser opening above it. A face marked <i>shown</i> stays up while the run has pauses.</p>
+<h1>Paced timer: try the sheets (T3b.4d)</h1>
+<p class="note">On the dial sheets, a time box opens a real dial at once. A clock time is set hours first (the 24-hour dial: 1–12 outside, 13–00 inside), then minutes; a length on one face, hours on the outer ring and minutes on the inner one, adding up. The boxes stay writable: ⌨ on the dial types instead, with the phone's keyboard. On the typed sheet the boxes are plain fields for the phone's keyboard. The ring is always the whole run, at any length: its places are fractions of the run. Tasks follow the time you press <b>Begin</b>. Taps, keystrokes and drags are counted apart; <b>Start</b> checks the run (a pause, or a rest's length, may be half a minute off).</p>
 <div class="cols">
   <section class="panel">
     <h3>Sheet</h3>
@@ -105,42 +83,42 @@ details{margin-top:8px}summary{cursor:pointer;color:var(--dim)}
 <section class="panel" style="margin-top:20px">
   <h3>Your trial beside the scores</h3>
   <div class="wrap"><table class="tbl" id="res"></table></div>
-  <p class="note" style="margin-top:10px">Cells: taps (drags included) + keystrokes · seconds · errors · fixes. Taps 1–4 leave keystrokes out, as the scored walk does. Est. is the walk for runs 1–4: taps, keyboards opened, drags, mean reach. Total is the Pareto rank sum over the eight axes (lower is better). Rate each sheet when you have tried it.</p>
+  <p class="note" style="margin-top:10px">Cells: taps (drags included) + keystrokes · seconds · errors · fixes. Est. is the walk for runs 1–4 and the recovery: taps, keyboards, drags, mean reach. Total is the Pareto rank sum over ten axes (lower is better).</p>
   <div class="act"><button class="btn ghost" id="exp">Copy results</button><button class="btn ghost" id="clr">Clear results</button></div>
   <textarea id="out" readonly aria-label="Results as JSON" style="margin-top:8px;display:none"></textarea>
 </section>
-<h2>T3b.4c, as drawn and scored</h2>
-<p class="note">The best options of T3b.4c in order, then the control. Run 2 is drawn (13:00–15:30, chimes at 13:15 and 13:30).</p>
+<h2>T3b.4d, as drawn and scored</h2>
 <div class="gal" id="gal"></div>
-<details><summary>Earlier: T3b.4b, where the timer lives</summary><div class="gal2" id="gal2" style="margin-top:10px"></div></details>
 </main>
 <script>
 const DATA = __DATA__;
-const KEY = "factotum-pace-try-v2";
+const KEY = "factotum-pace-try-v3";
 const pad = n => String(n).padStart(2, "0");
 const fmt = m => { m = Math.round(m); m = ((m % 1440) + 1440) % 1440; return pad(Math.floor(m / 60)) + ":" + pad(m % 60); };
 const dur = m => { m = Math.round(m); return m >= 60 ? Math.floor(m / 60) + " h" + (m % 60 ? " " + (m % 60) + " min" : "") : m + " min"; };
 const esc = s => String(s).replace(/[&<>"]/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;"}[c]));
 const nowMin = () => { const d = new Date(); return d.getHours() * 60 + d.getMinutes(); };
-function snap5(raw, S) { const a = Math.round(raw / 5) * 5, r = S + Math.round((raw - S) / 5) * 5; return Math.abs(a - raw) <= Math.abs(r - raw) ? a : r; }
 function every(S, E, n, kind, d) { const o = []; for (let t = S + n; t < E - 0.01; t += n) o.push([kind, t, kind === "rest" ? d : 0]); return o; }
+const FR = {2: "½", 3: "⅓", 4: "¼", 6: "⅙", 8: "⅛"};
+const PRESETS = [2, 3, 4, 5, 6, 8, 10, 12];   // assumed: Break Down Timer's own list cannot be read without overwriting the run set on the phone
+const SNAP = [2, 3, 4, 6, 8];
 
-/* ---- the tasks, made from the time Begin is pressed ---- */
+/* ---- tasks, from the time Begin is pressed ---- */
 const TASK_IDS = ["t1", "t2", "t3", "t4", "t4w", "t4i", "t5", "t6"];
 function makeTask(id, N) {
-  const half = N + 12.5, E2 = Math.ceil((N + 120) / 30) * 30, S3 = Math.ceil(N / 60) * 60 + 60, E3 = S3 + 90;
+  const half = N + 12.5, E2 = N + 150, S3 = Math.ceil(N / 60) * 60 + 60, E3 = S3 + 90;
   const run3 = {S: S3, E: E3, p: [["rest", S3 + 45, 5]]};
-  const pre1 = {startAt: null, endKind: "len", len: 25, rules: [["chime", "half", 0, 0]]};
+  const pre1 = {startAt: null, endKind: "len", len: 25, rules: [{kind: "chime", f: 0.5}]};
   switch (id) {
     case "t1": return {name: "Run 1", text: "For 25 minutes, with a chime halfway (" + fmt(half) + ").", target: {S: N, E: N + 25, p: [["chime", half, 0]]}};
-    case "t2": return {name: "Run 2", text: "Until " + fmt(E2) + ", with a chime every 15 minutes.", target: {S: N, E: E2, p: every(N, E2, 15, "chime")}};
-    case "t3": return {name: "Run 3", text: "From " + fmt(S3) + " to " + fmt(E3) + ", with a 5-minute rest in the middle (" + fmt(S3 + 45) + ").", target: run3};
+    case "t2": return {name: "Run 2", text: "Until " + fmt(E2) + " (2 h 30 from now), with a chime every 15 minutes.", target: {S: N, E: E2, p: every(N, E2, 15, "chime")}};
+    case "t3": return {name: "Run 3", text: "From " + fmt(S3) + " to " + fmt(E3) + ", with a 5-minute rest in the middle (" + fmt(S3 + 45) + "–" + fmt(S3 + 50) + ").", target: run3};
     case "t4": return {name: "Run 4 · long", text: "For 4 hours, with a 10-minute rest every hour.", target: {S: N, E: N + 240, p: every(N, N + 240, 60, "rest", 10)}};
     case "t4w": return {name: "Repeat · whole run", text: "↻ remembers the whole run. Start last time's run again: " + fmt(S3) + "–" + fmt(E3) + ", a 5-minute rest in the middle.",
-      pre: {startAt: S3, endKind: "at", endAt: E3, rules: [["rest", "half", 0, 5]]}, target: run3};
+      pre: {startAt: S3, endKind: "at", endAt: E3, rules: [{kind: "rest", f: 0.5, f1: 0.5 + 5 / 90}]}, target: run3};
     case "t4i": return {name: "Repeat · interval only", text: "↻ remembers the interval only. Start last time's run again: " + fmt(S3) + "–" + fmt(E3) + ", a 5-minute rest in the middle.",
       pre: {startAt: S3, endKind: "at", endAt: E3, rules: []}, target: run3};
-    case "t5": return {name: "Move a pause", text: "This run is set: 25 minutes, a chime halfway. Move the chime to " + fmt(N + 20) + ".", pre: pre1, target: {S: N, E: N + 25, p: [["chime", N + 20, 0]]}};
+    case "t5": return {name: "Move a pause", text: "This run is set: 25 minutes, a chime halfway. Move the chime to " + fmt(N + 17.5) + " (0.7 of the run).", pre: pre1, target: {S: N, E: N + 25, p: [["chime", N + 17.5, 0]]}};
     case "t6": return {name: "Remove a pause", text: "This run is set: 25 minutes, a chime halfway. Remove the chime.", pre: pre1, target: {S: N, E: N + 25, p: []}};
   }
 }
@@ -149,47 +127,40 @@ let sheet = DATA.sheets[0], taskId = "t1", task = null, N = nowMin(), st = null,
 function load() { try { return JSON.parse(localStorage.getItem(KEY)) || {results: {}, ratings: {}}; } catch (e) { return {results: {}, ratings: {}}; } }
 function save() { try { localStorage.setItem(KEY, JSON.stringify(store)); } catch (e) {} }
 const C = () => sheet.cfg;
-const faceOf = () => C().placer;
-const hasWords = () => C().placer === "sentence" || C().exact === "sentence";
 const isBdt = () => sheet.id === "bdt";
+const ring = () => !isBdt() && C().pauses === "ring";
+const words = () => !isBdt() && (C().pauses === "sentence" || C().words === "beside");
 
-/* ---- the run model ---- */
-function fresh() { return {startAt: null, endKind: "len", len: 45, endAt: null, pauses: []}; }
+/* ---- the run model: pauses on the ring are fractions of the run; words are rules ---- */
+function fresh() { return {startAt: null, endKind: "len", len: 45, endAt: null, pauses: [], preset: 0, split: 0}; }
 function span(s) { const S = s.startAt == null ? N : s.startAt; return {S, E: s.endKind === "len" ? S + s.len : s.endAt}; }
 let _id = 0; const nid = () => ++_id;
-function tabStep(L) { return L <= 120 ? 5 : 15; }
-function at(p, S, E) {
-  if (p.rule === "half") return [S + (E - S) / 2];
-  if (p.rule === "at") return [p.val];
-  if (p.rule === "every") return every(S, E, p.val, p.kind).map(x => x[1]);
-  if (p.rule === "slice") return [S + (E - S) * p.val / p.n];
-  if (p.rule === "tab") return [S + p.val * tabStep(E - S)];
+function places(p, S, E) {   // [kind, at, length]
+  const L = E - S;
+  if (p.rule === "frac") return p.kind === "rest" ? [["rest", S + p.f * L, (p.f1 - p.f) * L]] : [["chime", S + p.f * L, 0]];
+  if (p.rule === "half") return [[p.kind, S + L / 2, p.kind === "rest" ? p.dur : 0]];
+  if (p.rule === "at") return [[p.kind, p.val, p.kind === "rest" ? p.dur : 0]];
+  if (p.rule === "every") return every(S, E, p.val, p.kind, p.dur);
   return [];
 }
-function expand(s) {
-  const {S, E} = span(s), out = [];
-  for (const p of s.pauses) for (const t of at(p, S, E)) if (t > S && t < E) out.push([p.kind, t, p.kind === "rest" ? (p.rule === "tab" ? tabStep(E - S) : p.dur) : 0]);
-  return out.sort((a, b) => a[1] - b[1]);
-}
+function expand(s) { const {S, E} = span(s), out = []; for (const p of s.pauses) for (const x of places(p, S, E)) if (x[1] > S && x[1] < E) out.push(x); return out.sort((a, b) => a[1] - b[1]); }
 function fromPre(pre) {
   const s = Object.assign(fresh(), pre); s.pauses = [];
-  const {S, E} = span(s), L = E - S;
-  for (const [kind, rule, val, d] of pre.rules || []) {
-    const t = rule === "half" ? S + L / 2 : val;
-    if (isBdt()) s.pauses.push({id: nid(), kind: "chime", rule: "slice", n: 60, val: Math.round((t - S) / L * 60)});
-    else if (hasWords()) s.pauses.push({id: nid(), kind, rule, val, dur: d || 5});
-    else if (faceOf() === "ring24") s.pauses.push({id: nid(), kind, rule: "slice", n: 24, val: Math.round((t - S) / L * 24), dur: d || 5});
-    else if (faceOf() === "tabs") s.pauses.push({id: nid(), kind, rule: "tab", val: Math.round((t - S) / tabStep(L))});
-    else s.pauses.push({id: nid(), kind, rule: "at", val: t, dur: d || 5});
+  const {S, E} = span(s);
+  for (const r of pre.rules || []) {
+    if (isBdt()) s.pauses.push({id: nid(), kind: "chime", rule: "slice", val: Math.round(r.f * 60)});
+    else if (ring()) s.pauses.push(Object.assign({id: nid(), rule: "frac"}, r));
+    else s.pauses.push({id: nid(), kind: r.kind, rule: "half", dur: r.f1 ? Math.round((r.f1 - r.f) * (E - S)) : 5});
   }
   return s;
 }
+function bdtExpand(s) { const {S, E} = span(s); return s.pauses.map(p => ["chime", S + (E - S) * p.val / 60, 0]).filter(x => x[1] > S && x[1] < E).sort((a, b) => a[1] - b[1]); }
 function diff(s, t) {
-  const {S, E} = span(s), got = expand(s), why = [];
+  const {S, E} = span(s), got = isBdt() ? bdtExpand(s) : expand(s), why = [];
   if (!(E > S)) return ["the end is not after the start"];
   if (Math.abs(S - t.S) > 0.01) why.push("starts " + fmt(S) + ", the task wants " + fmt(t.S));
   if (Math.abs(E - t.E) > 0.01) why.push("ends " + fmt(E) + ", the task wants " + fmt(t.E));
-  const same = got.length === t.p.length && got.every((x, i) => x[0] === t.p[i][0] && Math.abs(x[1] - t.p[i][1]) <= 0.5 && x[2] === t.p[i][2]);
+  const same = got.length === t.p.length && got.every((x, i) => x[0] === t.p[i][0] && Math.abs(x[1] - t.p[i][1]) <= 0.5 && Math.abs(x[2] - t.p[i][2]) <= 0.5);
   if (!same) why.push("pauses: " + describe(got) + "; the task wants " + describe(t.p));
   return why;
 }
@@ -200,11 +171,11 @@ function describe(list) {
   return head + " · " + list.slice(0, 4).map(x => fmt(x[1]) + (x[0] === "rest" ? "–" + fmt(x[1] + x[2]) : "")).join(", ") + (list.length > 4 ? ", …" : "");
 }
 
-/* ---- trial bookkeeping ---- */
+/* ---- bookkeeping ---- */
 function fix(key) { if (!rec) return; if (key == null || rec.edited[key]) rec.fixes++; if (key != null) rec.edited[key] = 1; }
 function begin() {
   N = nowMin(); task = makeTask(taskId, N); _id = 0; st = task.pre ? fromPre(task.pre) : fresh();
-  ui = {nk: "chime", restLen: 5}; hist = {past: [], future: []};
+  ui = {}; hist = {past: [], future: []};
   rec = {taps: 0, keys: 0, drags: 0, errors: 0, fixes: 0, edited: {}, t0: performance.now()};
   render(); side(); tick();
 }
@@ -220,11 +191,12 @@ function tick() {
   el.innerHTML = "<b>" + rec.taps + "</b> taps (<b>" + rec.drags + "</b> drags) + <b>" + rec.keys + "</b> keys · <b>" + ((performance.now() - rec.t0) / 1000).toFixed(1) + "</b> s · <b>" + rec.errors + "</b> errors · <b>" + rec.fixes + "</b> fixes";
   requestAnimationFrame(tick);
 }
+function step(before) { if (JSON.stringify(st) !== before) { hist.past.push(before); hist.future = []; } }
 
 /* ---- the sheet ---- */
 const phone = document.getElementById("phone");
 function render() {
-  if (!st) { N = nowMin(); task = makeTask(taskId, N); st = task.pre ? fromPre(task.pre) : fresh(); ui = {nk: "chime", restLen: 5}; }
+  if (!st) { N = nowMin(); task = makeTask(taskId, N); st = task.pre ? fromPre(task.pre) : fresh(); ui = {}; }
   if (isBdt()) return renderBdt();
   const ps = expand(st);
   let h = '<div class="bgl"><div class="bgh">Measuring</div>' + ["Water", "Walk", "Reading", "Push-ups", "Sleep"].map(n => '<div class="bgr">' + n + "</div>").join("") + "</div>";
@@ -238,336 +210,278 @@ function render() {
        '" data-a="undo" aria-label="Undo">↶</span><span class="tap' + (hist.future.length ? "" : " off") + '" data-a="redo" aria-label="Redo">↷</span></span></div></div></div>';
   if (!rec) h += '<div class="idle">' + esc(task.text) + "<br><br>Press Begin.</div>";
   phone.innerHTML = h;
+  if (ui.focus) { const el = phone.querySelector('[data-f="' + ui.focus + '"]'); if (el) { el.focus(); if (el.select) el.select(); } ui.focus = null; }
 }
-function box(f, txt, cls) {
-  const ed = ui.kp && ui.kp.f === f;
-  return '<span class="box' + (cls ? " " + cls : "") + (ed ? " ed" : "") + '" data-a="kp:' + f + '">' + (ed ? (esc(ui.kp.buf) || "&nbsp;") : esc(txt)) + "</span>";
+// a time box: a writable field (the phone's keyboard); on a dial sheet a tap opens the dial and ⌨ types instead
+function timeBox(f, txt) {
+  if (C().time === "typed" || ui.typing === f) return '<input class="box" data-f="' + f + '" inputmode="numeric" enterkeyhint="done" value="' + esc(txt) + '" aria-label="' + f + '">';
+  return '<span class="box' + (ui.dial && ui.dial.f === f ? " ed" : "") + '" data-a="dial:' + f + '">' + esc(txt) + "</span>";
 }
+const numBox = (f, txt) => '<input class="box sm2" data-f="' + f + '" inputmode="numeric" enterkeyhint="done" value="' + esc(txt) + '" aria-label="' + f + '">';
 function runHTML() {
   const {S, E} = span(st);
   const word = st.startAt != null ? "From" : st.endKind === "len" ? "For" : "Until";
-  if (C().run === "dragged" && C().exact !== "sentence") {   // dragged on the face: the sentence reads it back
-    return '<div class="sent">' + fmt(S) + "–" + fmt(E) + ' <span class="sm">· ' + dur(E - S) + (faceShownOrOpen() ? "" : " · drag the ends on the face") + "</span></div>";
-  }
+  const typed = C().time === "typed" || ui.typing;
   let h = '<div class="sent"><span class="tok" data-a="cyc">' + word + "</span> ";
-  if (word === "For") h += box("len", st.len + " min") + ' <span class="sm">· ends ' + fmt(E) + "</span>";
-  else if (word === "Until") h += box("endAt", fmt(st.endAt)) + ' <span class="sm">· ' + dur(E - S) + "</span>";
-  else h += box("startAt", fmt(st.startAt)) + " to " + box("endAt", fmt(E));
+  if (word === "For") h += timeBox("len", typed ? String(st.len) : dur(st.len)) + ' <span class="sm">' + (typed ? "min " : "") + "· ends " + fmt(E) + "</span>";
+  else if (word === "Until") h += timeBox("endAt", fmt(st.endAt)) + ' <span class="sm">· ' + dur(E - S) + "</span>";
+  else h += timeBox("startAt", fmt(st.startAt)) + " to " + timeBox("endAt", fmt(E));
   return h + "</div>";
 }
-const faceShown = () => C().face === "shown" && faceOf() !== "sentence";
-const faceShownOrOpen = () => faceShown() || ui.placer;
 function pauseWordsHTML() {
   let h = '<div class="sent">';
   st.pauses.forEach((p, i) => {
-    const {S, E} = span(st);
-    const where = p.rule === "half" ? "halfway" : p.rule === "every" ? "every " + p.val + " min" : "at " + fmt(at(p, S, E)[0]);
-    const kind = p.kind === "rest" ? "a " + box("d" + i, String(p.dur), "sm2") + "-min rest" : "a chime";
-    const wbox = ui.kp && ui.kp.f === "p" + i;
-    h += '<div>with <span class="tok" data-a="kind:' + i + '">' + (p.kind === "rest" ? "a" : "a chime") + "</span>" + (p.kind === "rest" ? kind.slice(1) : "") + " " +
-         (wbox ? box("p" + i, "") : '<span class="tok' + (ui.menu && ui.menu.of === "w" + i ? " open" : "") + '" data-a="where:' + i + '">' + where + "</span>") +
-         ' <span class="x" data-a="del:' + i + '" aria-label="Remove">×</span></div>';
+    if (p.rule === "frac") return;   // pauses made on the ring read in the line below the sentence
+    const where = p.rule === "half" ? "halfway" : p.rule === "every" ? "every" : "at";
+    const val = p.rule === "every" ? " " + numBox("ev" + i, p.val) + " min" : p.rule === "at" ? " " + numBox("at" + i, fmt(p.val)) : "";
+    h += '<div>with <span class="tok" data-a="kind:' + i + '">' + (p.kind === "rest" ? "a rest of" : "a chime") + "</span> " + (p.kind === "rest" ? numBox("d" + i, p.dur) + " min " : "") +
+         '<span class="tok' + (ui.menu && ui.menu.of === "w" + i ? " open" : "") + '" data-a="where:' + i + '">' + where + "</span>" + val + ' <span class="x" data-a="del:' + i + '" aria-label="Remove">×</span></div>';
   });
   return h + '<div><span class="tok" data-a="add">+ pause</span></div></div>';
 }
 function pauseFootHTML() {
-  let h = "";
-  if (hasWords()) h += pauseWordsHTML();
-  if (faceOf() !== "sentence") {
-    const n = expand(st).length;
-    if (!faceShown()) h += '<div class="sent"><span class="tok' + (ui.placer ? " open" : "") + '" data-a="placer">' + (n ? "the face · " + n + (n > 1 ? " pauses" : " pause") : "the face") + "</span></div>";
-    if (C().rhythm === "word" && !hasWords()) h += '<div class="sent">' + (ui.kp && ui.kp.f === "rhythm" ? "every " + box("rhythm", "") + " min" : '<span class="tok" data-a="kp:rhythm">every … min</span>') + "</div>";
-  }
+  let h = words() ? pauseWordsHTML() : "";
+  if (ring()) { const n = st.pauses.filter(p => p.rule === "frac").length; h += '<div class="sent"><span class="tok' + (ui.placer ? " open" : "") + '" data-a="placer">the ring' + (n ? " · " + n + (n > 1 ? " pauses" : " pause") : "") + "</span></div>"; }
   return h;
-}
-function kindSeg() {
-  if (faceOf() === "tabs") return '<div class="sm">One tap on a tab: a chime at its start. Two: a rest the length of the tab. Three: none.</div>';
-  return '<div class="seg"><span class="' + (ui.nk === "chime" ? "on" : "") + '" data-a="nk:chime">Chime</span><span class="' + (ui.nk === "rest" ? "on" : "") +
-         '" data-a="nk:rest">Rest · ' + box("restLen", String(ui.restLen), "sm2") + " min</span></div>";
 }
 function areaHTML() {
-  let h = "";
-  const face = faceOf() !== "sentence" && (faceShown() || ui.placer);
-  if (ui.kp) h = keypadHTML();
-  else if (ui.menu) h = '<div class="ttl">' + esc(ui.menu.title) + "</div>" + ui.menu.items.map(([t, a]) => '<div class="it" data-a="' + a + '">' + esc(t) + "</div>").join("");
-  else if (ui.grid) h = '<div class="ttl">' + esc(ui.grid.title) + '</div><div class="grid">' + ui.grid.items.map(([t, a]) => '<span data-a="' + a + '">' + esc(t) + "</span>").join("") + "</div>";
-  if (face && !(ui.kp || ui.menu || ui.grid) || (face && faceShown())) h = faceHTML() + kindSeg() + h;
-  return h;
-}
-function keypadHTML() {
-  const lab = {time: "Time (hhmm)", min: "Minutes"}[ui.kp.kind];
-  return '<div class="ttl">' + lab + '</div><div class="kpv">' + (esc(ui.kp.buf) || "&nbsp;") + '</div><div class="kp">' +
-    ["1", "2", "3", "4", "5", "6", "7", "8", "9", "⌫", "0", "Done"].map(k => '<span class="' + (k === "Done" ? "dn" : "") + '" data-a="key:' + k + '">' + k + "</span>").join("") + "</div>";
+  if (ui.dial) return dialHTML();
+  if (ui.menu) return '<div class="ttl"><span>' + esc(ui.menu.title) + "</span></div>" + ui.menu.items.map(([t, a]) => '<div class="it" data-a="' + a + '">' + esc(t) + "</div>").join("");
+  if (ring() && ui.placer) return ringHTML();
+  return "";
 }
 
-/* ---- the faces ---- */
+/* ---- the dials ---- */
 const CX = 130, CY = 130;
-const P = (r, a) => (CX + r * Math.cos(a)).toFixed(1) + " " + (CY + r * Math.sin(a)).toFixed(1);
 const ang = f => 2 * Math.PI * f - Math.PI / 2;
-function marksOnRing(S, E, r, dragId) {   // the pauses on a run ring, as ticks
-  let h = "";
-  for (const p of st.pauses) for (const t of at(p, S, E)) {
-    if (!(t > S && t < E)) continue;
-    const a = ang((t - S) / (E - S));
-    const rest = p.kind === "rest";
-    h += '<line x1="' + P(r - 26, a).replace(" ", '" y1="') + '" x2="' + P(r + 26, a).replace(" ", '" y2="') + '" stroke="var(--ink)" stroke-width="' + (rest ? 12 : 6) + '" stroke-linecap="round"' + (rest ? ' stroke-dasharray="2 5"' : "") + "/>";
-    if (dragId === p.id) h += '<text x="130" y="168" text-anchor="middle" font-size="13" fill="var(--fg)">' + fmt(t) + "</text>";
+const XY = (r, f) => [CX + r * Math.cos(ang(f)), CY + r * Math.sin(ang(f))];
+function svgPt(e) { const r = document.getElementById("face").getBoundingClientRect(); return {x: (e.clientX - r.left) / r.width * 260, y: (e.clientY - r.top) / r.height * 260}; }
+function fracAt(e) { const q = svgPt(e); let a = Math.atan2(q.y - CY, q.x - CX) + Math.PI / 2; if (a < 0) a += 2 * Math.PI; return a / (2 * Math.PI); }
+function radAt(e) { const q = svgPt(e); return Math.hypot(q.x - CX, q.y - CY); }
+function label(x, y, t, on, size) { return (on ? '<circle cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="19" fill="var(--fg)" fill-opacity=".22"/>' : "") + '<text x="' + x.toFixed(1) + '" y="' + (y + 5).toFixed(1) + '" text-anchor="middle" font-size="' + size + '" fill="var(--fg)">' + t + "</text>"; }
+function dialHTML() {
+  const d = ui.dial;
+  const title = d.len ? "Length: hours outside, minutes inside" : (d.f === "startAt" ? "Starts" : "Ends") + (d.stage === "h" ? " · the hour" : " · the minute");
+  let h = '<div class="ttl"><span>' + title + '</span>' + (isBdt() ? "" : '<span class="tap" data-a="typeit" aria-label="Type instead">⌨</span>') +
+          '</div><svg class="face" id="face" width="260" height="260" viewBox="0 0 260 260"><circle cx="130" cy="130" r="126" fill="var(--zone2)" data-drag="dial"/>';
+  if (d.len) {
+    for (let i = 0; i < 12; i++) { const hr = i || 12, [x, y] = XY(104, i / 12); h += label(x, y, hr, d.h === hr, 16); }
+    for (let i = 0; i < 12; i++) { const m = i * 5, [x, y] = XY(64, i / 12); h += label(x, y, pad(m), d.m === m, 13); }
+    if (d.m % 5) { const [x, y] = XY(64, d.m / 60); h += '<circle cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="5" fill="var(--fg)"/>'; }
+    h += '<text x="130" y="136" text-anchor="middle" font-size="17" fill="var(--fg)">' + (d.h * 60 + d.m ? dur(d.h * 60 + d.m) : "0 min") + "</text>";
+  } else if (d.stage === "h") {
+    for (let i = 0; i < 12; i++) { const hr = i || 12, [x, y] = XY(104, i / 12); h += label(x, y, hr, d.h === hr, 16); }
+    for (let i = 0; i < 12; i++) { const hr = i ? i + 12 : 0, [x, y] = XY(66, i / 12); h += label(x, y, pad(hr), d.h === hr, 13); }
+  } else {
+    for (let i = 0; i < 12; i++) { const [x, y] = XY(104, i / 12); h += label(x, y, pad(i * 5), d.m === i * 5, 15); }
+    if (d.m != null) { const [x, y] = XY(104, d.m / 60); h += '<line x1="130" y1="130" x2="' + x.toFixed(1) + '" y2="' + y.toFixed(1) + '" stroke="var(--fg)" stroke-width="2"/><circle cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="6" fill="var(--fg)"/>'; }
+    h += '<text x="130" y="136" text-anchor="middle" font-size="18" fill="var(--fg)">' + pad(d.h) + ":" + (d.m == null ? "__" : pad(d.m)) + "</text>";
   }
+  return h + "</svg>";
+}
+function openDial(f, asLen) {
+  const {S, E} = span(st);
+  if (f === "len" || asLen) { const L = Math.round(E - S); ui.dial = {f: "len", len: true, h: Math.min(12, Math.floor(L / 60)), m: L % 60}; }
+  else { const t = f === "startAt" ? S : E; ui.dial = {f, stage: "h", h: Math.floor(((t % 1440) + 1440) % 1440 / 60), m: null}; }
+}
+function dialPress(e, done) {
+  const d = ui.dial, f = fracAt(e), r = radAt(e), {S} = span(st);
+  if (d.len) {   // hours on the outer ring, minutes on the inner one: they add up
+    if (r < 84) d.m = Math.round(f * 60) % 60;
+    else if (done) { const hr = Math.round(f * 12) % 12 || 12; d.h = d.h === hr ? 0 : hr; }
+    const L = d.h * 60 + d.m;
+    if (done && L > 0) { st.endKind = "len"; st.len = L; st.endAt = null; fix("len"); }
+    return;
+  }
+  if (d.stage === "h") {
+    if (!done) return;
+    const i = Math.round(f * 12) % 12;
+    d.h = r >= 85 ? (i || 12) : (i ? i + 12 : 0);
+    d.stage = "m"; return;
+  }
+  d.m = Math.round(f * 60) % 60;
+  if (!done) return;
+  const t = d.h * 60 + d.m;
+  fix(d.f);
+  if (d.f === "startAt") { const L = span(st).E - span(st).S; st.startAt = nextAt(t, N); if (st.endKind === "len") st.len = L; else st.endAt = nextAt(st.endAt % 1440, st.startAt + 1); }
+  else { st.endKind = "at"; st.endAt = nextAt(t, S + 1); }
+  ui.dial = null;
+}
+function nextAt(clock, from) { let t = clock; while (t < from) t += 1440; return t; }
+function parseTime(b) { b = String(b).replace(/\D/g, ""); if (!b) return null; const n = b.length <= 2 ? [+b, 0] : [+b.slice(0, b.length - 2), +b.slice(-2)]; return n[0] < 24 && n[1] < 60 ? n[0] * 60 + n[1] : null; }
+function parseLen(b) { const s = String(b).trim(); let m = s.match(/^(\d+)\s*h\s*(\d+)?/i); if (m) return +m[1] * 60 + (+m[2] || 0); m = s.match(/^(\d+):(\d{2})$/); if (m) return +m[1] * 60 + +m[2]; m = s.match(/^(\d+)/); return m ? +m[1] : null; }
+
+/* ---- the run ring: the whole run, at any length ---- */
+function snapFrac(f, L) {
+  for (const n of SNAP) for (let k = 1; k < n; k++) if (Math.abs(f - k / n) < 0.015) return {f: k / n, label: k === 1 ? FR[n] : k + "/" + n};
+  return {f: Math.round(f * L) / L, label: null};
+}
+function grid() { return C().division === "chosen" ? st.split : C().division === "presets" ? st.preset : 0; }
+function ringHTML() {
+  const {S, E} = span(st), L = E - S, n = grid();
+  let h = '<svg class="face" id="face" width="260" height="260" viewBox="0 0 260 260"><circle cx="130" cy="130" r="96" fill="none" stroke="var(--zone2)" stroke-width="52" data-drag="ring"/>';
+  if (n > 1) for (let k = 0; k < n; k++) { const [x1, y1] = XY(70, k / n), [x2, y2] = XY(122, k / n); h += '<line x1="' + x1.toFixed(1) + '" y1="' + y1.toFixed(1) + '" x2="' + x2.toFixed(1) + '" y2="' + y2.toFixed(1) + '" stroke="var(--zone)" stroke-width="3"/>'; }
+  if (C().division === "snap") for (const k of [1, 2, 3]) { const [x1, y1] = XY(123, k / 4), [x2, y2] = XY(129, k / 4); h += '<line x1="' + x1.toFixed(1) + '" y1="' + y1.toFixed(1) + '" x2="' + x2.toFixed(1) + '" y2="' + y2.toFixed(1) + '" stroke="var(--dim)" stroke-width="2"/>'; }
+  for (const p of st.pauses) {
+    if (p.rule !== "frac") continue;
+    if (p.kind === "rest") h += '<path d="M' + XY(96, p.f).map(v => v.toFixed(1)).join(" ") + " A96 96 0 " + (p.f1 - p.f > 0.5 ? 1 : 0) + " 1 " + XY(96, p.f1).map(v => v.toFixed(1)).join(" ") + '" stroke="var(--dim)" stroke-width="40" fill="none" pointer-events="none"/>';
+    else { const [x1, y1] = XY(72, p.f), [x2, y2] = XY(120, p.f); h += '<line x1="' + x1.toFixed(1) + '" y1="' + y1.toFixed(1) + '" x2="' + x2.toFixed(1) + '" y2="' + y2.toFixed(1) + '" stroke="var(--fg)" stroke-width="6" stroke-linecap="round" pointer-events="none"/>'; }
+  }
+  for (const [, t] of expand(st)) if (!st.pauses.some(p => p.rule === "frac" && Math.abs(S + p.f * L - t) < 0.01)) {   // pauses made by the words, dashed
+    const f = (t - S) / L, [x1, y1] = XY(80, f), [x2, y2] = XY(112, f); h += '<line x1="' + x1.toFixed(1) + '" y1="' + y1.toFixed(1) + '" x2="' + x2.toFixed(1) + '" y2="' + y2.toFixed(1) + '" stroke="var(--fg)" stroke-width="2" stroke-dasharray="3 3" pointer-events="none"/>';
+  }
+  const rd = ui.drag && ui.drag.kind === "ring" ? ui.drag : null;
+  if (rd && rd.cur) { const [x1, y1] = XY(68, rd.cur.f), [x2, y2] = XY(124, rd.cur.f); h += '<line x1="' + x1.toFixed(1) + '" y1="' + y1.toFixed(1) + '" x2="' + x2.toFixed(1) + '" y2="' + y2.toFixed(1) + '" stroke="var(--fg)" stroke-width="3" opacity=".6" pointer-events="none"/>'; }
+  h += '<text x="130" y="126" text-anchor="middle" font-size="16" fill="var(--fg)">' + (rd && rd.cur ? (rd.cur.label ? rd.cur.label + " · " : "") + fmt(S + rd.cur.f * L) : dur(L)) + '</text><text x="130" y="146" text-anchor="middle" font-size="11" fill="var(--dim)">' +
+       (rd && rd.moved && !rd.mark ? "rest " + dur(Math.abs(rd.cur.f - rd.f0) * L) : fmt(S) + "–" + fmt(E)) + "</text></svg>";
+  if (C().division === "chosen") h += '<div class="sent">split into ' + numBox("split", st.split || "") + ' <span class="tok" data-a="fill">fill all</span></div><div class="sm">Tap a line for a chime there, a slice to make it a rest; drag across slices for a longer rest.</div>';
+  else if (C().division === "presets") h += '<div class="pbar"><span class="tap" data-a="pre:-1" aria-label="Previous preset">‹</span><b>' + (st.preset ? "1/" + st.preset + " · " + (st.preset - 1) + (st.preset > 2 ? " chimes" : " chime") : "Break presets") + '</b><span class="tap" data-a="pre:1" aria-label="Next preset">›</span></div><div class="sm">Tap a line to toggle a chime, a slice to make it a rest; drag across slices for a longer rest.</div>';
+  else h += '<div class="sm">Tap the ring for a chime; drag along it for a rest. Places snap to ½, ⅓, ¼, ⅙, ⅛ near them, otherwise to the minute. Drag a chime to move it; tap one to remove it.</div>';
   return h;
 }
-function faceHTML() {
-  const {S, E} = span(st), L = E - S, pl = faceOf();
-  if (pl === "line") return lineHTML();
-  let h = '<svg class="face" id="face" width="260" height="260" viewBox="0 0 260 260">';
-  if (pl === "clock") return clockHTML();
-  if (pl === "ring24" || pl === "tabs") {
-    const n = pl === "ring24" ? 24 : Math.max(1, Math.ceil(L / tabStep(L) - 0.001));   // tabs cover the run; the last may be shorter
-    const on = {};
-    for (const p of st.pauses) if ((pl === "ring24" && p.rule === "slice") || (pl === "tabs" && p.rule === "tab")) on[p.val] = p.kind;
-    for (let i = 0; i < n; i++) {
-      const a0 = ang(i / n), a1 = ang((i + 1) / n), k = on[i];
-      h += '<path d="M' + P(122, a0) + " A122 122 0 0 1 " + P(122, a1) + " L" + P(70, a1) + " A70 70 0 0 0 " + P(70, a0) + ' Z" fill="' +
-           (k === "chime" ? "var(--ink)" : k === "rest" ? "var(--dim)" : "var(--zone2)") + '" stroke="var(--zone)" stroke-width="2" data-a="' + (pl === "ring24" ? "sl:" : "tab:") + i + '"/>';
-    }
-  } else {   // dragring
-    h += '<circle cx="130" cy="130" r="96" fill="none" stroke="var(--zone2)" stroke-width="52" data-drag="ring"/>' + marksOnRing(S, E, 96, ui.drag && ui.drag.id);
-    if (ui.drag && ui.drag.kind === "ring") h += '<text x="130" y="168" text-anchor="middle" font-size="13" fill="var(--fg)">' + fmt(ui.drag.t) + "</text>";
+function ringTap(f) {   // a tap at a fraction
+  const {S, E} = span(st), L = E - S, n = grid();
+  if (C().division === "snap") {
+    const near = st.pauses.find(p => p.rule === "frac" && (p.kind === "chime" ? Math.abs(p.f - f) < 0.02 : f >= p.f && f <= p.f1));
+    if (near) { st.pauses.splice(st.pauses.indexOf(near), 1); fix(null); return; }
+    st.pauses.push({id: nid(), kind: "chime", rule: "frac", f: snapFrac(f, L).f}); return;
   }
-  if (pl !== "dragring") {   // pauses made by the words (halfway, every, at) show as ticks across the slices
-    const keep = st.pauses; st.pauses = keep.filter(p => p.rule !== "slice" && p.rule !== "tab"); h += marksOnRing(S, E, 96); st.pauses = keep;
+  if (n < 2) { ui.toast = C().division === "chosen" ? "Split the run first: split into [N]." : "Pick a preset with ‹ ›."; return; }
+  const k = Math.round(f * n), dist = Math.abs(f * n - k);
+  if (dist < 0.25 && k % n !== 0) {
+    const i = st.pauses.findIndex(p => p.rule === "frac" && p.kind === "chime" && Math.abs(p.f - k / n) < 1e-6);
+    if (i >= 0) { st.pauses.splice(i, 1); fix(null); } else st.pauses.push({id: nid(), kind: "chime", rule: "frac", f: k / n});
+  } else {
+    const s0 = Math.floor(f * n) / n, s1 = s0 + 1 / n;
+    const i = st.pauses.findIndex(p => p.rule === "frac" && p.kind === "rest" && Math.abs(p.f - s0) < 1e-6);
+    if (i >= 0) { st.pauses.splice(i, 1); fix(null); } else st.pauses.push({id: nid(), kind: "rest", rule: "frac", f: s0, f1: s1});
   }
-  h += '<text x="130" y="128" text-anchor="middle" font-size="16" fill="var(--fg)">' + dur(L) + '</text><text x="130" y="146" text-anchor="middle" font-size="11" fill="var(--dim)">' + fmt(S) + "–" + fmt(E) + "</text></svg>";
-  if (pl === "ring24") h += '<div class="sm">24 slices of ' + (Math.round(L / 24 * 10) / 10) + ' min: a tap places a pause at the slice\'s start.</div>';
-  if (pl === "tabs") h += '<div class="sm">Tabs of ' + tabStep(L) + " min.</div>";
-  if (pl === "dragring") h += '<div class="sm">Press the ring and drag to the minute; drag a mark to move it; tap one to change it.</div>';
-  return h;
 }
-function clockHTML() {   // the When dial: the run an arc on the real 12-hour face
-  const {S, E} = span(st);
-  const a12 = t => ang(((t % 720) + 720) % 720 / 720);
-  let h = '<svg class="face" id="face" width="260" height="260" viewBox="0 0 260 260"><circle cx="130" cy="130" r="124" fill="var(--zone2)"/>';
-  if (ui.clockHour == null) {
-    const L = Math.min(E - S, 719.9);
-    h += '<path d="M' + P(108, a12(S)) + " A108 108 0 " + (L > 360 ? 1 : 0) + " 1 " + P(108, a12(S + L)) + '" stroke="var(--ink)" stroke-width="12" fill="none" stroke-linecap="round"/>';
-    for (const [k, t] of expand(st)) h += '<circle cx="' + P(108, a12(t)).split(" ")[0] + '" cy="' + P(108, a12(t)).split(" ")[1] + '" r="' + (k === "rest" ? 6 : 4) + '" fill="var(--zone)" stroke="var(--ink)" stroke-width="2"/>';
-    if (C().run === "dragged") for (const [nm, t] of [["start", S], ["end", E]]) {
-      const [x, y] = P(108, a12(t)).split(" ");
-      h += '<circle cx="' + x + '" cy="' + y + '" r="20" fill="var(--fg)" fill-opacity=".85" data-drag="ch:' + nm + '"/>';
-    }
-    for (let i = 0; i < 12; i++) {
-      const [x, y] = P(78, ang(i / 12)).split(" ");
-      h += '<circle cx="' + x + '" cy="' + y + '" r="20" fill="transparent" data-a="hr:' + (i || 12) + '"/><text x="' + x + '" y="' + (+y + 5) + '" text-anchor="middle" font-size="15" fill="var(--fg)">' + (i || 12) + "</text>";
-    }
-    h += '<text x="130" y="134" text-anchor="middle" font-size="12" fill="var(--dim)">' + (ui.drag && ui.drag.kind === "ch" ? fmt(ui.drag.t) : "tap an hour") + "</text></svg>";
-    return h;
-  }
-  // the minute dial for the chosen hour: labels every 5, any minute by angle
-  h += '<circle cx="130" cy="130" r="118" fill="transparent" data-drag="cmin"/>';
-  for (let i = 0; i < 12; i++) { const [x, y] = P(96, ang(i / 12)).split(" "); h += '<text x="' + x + '" y="' + (+y + 5) + '" text-anchor="middle" font-size="14" fill="var(--fg)">' + pad(i * 5) + "</text>"; }
-  if (ui.drag && ui.drag.kind === "cmin") { const [x, y] = P(96, ang(ui.drag.m / 60)).split(" "); h += '<circle cx="' + x + '" cy="' + y + '" r="18" fill="var(--fg)" fill-opacity=".3"/>'; }
-  h += '<text x="130" y="128" text-anchor="middle" font-size="18" fill="var(--fg)">' + pad(ui.clockHour) + ":" + (ui.drag && ui.drag.kind === "cmin" ? pad(ui.drag.m) : "__") + '</text><text x="130" y="148" text-anchor="middle" font-size="11" fill="var(--dim)">drag or tap the minute</text></svg>';
-  return h + '<div class="sm"><span class="tok" data-a="hrx">‹ hours</span></div>';
-}
-function lineHTML() {
-  const {S, E} = span(st);
-  const dragged = C().run === "dragged";
-  let W0 = dragged ? Math.floor(Math.min(N, S) / 60) * 60 : S, W1 = dragged ? Math.max(W0 + 120, Math.ceil((E + 30) / 60) * 60) : E;
-  if (ui.drag && ui.win) { W0 = ui.win[0]; W1 = ui.win[1]; }   // held still while a drag lasts, or the finger maps to a moving scale   // a dragged run lives on a window fitted to it: from the hour, two hours at least, half an hour past its end
-  const x = t => ((t - W0) / (W1 - W0) * 100).toFixed(2) + "%";
-  let h = '<div class="line" id="line" data-w0="' + W0 + '" data-w1="' + W1 + '" data-drag="lbar"><span class="bar"></span>';
-  if (dragged) h += '<span class="band" style="left:' + x(S) + ";width:" + ((E - S) / (W1 - W0) * 100).toFixed(2) + '%"></span>';
-  for (const p of st.pauses) for (const t of at(p, S, E)) {
-    if (!(t > S && t < E)) continue;
-    h += '<span class="mk' + (p.kind === "rest" ? " rest" : "") + '" data-drag="mk:' + p.id + '" style="left:' + x(t) + '">' + (ui.drag && ui.drag.id === p.id ? "<em>" + fmt(t) + "</em>" : "") + "<i></i></span>";
-  }
-  if (ui.drag && ui.drag.kind === "lbar") h += '<span class="mk" style="left:' + x(ui.drag.t) + ';opacity:.5"><em>' + fmt(ui.drag.t) + "</em><i></i></span>";
-  if (dragged) for (const [nm, t] of [["start", S], ["end", E]]) h += '<span class="hd" data-drag="h:' + nm + '" style="left:' + x(t) + '">' + (ui.drag && ui.drag.kind === "h" && ui.drag.nm === nm ? "<em>" + fmt(t) + "</em>" : "") + "<i></i></span>";
-  h += '<span class="lab" style="left:0">' + fmt(W0) + '</span><span class="lab" style="left:50%;transform:translateX(-50%)">' + fmt((W0 + W1) / 2) + '</span><span class="lab" style="right:0">' + fmt(W1) + "</span></div>";
-  return h + '<div class="sm">' + (dragged ? "Drag the dark handles for the start and the end. " : "") + "Press inside the run and drag to the minute to add a pause; drag a mark to move it; tap one to change it.</div>";
-}
-function renderBdt() {   // the control as it is: its own screen, Start at the foot, pickers as dialogs
+
+/* ---- Break Down Timer, with its presets ---- */
+function renderBdt() {
   const {S, E} = span(st), on = new Set(st.pauses.map(p => p.val));
-  let h = '<div class="ph-h"><span class="bk">‹</span>Reading</div><div class="ph-b"><div class="seg"><span class="' + (st.endKind === "len" ? "on" : "") + '" data-a="bm:len">⏱&#xFE0E;</span><span class="' +
+  let h = '<div class="ph-h"><span class="bk">‹</span>Reading</div><div class="ph-b"><div class="pbar"><span class="tap" data-a="bpre:-1">‹</span><span>' + (st.preset ? "1/" + st.preset : "Break presets") +
+          '</span><span class="tap" data-a="bpre:1">›</span></div><div class="seg"><span class="' + (st.endKind === "len" ? "on" : "") + '" data-a="bm:len">⏱&#xFE0E;</span><span class="' +
           (st.endKind === "at" ? "on" : "") + '" data-a="bm:at">⏰&#xFE0E;</span></div><svg class="face" width="240" height="240" viewBox="10 10 240 240">';
   for (let i = 0; i < 60; i++) {
-    const a0 = ang(i / 60), a1 = ang((i + 1) / 60);
+    const a0 = ang(i / 60), a1 = ang((i + 1) / 60), P = (r, a) => (CX + r * Math.cos(a)).toFixed(1) + " " + (CY + r * Math.sin(a)).toFixed(1);
     h += '<path d="M' + P(112, a0) + " L" + P(112, a1) + " L" + P(70, a1) + " L" + P(70, a0) + ' Z" fill="' + (on.has(i) ? "var(--ink)" : "var(--zone2)") + '" stroke="var(--bg)" stroke-width="1" data-a="bsl:' + i + '"/>';
   }
   h += '<circle cx="130" cy="130" r="62" fill="var(--zone)" data-a="bc"/><text x="130" y="128" text-anchor="middle" font-size="16" fill="var(--fg)">' + (st.endKind === "len" ? dur(st.len) : "until " + fmt(E)) +
        '</text><text x="130" y="146" text-anchor="middle" font-size="11" fill="var(--dim)">tap to set</text></svg>';
-  const ps = expand(st);
+  const ps = bdtExpand(st);
   h += '<div class="list">' + st.pauses.length + " breaks placed · " + (ps.length ? esc(describe(ps)) : "") + "</div></div>";
   h += '<div class="start" data-a="start">▶ Start ▾</div>';
   if (ui.toast) h += '<div class="toast">' + esc(ui.toast) + "</div>";
-  const pan = ui.kp ? keypadHTML() : ui.grid ? '<div class="ttl">' + esc(ui.grid.title) + '</div><div class="grid">' + ui.grid.items.map(([t, a]) => '<span data-a="' + a + '">' + esc(t) + "</span>").join("") + "</div>" : "";
-  if (pan) h += '<div class="ov"><div class="scr" data-a="close"></div><div class="pan">' + pan + "</div></div>";
+  if (ui.dial) h += '<div class="ov"><div class="scr" data-a="close"></div><div class="pan">' + dialHTML() + "</div></div>";
   if (!rec) h += '<div class="idle">' + esc(task.text) + "<br><br>Press Begin.</div>";
   phone.innerHTML = h;
 }
+function cyclePreset(dir) { const i = PRESETS.indexOf(st.preset), j = i < 0 ? (dir > 0 ? 0 : PRESETS.length - 1) : i + dir; st.preset = j < 0 || j >= PRESETS.length ? 0 : PRESETS[j]; }
 
-/* ---- pickers ---- */
-const LENGTHS = [5, 10, 15, 20, 25, 30, 40, 45, 60, 75, 90, 120, 150, 180, 240, 300];
-function hourGrid(target) { ui.grid = {title: "Hour", items: Array.from({length: 24}, (_, i) => [pad(i), "gh:" + target + ":" + i])}; }
-function minuteGrid(target, h) { ui.grid = {title: pad(h) + ":__", items: Array.from({length: 12}, (_, i) => [":" + pad(i * 5), "gm:" + target + ":" + (h * 60 + i * 5)])}; }
-function lengthGrid(target) { ui.grid = {title: "Length", items: LENGTHS.map(m => [dur(m), "gl:" + target + ":" + m])}; }
-function parseTime(b) { if (!b) return null; const n = b.length <= 2 ? [+b, 0] : [+b.slice(0, b.length - 2), +b.slice(-2)]; return n[0] < 24 && n[1] < 60 ? n[0] * 60 + n[1] : null; }
-function nextAt(clock, from) { let t = clock; while (t < from) t += 1440; return t; }   // a clock time, on or after a moment
-function commitKp() {
-  const {f, kind, buf} = ui.kp; ui.kp = null;
-  if (!buf) return;
-  const val = kind === "time" ? parseTime(buf) : +buf;
-  if (val == null || (kind === "min" && !(val > 0))) { ui.toast = "Not a " + (kind === "time" ? "time" : "number of minutes") + ": " + buf; return; }
-  const {S} = span(st);
-  fix(f);
-  if (f === "len") { st.endKind = "len"; st.len = val; }
-  else if (f === "startAt") { const L = span(st).E - span(st).S; st.startAt = nextAt(val, N); if (st.endKind === "len") st.len = L; else st.endAt = nextAt(st.endAt % 1440, st.startAt + 1); }
-  else if (f === "endAt") { st.endKind = "at"; st.endAt = nextAt(val, S + 1); }
-  else if (f === "restLen") ui.restLen = val;
-  else if (f === "rhythm") st.pauses.push({id: nid(), kind: ui.nk, rule: "every", val, dur: ui.restLen});
-  else if (f[0] === "d") st.pauses[+f.slice(1)].dur = val;
-  else if (f[0] === "p") { const p = st.pauses[+f.slice(1)]; if (ui.kpRule === "every") { p.rule = "every"; p.val = val; } else { p.rule = "at"; p.val = nextAt(val, S); } }
-}
-
-/* ---- taps, drags and actions ---- */
-function svgPoint(e) { const r = document.getElementById("face").getBoundingClientRect(); return {x: (e.clientX - r.left) / r.width * 260, y: (e.clientY - r.top) / r.height * 260}; }
-function fracAt(e) { const q = svgPoint(e); let a = Math.atan2(q.y - CY, q.x - CX) + Math.PI / 2; if (a < 0) a += 2 * Math.PI; return a / (2 * Math.PI); }
-function lineTime(e) { const el = document.getElementById("line"), r = el.getBoundingClientRect(); const W0 = +el.dataset.w0, W1 = +el.dataset.w1; return W0 + Math.min(1, Math.max(0, (e.clientX - r.left) / r.width)) * (W1 - W0); }
-function dragUpdate(e) {
-  const d = ui.drag, {S, E} = span(st);
-  if (d.kind === "ring") d.t = Math.round(S + fracAt(e) * (E - S));
-  else if (d.kind === "lbar") d.t = Math.min(E - 1, Math.max(S + 1, Math.round(lineTime(e))));
-  else if (d.kind === "mk") {
-    const p = st.pauses.find(q => q.id === d.id);
-    const t = faceOf() === "line" ? Math.round(lineTime(e)) : Math.round(S + fracAt(e) * (E - S));
-    p.rule = "at"; p.val = Math.min(E - 1, Math.max(S + 1, t));
-  } else if (d.kind === "h") {
-    const raw = lineTime(e), t = d.nm === "start" ? Math.round(raw / 5) * 5 : snap5(raw, S);
-    if (d.nm === "end" && ui.win && raw >= ui.win[1] - 1) ui.win[1] += 15;   // held at the edge, the window grows, as a calendar scrolls under a drag
-    if (d.nm === "start") { const s0 = Math.max(N, Math.min(t, E - 5)); st.startAt = s0 <= N ? null : s0; st.endKind = "at"; st.endAt = E; }
-    else { st.endKind = "at"; st.endAt = Math.max(S + 5, t); }
-  } else if (d.kind === "ch") {   // an end of the arc on the 12-hour face, to 5 minutes
-    const m = fracAt(e) * 720;
-    const base = d.nm === "start" ? N : S + 1;
-    let t = base - (((base % 720) + 720) % 720) + m; while (t < base) t += 720;
-    t = d.nm === "start" ? Math.round(t / 5) * 5 : Math.max(S + 5, snap5(t, S));   // the start to the clock's 5 minutes; the end to the nearer of the clock's and the run's
-    d.t = t;
-    if (d.nm === "start") { st.startAt = t <= N + 2 ? null : t; st.endKind = "at"; st.endAt = Math.max(E, t + 5); }
-    else { st.endKind = "at"; st.endAt = t; }
-  } else if (d.kind === "cmin") d.m = Math.round(fracAt(e) * 60) % 60;
-}
+/* ---- input: taps, drags, keys ---- */
+phone.addEventListener("keydown", e => { if (rec && e.target.matches("input")) { rec.keys++; if (e.key === "Enter") e.target.blur(); } }, true);
+phone.addEventListener("change", e => {
+  if (!rec || !e.target.matches("input[data-f]")) return;
+  const f = e.target.dataset.f, v = e.target.value, before = JSON.stringify(st), {S} = span(st);
+  ui.toast = null; ui.typing = null;
+  if (f === "len") { const L = parseLen(v); if (L > 0) { st.endKind = "len"; st.len = L; fix("len"); } else ui.toast = "Not a length: " + v; }
+  else if (f === "startAt" || f === "endAt") {
+    const t = parseTime(v); if (t == null) ui.toast = "Not a time: " + v;
+    else if (f === "startAt") { const L = span(st).E - span(st).S; st.startAt = nextAt(t, N); if (st.endKind === "len") st.len = L; else st.endAt = nextAt(st.endAt % 1440, st.startAt + 1); fix(f); }
+    else { st.endKind = "at"; st.endAt = nextAt(t, S + 1); fix(f); }
+  } else if (f === "split") { const n = Math.max(0, Math.min(24, parseInt(v, 10) || 0)); if (st.split !== n) st.pauses = st.pauses.filter(p => p.rule !== "frac"); st.split = n; fix("split"); }
+  else if (f[0] === "d") st.pauses[+f.slice(1)].dur = +v || st.pauses[+f.slice(1)].dur;
+  else if (f.startsWith("ev")) st.pauses[+f.slice(2)].val = +v || st.pauses[+f.slice(2)].val;
+  else if (f.startsWith("at")) { const t = parseTime(v); if (t != null) st.pauses[+f.slice(2)].val = nextAt(t, S); }
+  step(before); render();
+});
 phone.addEventListener("pointerdown", e => {
   if (!rec) return;
-  if (e.target.closest(".kp")) rec.keys++; else rec.taps++;
+  if (e.target.matches("input")) { rec.taps++; return; }
+  rec.taps++;
   const g = e.target.closest("[data-drag]");
   if (!g) return;
-  const [kind, arg] = g.dataset.drag.split(":");
-  ui.drag = {kind, id: kind === "mk" ? +arg : null, nm: arg, x0: e.clientX, y0: e.clientY, moved: false, before: JSON.stringify(st)};
-  const ln = document.getElementById("line"); ui.win = ln ? [+ln.dataset.w0, +ln.dataset.w1] : null;
-  if (kind === "ring" && faceOf() === "dragring") {   // a press near a mark takes the mark
-    const {S, E} = span(st), t = S + fracAt(e) * (E - S);
-    const near = st.pauses.find(p => at(p, S, E).some(x => Math.abs(x - t) <= (E - S) / 60));
-    if (near) { ui.drag.kind = "mk"; ui.drag.id = near.id; }
+  const kind = g.dataset.drag;
+  ui.drag = {kind, x0: e.clientX, y0: e.clientY, moved: false, before: JSON.stringify(st)};
+  if (kind === "ring") {
+    const {S, E} = span(st), f = fracAt(e);
+    const mark = C().division === "snap" && st.pauses.find(p => p.rule === "frac" && p.kind === "chime" && Math.abs(p.f - f) < 0.03);
+    ui.drag.mark = mark ? mark.id : null; ui.drag.f0 = snapFrac(f, E - S).f; ui.drag.raw0 = f; ui.drag.cur = snapFrac(f, E - S);
   }
-  dragUpdate(e);
+  if (kind === "dial") dialPress(e, false);
   try { phone.setPointerCapture(e.pointerId); } catch (_) {}
-  e.preventDefault();
-  render();
+  e.preventDefault(); render();
 }, true);
 phone.addEventListener("pointermove", e => {
-  if (!ui.drag) return;
-  if (Math.hypot(e.clientX - ui.drag.x0, e.clientY - ui.drag.y0) > 5) ui.drag.moved = true;
-  dragUpdate(e); render();
+  const d = ui.drag; if (!d) return;
+  if (Math.hypot(e.clientX - d.x0, e.clientY - d.y0) > 6) d.moved = true;
+  if (d.kind === "ring") { const {S, E} = span(st); d.cur = snapFrac(fracAt(e), E - S); d.rawNow = fracAt(e); if (d.mark && d.moved) { const p = st.pauses.find(q => q.id === d.mark); p.f = d.cur.f; } }
+  if (d.kind === "dial") dialPress(e, false);
+  render();
 });
 phone.addEventListener("pointerup", e => {
-  if (!ui.drag) return;
-  const d = ui.drag; ui.drag = null; ui.marked = performance.now();
+  const d = ui.drag; if (!d) return;
+  ui.drag = null; ui.marked = performance.now();
   if (d.moved) rec.drags++;
-  if ((d.kind === "h" || d.kind === "ch") && !d.moved) st = JSON.parse(d.before);   // a tap on a handle moves nothing
-  if (d.kind === "mk" && !d.moved) {   // a tap on a mark: change or remove it
-    st = JSON.parse(d.before);
-    ui.sel = d.id; ui.menu = {title: "This pause", items: [["Chime", "mk:chime"], ["Rest · " + ui.restLen + " min", "mk:rest"], ["Remove", "mk:del"]]};
-  } else if (d.kind === "ring" || d.kind === "lbar") {
-    if (d.t != null) st.pauses.push({id: nid(), kind: ui.nk, rule: "at", val: d.t, dur: ui.restLen});
-  } else if (d.kind === "cmin") {
-    const {S, E} = span(st), clock = ui.clockHour % 12 * 60 + d.m;
-    let t = S - (((S % 720) + 720) % 720) + clock; while (t <= S) t += 720;
-    if (t < E) st.pauses.push({id: nid(), kind: ui.nk, rule: "at", val: t, dur: ui.restLen}); else ui.toast = fmt(t) + " is outside the run.";
-    ui.clockHour = null;
-  } else if (d.kind === "mk" && d.moved) fix("mk" + d.id);
-  if (JSON.stringify(st) !== d.before) { hist.past.push(d.before); hist.future = []; }
-  render();
+  if (d.kind === "ring") {
+    if (!d.moved) ringTap(d.raw0);
+    else if (d.mark) fix("mk" + d.mark);
+    else if (C().division === "snap") { const a = Math.min(d.f0, d.cur.f), b = Math.max(d.f0, d.cur.f); if (b > a) st.pauses.push({id: nid(), kind: "rest", rule: "frac", f: a, f1: b}); }
+    else { const n = grid(), r1 = d.rawNow == null ? d.raw0 : d.rawNow; if (n > 1) { const a = Math.floor(Math.min(d.raw0, r1) * n) / n, b = (Math.floor(Math.max(d.raw0, r1) * n) + 1) / n; st.pauses.push({id: nid(), kind: "rest", rule: "frac", f: a, f1: Math.min(1, b)}); } }
+  }
+  if (d.kind === "dial") dialPress(e, true);
+  step(d.before); render();
 });
 phone.addEventListener("click", e => {
   if (!rec) return;
-  if (performance.now() - (ui.marked || 0) < 350 && e.target.closest("[data-drag]")) return;   // the click that ends a press
+  if (performance.now() - (ui.marked || 0) < 350 && e.target.closest("[data-drag]")) return;
   const el = e.target.closest("[data-a]"); if (!el) return;
   const [a, b, c] = el.dataset.a.split(":");
   ui.toast = null;
   const before = JSON.stringify(st);
   act(a, b, c);
-  if (a !== "undo" && a !== "redo" && JSON.stringify(st) !== before) { hist.past.push(before); hist.future = []; }
+  if (a !== "undo" && a !== "redo") step(before);
   render();
 });
-function closeAll() { ui.kp = ui.menu = ui.grid = null; ui.clockHour = null; }
+function closeAll() { ui.dial = null; ui.menu = null; ui.typing = null; }
 function act(a, b, c) {
   const {S, E} = span(st), L = E - S;
   if (a === "start") { const why = diff(st, task.target); if (why.length) { rec.errors++; ui.toast = "Not yet: " + why.join("; ") + "."; } else finish("ok"); return; }
-  if (a === "undo" || a === "redo") {
-    const from = a === "undo" ? hist.past : hist.future, to = a === "undo" ? hist.future : hist.past;
-    if (!from.length) return; to.push(JSON.stringify(st)); st = JSON.parse(from.pop()); fix(null); closeAll(); return;
-  }
+  if (a === "undo" || a === "redo") { const from = a === "undo" ? hist.past : hist.future, to = a === "undo" ? hist.future : hist.past; if (!from.length) return; to.push(JSON.stringify(st)); st = JSON.parse(from.pop()); fix(null); closeAll(); return; }
   if (a === "cancel") { ui.toast = "Cancel closes the sheet. The task goes on: press Start when the run is set."; return; }
-  if (a === "close") { closeAll(); ui.placer = false; ui.sel = null; return; }
+  if (a === "close") { closeAll(); ui.placer = false; return; }
   if (a === "placer") { const was = ui.placer; closeAll(); ui.placer = !was; return; }
+  if (a === "dial") { const same = ui.dial && (ui.dial.f === b || (b === "len" && ui.dial.len)); closeAll(); if (!same) openDial(b); return; }
+  if (a === "typeit") { const f = ui.dial.f; ui.dial = null; ui.typing = f; ui.focus = f; return; }
   if (a === "cyc") {
     if (st.startAt == null && st.endKind === "len") { st.endKind = "at"; st.endAt = E; }
     else if (st.startAt == null) { st.startAt = Math.ceil(N / 30) * 30 + 30; st.endAt = st.startAt + L; }
     else { st.len = L; st.startAt = null; st.endKind = "len"; }
-    return;
+    closeAll(); return;
   }
-  if (a === "kp") { const same = ui.kp && ui.kp.f === b; closeAll(); ui.kp = same ? null : {f: b, kind: ["len", "restLen", "rhythm"].includes(b) || b[0] === "d" ? "min" : "time", buf: ""}; return; }
-  if (a === "key") {
-    if (b === "Done") return commitKp();
-    if (b === "⌫") { ui.kp.buf = ui.kp.buf.slice(0, -1); fix(null); return; }
-    if (ui.kp.buf.length < 4) ui.kp.buf += b; return;
-  }
-  if (a === "nk") { ui.nk = b; return; }
-  /* the pause words */
-  if (a === "add") { st.pauses.push({id: nid(), kind: "chime", rule: "half", val: 0, dur: ui.restLen}); return; }
+  if (a === "add") { st.pauses.push({id: nid(), kind: "chime", rule: "half", val: 0, dur: 5}); return; }
   if (a === "del") { st.pauses.splice(+b, 1); fix(null); return; }
   if (a === "kind") { const p = st.pauses[+b]; p.kind = p.kind === "rest" ? "chime" : "rest"; fix("k" + p.id); return; }
-  if (a === "where") { const was = ui.menu && ui.menu.of === "w" + b; closeAll(); if (!was) ui.menu = {of: "w" + b, title: "Where", items: [["halfway", "wh:" + b + ":half"], ["every 15 min", "wh:" + b + ":e15"], ["every… (minutes)", "wh:" + b + ":every"], ["at a time…", "wh:" + b + ":at"]]}; return; }
+  if (a === "where") { const was = ui.menu && ui.menu.of === "w" + b; closeAll(); if (!was) ui.menu = {of: "w" + b, title: "Where", items: [["halfway", "wh:" + b + ":half"], ["every … min", "wh:" + b + ":every"], ["at a time …", "wh:" + b + ":at"]]}; return; }
   if (a === "wh") {
-    ui.menu = null; const p = st.pauses[+b];
-    if (c === "half") { fix("w" + p.id); p.rule = "half"; } else if (c === "e15") { fix("w" + p.id); p.rule = "every"; p.val = 15; }
-    else { ui.kpRule = c; ui.kp = {f: "p" + b, kind: c === "at" ? "time" : "min", buf: ""}; }
+    const p = st.pauses[+b]; ui.menu = null; fix("w" + p.id);
+    if (c === "half") p.rule = "half"; else if (c === "every") { p.rule = "every"; p.val = 15; ui.focus = "ev" + b; } else { p.rule = "at"; p.val = Math.round(S + L / 2); ui.focus = "at" + b; }
     return;
   }
-  /* faces */
-  if (a === "sl") { const i = +b; if (i === 0) return; const k = st.pauses.findIndex(p => p.rule === "slice" && p.val === i); if (k >= 0) { st.pauses.splice(k, 1); fix(null); } else st.pauses.push({id: nid(), kind: ui.nk, rule: "slice", n: 24, val: i, dur: ui.restLen}); return; }
-  if (a === "tab") {
-    const i = +b; if (i === 0) return;
-    const k = st.pauses.findIndex(p => p.rule === "tab" && p.val === i);
-    if (k < 0) st.pauses.push({id: nid(), kind: "chime", rule: "tab", val: i});
-    else if (st.pauses[k].kind === "chime") st.pauses[k].kind = "rest";
-    else { st.pauses.splice(k, 1); fix(null); }
+  if (a === "fill") { const n = st.split; if (n > 1) { st.pauses = st.pauses.filter(p => !(p.rule === "frac" && p.kind === "chime")); for (let k = 1; k < n; k++) st.pauses.push({id: nid(), kind: "chime", rule: "frac", f: k / n}); } else ui.toast = "Split the run first."; return; }
+  if (a === "pre") {
+    cyclePreset(+b);
+    st.pauses = st.pauses.filter(p => !(p.rule === "frac" && p.kind === "chime" && p.preset));
+    for (let k = 1; k < st.preset; k++) st.pauses.push({id: nid(), kind: "chime", rule: "frac", f: k / st.preset, preset: true});
     return;
   }
-  if (a === "mk") {
-    const i = st.pauses.findIndex(q => q.id === ui.sel); ui.menu = null;
-    if (i >= 0) { if (b === "del") { st.pauses.splice(i, 1); fix(null); } else { st.pauses[i].kind = b; st.pauses[i].dur = ui.restLen; fix("mk" + ui.sel + "k"); } }
-    ui.sel = null; return;
-  }
-  if (a === "hr") { ui.clockHour = +b; return; }
-  if (a === "hrx") { ui.clockHour = null; return; }
-  /* pickers */
-  if (a === "gh") { minuteGrid(b, +c); return; }
-  if (a === "gm") { ui.grid = null; fix(b); st.endKind = "at"; st.endAt = nextAt(+c, S + 1); return; }
-  if (a === "gl") { ui.grid = null; fix("len"); st.endKind = "len"; st.len = +c; return; }
   /* Break Down Timer */
+  if (a === "bpre") { cyclePreset(+b); st.pauses = []; for (let k = 1; k < st.preset; k++) st.pauses.push({id: nid(), kind: "chime", rule: "slice", val: Math.round(k * 60 / st.preset)}); return; }
   if (a === "bm") { if (b === "at" && st.endKind !== "at") { st.endKind = "at"; st.endAt = E; } else if (b === "len" && st.endKind !== "len") { st.endKind = "len"; st.len = L; } return; }
-  if (a === "bc") { if (st.endKind === "len") lengthGrid("len"); else hourGrid("bdt"); return; }
-  if (a === "bsl") { const i = +b; const k = st.pauses.findIndex(p => p.val === i); if (k >= 0) { st.pauses.splice(k, 1); fix(null); } else if (i > 0) st.pauses.push({id: nid(), kind: "chime", rule: "slice", n: 60, val: i}); return; }
+  if (a === "bc") { if (st.endKind === "len") openDial("len", true); else openDial("endAt"); return; }
+  if (a === "bsl") { const i = +b; const k = st.pauses.findIndex(p => p.val === i); if (k >= 0) { st.pauses.splice(k, 1); fix(null); } else if (i > 0) st.pauses.push({id: nid(), kind: "chime", rule: "slice", val: i}); return; }
 }
 
 /* ---- side panel, results, gallery ---- */
@@ -581,29 +495,27 @@ document.getElementById("sheets").addEventListener("click", e => { const b = e.t
 document.getElementById("tasks").addEventListener("click", e => { const b = e.target.closest("[data-t]"); if (!b) return; taskId = b.dataset.t; rec = null; st = null; hist = {past: [], future: []}; side(); render(); tick(); });
 document.getElementById("begin").addEventListener("click", begin);
 document.getElementById("cant").addEventListener("click", () => { rec = rec || {taps: 0, keys: 0, drags: 0, errors: 0, fixes: 0, edited: {}, t0: performance.now()}; finish("cant"); });
-setInterval(() => { if (!rec) side(); }, 30000);   // the task list follows the clock
+setInterval(() => { if (!rec) side(); }, 30000);
 function table() {
-  const head = "<tr><th>Sheet</th>" + TASK_IDS.map(id => "<th>" + esc(makeTask(id, N).name) + "</th>").join("") + "<th>Taps 1–4<br>yours / est.</th><th>Est.</th><th>Total</th><th>Ease</th><th>Precision</th></tr>";
+  const head = "<tr><th>Sheet</th>" + TASK_IDS.map(id => "<th>" + esc(makeTask(id, N).name) + "</th>").join("") + "<th>Est.</th><th>Total</th><th>Ease</th><th>Precision</th></tr>";
   const rows = DATA.sheets.map(s => {
     const r = store.results[s.id] || {}, rt = store.ratings[s.id] || {};
     const cell = x => !x ? "—" : x.cant ? "can't" : x.taps + " + " + (x.keys || 0) + "k · " + x.secs + " s · " + x.errors + " · " + x.fixes;
-    const all4 = ["t1", "t2", "t3", "t4"].every(k => r[k] && !r[k].cant), mine = all4 ? r.t1.taps + r.t2.taps + r.t3.taps + r.t4.taps : "—";
     const sel = k => '<select data-r="' + s.id + ":" + k + '" aria-label="' + k + " for " + esc(s.label) + '"><option value="">–</option>' + [1, 2, 3, 4, 5].map(n => "<option" + (rt[k] == n ? " selected" : "") + ">" + n + "</option>").join("") + "</select>";
     const e = s.est;
-    return "<tr><td>" + esc(s.label) + "</td>" + TASK_IDS.map(id => "<td>" + cell(r[id]) + "</td>").join("") + "<td>" + mine + " / " + e.taps + "</td><td>" +
-      e.keyboards + " kb · " + e.drags + " drags · reach " + e.reach + "</td><td>" + e.total + (e.rank ? " (#" + e.rank + ")" : "") + "</td><td>" + sel("ease") + "</td><td>" + sel("precision") + "</td></tr>";
+    return "<tr><td>" + esc(s.label) + "</td>" + TASK_IDS.map(id => "<td>" + cell(r[id]) + "</td>").join("") + "<td>" + e.taps + " taps · " + e.keyboards + " kb · " + e.drags + " drags · reach " + e.reach +
+      "</td><td>" + e.total + (e.rank ? " (#" + e.rank + ")" : "") + "</td><td>" + sel("ease") + "</td><td>" + sel("precision") + "</td></tr>";
   }).join("");
   document.getElementById("res").innerHTML = head + rows;
 }
 document.getElementById("res").addEventListener("change", e => { const [id, k] = e.target.dataset.r.split(":"); (store.ratings[id] = store.ratings[id] || {})[k] = e.target.value ? +e.target.value : null; save(); });
 document.getElementById("exp").addEventListener("click", () => {
   const out = document.getElementById("out"); out.style.display = "block";
-  out.value = JSON.stringify({page: "pace-try T3b.4c", sheets: DATA.sheets.map(s => s.id), results: store.results, ratings: store.ratings}, null, 1);
+  out.value = JSON.stringify({page: "pace-try T3b.4d", sheets: DATA.sheets.map(s => s.id), results: store.results, ratings: store.ratings}, null, 1);
   out.select(); try { navigator.clipboard.writeText(out.value); } catch (e) {}
 });
 document.getElementById("clr").addEventListener("click", () => { if (confirm("Clear every recorded trial and rating on this page?")) { store = {results: {}, ratings: {}}; save(); table(); side(); } });
 document.getElementById("gal").innerHTML = DATA.imgs.map(i => '<figure><img alt="' + esc(i.caption) + '" src="' + i.src + '"><figcaption><b>' + esc(i.caption) + "</b><br>" + esc(i.note) + "</figcaption></figure>").join("");
-document.getElementById("gal2").innerHTML = DATA.places.map(p => '<figure><div class="two">' + p.srcs.map((src, i) => '<img alt="' + esc(p.caption) + (i ? ", Today" : ", running") + '" src="' + src + '">').join("") + '</div><figcaption><b>' + esc(p.caption) + "</b><br>" + esc(p.note) + "</figcaption></figure>").join("");
 side(); render(); table(); tick();
 </script>
 </body>

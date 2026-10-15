@@ -1,4 +1,4 @@
-r"""The drawings for the Paced timer trial page, as webp data URIs: T3b.4c's best options and its control, and T3b.4b's places.
+r"""The drawings for the Paced timer trial page, as webp data URIs: T3b.4d's best options and its control, and T3b.4b's places.
 
 Drawn through one kept-open headless browser (~/.claude/tools/headless_browser.py), never a cold launch per image.
 Writes docs/screens/t3/pace-imgs.json (gitignored): {"sheets": [{"v", "src"}], "places": [{"place", "elsewhere", "srcs"}]}.
@@ -16,7 +16,7 @@ from PIL import Image  # noqa: E402
 import t3_opt as M  # noqa: E402
 
 CACHE = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".cache-pace")
-SHOW = 8   # T3b.4c's best options drawn
+SHOW = 8   # T3b.4d's best options drawn
 
 
 def webp(html, name):
@@ -33,13 +33,13 @@ def key(v):
 
 def main():
     os.makedirs(CACHE, exist_ok=True)
-    rows, ok, _ = M.T.ranked("pace3")
+    rows, ok, _ = M.T.ranked("pace4")
     best = sorted((r for r in ok if not r["v"].get("control")), key=lambda r: r["total"])[:SHOW]
-    clock = min((r for r in ok if r["v"].get("placer") == "clock"), key=lambda r: r["total"])
+    typed = min((r for r in ok if r["v"].get("pauses") == "sentence" and r["v"].get("time") == "typed"), key=lambda r: r["total"])
     ctl = next(r for r in rows if r["v"].get("control"))
     sheets = []
-    for r in best + ([clock] if clock not in best else []) + [ctl]:
-        sheets.append({"v": r["v"], "src": webp(M.T.DRAW["pace3"](r["v"])[0], "p3-" + key(r["v"]))})
+    for r in best + ([typed] if typed not in best else []) + [ctl]:
+        sheets.append({"v": r["v"], "src": webp(M.T.DRAW["pace4"](r["v"])[0], "p4-" + key(r["v"]))})
         print(key(r["v"]))
     places = []   # T3b.4b: each place running, then Today while it runs
     for v in [dict(place=p, elsewhere=e) for p in M.PPLACE_SPACE["place"] for e in M.PPLACE_SPACE["elsewhere"]] + [{"place": "bdt", "elsewhere": "none", "control": True}]:
