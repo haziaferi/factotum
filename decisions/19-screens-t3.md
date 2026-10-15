@@ -1468,4 +1468,29 @@ Status (then): **T3b.1d and T3b.4e approved; T3b.4f scored (B and A + C with chi
 
 Drawing: `docs/screens/t3/pace6-where.png`.
 
-Status: **T3b.1d and T3b.4e approved; T3b.4f scored (B and A + C, evenly ↔ at a time), awaiting the owner's pick; T3b.4b scored.**
+Status (then): **T3b.1d and T3b.4e approved; T3b.4f scored (B and A + C, evenly ↔ at a time), awaiting the owner's pick; T3b.4b scored.**
+
+### T3b.4f approved: A + C (owner, 2026-10-15)
+
+**The Paced timer sheet's layout, approved:**
+- **Row 1:** "For / Until / From" (a fixed-width word that switches in place), then [− box +]. From and to sit on this one row.
+- **Row 2:** "with [− N +] chime(s) / rest(s) [− length +]". The kind word has a fixed width, and the length box is 72 dp with 14 px text.
+- **Row 3:** "evenly", switching in place to "at [− time +]". At a time, the count shows 1 with its steppers dimmed.
+- **Below:** the readout on one line (cut with "…"), then "Reset breaks" beside ↶ ↷ at 48 dp.
+- **Sizes:** steppers 32 dp; boxes fixed per kind (times 56, lengths 72, counts 40); times and lengths step 5 min, counts 1.
+- **Unchanged from T3b.4e:** time boxes open the dial (hours, then minutes; a length's hours outside and minutes inside).
+- **Taken off:** the ×, the fraction chips, the Where list and "+ break".
+
+**The trial page's approved sheet now carries it,** checked with taps that hit whatever is on top:
+- runs 1–4, both repeats, moving a break (evenly → at, +5) and Reset breaks are all correct on Start;
+- task 5 (a chime at a third) cannot be made here, as expected, since fractions were taken off;
+- nothing overflows the sheet in any state;
+- over a 15-tap walk, the tapped control never moves, and the only other move is the end box once, when Until becomes From.
+
+**Found on the way:**
+- the row "with − 1 + rest − 5 min +" ran 6 px over, so the kind word went to 44 dp and the gaps to 3 px;
+- the readout wrapped to two lines with many breaks and moved the rows above, so it now keeps one line.
+
+**What one clause cannot hold.** The sheet has one break clause: a spread, or one break at a time. A run with both (3 rests evenly plus one chime at 17:30) cannot be made on it. Whether that matters is the owner's to say.
+
+Status: **T3b.1d, T3b.4e and T3b.4f approved; T3b.4b scored (where it lives, pending).**
