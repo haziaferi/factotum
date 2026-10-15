@@ -1558,4 +1558,15 @@ Status (then): **T3b.1d, T3b.4e and T3b.4f approved (the rule repeats); T3b.4b s
 
 **T3b.4b is superseded by T3b.4g.**
 
-Status: **T3b.1d, T3b.4e and T3b.4f approved; T3b.4g scored, trial page built: awaiting the owner's trial and pick.**
+Status (then): **T3b.1d, T3b.4e and T3b.4f approved; T3b.4g scored, trial page built: awaiting the owner's trial and pick.**
+
+**The trial page, walked through as a user** (owner: "There's only a stop button and it does nothing when pressed. Try going through the HTML page yourself as a user."), at phone size with real clicks. Found and fixed:
+1. **The clock ran a minute a second,** so a 45-min run ended while a task was being read. It now runs at real speed, and the rest task starts 15 s before its rest ends.
+2. **On Today the only visible control was ■,** and on hold-to-stop sheets a tap did nothing, with no word why. The cards now show "›" (they open the running view), and a quick tap on a hold-to-stop shows "hold ■" on the button itself (a toast at the phone's foot sat below a phone's screen).
+3. **The task text disappeared once Begin was pressed.** It now stays in the line above the phone.
+4. **Done said nothing.** It now says "✓ Passed: N taps, X s" and moves to the next task not yet done on that sheet.
+5. **A run that ended showed 0:00.** It now says "done".
+6. **A long press could be taken by the phone's own menu.** The hold buttons now refuse it (touch-action none, no context menu, pointercancel handled).
+7. **The control said "a 5-min rest",** but Break Down Timer has breaks, not rests. It now says "a break".
+
+Status: **T3b.1d, T3b.4e and T3b.4f approved; T3b.4g scored, trial page fixed after a user walk-through: awaiting the owner's trial and pick.**
