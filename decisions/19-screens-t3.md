@@ -1388,4 +1388,28 @@ Status (then): **T3b.1d and T3b.4e approved; T3b.4b scored (where it lives, pend
 
 The comparison drawing is `docs/screens/t3/pace6-compare.png`: both layouts in three states.
 
-Status: **T3b.1d and T3b.4e approved; T3b.4f (the sentence's layout) scored, awaiting the owner's pick; T3b.4b scored.**
+Status (then): **T3b.1d and T3b.4e approved; T3b.4f (the sentence's layout) scored, awaiting the owner's pick; T3b.4b scored.**
+
+**Follow-up (owner, 2026-10-15):** "There is a lot of empty space between words and buttons, 44 dp might still be too big. Try 32 dp", then "Is there a way to fit From-to in the same row? ... can [the blank space] be addressed regardless of button size (fixed at 32 dp for now)?"
+
+**Added:**
+- the stepper size as a dimension (44 / 32 dp);
+- a third layout, **tight**: one part per line, each word right beside its controls, the For / Until / From word a fixed width (52 dp, it changes when tapped), the boxes fitted to their kind and fixed (times 56, lengths 84, counts 40), and From and to on one row (339 px of the sheet's 348).
+
+**Found on the way:**
+- the stepper group's class name clashed with a style used elsewhere in the drawings and padded each group by 28 px; it is renamed;
+- the count box's class drew it grey; it is renamed too.
+
+| Layout, stepper | Tapped control moves | Others move | Height | Reach |
+|---|---|---|---|---|
+| tight, 32 | **0** | 446 px (the end box once, when Until becomes From) | 259 px | 2.63 |
+| tight, 44 | **0** | 518 px | 259 px | 2.25 |
+| lines, 32 | **0** | **0** | 311 px | 2.70 |
+| flow, 32 | 182 px | 3351 px | 219 px | 2.57 |
+| control (flow, 48) | 128 px | 591 px | 258 px | 1.96 |
+
+**What the tight layout's movement is.** Nothing moves while a stepper or a word is tapped. The end box moves once, when Until becomes From: the start box takes its place, and the end box goes beside "to".
+
+Drawing: `docs/screens/t3/pace6-tight-32.png`.
+
+Status: **T3b.1d and T3b.4e approved; T3b.4f scored (tight, 32 dp drawn), awaiting the owner's pick; T3b.4b scored.**

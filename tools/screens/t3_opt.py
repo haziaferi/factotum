@@ -3027,7 +3027,9 @@ def score_pace5(v):
   boxes nor the tappable words. I would also consider having each part of the sentence on a different line, to avoid it
   growing unexpectedly and breaking while tapping. Leave out all other options right now and try scoring these two."
   layout   flow (the sentence wraps where it must, as the When sentence does) / lines (one part per line: a word column
-           and a fixed column of [-][box][+], so a value growing cannot move the others)
+           and a fixed column of [-][box][+], so a value growing cannot move the others) / tight (one part per line, each
+           word right beside its controls, boxes fitted to their kind, From and to on one row; owner, 2026-10-15: "Is
+           there a way to fit From-to in the same row? ... a lot of blank space between words and buttons")
   Steppers are the boxes' height (44 dp) in both. Control: the approved sheet as it was, flowing, with 48 dp steppers.
   Measured in the browser over a walk of states, each one tap from the last (the + pressed, a word tapped): a length 45 min
   -> 50 min -> 1 h 5 min; a count 1 -> 9 -> 10; a chime -> rests of 5 min -> 15 min; For -> Until -> From...to.
@@ -3035,7 +3037,7 @@ def score_pace5(v):
   moves, summed over the walk. Space: the foot's height at its tallest. Reach: to the steppers. Consistency: the When
   sentence flows. Gate: a stepper no taller than its box (owner).
 """
-PACE6_SPACE = {"layout": ["flow", "lines"]}
+PACE6_SPACE = {"layout": ["flow", "lines", "tight"], "stepper": [44, 32]}   # 32 dp: "a lot of empty space between words and buttons" (owner, 2026-10-15)
 P6_STATES = [   # (mode, run text(s), count, kind, rest length, the control the step taps)
     ("For", ["45 min"], 1, "chime", None, None),
     ("For", ["50 min"], 1, "chime", None, "Step len +"),
@@ -3050,17 +3052,23 @@ P6_STATES = [   # (mode, run text(s), count, kind, rest length, the control the 
 P6_CSS = """
 .p6{font-size:18px;line-height:2.3}.p6 .w{border-bottom:2px dotted var(--dim);display:inline-block;min-height:48px;line-height:48px;padding:0 2px}
 .p6 .bx{display:inline-block;min-width:56px;height:44px;line-height:44px;padding:0 8px;border-radius:10px;box-shadow:inset 0 0 0 1.5px var(--dim);text-align:center;font-size:16px;vertical-align:middle;white-space:nowrap}
-.p6 .st{display:inline-grid;place-items:center;width:44px;height:44px;font-size:22px;vertical-align:middle}.p6.big .st{width:48px;height:48px}
-.p6 .grp{display:inline-flex;align-items:center;white-space:nowrap}
+.p6 .st{display:inline-grid;place-items:center;width:44px;height:44px;font-size:22px;vertical-align:middle}.p6.big .st{width:48px;height:48px}.p6.s32 .st{width:32px;height:32px;font-size:20px}
+.p6.lines.s32 .row{grid-template-columns:84px 1fr}
+.p6 .sg{display:inline-flex;align-items:center;white-space:nowrap}
 .p6.lines{line-height:normal}.p6.lines .row{display:grid;grid-template-columns:96px 1fr;align-items:center;min-height:52px}
-.p6.lines .row .grp{justify-self:start}.p6 .sm{font-size:13px;color:var(--dim);margin-left:4px}
-.p6.lines .bx{width:104px;padding:0}.p6.lines .bx.n{width:56px}.p6.lines .row.idle{visibility:hidden}
+.p6.lines .row .sg{justify-self:start}.p6 .sm{font-size:13px;color:var(--dim);margin-left:4px}
+.p6.lines .bx{width:104px;padding:0}.p6.lines .bx.bc{width:56px}.p6.lines .row.idle{visibility:hidden}
+.p6.tight{line-height:normal}.p6.tight .row{display:flex;align-items:center;gap:6px;min-height:52px;white-space:nowrap}
+.p6.tight .w.m{min-width:52px}.p6.tight .bx{min-width:0;padding:0;font-size:15px}.p6.tight .bt{width:56px}.p6.tight .bl{width:84px}.p6.tight .bx.bc{width:40px}
 """
 
 
+P6_BOX = {"len": "bl", "rest": "bl", "start": "bt", "end": "bt", "n": "bc"}   # fitted to the kind's longest value: a length, a time, a count
+
+
 def p6_group(name, text, big=False):
-    return ('<span class="grp"><span class="st" data-tap="Step %s -">−</span><span class="bx" data-tap="Box %s">%s</span>'
-            '<span class="st" data-tap="Step %s +">+</span></span>') % (name, name, text, name)
+    return ('<span class="sg"><span class="st" data-tap="Step %s -">−</span><span class="bx %s" data-tap="Box %s">%s</span>'
+            '<span class="st" data-tap="Step %s +">+</span></span>') % (name, P6_BOX[name], name, text, name)
 
 
 def p6_sentence(v, state):
@@ -3083,9 +3091,15 @@ def p6_sentence(v, state):
                 rows.append('<div class="row">%s<span>%s</span></div>' % (word, first))
                 rows.append('<div class="row%s"><span>to</span>%s</div>' % ("" if mode == "From" else " idle", p6_group("end", runs[1] if mode == "From" else "")))
                 continue
-            rows.append('<div class="row">%s<span>%s</span></div>' % (word, ctl.replace('<span class="bx" data-tap="Box n">', '<span class="bx n" data-tap="Box n">')))
-        return '<div class="p6 lines">%s</div>' % "".join(rows)
-    return '<div class="p6 flow%s">%s</div>' % (" big" if big else "", " ".join("%s %s" % (w, c) for w, c in parts))
+            rows.append('<div class="row">%s<span>%s</span></div>' % (word, ctl))
+        return '<div class="p6 lines%s">%s</div>' % (" s32" if v.get("stepper") == 32 else "", "".join(rows))
+    if v["layout"] == "tight" and not big:
+        # one part per line, each word beside its controls; the mode word a fixed width (it changes when tapped), the
+        # boxes fitted to their kind and fixed, From and to on one row (no reserved row)
+        rows = ['<div class="row">%s%s</div>' % (parts[0][0].replace('class="w"', 'class="w m"'), run.replace(" <span>to</span> ", "<span>to</span>"))]
+        rows += ['<div class="row"><span>%s</span>%s</div>' % (w, c) if not w.startswith("<") else '<div class="row">%s%s</div>' % (w, c) for w, c in parts[1:]]
+        return '<div class="p6 tight%s">%s</div>' % (" s32" if v.get("stepper") == 32 else "", "".join(rows))
+    return '<div class="p6 flow%s%s">%s</div>' % (" big" if big else "", " s32" if v.get("stepper") == 32 else "", " ".join("%s %s" % (w, c) for w, c in parts))
 
 
 def pace6_phone(v, state=None):
@@ -3105,7 +3119,7 @@ P6_JS = ("(function(){var o={},f=document.querySelector('[data-foot]').getBoundi
 
 def score_pace6(v):
     ctl = v.get("control")
-    probes = [T.probe(p6doc(pace6_phone(v, s)), "t3-pace6-%s-%d" % ("ctl" if ctl else v["layout"], i), P6_JS) for i, s in enumerate(P6_STATES)]
+    probes = [T.probe(p6doc(pace6_phone(v, s)), "t3-pace6-%s-%s-%d" % ("ctl" if ctl else v["layout"], v.get("stepper", 48), i), P6_JS) for i, s in enumerate(P6_STATES)]
     tapped, others, worst = 0.0, 0.0, 0.0
     for prev, cur, s in zip(probes, probes[1:], P6_STATES[1:]):
         for name, (x, y, w, h) in cur["t"].items():
@@ -3155,7 +3169,7 @@ T.OUT = os.path.join(os.path.dirname(M2.T.OUT), "t3")
 # T3.1 "habits" (presence, the first scoring) is kept in t3-habits-v1.json and in the code above; T3a replaced it (owner, 2026-10-13)
 T.SPACES = {"pace6": PACE6_SPACE, "pace5": PACE5_SPACE, "pace4": PACE4_SPACE, "pace3": PACE3_SPACE, "paceplace": PPLACE_SPACE, "pace": PACE_SPACE, "measure3": MEAS3_SPACE, "acts": ACTS_SPACE, "measure2": MEAS2_SPACE, "measure": MEAS_SPACE, "trackers": TRK_SPACE, "basics": BASICS_SPACE, "addhabit": ADD_SPACE, "routines": ROUT_SPACE, "addsent": SENT_SPACE, "hsheet": HSHEET_SPACE, "premise": PREMISE_SPACE, "habits2": H2_SPACE}
 T.SCORERS = {"pace6": score_pace6, "pace5": score_pace5, "pace4": score_pace4, "pace3": score_pace3, "paceplace": score_paceplace, "pace": score_pace, "measure3": score_measure3, "acts": score_acts, "measure2": score_measure2, "measure": score_measure, "trackers": score_trackers, "basics": score_basics, "addhabit": score_addhabit, "routines": score_routines, "addsent": score_addsent, "hsheet": score_hsheet, "premise": score_premise, "habits2": score_habits2}
-T.CONTROLS = {"pace6": ({"layout": "flow48", "control": True}, "the approved sheet as it was: the sentence flowing, 48 dp steppers taller than their boxes"),
+T.CONTROLS = {"pace6": ({"layout": "flow48", "stepper": 48, "control": True}, "the approved sheet as it was: the sentence flowing, 48 dp steppers taller than their boxes"),
               "pace5": ({k: "bdt" for k in PACE5_SPACE} | {"control": True}, "Break Down Timer as it is, with its fraction presets: the clock picker; 60 slices; no later start, no rests"),
               "pace4": ({k: "bdt" for k in PACE4_SPACE} | {"control": True}, "Break Down Timer as it is, with its fraction presets (< >): the clock picker for the length; 60 slices; no later start, no rests"),
               "pace3": ({"run": "bdt", "placer": "bdt", "exact": "bdt", "rhythm": "bdt", "face": "bdt", "control": True}, "Break Down Timer as it is: the clock picker for the length, 60 slices to tap; no later start, no rests"),
