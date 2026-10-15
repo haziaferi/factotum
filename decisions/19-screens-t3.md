@@ -1111,4 +1111,91 @@ Status (then): **T3b.1d approved; T3b.4 awaiting the owner's trial and pick; T3b
 - The placers lost the most, because of the extra tap.
 - The trial page's four sheets are now sentence · sentence, switch · sentence, fields · sentence and sentence · line + presets. The page gained the For | Until | From…to switch.
 
-Status: **T3b.1d approved; T3b.4 (When pattern) awaiting the owner's trial and pick; T3b.4b scored.**
+Status (then): **T3b.1d approved; T3b.4 (When pattern) awaiting the owner's trial and pick; T3b.4b scored.**
+
+### T3b.4c The Paced timer sheet around a clock face (owner, 2026-10-15)
+
+> "I would like to avoid few fixed presets and many chips to display time, rather, the round clock-face could be used instead, as a more intuitive option. … the circle in Break Down Timer lets the user pick breaks by selecting the slices on the screen, regardless of presets. Are there other real world screen examples that could inform our choices for this?"
+
+**What T3b.4 taught about taps:** the saving came from a repeating rule ("every 15 min" places 9 chimes in 2 taps), not from presets. The ring lost on target size (12.6 dp slices), not on taps.
+
+**References** (captured 2026-10-15, geometry only, `_screens-sources/t3/ref2/`; two captures holding the owner's own alarms and timers were deleted unread):
+
+| App | How a run and its pauses are set | Taken |
+|---|---|---|
+| Break Down Timer (installed) | the ring is the run, 60 slices; a tap places a break | slices 14 dp at the rim, 10 dp mid-depth: tapping needs fewer, larger slices |
+| SimpleReminder (installed) | Android's two-ring 24-hour dial (224 dp, 40 dp selector); the minute dial labelled every 5, dragged to any minute; a keyboard switch | the drag ring; the When dial's own pattern |
+| Time Planner (installed) | start and end boxes (typed, a dial switch) over a two-handle range slider across 24 h | the timeline's two handles, with boxes for exactness; 0.2 dp a minute across a day, so the window must fit the run |
+| Zazen (installed for this, MIT, 2.5 MB) | a length stepper; one interval bell per dialog on a 1-minute slider, with its sound; a typed repeating bell | a pause's kind chosen with it; a repeat landing on the end skipped |
+| Goodtime (installed for this, 4.5 MB) | focus 25, break 5, long break 15, sessions 4 as typed boxes; gestures on the running timer | rhythm-first input; break time earned in stopwatch mode |
+| Meditation, nyxkn (installed for this, 19.4 MB) | length from a list; one repeating interval in settings | the minimum |
+| OnePlus Clock | wheels; saved named timers | the presets the owner wants to avoid |
+
+**The owner's axes:** customization; clarity, legibility and ease (target size as a gate); consistency with When (at least partial); fewest taps; overview at a glance; recovery; long runs; the input type and order.
+
+**The space** (part `pace3`, 82 options):
+- **run:** typed in the When sentence's boxes, or dragged: the arc's ends on the face, a run ring's length swept, the timeline's two handles;
+- **placer:** the real clock face (the When dial) / a ring of 24 slices / a drag ring / segment tabs / a timeline / the sentence;
+- **exact:** the placer alone, or with the pauses also as words with typed boxes (each step takes the cheaper way);
+- **rhythm:** none, or one rhythm word ("every [15] min", "rest [10] every [60] min");
+- **face:** a chooser opened by the pauses word (the When pattern), or shown while the run has pauses. This was added after the control reached the front through Recovery alone (owner).
+
+**The walk:**
+- runs: (1) 25 min, a chime halfway; (2) until 15:30, a chime every 15 min; (3) from 14:00 to 15:30, a 5-min rest in the middle; (4) 4 h, a 10-min rest every hour;
+- recovery: move run 1's chime 5 min, then delete it.
+
+**How each axis is measured:**
+
+| Axis | Measured as |
+|---|---|
+| Taps | taps and drags over runs 1–4 |
+| Customization | impossible steps; the finest step on a 150-min run |
+| Ease | keyboards, drags, mean reach |
+| Clarity | controls in view at rest; a closed chooser counts none |
+| Consistency | the run like When; the When pattern |
+| Overview | the share of the face a run takes |
+| Recovery | taps to move a pause, then delete it |
+| Long runs | run 4 possible; its step |
+| Order | changes of input type (tap, drag, typing) |
+
+**Order is measured by switches alone.** Every sheet takes a rest's kind and length before its place, so counting inversions would give every option the same number.
+
+**Fixes on the way:**
+- **The walk had left out the tap that opens a chooser face.** It now counts one per task that uses the face.
+- **The control kept the front through measures its impossible steps left at nothing.** An impossible step now counts the worst any sheet needs for one step on every measure: 9 taps, 2 keyboards, 9 drags, 3 switches.
+- **Clarity first counted only the drawing's tagged targets.** It now counts each face's own slices, tabs, ring or line.
+- **Drawing defects** that gated options were fixed: a 12 dp "+", the segment's box wrapping, and the control drawn with the wrong styles.
+
+**Result:**
+
+| # | Option (best of each placer) | Rank sum | Taps | Kb | Drags | Recovery |
+|---|---|---|---|---|---|---|
+| 1 | timeline · run dragged on two handles · words beside · face shown | 435 | 16 | 1 | 10 | 3 |
+| 2 | ring of 24 slices · typed · words · chooser | 451 | 20 | 6 | 0 | 4 |
+| 7 | segment tabs · typed · words · chooser | 472 | 19 | 7 | 0 | 4 |
+| 8 | drag ring · typed · words · chooser | 473.5 | 20 | 6 | 3 | 4 |
+| 14 | the sentence, with the rhythm word | 488.5 | 17 | 7 | 0 | 4 |
+| 34 | real clock face · arc dragged · words · rhythm word · chooser | 536 | 18 | 2 | 5 | 4 |
+| — | control (Break Down Timer) | 805.5 | 50, 3 steps impossible | 6 | 27 | 3 |
+
+**Reading the result:**
+- **The best placers all win with the words beside them.** The words make the exact steps (every 15 min, a 10-min rest, a later start), and the face gives the overview and the quick taps.
+- **The real clock face loses** on overview (a 25-min run is 3.5% of a 12-hour face), on reach, and on its 12 hour targets.
+- **A shown face** wins Recovery and Order, at the When pattern's cost.
+
+**The trial page** `docs/screens/t3/pace-try.html` (rebuilt):
+- **Sheets:** the best of the four top placers, the real clock face, and the control, all working.
+- **Times:** every task follows the time Begin is pressed. Runs 1–4, repeat (whole run, interval only), moving a pause and removing one.
+- **Counts:** taps, keystrokes and drags counted apart.
+- **Mechanics, from the references:**
+  - the timeline's window fits the run, holds still during a drag, and grows when an end is held at its edge;
+  - a dragged end snaps to the nearer of the clock's and the run's 5 minutes;
+  - tabs cover the whole run, the last one shorter;
+  - the clock face places a pause by hour, then minute (drag or tap).
+- **Checked:** 19 scripted trials, each correct on Start; Break Down Timer fails run 3, as it must.
+
+**T3b.4 is superseded by T3b.4c.** Its sentence and the When pattern live on in it.
+
+Samples left on the phone: Zazen, Goodtime and Meditation (installed for this); one empty day schedule in Time Planner. To be removed when T3's survey ends, with the others.
+
+Status: **T3b.1d approved; T3b.4c scored, trial page rebuilt: awaiting the owner's trial and pick; T3b.4b scored.**

@@ -4,6 +4,7 @@
     python tools/screens/t3_opt.py page_html scores       t3-options.html, t3-scores.html (fails if a control wins)
 
 Parts:
+  pace3    T3b.4c the Paced timer sheet around a clock face (owner, 2026-10-15)
   paceplace T3b.4b where the Paced timer lives, set and running (owner, 2026-10-14)
   pace     T3b.4 the Paced timer sheet, re-compared with Break Down Timer (owner, 2026-10-14)
   measure3 T3b.1d the Measuring list, trackers and activities as one (owner, 2026-10-14), the full space at 12 and 40 items
@@ -2308,6 +2309,315 @@ def score_paceplace(v):
     return {"app_blocked": blocked, "reach_taps": reach, "return_taps": ret, "seen_elsewhere": seen, "small": sorted(set(gate))}
 
 
+# ==== Part pace3: T3b.4c the Paced timer sheet rethought around a clock face (owner, 2026-10-15) ==========================================
+"""
+  The owner: avoid few fixed presets and many chips; a round clock face is more intuitive; Break Down Timer's circle lets
+  the user pick breaks by tapping slices, whatever the presets. References captured 2026-10-15 (geometry only,
+  _screens-sources/t3/ref2/): Break Down Timer (60 slices, 14 dp at the rim, 10 dp mid-depth), SimpleReminder (Android's
+  two-ring dial, a minute dial dragged to any minute under a 40 dp disc, a keyboard switch), Time Planner (start and end
+  boxes over a two-handle range slider), Zazen (one interval bell per dialog on a 1-minute slider; a typed repeating
+  bell; a repeat landing on the end skipped), Goodtime (focus, break, long break and sessions as typed boxes: a rhythm),
+  Meditation (one repeating interval), OnePlus Clock (wheels and saved timers).
+  Axes (owner): customization; clarity, legibility and ease (target size a gate); consistency with When (at least
+  partial); fewest taps; overview at a glance; recovery; long runs; the input type and order (run, then places or
+  fractions, then pause lengths).
+  run      typed (the When sentence's boxes) / dragged (the arc's ends on the face; a run ring's length swept as a kitchen
+           dial; the line's two handles, as Time Planner's)
+  placer   clock (the When dial: the run an arc on the real 12-hour face, a pause placed hour then minute), ring24 (the
+           ring is the run, 24 slices: >= 24 dp at mid-depth), dragring (the ring is the run, a press dragged to any
+           minute with a readout), tabs (fixed-step tabs: 5 min up to 2 h, 15 min beyond; one tap a chime, two a rest
+           of the tab's length), line (the run as a bar, a press dragged to any minute), sentence (words only)
+  exact    alone / sentence (the pauses also as words with typed boxes: each step takes the cheaper way)
+  rhythm   none / word ("every [15] min", "rest [10] every [60] min" as one word of the sentence)
+  face     chooser (the When pattern: the pauses word opens the face; the sheet grows only when needed) / shown (the face
+           stays up while the run has pauses, as Break Down Timer's ring: moves and deletes need no opening; owner, 2026-10-15,
+           after the control reached the front through Recovery alone)
+  The walk (13:00): (1) 25 min, a chime halfway; (2) until 15:30, a chime every 15 min; (3) from 14:00 to 15:30, a 5-min
+  rest in the middle; (4) a long run, 4 h, a 10-min rest every hour; recovery: move run 1's chime 5 min, then delete it.
+  A step a sheet cannot make costs 9 actions and counts as impossible. A drag snaps to 5 min on a face or line when no
+  readout is offered; with one, to the minute. A pause is right within half a minute.
+"""
+PACE3_SPACE = {"run": ["typed", "dragged"], "placer": ["clock", "ring24", "dragring", "tabs", "line", "sentence"],
+               "exact": ["alone", "sentence"], "rhythm": ["none", "word"], "face": ["chooser", "shown"]}
+IMPOSSIBLE = 9
+IMPOSSIBLE_SWITCHES = 3
+IMPOSSIBLE_KEYBOARDS = 2   # the most any sheet types for one step (run 3's start and end)
+IMPOSSIBLE_DRAGS = 9   # the most any sheet drags for one step (run 2's nine chimes on a line)
+# a step that cannot be made counts the worst any sheet needs for one step, on every measure (2026-10-15: the control
+# kept the front through measures its impossible steps left at nothing)
+P3_RUNS = [(780, 805), (780, 930), (840, 930), (780, 1020)]   # runs 1-4, minutes of the day
+
+
+def p3_valid(v):
+    if v.get("control"):
+        return True
+    if v["placer"] == "sentence" and (v["run"] == "dragged" or v["exact"] == "sentence" or v["face"] == "shown"):
+        return False   # nothing to drag on; the sentence twice; no face to show
+    return True
+
+
+def p3_run(v, task):
+    """The run's actions: t tap, d drag, k a keyboard entry; None if it cannot be made this way."""
+    typed = [["t", "k"], ["t", "t", "k"], ["t", "t", "t", "k", "t", "k"], ["t", "k"]][task]
+    if v["run"] == "typed":
+        return typed
+    pl = v["placer"]
+    if pl in ("clock", "line"):
+        drag = [["d"], ["d"], ["d", "d"], ["d"]][task]
+    else:   # a run ring: the length swept; a later start cannot be dragged
+        drag = None if task == 2 else ["d"]
+    if v["exact"] == "sentence" and (drag is None or len(drag) > len(typed)):
+        return typed
+    return drag
+
+
+def p3_tabstep(length):
+    return 5 if length <= 120 else 15
+
+
+def p3_place_one(v, S, E, at):
+    """One pause at a minute, by the placer."""
+    pl = v["placer"]
+    if pl == "clock":
+        return ["t", "t"]   # the hour, then the minute
+    if pl in ("dragring", "line"):
+        return ["d"]
+    if pl == "ring24":
+        step = (E - S) / 24.0
+        k = round((at - S) / step)
+        return ["t"] if abs(S + k * step - at) <= 0.5 else None
+    if pl == "tabs":
+        step = p3_tabstep(E - S)
+        return ["t"] if abs((at - S) % step) <= 0.5 or abs(step - (at - S) % step) <= 0.5 else None
+    return None
+
+
+def p3_sentence_pauses(task):
+    """The pause words: add, kind, length box, where (halfway is the default place)."""
+    return [["t"], ["t", "t", "t"], ["t", "t"], ["t", "t", "t", "k", "t", "t", "k"]][task]
+
+
+def p3_pauses(v, task):
+    """The pauses' actions and the way they are made: placer, sentence (the words) or rhythm (the rhythm word)."""
+    S, E = P3_RUNS[task]
+    pl = v["placer"]
+    word = v["rhythm"] == "word"
+    if pl == "sentence":
+        if word and task == 3:
+            return ["t", "t", "k", "t", "k"], "rhythm"   # "rest [10] every [60] min"
+        return p3_sentence_pauses(task), "sentence"
+    via = "placer"
+    # the placer: run 1 one chime; run 2 nine chimes; run 3 a rest (the kind switch first); run 4 three 10-min rests
+    if task == 0:
+        p = p3_place_one(v, S, E, (S + E) / 2.0)
+    elif task == 1:
+        each = [p3_place_one(v, S, E, S + 15 * i) for i in range(1, 10)]
+        p = None if None in each else sum(each, [])
+        if word:
+            p, via = ["t", "t", "t"], "rhythm"   # "every [15] min": add, the word, its default
+    elif task == 2:
+        one = p3_place_one(v, S, E, 885)
+        p = None if one is None else (["t", "t"] if pl == "tabs" else ["t"] + one)   # tabs: two taps make a rest
+    else:
+        each = [p3_place_one(v, S, E, S + 60 * i) for i in range(1, 4)]
+        length = ["t", "t", "k"] if pl != "tabs" else None   # the Rest switch and its length box; a tab's rest is the tab
+        p = None if (None in each or length is None) else length + sum(each, [])
+        if word:
+            p, via = ["t", "t", "k", "t", "k"], "rhythm"
+    if via == "placer" and v["face"] == "chooser":
+        p = None if p is None else ["t"] + p   # the placer is a chooser: the pauses word opens it (the When pattern)
+    if v["exact"] == "sentence":
+        alt = p3_sentence_pauses(task)
+        if p is None or len(alt) < len(p):
+            p, via = alt, "sentence"
+    return p, via
+
+
+def p3_recover(v):
+    """Run 1's chime moved 5 min, then deleted."""
+    pl = v["placer"]
+    sent = ["t", "t", "k", "t"]
+    way = {"clock": ["t", "d", "t", "t"], "ring24": ["t", "t", "t"], "dragring": ["d", "t", "t"], "line": ["d", "t", "t"],
+           "tabs": None, "sentence": sent}[pl]
+    if way is not None and pl != "sentence" and v["face"] == "chooser":
+        way = ["t"] + way   # open the placer
+    if v["exact"] == "sentence" and (way is None or len(sent) < len(way)):
+        way = sent
+    return way
+
+
+def p3_switches(acts):
+    """Changes of input type along a task: tap, drag, typing."""
+    return sum(1 for a, b in zip(acts, acts[1:]) if a != b)
+
+
+def p3_walk(v):
+    out = {"taps": 0, "keyboards": 0, "drags": 0, "impossible": 0, "switches": 0}
+    for task in range(4):
+        r, (p, via) = p3_run(v, task), p3_pauses(v, task)
+        if r is not None and "d" in r and v["placer"] != "sentence" and v["face"] == "chooser":
+            if via == "placer" and p is not None:
+                p = p[1:]   # the face is open already
+            r = ["t"] + r   # the run dragged on the face: the face opened first
+        for part in (r, p):
+            if part is None:
+                out["impossible"] += 1
+                out["taps"] += IMPOSSIBLE
+                out["switches"] += IMPOSSIBLE_SWITCHES   # a step that cannot be made is never the smooth one
+                out["keyboards"] += IMPOSSIBLE_KEYBOARDS
+                out["drags"] += IMPOSSIBLE_DRAGS
+            else:
+                out["taps"] += sum(1 for a in part if a in "td")
+                out["drags"] += part.count("d")
+                out["keyboards"] += part.count("k")
+        out["switches"] += p3_switches((r or []) + (p or []))
+    # the owner's order (the run, then the places, then the pauses' length): every sheet here takes a rest's kind and
+    # length before its place (the Rest switch, the rest word, the rhythm word alike), so it does not separate them;
+    # Order is measured by the changes of input type
+    return out
+
+
+def p3_step(v, length):
+    """The finest step a pause can be placed at on a run of this length, in minutes."""
+    pl = v["placer"]
+    if pl == "ring24":
+        s = length / 24.0
+    elif pl == "tabs":
+        s = p3_tabstep(length)
+    else:
+        s = 1
+    return 1 if v["exact"] == "sentence" else s
+
+
+PACE3_CSS = """
+.psheet{position:absolute;left:0;right:0;bottom:0;background:var(--zone);border-radius:20px 20px 0 0;padding:4px 12px 16px;box-shadow:0 -8px 24px rgba(0,0,0,.14)}
+.ptop{display:flex;justify-content:space-between;align-items:center;min-height:48px}.ptop b{font-size:15px}
+.ptap{min-height:48px;min-width:48px;display:inline-flex;align-items:center;justify-content:center;padding:0 4px}
+.parea{padding-bottom:6px}.pfoot{border-top:1px solid var(--zone2);padding-top:2px}
+.psent{font-size:18px;line-height:2.3}.ptok{border-bottom:2px dotted var(--dim);padding:0 2px;min-height:48px;display:inline-block;line-height:48px}
+.ptok.open{border-bottom:2px solid var(--ink)}
+.pbox{display:inline-block;min-width:56px;min-height:44px;line-height:44px;padding:0 8px;border-radius:10px;box-shadow:inset 0 0 0 1.5px var(--dim);text-align:center;font-size:16px;margin:0 2px}
+.plist{font-size:13px;color:var(--dim);display:flex;justify-content:space-between;align-items:center}
+.seg{display:flex;border-radius:24px;box-shadow:inset 0 0 0 1px var(--dim);overflow:hidden;margin:6px 0}
+.seg>span{flex:1;min-height:48px;display:flex;align-items:center;justify-content:center;gap:4px;font-size:14px}.seg>span.on{background:var(--zone2);font-weight:600}.seg .pbox{min-width:40px;min-height:36px;line-height:36px}
+.pface{display:block;margin:2px auto}
+.pline{position:relative;height:60px;margin:8px 4px}.pline .bar{position:absolute;left:0;right:0;top:20px;height:8px;border-radius:4px;background:var(--zone2)}
+.pline .mk{position:absolute;top:0;width:44px;height:48px;margin-left:-22px;display:grid;place-items:center}.pline .mk i{width:12px;height:28px;border-radius:4px;background:var(--ink)}
+.pline .lab{position:absolute;top:46px;font-size:11px;color:var(--dim)}
+"""
+
+
+def p3doc(html):
+    return doc(html, "light", CSS + PACE3_CSS)
+
+
+def p3_face(v):
+    """The placer drawn open: run 2 (13:00-15:30, a chime at 13:15 and 13:30) on each face."""
+    import math as _m
+    pl = v["placer"]
+    if pl == "line":
+        return ('<div class="pline"><span class="bar"></span><span class="mk" style="left:10%" data-tap="Mark 1"><i></i></span><span class="mk" style="left:20%" data-tap="Mark 2"><i></i></span>'
+                '<span class="lab" style="left:0">13:00</span><span class="lab" style="left:50%;transform:translateX(-50%)">14:15</span><span class="lab" style="right:0">15:30</span></div>')
+    cx = cy = 130
+    out = ['<svg class="pface" width="260" height="260" viewBox="0 0 260 260" data-face="%s">' % pl]
+    if pl == "clock":   # the When dial: hours on the rim, the run an arc from 13:00 to 15:30 (on a 12-hour face, 1:00 to 3:30)
+        out.append('<circle cx="130" cy="130" r="122" fill="var(--zone2)"/>')
+        a0, a1 = 2 * _m.pi * (60 / 720.0) - _m.pi / 2, 2 * _m.pi * (210 / 720.0) - _m.pi / 2
+        r = 104
+        out.append('<path d="M%.1f %.1f A%d %d 0 0 1 %.1f %.1f" stroke="var(--ink)" stroke-width="14" fill="none" stroke-linecap="round"/>' % (
+            cx + r * _m.cos(a0), cy + r * _m.sin(a0), r, r, cx + r * _m.cos(a1), cy + r * _m.sin(a1)))
+        for h in range(12):
+            a = 2 * _m.pi * h / 12 - _m.pi / 2
+            out.append('<g data-tap="Hour %d"><circle cx="%.1f" cy="%.1f" r="20" fill="transparent"/><text x="%.1f" y="%.1f" text-anchor="middle" font-size="15" fill="var(--ink)">%d</text></g>' % (
+                h, cx + 80 * _m.cos(a), cy + 80 * _m.sin(a), cx + 80 * _m.cos(a), cy + 80 * _m.sin(a) + 5, h or 12))
+        for m in (75, 90):
+            a = 2 * _m.pi * (m / 720.0) - _m.pi / 2
+            out.append('<circle cx="%.1f" cy="%.1f" r="7" fill="var(--bg)" stroke="var(--ink)" stroke-width="2"/>' % (cx + r * _m.cos(a), cy + r * _m.sin(a)))
+    else:   # the ring is the run
+        n = {"ring24": 24, "tabs": 10, "dragring": 1}[pl]   # tabs: 15-min tabs on a 150-min run
+        r1, r2 = 70, 122
+        if n == 1:
+            out.append('<circle cx="130" cy="130" r="96" fill="none" stroke="var(--zone2)" stroke-width="52" data-tap="Ring"/>')
+        for i in range(n if n > 1 else 0):
+            a0, a1 = 2 * _m.pi * i / n - _m.pi / 2, 2 * _m.pi * (i + 1) / n - _m.pi / 2
+            pts = [(cx + r2 * _m.cos(a0), cy + r2 * _m.sin(a0)), (cx + r2 * _m.cos(a1), cy + r2 * _m.sin(a1)),
+                   (cx + r1 * _m.cos(a1), cy + r1 * _m.sin(a1)), (cx + r1 * _m.cos(a0), cy + r1 * _m.sin(a0))]
+            on = (pl == "ring24" and i in (2, 5)) or (pl == "tabs" and i in (1, 2))
+            out.append('<path d="M%.1f %.1f L%.1f %.1f L%.1f %.1f L%.1f %.1f Z" fill="%s" stroke="var(--zone)" stroke-width="1.5"/>' % (
+                tuple(c for p in pts for c in p) + ("var(--ink)" if on else "var(--zone2)",)))
+        if n == 1:
+            for m in (15, 30):
+                a = 2 * _m.pi * m / 150.0 - _m.pi / 2
+                out.append('<rect x="%.1f" y="%.1f" width="8" height="40" rx="3" fill="var(--ink)" transform="rotate(%.1f %.1f %.1f)"/>' % (
+                    cx + 96 * _m.cos(a) - 4, cy + 96 * _m.sin(a) - 20, _m.degrees(a) + 90, cx + 96 * _m.cos(a), cy + 96 * _m.sin(a)))
+        out.append('<text x="130" y="126" text-anchor="middle" font-size="15" fill="var(--ink)">2 h 30</text><text x="130" y="144" text-anchor="middle" font-size="11" fill="var(--dim)">13:00–15:30</text>')
+    out.append("</svg>")
+    seg = '<div class="seg"><span class="on" data-tap="Kind Chime">Chime</span><span data-tap="Kind Rest">Rest · <span class="pbox" data-tap="Box rest">5</span> min</span></div>' if pl != "tabs" else \
+        '<div class="small">One tap: a chime. Two: a rest of the tab (15 min).</div>'
+    return "".join(out) + seg
+
+
+def pace3_phone(v):
+    if v.get("control"):
+        return pace_phone({"mode": "bdt", "place": "bdt", "control": True})
+    run = '<div class="psent"><span class="ptok" data-tap="Tok mode">Until</span> <span class="pbox" data-tap="Box end">15:30</span> <span class="small">· 2 h 30</span></div>'
+    if v["placer"] == "sentence":
+        pz = '<div class="psent">with <span class="ptok" data-tap="Tok kind">a chime</span> <span class="ptok" data-tap="Tok where">every 15 min</span> <span class="small" data-tap="Tok add">+ pause</span></div>'
+    elif v["exact"] == "sentence":
+        pz = '<div class="psent">with <span class="ptok" data-tap="Tok kind">a chime</span> <span class="ptok" data-tap="Tok where">at 13:15</span>, <span class="ptok" data-tap="Tok where2">at 13:30</span> <span class="ptok" data-tap="Tok add">+ pause</span></div>'
+    else:
+        pz = '<div class="psent">with <span class="ptok%s" data-tap="Tok pauses">2 pauses</span></div>' % (" open" if v["face"] == "chooser" else "")
+    if v["rhythm"] == "word" and v["placer"] != "sentence":
+        pz += '<div class="psent"><span class="ptok" data-tap="Tok rhythm">every … min</span></div>'
+    area = "" if v["placer"] == "sentence" else '<div class="parea">%s</div>' % p3_face(v)
+    sheet = ('<div class="psheet"><div class="ptop"><span class="ptap" data-tap="Cancel">Cancel</span><b>Paced timer · Reading</b><span class="ptap" data-tap="Start"><b>Start</b></span></div>'
+             '%s<div class="pfoot">%s%s<div class="plist">2 chimes · 13:15, 13:30 <span><span class="ptap" data-tap="Undo">↶</span><span class="ptap" data-tap="Redo">↷</span></span></div></div></div>') % (area, run, pz)
+    return kit.phone(kit.header("Measuring", (("⌕", "Search"),), ("‹", "Back")), '<div class="scrim"></div>' + sheet, kit.bar("Hub"))
+
+
+def score_pace3(v):
+    ctl = v.get("control")
+    if not ctl and not p3_valid(v):
+        return {"small": ["not a combination"]}
+    d = pdoc(pace3_phone(v)) if ctl else p3doc(pace3_phone(v))   # the control is T3b.4's drawing, with its own styles
+    tp = T.taps(d)
+    seen = [x for x in tp.all if x.get("seen")]
+    reach = [T.fitts(THUMB, x) for x in seen if x["name"] not in ("Back", "Search", "Hub", "Today", "Calendar", "Pages", "Check-in")]
+    gate = ["%s %dx%d" % (x["name"], x["w"], x["h"]) for x in seen if
+            (x["name"].startswith(("Tok ", "Box ", "Kind ", "Mark ", "Hour ")) and (x["w"] < 24 or x["h"] < 24)) or (x["name"] == "Start" and (x["w"] < 48 or x["h"] < 48))]
+    if ctl:   # Break Down Timer as it is: run 1 the clock picker (centre, hour, minute, OK) + a slice; run 2 the switch, the
+        # picker, 9 slices (2.5-min slices: 15 is on them); run 3 no later start, no rests; run 4 the picker, no rests
+        w = {"taps": (4 + 1) + (1 + 4 + 9) + 2 * IMPOSSIBLE + (4 + IMPOSSIBLE), "drags": 0, "impossible": 3, "switches": 3 * IMPOSSIBLE_SWITCHES, "keyboards": 3 * IMPOSSIBLE_KEYBOARDS}
+        w["drags"] = 3 * IMPOSSIBLE_DRAGS
+        steps, rec, long_imp, long_step, like, over = (2.5, 4.0), 3, 1, 4.0, 0, 1.0
+        controls = len(seen) + 60   # its 60 slices
+    else:
+        w = p3_walk(v)
+        steps = (p3_step(v, 150), p3_step(v, 240))
+        rp = p3_recover(v)
+        rec = IMPOSSIBLE if rp is None else len(rp)
+        long_imp = int(p3_pauses(v, 3)[0] is None or p3_run(v, 3) is None)
+        long_step = steps[1]
+        like = 1.0 if (v["run"] == "typed" or v["placer"] == "clock") else (0.5 if v["placer"] == "line" else 0.0)
+        # overview: the share of the face a run takes, so its pauses read as proportions (run-relative faces: all of it)
+        over = 0.0 if v["placer"] == "sentence" else (round(sum((E - S) / 720.0 for S, E in P3_RUNS) / 4, 3) if v["placer"] == "clock" else 1.0)
+        # the controls in view at rest: a chooser's face is closed until opened; a shown face counts its own targets
+        # (slices, tabs, the ring, the line; the drawing tags the hours, not the slices)
+        face_tag = ("Hour ", "Mark ", "Kind ", "Box rest", "Ring")
+        if v["face"] == "chooser":
+            controls = len([x for x in seen if not x["name"].startswith(face_tag)])
+        else:
+            controls = len(seen) + {"ring24": 24, "tabs": 10, "dragring": 1, "line": 1, "clock": 0, "sentence": 0}[v["placer"]]
+        if v["placer"] == "ring24":
+            gate += [] if 2 * 3.14159 * 96 / 24 >= 24 else ["slice"]
+        if v["placer"] == "tabs":   # 5-min tabs up to 2 h: 24 at most; 15-min beyond, 24 at 6 h
+            if 2 * 3.14159 * 96 / 24 < 24:
+                gate.append("tab")
+    pattern = 1.0 if ctl is None and v["face"] == "chooser" else (0.0 if ctl else 0.5)   # the When pattern: the sheet grows only when needed
+    return dict(w, step_150=steps[0], step_240=steps[1], recover=rec, long_impossible=long_imp, long_step=long_step,
+                like_when=like, pattern=pattern, overview=over, controls=controls, reach=round(sum(reach) / len(reach), 3) if reach else 9, small=sorted(set(gate)))
+
+
 def build_refs():
     with open(os.path.join(T.OUT, "t3-references.json"), encoding="utf-8") as fh:
         src = json.load(fh)
@@ -2332,9 +2642,10 @@ def build_refs():
 T.PREFIX, T.REFS, T.NAME = "t3", "t3-refs.json", "T3 habits, trackers, time, goals, charts and checklists"
 T.OUT = os.path.join(os.path.dirname(M2.T.OUT), "t3")
 # T3.1 "habits" (presence, the first scoring) is kept in t3-habits-v1.json and in the code above; T3a replaced it (owner, 2026-10-13)
-T.SPACES = {"paceplace": PPLACE_SPACE, "pace": PACE_SPACE, "measure3": MEAS3_SPACE, "acts": ACTS_SPACE, "measure2": MEAS2_SPACE, "measure": MEAS_SPACE, "trackers": TRK_SPACE, "basics": BASICS_SPACE, "addhabit": ADD_SPACE, "routines": ROUT_SPACE, "addsent": SENT_SPACE, "hsheet": HSHEET_SPACE, "premise": PREMISE_SPACE, "habits2": H2_SPACE}
-T.SCORERS = {"paceplace": score_paceplace, "pace": score_pace, "measure3": score_measure3, "acts": score_acts, "measure2": score_measure2, "measure": score_measure, "trackers": score_trackers, "basics": score_basics, "addhabit": score_addhabit, "routines": score_routines, "addsent": score_addsent, "hsheet": score_hsheet, "premise": score_premise, "habits2": score_habits2}
-T.CONTROLS = {"paceplace": ({"place": "bdt", "elsewhere": "none", "control": True}, "Break Down Timer's own full screen: the ring and the run; Back leaves it running, seen only in its notification"),
+T.SPACES = {"pace3": PACE3_SPACE, "paceplace": PPLACE_SPACE, "pace": PACE_SPACE, "measure3": MEAS3_SPACE, "acts": ACTS_SPACE, "measure2": MEAS2_SPACE, "measure": MEAS_SPACE, "trackers": TRK_SPACE, "basics": BASICS_SPACE, "addhabit": ADD_SPACE, "routines": ROUT_SPACE, "addsent": SENT_SPACE, "hsheet": HSHEET_SPACE, "premise": PREMISE_SPACE, "habits2": H2_SPACE}
+T.SCORERS = {"pace3": score_pace3, "paceplace": score_paceplace, "pace": score_pace, "measure3": score_measure3, "acts": score_acts, "measure2": score_measure2, "measure": score_measure, "trackers": score_trackers, "basics": score_basics, "addhabit": score_addhabit, "routines": score_routines, "addsent": score_addsent, "hsheet": score_hsheet, "premise": score_premise, "habits2": score_habits2}
+T.CONTROLS = {"pace3": ({"run": "bdt", "placer": "bdt", "exact": "bdt", "rhythm": "bdt", "face": "bdt", "control": True}, "Break Down Timer as it is: the clock picker for the length, 60 slices to tap; no later start, no rests"),
+              "paceplace": ({"place": "bdt", "elsewhere": "none", "control": True}, "Break Down Timer's own full screen: the ring and the run; Back leaves it running, seen only in its notification"),
               "pace": ({"mode": "bdt", "place": "bdt", "control": True}, "Break Down Timer as it is: two mode icons, the clock picker, the 60-slice ring; no later start, no rests"),
               "measure3": ({"layout": "grid", "says": "goal", "log": "sheet", "group": "flat", "order": "manual", "running": "place", "past": "page", "plan": "page", "control": True},
                            "a dashboard: cards with today against a goal ('3/8 · 38%'), a streak and a progress bar; Log, a past session and the Paced timer through sheets and pages; running in place"),
@@ -2357,7 +2668,10 @@ T.CONTROLS = {"paceplace": ({"place": "bdt", "elsewhere": "none", "control": Tru
                          "the leading design with history added: a streak and a share of days on every row"),
               "habits": ({"presence": "streak", "group": "flat", "log": "cells", "amount": "percent", "control": True},
                          "Loop-like with streaks and a score: a streak and a percentage on every row, the last 4 days as ticks and crosses")}
-T.AXES = {"paceplace": {"App free": ("app_blocked",), "Taps": ("reach_taps", "return_taps"), "Seen elsewhere": ("-seen_elsewhere",)},
+T.AXES = {"pace3": {"Taps": ("taps",), "Customization": ("impossible", "step_150"), "Ease": ("keyboards", "drags", "reach"), "Clarity": ("controls",),
+                    "Consistency": ("-like_when", "-pattern"), "Overview": ("-overview",), "Recovery": ("recover",), "Long runs": ("long_impossible", "long_step"),
+                    "Order": ("switches",)},
+          "paceplace": {"App free": ("app_blocked",), "Taps": ("reach_taps", "return_taps"), "Seen elsewhere": ("-seen_elsewhere",)},
           "pace": {"Taps": ("taps",), "Ease": ("keyboards", "reach"), "Precision": ("-exact_any", "step_min"), "Consistency": ("-like_when",)},
           "measure3": {"Taps": ("max:taps_12_25|taps_12_75|taps_40_25|taps_40_75",), "Overview": ("max:-overview_12|-overview_40", "max:screens_12|screens_40"),
                        "Reach": ("reach",), "Recovery": ("one_tap_writes",), "Glance": ("-says_share", "-running_seen"), "Predictable": ("moves",), "Judgment": ("judgment_marks",)},
@@ -2385,8 +2699,8 @@ T.AXES = {"paceplace": {"App free": ("app_blocked",), "Taps": ("reach_taps", "re
                      "Choice": ("-filter_says_mid",), "Consistency": ("like_today",), "Density": ("-rows_seen", "cut"), "Calm": ("clutter", "desk_clutter")},
           "habits": {"Ease": ("log_actions", "reach_log"), "Presence": ("-presence_shown", "presence_marks"), "Calm": ("guilt_marks", "clutter", "desk_clutter"),
                      "Density": ("-rows_seen", "cut"), "Consistency": ("like_today",)}}
-T.TITLES = {"paceplace": "T3b.4b Where the Paced timer lives: set and running", "pace": "T3b.4 The Paced timer sheet: setting the run, placing pauses (chimes or rests)", "measure3": "T3b.1d The Measuring list: trackers and activities as one, each item's control by how it is measured", "acts": "T3b.2 The Activities list: running timers, adding a past session, Same as last (Chronicle's Last used)", "measure2": "T3b.1c The Measuring list, scroll counted at 12 and 30 items: compact rows, folding labels, most used first", "measure": "T3b.1b The Measuring list, taps first: merged with activities or apart, rows or cards, what Log does (a control per kind)", "trackers": "T3b.1 The Trackers list: rows or cards, what a row says, what Log does, grouping", "habits2": "T3a.1c The Habits list: the optional name, and every if as a header", "premise": "T3a.2d What tapping the premise box opens: nothing, or the ifs with the same connective", "hsheet": "T3a.2c The New habit sheet (prototype): the blanks as text boxes in the sentence, or opened above it", "addsent": "T3a.2b Adding a habit as an open sentence: the When sheet, in place, or fields; energy and routine as words or rows", "routines": "T3a.1b The Habits list with routines: the 'what to expect' preview, how the sequence shows", "addhabit": "T3a.2 Adding a habit: in place or a sheet, the If, the block", "basics": "T3a.1 Habits as Daily basics: layout, the energy filter, its mark, done today", "habits": "T3.1 The Habits list: presence, grouping, where Log sits, a count's amount"}
-T.DRAW = {"paceplace": lambda v: [ppdoc(pp_running(v)), ppdoc(pp_today(v))], "pace": lambda v: [pdoc(pace_phone(v))], "measure3": lambda v: [m3doc(measure3_phone(v, ITEMS3_12, v.get("group", "") not in ("flat", "labels"))), m3doc(measure3_phone(v, ITEMS3_40)), measure3_desk(v)], "acts": lambda v: [adoc2(acts_phone(v, ACTS12, v.get("arrange") == "hybrid")), adoc2(acts_phone(v, ACTS30)), acts_desk(v)], "measure2": lambda v: [m2doc(measure2_phone(v, ITEMS12, v.get("group", "") in ("folding", "hybrid_fit", "hybrid_6", "hybrid_pinned"))), m2doc(measure2_phone(v, ITEMS30)), measure2_desk(v)], "measure": lambda v: [mdoc(measure_phone(v)), measure_desk(v)], "trackers": lambda v: [tdoc(trackers_phone(v))] + ([] if v.get("control") else [tdoc(trackers_phone(v, True))]) + [trackers_desk(v)], "habits2": lambda v: [h2doc(habits2_phone(v)), habits2_desk(v)], "premise": lambda v: [premise_doc(v)], "hsheet": lambda v: [adoc(addhabit_phone({"control": True}))] if v.get("control") else [hsheet_doc(v, st) for _, _, st in HSTATES], "addsent": lambda v: [sdoc(addsent_phone(v))] + ([] if (v.get("control") or v["form"] == "fields") else [sdoc(addsent_phone(v, True))]), "routines": lambda v: [rdoc(routines_phone(v)), rdoc(routines_phone(v, "low")), routines_desk(v)], "addhabit": lambda v: [adoc(addhabit_phone(v))], "basics": lambda v: [bdoc(basics_phone(v)), basics_desk(v)], "habits": lambda v: [hdoc(habits_phone(v)), habits_desk(v)]}
+T.TITLES = {"pace3": "T3b.4c The Paced timer sheet around a clock face: run input, placer, exact words, rhythm", "paceplace": "T3b.4b Where the Paced timer lives: set and running", "pace": "T3b.4 The Paced timer sheet: setting the run, placing pauses (chimes or rests)", "measure3": "T3b.1d The Measuring list: trackers and activities as one, each item's control by how it is measured", "acts": "T3b.2 The Activities list: running timers, adding a past session, Same as last (Chronicle's Last used)", "measure2": "T3b.1c The Measuring list, scroll counted at 12 and 30 items: compact rows, folding labels, most used first", "measure": "T3b.1b The Measuring list, taps first: merged with activities or apart, rows or cards, what Log does (a control per kind)", "trackers": "T3b.1 The Trackers list: rows or cards, what a row says, what Log does, grouping", "habits2": "T3a.1c The Habits list: the optional name, and every if as a header", "premise": "T3a.2d What tapping the premise box opens: nothing, or the ifs with the same connective", "hsheet": "T3a.2c The New habit sheet (prototype): the blanks as text boxes in the sentence, or opened above it", "addsent": "T3a.2b Adding a habit as an open sentence: the When sheet, in place, or fields; energy and routine as words or rows", "routines": "T3a.1b The Habits list with routines: the 'what to expect' preview, how the sequence shows", "addhabit": "T3a.2 Adding a habit: in place or a sheet, the If, the block", "basics": "T3a.1 Habits as Daily basics: layout, the energy filter, its mark, done today", "habits": "T3.1 The Habits list: presence, grouping, where Log sits, a count's amount"}
+T.DRAW = {"pace3": lambda v: [pdoc(pace3_phone(v)) if v.get("control") else p3doc(pace3_phone(v))], "paceplace": lambda v: [ppdoc(pp_running(v)), ppdoc(pp_today(v))], "pace": lambda v: [pdoc(pace_phone(v))], "measure3": lambda v: [m3doc(measure3_phone(v, ITEMS3_12, v.get("group", "") not in ("flat", "labels"))), m3doc(measure3_phone(v, ITEMS3_40)), measure3_desk(v)], "acts": lambda v: [adoc2(acts_phone(v, ACTS12, v.get("arrange") == "hybrid")), adoc2(acts_phone(v, ACTS30)), acts_desk(v)], "measure2": lambda v: [m2doc(measure2_phone(v, ITEMS12, v.get("group", "") in ("folding", "hybrid_fit", "hybrid_6", "hybrid_pinned"))), m2doc(measure2_phone(v, ITEMS30)), measure2_desk(v)], "measure": lambda v: [mdoc(measure_phone(v)), measure_desk(v)], "trackers": lambda v: [tdoc(trackers_phone(v))] + ([] if v.get("control") else [tdoc(trackers_phone(v, True))]) + [trackers_desk(v)], "habits2": lambda v: [h2doc(habits2_phone(v)), habits2_desk(v)], "premise": lambda v: [premise_doc(v)], "hsheet": lambda v: [adoc(addhabit_phone({"control": True}))] if v.get("control") else [hsheet_doc(v, st) for _, _, st in HSTATES], "addsent": lambda v: [sdoc(addsent_phone(v))] + ([] if (v.get("control") or v["form"] == "fields") else [sdoc(addsent_phone(v, True))]), "routines": lambda v: [rdoc(routines_phone(v)), rdoc(routines_phone(v, "low")), routines_desk(v)], "addhabit": lambda v: [adoc(addhabit_phone(v))], "basics": lambda v: [bdoc(basics_phone(v)), basics_desk(v)], "habits": lambda v: [hdoc(habits_phone(v)), habits_desk(v)]}
 T.POOL = {"trackers": lambda ok: [min((r for r in ok if r.get("front") and r["v"]["layout"] == lay and r["v"]["log"] == lg), key=lambda r: r["total"])
                                     for lay in ("rows", "grid") for lg in ("sheet", "default", "stepper")
                                     if any(r.get("front") and r["v"]["layout"] == lay and r["v"]["log"] == lg for r in ok)]
@@ -2399,6 +2713,10 @@ T.REFS_INFO.add("measure2")
 T.REFS_INFO.add("acts")
 T.REFS_INFO.add("measure3")
 T.REFS_INFO.add("paceplace")
+T.REFS_INFO.add("pace3")
+T.VALID["pace3"] = p3_valid
+T.POOL["pace3"] = lambda ok: [r for r in ok if r.get("front")]
+T.DRAW_MAX["pace3"] = 8
 T.LEAD["measure3"] = [("taps_12_25", 0.25), ("taps_12_75", 0.25), ("taps_40_25", 0.25), ("taps_40_75", 0.25)]   # fewest taps, within 0.25 a use
 T.POOL["measure3"] = lambda ok: [r for r in ok if r.get("front")]
 T.DRAW_MAX["measure3"] = 8
@@ -2414,7 +2732,8 @@ T.PICKED = {"routines": [{"preview": "none", "seq": "plain"}, {"preview": "energ
             "habits2": [{"group": "routines", "name": "named"}],
             "measure2": [{"scope": "apart", "layout": "rows", "says": "last", "log": "inline", "group": "hybrid_fit", "order": "recent"}],
             "measure3": [{"layout": "rows", "says": "last", "log": "inline", "group": "hybrid_fit", "order": "recent", "running": "strip", "past": "page", "plan": "chip"}]}
-T.SUPERSEDED = {"measure2": "trackers and activities are one screen (owner, 2026-10-14): T3b.1d replaced it; its pick shaped T3b.1d's space",
+T.SUPERSEDED = {"pace": "a clock face rethought (owner, 2026-10-15): T3b.4c replaced it; its sentence and When pattern live on in T3b.4c",
+                "measure2": "trackers and activities are one screen (owner, 2026-10-14): T3b.1d replaced it; its pick shaped T3b.1d's space",
                 "acts": "trackers and activities are one screen (owner, 2026-10-14): T3b.1d replaced it", "measure": "scroll was undercounted (owner, 2026-10-13): T3b.1c replaced it", "trackers": "P4 Measuring is scored taps first (owner, 2026-10-13): T3b.1b replaced it", "habits": "re-cut by purpose; T3a.1 Daily basics replaced it", "basics": "routines replaced it (T3a.1b)",
                 "addhabit": "the open sentence replaced it (T3a.2b), then the prototype (T3a.2c)", "addsent": "the prototype sheet replaced it (T3a.2c)"}
 T.v2.TOL.setdefault("_reach_log", 0.05)

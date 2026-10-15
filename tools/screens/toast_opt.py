@@ -805,10 +805,14 @@ AXES = {
 }
 
 
+VALID = {}   # part -> predicate over an option; combinations it rejects are not scored
+
+
 def run_part(p):
     """Every option of a part, scored. SCREENS_WORKERS=n scores n at once: each score waits on headless Edge, so threads
     run them side by side (2026-10-14: the merged Measuring list has ten thousand options); the order of rows is kept."""
     combos = [dict(zip(SPACES[p], c)) for c in itertools.product(*SPACES[p].values())]
+    combos = [c for c in combos if VALID.get(p, lambda v: True)(c)]   # a part may rule out combinations that mean nothing
     workers = int(os.environ.get("SCREENS_WORKERS", "1"))
     # each option is appended as it is scored, and a rerun skips those done (2026-10-14: a session's end stopped a 10,368-option
     # run that kept everything in memory until the last one)
