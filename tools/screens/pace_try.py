@@ -1,7 +1,7 @@
-r"""The Paced timer trial page (T3b.4d): the best sheet of each way of dividing the run ring, the sentence typed with the
-phone's keyboard (the owner's baseline), and Break Down Timer with its presets, working, with the scores beside them.
+r"""The Paced timer trial page (T3b.4e): the best ring sheet for each way of moving a break (the dial, a slowed drag, a
+nudge), the sentence alone with the dial and typed with the phone's keyboard, and Break Down Timer with its presets.
 
-Reads the scored part (t3-pace4.json, through toast_opt's ranking) and the drawings (pace-imgs.json, from pace_imgs.py);
+Reads the scored part (t3-pace5.json, through toast_opt's ranking) and the drawings (pace-imgs.json, from pace_imgs.py);
 fills pace_try.tmpl.html; writes docs/screens/t3/pace-try.html.  Run pace_imgs.py first when the drawings change.
 """
 import json
@@ -10,28 +10,26 @@ import os
 import t3_opt as M
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-DIV = {"snap": "ring · snapping drag", "chosen": "ring · split into N", "presets": "ring · fraction presets"}
-KEYS = ("time", "pauses", "division", "rest", "words", "face")
+MOVE = {"dial": "moved on the dial", "nudge": "moved with − / +", "magnify": "moved by a slowed drag"}
+KEYS = ("time", "pauses", "move", "drag", "face")
 
 
 def label(v):
     if v.get("control"):
         return "Break Down Timer (control)", "with its fraction presets (‹ ›); the clock picker; 60 slices; no later start, no rests"
     if v["pauses"] == "sentence":
-        return "sentence only", "times %s; numbers typed with the phone's keyboard" % ("on the dial" if v["time"] == "dial" else "typed")
-    parts = ["times on the dial" if v["time"] == "dial" else "times typed", "a rest as a span" if v["rest"] == "span" else "a rest as a point + length",
-             "words beside" if v["words"] == "beside" else "ring alone", "ring shown" if v["face"] == "shown" else "ring as a chooser"]
-    return DIV[v["division"]], ", ".join(parts)
+        return "sentence only", "times %s; N breaks evenly; counts typed" % ("on the dial" if v["time"] == "dial" else "typed with the phone's keyboard")
+    return "ring · break " + MOVE[v["move"]], ", ".join(["times on the dial" if v["time"] == "dial" else "times typed",
+                                                         "a press on the ring adds a chime (snapping)" if v["drag"] == "rough" else "the ring only shows and selects",
+                                                         "ring shown" if v["face"] == "shown" else "ring as a chooser"])
 
 
 def main():
-    rows, ok, axes = M.T.ranked("pace4")
+    rows, ok, axes = M.T.ranked("pace5")
     order = sorted((r for r in ok if not r["v"].get("control")), key=lambda r: r["total"])
     rank = {id(r): i + 1 for i, r in enumerate(order)}
-    picked = []
-    for div in ("snap", "chosen", "presets"):   # the best of each way of dividing the ring
-        picked.append(next(r for r in order if r["v"]["pauses"] == "ring" and r["v"]["division"] == div))
-    picked.append(next(r for r in order if r["v"]["pauses"] == "sentence" and r["v"]["time"] == "typed"))   # the owner's baseline
+    picked = [next(r for r in order if r["v"]["pauses"] == "ring" and r["v"]["move"] == mv) for mv in ("dial", "magnify", "nudge")]
+    picked += [next(r for r in order if r["v"]["pauses"] == "sentence" and r["v"]["time"] == t) for t in ("dial", "typed")]
     picked.sort(key=lambda r: r["total"])
     ctl = next(r for r in rows if r["v"].get("control"))
     sheets = []

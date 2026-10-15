@@ -1264,4 +1264,54 @@ Status (then): **T3b.1d approved; T3b.4d scored, trial page rebuilt: awaiting th
 
 **The scripted tests had hidden the dial defect.** They fired events at the dial's surface directly. They now tap whatever is on top at that point (`elementFromPoint`), as a finger does.
 
-Status: **T3b.1d approved; T3b.4d trial page fixed: awaiting the owner's second trial; T3b.4b scored.**
+Status (then): **T3b.1d approved; T3b.4d trial page fixed: awaiting the owner's second trial; T3b.4b scored.**
+
+### T3b.4e N breaks evenly in the sentence; the ring shows and selects (owner, 2026-10-15)
+
+**The owner, on the first trial of T3b.4d:**
+> "It's really hard to guesstimate a number corresponding to a single line on a continuous ring, especially when the spans of time are longer."
+
+> "I'm not good at math, and it gets harder when it deals with measurements with base 60 (time) rather than 10 (metrics). The 'split into N' is not meant to address 'every X minutes' but how many (N) breaks the user wants within that length of time, distributed evenly rather than arbitrarily."
+
+**The owner's answers:**
+- **Rests spread evenly take their length out of the run.** The stretches of work between them are equal.
+- **One break moved to an exact time,** all three ways scored: the dial, a minute nudge, a magnified drag.
+- **A free drag on the ring,** none or rough (snapping to fractions), both scored.
+- **The sentence's design may be refined.**
+
+**The refined clause:** "with [N] [chimes | rests of [X]] evenly", with exceptions "at [time]" or "at [fraction]". Every task is then a count, never a sum:
+
+| Task | As a count |
+|---|---|
+| Run 1 | 1 chime |
+| Run 2 | 9 chimes |
+| Run 3 | 1 rest of 5 min |
+| Run 4 | 3 rests of 10 min (work blocks of 52½ min) |
+| Task 5 | one more chime at ⅓ |
+
+**Moving one break of an evenly spread group** fixes the whole group where it stands ("placed by hand"), so the others do not jump.
+
+**The space** (part `pace5`, 26 options): time typed or by the dial × the clause alone or with the ring; for the ring, the move (dial / nudge / magnify) × the drag (none / rough) × the face (chooser / shown).
+
+**The walk:** runs 1–4 as counts; (5) run 1 plus a chime at ⅓; recovery: run 1's chime moved to 13:18, then removed.
+
+**Result** (the control lost at 309):
+
+| # | Option | Rank sum | Taps | Kb | Recovery |
+|---|---|---|---|---|---|
+| 1 | dial · ring · moved on the dial · rough · chooser | 174 | 37 | 2 | 6 |
+| 2 | dial · ring · slowed drag · rough · chooser | 174 | 35 | 2 | 4 |
+| 4 | dial · the clause alone | 177.5 | 38 | 3 | 5 |
+| 6 | dial · ring · nudge · rough · chooser | 187.5 | 41 | 2 | 10 |
+| 17 | typed · the clause alone | 211 | 27 | 11 | 5 |
+
+**Reading the result:** with "N evenly" doing the spreading, the sentence alone comes within 3.5 points of the best ring. The ring's gains are the overview, the selection, and the snap to ⅓.
+
+**The trial page** (rebuilt):
+- **Sheets:** the best ring sheet for each move, the clause alone with the dial, the clause typed, and Break Down Timer with its presets.
+- **Tasks:** they follow the real time.
+- **Checked:** 41 scripted trials, each correct on Start, with taps hitting whatever is on top. A nudge from a half-minute break now goes to the next whole minute.
+
+T3b.4d is superseded by T3b.4e.
+
+Status: **T3b.1d approved; T3b.4e scored, trial page rebuilt: awaiting the owner's trial and pick; T3b.4b scored.**

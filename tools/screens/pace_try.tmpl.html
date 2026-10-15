@@ -39,13 +39,15 @@ p.note{color:var(--dim);margin:4px 0 12px;max-width:860px}
 .crow{display:flex;justify-content:space-between;align-items:center}.crow .small{font-size:12.5px;color:var(--dim)}
 .sent{font-size:18px;line-height:2.3}
 .tok{border-bottom:2px dotted var(--dim);padding:0 2px;display:inline-block;min-height:48px;line-height:48px;cursor:pointer}.tok.open{border-bottom:2px solid var(--fg)}
-.box{display:inline-block;min-width:60px;min-height:44px;line-height:44px;padding:0 8px;border-radius:10px;box-shadow:inset 0 0 0 1.5px var(--dim);text-align:center;font-size:16px;margin:0 2px;cursor:pointer;background:transparent;color:var(--fg);border:0;font-family:inherit;vertical-align:middle}
+.box{display:inline-block;min-width:56px;min-height:44px;line-height:44px;padding:0 8px;border-radius:10px;box-shadow:inset 0 0 0 1.5px var(--dim);text-align:center;font-size:16px;margin:0 2px;cursor:pointer;background:transparent;color:var(--fg);border:0;font-family:inherit;vertical-align:middle}
 input.box{width:76px;outline:none;cursor:text}input.box:focus,.box.ed{box-shadow:inset 0 0 0 2.5px var(--ink)}
-input.box.sm2{width:52px;min-height:36px;line-height:36px;font-size:15px}
+input.box.sm2{width:52px}
 .sm{font-size:14px;color:var(--dim)}
 .x{display:inline-grid;place-items:center;width:40px;height:40px;color:var(--dim);cursor:pointer;vertical-align:middle}
 .face{display:block;margin:2px auto;touch-action:none;cursor:pointer}.face text,.face line,.face circle:not([data-drag]):not([data-a]),.face path:not([data-a]){pointer-events:none}
-.pbar{display:flex;align-items:center;justify-content:space-between;min-height:48px;border-bottom:1px solid var(--zone2)}.pbar b{font-variant-numeric:tabular-nums}
+.selp{display:flex;align-items:center;justify-content:space-between;gap:6px;min-height:52px;border-top:1px solid var(--zone2);font-size:15px}
+.selp .big{font-size:22px;font-weight:600;font-variant-numeric:tabular-nums}
+.pbar{display:flex;align-items:center;justify-content:space-between;min-height:48px;border-bottom:1px solid var(--zone2)}
 .toast2{background:var(--ink);color:var(--inv);padding:8px 10px;border-radius:10px;font-size:13px;margin:0 0 6px}
 .ph-h{height:56px;display:flex;align-items:center;gap:8px;padding:0 8px;font-size:18px;font-weight:600}.ph-h .bk{width:48px;height:48px;display:grid;place-items:center;color:var(--dim)}
 .ph-b{padding:4px 16px 16px}.list{font-size:13px;color:var(--dim);margin:8px 0;min-height:20px}
@@ -67,8 +69,8 @@ textarea{width:100%;height:120px;font:12px/1.4 ui-monospace,Consolas,monospace;b
 </head>
 <body>
 <main>
-<h1>Paced timer: try the sheets (T3b.4d)</h1>
-<p class="note">On the dial sheets, a time box opens a real dial at once. A clock time is set hours first (the 24-hour dial: 1–12 outside, 13–00 inside), then minutes; a length on one face, hours on the outer ring and minutes on the inner one, adding up. The boxes stay writable: ⌨ on the dial types instead, with the phone's keyboard. On the typed sheet the boxes are plain fields for the phone's keyboard. The ring is always the whole run, at any length: its places are fractions of the run. Tasks follow the time you press <b>Begin</b>. Taps, keystrokes and drags are counted apart; <b>Start</b> checks the run (a pause, or a rest's length, may be half a minute off).</p>
+<h1>Paced timer: try the sheets (T3b.4e)</h1>
+<p class="note">Breaks are a clause of the sentence: <i>with [N] [chimes | rests of [X min]] evenly</i>. Rests spread evenly take their length out of the run, so the stretches of work between them are equal. One break can be set apart, at a time or at a fraction (⅓). The ring shows the run and its breaks; tap a break to select it, then move it on the dial, with − / +, or by a slowed drag, depending on the sheet. On the "rough" sheets a press on an empty part of the ring places a chime, snapping to ½, ⅓, ¼, ⅙, ⅛ near them. Moving one break of an evenly spread group fixes the whole group where it is. Time boxes open the dial at once (⌨ types instead); counts are typed with the phone's keyboard. Tasks follow the time you press <b>Begin</b>.</p>
 <div class="cols">
   <section class="panel">
     <h3>Sheet</h3>
@@ -83,43 +85,52 @@ textarea{width:100%;height:120px;font:12px/1.4 ui-monospace,Consolas,monospace;b
 <section class="panel" style="margin-top:20px">
   <h3>Your trial beside the scores</h3>
   <div class="wrap"><table class="tbl" id="res"></table></div>
-  <p class="note" style="margin-top:10px">Cells: taps (drags included) + keystrokes · seconds · errors · fixes. Est. is the walk for runs 1–4 and the recovery: taps, keyboards, drags, mean reach. Total is the Pareto rank sum over ten axes (lower is better).</p>
+  <p class="note" style="margin-top:10px">Cells: taps (drags included) + keystrokes · seconds · errors · fixes. Est. is the walk: taps, keyboards, drags, mean reach. Total is the Pareto rank sum over ten axes (lower is better).</p>
   <div class="act"><button class="btn ghost" id="exp">Copy results</button><button class="btn ghost" id="clr">Clear results</button></div>
   <textarea id="out" readonly aria-label="Results as JSON" style="margin-top:8px;display:none"></textarea>
 </section>
-<h2>T3b.4d, as drawn and scored</h2>
+<h2>T3b.4e, as drawn and scored</h2>
 <div class="gal" id="gal"></div>
 </main>
 <script>
 const DATA = __DATA__;
-const KEY = "factotum-pace-try-v3";
+const KEY = "factotum-pace-try-v4";
 const pad = n => String(n).padStart(2, "0");
 const fmt = m => { m = Math.round(m); m = ((m % 1440) + 1440) % 1440; return pad(Math.floor(m / 60)) + ":" + pad(m % 60); };
-const dur = m => { m = Math.round(m); return m >= 60 ? Math.floor(m / 60) + " h" + (m % 60 ? " " + (m % 60) + " min" : "") : m + " min"; };
+const fmtS = m => { const s = Math.round(m * 60); const mm = Math.floor(s / 60); return fmt(mm) + (s % 60 ? ":" + pad(s % 60) : ""); };
+const dur = m => { m = Math.round(m * 10) / 10; const mi = Math.round(m); return mi >= 60 ? Math.floor(mi / 60) + " h" + (mi % 60 ? " " + (mi % 60) + " min" : "") : (Number.isInteger(m) ? m : m.toFixed(1)) + " min"; };
 const esc = s => String(s).replace(/[&<>"]/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;"}[c]));
 const nowMin = () => { const d = new Date(); return d.getHours() * 60 + d.getMinutes(); };
-function every(S, E, n, kind, d) { const o = []; for (let t = S + n; t < E - 0.01; t += n) o.push([kind, t, kind === "rest" ? d : 0]); return o; }
 const FR = {2: "½", 3: "⅓", 4: "¼", 6: "⅙", 8: "⅛"};
-const PRESETS = [2, 3, 4, 5, 6, 8, 10, 12];   // assumed: Break Down Timer's own list cannot be read without overwriting the run set on the phone
 const SNAP = [2, 3, 4, 6, 8];
+const PRESETS = [2, 3, 4, 5, 6, 8, 10, 12];   // Break Down Timer's, assumed (its own list cannot be read without overwriting the run set on the phone)
+
+/* ---- evenly: chimes at k/(N+1); rests by equal work blocks (owner, 2026-10-15) ---- */
+function evenly(S, E, n, kind, d) {
+  const L = E - S, out = [];
+  if (kind === "rest") { const W = (L - n * d) / (n + 1); for (let k = 1; k <= n; k++) out.push(S + k * W + (k - 1) * d); }
+  else for (let k = 1; k <= n; k++) out.push(S + k * L / (n + 1));
+  return out;
+}
 
 /* ---- tasks, from the time Begin is pressed ---- */
-const TASK_IDS = ["t1", "t2", "t3", "t4", "t4w", "t4i", "t5", "t6"];
+const TASK_IDS = ["t1", "t2", "t3", "t4", "t5", "t4w", "t4i", "t6", "t7"];
 function makeTask(id, N) {
-  const half = N + 12.5, E2 = N + 150, S3 = Math.ceil(N / 60) * 60 + 60, E3 = S3 + 90;
-  const run3 = {S: S3, E: E3, p: [["rest", S3 + 45, 5]]};
-  const pre1 = {startAt: null, endKind: "len", len: 25, rules: [{kind: "chime", f: 0.5}]};
+  const S3 = Math.ceil(N / 60) * 60 + 60, E3 = S3 + 90, E2 = N + 150;
+  const run3 = {S: S3, E: E3, p: evenly(S3, E3, 1, "rest", 5).map(t => ["rest", t, 5])};
+  const pre1 = {startAt: null, endKind: "len", len: 25, groups: [{kind: "chime", rule: "even", n: 1, dur: 5}]};
   switch (id) {
-    case "t1": return {name: "Run 1", text: "For 25 minutes, with a chime halfway (" + fmt(half) + ").", target: {S: N, E: N + 25, p: [["chime", half, 0]]}};
-    case "t2": return {name: "Run 2", text: "Until " + fmt(E2) + " (2 h 30 from now), with a chime every 15 minutes.", target: {S: N, E: E2, p: every(N, E2, 15, "chime")}};
-    case "t3": return {name: "Run 3", text: "From " + fmt(S3) + " to " + fmt(E3) + ", with a 5-minute rest in the middle (" + fmt(S3 + 45) + "–" + fmt(S3 + 50) + ").", target: run3};
-    case "t4": return {name: "Run 4 · long", text: "For 4 hours, with a 10-minute rest every hour.", target: {S: N, E: N + 240, p: every(N, N + 240, 60, "rest", 10)}};
-    case "t4w": return {name: "Repeat · whole run", text: "↻ remembers the whole run. Start last time's run again: " + fmt(S3) + "–" + fmt(E3) + ", a 5-minute rest in the middle.",
-      pre: {startAt: S3, endKind: "at", endAt: E3, rules: [{kind: "rest", f: 0.5, f1: 0.5 + 5 / 90}]}, target: run3};
-    case "t4i": return {name: "Repeat · interval only", text: "↻ remembers the interval only. Start last time's run again: " + fmt(S3) + "–" + fmt(E3) + ", a 5-minute rest in the middle.",
-      pre: {startAt: S3, endKind: "at", endAt: E3, rules: []}, target: run3};
-    case "t5": return {name: "Move a pause", text: "This run is set: 25 minutes, a chime halfway. Move the chime to " + fmt(N + 17.5) + " (0.7 of the run).", pre: pre1, target: {S: N, E: N + 25, p: [["chime", N + 17.5, 0]]}};
-    case "t6": return {name: "Remove a pause", text: "This run is set: 25 minutes, a chime halfway. Remove the chime.", pre: pre1, target: {S: N, E: N + 25, p: []}};
+    case "t1": return {name: "Run 1", text: "For 25 minutes, with 1 chime (halfway, " + fmtS(N + 12.5) + ").", target: {S: N, E: N + 25, p: [["chime", N + 12.5, 0]]}};
+    case "t2": return {name: "Run 2", text: "Until " + fmt(E2) + " (2 h 30 from now), with 9 chimes evenly (every 15 minutes).", target: {S: N, E: E2, p: evenly(N, E2, 9, "chime").map(t => ["chime", t, 0])}};
+    case "t3": return {name: "Run 3", text: "From " + fmt(S3) + " to " + fmt(E3) + ", with 1 rest of 5 minutes, evenly (" + fmtS(run3.p[0][1]) + "–" + fmtS(run3.p[0][1] + 5) + ").", target: run3};
+    case "t4": return {name: "Run 4 · long", text: "For 4 hours, with 3 rests of 10 minutes, evenly (work blocks of 52½ min).", target: {S: N, E: N + 240, p: evenly(N, N + 240, 3, "rest", 10).map(t => ["rest", t, 10])}};
+    case "t5": return {name: "Run 5 · a third", text: "For 25 minutes, with 1 chime halfway and one more at a third of the run (" + fmtS(N + 25 / 3) + ").", target: {S: N, E: N + 25, p: [["chime", N + 25 / 3, 0], ["chime", N + 12.5, 0]]}};
+    case "t4w": return {name: "Repeat · whole run", text: "↻ remembers the whole run. Start last time's run again: " + fmt(S3) + "–" + fmt(E3) + ", 1 rest of 5 minutes.",
+      pre: {startAt: S3, endKind: "at", endAt: E3, groups: [{kind: "rest", rule: "even", n: 1, dur: 5}]}, target: run3};
+    case "t4i": return {name: "Repeat · interval only", text: "↻ remembers the interval only. Start last time's run again: " + fmt(S3) + "–" + fmt(E3) + ", 1 rest of 5 minutes.",
+      pre: {startAt: S3, endKind: "at", endAt: E3, groups: []}, target: run3};
+    case "t6": return {name: "Move a break", text: "This run is set: 25 minutes, 1 chime. Move the chime to " + fmt(N + 18) + ".", pre: pre1, target: {S: N, E: N + 25, p: [["chime", N + 18, 0]]}};
+    case "t7": return {name: "Remove a break", text: "This run is set: 25 minutes, 1 chime. Remove the chime.", pre: pre1, target: {S: N, E: N + 25, p: []}};
   }
 }
 
@@ -129,51 +140,44 @@ function save() { try { localStorage.setItem(KEY, JSON.stringify(store)); } catc
 const C = () => sheet.cfg;
 const isBdt = () => sheet.id === "bdt";
 const ring = () => !isBdt() && C().pauses === "ring";
-const words = () => !isBdt() && (C().pauses === "sentence" || C().words === "beside");
 
-/* ---- the run model: pauses on the ring are fractions of the run; words are rules ---- */
-function fresh() { return {startAt: null, endKind: "len", len: 45, endAt: null, pauses: [], preset: 0, split: 0}; }
+/* ---- the run model: groups of breaks ---- */
+function fresh() { return {startAt: null, endKind: "len", len: 45, endAt: null, groups: [], pauses: [], preset: 0}; }
 function span(s) { const S = s.startAt == null ? N : s.startAt; return {S, E: s.endKind === "len" ? S + s.len : s.endAt}; }
 let _id = 0; const nid = () => ++_id;
-function places(p, S, E) {   // [kind, at, length]
-  const L = E - S;
-  if (p.rule === "frac") return p.kind === "rest" ? [["rest", S + p.f * L, (p.f1 - p.f) * L]] : [["chime", S + p.f * L, 0]];
-  if (p.rule === "half") return [[p.kind, S + L / 2, p.kind === "rest" ? p.dur : 0]];
-  if (p.rule === "at") return [[p.kind, p.val, p.kind === "rest" ? p.dur : 0]];
-  if (p.rule === "every") return every(S, E, p.val, p.kind, p.dur);
+function groupTimes(g, S, E) {
+  if (g.rule === "even") return evenly(S, E, g.n, g.kind, g.dur);
+  if (g.rule === "at") return [g.val];
+  if (g.rule === "frac") return [S + g.f * (E - S)];
+  if (g.rule === "pinned") return g.times.slice();
   return [];
 }
-function expand(s) { const {S, E} = span(s), out = []; for (const p of s.pauses) for (const x of places(p, S, E)) if (x[1] > S && x[1] < E) out.push(x); return out.sort((a, b) => a[1] - b[1]); }
+function breaks(s) {   // [kind, start, length, group id, index]
+  const {S, E} = span(s), out = [];
+  for (const g of s.groups) groupTimes(g, S, E).forEach((t, i) => { if (t > S - 1e-6 && t < E) out.push([g.kind, t, g.kind === "rest" ? g.dur : 0, g.id, i]); });
+  return out.sort((a, b) => a[1] - b[1]);
+}
 function fromPre(pre) {
-  const s = Object.assign(fresh(), pre); s.pauses = [];
-  const {S, E} = span(s);
-  for (const r of pre.rules || []) {
-    if (isBdt()) s.pauses.push({id: nid(), kind: "chime", rule: "slice", val: Math.round(r.f * 60)});
-    else if (ring()) s.pauses.push(Object.assign({id: nid(), rule: "frac"}, r));
-    else s.pauses.push({id: nid(), kind: r.kind, rule: "half", dur: r.f1 ? Math.round((r.f1 - r.f) * (E - S)) : 5});
-  }
-  if (ring() && s.pauses.length) {   // the split or the preset the pauses sit on, so they can be edited on the ring
-    const fits = n => s.pauses.every(p => [p.f, p.f1].filter(x => x != null).every(x => Math.abs(x * n - Math.round(x * n)) < 1e-6));
-    if (C().division === "chosen") for (let n = 2; n <= 24; n++) if (fits(n)) { s.split = n; break; }
-    if (C().division === "presets") for (const n of PRESETS) if (fits(n)) { s.preset = n; break; }
-  }
+  const s = Object.assign(fresh(), pre);
+  s.groups = (pre.groups || []).map(g => Object.assign({id: nid()}, g)); s.pauses = [];
+  if (isBdt()) { const {S, E} = span(s); for (const [, t] of breaks(s)) s.pauses.push({id: nid(), val: Math.round((t - S) / (E - S) * 60)}); s.groups = []; }
   return s;
 }
-function bdtExpand(s) { const {S, E} = span(s); return s.pauses.map(p => ["chime", S + (E - S) * p.val / 60, 0]).filter(x => x[1] > S && x[1] < E).sort((a, b) => a[1] - b[1]); }
+function bdtBreaks(s) { const {S, E} = span(s); return s.pauses.map(p => ["chime", S + (E - S) * p.val / 60, 0]).filter(x => x[1] > S && x[1] < E).sort((a, b) => a[1] - b[1]); }
 function diff(s, t) {
-  const {S, E} = span(s), got = isBdt() ? bdtExpand(s) : expand(s), why = [];
+  const {S, E} = span(s), got = isBdt() ? bdtBreaks(s) : breaks(s), why = [];
   if (!(E > S)) return ["the end is not after the start"];
   if (Math.abs(S - t.S) > 0.01) why.push("starts " + fmt(S) + ", the task wants " + fmt(t.S));
   if (Math.abs(E - t.E) > 0.01) why.push("ends " + fmt(E) + ", the task wants " + fmt(t.E));
   const same = got.length === t.p.length && got.every((x, i) => x[0] === t.p[i][0] && Math.abs(x[1] - t.p[i][1]) <= 0.5 && Math.abs(x[2] - t.p[i][2]) <= 0.5);
-  if (!same) why.push("pauses: " + describe(got) + "; the task wants " + describe(t.p));
+  if (!same) why.push("breaks: " + describe(got) + "; the task wants " + describe(t.p));
   return why;
 }
 function describe(list) {
   if (!list.length) return "none";
   const k = {}; for (const [kind] of list) k[kind] = (k[kind] || 0) + 1;
   const head = Object.entries(k).map(([kind, n]) => n + " " + (kind === "rest" ? (n > 1 ? "rests" : "rest") : (n > 1 ? "chimes" : "chime"))).join(", ");
-  return head + " · " + list.slice(0, 4).map(x => fmt(x[1]) + (x[0] === "rest" ? "–" + fmt(x[1] + x[2]) : "")).join(", ") + (list.length > 4 ? ", …" : "");
+  return head + " · " + list.slice(0, 4).map(x => fmtS(x[1]) + (x[0] === "rest" ? "–" + fmtS(x[1] + x[2]) : "")).join(", ") + (list.length > 4 ? ", …" : "");
 }
 
 /* ---- bookkeeping ---- */
@@ -203,65 +207,62 @@ const phone = document.getElementById("phone");
 function render() {
   if (!st) { N = nowMin(); task = makeTask(taskId, N); st = task.pre ? fromPre(task.pre) : fresh(); ui = {}; }
   if (isBdt()) return renderBdt();
-  const ps = expand(st);
+  const bs = breaks(st);
   let h = '<div class="bgl"><div class="bgh">Measuring</div>' + ["Water", "Walk", "Reading", "Push-ups", "Sleep"].map(n => '<div class="bgr">' + n + "</div>").join("") + "</div>";
   h += '<div class="scrim2" data-a="close"></div><div class="sheet">';
   h += '<div class="top"><span class="tap" data-a="cancel">Cancel</span><span class="ttl">Paced timer · Reading</span><span class="tap" data-a="start"><b>Start</b></span></div>';
   if (ui.toast) h += '<div class="toast2">' + esc(ui.toast) + "</div>";
   const area = areaHTML();
   if (area) h += '<div class="area">' + area + "</div>";
-  h += '<div class="foot">' + runHTML() + pauseFootHTML() +
-       '<div class="crow"><span class="small">' + (ps.length ? esc(describe(ps)) : "No pauses yet") + '</span><span><span class="tap' + (hist.past.length ? "" : " off") +
+  h += '<div class="foot">' + runHTML() + clauseHTML() +
+       '<div class="crow"><span class="small">' + (bs.length ? esc(describe(bs)) : "No breaks yet") + '</span><span><span class="tap' + (hist.past.length ? "" : " off") +
        '" data-a="undo" aria-label="Undo">↶</span><span class="tap' + (hist.future.length ? "" : " off") + '" data-a="redo" aria-label="Redo">↷</span></span></div></div></div>';
   if (!rec) h += '<div class="idle">' + esc(task.text) + "<br><br>Press Begin.</div>";
   phone.innerHTML = h;
   if (ui.focus) { const el = phone.querySelector('[data-f="' + ui.focus + '"]'); if (el) { el.focus(); if (el.select) el.select(); } ui.focus = null; }
 }
-// a time box: a writable field (the phone's keyboard); on a dial sheet a tap opens the dial and ⌨ types instead
-function timeBox(f, txt) {
-  if (C().time === "typed" || ui.typing === f) return '<input class="box" data-f="' + f + '" inputmode="numeric" enterkeyhint="done" value="' + esc(txt) + '" aria-label="' + f + '">';
-  return '<span class="box' + (ui.dial && ui.dial.f === f ? " ed" : "") + '" data-a="dial:' + f + '">' + esc(txt) + "</span>";
+// a time or length box: a field for the phone's keyboard; on a dial sheet a tap opens the dial and ⌨ types instead
+function timeBox(f, typedTxt, dialTxt) {
+  if (C().time === "typed" || ui.typing === f) return '<input class="box" data-f="' + f + '" inputmode="numeric" enterkeyhint="done" value="' + esc(typedTxt) + '" aria-label="' + f + '">';
+  return '<span class="box' + (ui.dial && ui.dial.f === f ? " ed" : "") + '" data-a="dial:' + f + '">' + esc(dialTxt) + "</span>";
 }
 const numBox = (f, txt) => '<input class="box sm2" data-f="' + f + '" inputmode="numeric" enterkeyhint="done" value="' + esc(txt) + '" aria-label="' + f + '">';
 function runHTML() {
   const {S, E} = span(st);
   const word = st.startAt != null ? "From" : st.endKind === "len" ? "For" : "Until";
-  const typed = C().time === "typed" || ui.typing;
   let h = '<div class="sent"><span class="tok" data-a="cyc">' + word + "</span> ";
-  if (word === "For") h += timeBox("len", typed ? String(st.len) : dur(st.len)) + ' <span class="sm">' + (typed ? "min " : "") + "· ends " + fmt(E) + "</span>";
-  else if (word === "Until") h += timeBox("endAt", fmt(st.endAt)) + ' <span class="sm">· ' + dur(E - S) + "</span>";
-  else h += timeBox("startAt", fmt(st.startAt)) + " to " + timeBox("endAt", fmt(E));
+  if (word === "For") h += timeBox("len", String(st.len), dur(st.len)) + ' <span class="sm">· ends ' + fmt(E) + "</span>";
+  else if (word === "Until") h += timeBox("endAt", fmt(st.endAt), fmt(st.endAt)) + ' <span class="sm">· ' + dur(E - S) + "</span>";
+  else h += timeBox("startAt", fmt(st.startAt), fmt(st.startAt)) + " to " + timeBox("endAt", fmt(E), fmt(E));
   return h + "</div>";
 }
-function pauseWordsHTML() {
+function fracName(f) { for (const n of [2, 3, 4, 5, 6, 8, 10, 12]) for (let k = 1; k < n; k++) if (Math.abs(f - k / n) < 1e-6) return k === 1 ? (FR[n] || "1/" + n) : k + "/" + n; return null; }
+function clauseHTML() {
   let h = '<div class="sent">';
-  st.pauses.forEach((p, i) => {
-    if (p.rule === "frac") {   // made on the ring: listed with its fraction and time, removable here as well
-      const {S, E} = span(st), L = E - S, fr = fracName(p.f);
-      h += "<div>with " + (p.kind === "rest" ? "a rest of " + dur((p.f1 - p.f) * L) + " from " : "a chime at ") + (fr ? fr + " · " : "") + fmt(S + p.f * L) +
-           ' <span class="x" data-a="del:' + i + '" aria-label="Remove">×</span></div>';
-      return;
-    }
-    const where = p.rule === "half" ? "halfway" : p.rule === "every" ? "every" : "at";
-    const val = p.rule === "every" ? " " + numBox("ev" + i, p.val) + " min" : p.rule === "at" ? " " + numBox("at" + i, fmt(p.val)) : "";
-    h += '<div>with <span class="tok" data-a="kind:' + i + '">' + (p.kind === "rest" ? "a rest of" : "a chime") + "</span> " + (p.kind === "rest" ? numBox("d" + i, p.dur) + " min " : "") +
-         '<span class="tok' + (ui.menu && ui.menu.of === "w" + i ? " open" : "") + '" data-a="where:' + i + '">' + where + "</span>" + val + ' <span class="x" data-a="del:' + i + '" aria-label="Remove">×</span></div>';
-  });
-  return h + '<div><span class="tok" data-a="add">+ pause</span></div></div>';
-}
-function pauseFootHTML() {
-  let h = words() ? pauseWordsHTML() : "";
-  if (ring()) { const n = st.pauses.filter(p => p.rule === "frac").length; h += '<div class="sent"><span class="tok' + (ui.placer ? " open" : "") + '" data-a="placer">the ring' + (n ? " · " + n + (n > 1 ? " pauses" : " pause") : "") + "</span></div>"; }
+  for (const g of st.groups) {
+    const kindTxt = g.kind === "rest" ? (g.rule === "even" && g.n > 1 ? "rests of" : "a rest of") : (g.rule === "even" && g.n > 1 ? "chimes" : g.rule === "even" ? "chime" : "a chime");
+    let row = "with ";
+    if (g.rule === "even") row += numBox("gn." + g.id, g.n) + " ";
+    if (g.rule === "pinned") row += g.times.length + " ";
+    row += '<span class="tok" data-a="kind:' + g.id + '">' + (g.rule === "pinned" ? (g.kind === "rest" ? (g.times.length > 1 ? "rests of" : "rest of") : (g.times.length > 1 ? "chimes" : "chime")) : kindTxt) + "</span> ";
+    if (g.kind === "rest") row += timeBox("glen." + g.id, String(g.dur), dur(g.dur)) + " ";
+    if (g.rule === "even") row += '<span class="tok' + (ui.menu && ui.menu.of === g.id ? " open" : "") + '" data-a="where:' + g.id + '">evenly</span>';
+    else if (g.rule === "at") row += '<span class="tok" data-a="where:' + g.id + '">at</span> ' + timeBox("gat." + g.id, fmt(g.val), fmt(g.val));
+    else if (g.rule === "frac") row += '<span class="tok" data-a="where:' + g.id + '">at</span> ' + numBox("gfr." + g.id, fracName(g.f) || (Math.round(g.f * 100) / 100));
+    else row += '<span class="tok" data-a="where:' + g.id + '">placed by hand</span>';
+    h += "<div>" + row + ' <span class="x" data-a="del:' + g.id + '" aria-label="Remove">×</span></div>';
+  }
+  h += '<div><span class="tok" data-a="add">+ break</span>' + (ring() && C().face === "chooser" ? ' <span class="tok' + (ui.placer ? " open" : "") + '" data-a="placer">the ring</span>' : "") + "</div></div>";
   return h;
 }
 function areaHTML() {
   if (ui.dial) return dialHTML();
   if (ui.menu) return '<div class="ttl"><span>' + esc(ui.menu.title) + "</span></div>" + ui.menu.items.map(([t, a]) => '<div class="it" data-a="' + a + '">' + esc(t) + "</div>").join("");
-  if (ring() && ui.placer) return ringHTML();
+  if (ring() && (ui.placer || C().face === "shown")) return ringHTML();
   return "";
 }
 
-/* ---- the dials ---- */
+/* ---- the dials (hours then minutes; a length's hours outside, minutes inside) ---- */
 const CX = 130, CY = 130;
 const ang = f => 2 * Math.PI * f - Math.PI / 2;
 const XY = (r, f) => [CX + r * Math.cos(ang(f)), CY + r * Math.sin(ang(f))];
@@ -271,8 +272,8 @@ function radAt(e) { const q = svgPt(e); return Math.hypot(q.x - CX, q.y - CY); }
 function label(x, y, t, on, size) { return (on ? '<circle cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="19" fill="var(--fg)" fill-opacity=".22"/>' : "") + '<text x="' + x.toFixed(1) + '" y="' + (y + 5).toFixed(1) + '" text-anchor="middle" font-size="' + size + '" fill="var(--fg)">' + t + "</text>"; }
 function dialHTML() {
   const d = ui.dial;
-  const title = d.len ? "Length: hours outside, minutes inside" : (d.f === "startAt" ? "Starts" : "Ends") + (d.stage === "h" ? " · the hour" : " · the minute");
-  let h = '<div class="ttl"><span>' + title + '</span>' + (isBdt() ? "" : '<span class="tap" data-a="typeit" aria-label="Type instead">⌨</span>') +
+  const title = d.len ? "Length: hours outside, minutes inside" : (d.f === "startAt" ? "Starts" : d.f === "endAt" ? "Ends" : "At") + (d.stage === "h" ? " · the hour" : " · the minute");
+  let h = '<div class="ttl"><span>' + title + "</span>" + (isBdt() || d.f === "brk" ? "" : '<span class="tap" data-a="typeit" aria-label="Type instead">⌨</span>') +
           '</div><svg class="face" id="face" width="260" height="260" viewBox="0 0 260 260"><circle cx="130" cy="130" r="126" fill="var(--zone2)" data-drag="dial"/>';
   if (d.len) {
     for (let i = 0; i < 12; i++) { const hr = i || 12, [x, y] = XY(104, i / 12); h += label(x, y, hr, d.h === hr, 16); }
@@ -289,84 +290,90 @@ function dialHTML() {
   }
   return h + "</svg>";
 }
-function openDial(f, asLen) {
+function grp(id) { return st.groups.find(g => g.id === +id); }
+function openDial(f) {
   const {S, E} = span(st);
-  if (f === "len" || asLen) { const L = Math.round(E - S); ui.dial = {f: "len", len: true, h: Math.min(12, Math.floor(L / 60)), m: L % 60}; }
-  else { const t = f === "startAt" ? S : E; ui.dial = {f, stage: "h", h: Math.floor(((t % 1440) + 1440) % 1440 / 60), m: null}; }
+  const [kind, gid] = f.split(".");
+  if (f === "len" || kind === "glen" || f === "bdtlen") { const L = f === "len" || f === "bdtlen" ? Math.round(E - S) : grp(gid).dur; ui.dial = {f, len: true, h: Math.min(12, Math.floor(L / 60)), m: L % 60}; return; }
+  const t = f === "startAt" ? S : f === "endAt" ? E : kind === "gat" ? grp(gid).val : selTime();
+  ui.dial = {f, stage: "h", h: Math.floor(((Math.round(t) % 1440) + 1440) % 1440 / 60), m: null};
 }
 function dialPress(e, done) {
-  const d = ui.dial, f = fracAt(e), r = radAt(e), {S} = span(st);
-  if (d.len) {   // hours on the outer ring, minutes on the inner one: they add up
+  const d = ui.dial, f = fracAt(e), r = radAt(e), {S, E} = span(st);
+  if (d.len) {
     if (r < 84) d.m = Math.round(f * 60) % 60;
     else if (done) { const hr = Math.round(f * 12) % 12 || 12; d.h = d.h === hr ? 0 : hr; }
     const L = d.h * 60 + d.m;
-    if (done && L > 0) { st.endKind = "len"; st.len = L; st.endAt = null; fix("len"); }
+    if (done && L > 0) {
+      fix(d.f);
+      if (d.f === "len" || d.f === "bdtlen") { st.endKind = "len"; st.len = L; st.endAt = null; }
+      else grp(d.f.split(".")[1]).dur = L;
+    }
     return;
   }
-  if (d.stage === "h") {
-    if (!done) return;
-    const i = Math.round(f * 12) % 12;
-    d.h = r >= 85 ? (i || 12) : (i ? i + 12 : 0);
-    d.stage = "m"; return;
-  }
+  if (d.stage === "h") { if (!done) return; const i = Math.round(f * 12) % 12; d.h = r >= 85 ? (i || 12) : (i ? i + 12 : 0); d.stage = "m"; return; }
   d.m = Math.round(f * 60) % 60;
   if (!done) return;
   const t = d.h * 60 + d.m;
   fix(d.f);
-  if (d.f === "startAt") { const L = span(st).E - span(st).S; st.startAt = nextAt(t, N); if (st.endKind === "len") st.len = L; else st.endAt = nextAt(st.endAt % 1440, st.startAt + 1); }
-  else { st.endKind = "at"; st.endAt = nextAt(t, S + 1); }
+  if (d.f === "startAt") { const L = E - S; st.startAt = nextAt(t, N); if (st.endKind === "len") st.len = L; else st.endAt = nextAt(st.endAt % 1440, st.startAt + 1); }
+  else if (d.f === "endAt") { st.endKind = "at"; st.endAt = nextAt(t, S + 1); }
+  else if (d.f.startsWith("gat")) grp(d.f.split(".")[1]).val = nextAt(t, S);
+  else if (d.f === "brk") moveSel(nextAt(t, S));
   ui.dial = null;
 }
 function nextAt(clock, from) { let t = clock; while (t < from) t += 1440; return t; }
 function parseTime(b) { b = String(b).replace(/\D/g, ""); if (!b) return null; const n = b.length <= 2 ? [+b, 0] : [+b.slice(0, b.length - 2), +b.slice(-2)]; return n[0] < 24 && n[1] < 60 ? n[0] * 60 + n[1] : null; }
 function parseLen(b) { const s = String(b).trim(); let m = s.match(/^(\d+)\s*h\s*(\d+)?/i); if (m) return +m[1] * 60 + (+m[2] || 0); m = s.match(/^(\d+):(\d{2})$/); if (m) return +m[1] * 60 + +m[2]; m = s.match(/^(\d+)/); return m ? +m[1] : null; }
+function parseFrac(b) { const s = String(b).replace(/\s/g, ""); const u = {"½": 1 / 2, "⅓": 1 / 3, "¼": 1 / 4, "⅙": 1 / 6, "⅛": 1 / 8}[s]; if (u) return u; let m = s.match(/^(\d+)\/(\d+)$/); if (m && +m[1] < +m[2]) return +m[1] / +m[2]; m = s.match(/^(\d+)$/); if (m && +m[1] > 1) return 1 / +m[1]; return null; }
 
-/* ---- the run ring: the whole run, at any length ---- */
-function fracName(f) { for (const n of [2, 3, 4, 5, 6, 8, 10, 12]) for (let k = 1; k < n; k++) if (Math.abs(f - k / n) < 1e-6) return k === 1 ? (FR[n] || "1/" + n) : k + "/" + n; return null; }
-function snapFrac(f, L) {
-  for (const n of SNAP) for (let k = 1; k < n; k++) if (Math.abs(f - k / n) < 0.015) return {f: k / n, label: k === 1 ? FR[n] : k + "/" + n};
-  return {f: Math.round(f * L) / L, label: null};
+/* ---- the ring: shows the run and its breaks; a tap selects one ---- */
+function selTime() { if (!ui.sel) return null; const g = grp(ui.sel.gid); if (!g) return null; const {S, E} = span(st); return groupTimes(g, S, E)[ui.sel.i]; }
+function pin(g) { if (g.rule !== "pinned") { const {S, E} = span(st); g.times = groupTimes(g, S, E); g.rule = "pinned"; delete g.n; } }
+function moveSel(t) {   // moving one break fixes its whole group where it is
+  const g = grp(ui.sel.gid); if (!g) return;
+  const {S, E} = span(st);
+  t = Math.max(S + 0.5, Math.min(E - 0.5 - (g.kind === "rest" ? g.dur : 0), t));
+  if (g.rule === "at") { g.val = t; return; }
+  if (g.rule === "frac") { g.rule = "at"; g.val = t; return; }
+  pin(g); g.times[ui.sel.i] = t;
 }
-function grid() { return C().division === "chosen" ? st.split : C().division === "presets" ? st.preset : 0; }
+function removeSel() {
+  const g = grp(ui.sel.gid); if (!g) return;
+  if (g.rule === "even" && g.n > 1) { pin(g); }
+  if (g.rule === "pinned") { g.times.splice(ui.sel.i, 1); if (!g.times.length) st.groups.splice(st.groups.indexOf(g), 1); }
+  else st.groups.splice(st.groups.indexOf(g), 1);
+  ui.sel = null; fix(null);
+}
+function snapFrac(f, L) { for (const n of SNAP) for (let k = 1; k < n; k++) if (Math.abs(f - k / n) < 0.02) return {f: k / n, label: k === 1 ? FR[n] : k + "/" + n}; return {f: Math.round(f * L) / L, label: null}; }
 function ringHTML() {
-  const {S, E} = span(st), L = E - S, n = grid();
+  const {S, E} = span(st), L = E - S;
   let h = '<svg class="face" id="face" width="260" height="260" viewBox="0 0 260 260"><circle cx="130" cy="130" r="96" fill="none" stroke="var(--zone2)" stroke-width="52" data-drag="ring"/>';
-  if (n > 1) for (let k = 0; k < n; k++) { const [x1, y1] = XY(70, k / n), [x2, y2] = XY(122, k / n); h += '<line x1="' + x1.toFixed(1) + '" y1="' + y1.toFixed(1) + '" x2="' + x2.toFixed(1) + '" y2="' + y2.toFixed(1) + '" stroke="var(--zone)" stroke-width="3"/>'; }
-  if (C().division === "snap") for (const k of [1, 2, 3]) { const [x1, y1] = XY(123, k / 4), [x2, y2] = XY(129, k / 4); h += '<line x1="' + x1.toFixed(1) + '" y1="' + y1.toFixed(1) + '" x2="' + x2.toFixed(1) + '" y2="' + y2.toFixed(1) + '" stroke="var(--dim)" stroke-width="2"/>'; }
-  for (const p of st.pauses) {
-    if (p.rule !== "frac") continue;
-    if (p.kind === "rest") h += '<path d="M' + XY(96, p.f).map(v => v.toFixed(1)).join(" ") + " A96 96 0 " + (p.f1 - p.f > 0.5 ? 1 : 0) + " 1 " + XY(96, p.f1).map(v => v.toFixed(1)).join(" ") + '" stroke="var(--dim)" stroke-width="40" fill="none" pointer-events="none"/>';
-    else { const [x1, y1] = XY(72, p.f), [x2, y2] = XY(120, p.f); h += '<line x1="' + x1.toFixed(1) + '" y1="' + y1.toFixed(1) + '" x2="' + x2.toFixed(1) + '" y2="' + y2.toFixed(1) + '" stroke="var(--fg)" stroke-width="6" stroke-linecap="round" pointer-events="none"/>'; }
-  }
-  for (const [, t] of expand(st)) if (!st.pauses.some(p => p.rule === "frac" && Math.abs(S + p.f * L - t) < 0.01)) {   // pauses made by the words, dashed
-    const f = (t - S) / L, [x1, y1] = XY(80, f), [x2, y2] = XY(112, f); h += '<line x1="' + x1.toFixed(1) + '" y1="' + y1.toFixed(1) + '" x2="' + x2.toFixed(1) + '" y2="' + y2.toFixed(1) + '" stroke="var(--fg)" stroke-width="2" stroke-dasharray="3 3" pointer-events="none"/>';
+  if (C().drag === "rough") for (const k of [1, 2, 3]) { const [x1, y1] = XY(123, k / 4), [x2, y2] = XY(129, k / 4); h += '<line x1="' + x1.toFixed(1) + '" y1="' + y1.toFixed(1) + '" x2="' + x2.toFixed(1) + '" y2="' + y2.toFixed(1) + '" stroke="var(--dim)" stroke-width="2"/>'; }
+  for (const [kind, t, len, gid, i] of breaks(st)) {
+    const f = (t - S) / L, on = ui.sel && ui.sel.gid === gid && ui.sel.i === i;
+    if (kind === "rest") { const f1 = (t + len - S) / L; h += '<path d="M' + XY(96, f).map(v => v.toFixed(1)).join(" ") + " A96 96 0 " + (f1 - f > 0.5 ? 1 : 0) + " 1 " + XY(96, f1).map(v => v.toFixed(1)).join(" ") + '" stroke="' + (on ? "var(--fg)" : "var(--dim)") + '" stroke-width="' + (on ? 48 : 40) + '" fill="none"/>'; }
+    else { const [x1, y1] = XY(70, f), [x2, y2] = XY(122, f); h += '<line x1="' + x1.toFixed(1) + '" y1="' + y1.toFixed(1) + '" x2="' + x2.toFixed(1) + '" y2="' + y2.toFixed(1) + '" stroke="var(--fg)" stroke-width="' + (on ? 10 : 5) + '" stroke-linecap="round"/>'; }
   }
   const rd = ui.drag && ui.drag.kind === "ring" ? ui.drag : null;
-  if (rd && rd.cur) { const [x1, y1] = XY(68, rd.cur.f), [x2, y2] = XY(124, rd.cur.f); h += '<line x1="' + x1.toFixed(1) + '" y1="' + y1.toFixed(1) + '" x2="' + x2.toFixed(1) + '" y2="' + y2.toFixed(1) + '" stroke="var(--fg)" stroke-width="3" opacity=".6" pointer-events="none"/>'; }
-  h += '<text x="130" y="126" text-anchor="middle" font-size="16" fill="var(--fg)">' + (rd && rd.cur ? (rd.cur.label ? rd.cur.label + " · " : "") + fmt(S + rd.cur.f * L) : dur(L)) + '</text><text x="130" y="146" text-anchor="middle" font-size="11" fill="var(--dim)">' +
-       (rd && rd.moved && !rd.mark ? "rest " + dur(Math.abs(rd.cur.f - rd.f0) * L) : fmt(S) + "–" + fmt(E)) + "</text></svg>";
-  if (C().division === "chosen") h += '<div class="sent">split into ' + numBox("split", st.split || "") + ' <span class="tok" data-a="fill">fill all</span></div><div class="sm">Tap a line for a chime there, a slice to make it a rest; drag across slices for a longer rest.</div>';
-  else if (C().division === "presets") h += '<div class="pbar"><span class="tap" data-a="pre:-1" aria-label="Previous preset">‹</span><b>' + (st.preset ? "1/" + st.preset + " · " + (st.preset - 1) + (st.preset > 2 ? " chimes" : " chime") : "Break presets") + '</b><span class="tap" data-a="pre:1" aria-label="Next preset">›</span></div><div class="sm">Tap a line to toggle a chime, a slice to make it a rest; drag across slices for a longer rest.</div>';
-  else h += '<div class="sm">Tap the ring for a chime; drag along it for a rest. Places snap to ½, ⅓, ¼, ⅙, ⅛ near them, otherwise to the minute. Drag a chime to move it; tap one to remove it.</div>';
+  const center = rd && rd.moving ? fmtS(selTime()) : rd && rd.cur && C().drag === "rough" && !rd.hit ? (rd.cur.label ? rd.cur.label + " · " : "") + fmtS(S + rd.cur.f * L) : dur(L);
+  h += '<text x="130" y="' + (rd && rd.moving ? 138 : 126) + '" text-anchor="middle" font-size="' + (rd && rd.moving ? 30 : 16) + '" fill="var(--fg)">' + center + "</text>" +
+       (rd && rd.moving ? "" : '<text x="130" y="146" text-anchor="middle" font-size="11" fill="var(--dim)">' + fmt(S) + "–" + fmt(E) + "</text>") + "</svg>";
+  if (ui.sel && selTime() != null) {
+    const g = grp(ui.sel.gid), t = selTime(), what = (g.kind === "rest" ? "Rest " : "Chime ") + (ui.sel.i + 1);
+    if (C().move === "dial") h += '<div class="selp"><span>' + what + "</span>" + '<span class="box" data-a="dial:brk">' + fmtS(t) + '</span><span class="tap" data-a="rm">Remove</span></div>';
+    else if (C().move === "nudge") h += '<div class="selp"><span>' + what + ' · <span class="big">' + fmtS(t) + '</span></span><span><span class="tap" data-a="nudge:-1" aria-label="A minute earlier">−</span><span class="tap" data-a="nudge:1" aria-label="A minute later">+</span><span class="tap" data-a="rm">Remove</span></span></div>';
+    else h += '<div class="selp"><span>' + what + ' · <span class="big">' + fmtS(t) + '</span> <span class="sm">drag it, slowed</span></span><span class="tap" data-a="rm">Remove</span></div>';
+  } else h += '<div class="sm">Tap a break to select it' + (C().drag === "rough" ? "; press an empty part of the ring to add a chime there (it snaps to ½, ⅓, ¼, ⅙, ⅛ near them)." : ".") + "</div>";
   return h;
 }
-function ringTap(f) {   // a tap at a fraction
-  const {S, E} = span(st), L = E - S, n = grid();
-  if (C().division === "snap") {
-    const near = st.pauses.find(p => p.rule === "frac" && (p.kind === "chime" ? Math.abs(p.f - f) < 0.02 : f >= p.f && f <= p.f1));
-    if (near) { st.pauses.splice(st.pauses.indexOf(near), 1); fix(null); return; }
-    st.pauses.push({id: nid(), kind: "chime", rule: "frac", f: snapFrac(f, L).f}); return;
+function hitBreak(f) {   // the break under a press, if any
+  const {S, E} = span(st), L = E - S; let best = null, bd = 0.035;
+  for (const [kind, t, len, gid, i] of breaks(st)) {
+    const f0 = (t - S) / L, f1 = (t + len - S) / L, d = kind === "rest" && f >= f0 && f <= f1 ? 0 : Math.min(Math.abs(f - f0), Math.abs(f - f1));
+    if (d < bd) { bd = d; best = {gid, i}; }
   }
-  if (n < 2) { ui.toast = C().division === "chosen" ? "Split the run first: split into [N]." : "Pick a preset with ‹ ›."; return; }
-  const k = Math.round(f * n), dist = Math.abs(f * n - k);
-  if (dist < 0.25 && k % n !== 0) {
-    const i = st.pauses.findIndex(p => p.rule === "frac" && p.kind === "chime" && Math.abs(p.f - k / n) < 1e-6);
-    if (i >= 0) { st.pauses.splice(i, 1); fix(null); } else st.pauses.push({id: nid(), kind: "chime", rule: "frac", f: k / n});
-  } else {
-    const s0 = Math.floor(f * n) / n, s1 = s0 + 1 / n;
-    const i = st.pauses.findIndex(p => p.rule === "frac" && p.kind === "rest" && Math.abs(p.f - s0) < 1e-6);
-    if (i >= 0) { st.pauses.splice(i, 1); fix(null); } else st.pauses.push({id: nid(), kind: "rest", rule: "frac", f: s0, f1: s1});
-  }
+  return best;
 }
 
 /* ---- Break Down Timer, with its presets ---- */
@@ -381,7 +388,7 @@ function renderBdt() {
   }
   h += '<circle cx="130" cy="130" r="62" fill="var(--zone)" data-a="bc"/><text x="130" y="128" text-anchor="middle" font-size="16" fill="var(--fg)">' + (st.endKind === "len" ? dur(st.len) : "until " + fmt(E)) +
        '</text><text x="130" y="146" text-anchor="middle" font-size="11" fill="var(--dim)">tap to set</text></svg>';
-  const ps = bdtExpand(st);
+  const ps = bdtBreaks(st);
   h += '<div class="list">' + st.pauses.length + " breaks placed · " + (ps.length ? esc(describe(ps)) : "") + "</div></div>";
   h += '<div class="start" data-a="start">▶ Start ▾</div>';
   if (ui.toast) h += '<div class="toast">' + esc(ui.toast) + "</div>";
@@ -395,31 +402,32 @@ function cyclePreset(dir) { const i = PRESETS.indexOf(st.preset), j = i < 0 ? (d
 phone.addEventListener("keydown", e => { if (rec && e.target.matches("input")) { rec.keys++; if (e.key === "Enter") e.target.blur(); } }, true);
 phone.addEventListener("change", e => {
   if (!rec || !e.target.matches("input[data-f]")) return;
-  const f = e.target.dataset.f, v = e.target.value, before = JSON.stringify(st), {S} = span(st);
+  const f = e.target.dataset.f, v = e.target.value, before = JSON.stringify(st), {S, E} = span(st);
+  const [kind, gid] = f.split(".");
   ui.toast = null; ui.typing = null;
   if (f === "len") { const L = parseLen(v); if (L > 0) { st.endKind = "len"; st.len = L; fix("len"); } else ui.toast = "Not a length: " + v; }
   else if (f === "startAt" || f === "endAt") {
     const t = parseTime(v); if (t == null) ui.toast = "Not a time: " + v;
-    else if (f === "startAt") { const L = span(st).E - span(st).S; st.startAt = nextAt(t, N); if (st.endKind === "len") st.len = L; else st.endAt = nextAt(st.endAt % 1440, st.startAt + 1); fix(f); }
+    else if (f === "startAt") { const L = E - S; st.startAt = nextAt(t, N); if (st.endKind === "len") st.len = L; else st.endAt = nextAt(st.endAt % 1440, st.startAt + 1); fix(f); }
     else { st.endKind = "at"; st.endAt = nextAt(t, S + 1); fix(f); }
-  } else if (f === "split") { const n = Math.max(0, Math.min(24, parseInt(v, 10) || 0)); if (st.split !== n) st.pauses = st.pauses.filter(p => p.rule !== "frac"); st.split = n; fix("split"); }
-  else if (f[0] === "d") st.pauses[+f.slice(1)].dur = +v || st.pauses[+f.slice(1)].dur;
-  else if (f.startsWith("ev")) st.pauses[+f.slice(2)].val = +v || st.pauses[+f.slice(2)].val;
-  else if (f.startsWith("at")) { const t = parseTime(v); if (t != null) st.pauses[+f.slice(2)].val = nextAt(t, S); }
+  } else if (kind === "gn") { const n = parseInt(v, 10); if (n > 0 && n <= 60) { grp(gid).n = n; fix(f); } else ui.toast = "Not a number of breaks: " + v; }
+  else if (kind === "glen") { const L = parseLen(v); if (L > 0) { grp(gid).dur = L; fix(f); } else ui.toast = "Not a length: " + v; }
+  else if (kind === "gat") { const t = parseTime(v); if (t != null) { grp(gid).val = nextAt(t, S); fix(f); } else ui.toast = "Not a time: " + v; }
+  else if (kind === "gfr") { const fr = parseFrac(v); if (fr) { grp(gid).f = fr; fix(f); } else ui.toast = "Not a fraction (try 1/3 or 3): " + v; }
   step(before); render();
 });
 phone.addEventListener("pointerdown", e => {
   if (!rec) return;
-  if (e.target.matches("input")) { rec.taps++; return; }
   rec.taps++;
+  if (e.target.matches("input")) return;
   const g = e.target.closest("[data-drag]");
   if (!g) return;
   const kind = g.dataset.drag;
   ui.drag = {kind, x0: e.clientX, y0: e.clientY, moved: false, before: JSON.stringify(st)};
   if (kind === "ring") {
-    const {S, E} = span(st), f = fracAt(e);
-    const mark = C().division === "snap" && st.pauses.find(p => p.rule === "frac" && p.kind === "chime" && Math.abs(p.f - f) < 0.03);
-    ui.drag.mark = mark ? mark.id : null; ui.drag.f0 = snapFrac(f, E - S).f; ui.drag.raw0 = f; ui.drag.cur = snapFrac(f, E - S);
+    const {S, E} = span(st), f = fracAt(e), hit = hitBreak(f);
+    ui.drag.f = f; ui.drag.hit = hit; ui.drag.cur = snapFrac(f, E - S);
+    if (hit && C().move === "magnify") { ui.sel = hit; ui.drag.t0 = selTime(); ui.drag.fPrev = f; ui.drag.acc = 0; }
   }
   if (kind === "dial") dialPress(e, false);
   try { phone.setPointerCapture(e.pointerId); } catch (_) {}
@@ -428,7 +436,14 @@ phone.addEventListener("pointerdown", e => {
 phone.addEventListener("pointermove", e => {
   const d = ui.drag; if (!d) return;
   if (Math.hypot(e.clientX - d.x0, e.clientY - d.y0) > 6) d.moved = true;
-  if (d.kind === "ring") { const {S, E} = span(st); d.cur = snapFrac(fracAt(e), E - S); d.rawNow = fracAt(e); if (d.mark && d.moved) { const p = st.pauses.find(q => q.id === d.mark); p.f = d.cur.f; } }
+  if (d.kind === "ring") {
+    const {S, E} = span(st), f = fracAt(e);
+    d.cur = snapFrac(f, E - S);
+    if (d.hit && C().move === "magnify" && d.moved) {   // slowed four times: a whole turn of the finger moves a quarter of the run
+      let df = f - d.fPrev; if (df > 0.5) df -= 1; if (df < -0.5) df += 1; d.fPrev = f; d.acc += df;
+      d.moving = true; moveSel(Math.round(d.t0 + d.acc * (E - S) / 4));
+    }
+  }
   if (d.kind === "dial") dialPress(e, false);
   render();
 });
@@ -437,10 +452,10 @@ phone.addEventListener("pointerup", e => {
   ui.drag = null; ui.marked = performance.now();
   if (d.moved) rec.drags++;
   if (d.kind === "ring") {
-    if (!d.moved) ringTap(d.raw0);
-    else if (d.mark) fix("mk" + d.mark);
-    else if (C().division === "snap") { const a = Math.min(d.f0, d.cur.f), b = Math.max(d.f0, d.cur.f); if (b > a) st.pauses.push({id: nid(), kind: "rest", rule: "frac", f: a, f1: b}); }
-    else { const n = grid(), r1 = d.rawNow == null ? d.raw0 : d.rawNow; if (n > 1) { const a = Math.floor(Math.min(d.raw0, r1) * n) / n, b = (Math.floor(Math.max(d.raw0, r1) * n) + 1) / n; st.pauses.push({id: nid(), kind: "rest", rule: "frac", f: a, f1: Math.min(1, b)}); } }
+    if (d.moving) fix("mv");
+    else if (d.hit) ui.sel = (ui.sel && ui.sel.gid === d.hit.gid && ui.sel.i === d.hit.i && C().move !== "magnify") ? null : d.hit;
+    else if (C().drag === "rough" && !d.moved) { st.groups.push({id: nid(), kind: "chime", rule: "frac", f: d.cur.f, dur: 5}); ui.sel = null; }
+    else ui.sel = null;
   }
   if (d.kind === "dial") dialPress(e, true);
   step(d.before); render();
@@ -460,11 +475,11 @@ function closeAll() { ui.dial = null; ui.menu = null; ui.typing = null; }
 function act(a, b, c) {
   const {S, E} = span(st), L = E - S;
   if (a === "start") { const why = diff(st, task.target); if (why.length) { rec.errors++; ui.toast = "Not yet: " + why.join("; ") + "."; } else finish("ok"); return; }
-  if (a === "undo" || a === "redo") { const from = a === "undo" ? hist.past : hist.future, to = a === "undo" ? hist.future : hist.past; if (!from.length) return; to.push(JSON.stringify(st)); st = JSON.parse(from.pop()); fix(null); closeAll(); return; }
+  if (a === "undo" || a === "redo") { const from = a === "undo" ? hist.past : hist.future, to = a === "undo" ? hist.future : hist.past; if (!from.length) return; to.push(JSON.stringify(st)); st = JSON.parse(from.pop()); fix(null); closeAll(); ui.sel = null; return; }
   if (a === "cancel") { ui.toast = "Cancel closes the sheet. The task goes on: press Start when the run is set."; return; }
-  if (a === "close") { closeAll(); ui.placer = false; return; }
+  if (a === "close") { closeAll(); ui.placer = false; ui.sel = null; return; }
   if (a === "placer") { const was = ui.placer; closeAll(); ui.placer = !was; return; }
-  if (a === "dial") { const same = ui.dial && (ui.dial.f === b || (b === "len" && ui.dial.len)); closeAll(); if (!same) openDial(b); return; }
+  if (a === "dial") { const same = ui.dial && ui.dial.f === b; closeAll(); if (!same) openDial(b); return; }
   if (a === "typeit") { const f = ui.dial.f; ui.dial = null; ui.typing = f; ui.focus = f; return; }
   if (a === "cyc") {
     if (st.startAt == null && st.endKind === "len") { st.endKind = "at"; st.endAt = E; }
@@ -472,27 +487,24 @@ function act(a, b, c) {
     else { st.len = L; st.startAt = null; st.endKind = "len"; }
     closeAll(); return;
   }
-  if (a === "add") { st.pauses.push({id: nid(), kind: "chime", rule: "half", val: 0, dur: 5}); return; }
-  if (a === "del") { st.pauses.splice(+b, 1); fix(null); return; }
-  if (a === "kind") { const p = st.pauses[+b]; p.kind = p.kind === "rest" ? "chime" : "rest"; fix("k" + p.id); return; }
-  if (a === "where") { const was = ui.menu && ui.menu.of === "w" + b; closeAll(); if (!was) ui.menu = {of: "w" + b, title: "Where", items: [["halfway", "wh:" + b + ":half"], ["every … min", "wh:" + b + ":every"], ["at a time …", "wh:" + b + ":at"]]}; return; }
+  if (a === "add") { st.groups.push({id: nid(), kind: "chime", rule: "even", n: 1, dur: 5}); return; }
+  if (a === "del") { const g = grp(b); st.groups.splice(st.groups.indexOf(g), 1); if (ui.sel && ui.sel.gid === +b) ui.sel = null; fix(null); return; }
+  if (a === "kind") { const g = grp(b); g.kind = g.kind === "rest" ? "chime" : "rest"; fix("k" + g.id); return; }
+  if (a === "where") { const was = ui.menu && ui.menu.of === +b; closeAll(); if (!was) ui.menu = {of: +b, title: "Where", items: [["evenly", "wh:" + b + ":even"], ["at a time …", "wh:" + b + ":at"], ["at a fraction of the run …", "wh:" + b + ":frac"]]}; return; }
   if (a === "wh") {
-    const p = st.pauses[+b]; ui.menu = null; fix("w" + p.id);
-    if (c === "half") p.rule = "half"; else if (c === "every") { p.rule = "every"; p.val = 15; ui.focus = "ev" + b; } else { p.rule = "at"; p.val = Math.round(S + L / 2); ui.focus = "at" + b; }
+    const g = grp(b), t0 = groupTimes(g, S, E)[0]; ui.menu = null; fix("w" + g.id);
+    if (c === "even") { g.rule = "even"; g.n = g.n || (g.times ? g.times.length : 1); }
+    else if (c === "at") { g.rule = "at"; g.val = Math.round(t0 != null ? t0 : S + L / 2); if (C().time === "dial") openDial("gat." + g.id); else ui.focus = "gat." + g.id; }
+    else { g.rule = "frac"; g.f = 1 / 3; ui.focus = "gfr." + g.id; }
     return;
   }
-  if (a === "fill") { const n = st.split; if (n > 1) { st.pauses = st.pauses.filter(p => !(p.rule === "frac" && p.kind === "chime")); for (let k = 1; k < n; k++) st.pauses.push({id: nid(), kind: "chime", rule: "frac", f: k / n}); } else ui.toast = "Split the run first."; return; }
-  if (a === "pre") {
-    cyclePreset(+b);
-    st.pauses = st.pauses.filter(p => !(p.rule === "frac" && p.kind === "chime" && p.preset));
-    for (let k = 1; k < st.preset; k++) st.pauses.push({id: nid(), kind: "chime", rule: "frac", f: k / st.preset, preset: true});
-    return;
-  }
+  if (a === "nudge") { const t = selTime(); moveSel(+b > 0 ? Math.floor(t + 1e-6) + 1 : Math.ceil(t - 1e-6) - 1); fix(null); return; }   // to the next whole minute that way
+  if (a === "rm") { removeSel(); return; }
   /* Break Down Timer */
-  if (a === "bpre") { cyclePreset(+b); st.pauses = []; for (let k = 1; k < st.preset; k++) st.pauses.push({id: nid(), kind: "chime", rule: "slice", val: Math.round(k * 60 / st.preset)}); return; }
+  if (a === "bpre") { cyclePreset(+b); st.pauses = []; for (let k = 1; k < st.preset; k++) st.pauses.push({id: nid(), val: Math.round(k * 60 / st.preset)}); return; }
   if (a === "bm") { if (b === "at" && st.endKind !== "at") { st.endKind = "at"; st.endAt = E; } else if (b === "len" && st.endKind !== "len") { st.endKind = "len"; st.len = L; } return; }
-  if (a === "bc") { if (st.endKind === "len") openDial("len", true); else openDial("endAt"); return; }
-  if (a === "bsl") { const i = +b; const k = st.pauses.findIndex(p => p.val === i); if (k >= 0) { st.pauses.splice(k, 1); fix(null); } else if (i > 0) st.pauses.push({id: nid(), kind: "chime", rule: "slice", val: i}); return; }
+  if (a === "bc") { openDial(st.endKind === "len" ? "bdtlen" : "endAt"); return; }
+  if (a === "bsl") { const i = +b; const k = st.pauses.findIndex(p => p.val === i); if (k >= 0) { st.pauses.splice(k, 1); fix(null); } else if (i > 0) st.pauses.push({id: nid(), val: i}); return; }
 }
 
 /* ---- side panel, results, gallery ---- */
@@ -522,7 +534,7 @@ function table() {
 document.getElementById("res").addEventListener("change", e => { const [id, k] = e.target.dataset.r.split(":"); (store.ratings[id] = store.ratings[id] || {})[k] = e.target.value ? +e.target.value : null; save(); });
 document.getElementById("exp").addEventListener("click", () => {
   const out = document.getElementById("out"); out.style.display = "block";
-  out.value = JSON.stringify({page: "pace-try T3b.4d", sheets: DATA.sheets.map(s => s.id), results: store.results, ratings: store.ratings}, null, 1);
+  out.value = JSON.stringify({page: "pace-try T3b.4e", sheets: DATA.sheets.map(s => s.id), results: store.results, ratings: store.ratings}, null, 1);
   out.select(); try { navigator.clipboard.writeText(out.value); } catch (e) {}
 });
 document.getElementById("clr").addEventListener("click", () => { if (confirm("Clear every recorded trial and rating on this page?")) { store = {results: {}, ratings: {}}; save(); table(); side(); } });
