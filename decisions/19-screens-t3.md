@@ -1434,4 +1434,16 @@ Status (then): **T3b.1d and T3b.4e approved; T3b.4f scored (tight, 32 dp drawn),
 | B ("10 rests of 15 min") | 33 | 0 | 446 px (the same) | 207 px | 2.53 |
 | tight (two rows) | 40.5 | 0 | 446 px | 259 px | 2.63 |
 
-Status: **T3b.1d and T3b.4e approved; T3b.4f scored (B and A + C drawn), awaiting the owner's pick; T3b.4b scored.**
+Status (then): **T3b.1d and T3b.4e approved; T3b.4f scored (B and A + C drawn), awaiting the owner's pick; T3b.4b scored.**
+
+**Follow-up (owner, 2026-10-15):**
+> "the x to remove any chimes/rests is not somewhere clearly identifiable. A small 'Reset breaks' line could sit next to undo-redo (same height)? Also, the fractions should appear as selectable chips (above the sentence) rather than something that needs to be written in."
+
+**Applied to B and A + C:**
+- **Fraction chips:** ½ ⅓ ⅔ ¼ ¾ in a row above the sentence, 40 × 32 dp. A tap adds a break at that point of the run, and a second tap removes it.
+- **"Reset breaks":** a text button beside Undo and Redo, at their 48 dp height, in place of the ×. The readout takes its own line above them, because readout, Reset, ↶ and ↷ wrapped on one line.
+- **Measured:** nothing overflows, and Reset and Undo share a row and a height. The sentence is now 271 px at its tallest, up from 207.
+
+Drawing: `docs/screens/t3/pace6-chips.png`.
+
+Status: **T3b.1d and T3b.4e approved; T3b.4f scored (B and A + C with chips and Reset breaks), awaiting the owner's pick; T3b.4b scored.**

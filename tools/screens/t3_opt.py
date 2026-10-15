@@ -3062,7 +3062,9 @@ P6_CSS = """
 .p6.lines .row .sg{justify-self:start}.p6 .sm{font-size:13px;color:var(--dim);margin-left:4px}
 .p6.lines .bx{width:104px;padding:0}.p6.lines .bx.bc{width:56px}.p6.lines .row.idle{visibility:hidden}
 .p6.tight{line-height:normal}.p6.tight .row{display:flex;align-items:center;gap:6px;min-height:52px;white-space:nowrap}
-.p6.tight .w.m{min-width:52px}.p6.tight .bl72{width:72px;font-size:14px}.p6.tight.g4 .row{gap:4px}.p6.tight .bx{min-width:0;padding:0;font-size:15px}.p6.tight .bt{width:56px}.p6.tight .bl{width:84px}.p6.tight .bx.bc{width:40px}
+.p6.tight .w.m{min-width:52px}.p6chips{display:flex;gap:6px;align-items:center;min-height:40px;font-size:13px;color:var(--dim)}
+.p6chips span.c{display:inline-grid;place-items:center;min-width:40px;height:32px;padding:0 10px;border-radius:16px;box-shadow:inset 0 0 0 1px var(--dim);font-size:16px;color:var(--ink)}
+.p6chips span.c.on{background:var(--zone2);box-shadow:none;font-weight:600}.p6reset{display:inline-flex;align-items:center;min-height:48px;padding:0 8px;font-size:14px}.p6.tight .bl72{width:72px;font-size:14px}.p6.tight.g4 .row{gap:4px}.p6.tight .bx{min-width:0;padding:0;font-size:15px}.p6.tight .bt{width:56px}.p6.tight .bl{width:84px}.p6.tight .bx.bc{width:40px}
 """
 
 
@@ -3109,15 +3111,26 @@ def p6_sentence(v, state):
         else:   # "with [N] rests [X]"
             word = parts[2][0].replace("rests of", "rests").replace("rest of", "rest")
             mid = "<span>with</span>" + p6_group("n", str(n)) + word + (p6_group("rest", rest).replace("bx bl", "bx bl72") if rest else "")
-        rows = [first, '<div class="row">%s</div>' % mid, '<div class="row">%s%s</div>' % parts[3]]
+        rows = [first, '<div class="row">%s</div>' % mid, '<div class="row">%s</div>' % parts[3][0]]   # no x: Reset breaks sits with Undo and Redo
         return '<div class="p6 tight%s%s">%s</div>' % (" s32" if v.get("stepper") == 32 else "", " g4" if v["layout"] == "tightAC" else "", "".join(rows))
     return '<div class="p6 flow%s%s">%s</div>' % (" big" if big else "", " s32" if v.get("stepper") == 32 else "", " ".join("%s %s" % (w, c) for w, c in parts))
 
 
+P6_CHIPS = ("½", "⅓", "⅔", "¼", "¾")
+
+
 def pace6_phone(v, state=None):
     state = state or P6_STATES[5]
+    one_row = v.get("layout") in ("tightB", "tightAC") and not v.get("control")
+    chips = ('<div class="p6chips">a break at %s</div>' % "".join('<span class="c%s" data-tap="Chip %s">%s</span>' % (" on" if c == "⅓" and state[0] == "From" else "", c, c)
+                                                         for c in P6_CHIPS)) if one_row else ""
+    reset = '<span class="p6reset" data-tap="Reset breaks">Reset breaks</span>' if one_row else ""
     sheet = ('<div class="psheet"><div class="ptop"><span class="ptap" data-tap="Cancel">Cancel</span><b>Paced timer · Reading</b><span class="ptap" data-tap="Start"><b>Start</b></span></div>'
-             '<div class="pfoot" data-foot="1">%s<div class="plist">10 rests · work blocks of 1 min <span><span class="ptap" data-tap="Undo">↶</span><span class="ptap" data-tap="Redo">↷</span></span></div></div></div>') % p6_sentence(v, state)
+             '<div class="pfoot" data-foot="1">%s%s%s</div></div>') % (chips, p6_sentence(v, state), (
+                 # the readout on its own line, then Reset breaks with Undo and Redo, all at one height
+                 '<div class="small" style="padding:2px 4px">10 rests · work blocks of 1 min</div><div class="plist">%s<span><span class="ptap" data-tap="Undo">↶</span>'
+                 '<span class="ptap" data-tap="Redo">↷</span></span></div>' % reset) if one_row else
+                 '<div class="plist">10 rests · work blocks of 1 min <span><span class="ptap" data-tap="Undo">↶</span><span class="ptap" data-tap="Redo">↷</span></span></div>')
     return kit.phone(kit.header("Measuring", (("⌕", "Search"),), ("‹", "Back")), '<div class="scrim"></div>' + sheet, kit.bar("Hub"))
 
 
