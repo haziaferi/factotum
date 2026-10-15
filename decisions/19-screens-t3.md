@@ -1357,4 +1357,35 @@ Checked on the trial page: 5 scripted tasks correct on Start, with counts set by
 - where the Paced timer lives while running (T3b.4b scored; its header mark overlaps "where running timers show");
 - several running timers; goals; editing a session; time totals and charts.
 
-Status: **T3b.1d and T3b.4e approved; T3b.4b scored (where it lives, pending).**
+Status (then): **T3b.1d and T3b.4e approved; T3b.4b scored (where it lives, pending).**
+
+### T3b.4f The approved sentence: steppers at the boxes' height; flowing, or one part per line (owner, 2026-10-15)
+
+> "the size of the buttons should not be bigger than the height of the time boxes nor the tappable words. I would also consider having each part of the sentence on a different line, to avoid it growing unexpectedly and breaking while tapping. Leave out all other options right now and try scoring these two."
+
+**Part `pace6`:**
+- **layout:** flowing (it wraps where it must) / one part per line (a word column and a column of [−][box][+]);
+- **steppers:** 44 dp, the boxes' height, in both;
+- **control:** the approved sheet as it was, flowing, with 48 dp steppers.
+
+**Measured in the browser over a walk of 8 taps:** a length 45 → 50 min → 1 h 5 min; a count 1 → 9 → 10; a chime → rests of 5 → 15 min; For → Until → From…to.
+
+| Measure | Flowing | One part per line | Control |
+|---|---|---|---|
+| Distance the tapped control moves | 118 px | **0** | 88 px |
+| Distance other controls move | 931 px | **0** | 861 px |
+| Largest single jump | 110 px | **0** | 283 px |
+| Height at its tallest | 273 px | 311 px | **267 px** |
+| Mean reach to the steppers | 2.00 | 2.36 | **1.87** |
+| Stepper taller than its box | no | no | 4 dp |
+| Like the When sentence | yes | partly | yes |
+
+**One part per line holds still only with two fixes** found while measuring it:
+- **boxes of a fixed width** (times wide, counts narrow): otherwise the + slid with its box's text;
+- **the run's second row kept, blank until From…to:** otherwise the new row lifted every row above it, since the sheet is anchored at its foot.
+
+**With two options and five axes, all three reach the front.** The control escapes only through space and reach (its larger steppers sit closer to the thumb), and it breaks the owner's box-height rule.
+
+The comparison drawing is `docs/screens/t3/pace6-compare.png`: both layouts in three states.
+
+Status: **T3b.1d and T3b.4e approved; T3b.4f (the sentence's layout) scored, awaiting the owner's pick; T3b.4b scored.**

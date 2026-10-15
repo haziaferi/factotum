@@ -1,0 +1,44 @@
+[
+ {
+  "v": {
+   "layout": "flow"
+  },
+  "drift_tapped": 118.1,
+  "drift_others": 931.0,
+  "drift_worst": 110.1,
+  "foot_max": 272.5,
+  "stepper_over_box": 0.0,
+  "reach": 2.002,
+  "like_when": 1.0,
+  "small": []
+ },
+ {
+  "v": {
+   "layout": "lines"
+  },
+  "drift_tapped": 0.0,
+  "drift_others": 0.0,
+  "drift_worst": 0.0,
+  "foot_max": 311,
+  "stepper_over_box": 0.0,
+  "reach": 2.36,
+  "like_when": 0.5,
+  "small": []
+ },
+ {
+  "v": {
+   "layout": "flow48",
+   "control": true
+  },
+  "why": "the approved sheet as it was: the sentence flowing, 48 dp steppers taller than their boxes",
+  "control": true,
+  "drift_tapped": 87.5,
+  "drift_others": 860.9,
+  "drift_worst": 283.3,
+  "foot_max": 266.5,
+  "stepper_over_box": 4,
+  "reach": 1.874,
+  "like_when": 1.0,
+  "small": []
+ }
+]
