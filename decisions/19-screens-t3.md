@@ -1493,4 +1493,14 @@ Status (then): **T3b.1d and T3b.4e approved; T3b.4f scored (B and A + C, evenly 
 
 **What one clause cannot hold.** The sheet has one break clause: a spread, or one break at a time. A run with both (3 rests evenly plus one chime at 17:30) cannot be made on it. Whether that matters is the owner's to say.
 
-Status: **T3b.1d, T3b.4e and T3b.4f approved; T3b.4b scored (where it lives, pending).**
+Status (then): **T3b.1d, T3b.4e and T3b.4f approved; T3b.4b scored (where it lives, pending).**
+
+**The rule repeats (owner, 2026-10-15): "Let the rule repeat on another line".**
+- **"+ another rule"** sits beside "Reset breaks". Each tap adds the rule's two rows again: "and [− N +] chime(s)/rest(s) [− length +]" over a thin line, then "evenly / at [− time +]". It starts at 1 chime, evenly.
+- **"Reset breaks"** removes the added rules and sets the first back to 0.
+- **The sheet grows upward,** as the When pattern does. The bottom row stays still, so "+ another rule" does not move when tapped (checked: 676 → 676 px).
+- **Checked** with a new task: 4 h, 3 rests of 10 min evenly, and one chime at a time. It is correct on Start, and nothing overflows.
+
+**Owed in the data layer, amended:** a Paced run holds a list of rules, each a count spread evenly or one break at a time.
+
+Status: **T3b.1d, T3b.4e and T3b.4f approved (the rule repeats); T3b.4b scored (where it lives, pending).**

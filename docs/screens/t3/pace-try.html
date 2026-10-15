@@ -121,7 +121,7 @@ function evenly(S, E, n, kind, d) {
 }
 
 /* ---- tasks, from the time Begin is pressed ---- */
-const TASK_IDS = ["t1", "t2", "t3", "t4", "t5", "t4w", "t4i", "t6", "t7"];
+const TASK_IDS = ["t1", "t2", "t3", "t4", "t8", "t5", "t4w", "t4i", "t6", "t7"];
 function makeTask(id, N) {
   const S3 = Math.ceil(N / 60) * 60 + 60, E3 = S3 + 90, E2 = N + 150;
   const run3 = {S: S3, E: E3, p: evenly(S3, E3, 1, "rest", 5).map(t => ["rest", t, 5])};
@@ -131,6 +131,8 @@ function makeTask(id, N) {
     case "t2": return {name: "Run 2", text: "Until " + fmt(E2) + " (2 h 30 from now), with 9 chimes evenly (every 15 minutes).", target: {S: N, E: E2, p: evenly(N, E2, 9, "chime").map(t => ["chime", t, 0])}};
     case "t3": return {name: "Run 3", text: "From " + fmt(S3) + " to " + fmt(E3) + ", with 1 rest of 5 minutes, evenly (" + fmtS(run3.p[0][1]) + "–" + fmtS(run3.p[0][1] + 5) + ").", target: run3};
     case "t4": return {name: "Run 4 · long", text: "For 4 hours, with 3 rests of 10 minutes, evenly (work blocks of 52½ min).", target: {S: N, E: N + 240, p: evenly(N, N + 240, 3, "rest", 10).map(t => ["rest", t, 10])}};
+    case "t8": return {name: "Run 6 · two rules", text: "For 4 hours, with 3 rests of 10 minutes evenly, and one chime at " + fmt(N + 30) + ".",
+      target: {S: N, E: N + 240, p: [["chime", N + 30, 0]].concat(evenly(N, N + 240, 3, "rest", 10).map(t => ["rest", t, 10])).sort((a, b) => a[1] - b[1])}};
     case "t5": return {name: "Run 5 · a third", text: "For 25 minutes, with 1 chime halfway and one more at a third of the run (" + fmtS(N + 25 / 3) + ").", target: {S: N, E: N + 25, p: [["chime", N + 25 / 3, 0], ["chime", N + 12.5, 0]]}};
     case "t4w": return {name: "Repeat · whole run", text: "↻ remembers the whole run. Start last time's run again: " + fmt(S3) + "–" + fmt(E3) + ", 1 rest of 5 minutes.",
       pre: {startAt: S3, endKind: "at", endAt: E3, groups: [{kind: "rest", rule: "even", n: 1, dur: 5}]}, target: run3};
@@ -264,14 +266,15 @@ function pickHTML(bs) {
   else if (word === "Until") h += pickBox("endAt", fmt(st.endAt), "bt", 5) + '<span class="sm">· ' + dur(E - S) + "</span>";
   else h += pickBox("startAt", fmt(st.startAt), "bt", 5) + "<span>to</span>" + pickBox("endAt", fmt(E), "bt", 5);
   h += "</div>";
-  const g = st.groups[0];
-  const at = g.rule === "at", n = at ? 1 : g.n;
-  const kw = g.kind === "rest" ? (n === 1 ? "rest" : "rests") : (n === 1 ? "chime" : "chimes");
-  h += '<div class="prow"><span>with</span>' + pickBox("gn." + g.id, n, "bc", at ? 0 : 1) + '<span class="tok k" data-a="kind:' + g.id + '">' + kw + "</span>" +
-       (g.kind === "rest" ? pickBox("glen." + g.id, dur(g.dur), "bl", 5) : "") + "</div>";
-  h += '<div class="prow"><span class="tok" data-a="wt:' + g.id + '">' + (at ? "at" : "evenly") + "</span>" + (at ? pickBox("gat." + g.id, fmt(g.val), "bt", 5) : "") + "</div>";
+  st.groups.forEach((g, i) => {
+    const at = g.rule === "at", n = at ? 1 : g.n;
+    const kw = g.kind === "rest" ? (n === 1 ? "rest" : "rests") : (n === 1 ? "chime" : "chimes");
+    h += '<div class="prow"' + (i ? ' style="border-top:1px solid var(--zone2)"' : "") + '><span>' + (i ? "and" : "with") + "</span>" + pickBox("gn." + g.id, n, "bc", at ? 0 : 1) +
+         '<span class="tok k" data-a="kind:' + g.id + '">' + kw + "</span>" + (g.kind === "rest" ? pickBox("glen." + g.id, dur(g.dur), "bl", 5) : "") + "</div>";
+    h += '<div class="prow"><span class="tok" data-a="wt:' + g.id + '">' + (at ? "at" : "evenly") + "</span>" + (at ? pickBox("gat." + g.id, fmt(g.val), "bt", 5) : "") + "</div>";
+  });
   h += '<div class="rd">' + (bs.length ? esc(describe(bs)) : "No breaks") + "</div>";
-  h += '<div class="crow2"><span class="reset" data-a="reset">Reset breaks</span><span><span class="tap' + (hist.past.length ? "" : " off") + '" data-a="undo" aria-label="Undo">↶</span><span class="tap' +
+  h += '<div class="crow2"><span><span class="reset" data-a="reset">Reset breaks</span><span class="reset" data-a="morerule">+ another rule</span></span><span><span class="tap' + (hist.past.length ? "" : " off") + '" data-a="undo" aria-label="Undo">↶</span><span class="tap' +
        (hist.future.length ? "" : " off") + '" data-a="redo" aria-label="Redo">↷</span></span></div>';
   return h;
 }
@@ -544,7 +547,8 @@ function act(a, b, c) {
     else { g.nSaved = g.n; g.rule = "at"; g.val = Math.round(t0 != null ? t0 : S + L / 2); }
     return;
   }
-  if (a === "reset") { const g = st.groups[0]; if (g) { g.rule = "even"; g.n = 0; g.kind = "chime"; } fix(null); return; }
+  if (a === "reset") { st.groups = st.groups.slice(0, 1); const g = st.groups[0]; if (g) { g.rule = "even"; g.n = 0; g.kind = "chime"; } fix(null); return; }
+  if (a === "morerule") { st.groups.push({id: nid(), kind: "chime", rule: "even", n: 1, dur: 5}); return; }
   if (a === "step") {   // a stepper: times and lengths 5 min, counts 1
     const d = +c, [kind, gid] = b.split(".");
     fix(b);
