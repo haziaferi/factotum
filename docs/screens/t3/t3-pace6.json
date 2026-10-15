@@ -85,6 +85,62 @@
  },
  {
   "v": {
+   "layout": "tightB",
+   "stepper": 44
+  },
+  "drift_tapped": 0.0,
+  "drift_others": 518.0,
+  "drift_worst": 172.7,
+  "foot_max": 207,
+  "stepper_over_box": 0.0,
+  "reach": 2.126,
+  "like_when": 0.5,
+  "small": []
+ },
+ {
+  "v": {
+   "layout": "tightB",
+   "stepper": 32
+  },
+  "drift_tapped": 0.0,
+  "drift_others": 446.0,
+  "drift_worst": 148.7,
+  "foot_max": 207,
+  "stepper_over_box": 0.0,
+  "reach": 2.527,
+  "like_when": 0.5,
+  "small": []
+ },
+ {
+  "v": {
+   "layout": "tightAC",
+   "stepper": 44
+  },
+  "drift_tapped": 0.0,
+  "drift_others": 506.0,
+  "drift_worst": 168.7,
+  "foot_max": 207,
+  "stepper_over_box": 0.0,
+  "reach": 2.071,
+  "like_when": 0.5,
+  "small": []
+ },
+ {
+  "v": {
+   "layout": "tightAC",
+   "stepper": 32
+  },
+  "drift_tapped": 0.0,
+  "drift_others": 434.0,
+  "drift_worst": 144.7,
+  "foot_max": 207,
+  "stepper_over_box": 0.0,
+  "reach": 2.468,
+  "like_when": 0.5,
+  "small": []
+ },
+ {
+  "v": {
    "layout": "flow48",
    "stepper": 48,
    "control": true

@@ -3029,7 +3029,10 @@ def score_pace5(v):
   layout   flow (the sentence wraps where it must, as the When sentence does) / lines (one part per line: a word column
            and a fixed column of [-][box][+], so a value growing cannot move the others) / tight (one part per line, each
            word right beside its controls, boxes fitted to their kind, From and to on one row; owner, 2026-10-15: "Is
-           there a way to fit From-to in the same row? ... a lot of blank space between words and buttons")
+           there a way to fit From-to in the same row? ... a lot of blank space between words and buttons") / tightB
+           (tight, the count and the kind on one row without "with": "[N] rests of [X]") / tightAC (tight, "with [N]
+           rests [X]": no "of", the length box 72 dp with 14 px text, 4 px gaps); owner, 2026-10-15: "Could 'with [N]' and
+           'chimes/rests of [length of time]' fit in the same line as well?" (measured: as is 378 px of 348; B 338; A+C 339)
   Steppers are the boxes' height (44 dp) in both. Control: the approved sheet as it was, flowing, with 48 dp steppers.
   Measured in the browser over a walk of states, each one tap from the last (the + pressed, a word tapped): a length 45 min
   -> 50 min -> 1 h 5 min; a count 1 -> 9 -> 10; a chime -> rests of 5 min -> 15 min; For -> Until -> From...to.
@@ -3037,7 +3040,7 @@ def score_pace5(v):
   moves, summed over the walk. Space: the foot's height at its tallest. Reach: to the steppers. Consistency: the When
   sentence flows. Gate: a stepper no taller than its box (owner).
 """
-PACE6_SPACE = {"layout": ["flow", "lines", "tight"], "stepper": [44, 32]}   # 32 dp: "a lot of empty space between words and buttons" (owner, 2026-10-15)
+PACE6_SPACE = {"layout": ["flow", "lines", "tight", "tightB", "tightAC"], "stepper": [44, 32]}   # 32 dp: "a lot of empty space between words and buttons" (owner, 2026-10-15)
 P6_STATES = [   # (mode, run text(s), count, kind, rest length, the control the step taps)
     ("For", ["45 min"], 1, "chime", None, None),
     ("For", ["50 min"], 1, "chime", None, "Step len +"),
@@ -3059,7 +3062,7 @@ P6_CSS = """
 .p6.lines .row .sg{justify-self:start}.p6 .sm{font-size:13px;color:var(--dim);margin-left:4px}
 .p6.lines .bx{width:104px;padding:0}.p6.lines .bx.bc{width:56px}.p6.lines .row.idle{visibility:hidden}
 .p6.tight{line-height:normal}.p6.tight .row{display:flex;align-items:center;gap:6px;min-height:52px;white-space:nowrap}
-.p6.tight .w.m{min-width:52px}.p6.tight .bx{min-width:0;padding:0;font-size:15px}.p6.tight .bt{width:56px}.p6.tight .bl{width:84px}.p6.tight .bx.bc{width:40px}
+.p6.tight .w.m{min-width:52px}.p6.tight .bl72{width:72px;font-size:14px}.p6.tight.g4 .row{gap:4px}.p6.tight .bx{min-width:0;padding:0;font-size:15px}.p6.tight .bt{width:56px}.p6.tight .bl{width:84px}.p6.tight .bx.bc{width:40px}
 """
 
 
@@ -3099,6 +3102,15 @@ def p6_sentence(v, state):
         rows = ['<div class="row">%s%s</div>' % (parts[0][0].replace('class="w"', 'class="w m"'), run.replace(" <span>to</span> ", "<span>to</span>"))]
         rows += ['<div class="row"><span>%s</span>%s</div>' % (w, c) if not w.startswith("<") else '<div class="row">%s%s</div>' % (w, c) for w, c in parts[1:]]
         return '<div class="p6 tight%s">%s</div>' % (" s32" if v.get("stepper") == 32 else "", "".join(rows))
+    if v["layout"] in ("tightB", "tightAC") and not big:
+        first = '<div class="row">%s%s</div>' % (parts[0][0].replace('class="w"', 'class="w m"'), run.replace(" <span>to</span> ", "<span>to</span>"))
+        if v["layout"] == "tightB":   # "[N] rests of [X]"
+            mid = p6_group("n", str(n)) + parts[2][0] + (p6_group("rest", rest) if rest else "")
+        else:   # "with [N] rests [X]"
+            word = parts[2][0].replace("rests of", "rests").replace("rest of", "rest")
+            mid = "<span>with</span>" + p6_group("n", str(n)) + word + (p6_group("rest", rest).replace("bx bl", "bx bl72") if rest else "")
+        rows = [first, '<div class="row">%s</div>' % mid, '<div class="row">%s%s</div>' % parts[3]]
+        return '<div class="p6 tight%s%s">%s</div>' % (" s32" if v.get("stepper") == 32 else "", " g4" if v["layout"] == "tightAC" else "", "".join(rows))
     return '<div class="p6 flow%s%s">%s</div>' % (" big" if big else "", " s32" if v.get("stepper") == 32 else "", " ".join("%s %s" % (w, c) for w, c in parts))
 
 

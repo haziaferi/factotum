@@ -1412,4 +1412,26 @@ Status (then): **T3b.1d and T3b.4e approved; T3b.4f (the sentence's layout) scor
 
 Drawing: `docs/screens/t3/pace6-tight-32.png`.
 
-Status: **T3b.1d and T3b.4e approved; T3b.4f scored (tight, 32 dp drawn), awaiting the owner's pick; T3b.4b scored.**
+Status (then): **T3b.1d and T3b.4e approved; T3b.4f scored (tight, 32 dp drawn), awaiting the owner's pick; T3b.4b scored.**
+
+**Follow-up (owner, 2026-10-15):** "Could 'with [N]' and 'chimes/rests of [length of time]' fit in the same line as well?"
+
+**Measured with the longest values** (a 2-digit count, "1 h 55 min"):
+
+| Variant | Width (sheet: 348 px) |
+|---|---|
+| as is | 378 px |
+| a 72 dp length box | 360 px |
+| without "of" | 357 px |
+| **B:** without "with" | 338 px |
+| **A + C:** without "of", a 72 dp box with 14 px text, 4 px gaps | 339 px ("1 h 55 min" still fits) |
+
+**Both B and A + C were added as layouts and drawn** (`docs/screens/t3/pace6-onerow.png`). Neither overflows in any state, and each is 207 px tall at its tallest.
+
+| Layout (32 dp) | Rank sum | Tapped control moves | Others move | Height | Reach |
+|---|---|---|---|---|---|
+| A + C ("with 10 rests 15 min") | 30 | 0 | 434 px (the end box, once) | 207 px | 2.47 |
+| B ("10 rests of 15 min") | 33 | 0 | 446 px (the same) | 207 px | 2.53 |
+| tight (two rows) | 40.5 | 0 | 446 px | 259 px | 2.63 |
+
+Status: **T3b.1d and T3b.4e approved; T3b.4f scored (B and A + C drawn), awaiting the owner's pick; T3b.4b scored.**
