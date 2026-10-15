@@ -1503,4 +1503,59 @@ Status (then): **T3b.1d, T3b.4e and T3b.4f approved; T3b.4b scored (where it liv
 
 **Owed in the data layer, amended:** a Paced run holds a list of rules, each a count spread evenly or one break at a time.
 
-Status: **T3b.1d, T3b.4e and T3b.4f approved (the rule repeats); T3b.4b scored (where it lives, pending).**
+Status (then): **T3b.1d, T3b.4e and T3b.4f approved (the rule repeats); T3b.4b scored (where it lives, pending).**
+
+### T3b.4g Where the Paced timer lives while running (owner, 2026-10-15)
+
+> "Score where the Paced timer lives while running. Ask all questions upfront. Optimize this workflow."
+
+**The owner's answers** (asked together, before any work):
+- **places:** the full running view on the activity's page, reached by tapping the card with the running strip, or on its own screen; the Measuring strip (approved) always; a Today strip scored;
+- **controls:** Pause / Resume, Stop, Skip to the next part, +5 min, Edit while running;
+- **axes:** T3b.4b's three, the owner's four for running timers, break noticed, recovery from a mistap;
+- **after a rest:** work resumes on its own, or waits for a tap (both scored);
+- **Stop:** at once with Undo, by a long press, or asking first (all scored);
+- **two timers at once;**
+- **no phone captures;**
+- **a trial page with a simulated clock.**
+
+**The space** (part `pacerun`, 24 options): view (page / screen) × Today strip (none / strip) × rest end (auto / tap) × Stop (undo / long / confirm). The control is Break Down Timer: its own screen, no strips, Stop at once without Undo, and no skip, +5 or edit.
+
+**Not an axis:** App free while running, since every place now leaves the app free (the sheet that stayed up is gone). Android's notification is always there.
+
+**The walk, from Today,** with Reading (paced) and Cleaning (plain) running:
+1. see Reading's time left and next break;
+2. pause and resume;
+3. skip a rest;
+4. add 5 min;
+5. change the end;
+6. stop Cleaning, keeping Reading;
+7. undo an accidental stop;
+8. a rest ends while on Today.
+
+**Result** (the control lost at 247):
+
+| # | Option | Rank sum | Walk taps | Taps to stop | Forgotten risk | Rows on Today |
+|---|---|---|---|---|---|---|
+| 1 | page · Today strip · auto · hold to stop | 94.5 | 17 | 1 | 0 | 2 |
+| 2 | screen · Today strip · auto · hold | 103.5 | 17 | 1 | 0 | 2 |
+| 4 | page · Today strip · auto · Undo | 109.5 | 18 | 1 | 0 | 2 |
+| 7 | page · Today strip · auto · confirm | 119.5 | 19 | 2 | 0 | 2 |
+| 13 | page · no Today strip · auto · hold | 161.5 | 31 | 3 | 1 | 0 |
+
+**Reading the result:**
+- **The Today strip decides most of it.** It halves the walk, shows the run on Today, puts Stop one tap away and lowers the forgotten-timer risk, at the cost of two rows on Today.
+- **The page beats its own screen on consistency:** an item opens its page.
+- **Work resuming on its own beats a wait,** since a run waiting silently is easier to forget.
+- **The long press wins Recovery** because a mistap does nothing. That a hold is less discoverable is not measured here; the trial is where it shows.
+
+**The trial page** `docs/screens/t3/run-try.html`, built by `tools/screens/pace_run.py` from `pace_run.tmpl.html`:
+- **The app:** Today, Hub, Measuring, Reading's page or running screen, and Cleaning, with the clock running at one minute per second.
+- **Sheets:** the best option, its variant on each dimension, and the control.
+- **Tasks:** seven, each checked on Done.
+- **Checked:** 13 scripted trials pass.
+- **Found and fixed:** the simulated clock first ran on animation frames, which stop in a hidden tab, so it now follows real elapsed time.
+
+**T3b.4b is superseded by T3b.4g.**
+
+Status: **T3b.1d, T3b.4e and T3b.4f approved; T3b.4g scored, trial page built: awaiting the owner's trial and pick.**

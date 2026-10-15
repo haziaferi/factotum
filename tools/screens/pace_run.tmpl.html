@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Running Timer Trial</title>
+<style>
+:root{--bg:#f4f4f2;--fg:#1d1d1b;--dim:#6b6b66;--zone:#fbfbfa;--zone2:#e6e6e2;--line:#cfcfca;--ink:#1d1d1b;--inv:#f4f4f2}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1b1b1a;--fg:#ececea;--dim:#9a9a94;--zone:#242423;--zone2:#34342f;--line:#4a4a45;--ink:#ececea;--inv:#1b1b1a}}
+:root[data-theme="dark"]{--bg:#1b1b1a;--fg:#ececea;--dim:#9a9a94;--zone:#242423;--zone2:#34342f;--line:#4a4a45;--ink:#ececea;--inv:#1b1b1a}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.45 system-ui,"Segoe UI",Roboto,sans-serif}
+main{max-width:1240px;margin:0 auto;padding:16px}
+h1{font-size:22px;margin:4px 0}h2{font-size:17px;margin:28px 0 8px}
+p.note{color:var(--dim);margin:4px 0 12px;max-width:860px}
+.cols{display:grid;grid-template-columns:minmax(240px,340px) 360px;gap:20px;align-items:start}
+@media (max-width:760px){.cols{grid-template-columns:1fr}.phone{margin:0 auto}}
+.panel{background:var(--zone);border-radius:14px;padding:12px;box-shadow:0 0 0 1px var(--zone2)}
+.panel h3{margin:0 0 8px;font-size:14px;color:var(--dim);font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+.pick,.tasks{display:flex;flex-direction:column;gap:6px}.tasks{margin-top:12px}
+.pick button,.tasks button{all:unset;cursor:pointer;padding:8px 10px;border-radius:10px;box-shadow:inset 0 0 0 1px var(--line)}
+.pick button.on,.tasks button.on{background:var(--zone2);box-shadow:none;font-weight:600}
+.pick small,.tasks small{display:block;color:var(--dim);font-weight:400}.tasks .ok{color:var(--dim)}
+.act{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.btn{all:unset;cursor:pointer;padding:9px 14px;border-radius:20px;background:var(--ink);color:var(--inv);font-weight:600}
+.btn.ghost{background:none;color:var(--fg);box-shadow:inset 0 0 0 1px var(--line);font-weight:500}
+.btn:focus-visible,.pick button:focus-visible,.tasks button:focus-visible{outline:2px solid var(--fg);outline-offset:2px}
+.live{margin-top:12px;font-variant-numeric:tabular-nums;color:var(--dim)}.live b{color:var(--fg)}
+.phone{position:relative;width:360px;height:740px;border-radius:22px;background:var(--bg);overflow:hidden;box-shadow:0 0 0 1px var(--line);user-select:none;display:flex;flex-direction:column}
+.hdr{height:56px;display:flex;align-items:center;gap:6px;padding:0 8px;font-size:19px;font-weight:600;flex:none}.hdr .ib{width:48px;height:48px;display:grid;place-items:center;color:var(--dim);cursor:pointer}
+.body{flex:1;overflow:auto;padding:4px 12px 12px}
+.bar{height:64px;display:flex;flex:none;border-top:1px solid var(--zone2)}.bar span{flex:1;display:grid;place-items:center;font-size:12px;color:var(--dim);cursor:pointer}.bar span.on{color:var(--fg);font-weight:600}
+.zone{background:var(--zone);border-radius:14px;padding:4px 12px;margin:8px 0}.zone h4{margin:8px 0 2px;font-size:12px;color:var(--dim);text-transform:uppercase;letter-spacing:.04em}
+.row{min-height:48px;display:flex;align-items:center;border-bottom:1px solid var(--zone2);gap:8px;cursor:pointer}.row:last-child{border-bottom:0}.row .t{flex:1}.row .sm{font-size:13px;color:var(--dim)}
+.rs{display:flex;align-items:center;min-height:52px;border-radius:12px;background:var(--zone2);padding:0 4px 0 12px;margin-bottom:6px;font-size:14px;cursor:pointer}.rs .t{flex:1}
+.ib2{min-width:48px;min-height:48px;display:grid;place-items:center;cursor:pointer;font-size:16px;border-radius:24px}
+.rv{border-radius:16px;background:var(--zone2);padding:12px;margin:6px 0}.rv .big{font-size:40px;font-weight:600;font-variant-numeric:tabular-nums}.rv .nx{font-size:14px;color:var(--dim)}
+.rv .phase{font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--dim)}
+.bt2{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}.bt2 span{min-height:48px;border-radius:24px;display:grid;place-items:center;box-shadow:inset 0 0 0 1px var(--dim);font-size:14px;cursor:pointer;text-align:center}
+.bt2 span.main{background:var(--ink);color:var(--inv);box-shadow:none}.bt2 span.hold{position:relative;overflow:hidden}.bt2 span.hold i{position:absolute;left:0;bottom:0;height:4px;background:var(--fg);width:0}
+.ed{display:flex;align-items:center;gap:4px;margin-top:10px}.ed .box{min-width:60px;height:44px;line-height:44px;text-align:center;border-radius:10px;box-shadow:inset 0 0 0 1.5px var(--dim)}
+.stp{width:32px;height:32px;display:inline-grid;place-items:center;font-size:20px;cursor:pointer}
+.toast{position:absolute;left:12px;right:12px;bottom:76px;background:var(--ink);color:var(--inv);padding:8px 8px 8px 12px;border-radius:12px;font-size:14px;display:flex;align-items:center;justify-content:space-between;z-index:8}
+.toast .u{font-weight:700;padding:8px 10px;cursor:pointer}
+.dlg{position:absolute;inset:0;background:rgba(0,0,0,.3);display:grid;place-items:center;z-index:9}.dlg div{background:var(--zone);border-radius:16px;padding:16px;width:280px}.dlg p{margin:0 0 12px}
+.dlg .b{display:flex;justify-content:flex-end;gap:8px}.dlg .b span{min-height:48px;padding:0 12px;display:grid;place-items:center;cursor:pointer;font-weight:600}
+.wait{background:var(--ink);color:var(--inv);border-radius:12px;padding:10px 12px;margin:6px 0;display:flex;align-items:center;justify-content:space-between}.wait span.go{min-height:44px;padding:0 12px;display:grid;place-items:center;border-radius:22px;background:var(--inv);color:var(--ink);font-weight:600;cursor:pointer}
+.idle{position:absolute;inset:0;background:color-mix(in srgb,var(--bg) 84%,transparent);display:grid;place-items:center;text-align:center;padding:24px;color:var(--dim);z-index:10}
+.tile{display:inline-grid;place-items:center;width:31%;height:72px;margin:1%;border-radius:12px;background:var(--zone);cursor:pointer;font-size:14px}
+.tbl{width:100%;border-collapse:collapse;font-size:13px;font-variant-numeric:tabular-nums}
+.tbl th,.tbl td{text-align:left;padding:6px 6px;border-bottom:1px solid var(--zone2);vertical-align:top}.tbl th{color:var(--dim);font-weight:600}
+.wrap{overflow-x:auto}
+textarea{width:100%;height:120px;font:12px/1.4 ui-monospace,Consolas,monospace;background:var(--zone);color:var(--fg);border:1px solid var(--line);border-radius:8px;padding:8px}
+</style>
+</head>
+<body>
+<main>
+<h1>The running Paced timer: try where it lives (T3b.4g)</h1>
+<p class="note">Two timers run at once: <b>Reading</b>, a Paced run with 2 rests of 5 min evenly, and <b>Cleaning</b>, a plain timer. The clock runs at <b>one minute per second</b>. Every task starts on Today. Press <b>Begin</b>, do the task in the phone, then press <b>Done</b>: the page checks it, and a Done too early counts as an error. Taps in the phone are counted. On "hold" sheets, Stop needs a press held for half a second.</p>
+<div class="cols">
+  <section class="panel">
+    <h3>Sheet</h3>
+    <div class="pick" id="sheets"></div>
+    <h3 style="margin-top:14px">Task</h3>
+    <div class="tasks" id="tasks"></div>
+    <div class="act"><button class="btn" id="begin">Begin</button><button class="btn" id="done">Done</button><button class="btn ghost" id="cant">Can't be done here</button></div>
+    <div class="live" id="live"></div>
+  </section>
+  <div class="phone" id="phone"></div>
+</div>
+<section class="panel" style="margin-top:20px">
+  <h3>Your trial beside the scores</h3>
+  <div class="wrap"><table class="tbl" id="res"></table></div>
+  <p class="note" style="margin-top:10px">Cells: taps · seconds · early Dones. Total is the Pareto rank sum over the owner's axes (lower is better).</p>
+  <div class="act"><button class="btn ghost" id="exp">Copy results</button><button class="btn ghost" id="clr">Clear results</button></div>
+  <textarea id="out" readonly aria-label="Results as JSON" style="margin-top:8px;display:none"></textarea>
+</section>
+</main>
+<script>
+const DATA = __DATA__;
+const KEY = "factotum-run-try-v1";
+const pad = n => String(n).padStart(2, "0");
+const fmt = m => { m = Math.floor(m); m = ((m % 1440) + 1440) % 1440; return pad(Math.floor(m / 60)) + ":" + pad(m % 60); };
+const mmss = m => { const s = Math.max(0, Math.round(m * 60)); return Math.floor(s / 60) + ":" + pad(s % 60); };
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;"}[c]));
+const nowMin = () => { const d = new Date(); return d.getHours() * 60 + d.getMinutes(); };
+const SPEED = 1;   // simulated minutes per real second
+
+/* ---- the runs ---- */
+// Reading: a Paced run, 2 rests of 5 min evenly over 45 min (work blocks of 11 2/3 min); Cleaning: a plain timer
+function newReading(T0, offset) {   // offset: how many minutes ago it started
+  const S = T0 - offset, E = S + 45, W = (45 - 2 * 5) / 3;
+  return {name: "Reading", S, E, rests: [S + W, S + 2 * W + 5].map(t => ({t, len: 5})), paused: null, pausedTotal: 0, stopped: false, waiting: false, skipped: [], log: []};
+}
+function newCleaning(T0) { return {name: "Cleaning", S: T0 - 7, stopped: false, paused: null, pausedTotal: 0}; }
+// the simulated clock follows real elapsed time (not animation frames, which stop in a hidden tab)
+let simStart = null;
+const simNow = () => simStart == null ? 0 : (performance.now() - simStart) / 1000 * SPEED;
+const clock = () => world.T0 + simNow();
+function runNow(r) { return (r.paused != null ? r.paused : clock()) - r.pausedTotal; }   // the run's own time
+function phase(r) {
+  const t = runNow(r);
+  if (r.stopped) return {kind: "stopped"};
+  if (t >= r.E) return {kind: "over"};
+  for (const x of r.rests) if (!r.skipped.includes(x) && t >= x.t && t < x.t + x.len) return {kind: "rest", until: x.t + x.len, rest: x};
+  const next = r.rests.find(x => !r.skipped.includes(x) && x.t > t);
+  return {kind: "work", next};
+}
+
+let sheet = DATA.sheets[0], taskId = "t1", world = null, ui = {}, rec = null, store = load();
+function load() { try { return JSON.parse(localStorage.getItem(KEY)) || {results: {}}; } catch (e) { return {results: {}}; } }
+function save() { try { localStorage.setItem(KEY, JSON.stringify(store)); } catch (e) {} }
+const C = () => sheet.cfg;
+const isBdt = () => sheet.id === "bdt";
+
+/* ---- tasks: a start, a check ---- */
+const TASKS = {
+  t1: {name: "Pause and resume", text: "Pause Reading, then let it run again.", start: w => {}, check: w => w.reading.log.includes("pause") && w.reading.log.includes("resume") && w.reading.paused == null && !w.reading.stopped},
+  t2: {name: "Skip a rest", text: "Reading is resting. Skip the rest and get back to work.", start: w => { w.reading = newReading(w.T0, 12.5); }, check: w => phase(w.reading).kind === "work" && w.reading.skipped.length > 0},
+  t3: {name: "Five more minutes", text: "Add 5 minutes to Reading.", start: w => {}, check: w => Math.abs(w.reading.E - w.E0 - 5) < 0.01},
+  t4: {name: "A new end", text: "Make Reading end 15 minutes later than now set (at a new time).", start: w => {}, check: w => Math.abs(w.reading.E - w.E0 - 15) < 0.01},
+  t5: {name: "Stop the other", text: "Stop Cleaning. Reading must keep running.", start: w => {}, check: w => w.cleaning.stopped && !w.reading.stopped},
+  t6: {name: "A mistap on Stop", text: "Tap Reading's Stop once, quickly, as if by mistake. Then make sure Reading is still running.", start: w => {}, check: w => w.reading.log.includes("stoptap") && !w.reading.stopped},
+  t7: {name: "A rest ends", text: "Reading is resting; the rest ends in a few seconds. When it ends, be back at work.", start: w => { w.reading = newReading(w.T0, 13.5); }, check: w => phase(w.reading).kind === "work" && !w.reading.waiting && clock() > w.reading.rests[0].t + 5},
+};
+const TASK_IDS = Object.keys(TASKS);
+
+/* ---- bookkeeping ---- */
+function begin() {
+  const T0 = nowMin();
+  world = {T0, reading: newReading(T0, 3), cleaning: newCleaning(T0), screen: "today"};
+  simStart = performance.now(); TASKS[taskId].start(world); world.E0 = world.reading.E;
+  ui = {}; rec = {taps: 0, early: 0, t0: performance.now()};
+  render(); side();
+}
+function done() {
+  if (!rec) return;
+  if (!TASKS[taskId].check(world)) { rec.early++; ui.toast = {text: "Not yet done", until: performance.now() + 2500}; render(); return; }
+  finish("ok");
+}
+function finish(result) {
+  const r = store.results[sheet.id] = store.results[sheet.id] || {};
+  r[taskId] = result === "cant" ? {cant: true} : {taps: rec.taps, secs: Math.round((performance.now() - rec.t0) / 100) / 10, early: rec.early};
+  rec = null; save(); render(); side(); table();
+}
+function tick() {
+  const now = performance.now();
+  if (rec && world) {
+    const r = world.reading;
+    if (C().rest_end === "tap" && !r.stopped && r.paused == null) {   // a rest that has ended waits for a tap: the run holds
+      const ended = r.rests.find(x => !r.skipped.includes(x) && runNow(r) >= x.t + x.len && !x.resumed);
+      if (ended && !r.waiting) { r.waiting = true; r.paused = clock(); }
+    }
+    if (ui.hold && now - ui.hold.t >= 500) { const h = ui.hold; ui.hold = null; doStop(h.who, true); }
+    render();
+  }
+  const el = document.getElementById("live");
+  el.innerHTML = rec ? "<b>" + rec.taps + "</b> taps · <b>" + ((performance.now() - rec.t0) / 1000).toFixed(1) + "</b> s · <b>" + rec.early + "</b> early Dones · clock " + fmt(clock()) : "Press Begin: the phone starts on Today, with both timers running.";
+}
+setInterval(tick, 100);
+
+/* ---- the phone ---- */
+const phone = document.getElementById("phone");
+function hdr(title, back) { return '<div class="hdr">' + (back ? '<span class="ib" data-a="back">‹</span>' : "") + "<span>" + esc(title) + "</span></div>"; }
+function bar(on) { return '<div class="bar">' + [["today", "Today"], ["cal", "Calendar"], ["hub", "Hub"], ["pages", "Pages"], ["check", "Check-in"]].map(([k, t]) => '<span class="' + (on === k ? "on" : "") + '" data-a="go:' + k + '">' + t + "</span>").join("") + "</div>"; }
+function line(r) {
+  const p = phase(r);
+  if (r.stopped) return r.name + " · stopped";
+  if (r.waiting) return r.name + " · rest over · tap to work";
+  if (r.paused != null) return r.name + " · paused";
+  if (p.kind === "rest") return r.name + " · rest · " + mmss(p.until - runNow(r));
+  return r.name + " · " + mmss(r.E - runNow(r)) + " left" + (p.next ? " · rest at " + fmt(p.next.t + r.pausedTotal) : "");
+}
+function strip() {
+  let h = "";
+  for (const r of [world.reading, world.cleaning]) {
+    if (r.stopped) continue;
+    const txt = r.E ? line(r) : r.name + " · " + mmss(runNow(r) - r.S);
+    h += '<div class="rs" data-a="open:' + r.name + '"><span class="t">' + esc(txt) + '</span><span class="ib2 stop" data-a="stop:' + r.name + '" data-hold="' + r.name + '">■</span></div>';
+  }
+  return h;
+}
+function today() {
+  return '<div class="zone"><h4>Agenda</h4><div class="row"><span class="t">Dentist</span><span class="sm">09:00</span></div><div class="row"><span class="t">Call the bank</span><span class="sm">15:00</span></div></div>' +
+         '<div class="zone"><h4>Routines</h4><div class="row"><span class="t">Walk</span></div><div class="row"><span class="t">Water</span></div></div>';
+}
+function runView(r) {
+  const p = phase(r), hold = C().stop === "long";
+  let h = '<div class="rv"><div class="phase">' + (r.waiting ? "rest over" : r.paused != null ? "paused" : p.kind) + '</div><div class="big">' +
+          (p.kind === "rest" ? mmss(p.until - runNow(r)) : mmss(r.E - runNow(r))) + '</div><div class="nx">' +
+          (p.kind === "rest" ? "of rest · then work until the end, " + fmt(r.E + r.pausedTotal) : (p.next ? "left · next: a 5-min rest at " + fmt(p.next.t + r.pausedTotal) : "left · no more rests") + " · ends " + fmt(r.E + r.pausedTotal)) + "</div>";
+  if (r.waiting) h += '<div class="wait">Rest over<span class="go" data-a="work">Start working</span></div>';
+  if (!isBdt()) h += '<div class="bt2"><span class="main" data-a="pause">' + (r.paused != null && !r.waiting ? "▶ Resume" : "‖ Pause") + '</span><span data-a="skip">Skip</span><span data-a="plus">+5 min</span><span data-a="edit">Edit</span>' +
+         '<span class="' + (hold ? "hold" : "") + '" data-a="stop:Reading" data-hold="Reading">■ Stop' + (hold ? " (hold)<i></i>" : "") + "</span></div>";
+  else h += '<div class="bt2"><span class="main" data-a="pause">' + (r.paused != null ? "▶ Resume" : "‖ Pause") + '</span><span data-a="stop:Reading">■ Stop</span></div>';
+  if (ui.edit) h += '<div class="ed">Ends <span class="stp" data-a="ee:-5">−</span><span class="box">' + fmt(r.E + r.pausedTotal) + '</span><span class="stp" data-a="ee:5">+</span><span class="ib2" data-a="edit">Done</span></div>';
+  return h + "</div>";
+}
+function render() {
+  if (!world) { const T0 = nowMin(); world = {T0, reading: newReading(T0, 3), cleaning: newCleaning(T0), screen: "today"}; world.E0 = world.reading.E; }
+  const w = world, sc = w.screen, r = w.reading;
+  let h = "";
+  const showToday = !isBdt() && C().today === "strip";
+  if (sc === "today") h = hdr("Today") + '<div class="body">' + (showToday ? strip() : "") + today() + "</div>" + bar("today");
+  else if (sc === "hub") h = hdr("Hub") + '<div class="body"><span class="tile" data-a="go:measuring">Measuring</span><span class="tile">Notes</span><span class="tile">Habits</span></div>' + bar("hub");
+  else if (sc === "measuring") h = hdr("Measuring", true) + '<div class="body">' + (isBdt() ? "" : strip()) + '<div class="zone">' + ["Reading", "Cleaning", "Water", "Walk"].map(n => '<div class="row" data-a="open:' + n + '"><span class="t">' + n + "</span>" + (isBdt() && (n === "Reading" || n === "Cleaning") ? '<span class="sm">running</span>' : "") + "</div>").join("") + "</div></div>" + bar("hub");
+  else if (sc === "Reading") {
+    if (!isBdt() && C().view === "page") h = hdr("Reading", true) + '<div class="body">' + runView(r) + '<div class="zone"><h4>Today</h4><div class="row"><span class="t">12:40–13:00</span><span class="sm">20 min</span></div></div></div>' + bar("hub");
+    else h = hdr(isBdt() ? "Break Down Timer" : "Reading · running", true) + '<div class="body">' + runView(r) + "</div>" + (isBdt() ? "" : bar("hub"));
+  } else if (sc === "Cleaning") {
+    const c = w.cleaning;
+    h = hdr("Cleaning", true) + '<div class="body"><div class="rv"><div class="phase">' + (c.stopped ? "stopped" : "running") + '</div><div class="big">' + mmss(runNow(c) - c.S) +
+        '</div><div class="bt2"><span class="' + (C().stop === "long" ? "hold" : "") + '" data-a="stop:Cleaning" data-hold="Cleaning">■ Stop' + (C().stop === "long" ? " (hold)<i></i>" : "") + "</span></div></div></div>" + bar("hub");
+  } else h = hdr(sc) + '<div class="body"></div>' + bar("");
+  if (ui.toast && performance.now() < ui.toast.until) h += '<div class="toast"><span>' + esc(ui.toast.text) + "</span>" + (ui.toast.undo ? '<span class="u" data-a="undo">Undo</span>' : "") + "</div>";
+  if (ui.confirm) h += '<div class="dlg"><div><p>End ' + esc(ui.confirm) + "?</p><div class=\"b\"><span data-a=\"cno\">Cancel</span><span data-a=\"cyes\">End</span></div></div></div>";
+  if (!rec) h += '<div class="idle">' + esc(TASKS[taskId].text) + "<br><br>Press Begin.</div>";
+  phone.innerHTML = h;
+  if (ui.hold) { const el = phone.querySelector('[data-hold="' + ui.hold.who + '"] i'); if (el) el.style.width = Math.min(100, (performance.now() - ui.hold.t) / 5) + "%"; }
+}
+
+/* ---- actions ---- */
+const runOf = n => n === "Reading" ? world.reading : world.cleaning;
+function doStop(who, held) {
+  const r = runOf(who);
+  if (who === "Reading") r.log.push("stop");
+  if (C().stop === "confirm" && !isBdt() && !held) { ui.confirm = who; return; }
+  r.stopped = true; r.stoppedAt = clock();
+  if (C().stop === "undo" && !isBdt()) ui.toast = {text: who + " stopped", undo: who, until: performance.now() + 5000};
+}
+phone.addEventListener("pointerdown", e => {
+  if (!rec) return; rec.taps++;
+  const h = e.target.closest("[data-hold]");
+  if (h && C().stop === "long" && !isBdt()) { ui.hold = {who: h.dataset.hold, t: performance.now()}; if (h.dataset.hold === "Reading") world.reading.log.push("stoptap"); }
+});
+phone.addEventListener("pointerup", () => { if (ui.hold) ui.hold = null; });
+phone.addEventListener("pointerleave", () => { if (ui.hold) ui.hold = null; });
+phone.addEventListener("click", e => {
+  if (!rec) return;
+  const el = e.target.closest("[data-a]"); if (!el) return;
+  const [a, b] = el.dataset.a.split(":"); const w = world, r = w.reading;
+  if (a === "stop") { e.stopPropagation(); if (C().stop === "long" && !isBdt()) return; if (b === "Reading") r.log.push("stoptap"); doStop(b); render(); return; }
+  if (a === "go") { w.screen = {today: "today", hub: "hub", measuring: "measuring"}[b] || b; ui.edit = false; }
+  else if (a === "back") { w.screen = w.screen === "measuring" ? "hub" : (w.from || "measuring"); ui.edit = false; }
+  else if (a === "open") { if (b === "Reading" || b === "Cleaning") { w.from = w.screen; w.screen = b; } }
+  else if (a === "pause") { if (r.waiting) return; if (r.paused == null) { r.paused = clock(); r.log.push("pause"); } else { r.pausedTotal += clock() - r.paused; r.paused = null; r.log.push("resume"); } }
+  else if (a === "work") { const x = r.rests.find(q => !r.skipped.includes(q) && runNow(r) >= q.t + q.len && !q.resumed); if (x) x.resumed = true; r.pausedTotal += clock() - r.paused; r.paused = null; r.waiting = false; }
+  else if (a === "skip") { const p = phase(r); if (p.kind === "rest") r.skipped.push(p.rest); else if (p.next) r.skipped.push(p.next); }   // the rest becomes work; the end stays
+  else if (a === "plus") r.E += 5;
+  else if (a === "edit") ui.edit = !ui.edit;
+  else if (a === "ee") r.E += +b;
+  else if (a === "undo") { const x = runOf(ui.toast.undo); x.stopped = false; ui.toast = null; }
+  else if (a === "cno") ui.confirm = null;
+  else if (a === "cyes") { const who = ui.confirm; ui.confirm = null; doStop(who, true); }
+  render();
+});
+
+/* ---- side panel, results ---- */
+function side() {
+  document.getElementById("sheets").innerHTML = DATA.sheets.map(s => '<button class="' + (s === sheet ? "on" : "") + '" data-s="' + s.id + '">' + esc(s.label) + "<small>" + esc(s.sub) + "</small></button>").join("");
+  const r = store.results[sheet.id] || {};
+  document.getElementById("tasks").innerHTML = TASK_IDS.map(id => '<button class="' + (id === taskId ? "on" : "") + '" data-t="' + id + '">' + esc(TASKS[id].name) +
+    (r[id] ? ' <span class="ok">' + (r[id].cant ? "· can't" : "· done") + "</span>" : "") + "<small>" + esc(TASKS[id].text) + "</small></button>").join("");
+}
+document.getElementById("sheets").addEventListener("click", e => { const b = e.target.closest("[data-s]"); if (!b) return; sheet = DATA.sheets.find(s => s.id === b.dataset.s); rec = null; world = null; side(); render(); });
+document.getElementById("tasks").addEventListener("click", e => { const b = e.target.closest("[data-t]"); if (!b) return; taskId = b.dataset.t; rec = null; world = null; side(); render(); });
+document.getElementById("begin").addEventListener("click", begin);
+document.getElementById("done").addEventListener("click", done);
+document.getElementById("cant").addEventListener("click", () => { rec = rec || {taps: 0, early: 0, t0: performance.now()}; finish("cant"); });
+function table() {
+  const head = "<tr><th>Sheet</th>" + TASK_IDS.map(id => "<th>" + esc(TASKS[id].name) + "</th>").join("") + "<th>Est. taps</th><th>Total</th></tr>";
+  document.getElementById("res").innerHTML = head + DATA.sheets.map(s => {
+    const r = store.results[s.id] || {};
+    const cell = x => !x ? "—" : x.cant ? "can't" : x.taps + " · " + x.secs + " s · " + x.early;
+    return "<tr><td>" + esc(s.label) + "</td>" + TASK_IDS.map(id => "<td>" + cell(r[id]) + "</td>").join("") + "<td>" + s.est.taps + "</td><td>" + s.est.total + (s.est.rank ? " (#" + s.est.rank + ")" : "") + "</td></tr>";
+  }).join("");
+}
+document.getElementById("exp").addEventListener("click", () => {
+  const out = document.getElementById("out"); out.style.display = "block";
+  out.value = JSON.stringify({page: "run-try T3b.4g", sheets: DATA.sheets.map(s => s.id), results: store.results}, null, 1);
+  out.select(); try { navigator.clipboard.writeText(out.value); } catch (e) {}
+});
+document.getElementById("clr").addEventListener("click", () => { if (confirm("Clear every recorded trial on this page?")) { store = {results: {}}; save(); table(); side(); } });
+side(); render(); table(); tick();
+</script>
+</body>
+</html>

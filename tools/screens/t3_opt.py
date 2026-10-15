@@ -4,6 +4,7 @@
     python tools/screens/t3_opt.py page_html scores       t3-options.html, t3-scores.html (fails if a control wins)
 
 Parts:
+  pacerun  T3b.4g where the Paced timer lives while running (owner, 2026-10-15)
   pace6    T3b.4f the approved Paced sentence: steppers the boxes' height, flowing or one part per line (owner, 2026-10-15)
   pace5    T3b.4e the Paced timer: N breaks evenly in the sentence; the ring shows and selects (owner, 2026-10-15)
   pace4    T3b.4d the Paced timer: a real dial for times, the run ring for pauses as fractions (owner, 2026-10-15)
@@ -3176,6 +3177,107 @@ def score_pace6(v):
             "like_when": 1.0 if (ctl or v["layout"] == "flow") else 0.5, "small": gate}
 
 
+# ==== Part pacerun: T3b.4g where the Paced timer lives while running (owner, 2026-10-15) ==============================================
+"""
+  The owner: "Score where the Paced timer lives while running. Ask all questions upfront." Answers: the full running
+  view on the activity's page (reached by tapping the card with the running strip) or its own screen; the Measuring strip
+  (approved, T3b.1d) always, a Today strip scored; controls: Pause / Resume, Stop, Skip to the next part, +5 min, Edit the
+  run while it runs; axes: T3b.4b's three (app free, taps to reach and return, seen elsewhere), the owner's four for
+  running timers (taps to stop, forgotten-timer risk, Today's calm, consistency), break noticed, recovery from a mistap;
+  after a rest, work resumes on its own or waits for a tap (both scored); Stop guarded at once + Undo, by a long press, or
+  by a confirm (all scored); two timers at once (Reading paced, Cleaning plain). Android's notification is always there
+  and not scored. No phone captures (owner).
+  view      page (the activity's page holds the running view above its history) / screen (its own running screen)
+  today     none (Today shows nothing of the runs) / strip (a running strip on Today, one row a timer, as Measuring's)
+  rest_end  auto (work resumes with a chime) / tap (the run waits for a tap)
+  stop      undo (stops at once, Undo for a few seconds) / long (a long press stops) / confirm ("End the run?")
+  The walk, from Today, with Reading (paced) and Cleaning (plain) running: (1) see Reading's time left and next break;
+  (2) pause Reading, resume it; (3) skip Reading's current rest; (4) add 5 min; (5) change Reading's end; (6) stop
+  Cleaning, keeping Reading; (7) undo an accidental stop of Reading; (8) a rest ends while on Today.
+"""
+PACERUN_SPACE = {"view": ["page", "screen"], "today": ["none", "strip"], "rest_end": ["auto", "tap"], "stop": ["undo", "long", "confirm"]}
+PR_CSS = """
+.rs{display:flex;align-items:center;min-height:52px;border-radius:12px;background:var(--zone2);padding:0 4px 0 12px;margin-bottom:6px;font-size:14px}.rs .t{flex:1}
+.rs .ib2{min-width:48px;min-height:48px;display:grid;place-items:center}
+.rv{border-radius:16px;background:var(--zone2);padding:12px;margin:6px 0}.rv .big{font-size:40px;font-weight:600;font-variant-numeric:tabular-nums}.rv .nx{font-size:14px;color:var(--dim)}
+.rv .bt2{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}.rv .bt2 span{min-height:48px;border-radius:24px;display:grid;place-items:center;box-shadow:inset 0 0 0 1px var(--dim);font-size:14px}
+.rv .bt2 span.main{background:var(--ink);color:var(--bg);box-shadow:none}
+"""
+
+
+def prdoc(html):
+    return doc(html, "light", CSS + PR_CSS)
+
+
+def pr_strip(two=True):
+    rows = '<div class="rs" data-tap="Strip Reading"><span class="t">Reading · 12:30 left · rest at 13:12</span><span class="ib2" data-tap="Strip stop Reading">■</span></div>'
+    if two:
+        rows += '<div class="rs" data-tap="Strip Cleaning"><span class="t">Cleaning · 0:42</span><span class="ib2" data-tap="Strip stop Cleaning">■</span></div>'
+    return rows
+
+
+def pr_view(v, big=False):
+    return ('<div class="rv"><div class="big">12:30</div><div class="nx">left · next: a 5-min rest at 13:12 · ends 13:25</div>'
+            '<div class="bt2"><span class="main" data-tap="Run pause">‖ Pause</span><span data-tap="Run skip">Skip</span><span data-tap="Run plus">+5 min</span>'
+            '<span data-tap="Run edit">Edit</span><span data-tap="Run stop">■ Stop%s</span></div></div>') % (" (hold)" if v.get("stop") == "long" else "")
+
+
+def pacerun_phone(v, which="view"):
+    if v.get("control"):
+        return pace_phone({"mode": "bdt", "place": "bdt", "control": True})
+    if which == "today":
+        body = (pr_strip() if v["today"] == "strip" else "") + kit.today_body()
+        return kit.phone(kit.header("Today", (("⌕", "Search"),)), body, kit.bar("Today"))
+    if v["view"] == "page":
+        body = pr_view(v) + '<div class="zone"><h4>Today</h4><div class="prow2"><span class="t">12:40–13:00</span>20 min</div></div>'
+        return kit.phone(kit.header("Reading", (("⌕", "Search"),), ("‹", "Back")), body, kit.bar("Hub"))
+    return kit.phone(kit.header("Reading · running", (), ("‹", "Back")), pr_view(v, True), kit.bar("Hub"))
+
+
+def pr_walk(v):
+    """The walk's taps from Today, and what each axis needs."""
+    reach = 1 if v["today"] == "strip" else 3   # Today strip -> the view; else Hub, Measuring, the Measuring strip
+    back = 1   # Back to where one was
+    stop_cost = {"undo": 1, "long": 1, "confirm": 2}[v["stop"]]
+    taps = 0
+    taps += 0 if v["today"] == "strip" else reach + back   # (1) see time left and next break
+    taps += reach + 2 + back   # (2) pause, resume
+    taps += reach + 1 + back   # (3) skip the rest
+    taps += reach + 1 + back   # (4) +5 min
+    taps += reach + 1 + 3 + back   # (5) Edit, the end box, the dial's hour and minute
+    taps += (stop_cost if v["today"] == "strip" else 2 + stop_cost)   # (6) Cleaning's stop: Today strip, or Hub, Measuring, then its stop
+    rec = {"undo": 1, "long": 0, "confirm": 1}[v["stop"]]   # (7) an accidental stop: Undo; prevented by the hold; Cancel
+    taps += rec
+    taps += 1 if v["rest_end"] == "tap" else 0   # (8) the next work block started by a tap
+    return taps, reach, stop_cost, rec
+
+
+def score_pacerun(v):
+    ctl = v.get("control")
+    gate, reach_px = [], []
+    docs = [pdoc(pacerun_phone(v))] if ctl else [prdoc(pacerun_phone(v)), prdoc(pacerun_phone(v, "today"))]
+    for d in docs:
+        tp = T.taps(d)
+        seen = [x for x in tp.all if x.get("seen")]
+        gate += ["%s %dx%d" % (x["name"], x["w"], x["h"]) for x in seen if x["name"].startswith(("Run ", "Strip ")) and (x["w"] < 48 or x["h"] < 48)]
+        reach_px += [T.fitts(THUMB, x) for x in seen if x["name"].startswith("Run ")]
+    if ctl:   # its own screen, no strips (Hub, Measuring, the row, then its screen), Stop at once, no Undo; no skip, +5, edit;
+        # breaks are chimes (no rest to end)
+        taps = 3 + 1 + (3 + 2 + 1) + IMPOSSIBLE * 3 + (3 + 1) + IMPOSSIBLE + 0
+        return {"taps": taps, "reach_taps": 3, "return_taps": 1, "seen": 0, "stop_taps": 4, "forgot": 2, "today_rows": 0, "consistency": 0,
+                "noticed": 0, "recover": IMPOSSIBLE, "impossible": 4, "reach": round(sum(reach_px) / len(reach_px), 3) if reach_px else 9, "small": []}
+    taps, reach, stop_cost, rec = pr_walk(v)
+    strip = v["today"] == "strip"
+    return {"taps": taps, "reach_taps": reach, "return_taps": 1, "seen": 2 if strip else 0,
+            "stop_taps": stop_cost + (0 if strip else 2),
+            # forgotten-timer risk: a run out of sight on Today, and a run waiting silently for a tap after its rest
+            "forgot": (0 if strip else 1) + (1 if v["rest_end"] == "tap" else 0),
+            "today_rows": 2 if strip else 0,   # Today's calm: the rows the runs add to Today
+            "consistency": (1.0 if v["view"] == "page" else 0.5) + (0.5 if strip else 0.0),   # an item opens its page; a strip reads alike on Today and Measuring
+            "noticed": 1 if strip else 0,   # a rest starting changes something on Today (the strip's line), beyond the sound
+            "recover": rec, "impossible": 0, "reach": round(sum(reach_px) / len(reach_px), 3) if reach_px else 9, "small": sorted(set(gate))}
+
+
 def build_refs():
     with open(os.path.join(T.OUT, "t3-references.json"), encoding="utf-8") as fh:
         src = json.load(fh)
@@ -3200,9 +3302,10 @@ def build_refs():
 T.PREFIX, T.REFS, T.NAME = "t3", "t3-refs.json", "T3 habits, trackers, time, goals, charts and checklists"
 T.OUT = os.path.join(os.path.dirname(M2.T.OUT), "t3")
 # T3.1 "habits" (presence, the first scoring) is kept in t3-habits-v1.json and in the code above; T3a replaced it (owner, 2026-10-13)
-T.SPACES = {"pace6": PACE6_SPACE, "pace5": PACE5_SPACE, "pace4": PACE4_SPACE, "pace3": PACE3_SPACE, "paceplace": PPLACE_SPACE, "pace": PACE_SPACE, "measure3": MEAS3_SPACE, "acts": ACTS_SPACE, "measure2": MEAS2_SPACE, "measure": MEAS_SPACE, "trackers": TRK_SPACE, "basics": BASICS_SPACE, "addhabit": ADD_SPACE, "routines": ROUT_SPACE, "addsent": SENT_SPACE, "hsheet": HSHEET_SPACE, "premise": PREMISE_SPACE, "habits2": H2_SPACE}
-T.SCORERS = {"pace6": score_pace6, "pace5": score_pace5, "pace4": score_pace4, "pace3": score_pace3, "paceplace": score_paceplace, "pace": score_pace, "measure3": score_measure3, "acts": score_acts, "measure2": score_measure2, "measure": score_measure, "trackers": score_trackers, "basics": score_basics, "addhabit": score_addhabit, "routines": score_routines, "addsent": score_addsent, "hsheet": score_hsheet, "premise": score_premise, "habits2": score_habits2}
-T.CONTROLS = {"pace6": ({"layout": "flow48", "stepper": 48, "control": True}, "the approved sheet as it was: the sentence flowing, 48 dp steppers taller than their boxes"),
+T.SPACES = {"pacerun": PACERUN_SPACE, "pace6": PACE6_SPACE, "pace5": PACE5_SPACE, "pace4": PACE4_SPACE, "pace3": PACE3_SPACE, "paceplace": PPLACE_SPACE, "pace": PACE_SPACE, "measure3": MEAS3_SPACE, "acts": ACTS_SPACE, "measure2": MEAS2_SPACE, "measure": MEAS_SPACE, "trackers": TRK_SPACE, "basics": BASICS_SPACE, "addhabit": ADD_SPACE, "routines": ROUT_SPACE, "addsent": SENT_SPACE, "hsheet": HSHEET_SPACE, "premise": PREMISE_SPACE, "habits2": H2_SPACE}
+T.SCORERS = {"pacerun": score_pacerun, "pace6": score_pace6, "pace5": score_pace5, "pace4": score_pace4, "pace3": score_pace3, "paceplace": score_paceplace, "pace": score_pace, "measure3": score_measure3, "acts": score_acts, "measure2": score_measure2, "measure": score_measure, "trackers": score_trackers, "basics": score_basics, "addhabit": score_addhabit, "routines": score_routines, "addsent": score_addsent, "hsheet": score_hsheet, "premise": score_premise, "habits2": score_habits2}
+T.CONTROLS = {"pacerun": ({k: "bdt" for k in PACERUN_SPACE} | {"control": True}, "Break Down Timer as it is: its own full screen, no strips, Stop at once without Undo; no skip, +5 or edit while running"),
+              "pace6": ({"layout": "flow48", "stepper": 48, "control": True}, "the approved sheet as it was: the sentence flowing, 48 dp steppers taller than their boxes"),
               "pace5": ({k: "bdt" for k in PACE5_SPACE} | {"control": True}, "Break Down Timer as it is, with its fraction presets: the clock picker; 60 slices; no later start, no rests"),
               "pace4": ({k: "bdt" for k in PACE4_SPACE} | {"control": True}, "Break Down Timer as it is, with its fraction presets (< >): the clock picker for the length; 60 slices; no later start, no rests"),
               "pace3": ({"run": "bdt", "placer": "bdt", "exact": "bdt", "rhythm": "bdt", "face": "bdt", "control": True}, "Break Down Timer as it is: the clock picker for the length, 60 slices to tap; no later start, no rests"),
@@ -3263,8 +3366,8 @@ T.AXES = {"pace4": {"Taps": ("taps",), "Customization": ("impossible", "step_150
                      "Choice": ("-filter_says_mid",), "Consistency": ("like_today",), "Density": ("-rows_seen", "cut"), "Calm": ("clutter", "desk_clutter")},
           "habits": {"Ease": ("log_actions", "reach_log"), "Presence": ("-presence_shown", "presence_marks"), "Calm": ("guilt_marks", "clutter", "desk_clutter"),
                      "Density": ("-rows_seen", "cut"), "Consistency": ("like_today",)}}
-T.TITLES = {"pace6": "T3b.4f The approved Paced sentence: steppers at the boxes' height, flowing or one part per line", "pace5": "T3b.4e The Paced timer: N breaks evenly in the sentence; the ring shows and selects", "pace4": "T3b.4d The Paced timer: a real dial for times, the run ring for pauses as fractions", "pace3": "T3b.4c The Paced timer sheet around a clock face: run input, placer, exact words, rhythm", "paceplace": "T3b.4b Where the Paced timer lives: set and running", "pace": "T3b.4 The Paced timer sheet: setting the run, placing pauses (chimes or rests)", "measure3": "T3b.1d The Measuring list: trackers and activities as one, each item's control by how it is measured", "acts": "T3b.2 The Activities list: running timers, adding a past session, Same as last (Chronicle's Last used)", "measure2": "T3b.1c The Measuring list, scroll counted at 12 and 30 items: compact rows, folding labels, most used first", "measure": "T3b.1b The Measuring list, taps first: merged with activities or apart, rows or cards, what Log does (a control per kind)", "trackers": "T3b.1 The Trackers list: rows or cards, what a row says, what Log does, grouping", "habits2": "T3a.1c The Habits list: the optional name, and every if as a header", "premise": "T3a.2d What tapping the premise box opens: nothing, or the ifs with the same connective", "hsheet": "T3a.2c The New habit sheet (prototype): the blanks as text boxes in the sentence, or opened above it", "addsent": "T3a.2b Adding a habit as an open sentence: the When sheet, in place, or fields; energy and routine as words or rows", "routines": "T3a.1b The Habits list with routines: the 'what to expect' preview, how the sequence shows", "addhabit": "T3a.2 Adding a habit: in place or a sheet, the If, the block", "basics": "T3a.1 Habits as Daily basics: layout, the energy filter, its mark, done today", "habits": "T3.1 The Habits list: presence, grouping, where Log sits, a count's amount"}
-T.DRAW = {"pace6": lambda v: [p6doc(pace6_phone(v, P6_STATES[0])), p6doc(pace6_phone(v, P6_STATES[5])), p6doc(pace6_phone(v, P6_STATES[8]))], "pace5": lambda v: [pdoc(pace5_phone(v)) if v.get("control") else p4doc(pace5_phone(v))], "pace4": lambda v: [pdoc(pace4_phone(v)) if v.get("control") else p4doc(pace4_phone(v))], "pace3": lambda v: [pdoc(pace3_phone(v)) if v.get("control") else p3doc(pace3_phone(v))], "paceplace": lambda v: [ppdoc(pp_running(v)), ppdoc(pp_today(v))], "pace": lambda v: [pdoc(pace_phone(v))], "measure3": lambda v: [m3doc(measure3_phone(v, ITEMS3_12, v.get("group", "") not in ("flat", "labels"))), m3doc(measure3_phone(v, ITEMS3_40)), measure3_desk(v)], "acts": lambda v: [adoc2(acts_phone(v, ACTS12, v.get("arrange") == "hybrid")), adoc2(acts_phone(v, ACTS30)), acts_desk(v)], "measure2": lambda v: [m2doc(measure2_phone(v, ITEMS12, v.get("group", "") in ("folding", "hybrid_fit", "hybrid_6", "hybrid_pinned"))), m2doc(measure2_phone(v, ITEMS30)), measure2_desk(v)], "measure": lambda v: [mdoc(measure_phone(v)), measure_desk(v)], "trackers": lambda v: [tdoc(trackers_phone(v))] + ([] if v.get("control") else [tdoc(trackers_phone(v, True))]) + [trackers_desk(v)], "habits2": lambda v: [h2doc(habits2_phone(v)), habits2_desk(v)], "premise": lambda v: [premise_doc(v)], "hsheet": lambda v: [adoc(addhabit_phone({"control": True}))] if v.get("control") else [hsheet_doc(v, st) for _, _, st in HSTATES], "addsent": lambda v: [sdoc(addsent_phone(v))] + ([] if (v.get("control") or v["form"] == "fields") else [sdoc(addsent_phone(v, True))]), "routines": lambda v: [rdoc(routines_phone(v)), rdoc(routines_phone(v, "low")), routines_desk(v)], "addhabit": lambda v: [adoc(addhabit_phone(v))], "basics": lambda v: [bdoc(basics_phone(v)), basics_desk(v)], "habits": lambda v: [hdoc(habits_phone(v)), habits_desk(v)]}
+T.TITLES = {"pacerun": "T3b.4g Where the Paced timer lives while running: the view, a Today strip, a rest's end, Stop's guard", "pace6": "T3b.4f The approved Paced sentence: steppers at the boxes' height, flowing or one part per line", "pace5": "T3b.4e The Paced timer: N breaks evenly in the sentence; the ring shows and selects", "pace4": "T3b.4d The Paced timer: a real dial for times, the run ring for pauses as fractions", "pace3": "T3b.4c The Paced timer sheet around a clock face: run input, placer, exact words, rhythm", "paceplace": "T3b.4b Where the Paced timer lives: set and running", "pace": "T3b.4 The Paced timer sheet: setting the run, placing pauses (chimes or rests)", "measure3": "T3b.1d The Measuring list: trackers and activities as one, each item's control by how it is measured", "acts": "T3b.2 The Activities list: running timers, adding a past session, Same as last (Chronicle's Last used)", "measure2": "T3b.1c The Measuring list, scroll counted at 12 and 30 items: compact rows, folding labels, most used first", "measure": "T3b.1b The Measuring list, taps first: merged with activities or apart, rows or cards, what Log does (a control per kind)", "trackers": "T3b.1 The Trackers list: rows or cards, what a row says, what Log does, grouping", "habits2": "T3a.1c The Habits list: the optional name, and every if as a header", "premise": "T3a.2d What tapping the premise box opens: nothing, or the ifs with the same connective", "hsheet": "T3a.2c The New habit sheet (prototype): the blanks as text boxes in the sentence, or opened above it", "addsent": "T3a.2b Adding a habit as an open sentence: the When sheet, in place, or fields; energy and routine as words or rows", "routines": "T3a.1b The Habits list with routines: the 'what to expect' preview, how the sequence shows", "addhabit": "T3a.2 Adding a habit: in place or a sheet, the If, the block", "basics": "T3a.1 Habits as Daily basics: layout, the energy filter, its mark, done today", "habits": "T3.1 The Habits list: presence, grouping, where Log sits, a count's amount"}
+T.DRAW = {"pacerun": lambda v: [pdoc(pacerun_phone(v))] if v.get("control") else [prdoc(pacerun_phone(v)), prdoc(pacerun_phone(v, "today"))], "pace6": lambda v: [p6doc(pace6_phone(v, P6_STATES[0])), p6doc(pace6_phone(v, P6_STATES[5])), p6doc(pace6_phone(v, P6_STATES[8]))], "pace5": lambda v: [pdoc(pace5_phone(v)) if v.get("control") else p4doc(pace5_phone(v))], "pace4": lambda v: [pdoc(pace4_phone(v)) if v.get("control") else p4doc(pace4_phone(v))], "pace3": lambda v: [pdoc(pace3_phone(v)) if v.get("control") else p3doc(pace3_phone(v))], "paceplace": lambda v: [ppdoc(pp_running(v)), ppdoc(pp_today(v))], "pace": lambda v: [pdoc(pace_phone(v))], "measure3": lambda v: [m3doc(measure3_phone(v, ITEMS3_12, v.get("group", "") not in ("flat", "labels"))), m3doc(measure3_phone(v, ITEMS3_40)), measure3_desk(v)], "acts": lambda v: [adoc2(acts_phone(v, ACTS12, v.get("arrange") == "hybrid")), adoc2(acts_phone(v, ACTS30)), acts_desk(v)], "measure2": lambda v: [m2doc(measure2_phone(v, ITEMS12, v.get("group", "") in ("folding", "hybrid_fit", "hybrid_6", "hybrid_pinned"))), m2doc(measure2_phone(v, ITEMS30)), measure2_desk(v)], "measure": lambda v: [mdoc(measure_phone(v)), measure_desk(v)], "trackers": lambda v: [tdoc(trackers_phone(v))] + ([] if v.get("control") else [tdoc(trackers_phone(v, True))]) + [trackers_desk(v)], "habits2": lambda v: [h2doc(habits2_phone(v)), habits2_desk(v)], "premise": lambda v: [premise_doc(v)], "hsheet": lambda v: [adoc(addhabit_phone({"control": True}))] if v.get("control") else [hsheet_doc(v, st) for _, _, st in HSTATES], "addsent": lambda v: [sdoc(addsent_phone(v))] + ([] if (v.get("control") or v["form"] == "fields") else [sdoc(addsent_phone(v, True))]), "routines": lambda v: [rdoc(routines_phone(v)), rdoc(routines_phone(v, "low")), routines_desk(v)], "addhabit": lambda v: [adoc(addhabit_phone(v))], "basics": lambda v: [bdoc(basics_phone(v)), basics_desk(v)], "habits": lambda v: [hdoc(habits_phone(v)), habits_desk(v)]}
 T.POOL = {"trackers": lambda ok: [min((r for r in ok if r.get("front") and r["v"]["layout"] == lay and r["v"]["log"] == lg), key=lambda r: r["total"])
                                     for lay in ("rows", "grid") for lg in ("sheet", "default", "stepper")
                                     if any(r.get("front") and r["v"]["layout"] == lay and r["v"]["log"] == lg for r in ok)]
@@ -3287,6 +3390,11 @@ T.DRAW_MAX["pace5"] = 8
 T.AXES["pace5"] = dict(T.AXES["pace4"])   # the same ten axes
 T.AXES["pace6"] = {"Stability": ("drift_tapped", "drift_others"), "Space": ("foot_max",), "Reach": ("reach",), "Consistency": ("-like_when",), "Size": ("stepper_over_box",)}
 T.REFS_INFO.add("pace6")
+T.REFS_INFO.add("pacerun")
+# App free is not an axis here: every place leaves the app free (the sheet that stayed up, T3b.4b, is gone)
+T.AXES["pacerun"] = {"Taps": ("taps",), "Possible": ("impossible",), "Reach and return": ("reach_taps", "return_taps"), "Seen elsewhere": ("-seen",),
+                     "Taps to stop": ("stop_taps",), "Forgotten-timer risk": ("forgot",), "Today's calm": ("today_rows",), "Consistency": ("-consistency",),
+                     "Break noticed": ("-noticed",), "Recovery": ("recover",), "Ease": ("reach",)}
 T.REFS_INFO.add("pace4")
 T.POOL["pace4"] = lambda ok: [r for r in ok if r.get("front")]
 T.DRAW_MAX["pace4"] = 8
@@ -3309,7 +3417,8 @@ T.PICKED = {"routines": [{"preview": "none", "seq": "plain"}, {"preview": "energ
             "measure3": [{"layout": "rows", "says": "last", "log": "inline", "group": "hybrid_fit", "order": "recent", "running": "strip", "past": "page", "plan": "chip"}],
             "pace5": [{"time": "dial", "pauses": "sentence", "move": "dial", "drag": "none", "face": "chooser"}],   # with - / + beside every box (owner, 2026-10-15)
             "pace6": [{"layout": "tightAC", "stepper": 32}]}   # no chips; evenly <-> at in place; Reset breaks (owner, 2026-10-15)
-T.SUPERSEDED = {"pace4": "N breaks evenly, the ring for showing and selecting (owner, 2026-10-15): T3b.4e replaced it",
+T.SUPERSEDED = {"paceplace": "where it lives while running, rescored with the owner's answers (2026-10-15): T3b.4g replaced it",
+                "pace4": "N breaks evenly, the ring for showing and selecting (owner, 2026-10-15): T3b.4e replaced it",
                 "pace3": "the ring is always the whole run, a real dial for times (owner, 2026-10-15): T3b.4d replaced it",
                 "pace": "a clock face rethought (owner, 2026-10-15): T3b.4c replaced it; its sentence and When pattern live on in T3b.4c",
                 "measure2": "trackers and activities are one screen (owner, 2026-10-14): T3b.1d replaced it; its pick shaped T3b.1d's space",
