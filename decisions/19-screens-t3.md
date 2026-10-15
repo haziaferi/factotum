@@ -1446,4 +1446,26 @@ Status (then): **T3b.1d and T3b.4e approved; T3b.4f scored (B and A + C drawn), 
 
 Drawing: `docs/screens/t3/pace6-chips.png`.
 
-Status: **T3b.1d and T3b.4e approved; T3b.4f scored (B and A + C with chips and Reset breaks), awaiting the owner's pick; T3b.4b scored.**
+Status (then): **T3b.1d and T3b.4e approved; T3b.4f scored (B and A + C with chips and Reset breaks), awaiting the owner's pick; T3b.4b scored.**
+
+**Follow-up (owner, 2026-10-15):**
+> "I think fractions and chips might be better taken off entirely, since 'evenly' already covers the spread of N breaks and 'at a time' covers a specific break. Also, 'evenly' and 'at a time' should switch like For/Until/From-to already do, without a list appearing above (less taps, less moving around the screen to tap)."
+
+**Applied to B and A + C:**
+- **No chips, and no fractions.**
+- **The last word switches in place** like the mode word: "evenly" ↔ "at [− 17:30 +]". One tap, and nothing opens above.
+- **At a time, the count shows 1 with its steppers dimmed,** rather than disappearing, so the length box does not slide.
+- **The kind word has a fixed width** (B 72 dp, fitting "rests of"; A + C 48 dp), so "rests of" becoming "rest of" moves nothing.
+
+**The walk gains** evenly → at a time → +5 min → evenly.
+
+**Measured:**
+- across all 12 states, nothing overflows the sheet in either layout (A + C first ran 6 px over and was narrowed);
+- the tapped control never moves, and switching evenly ↔ at a time moves nothing;
+- the only move left is the end box, once, when Until becomes From;
+- the sentence is 231 px at its tallest (from 271 with chips);
+- rank sums at 32 dp: A + C 34, B 36.5.
+
+Drawing: `docs/screens/t3/pace6-where.png`.
+
+Status: **T3b.1d and T3b.4e approved; T3b.4f scored (B and A + C, evenly ↔ at a time), awaiting the owner's pick; T3b.4b scored.**
