@@ -1249,4 +1249,19 @@ Status (then): **T3b.1d approved; T3b.4c scored, trial page rebuilt: awaiting th
 
 T3b.4c is superseded by T3b.4d.
 
-Status: **T3b.1d approved; T3b.4d scored, trial page rebuilt: awaiting the owner's trial and pick; T3b.4b scored.**
+Status (then): **T3b.1d approved; T3b.4d scored, trial page rebuilt: awaiting the owner's trial and pick; T3b.4b scored.**
+
+**The owner's first trial of T3b.4d (2026-10-15):**
+- the snapping ring finished every task, and was the fastest on runs 1–3 with no typing; moving a chime still cost 11 taps and 38 s;
+- the chosen split cost 36 taps on run 3 (splitting into 18 first), and the presets 21;
+- the typed sentence was steady (8–24 s);
+- Break Down Timer took 15 taps and 7 fixes to move one break.
+
+**Three defects of the page, fixed:**
+- **The dial's selected-hour disc swallowed taps.** The same hour could not be chosen again, so a time one minute off could only be corrected by picking another hour first (owner). The length dial's selected hour and minute had the same flaw. A face now takes taps only on the dial's surface and its slices; highlights, hands and marks let them through. The fix was checked against the committed page, where reopening the box and keeping the hour left the end a minute off.
+- **On the split and presets sheets, a task that starts with a pause had no grid**, so the pause could not be moved, removed or kept on the ring. Such a task now sets the split or the preset the pause sits on.
+- **Pauses made on the ring were missing from the words.** They are now listed there with their fraction and time, and can be removed with ×.
+
+**The scripted tests had hidden the dial defect.** They fired events at the dial's surface directly. They now tap whatever is on top at that point (`elementFromPoint`), as a finger does.
+
+Status: **T3b.1d approved; T3b.4d trial page fixed: awaiting the owner's second trial; T3b.4b scored.**

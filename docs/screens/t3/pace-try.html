@@ -44,7 +44,7 @@ input.box{width:76px;outline:none;cursor:text}input.box:focus,.box.ed{box-shadow
 input.box.sm2{width:52px;min-height:36px;line-height:36px;font-size:15px}
 .sm{font-size:14px;color:var(--dim)}
 .x{display:inline-grid;place-items:center;width:40px;height:40px;color:var(--dim);cursor:pointer;vertical-align:middle}
-.face{display:block;margin:2px auto;touch-action:none;cursor:pointer}.face text{pointer-events:none}
+.face{display:block;margin:2px auto;touch-action:none;cursor:pointer}.face text,.face line,.face circle:not([data-drag]):not([data-a]),.face path:not([data-a]){pointer-events:none}
 .pbar{display:flex;align-items:center;justify-content:space-between;min-height:48px;border-bottom:1px solid var(--zone2)}.pbar b{font-variant-numeric:tabular-nums}
 .toast2{background:var(--ink);color:var(--inv);padding:8px 10px;border-radius:10px;font-size:13px;margin:0 0 6px}
 .ph-h{height:56px;display:flex;align-items:center;gap:8px;padding:0 8px;font-size:18px;font-weight:600}.ph-h .bk{width:48px;height:48px;display:grid;place-items:center;color:var(--dim)}
@@ -152,6 +152,11 @@ function fromPre(pre) {
     else if (ring()) s.pauses.push(Object.assign({id: nid(), rule: "frac"}, r));
     else s.pauses.push({id: nid(), kind: r.kind, rule: "half", dur: r.f1 ? Math.round((r.f1 - r.f) * (E - S)) : 5});
   }
+  if (ring() && s.pauses.length) {   // the split or the preset the pauses sit on, so they can be edited on the ring
+    const fits = n => s.pauses.every(p => [p.f, p.f1].filter(x => x != null).every(x => Math.abs(x * n - Math.round(x * n)) < 1e-6));
+    if (C().division === "chosen") for (let n = 2; n <= 24; n++) if (fits(n)) { s.split = n; break; }
+    if (C().division === "presets") for (const n of PRESETS) if (fits(n)) { s.preset = n; break; }
+  }
   return s;
 }
 function bdtExpand(s) { const {S, E} = span(s); return s.pauses.map(p => ["chime", S + (E - S) * p.val / 60, 0]).filter(x => x[1] > S && x[1] < E).sort((a, b) => a[1] - b[1]); }
@@ -231,7 +236,12 @@ function runHTML() {
 function pauseWordsHTML() {
   let h = '<div class="sent">';
   st.pauses.forEach((p, i) => {
-    if (p.rule === "frac") return;   // pauses made on the ring read in the line below the sentence
+    if (p.rule === "frac") {   // made on the ring: listed with its fraction and time, removable here as well
+      const {S, E} = span(st), L = E - S, fr = fracName(p.f);
+      h += "<div>with " + (p.kind === "rest" ? "a rest of " + dur((p.f1 - p.f) * L) + " from " : "a chime at ") + (fr ? fr + " · " : "") + fmt(S + p.f * L) +
+           ' <span class="x" data-a="del:' + i + '" aria-label="Remove">×</span></div>';
+      return;
+    }
     const where = p.rule === "half" ? "halfway" : p.rule === "every" ? "every" : "at";
     const val = p.rule === "every" ? " " + numBox("ev" + i, p.val) + " min" : p.rule === "at" ? " " + numBox("at" + i, fmt(p.val)) : "";
     h += '<div>with <span class="tok" data-a="kind:' + i + '">' + (p.kind === "rest" ? "a rest of" : "a chime") + "</span> " + (p.kind === "rest" ? numBox("d" + i, p.dur) + " min " : "") +
@@ -312,6 +322,7 @@ function parseTime(b) { b = String(b).replace(/\D/g, ""); if (!b) return null; c
 function parseLen(b) { const s = String(b).trim(); let m = s.match(/^(\d+)\s*h\s*(\d+)?/i); if (m) return +m[1] * 60 + (+m[2] || 0); m = s.match(/^(\d+):(\d{2})$/); if (m) return +m[1] * 60 + +m[2]; m = s.match(/^(\d+)/); return m ? +m[1] : null; }
 
 /* ---- the run ring: the whole run, at any length ---- */
+function fracName(f) { for (const n of [2, 3, 4, 5, 6, 8, 10, 12]) for (let k = 1; k < n; k++) if (Math.abs(f - k / n) < 1e-6) return k === 1 ? (FR[n] || "1/" + n) : k + "/" + n; return null; }
 function snapFrac(f, L) {
   for (const n of SNAP) for (let k = 1; k < n; k++) if (Math.abs(f - k / n) < 0.015) return {f: k / n, label: k === 1 ? FR[n] : k + "/" + n};
   return {f: Math.round(f * L) / L, label: null};
