@@ -1314,4 +1314,47 @@ Status (then): **T3b.1d approved; T3b.4d trial page fixed: awaiting the owner's 
 
 T3b.4d is superseded by T3b.4e.
 
-Status: **T3b.1d approved; T3b.4e scored, trial page rebuilt: awaiting the owner's trial and pick; T3b.4b scored.**
+Status (then): **T3b.1d approved; T3b.4e scored, trial page rebuilt: awaiting the owner's trial and pick; T3b.4b scored.**
+
+### T3b.4e approved: the sentence and the dial, with − / + beside every box (owner, 2026-10-15)
+
+**The owner's trial**, over the 9 tasks:
+
+| Sheet | Time | Taps | Keystrokes | Fixes |
+|---|---|---|---|---|
+| **the sentence and the dial** | **88 s** | 55 | 2 | 4 |
+| ring, moved with − / + | 90 s | 51 | 5 | 3 |
+| the sentence typed | 95 s | 58 | 37 | 1 |
+| ring, slowed drag | 119 s | 64 | 2 | 5 |
+| ring, moved on the dial | 124 s | 59 | 3 | 3 |
+| Break Down Timer | 5 of 9 done, 4 errors | | | 11 |
+
+Every sheet of ours finished every task without an error.
+
+**The ring's move tools went unused.** Moving a break took 5 taps on every sheet: the sentence's "at [time]" route, not the ring's.
+
+**The pick:**
+- the sentence and the dial: "For / Until / From [time boxes]", then "with [N] [chimes | rests of [X]] evenly", with exceptions at a time or at a fraction;
+- every time box opens the dial (hours, then minutes; a length's hours outside and minutes inside), and ⌨ types instead;
+- rests spread evenly take their length out of the run (equal work blocks);
+- the ring is not part of it.
+
+**The owner's refinement:** − and + beside every input box, "might improve small misclicks": time boxes move 5 min a step, counts 1. Taken with it:
+- the steppers are always shown (owner);
+- they are 48 dp each, so From–to and the break clause wrap onto a second line;
+- the dial still sets any single minute;
+- steppers turn the counts, the last thing typed on the dial sheet, into taps.
+
+Checked on the trial page: 5 scripted tasks correct on Start, with counts set by +, a rest's length by +5 and a moved chime by +5. All 8 steppers are 48 dp and inside the sheet.
+
+**The ↻ chip remembers the whole run** (owner): start and end, and the breaks. Repeating it took 1 tap in every trial, against 3 for the interval only.
+
+**Owed in the data layer, added:**
+- a Paced run as a run (start, end or length) with break groups, each a kind (chime or rest), a count spread evenly, a rest length, or one break at a time or at a fraction;
+- the whole run remembered per activity, for ↻.
+
+**Still open in T3b:**
+- where the Paced timer lives while running (T3b.4b scored; its header mark overlaps "where running timers show");
+- several running timers; goals; editing a session; time totals and charts.
+
+Status: **T3b.1d and T3b.4e approved; T3b.4b scored (where it lives, pending).**

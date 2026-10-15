@@ -31,6 +31,7 @@ def main():
     picked = [next(r for r in order if r["v"]["pauses"] == "ring" and r["v"]["move"] == mv) for mv in ("dial", "magnify", "nudge")]
     picked += [next(r for r in order if r["v"]["pauses"] == "sentence" and r["v"]["time"] == t) for t in ("dial", "typed")]
     picked.sort(key=lambda r: r["total"])
+    pick = next(r for r in picked if r["v"]["pauses"] == "sentence" and r["v"]["time"] == "dial")
     ctl = next(r for r in rows if r["v"].get("control"))
     sheets = []
     for r in picked + [ctl]:
@@ -39,6 +40,11 @@ def main():
         est = {k: r[k] for k in ("taps", "keyboards", "drags", "reach")}
         est.update(total=r.get("total"), rank=rank.get(id(r)))
         sheets.append({"id": "bdt" if v.get("control") else "-".join(v[k] for k in KEYS), "label": lab, "sub": sub, "cfg": {k: v[k] for k in KEYS}, "est": est})
+    # the owner's pick (2026-10-15): the sentence and the dial, with - / + beside every box (times and lengths 5 min, counts 1)
+    est = dict(sheets[[s["id"] for s in sheets].index("-".join(pick["v"][k] for k in KEYS))]["est"], total="the pick", rank=None)
+    sheets.insert(0, {"id": "dial-sentence-steps", "label": "sentence + dial + − / + (the pick)", "est": est,
+                      "sub": "times on the dial; − / + beside every box: times and lengths 5 min, counts 1",
+                      "cfg": dict({k: pick["v"][k] for k in KEYS}, steps=True)})
     with open(os.path.join(M.T.OUT, "pace-imgs.json"), encoding="utf-8") as fh:
         got = json.load(fh)
     by = {json.dumps(r["v"], sort_keys=True): r for r in rows}
