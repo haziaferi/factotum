@@ -3191,6 +3191,9 @@ def score_pace6(v):
   today     none (Today shows nothing of the runs) / strip (a running strip on Today, one row a timer, as Measuring's)
   rest_end  auto (work resumes with a chime) / tap (the run waits for a tap)
   stop      undo (stops at once, Undo for a few seconds) / long (a long press stops) / confirm ("End the run?")
+  After the owner's trial (2026-10-15): the strip carries Pause / Resume beside Stop ("there is still no pause button, see
+  Today's page"), and every stop, held or confirmed too, can be undone for a few seconds ("holding it stops the timer
+  with no chance to resume it"); Recovery still counts the taps a mistap costs, which the hold prevents.
   The walk, from Today, with Reading (paced) and Cleaning (plain) running: (1) see Reading's time left and next break;
   (2) pause Reading, resume it; (3) skip Reading's current rest; (4) add 5 min; (5) change Reading's end; (6) stop
   Cleaning, keeping Reading; (7) undo an accidental stop of Reading; (8) a rest ends while on Today.
@@ -3210,9 +3213,9 @@ def prdoc(html):
 
 
 def pr_strip(two=True):
-    rows = '<div class="rs" data-tap="Strip Reading"><span class="t">Reading · 12:30 left · rest at 13:12</span><span class="ib2" data-tap="Strip stop Reading">■</span></div>'
+    rows = '<div class="rs" data-tap="Strip Reading"><span class="t">Reading · 12:30 left · rest at 13:12</span><span class="ib2" data-tap="Strip pause Reading">‖</span><span class="ib2" data-tap="Strip stop Reading">■</span></div>'
     if two:
-        rows += '<div class="rs" data-tap="Strip Cleaning"><span class="t">Cleaning · 0:42</span><span class="ib2" data-tap="Strip stop Cleaning">■</span></div>'
+        rows += '<div class="rs" data-tap="Strip Cleaning"><span class="t">Cleaning · 0:42</span><span class="ib2" data-tap="Strip pause Cleaning">‖</span><span class="ib2" data-tap="Strip stop Cleaning">■</span></div>'
     return rows
 
 
@@ -3241,7 +3244,7 @@ def pr_walk(v):
     stop_cost = {"undo": 1, "long": 1, "confirm": 2}[v["stop"]]
     taps = 0
     taps += 0 if v["today"] == "strip" else reach + back   # (1) see time left and next break
-    taps += reach + 2 + back   # (2) pause, resume
+    taps += 2 if v["today"] == "strip" else reach + 2 + back   # (2) pause, resume: on the strip itself (owner, 2026-10-15), else in the view
     taps += reach + 1 + back   # (3) skip the rest
     taps += reach + 1 + back   # (4) +5 min
     taps += reach + 1 + 3 + back   # (5) Edit, the end box, the dial's hour and minute

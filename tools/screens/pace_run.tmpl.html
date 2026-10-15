@@ -57,7 +57,7 @@ textarea{width:100%;height:120px;font:12px/1.4 ui-monospace,Consolas,monospace;b
 <body>
 <main>
 <h1>The running Paced timer: try where it lives (T3b.4g)</h1>
-<p class="note">Two timers run at once: <b>Reading</b>, a Paced run with 2 rests of 5 min evenly, and <b>Cleaning</b>, a plain timer. The clock runs at real speed. Every task starts on Today; tap a timer's card (›) to open its running view. Press <b>Begin</b>, do the task in the phone, then press <b>Done</b>: the page checks it, and a Done too early counts as an error. Taps in the phone are counted. On "hold" sheets, Stop needs a press held for half a second.</p>
+<p class="note">Two timers run at once: <b>Reading</b>, a Paced run with 2 rests of 5 min evenly, and <b>Cleaning</b>, a plain timer. The clock runs at real speed. Every task starts on Today; tap a timer's card (›) to open its running view. Press <b>Begin</b>, do the task in the phone, then press <b>Done</b>: the page checks it, and a Done too early counts as an error. Taps in the phone are counted. Each running card has ‖ / ▶ (pause, resume) and ■ (stop). On "hold" sheets, Stop needs a press held for half a second; any stop can be undone for 10 seconds, in the card itself.</p>
 <div class="cols">
   <section class="panel">
     <h3>Sheet</h3>
@@ -98,7 +98,7 @@ function newCleaning(T0) { return {name: "Cleaning", S: T0 - 7, stopped: false, 
 let simStart = null;
 const simNow = () => simStart == null ? 0 : (performance.now() - simStart) / 1000 * SPEED;
 const clock = () => world.T0 + simNow();
-function runNow(r) { return (r.paused != null ? r.paused : clock()) - r.pausedTotal; }   // the run's own time
+function runNow(r) { return (r.paused != null ? r.paused : clock()) - (r.pausedTotal || 0); }   // the run's own time
 function phase(r) {
   const t = runNow(r);
   if (r.stopped) return {kind: "stopped"};
@@ -181,10 +181,16 @@ function line(r) {
 function strip() {
   let h = "";
   for (const r of [world.reading, world.cleaning]) {
+    if (r.stopped && performance.now() < (r.undoUntil || 0)) {
+      h += '<div class="rs"><span class="t">' + esc(r.name) + ' · stopped</span><span class="ib2" style="min-width:72px;font-weight:700" data-a="undo:' + r.name + '">Undo</span></div>';
+      continue;
+    }
     if (r.stopped) continue;
-    const txt = r.E ? line(r) : r.name + " · " + mmss(runNow(r) - r.S);
+    const txt = r.E ? line(r) : r.name + " · " + mmss(runNow(r) - r.S) + (r.paused != null ? " · paused" : "");
     const hint = ui.hint && ui.hint.who === r.name && performance.now() < ui.hint.until;
-    h += '<div class="rs" data-a="open:' + r.name + '"><span class="t">' + esc(txt) + ' <b>›</b></span><span class="ib2 stop" data-a="stop:' + r.name + '" data-hold="' + r.name + '" aria-label="Stop ' + r.name + '">' + (hint ? "hold ■" : "■") + "</span></div>";
+    const pz = r.waiting ? "▶" : r.paused != null ? "▶" : "‖";   // pause and resume on the strip itself (owner, 2026-10-15)
+    h += '<div class="rs" data-a="open:' + r.name + '"><span class="t">' + esc(txt) + ' <b>›</b></span><span class="ib2" data-a="spause:' + r.name + '" aria-label="' + (pz === "‖" ? "Pause " : "Resume ") + r.name + '">' + pz + "</span>" +
+         '<span class="ib2 stop" data-a="stop:' + r.name + '" data-hold="' + r.name + '" aria-label="Stop ' + r.name + '">' + (hint ? "hold ■" : "■") + "</span></div>";
   }
   return h;
 }
@@ -198,6 +204,7 @@ function runView(r) {
           (p.kind === "rest" ? mmss(p.until - runNow(r)) : mmss(r.E - runNow(r))) + '</div><div class="nx">' +
           (p.kind === "rest" ? "of rest · then work until the end, " + fmt(r.E + r.pausedTotal) : (p.next ? "left · next: " + (isBdt() ? "a break" : "a 5-min rest") + " at " + fmt(p.next.t + r.pausedTotal) : "left · no more rests") + " · ends " + fmt(r.E + r.pausedTotal)) + "</div>";
   if (r.waiting) h += '<div class="wait">Rest over<span class="go" data-a="work">Start working</span></div>';
+  if (r.stopped) return h + (performance.now() < (r.undoUntil || 0) ? '<div class="wait">Stopped<span class="go" data-a="undo:' + r.name + '">Undo</span></div>' : '<div class="nx">Stopped.</div>') + "</div>";
   if (!isBdt()) h += '<div class="bt2"><span class="main" data-a="pause">' + (r.paused != null && !r.waiting ? "▶ Resume" : "‖ Pause") + '</span><span data-a="skip">Skip</span><span data-a="plus">+5 min</span><span data-a="edit">Edit</span>' +
          '<span class="' + (hold ? "hold" : "") + '" data-a="stop:Reading" data-hold="Reading">' + (ui.hint && ui.hint.who === "Reading" && performance.now() < ui.hint.until ? "Hold to stop" : "■ Stop" + (hold ? " (hold)" : "")) + (hold ? "<i></i>" : "") + "</span></div>";
   else h += '<div class="bt2"><span class="main" data-a="pause">' + (r.paused != null ? "▶ Resume" : "‖ Pause") + '</span><span data-a="stop:Reading">■ Stop</span></div>';
@@ -228,13 +235,14 @@ function render() {
 }
 
 /* ---- actions ---- */
+function act_work(r) { const x = r.rests.find(q => !r.skipped.includes(q) && runNow(r) >= q.t + q.len && !q.resumed); if (x) x.resumed = true; r.pausedTotal += clock() - r.paused; r.paused = null; r.waiting = false; }
 const runOf = n => n === "Reading" ? world.reading : world.cleaning;
 function doStop(who, held) {
   const r = runOf(who);
   if (who === "Reading") r.log.push("stop");
   if (C().stop === "confirm" && !isBdt() && !held) { ui.confirm = who; return; }
   r.stopped = true; r.stoppedAt = clock();
-  if (C().stop === "undo" && !isBdt()) ui.toast = {text: who + " stopped", undo: who, until: performance.now() + 5000};
+  if (!isBdt()) r.undoUntil = performance.now() + 10000;   // any stop can be undone, in the card itself (a toast covered the strip)
 }
 phone.addEventListener("pointerdown", e => {
   if (!rec) return; rec.taps++;
@@ -254,13 +262,14 @@ phone.addEventListener("click", e => {
   if (a === "go") { w.screen = {today: "today", hub: "hub", measuring: "measuring"}[b] || b; ui.edit = false; }
   else if (a === "back") { w.screen = w.screen === "measuring" ? "hub" : (w.from || "measuring"); ui.edit = false; }
   else if (a === "open") { if (b === "Reading" || b === "Cleaning") { w.from = w.screen; w.screen = b; } }
+  else if (a === "spause") { e.stopPropagation(); const x = runOf(b); if (x.waiting) { act_work(x); } else if (x.paused == null) { x.paused = clock(); if (x === r) r.log.push("pause"); } else { x.pausedTotal += clock() - x.paused; x.paused = null; if (x === r) r.log.push("resume"); } }
   else if (a === "pause") { if (r.waiting) return; if (r.paused == null) { r.paused = clock(); r.log.push("pause"); } else { r.pausedTotal += clock() - r.paused; r.paused = null; r.log.push("resume"); } }
-  else if (a === "work") { const x = r.rests.find(q => !r.skipped.includes(q) && runNow(r) >= q.t + q.len && !q.resumed); if (x) x.resumed = true; r.pausedTotal += clock() - r.paused; r.paused = null; r.waiting = false; }
+  else if (a === "work") act_work(r);
   else if (a === "skip") { const p = phase(r); if (p.kind === "rest") r.skipped.push(p.rest); else if (p.next) r.skipped.push(p.next); }   // the rest becomes work; the end stays
   else if (a === "plus") r.E += 5;
   else if (a === "edit") ui.edit = !ui.edit;
   else if (a === "ee") r.E += +b;
-  else if (a === "undo") { const x = runOf(ui.toast.undo); x.stopped = false; ui.toast = null; }
+  else if (a === "undo") { const x = runOf(b); x.stopped = false; x.undoUntil = 0; }
   else if (a === "cno") ui.confirm = null;
   else if (a === "cyes") { const who = ui.confirm; ui.confirm = null; doStop(who, true); }
   render();

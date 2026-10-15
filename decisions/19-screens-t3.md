@@ -1569,4 +1569,18 @@ Status (then): **T3b.1d, T3b.4e and T3b.4f approved; T3b.4g scored, trial page b
 6. **A long press could be taken by the phone's own menu.** The hold buttons now refuse it (touch-action none, no context menu, pointercancel handled).
 7. **The control said "a 5-min rest",** but Break Down Timer has breaks, not rests. It now says "a break".
 
-Status: **T3b.1d, T3b.4e and T3b.4f approved; T3b.4g scored, trial page fixed after a user walk-through: awaiting the owner's trial and pick.**
+Status (then): **T3b.1d, T3b.4e and T3b.4f approved; T3b.4g scored, trial page fixed after a user walk-through: awaiting the owner's trial and pick.**
+
+**The owner's second report** (2026-10-15):
+> "You ask to pause and resume in one test but there is still no pause button, see Today's page. Clicking the stop button does nothing, holding it stops the timer with no chance to resume it."
+
+**Two rules for every option:**
+- **Pause and Resume sit on the strip itself** (Today's and Measuring's), ‖ / ▶ beside ■, so pausing from Today is one tap. The scorer now counts pause and resume as 2 taps from a strip. The order of the ranking holds, and the best walk is 15 taps.
+- **Every stop can be undone, held and confirmed stops too.** The stopped run keeps its card for 10 s as "stopped · Undo" (the running view shows Undo where Stop was). A toast at the phone's top covered the strip, so the Undo is in place. 6 s proved too short.
+
+**Checked:**
+- pause and resume from Today's strip, with real clicks, passed in 2 taps;
+- a stop, then Undo, on the hold, at-once and confirm sheets: Reading runs again each time;
+- the strip's pause on the own-screen sheet.
+
+Status: **T3b.1d, T3b.4e and T3b.4f approved; T3b.4g scored, trial page fixed twice: awaiting the owner's trial and pick.**
