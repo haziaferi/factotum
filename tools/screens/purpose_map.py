@@ -6,7 +6,10 @@ Checks:
   - every screen in the navigation scoring (nav_score2.SCREENS) is placed on a screen of the map;
   - every Hub entry (tier_t1.FEATURES) is placed on a screen of the map;
   - every screen names a known purpose, and every overlap names a known screen;
-  - a screen with no source app says what is new about it.
+  - a screen with no source app says what is new about it;
+  - the what-where table (owner, 2026-10-16): every thing names a known home (or "undecided") and known places. Repeats outside
+    Today are listed as redundancy until scored (Today is a master board: shortcuts there are not redundancy); a new place for a
+    thing goes in this table, so it shows here before it is added.
 """
 import json
 import os
@@ -45,6 +48,14 @@ def checks(m):
         for o in g["screens"]:
             if o not in ids:
                 bad.append("%s: unknown screen %s" % (g["id"], o))
+    for w in m.get("where", []):
+        if w["home"] not in ids and not w["home"].startswith("undecided"):
+            bad.append("where %s: unknown home %s" % (w["thing"], w["home"]))
+        for place, _ in w["repeats"]:
+            if place not in ids:
+                bad.append("where %s: unknown place %s" % (w["thing"], place))
+            if place == w["home"]:
+                bad.append("where %s: its home listed as a repeat" % w["thing"])
     return bad
 
 
@@ -62,12 +73,28 @@ def render(m):
                 "| Screen | Comes from | New in Factotum | Tier | Status | Overlaps |", "|---|---|---|---|---|---|"]
         for s in by[p["id"]]:
             out.append("| %s | %s | %s | %s | %s | %s |" % (
-                s["name"], "; ".join(s["sources"]) or "**none**", s.get("new", ""), s["tier"], s["status"],
+                s["name"] + (" _(%s)_" % s["merged"] if s.get("merged") else ""), "; ".join(s["sources"]) or "**none**", s.get("new", ""), s["tier"], s["status"],
                 ", ".join(name[o] for o in s.get("overlaps", []))))
     out += ["", "## Screens with no parent app", ""]
     out += ["- **%s** (%s): %s" % (s["name"], s["purpose"], s["new"]) for s in m["screens"] if not s["sources"]]
     out += ["", "## Screens whose purposes overlap", "", "| | Strength | Screens | Why |", "|---|---|---|---|"]
-    out += ["| %s | %s | %s | %s |" % (g["id"], g["strength"], ", ".join(name[o] for o in g["screens"]), g["why"]) for g in m["overlap_groups"]]
+    out += ["| %s | %s | %s | %s |" % (g["id"], g["strength"], ", ".join(name[o] for o in g["screens"]), g["why"]) for g in m["overlap_groups"] if not g.get("wrapped")]
+    wrapped = [g for g in m["overlap_groups"] if g.get("wrapped")]
+    if wrapped:   # resolved; re-consulted if something relevant arises (owner, 2026-10-16)
+        out += ["", "### Wrapped", "", "Resolved overlaps, kept to re-consult if something relevant arises.", "",
+                "| | Screens | Why | Wrapped |", "|---|---|---|---|"]
+        out += ["| %s | %s | %s | %s |" % (g["id"], ", ".join(name[o] for o in g["screens"]), g["why"], g["wrapped"]) for g in wrapped]
+    if m.get("where"):
+        out += ["", "## What, and where (owner, 2026-10-16)", "", m["where_rule"], "",
+                "| What | Home | On Today (not counted) | Repeats | Elsewhere | Scored |", "|---|---|---|---|---|---|"]
+        for w in m["where"]:
+            sh = {x["id"]: x.get("short", x["name"]) for x in m["screens"]}
+            reps = "; ".join("%s (%s)" % (sh[pl], why) for pl, why in w["repeats"])
+            out.append("| %s | %s | %s | %s | %s | %s |" % (w["thing"], sh.get(w["home"], "**" + w["home"] + "**"), w["today"] or "—",
+                                                            reps or "—", w["elsewhere"] or "—", w["scored"] or "**to score**"))
+        n = sum(len(w["repeats"]) for w in m["where"])
+        out += ["", "_%d repeats outside Today, in %d things; %d things with no home decided._" % (
+            n, sum(1 for w in m["where"] if w["repeats"]), sum(1 for w in m["where"] if w["home"].startswith("undecided")))]
     out += ["", "## The owner's answers", ""] + ["- %s" % a for a in m["owner_answers"]]
     counts = (len(m["screens"]), sum(1 for s in m["screens"] if not s["sources"]), sum(1 for s in m["screens"] if s["status"].startswith("approved")))
     out += ["", "_%d screens; %d with no parent app; %d approved._" % counts, ""]

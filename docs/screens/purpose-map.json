@@ -63,7 +63,8 @@
    "nav": [
     "capture"
    ],
-   "hub": []
+   "hub": [],
+   "overlaps": []
   },
   {
    "id": "search",
@@ -77,7 +78,8 @@
    "nav": [
     "search"
    ],
-   "hub": []
+   "hub": [],
+   "overlaps": []
   },
   {
    "id": "hub",
@@ -88,7 +90,9 @@
    "tier": "T1.4",
    "status": "approved (groups to redo from this map)",
    "nav": [],
-   "hub": []
+   "hub": [],
+   "overlaps": [],
+   "short": "Hub"
   },
   {
    "id": "widgets",
@@ -102,7 +106,8 @@
    "tier": "none yet",
    "status": "pending (owner: they move across)",
    "nav": [],
-   "hub": []
+   "hub": [],
+   "overlaps": []
   },
   {
    "id": "quickadd_win",
@@ -114,7 +119,8 @@
    "tier": "none yet",
    "status": "pending (owner: it moves across)",
    "nav": [],
-   "hub": []
+   "hub": [],
+   "overlaps": []
   },
   {
    "id": "today",
@@ -170,7 +176,8 @@
    "nav": [],
    "hub": [
     "Day"
-   ]
+   ],
+   "overlaps": []
   },
   {
    "id": "item",
@@ -185,7 +192,8 @@
    "nav": [
     "edit an item"
    ],
-   "hub": []
+   "hub": [],
+   "overlaps": []
   },
   {
    "id": "occurrence",
@@ -199,7 +207,8 @@
    "nav": [
     "edit one occurrence"
    ],
-   "hub": []
+   "hub": [],
+   "overlaps": []
   },
   {
    "id": "reminders",
@@ -228,7 +237,8 @@
    "tier": "T2",
    "status": "approved",
    "nav": [],
-   "hub": []
+   "hub": [],
+   "overlaps": []
   },
   {
    "id": "missed",
@@ -241,7 +251,8 @@
    "tier": "none yet",
    "status": "pending (they arrive)",
    "nav": [],
-   "hub": []
+   "hub": [],
+   "overlaps": []
   },
   {
    "id": "habits",
@@ -304,24 +315,30 @@
   },
   {
    "id": "trackers",
-   "name": "Trackers (water, exercise, studying, knitting)",
+   "name": "Measuring (trackers and activities as one list; running strip, Recent, labels)",
    "purpose": "P4",
    "sources": [
-    "Chronicle Track"
+    "Chronicle Track",
+    "Chronicle activities and sessions",
+    "Tendril time logs"
    ],
    "tier": "T3b",
-   "status": "approved as one Measuring screen with activities (T3b.1d, 2026-10-14): Recent (collapsible) + folded labels, one-tap controls, running strip, Paced chip",
+   "status": "Measuring list approved with trackers (T3b.1d); the Paced timer sheet approved (T3b.4e, 2026-10-15): the When sentence and dial, breaks as 'N evenly', - / + beside every box, the chip remembers the whole run; while running it lives on the activity's page with a Today strip (pause, stop by holding, Undo), work resumes after a rest (T3b.4g, 2026-10-16); several running timers each have their card, a forgotten timer (past 3x its usual length) is asked about on Today when the app next opens, a session is edited from Edit beside Undo right after its stop (T3b.3, 2026-10-16); a goal's progress reads plain on its Measuring row under the name, before 'last' ('20 of 30 min/day'), set on the item's page, no Goals screen (T3b.5, 2026-10-16); on Today one collapsed Goals row at the bottom: pinned goals, then All (day, week, month), each row startable or loggable (T3b.5b, 2026-10-16); the goal line is a setting - '8k steps today' (default), '8k of 10k steps today', '8k steps today · 80%' - shown by default, hideable per item or for all (T3b.5c, 2026-10-16)",
    "nav": [
     "tracker reading",
-    "manage trackers"
+    "manage trackers",
+    "start/stop a timer",
+    "manage activities"
    ],
    "hub": [
-    "Trackers"
+    "Trackers",
+    "Activities"
    ],
    "overlaps": [
-    "activities",
     "goals"
-   ]
+   ],
+   "merged": "Trackers and Activities and timers, one screen since T3b.1d (merged in the map 2026-10-16)",
+   "short": "Measuring"
   },
   {
    "id": "log_sheet",
@@ -334,28 +351,8 @@
    "tier": "T3b",
    "status": "pending",
    "nav": [],
-   "hub": []
-  },
-  {
-   "id": "activities",
-   "name": "Activities and timers (several at once)",
-   "purpose": "P4",
-   "sources": [
-    "Chronicle activities and sessions",
-    "Tendril time logs"
-   ],
-   "tier": "T3b",
-   "status": "Measuring list approved with trackers (T3b.1d); the Paced timer sheet approved (T3b.4e, 2026-10-15): the When sentence and dial, breaks as 'N evenly', - / + beside every box, the chip remembers the whole run; while running it lives on the activity's page with a Today strip (pause, stop by holding, Undo), work resumes after a rest (T3b.4g, 2026-10-16); several running timers each have their card, a forgotten timer (past 3x its usual length) is asked about on Today when the app next opens, a session is edited from Edit beside Undo right after its stop (T3b.3, 2026-10-16); a goal's progress reads plain on its Measuring row under the name, before 'last' ('20 of 30 min/day'), set on the item's page, no Goals screen (T3b.5, 2026-10-16); on Today one collapsed Goals row at the bottom: pinned goals, then All (day, week, month), each row startable or loggable (T3b.5b, 2026-10-16); the goal line is a setting - '8k steps today' (default), '8k of 10k steps today', '8k steps today · 80%' - shown by default, hideable per item or for all (T3b.5c, 2026-10-16)",
-   "nav": [
-    "start/stop a timer",
-    "manage activities"
-   ],
-   "hub": [
-    "Activities"
-   ],
-   "overlaps": [
-    "trackers"
-   ]
+   "hub": [],
+   "overlaps": []
   },
   {
    "id": "timer_question",
@@ -368,7 +365,8 @@
    "tier": "T3b",
    "status": "pending (it arrives)",
    "nav": [],
-   "hub": []
+   "hub": [],
+   "overlaps": []
   },
   {
    "id": "session_edit",
@@ -380,7 +378,8 @@
    "tier": "T3b",
    "status": "pending",
    "nav": [],
-   "hub": []
+   "hub": [],
+   "overlaps": []
   },
   {
    "id": "goals",
@@ -398,8 +397,7 @@
     "Goals"
    ],
    "overlaps": [
-    "trackers",
-    "activities"
+    "trackers"
    ]
   },
   {
@@ -420,7 +418,8 @@
     "time_totals",
     "trend",
     "self_history"
-   ]
+   ],
+   "short": "This week"
   },
   {
    "id": "charts",
@@ -440,24 +439,29 @@
    "overlaps": [
     "tracker_detail",
     "time_totals"
-   ]
+   ],
+   "short": "Saved charts"
   },
   {
    "id": "tracker_detail",
-   "name": "A tracker's detail and charts",
-   "purpose": "P5",
+   "name": "A tracker's or activity's page (running view, sessions, goals, statistics and charts)",
+   "purpose": "P4",
    "sources": [
-    "Chronicle Data"
+    "Chronicle Data",
+    "Chronicle activity detail"
    ],
    "tier": "T3c",
-   "status": "pending",
+   "status": "the running view approved (T3b.4g); goals on it (T3b.5, reopened); its statistics pending",
    "nav": [
     "tracker detail and charts"
    ],
    "hub": [],
    "overlaps": [
-    "charts"
-   ]
+    "charts",
+    "time_totals"
+   ],
+   "merged": "A tracker's detail and charts (P5) is this page (merged 2026-10-16)",
+   "short": "the item's page"
   },
   {
    "id": "time_totals",
@@ -477,7 +481,8 @@
    ],
    "overlaps": [
     "charts"
-   ]
+   ],
+   "short": "Time totals"
   },
   {
    "id": "trend",
@@ -530,7 +535,8 @@
    ],
    "hub": [
     "Check-in"
-   ]
+   ],
+   "overlaps": []
   },
   {
    "id": "regulate",
@@ -542,7 +548,8 @@
    "tier": "T4",
    "status": "pending (it arrives from the check-in)",
    "nav": [],
-   "hub": []
+   "hub": [],
+   "overlaps": []
   },
   {
    "id": "ledger",
@@ -592,7 +599,8 @@
    "tier": "T4",
    "status": "pending (it arrives)",
    "nav": [],
-   "hub": []
+   "hub": [],
+   "overlaps": []
   },
   {
    "id": "onboarding",
@@ -604,7 +612,8 @@
    "tier": "T6",
    "status": "pending (once)",
    "nav": [],
-   "hub": []
+   "hub": [],
+   "overlaps": []
   },
   {
    "id": "planner",
@@ -639,7 +648,8 @@
    ],
    "hub": [
     "Time blocks"
-   ]
+   ],
+   "overlaps": []
   },
   {
    "id": "calendar_links",
@@ -655,7 +665,8 @@
    ],
    "hub": [
     "Calendars"
-   ]
+   ],
+   "overlaps": []
   },
   {
    "id": "journal",
@@ -690,7 +701,8 @@
    "nav": [],
    "hub": [
     "Tree"
-   ]
+   ],
+   "overlaps": []
   },
   {
    "id": "page",
@@ -704,7 +716,8 @@
    "nav": [
     "open a page"
    ],
-   "hub": []
+   "hub": [],
+   "overlaps": []
   },
   {
    "id": "database",
@@ -717,7 +730,8 @@
    "nav": [
     "database view"
    ],
-   "hub": []
+   "hub": [],
+   "overlaps": []
   },
   {
    "id": "canvas",
@@ -731,7 +745,8 @@
    "nav": [
     "canvas"
    ],
-   "hub": []
+   "hub": [],
+   "overlaps": []
   },
   {
    "id": "templates",
@@ -747,7 +762,8 @@
    ],
    "hub": [
     "Templates"
-   ]
+   ],
+   "overlaps": []
   },
   {
    "id": "road_map",
@@ -763,7 +779,8 @@
    ],
    "hub": [
     "Road Map"
-   ]
+   ],
+   "overlaps": []
   },
   {
    "id": "page_history",
@@ -780,7 +797,8 @@
    ],
    "hub": [
     "History"
-   ]
+   ],
+   "overlaps": []
   },
   {
    "id": "oneoff_lists",
@@ -794,7 +812,8 @@
    "nav": [
     "manage checklists"
    ],
-   "hub": []
+   "hub": [],
+   "overlaps": []
   },
   {
    "id": "settings",
@@ -811,7 +830,8 @@
    ],
    "hub": [
     "Settings"
-   ]
+   ],
+   "overlaps": []
   },
   {
    "id": "sync_folder",
@@ -824,7 +844,8 @@
    "nav": [
     "sync folder"
    ],
-   "hub": []
+   "hub": [],
+   "overlaps": []
   },
   {
    "id": "sync_clash",
@@ -835,7 +856,8 @@
    "tier": "T1 (dialog)",
    "status": "approved as a dialog form",
    "nav": [],
-   "hub": []
+   "hub": [],
+   "overlaps": []
   },
   {
    "id": "trash",
@@ -850,7 +872,8 @@
    ],
    "hub": [
     "Trash"
-   ]
+   ],
+   "overlaps": []
   },
   {
    "id": "backup",
@@ -864,7 +887,8 @@
    "nav": [
     "backup"
    ],
-   "hub": []
+   "hub": [],
+   "overlaps": []
   },
   {
    "id": "app_lock",
@@ -878,7 +902,8 @@
    "nav": [
     "app lock"
    ],
-   "hub": []
+   "hub": [],
+   "overlaps": []
   },
   {
    "id": "labels",
@@ -896,7 +921,8 @@
    ],
    "hub": [
     "Labels"
-   ]
+   ],
+   "overlaps": []
   },
   {
    "id": "about",
@@ -912,7 +938,8 @@
    ],
    "hub": [
     "About"
-   ]
+   ],
+   "overlaps": []
   },
   {
    "id": "llm",
@@ -925,7 +952,8 @@
    "tier": "none yet",
    "status": "pending (owner: it moves across)",
    "nav": [],
-   "hub": []
+   "hub": [],
+   "overlaps": []
   }
  ],
  "overlap_groups": [
@@ -937,17 +965,18 @@
     "routine_checklists",
     "capacity_day"
    ],
-   "why": "the basic things to get through today, with no judgment: a routine checklist is the owner's definition of habits; Equipoise's no-shame rules are the rules set for Habits"
+   "why": "the basic things to get through today, with no judgment: a routine checklist is the owner's definition of habits; Equipoise's no-shame rules are the rules set for Habits",
+   "wrapped": "2026-10-13: routines of habits replace routine checklists"
   },
   {
    "id": "O2",
    "strength": "strong",
    "screens": [
     "trackers",
-    "activities",
     "goals"
    ],
-   "why": "record an amount and aim at one: a timer is a way to enter a time amount; a goal always belongs to one tracker or one activity"
+   "why": "record an amount and aim at one: a timer is a way to enter a time amount; a goal always belongs to one tracker or one activity",
+   "wrapped": "2026-10-14 (T3b.1d): trackers and activities are one Measuring screen; goals' place reopened in the T3b.5 workshop and followed in the what-where table"
   },
   {
    "id": "O3",
@@ -991,7 +1020,8 @@
     "reminders",
     "calendar"
    ],
-   "why": "what is next; Reminders keeps managing repeating reminders as its own job"
+   "why": "what is next; Reminders keeps managing repeating reminders as its own job",
+   "wrapped": "settled: Reminders keeps managing repeating reminders as its own job"
   }
  ],
  "owner_answers": [
@@ -1000,6 +1030,137 @@
   "2026-10-13: the purpose map, once settled, decides how the Hub's elements are grouped.",
   "2026-10-13: habits are yes/no only; trackers appear on Today; the if-then cue is the block (order) and a written cue (wording); a habit has an energy level, and Habits and Today get a filter for what can be handled now, reset each day.",
   "2026-10-13: the habit Planner is dropped; its empty structure may be repurposed later for something other than habits. Habits repeat daily or on chosen weekdays; a habit's reminder is off by default, at its block's start or a set time.",
-  "2026-10-13: a habit is added as an open if-then sentence; a routine (named by the user) carries the if and the time and holds ordered habits; routine checklists merge into routines; the energy filter hides steps above the level; the routine header's preview is scored."
+  "2026-10-13: a habit is added as an open if-then sentence; a routine (named by the user) carries the if and the time and holds ordered habits; routine checklists merge into routines; the energy filter hides steps above the level; the routine header's preview is scored.",
+  "2026-10-16: \"all these screens are redundant if all added singularly\": overlaps are scored, with redundancy an axis; shortcuts on Today are not redundancy (Today is a master board); resolved overlaps are marked wrapped; the map gains a what-where table and merges duplicate entries (Trackers + Activities; a tracker's detail into its page)."
+ ],
+ "where_rule": "Each thing a person reads or does has one home; Today may show any of it (a master board of what is relevant, owner 2026-10-16), and that is not counted as redundancy; any other place is a repeat, listed until it is scored.",
+ "where": [
+  {
+   "thing": "Start or log an item (▶, + usual, chips)",
+   "home": "trackers",
+   "today": "the Goals row's rows (T3b.5b)",
+   "repeats": [
+    [
+     "tracker_detail",
+     "approved (T3b.4g)"
+    ]
+   ],
+   "elsewhere": "capture line (T1.3); widgets (pending)",
+   "scored": null
+  },
+  {
+   "thing": "A running timer (pause, stop)",
+   "home": "tracker_detail",
+   "today": "the running strip (T3b.4g)",
+   "repeats": [
+    [
+     "trackers",
+     "Measuring's running strip (T3b.1d)"
+    ]
+   ],
+   "elsewhere": "Android's notification",
+   "scored": null
+  },
+  {
+   "thing": "Today's amount, and when last",
+   "home": "trackers",
+   "today": "",
+   "repeats": [
+    [
+     "tracker_detail",
+     "approved"
+    ],
+    [
+     "this_week",
+     "Review's day (pending)"
+    ]
+   ],
+   "elsewhere": "",
+   "scored": null
+  },
+  {
+   "thing": "Goal progress",
+   "home": "undecided (T3b.5 workshop)",
+   "today": "the Goals row (T3b.5b)",
+   "repeats": [
+    [
+     "trackers",
+     "the row's goal line (T3b.5c)"
+    ],
+    [
+     "tracker_detail",
+     "the page (T3b.5)"
+    ],
+    [
+     "charts",
+     "a goal line (pending)"
+    ]
+   ],
+   "elsewhere": "",
+   "scored": null
+  },
+  {
+   "thing": "Setting a goal",
+   "home": "tracker_detail",
+   "today": "",
+   "repeats": [],
+   "elsewhere": "",
+   "scored": "T3b.5 (reopened)"
+  },
+  {
+   "thing": "Sessions and their edits",
+   "home": "tracker_detail",
+   "today": "Edit beside Undo after a stop (T3b.3)",
+   "repeats": [
+    [
+     "this_week",
+     "Review's day timeline (pending)"
+    ]
+   ],
+   "elsewhere": "",
+   "scored": null
+  },
+  {
+   "thing": "Totals and charts over time",
+   "home": "undecided",
+   "today": "",
+   "repeats": [
+    [
+     "tracker_detail",
+     "its statistics (owner, T3b.5)"
+    ],
+    [
+     "time_totals",
+     "pending"
+    ],
+    [
+     "charts",
+     "pending"
+    ],
+    [
+     "this_week",
+     "pending"
+    ]
+   ],
+   "elsewhere": "",
+   "scored": null
+  },
+  {
+   "thing": "Shortcut lists of items",
+   "home": "undecided",
+   "today": "pinned goals (T3b.5b)",
+   "repeats": [
+    [
+     "trackers",
+     "Recent (T3b.1d)"
+    ],
+    [
+     "hub",
+     "Pinned and recent (T1.4)"
+    ]
+   ],
+   "elsewhere": "one pin for all (owner, 2026-10-16)",
+   "scored": null
+  }
  ]
 }

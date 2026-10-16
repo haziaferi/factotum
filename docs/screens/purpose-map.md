@@ -12,7 +12,7 @@ Generated from `purpose-map.json` by `tools/screens/purpose_map.py`; edit the JS
 | P2 | **What's next** | see and act on what is due: commitments, deadlines, reminders | 8 |
 | P3 | **Daily basics** | the basic things that get a day done (make the bed, brush teeth, shower), as if-then cues, with no judgment; a clear reference on a low day | 3 |
 | P4 | **Measuring** | record an amount (water, exercise, studying, knitting, time) and, if wanted, aim at one | 6 |
-| P5 | **Looking back** | see how things went over time; a weekly review (owner, 2026-10-05) | 6 |
+| P5 | **Looking back** | see how things went over time; a weekly review (owner, 2026-10-05) | 5 |
 | P6 | **Noticing myself** | notice how I am, and what helps; event-driven (owner, 2026-10-05) | 6 |
 | P7 | **Planning the week** | lay out the week: blocks, planned habits, outside calendars | 3 |
 | P8 | **Writing and knowing** | write, keep and find what I know: pages, journal, databases, canvas, lists | 9 |
@@ -61,12 +61,12 @@ _record an amount (water, exercise, studying, knitting, time) and, if wanted, ai
 
 | Screen | Comes from | New in Factotum | Tier | Status | Overlaps |
 |---|---|---|---|---|---|
-| Trackers (water, exercise, studying, knitting) | Chronicle Track |  | T3b | approved as one Measuring screen with activities (T3b.1d, 2026-10-14): Recent (collapsible) + folded labels, one-tap controls, running strip, Paced chip | Activities and timers (several at once), Goals, inside their tracker or activity |
+| Measuring (trackers and activities as one list; running strip, Recent, labels) _(Trackers and Activities and timers, one screen since T3b.1d (merged in the map 2026-10-16))_ | Chronicle Track; Chronicle activities and sessions; Tendril time logs |  | T3b | Measuring list approved with trackers (T3b.1d); the Paced timer sheet approved (T3b.4e, 2026-10-15): the When sentence and dial, breaks as 'N evenly', - / + beside every box, the chip remembers the whole run; while running it lives on the activity's page with a Today strip (pause, stop by holding, Undo), work resumes after a rest (T3b.4g, 2026-10-16); several running timers each have their card, a forgotten timer (past 3x its usual length) is asked about on Today when the app next opens, a session is edited from Edit beside Undo right after its stop (T3b.3, 2026-10-16); a goal's progress reads plain on its Measuring row under the name, before 'last' ('20 of 30 min/day'), set on the item's page, no Goals screen (T3b.5, 2026-10-16); on Today one collapsed Goals row at the bottom: pinned goals, then All (day, week, month), each row startable or loggable (T3b.5b, 2026-10-16); the goal line is a setting - '8k steps today' (default), '8k of 10k steps today', '8k steps today · 80%' - shown by default, hideable per item or for all (T3b.5c, 2026-10-16) | Goals, inside their tracker or activity |
 | Log sheet (a number, a rating, yes or no, a choice) | Chronicle; Loop's picker (reference) |  | T3b | pending |  |
-| Activities and timers (several at once) | Chronicle activities and sessions; Tendril time logs |  | T3b | pending | Trackers (water, exercise, studying, knitting) |
 | A timer past its limit (keep, end at a time, end at the limit) | Factotum §3.7 (owner, 2026-10-02) | the question itself | T3b | pending (it arrives) |  |
 | Editing a session | Chronicle |  | T3b | pending |  |
-| Goals, inside their tracker or activity | Chronicle goals |  | T3b | pending | Trackers (water, exercise, studying, knitting), Activities and timers (several at once) |
+| Goals, inside their tracker or activity | Chronicle goals |  | T3b | pending | Measuring (trackers and activities as one list; running strip, Recent, labels) |
+| A tracker's or activity's page (running view, sessions, goals, statistics and charts) _(A tracker's detail and charts (P5) is this page (merged 2026-10-16))_ | Chronicle Data; Chronicle activity detail |  | T3c | the running view approved (T3b.4g); goals on it (T3b.5, reopened); its statistics pending | Saved charts, Time totals |
 
 ## P5 Looking back
 
@@ -75,8 +75,7 @@ _see how things went over time; a weekly review (owner, 2026-10-05)_
 | Screen | Comes from | New in Factotum | Tier | Status | Overlaps |
 |---|---|---|---|---|---|
 | This week (the weekly review) | Tendril Review |  | T3c | pending | Saved charts, Time totals, Stability trend (in words), Ledger and sensory history |
-| Saved charts | Chronicle Charts |  | T3c | pending | A tracker's detail and charts, Time totals |
-| A tracker's detail and charts | Chronicle Data |  | T3c | pending | Saved charts |
+| Saved charts | Chronicle Charts |  | T3c | pending | A tracker's or activity's page (running view, sessions, goals, statistics and charts), Time totals |
 | Time totals | Tendril time logs; Chronicle |  | T3c | pending | Saved charts |
 | Stability trend (in words) | Equipoise |  | T3c or T4 | pending | This week (the weekly review) |
 | Ledger and sensory history | Equipoise |  | T3c or T4 | pending | This week (the weekly review) |
@@ -148,12 +147,36 @@ _make the app work: settings, sync, trash, backup, lock, labels_
 
 | | Strength | Screens | Why |
 |---|---|---|---|
-| O1 | strong (resolved 2026-10-13: routines of habits replace routine checklists) | Habits: today's basics as if-then cues (yes/no only), Routines (a named if-then holding ordered habits; routine checklists merged in), Capacity-scaled day (a shorter list on a low day) | the basic things to get through today, with no judgment: a routine checklist is the owner's definition of habits; Equipoise's no-shame rules are the rules set for Habits |
-| O2 | strong | Trackers (water, exercise, studying, knitting), Activities and timers (several at once), Goals, inside their tracker or activity | record an amount and aim at one: a timer is a way to enter a time amount; a goal always belongs to one tracker or one activity |
-| O3 | strong | This week (the weekly review), Saved charts, A tracker's detail and charts, Time totals, Stability trend (in words), Ledger and sensory history | see how things went over time; time totals is a chart of activities, tracker detail a chart of one tracker |
+| O3 | strong | This week (the weekly review), Saved charts, A tracker's or activity's page (running view, sessions, goals, statistics and charts), Time totals, Stability trend (in words), Ledger and sensory history | see how things went over time; time totals is a chart of activities, tracker detail a chart of one tracker |
 | O4 | medium | Calendar: Week (planner) · Month · 3 days, Habit planner (confirm the week into time blocks), Time blocks (setup) | lay out the week; two things are now called a planner |
 | O5 | medium | Check-in, Ledger (three masking scales, once a day), Sensory log, Journal (one page a day) | note how I am; the journal is free writing, the rest structured and quick |
-| O6 | weak (settled) | Today, Reminders list, Calendar: Week (planner) · Month · 3 days | what is next; Reminders keeps managing repeating reminders as its own job |
+
+### Wrapped
+
+Resolved overlaps, kept to re-consult if something relevant arises.
+
+| | Screens | Why | Wrapped |
+|---|---|---|---|
+| O1 | Habits: today's basics as if-then cues (yes/no only), Routines (a named if-then holding ordered habits; routine checklists merged in), Capacity-scaled day (a shorter list on a low day) | the basic things to get through today, with no judgment: a routine checklist is the owner's definition of habits; Equipoise's no-shame rules are the rules set for Habits | 2026-10-13: routines of habits replace routine checklists |
+| O2 | Measuring (trackers and activities as one list; running strip, Recent, labels), Goals, inside their tracker or activity | record an amount and aim at one: a timer is a way to enter a time amount; a goal always belongs to one tracker or one activity | 2026-10-14 (T3b.1d): trackers and activities are one Measuring screen; goals' place reopened in the T3b.5 workshop and followed in the what-where table |
+| O6 | Today, Reminders list, Calendar: Week (planner) · Month · 3 days | what is next; Reminders keeps managing repeating reminders as its own job | settled: Reminders keeps managing repeating reminders as its own job |
+
+## What, and where (owner, 2026-10-16)
+
+Each thing a person reads or does has one home; Today may show any of it (a master board of what is relevant, owner 2026-10-16), and that is not counted as redundancy; any other place is a repeat, listed until it is scored.
+
+| What | Home | On Today (not counted) | Repeats | Elsewhere | Scored |
+|---|---|---|---|---|---|
+| Start or log an item (▶, + usual, chips) | Measuring | the Goals row's rows (T3b.5b) | the item's page (approved (T3b.4g)) | capture line (T1.3); widgets (pending) | **to score** |
+| A running timer (pause, stop) | the item's page | the running strip (T3b.4g) | Measuring (Measuring's running strip (T3b.1d)) | Android's notification | **to score** |
+| Today's amount, and when last | Measuring | — | the item's page (approved); This week (Review's day (pending)) | — | **to score** |
+| Goal progress | **undecided (T3b.5 workshop)** | the Goals row (T3b.5b) | Measuring (the row's goal line (T3b.5c)); the item's page (the page (T3b.5)); Saved charts (a goal line (pending)) | — | **to score** |
+| Setting a goal | the item's page | — | — | — | T3b.5 (reopened) |
+| Sessions and their edits | the item's page | Edit beside Undo after a stop (T3b.3) | This week (Review's day timeline (pending)) | — | **to score** |
+| Totals and charts over time | **undecided** | — | the item's page (its statistics (owner, T3b.5)); Time totals (pending); Saved charts (pending); This week (pending) | — | **to score** |
+| Shortcut lists of items | **undecided** | pinned goals (T3b.5b) | Measuring (Recent (T3b.1d)); Hub (Pinned and recent (T1.4)) | one pin for all (owner, 2026-10-16) | **to score** |
+
+_14 repeats outside Today, in 7 things; 3 things with no home decided._
 
 ## The owner's answers
 
@@ -163,5 +186,6 @@ _make the app work: settings, sync, trash, backup, lock, labels_
 - 2026-10-13: habits are yes/no only; trackers appear on Today; the if-then cue is the block (order) and a written cue (wording); a habit has an energy level, and Habits and Today get a filter for what can be handled now, reset each day.
 - 2026-10-13: the habit Planner is dropped; its empty structure may be repurposed later for something other than habits. Habits repeat daily or on chosen weekdays; a habit's reminder is off by default, at its block's start or a set time.
 - 2026-10-13: a habit is added as an open if-then sentence; a routine (named by the user) carries the if and the time and holds ordered habits; routine checklists merge into routines; the energy filter hides steps above the level; the routine header's preview is scored.
+- 2026-10-16: "all these screens are redundant if all added singularly": overlaps are scored, with redundancy an axis; shortcuts on Today are not redundancy (Today is a master board); resolved overlaps are marked wrapped; the map gains a what-where table and merges duplicate entries (Trackers + Activities; a tracker's detail into its page).
 
-_55 screens; 5 with no parent app; 11 approved._
+_54 screens; 5 with no parent app; 10 approved._
