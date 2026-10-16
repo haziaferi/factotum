@@ -1984,7 +1984,20 @@ PICKED gword: the three styles above, “done” first.
 Owed: the setting's class (decision 09: PERSONAL, the same on every device, or DEVICE_PREF) and the per-item override; counter
 goals (a goal with no window that resets at its target, and a reminder fired by a goal), recorded above.
 
-Status: **T3b.1d, T3b.3, T3b.4e/f/g, T3b.5, T3b.5b and T3b.5c approved.** Next in T3b: time totals and charts.
+Status (then): **T3b.1d, T3b.3, T3b.4e/f/g, T3b.5, T3b.5b and T3b.5c approved.** Next in T3b: time totals and charts.
+
+**The owner (2026-10-16):**
+- **The goal line's setting is PERSONAL**, the same on every device (decision 09's class).
+- **T3b.5 is reopened:** “These features will be added while reassessing the first ‘page, plain, row, sentence’ choice, which no
+  longer fully applies and should be further investigated/workshopped.” The goal line's setting (style, shown or hidden, per item
+  or for all) and counter goals (no window, a reminder at the target, a reset) are worked out with it.
+- **A unit is typed by the person,** not picked from a list or chips. The data layer has Chronicle's list (HOURS, KM, TIMES, PAGES,
+  REPS, STEPS, CALORIES, or CUSTOM with its typed word; `TrackerDao.kt`, `SchemaTriggers.kt`): every unit would become a
+  typed word, so what the list gave for free (that HOURS is time) has to come from somewhere else. Asked: time and other
+  bases than 10.
+
+Status: **T3b.5 reopened (workshop); T3b.5b and T3b.5c approved; the typed unit asked.**
+
 
 
 
