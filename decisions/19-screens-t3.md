@@ -2127,5 +2127,52 @@ are incomplete: for example, no graphs, which have been mentioned multiple times
 running view above a history list, T3b.5 put goals on the page beside "other statistics" never drawn, T3b.6 assumed charts and
 sessions there; none drew the whole page. T3b.6's settling waits for the item's page, defined as one screen (T3b.7).
 
-Status: **T3b.6 held; next T3b.7, the tracker's or activity's page as one screen.**
+Status (then): **T3b.6 held; next T3b.7, the tracker's or activity's page as one screen.**
+
+### T3b.7 The tracker's or activity's page, as one screen (owner, 2026-10-16)
+
+The owner's answers: on the page, the now (the running view, still to be workshopped, or today's amount, its control and goal
+line), graphs, history and sessions; the item's settings behind a glyph (⚙) that opens a bottom sheet; graphs: “Find and score a
+few different graphs for discrete variables and a few for continuous variables. (No heatmap)”, bars per period and a line among
+them; scored as one screen against reference apps; axes: screen density, ease, taps to each section, glance, calm, consistency,
+mental load. The charts follow the dataviz rules (single series, no legend, thin marks, a recessive grid, a goal as a dashed
+line; and first, whether it needs a chart at all).
+
+Part `ipage`, 360 options: the order (now, graph, history / now, history, graph) × a discrete item's graph (Water: bars, a dot
+per glass, lollipops, the days with each count, or tiles with no chart) × a continuous item's graph (Weight, which does not add
+up, and Reading's time, which does: a line, faint days under a 7-day mean, an area, each week's lowest to highest with its mean,
+bars, or today's value with a sparkline) × the period (7 d · 30 d · 1 y chips / ‹ October › as the calendar / a fixed 30
+days) × history (a list / rows under day headers). Each option drawn whole for Water, Weight and Reading at 360×740 and
+measured. Controls drawn the same way: Chronicle's activity page (from its code), Loop's habit page, Track & Graph (the page is
+its data list; graphs on their own tab).
+
+**Fixed on the way** (each time a control reached the front, or a drawing was wrong):
+- **Two colours were never defined** (`--fg`, `--line`; the kit has `--ink` and `--dim`): line graphs drew no line, and **T3b.5's
+  bar and ring forms drew blank**, likely why the owner “saw no examples of bars, rings or percents”. Every drawing redrawn.
+- The controls were first hand-scored and all reached the front; they are now drawn and measured as the options.
+- Density first measured how full the first screen is (the most crowded won); it is now what decisions 17 and 18 measured:
+  rows read without scrolling, and text cut.
+- “Graph seen” now needs a drawn graph (Track & Graph's line naming its tab had counted).
+- Mental load now counts the arithmetic a page leaves (T3b.5c's rule: Loop's percentages, a trend read off a list, the tiles'
+  “last week”), and no longer counts a graph's axis labels as numbers to hold. One edit dropped the options' calm score
+  for a run (a comment swallowed it); caught and rerun.
+
+**Result: all three controls lost** (Chronicle 1,667.5, Track & Graph 1,908.5, Loop 2,084). 4 options on the front, all:
+**now, then history, then the graph; history under day headers; a line for continuous values; bars or lollipops for counts.**
+
+| Option | Rows seen (of 12) | Taps | Mental load | Consistency | Rank sum |
+|---|---|---|---|---|---|
+| bars · line · ‹ October › | 12 | 12 | 5.2 | 3 | 1,039.5 ★ |
+| lollipops · line · ‹ October › | 12 | 12 | 5.2 | 3 | 1,039.5 ★ |
+| bars · line · 7 d / 30 d / 1 y chips | 12 | 9 | 6.1 | 2.5 | 1,058.5 ★ |
+| lollipops · line · chips | 12 | 9 | 6.1 | 2.5 | 1,058.5 ★ |
+| bars · faint days under a 7-day mean · ‹ October › | 12 | 12 | 5.7 | 3 | 1,088.5 |
+
+- ‹ October › reads as T2's calendar and carries fewer numbers; chips reach a year in one tap (‹ › needs the month's
+  picker).
+- Tiles, the distribution, the band and the area never reach the front; the sparkline did only before the axis labels stopped
+  counting.
+
+Status: **T3b.7 scored: awaiting the owner's pick; then T3b.6 settled against it.**
+
 

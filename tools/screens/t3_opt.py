@@ -12,6 +12,7 @@ Parts:
   tunit    T3b.5d time on a tracker when units are typed (owner, 2026-10-16)
   tkind    T3b.5e how time is held: spans, amounts, or both (owner, 2026-10-16)
   where    T3b.6 one home per thing, the repeats scored together (owner, 2026-10-16)
+  ipage    T3b.7 the tracker's or activity's page, as one screen, with its graphs (owner, 2026-10-16)
   pace6    T3b.4f the approved Paced sentence: steppers the boxes' height, flowing or one part per line (owner, 2026-10-15)
   pace5    T3b.4e the Paced timer: N breaks evenly in the sentence; the ring shows and selects (owner, 2026-10-15)
   pace4    T3b.4d the Paced timer: a real dial for times, the run ring for pauses as fractions (owner, 2026-10-15)
@@ -3492,8 +3493,8 @@ G_CALM_GLANCE = {"none": 0, "row": 0.5, "today": 1, "both": 1.5}
 G_CSS = PR_CSS + """
 .prow2{display:flex;align-items:center;min-height:48px;border-bottom:1px solid var(--zone2);font-size:15px}.prow2 .t{flex:1}
 .gl{display:flex;align-items:center;min-height:48px;border-bottom:1px solid var(--zone2);font-size:15px;gap:8px}.gl .t{flex:1}.gl .n{font-variant-numeric:tabular-nums;color:var(--dim);font-size:14px}
-.gb{height:4px;border-radius:2px;background:var(--zone2);margin:-6px 0 6px}.gb i{display:block;height:4px;border-radius:2px;background:var(--fg);width:67%}
-.gr{width:28px;height:28px;border-radius:50%;background:conic-gradient(var(--fg) 0 67%,var(--zone2) 67% 100%);display:grid;place-items:center}.gr i{width:20px;height:20px;border-radius:50%;background:var(--bg)}
+.gb{height:4px;border-radius:2px;background:var(--zone2);margin:-6px 0 6px}.gb i{display:block;height:4px;border-radius:2px;background:var(--ink);width:67%}
+.gr{width:28px;height:28px;border-radius:50%;background:conic-gradient(var(--ink) 0 67%,var(--zone2) 67% 100%);display:grid;place-items:center}.gr i{width:20px;height:20px;border-radius:50%;background:var(--bg)}
 .gs{display:flex;align-items:center;gap:4px;min-height:48px;font-size:16px}.gs .box{min-width:72px;height:44px;line-height:44px;text-align:center;border-radius:10px;box-shadow:inset 0 0 0 1.5px var(--dim)}
 .gs .stp{width:32px;height:44px;display:inline-grid;place-items:center}.gs .w{min-height:48px;min-width:48px;display:grid;place-items:center;padding:0 6px;text-decoration:underline dotted}
 .gf label{display:block;font-size:12px;color:var(--dim);margin-top:8px}.gf .fld{min-height:48px;border-radius:8px;box-shadow:inset 0 0 0 1px var(--dim);display:flex;align-items:center;padding:0 12px}
@@ -4258,6 +4259,264 @@ def where_doc(v):
     return gdoc(kit.phone(kit.header("Where", ()), body, kit.bar("Hub")))
 
 
+# ==== Part ipage: T3b.7 the tracker's or activity's page, as one screen (owner, 2026-10-16) ========================================
+"""
+  The owner (2026-10-16): "redundancy cannot be fully assessed for Measuring until the single tracker screen is defined. T3b.4g,
+  T3b.5, T3b.6 all partially overlap and contradict, claiming to be the tracker's screen, and all are incomplete: for example, no
+  graphs ... have been scored/included yet." Answers: on the page, the now (the running view, still to be workshopped, or today's
+  amount with its control and goal line), graphs, history and sessions; the item's settings behind a glyph that opens a bottom
+  sheet; graphs: "Find and score a few different graphs for discrete variables and a few for continuous variables. (No heatmap)",
+  bars per period and a line over time among them; scored as one screen against reference apps; axes: screen density, ease, taps
+  to each section, glance, calm, consistency, and mental load (as for every number shown).
+  order   now, graph, history / now, history, graph
+  disc    the graph of a discrete item (Water, glasses a day, a goal of 8): bars (a column a day) / dots (a dot per glass) /
+          lollipop (a stick and a dot a day) / dist (how many days had each count) / tiles (no chart: this week, a day's mean)
+  cont    the graph of a continuous item (Weight, which does not add up, a goal to reach 70 kg; Reading, time, which does, 30 min a
+          day): line / avg (the days faint, a 7-day mean as the line) / area / band (each week's lowest to highest, its mean) /
+          bars (a column a day) / spark (no chart: today's value and a small line)
+  range   chips (7 d · 30 d · 1 y) / swipe (‹ October ›, a tap on the month picks a month or a year) / fixed (30 days, no choice)
+  hist    list (newest first, a row each) / days (rows under day headers)
+  Fixed: the settings glyph ⚙ in the header opens the item's sheet (owner); the now's control is Measuring's (▶, + 1 glass, Log).
+  Drawn whole at 360x740 for Water, Weight and Reading (greys, single series, no legend, thin marks, recessive grid; the dataviz
+  rules), and measured: the share of the first screen with content (density), the reach of the page's controls (ease), what reads
+  without scrolling (glance: today, the goal, the whole graph, the latest history row), and the numbers in the first screen.
+  Taps from opening the page: read the graph, see a year, edit the latest entry, open the settings.
+  Rule-based (flagged): mental load adds a graph that does not fit its data (bars or an area for a weight that does not add up; a
+  band for daily totals), a second series to read (avg), a distribution to interpret, and the numbers in the first screen / 10;
+  calm counts a comparison (tiles' "last week") 0.5; consistency counts the period control as T2's calendar (‹ ›) and days as
+  Review's, and one graph family for both kinds.
+"""
+IPAGE_SPACE = {"order": ["ngh", "nhg"], "disc": ["bars", "dots", "lollipop", "dist", "tiles"], "cont": ["line", "avg", "area", "band", "bars", "spark"],
+               "range": ["chips", "swipe", "fixed"], "hist": ["list", "days"]}
+IP_WATER = [5, 7, 8, 4, 6, 8, 9, 3, 5, 7, 8, 6, 5, 8, 7, 4, 6, 8, 5, 7, 9, 6, 5, 8, 7, 6, 4, 8, 7, 5]
+IP_WEIGHT = [73.8, 73.6, 73.9, 73.4, 73.5, 73.2, 73.3, 73.0, 73.1, 72.9, 73.2, 72.8, 72.7, 72.9, 72.6, 72.8, 72.5, 72.4, 72.6, 72.3,
+             72.5, 72.2, 72.4, 72.1, 72.3, 72.0, 72.2, 71.9, 72.1, 72.4]
+IP_READING = [20, 35, 0, 45, 30, 25, 0, 50, 30, 20, 40, 0, 35, 30, 25, 45, 0, 30, 20, 35, 40, 0, 25, 30, 45, 20, 0, 35, 30, 20]
+IP_CSS = PR_CSS + """
+.ipn{display:flex;align-items:center;gap:10px;min-height:64px}.ipn .v{flex:1}.ipn .v b{display:block;font-size:22px;font-weight:600;font-variant-numeric:tabular-nums}
+.ipn .v s{text-decoration:none;font-size:13px;color:var(--dim)}.ipn .c{min-width:56px;min-height:48px;padding:0 14px;display:grid;place-items:center;border-radius:24px;background:var(--ink);color:var(--bg);font-size:15px;white-space:nowrap}
+.ipr{display:flex;gap:6px;align-items:center;margin:4px 0}.ipr span{min-height:48px;min-width:48px;padding:0 12px;display:grid;place-items:center;border-radius:24px;box-shadow:inset 0 0 0 1px var(--dim);font-size:13px}
+.ipr span.on{background:var(--zone2);box-shadow:none;font-weight:600}.ipr .mo{flex:1;text-align:center;box-shadow:none}
+.ipg svg{display:block}.ipt{display:flex;gap:8px}.ipt div{flex:1;border-radius:12px;background:var(--zone2);padding:8px 10px}.ipt b{display:block;font-size:20px}.ipt s{text-decoration:none;font-size:12px;color:var(--dim)}
+.iph{font-size:12px;color:var(--dim);text-transform:uppercase;letter-spacing:.04em;margin:10px 0 2px}
+.ipl{display:flex;align-items:center;min-height:48px;border-bottom:1px solid var(--zone2);font-size:14px}.ipl .t{flex:1}
+"""
+IP_W, IP_H = 312, 120
+
+
+def ipdoc(html):
+    return doc(html, "light", CSS + IP_CSS)
+
+
+def ip_svg(inner, h=IP_H):
+    grid = "".join('<line x1="0" x2="%d" y1="%.1f" y2="%.1f" stroke="var(--zone2)" stroke-width="1"/>' % (IP_W, y, y) for y in (h * 0.25, h * 0.5, h * 0.75))
+    return '<svg width="%d" height="%d" viewBox="0 0 %d %d" role="img" aria-label="chart">%s%s<line x1="0" x2="%d" y1="%d" y2="%d" stroke="var(--dim)" stroke-width="1"/></svg>' % (
+        IP_W, h + 14, IP_W, h + 14, grid, inner, IP_W, h, h)
+
+
+def ip_axis(h=IP_H):
+    return "".join('<text x="%d" y="%d" font-size="10" fill="var(--dim)" text-anchor="middle">%s</text>' % (x, h + 12, t) for x, t in ((10, "1"), (156, "15"), (300, "30")))
+
+
+def ip_goal(y):   # the goal, a recessive dashed line with its words
+    return '<line x1="0" x2="%d" y1="%.1f" y2="%.1f" stroke="var(--dim)" stroke-width="1" stroke-dasharray="4 4"/><text x="%d" y="%.1f" font-size="10" fill="var(--dim)" text-anchor="end">goal</text>' % (IP_W, y, y, IP_W - 2, y - 3)
+
+
+def ip_scale(vals, lo=None, hi=None, h=IP_H):
+    lo = min(vals) if lo is None else lo
+    hi = max(vals) if hi is None else hi
+    return lambda v: h - 4 - (v - lo) / ((hi - lo) or 1) * (h - 12)
+
+
+def ip_graph(form, vals, kind, goal):
+    n, h = len(vals), IP_H
+    step = IP_W / n
+    if form == "tiles":
+        wk = sum(vals[-7:])
+        return '<div class="ipt"><div><b>%d</b><s>glasses this week</s></div><div><b>%.1f</b><s>a day, 30 days</s></div><div><b>%d</b><s>last week</s></div></div>' % (wk, sum(vals) / n, sum(vals[-14:-7]))
+    if form == "spark":
+        y = ip_scale(vals, h=40)
+        pts = " ".join("%.1f,%.1f" % (i * step + step / 2, y(v)) for i, v in enumerate(vals))
+        unit = "kg" if kind == "weight" else "min today"
+        return '<div class="ipt"><div style="flex:none;min-width:90px"><b>%s</b><s>%s</s></div><div style="background:none;padding:0"><svg width="200" height="44" viewBox="0 0 %d 44" preserveAspectRatio="none"><polyline points="%s" style="fill:none;stroke:var(--ink);stroke-width:2"/></svg></div></div>' % (
+            ("%g" % vals[-1]) if kind == "weight" else "%d" % vals[-1], unit, IP_W, pts)
+    if kind == "count":
+        y = ip_scale(vals, 0, 10)
+    elif kind == "weight":
+        y = ip_scale(vals, 69.5, 74.5)
+    else:
+        y = ip_scale(vals, 0, 60)
+    g = ip_goal(y(goal))
+    inner = ""
+    if form == "bars":
+        inner = "".join('<rect x="%.1f" y="%.1f" width="%.1f" height="%.1f" rx="2" fill="var(--ink)"/>' % (i * step + 1.5, y(v), step - 3, max(0, h - y(v))) for i, v in enumerate(vals))
+    elif form == "dots":
+        inner = "".join('<circle cx="%.1f" cy="%.1f" r="3" fill="var(--ink)"/>' % (i * step + step / 2, h - 6 - k * 10.5) for i, v in enumerate(vals) for k in range(int(v)))
+    elif form == "lollipop":
+        inner = "".join('<line x1="%.1f" x2="%.1f" y1="%d" y2="%.1f" stroke="var(--ink)" stroke-width="2"/><circle cx="%.1f" cy="%.1f" r="4" fill="var(--ink)"/>' % (
+            i * step + step / 2, i * step + step / 2, h, y(v), i * step + step / 2, y(v)) for i, v in enumerate(vals))
+    elif form == "dist":   # days with each count, 0 to 10, as bars across
+        counts = [vals.count(k) for k in range(11)]
+        yy = ip_scale(counts, 0, max(counts))
+        w = IP_W / 11
+        inner = "".join('<rect x="%.1f" y="%.1f" width="%.1f" height="%.1f" rx="2" fill="var(--ink)"/><text x="%.1f" y="%d" font-size="10" fill="var(--dim)" text-anchor="middle">%d</text>' % (
+            k * w + 3, yy(c), w - 6, h - yy(c), k * w + w / 2, h + 12, k) for k, c in enumerate(counts))
+        return '<div class="ipg">%s<div style="font-size:12px;color:var(--dim)">days with each number of glasses, 30 days</div></div>' % ip_svg(inner)
+    elif form in ("line", "area"):
+        pts = " ".join("%.1f,%.1f" % (i * step + step / 2, y(v)) for i, v in enumerate(vals))
+        if form == "area":
+            inner = '<polygon points="%s %.1f,%d %.1f,%d" fill="var(--zone2)"/>' % (pts, (n - 0.5) * step, h, step / 2, h)
+        inner += '<polyline points="%s" style="fill:none;stroke:var(--ink);stroke-width:2"/>' % pts
+    elif form == "avg":
+        inner = "".join('<circle cx="%.1f" cy="%.1f" r="3" fill="var(--dim)"/>' % (i * step + step / 2, y(v)) for i, v in enumerate(vals))
+        av = [sum(vals[max(0, i - 6):i + 1]) / len(vals[max(0, i - 6):i + 1]) for i in range(n)]
+        inner += '<polyline points="%s" style="fill:none;stroke:var(--ink);stroke-width:2"/>' % " ".join("%.1f,%.1f" % (i * step + step / 2, y(v)) for i, v in enumerate(av))
+    elif form == "band":
+        wk = [vals[i:i + 7] for i in range(0, n, 7)]
+        w = IP_W / len(wk)
+        inner = "".join('<rect x="%.1f" y="%.1f" width="%.1f" height="%.1f" rx="4" fill="var(--zone2)"/><line x1="%.1f" x2="%.1f" y1="%.1f" y2="%.1f" stroke="var(--ink)" stroke-width="2"/>' % (
+            j * w + 6, y(max(c)), w - 12, max(2, y(min(c)) - y(max(c))), j * w + 6, (j + 1) * w - 6, y(sum(c) / len(c)), y(sum(c) / len(c))) for j, c in enumerate(wk))
+    return '<div class="ipg">%s</div>' % ip_svg(g + inner + ip_axis())
+
+
+def ip_range(v):
+    if v["range"] == "chips":
+        return '<div class="ipr"><span data-tap="Range 7d">7 d</span><span class="on" data-tap="Range 30d">30 d</span><span data-tap="Range 1y">1 y</span></div>'
+    if v["range"] == "swipe":
+        return '<div class="ipr"><span data-tap="Range prev">‹</span><span class="mo" data-tap="Range month">October</span><span data-tap="Range next">›</span></div>'
+    return '<div class="iph">The last 30 days</div>'
+
+
+IP_ITEMS = {
+    "water": dict(name="Water", kind="count", vals=IP_WATER, goal=8, now=("5 glasses today", "last 11:40"), ctl="+ 1 glass",
+                  hist=[("Today 11:40", "+ 1 glass"), ("Today 09:15", "+ 2 glasses"), ("Yesterday 20:10", "+ 1 glass"), ("Yesterday 16:05", "+ 2 glasses")]),
+    "weight": dict(name="Weight", kind="weight", vals=IP_WEIGHT, goal=70, now=("72.4 kg", "today 07:30 · goal 70 kg"), ctl="Log",
+                   hist=[("Today 07:30", "72.4 kg"), ("Yesterday 07:25", "72.1 kg"), ("Mon 07:40", "72.3 kg"), ("Sun 08:10", "72.0 kg")]),
+    "reading": dict(name="Reading", kind="time", vals=IP_READING, goal=30, now=("20 min today", "last 13:40"), ctl="▶",
+                    hist=[("Today 13:20–13:40", "20 min"), ("Yesterday 21:00–21:30", "30 min"), ("Yesterday +15 min", "15 min"), ("Mon 20:40–21:15", "35 min")]),
+}
+
+
+def ipage_phone(v, item):
+    it = IP_ITEMS[item]
+    form = v["disc"] if it["kind"] == "count" else v["cont"]
+    now = '<div class="ipn" data-sec="now"><span class="v"><b>%s</b><s>%s</s></span><span class="c" data-tap="Now control">%s</span></div>' % (
+        e(it["now"][0]), e(it["now"][1]), e(it["ctl"]))
+    graph = '<div data-sec="graph">%s%s</div>' % (ip_range(v), ip_graph(form, it["vals"], it["kind"], it["goal"]))
+    if v["hist"] == "days":
+        days = {}
+        for when, what in it["hist"]:
+            d, t = when.split(" ", 1)
+            days.setdefault(d, []).append((t, what))
+        rows = "".join('<div class="iph">%s</div>' % d + "".join('<div class="ipl" data-tap="History row"><span class="t">%s</span>%s</div>' % (e(t), e(w)) for t, w in r) for d, r in days.items())
+    else:
+        rows = "".join('<div class="ipl" data-tap="History row"><span class="t">%s</span>%s</div>' % (e(a), e(b)) for a, b in it["hist"])
+    hist = '<div data-sec="hist"><div class="iph">History</div>%s</div>' % rows
+    body = now + (graph + hist if v["order"] == "ngh" else hist + graph)
+    return kit.phone(kit.header(it["name"], (("⚙", "Settings"),), ("‹", "Back")), '<div class="zone" style="padding-bottom:8px">%s</div>' % body, kit.bar("Hub"))
+
+
+IP_JS = ("(function(){var bar=document.querySelector('.bar').getBoundingClientRect().top,top=document.querySelector('.body').getBoundingClientRect().top;"
+         "var o={fold:Math.round(bar-top)};['now','graph','hist'].forEach(function(k){var s=document.querySelector('[data-sec='+k+']');if(!s)return;var b=s.getBoundingClientRect();"
+         "o[k+'_top']=Math.round(b.top-top);o[k+'_bottom']=Math.round(b.bottom-top)});"
+         "var r=document.querySelector('[data-tap=\"History row\"]');o.row_bottom=r?Math.round(r.getBoundingClientRect().bottom-top):9999;"
+         "o.rows_seen=0;document.querySelectorAll('[data-tap=\"History row\"]').forEach(function(x){if(x.getBoundingClientRect().bottom<=bar)o.rows_seen++});"
+         "o.cut=0;document.querySelectorAll('.ipl,.ipn,.ipt div,.ipr span').forEach(function(x){if(x.scrollWidth>x.clientWidth+1)o.cut++});"
+         "var gs=document.querySelector('[data-sec=graph]');o.has_graph=gs&&(gs.querySelector('svg')||gs.querySelector('.ipt'))?1:0;"
+         "var used=0;document.querySelectorAll('.zone').forEach(function(z){var b=z.getBoundingClientRect();used+=Math.max(0,Math.min(b.bottom,bar)-Math.max(b.top,top))});o.used=Math.round(used);"
+         "var txt='';var w=document.createTreeWalker(document.querySelector('.body'),NodeFilter.SHOW_TEXT);while(w.nextNode()){var n=w.currentNode;if(n.parentElement.closest('svg'))continue;var p=n.parentElement.getBoundingClientRect();if(p.bottom<=bar&&p.top>=top)txt+=' '+n.textContent}"
+         "o.numbers=(txt.match(/\\d+([.,]\\d+)?/g)||[]).length;return o})()")
+
+
+def ip_control_phone(app, item):
+    """The reference apps' item pages, drawn from their code (Chronicle) and the survey, with this part's three items."""
+    it = IP_ITEMS[item]
+    name = it["name"]
+    hist = "".join('<div class="ipl" data-tap="History row"><span class="t">%s</span>%s</div>' % (e(a), e(b)) for a, b in it["hist"])
+    if app == "chronicle":   # Start / Log session; chart mode and range chips; bars; two stat tiles; Goals; Recent sessions
+        top = ('<div class="ipr"><span class="on" data-tap="Now control" style="flex:1">%s</span><span data-tap="Log session" style="flex:1">Log session</span></div>'
+               '<div class="ipr"><span class="on">Bars</span><span>Line</span></div><div class="ipr"><span>7 d</span><span class="on">30 d</span><span>90 d</span><span data-tap="Range 1y">1 y</span></div>') % e(it["ctl"])
+        graph = '<div data-sec="graph">%s</div>' % ip_graph("bars", it["vals"], it["kind"], it["goal"])
+        stats = '<div class="ipt"><div><b>%s</b><s>last</s></div><div><b>%s</b><s>total, 30 days</s></div></div>' % (e(it["now"][0]), "14 h 05" if it["kind"] == "time" else "186")
+        goals = '<div class="iph">Goals</div><div class="ipl"><span class="t">%s</span></div>' % e(it["now"][0])
+        body = '<div data-sec="now">%s</div>%s%s%s<div data-sec="hist"><div class="iph">Recent sessions</div>%s</div>' % (top, graph, stats, goals, hist)
+    elif app == "loop":   # overview percentages, a score line, history bars, streaks
+        top = ('<div data-sec="now" class="ipt"><div><b>64%%</b><s>score</s></div><div><b>+5%%</b><s>month</s></div><div><b>+12%%</b><s>year</s></div><div><b>%s</b><s>total</s></div></div>'
+               '<div class="ipr"><span class="on" data-tap="Now control">%s</span></div>') % ("186" if it["kind"] != "time" else "14 h", e(it["ctl"]))
+        graph = '<div data-sec="graph"><div class="iph">Score</div>%s<div class="iph">History</div><div class="ipr"><span data-tap="Range 1y">Year</span></div>%s</div>' % (
+            ip_graph("line", [min(10, 3 + i * 0.2) for i in range(30)], "count", 8), ip_graph("bars", it["vals"], it["kind"], it["goal"]))
+        streak = '<div class="iph">Best streaks</div><div class="ipl"><span class="t">12 days</span>1 Oct – 12 Oct</div><div class="ipl"><span class="t">9 days</span>3 Sep – 11 Sep</div>'
+        body = top + graph + streak + '<div data-sec="hist"><div class="iph">Calendar</div>%s</div>' % hist
+    else:   # Track & Graph: the item's page is its data list; graphs on their own tab
+        body = ('<div data-sec="now" class="ipr"><span class="on" data-tap="Now control">%s</span></div>' % e(it["ctl"]) +
+                '<div data-sec="hist">%s</div><div data-sec="graph" class="iph">Graphs: on the Graphs tab</div>' % hist)
+    return kit.phone(kit.header(name, (("⋮", "Settings"),), ("‹", "Back")), '<div class="zone" style="padding-bottom:8px">%s</div>' % body, kit.bar("Hub"))
+
+
+IP_CTL_RULES = {   # per app (rule-based, as the options'): graph misfit and second series, calm, consistency, a year's taps, the graph's taps
+    "chronicle": dict(misfit=1.0, second=0.0, arith=0, calm=0.0, consistency=1.0, year=1, graph_extra=0),   # bars for a weight; range chips; a list
+    "loop": dict(misfit=0.5, second=1.0, arith=2, calm=2.0, consistency=0.5, year=1, graph_extra=0),   # three percentages   # a percent score and streaks; two charts
+    "trackandgraph": dict(misfit=0.0, second=0.0, arith=1, calm=0.0, consistency=0.5, year=2, graph_extra=2),   # a trend read off a list   # the Graphs tab, then the graph
+}
+
+
+def ip_measure(v, item):
+    d = ipdoc(ip_control_phone(v["control_app"], item) if v.get("control") else ipage_phone(v, item))
+    m = T.probe(d, "ip-%s-%s" % ("-".join(str(x) for x in v.values()), item), IP_JS)
+    tp = T.taps(d)
+    seen = [x for x in tp.all if x.get("seen")]
+    small = ["%s %dx%d" % (x["name"], x["w"], x["h"]) for x in seen if x["name"].startswith(("Now", "Range", "History", "Settings")) and (x["w"] < 48 or x["h"] < 48)]
+    reach = [T.fitts(THUMB, x) for x in seen if x["name"] in ("Now control", "Range 1y", "Range month", "Settings")]
+    return m, small, reach
+
+
+def score_ipage(v):
+    ctl = IP_CTL_RULES.get(v.get("control_app")) if v.get("control") else None
+    tot = dict(density=0, cut=0, glance=0, taps=0, numbers=0, reach=[], small=[])
+    for item in IP_ITEMS:
+        m, small, reach = ip_measure(v, item)
+        fold = m["fold"]
+        tot["density"] += m["rows_seen"]
+        tot["cut"] += m["cut"]
+        g = (m["now_bottom"] <= fold) + (m["has_graph"] and m["graph_bottom"] <= fold) + (m["row_bottom"] <= fold)
+        tot["glance"] += g
+        graph_taps = (0 if m["graph_bottom"] <= fold else 1) + (ctl["graph_extra"] if ctl else 0)   # a scroll
+        year = ctl["year"] if ctl else {"chips": 1, "swipe": 2, "fixed": IMPOSSIBLE}[v["range"]]
+        edit = 1 + (0 if m["row_bottom"] <= fold else 1)
+        tot["taps"] += graph_taps + year + edit + 1   # + the settings glyph
+        tot["numbers"] += m["numbers"]
+        tot["reach"] += reach
+        tot["small"] += small
+    if ctl:
+        return {"density": tot["density"], "cut": tot["cut"], "glance": tot["glance"], "taps": tot["taps"], "impossible": 0,
+                "reach": round(sum(tot["reach"]) / len(tot["reach"]), 3) if tot["reach"] else 9,
+                "load": ctl["misfit"] + ctl["second"] + ctl["arith"] + tot["numbers"] / 10, "calm": ctl["calm"], "consistency": ctl["consistency"], "small": sorted(set(tot["small"]))}
+    d, c = v["disc"], v["cont"]
+    misfit = (1 if c in ("bars",) else 0.5 if c == "area" else 0) + (0.5 if c == "band" else 0)   # weight is not a total; a band of daily totals
+    second = (0.5 if c == "avg" else 0) + (0.5 if d == "dist" else 0) + (0.5 if c == "band" else 0)
+    family = 1 if (d in ("bars", "lollipop") and c in ("bars", "line", "avg")) or (d == "tiles" and c == "spark") or (d == "dots" and c == "avg") else 0
+    return {"density": tot["density"], "cut": tot["cut"], "glance": tot["glance"], "taps": tot["taps"], "impossible": 1 if v["range"] == "fixed" else 0,
+            "reach": round(sum(tot["reach"]) / len(tot["reach"]), 3) if tot["reach"] else 9,
+            # tiles' "last week" is a difference left to the person (mental load, as T3b.5c)
+            "load": misfit + second + (1 if d == "tiles" else 0) + tot["numbers"] / 10, "calm": 0.5 if d == "tiles" else 0,
+            "consistency": {"swipe": 1, "chips": 0.5, "fixed": 0.5}[v["range"]] + {"days": 1, "list": 0.5}[v["hist"]] + family,
+            "small": sorted(set(tot["small"]))}
+
+
+# controls, from their code (Chronicle) and the survey; placed in the same three items, counted by hand (flagged)
+IP_CONTROLS = {
+    # Chronicle: Start / Log session, a chart-mode chip and range chips, a bar chart, two stat tiles, Goals, Recent sessions
+    "chronicle": {"density": 0.95, "glance": 6, "taps": 3 * (0 + 1 + 2 + 1), "impossible": 0, "reach": 3.4, "load": 1 + 3.2, "calm": 0, "consistency": 0.5 + 0.5 + 0},
+    # Loop: overview percentages (score, month, year), a score line, history bars, streaks, frequency by weekday
+    "loop": {"density": 1.0, "glance": 3, "taps": 3 * (0 + 1 + 3 + 1), "impossible": 0, "reach": 3.3, "load": 1.5 + 4.5, "calm": 2.5, "consistency": 0.5},
+    # Track & Graph: the item's page is its data list; graphs live on their own tab, built by the person
+    "trackandgraph": {"density": 1.0, "glance": 3, "taps": 3 * (3 + 2 + 1 + 1), "impossible": 0, "reach": 3.5, "load": 0.5 + 3.0, "calm": 0, "consistency": 0.5},
+}
+IP_CONTROL_WHY = {"chronicle": "Chronicle's activity page: Start / Log session, chart-mode and range chips, bars, two stat tiles, Goals, Recent sessions",
+                  "loop": "Loop's habit page: score and month/year percentages, a score line, history bars, streaks, frequency by weekday",
+                  "trackandgraph": "Track & Graph: the item's page is its data list; its graphs are on their own tab"}
+
+
 def build_refs():
     with open(os.path.join(T.OUT, "t3-references.json"), encoding="utf-8") as fh:
         src = json.load(fh)
@@ -4282,9 +4541,10 @@ def build_refs():
 T.PREFIX, T.REFS, T.NAME = "t3", "t3-refs.json", "T3 habits, trackers, time, goals, charts and checklists"
 T.OUT = os.path.join(os.path.dirname(M2.T.OUT), "t3")
 # T3.1 "habits" (presence, the first scoring) is kept in t3-habits-v1.json and in the code above; T3a replaced it (owner, 2026-10-13)
-T.SPACES = {"where": WHERE_SPACE, "tkind": TKIND_SPACE, "tunit": TUNIT_SPACE, "gword": GWORD_SPACE, "gtoday": GTODAY_SPACE, "goals": GOALS_SPACE, "run3": RUN3_SPACE, "pacerun": PACERUN_SPACE, "pace6": PACE6_SPACE, "pace5": PACE5_SPACE, "pace4": PACE4_SPACE, "pace3": PACE3_SPACE, "paceplace": PPLACE_SPACE, "pace": PACE_SPACE, "measure3": MEAS3_SPACE, "acts": ACTS_SPACE, "measure2": MEAS2_SPACE, "measure": MEAS_SPACE, "trackers": TRK_SPACE, "basics": BASICS_SPACE, "addhabit": ADD_SPACE, "routines": ROUT_SPACE, "addsent": SENT_SPACE, "hsheet": HSHEET_SPACE, "premise": PREMISE_SPACE, "habits2": H2_SPACE}
-T.SCORERS = {"where": score_where, "tkind": score_tkind, "tunit": score_tunit, "gword": score_gword, "gtoday": score_gtoday, "goals": score_goals, "run3": score_run3, "pacerun": score_pacerun, "pace6": score_pace6, "pace5": score_pace5, "pace4": score_pace4, "pace3": score_pace3, "paceplace": score_paceplace, "pace": score_pace, "measure3": score_measure3, "acts": score_acts, "measure2": score_measure2, "measure": score_measure, "trackers": score_trackers, "basics": score_basics, "addhabit": score_addhabit, "routines": score_routines, "addsent": score_addsent, "hsheet": score_hsheet, "premise": score_premise, "habits2": score_habits2}
-T.CONTROLS = {"where": ({k: "as it stood" for k in WHERE_SPACE} | {"control": True}, "The purpose map as it stood on 2026-10-16: every repeat kept, charts in four places, Recent and the Hub list beside the pins"),
+T.SPACES = {"ipage": IPAGE_SPACE, "where": WHERE_SPACE, "tkind": TKIND_SPACE, "tunit": TUNIT_SPACE, "gword": GWORD_SPACE, "gtoday": GTODAY_SPACE, "goals": GOALS_SPACE, "run3": RUN3_SPACE, "pacerun": PACERUN_SPACE, "pace6": PACE6_SPACE, "pace5": PACE5_SPACE, "pace4": PACE4_SPACE, "pace3": PACE3_SPACE, "paceplace": PPLACE_SPACE, "pace": PACE_SPACE, "measure3": MEAS3_SPACE, "acts": ACTS_SPACE, "measure2": MEAS2_SPACE, "measure": MEAS_SPACE, "trackers": TRK_SPACE, "basics": BASICS_SPACE, "addhabit": ADD_SPACE, "routines": ROUT_SPACE, "addsent": SENT_SPACE, "hsheet": HSHEET_SPACE, "premise": PREMISE_SPACE, "habits2": H2_SPACE}
+T.SCORERS = {"ipage": score_ipage, "where": score_where, "tkind": score_tkind, "tunit": score_tunit, "gword": score_gword, "gtoday": score_gtoday, "goals": score_goals, "run3": score_run3, "pacerun": score_pacerun, "pace6": score_pace6, "pace5": score_pace5, "pace4": score_pace4, "pace3": score_pace3, "paceplace": score_paceplace, "pace": score_pace, "measure3": score_measure3, "acts": score_acts, "measure2": score_measure2, "measure": score_measure, "trackers": score_trackers, "basics": score_basics, "addhabit": score_addhabit, "routines": score_routines, "addsent": score_addsent, "hsheet": score_hsheet, "premise": score_premise, "habits2": score_habits2}
+T.CONTROLS = {"ipage": [({k: app for k in IPAGE_SPACE} | {"control": True, "control_app": app}, IP_CONTROL_WHY[app]) for app in IP_CONTROLS],
+              "where": ({k: "as it stood" for k in WHERE_SPACE} | {"control": True}, "The purpose map as it stood on 2026-10-16: every repeat kept, charts in four places, Recent and the Hub list beside the pins"),
               "tkind": [({"model": app, "control": True, "control_app": app}, TK_CONTROL_WHY[app]) for app in TK_CONTROLS],
               "tunit": [({"how": app, "control": True, "control_app": app}, TU_CONTROL_WHY[app]) for app in TU_CONTROLS],
               "gword": [({"form": f, "period": "-", "layout": "drop", "numbers": "-", "control": True}, why) for f, why in GW_CONTROLS],
@@ -4353,8 +4613,8 @@ T.AXES = {"pace4": {"Taps": ("taps",), "Customization": ("impossible", "step_150
                      "Choice": ("-filter_says_mid",), "Consistency": ("like_today",), "Density": ("-rows_seen", "cut"), "Calm": ("clutter", "desk_clutter")},
           "habits": {"Ease": ("log_actions", "reach_log"), "Presence": ("-presence_shown", "presence_marks"), "Calm": ("guilt_marks", "clutter", "desk_clutter"),
                      "Density": ("-rows_seen", "cut"), "Consistency": ("like_today",)}}
-T.TITLES = {"where": "T3b.6 One home per thing: where each repeat goes (kept, a doorway, removed, the person's choice)", "tkind": "T3b.5e How time is held: only spans, kept apart, or spans and amounts on one item", "tunit": "T3b.5d Time on a tracker when units are typed: a Duration kind, or recognised time words", "gword": "T3b.5c The goal line on the Measuring row: wording, period words, layout", "gtoday": "T3b.5b Goals on Today, measured with 5 and 20 goals: nothing, a summary, pinned, unmet, a collapsed row", "goals": "T3b.5 Goals: where they live, how progress shows, the glance, how one is set", "run3": "T3b.3 Several running timers, a forgotten timer, editing a session", "pacerun": "T3b.4g Where the Paced timer lives while running: the view, a Today strip, a rest's end, Stop's guard", "pace6": "T3b.4f The approved Paced sentence: steppers at the boxes' height, flowing or one part per line", "pace5": "T3b.4e The Paced timer: N breaks evenly in the sentence; the ring shows and selects", "pace4": "T3b.4d The Paced timer: a real dial for times, the run ring for pauses as fractions", "pace3": "T3b.4c The Paced timer sheet around a clock face: run input, placer, exact words, rhythm", "paceplace": "T3b.4b Where the Paced timer lives: set and running", "pace": "T3b.4 The Paced timer sheet: setting the run, placing pauses (chimes or rests)", "measure3": "T3b.1d The Measuring list: trackers and activities as one, each item's control by how it is measured", "acts": "T3b.2 The Activities list: running timers, adding a past session, Same as last (Chronicle's Last used)", "measure2": "T3b.1c The Measuring list, scroll counted at 12 and 30 items: compact rows, folding labels, most used first", "measure": "T3b.1b The Measuring list, taps first: merged with activities or apart, rows or cards, what Log does (a control per kind)", "trackers": "T3b.1 The Trackers list: rows or cards, what a row says, what Log does, grouping", "habits2": "T3a.1c The Habits list: the optional name, and every if as a header", "premise": "T3a.2d What tapping the premise box opens: nothing, or the ifs with the same connective", "hsheet": "T3a.2c The New habit sheet (prototype): the blanks as text boxes in the sentence, or opened above it", "addsent": "T3a.2b Adding a habit as an open sentence: the When sheet, in place, or fields; energy and routine as words or rows", "routines": "T3a.1b The Habits list with routines: the 'what to expect' preview, how the sequence shows", "addhabit": "T3a.2 Adding a habit: in place or a sheet, the If, the block", "basics": "T3a.1 Habits as Daily basics: layout, the energy filter, its mark, done today", "habits": "T3.1 The Habits list: presence, grouping, where Log sits, a count's amount"}
-T.DRAW = {"where": lambda v: [where_doc(v)], "tkind": lambda v: [gdoc(kit.phone(kit.header(v["control_app"].capitalize(), ()), '<div class="zone"><h4>Control</h4><p>%s</p></div>' % TK_CONTROL_WHY[v["control_app"]], kit.bar("Hub")))] if v.get("control") else [gdoc(tk_phone(v))], "tunit": lambda v: [tudoc(kit.phone(kit.header(v["control_app"].capitalize(), ()), '<div class="zone"><h4>Control</h4><p>%s</p></div>' % TU_CONTROL_WHY[v["control_app"]], kit.bar("Hub")))] if v.get("control") else [tudoc(tunit_phone(v))], "gword": lambda v: [m3doc(gword_phone(v))], "gtoday": lambda v: [gdoc(kit.phone(kit.header(v["control_app"].capitalize(), ()), '<div class="zone"><h4>Control</h4><p>%s</p></div>' % GT_CONTROL_WHY[v["control_app"]], kit.bar("Hub")))] if v.get("control") else [gdoc_t(gt_today(v, 5)), gdoc_t(gt_today(v, 20))], "goals": lambda v: [gdoc(kit.phone(kit.header(v["control_app"].capitalize(), ()), '<div class="zone"><h4>Control</h4><p>%s</p></div>' % G_CONTROL_WHY[v["control_app"]], kit.bar("Hub")))] if v.get("control") else [gdoc(goals_where(v)), gdoc(goals_glance(v))] + ([gdoc(goals_glance(v, "row"))] if v["glance"] == "both" else []), "run3": lambda v: [r3doc(r3_edit_place(v))] if v.get("control") else [r3doc(r3_today(v)), r3doc(r3_today(v, 5, True)), r3doc(r3_edit_place(v))], "pacerun": lambda v: [pdoc(pacerun_phone(v))] if v.get("control") else [prdoc(pacerun_phone(v)), prdoc(pacerun_phone(v, "today"))], "pace6": lambda v: [p6doc(pace6_phone(v, P6_STATES[0])), p6doc(pace6_phone(v, P6_STATES[5])), p6doc(pace6_phone(v, P6_STATES[8]))], "pace5": lambda v: [pdoc(pace5_phone(v)) if v.get("control") else p4doc(pace5_phone(v))], "pace4": lambda v: [pdoc(pace4_phone(v)) if v.get("control") else p4doc(pace4_phone(v))], "pace3": lambda v: [pdoc(pace3_phone(v)) if v.get("control") else p3doc(pace3_phone(v))], "paceplace": lambda v: [ppdoc(pp_running(v)), ppdoc(pp_today(v))], "pace": lambda v: [pdoc(pace_phone(v))], "measure3": lambda v: [m3doc(measure3_phone(v, ITEMS3_12, v.get("group", "") not in ("flat", "labels"))), m3doc(measure3_phone(v, ITEMS3_40)), measure3_desk(v)], "acts": lambda v: [adoc2(acts_phone(v, ACTS12, v.get("arrange") == "hybrid")), adoc2(acts_phone(v, ACTS30)), acts_desk(v)], "measure2": lambda v: [m2doc(measure2_phone(v, ITEMS12, v.get("group", "") in ("folding", "hybrid_fit", "hybrid_6", "hybrid_pinned"))), m2doc(measure2_phone(v, ITEMS30)), measure2_desk(v)], "measure": lambda v: [mdoc(measure_phone(v)), measure_desk(v)], "trackers": lambda v: [tdoc(trackers_phone(v))] + ([] if v.get("control") else [tdoc(trackers_phone(v, True))]) + [trackers_desk(v)], "habits2": lambda v: [h2doc(habits2_phone(v)), habits2_desk(v)], "premise": lambda v: [premise_doc(v)], "hsheet": lambda v: [adoc(addhabit_phone({"control": True}))] if v.get("control") else [hsheet_doc(v, st) for _, _, st in HSTATES], "addsent": lambda v: [sdoc(addsent_phone(v))] + ([] if (v.get("control") or v["form"] == "fields") else [sdoc(addsent_phone(v, True))]), "routines": lambda v: [rdoc(routines_phone(v)), rdoc(routines_phone(v, "low")), routines_desk(v)], "addhabit": lambda v: [adoc(addhabit_phone(v))], "basics": lambda v: [bdoc(basics_phone(v)), basics_desk(v)], "habits": lambda v: [hdoc(habits_phone(v)), habits_desk(v)]}
+T.TITLES = {"ipage": "T3b.7 The tracker's or activity's page as one screen: now, graph, history; graphs for discrete and continuous values", "where": "T3b.6 One home per thing: where each repeat goes (kept, a doorway, removed, the person's choice)", "tkind": "T3b.5e How time is held: only spans, kept apart, or spans and amounts on one item", "tunit": "T3b.5d Time on a tracker when units are typed: a Duration kind, or recognised time words", "gword": "T3b.5c The goal line on the Measuring row: wording, period words, layout", "gtoday": "T3b.5b Goals on Today, measured with 5 and 20 goals: nothing, a summary, pinned, unmet, a collapsed row", "goals": "T3b.5 Goals: where they live, how progress shows, the glance, how one is set", "run3": "T3b.3 Several running timers, a forgotten timer, editing a session", "pacerun": "T3b.4g Where the Paced timer lives while running: the view, a Today strip, a rest's end, Stop's guard", "pace6": "T3b.4f The approved Paced sentence: steppers at the boxes' height, flowing or one part per line", "pace5": "T3b.4e The Paced timer: N breaks evenly in the sentence; the ring shows and selects", "pace4": "T3b.4d The Paced timer: a real dial for times, the run ring for pauses as fractions", "pace3": "T3b.4c The Paced timer sheet around a clock face: run input, placer, exact words, rhythm", "paceplace": "T3b.4b Where the Paced timer lives: set and running", "pace": "T3b.4 The Paced timer sheet: setting the run, placing pauses (chimes or rests)", "measure3": "T3b.1d The Measuring list: trackers and activities as one, each item's control by how it is measured", "acts": "T3b.2 The Activities list: running timers, adding a past session, Same as last (Chronicle's Last used)", "measure2": "T3b.1c The Measuring list, scroll counted at 12 and 30 items: compact rows, folding labels, most used first", "measure": "T3b.1b The Measuring list, taps first: merged with activities or apart, rows or cards, what Log does (a control per kind)", "trackers": "T3b.1 The Trackers list: rows or cards, what a row says, what Log does, grouping", "habits2": "T3a.1c The Habits list: the optional name, and every if as a header", "premise": "T3a.2d What tapping the premise box opens: nothing, or the ifs with the same connective", "hsheet": "T3a.2c The New habit sheet (prototype): the blanks as text boxes in the sentence, or opened above it", "addsent": "T3a.2b Adding a habit as an open sentence: the When sheet, in place, or fields; energy and routine as words or rows", "routines": "T3a.1b The Habits list with routines: the 'what to expect' preview, how the sequence shows", "addhabit": "T3a.2 Adding a habit: in place or a sheet, the If, the block", "basics": "T3a.1 Habits as Daily basics: layout, the energy filter, its mark, done today", "habits": "T3.1 The Habits list: presence, grouping, where Log sits, a count's amount"}
+T.DRAW = {"ipage": lambda v: [ipdoc(ip_control_phone(v["control_app"], i) if v.get("control") else ipage_phone(v, i)) for i in IP_ITEMS], "where": lambda v: [where_doc(v)], "tkind": lambda v: [gdoc(kit.phone(kit.header(v["control_app"].capitalize(), ()), '<div class="zone"><h4>Control</h4><p>%s</p></div>' % TK_CONTROL_WHY[v["control_app"]], kit.bar("Hub")))] if v.get("control") else [gdoc(tk_phone(v))], "tunit": lambda v: [tudoc(kit.phone(kit.header(v["control_app"].capitalize(), ()), '<div class="zone"><h4>Control</h4><p>%s</p></div>' % TU_CONTROL_WHY[v["control_app"]], kit.bar("Hub")))] if v.get("control") else [tudoc(tunit_phone(v))], "gword": lambda v: [m3doc(gword_phone(v))], "gtoday": lambda v: [gdoc(kit.phone(kit.header(v["control_app"].capitalize(), ()), '<div class="zone"><h4>Control</h4><p>%s</p></div>' % GT_CONTROL_WHY[v["control_app"]], kit.bar("Hub")))] if v.get("control") else [gdoc_t(gt_today(v, 5)), gdoc_t(gt_today(v, 20))], "goals": lambda v: [gdoc(kit.phone(kit.header(v["control_app"].capitalize(), ()), '<div class="zone"><h4>Control</h4><p>%s</p></div>' % G_CONTROL_WHY[v["control_app"]], kit.bar("Hub")))] if v.get("control") else [gdoc(goals_where(v)), gdoc(goals_glance(v))] + ([gdoc(goals_glance(v, "row"))] if v["glance"] == "both" else []), "run3": lambda v: [r3doc(r3_edit_place(v))] if v.get("control") else [r3doc(r3_today(v)), r3doc(r3_today(v, 5, True)), r3doc(r3_edit_place(v))], "pacerun": lambda v: [pdoc(pacerun_phone(v))] if v.get("control") else [prdoc(pacerun_phone(v)), prdoc(pacerun_phone(v, "today"))], "pace6": lambda v: [p6doc(pace6_phone(v, P6_STATES[0])), p6doc(pace6_phone(v, P6_STATES[5])), p6doc(pace6_phone(v, P6_STATES[8]))], "pace5": lambda v: [pdoc(pace5_phone(v)) if v.get("control") else p4doc(pace5_phone(v))], "pace4": lambda v: [pdoc(pace4_phone(v)) if v.get("control") else p4doc(pace4_phone(v))], "pace3": lambda v: [pdoc(pace3_phone(v)) if v.get("control") else p3doc(pace3_phone(v))], "paceplace": lambda v: [ppdoc(pp_running(v)), ppdoc(pp_today(v))], "pace": lambda v: [pdoc(pace_phone(v))], "measure3": lambda v: [m3doc(measure3_phone(v, ITEMS3_12, v.get("group", "") not in ("flat", "labels"))), m3doc(measure3_phone(v, ITEMS3_40)), measure3_desk(v)], "acts": lambda v: [adoc2(acts_phone(v, ACTS12, v.get("arrange") == "hybrid")), adoc2(acts_phone(v, ACTS30)), acts_desk(v)], "measure2": lambda v: [m2doc(measure2_phone(v, ITEMS12, v.get("group", "") in ("folding", "hybrid_fit", "hybrid_6", "hybrid_pinned"))), m2doc(measure2_phone(v, ITEMS30)), measure2_desk(v)], "measure": lambda v: [mdoc(measure_phone(v)), measure_desk(v)], "trackers": lambda v: [tdoc(trackers_phone(v))] + ([] if v.get("control") else [tdoc(trackers_phone(v, True))]) + [trackers_desk(v)], "habits2": lambda v: [h2doc(habits2_phone(v)), habits2_desk(v)], "premise": lambda v: [premise_doc(v)], "hsheet": lambda v: [adoc(addhabit_phone({"control": True}))] if v.get("control") else [hsheet_doc(v, st) for _, _, st in HSTATES], "addsent": lambda v: [sdoc(addsent_phone(v))] + ([] if (v.get("control") or v["form"] == "fields") else [sdoc(addsent_phone(v, True))]), "routines": lambda v: [rdoc(routines_phone(v)), rdoc(routines_phone(v, "low")), routines_desk(v)], "addhabit": lambda v: [adoc(addhabit_phone(v))], "basics": lambda v: [bdoc(basics_phone(v)), basics_desk(v)], "habits": lambda v: [hdoc(habits_phone(v)), habits_desk(v)]}
 T.POOL = {"trackers": lambda ok: [min((r for r in ok if r.get("front") and r["v"]["layout"] == lay and r["v"]["log"] == lg), key=lambda r: r["total"])
                                     for lay in ("rows", "grid") for lg in ("sheet", "default", "stepper")
                                     if any(r.get("front") and r["v"]["layout"] == lay and r["v"]["log"] == lg for r in ok)]
@@ -4392,6 +4652,11 @@ T.POOL["tunit"] = lambda ok: [r for r in ok if not r["v"].get("control")]
 T.POOL["tkind"] = lambda ok: [r for r in ok if not r["v"].get("control")]
 T.POOL["where"] = lambda ok: [r for r in ok if r.get("front")]
 T.DRAW_MAX["where"] = 12
+T.POOL["ipage"] = lambda ok: [r for r in ok if r.get("front")] + [min((r for r in ok if not r["v"].get("control") and r["v"][k] == x), key=lambda r: r["total"])
+                                                               for k in ("disc", "cont") for x in IPAGE_SPACE[k] if not any(r.get("front") and r["v"].get(k) == x for r in ok)]   # every graph drawn once
+T.DRAW_MAX["ipage"] = 20
+T.AXES["ipage"] = {"Density": ("-density", "cut"), "Ease": ("reach",), "Taps": ("taps",), "Possible": ("impossible",), "Glance": ("-glance",), "Calm": ("calm",),
+                   "Consistency": ("-consistency",), "Mental load": ("load",)}
 T.AXES["where"] = {"Redundancy": ("redundancy",), "Customization": ("-custom",), "Taps": ("taps",), "Possible": ("impossible",), "Glance": ("-glance",),
                    "Mental load": ("load",), "Consistency": ("inconsistent",)}
 T.AXES["tkind"] = {"Taps": ("taps", "keyboards"), "Possible": ("impossible",), "Errors": ("errors",), "Mental load": ("load",), "Consistency": ("-consistency",)}
