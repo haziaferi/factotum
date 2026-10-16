@@ -1959,6 +1959,32 @@ the work already done.” Added as `donepct`. Two measures changed with it:
   two of the three facts (not the amount left).
 - “8k of 10k steps today” says all three facts at one subtraction, and leads among the lines that say what's left.
 
-Status: **T3b.5c re-scored with the owner's form: awaiting the pick; the two requests to place.**
+Status (then): **T3b.5c re-scored with the owner's form: awaiting the pick; the two requests to place.**
+
+### T3b.5c approved: the goal line is a setting, done only by default (owner, 2026-10-16)
+
+“A user choice in settings between ‘done, window, drop, compact’ (default), ‘of, window, drop, compact’ and ‘donepct,
+window, drop, compact’.” Compact numbers from 1,000 (owner). So every style says the period in words (today, this week, this
+month), drops “last” on a row that shows a goal, and writes 1,000 and up compact (“8k”, “1.8k kcal”); time stays “45 min”,
+“1 h 30 min”.
+
+| Style | Example (Walking, a day goal) | Rank sum |
+|---|---|---|
+| **Done** (default) | “8k steps today”; once reached “10k steps today · goal reached” | 372 ★ |
+| Of | “8k of 10k steps today” | 435.5 ★ |
+| Done and share | “8k steps today · 80%” | 509 ★ |
+
+- With the default, the row says the work done; the goal itself is on the item's page (with its other options and statistics)
+  and on the row once reached. T3b.5's “20 of 30 min/day” is now the “Of” style's “20 of 30 min today”.
+- **The setting and the owner's earlier request belong together:** one place in Measuring's settings (for every item) and in an
+  item's own settings (for that item): the goal line's style, and whether it shows at all (shown by default).
+- The same line is the goal's wording on the Goals row on Today (T3b.5b) and on the item's page.
+PICKED gword: the three styles above, “done” first.
+
+Owed: the setting's class (decision 09: PERSONAL, the same on every device, or DEVICE_PREF) and the per-item override; counter
+goals (a goal with no window that resets at its target, and a reminder fired by a goal), recorded above.
+
+Status: **T3b.1d, T3b.3, T3b.4e/f/g, T3b.5, T3b.5b and T3b.5c approved.** Next in T3b: time totals and charts.
+
 
 
