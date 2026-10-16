@@ -1624,5 +1624,51 @@ in the owner's trial the fewest taps (13 over seven tasks) and no early Dones. P
 Owed to the data layer: a running timer's pause (and its total) and an end that can move while it runs; skipped rests;
 a stop that can be undone for a few seconds before it is written.
 
-Status: **T3b.1d, T3b.4e, T3b.4f and T3b.4g approved.** Next in T3b: several running timers at once (partly covered by
+Status (then): **T3b.1d, T3b.4e, T3b.4f and T3b.4g approved.** Next in T3b: several running timers at once (partly covered by
 the Today strip), goals, editing a session, time totals and charts.
+
+### T3b.3 Several running timers, a forgotten timer, editing a session (owner, 2026-10-16)
+
+The owner's answers: score all of each. Axes: T3b.4g's, plus data honesty, scale (1, 2, 3 and 5 timers running, the worse
+counting) and notification load. Part `run3`, 96 options:
+- **many** (Today's strip with several running): a card each / fold beyond 2 / fold beyond 3 into "+N running ›" / one combined card;
+- **forgot** (a timer past the limit): a notification asks / the app asks when next opened (a card on Today) / the card marks it
+  and asks when tapped / it ends on its own at the limit;
+- **cap** (the limit): 12 h / 3x the activity's usual length;
+- **edit** (a session already recorded): from the activity's page / right after a stop (Edit beside Undo, older ones from the
+  page) / from Review's day timeline.
+
+**Two options reverse earlier decisions**, scored because the owner asked for all, and marked in the table: ending at the limit
+reverses decision 07 ("nothing is ended without the person"); 3x the usual length reverses decision 09 (the limit is one
+PERSONAL setting, 12 h by default).
+
+**The control:** Chronicle, read from its code (TrackListScreen's RunningStrip, ActivityDetailScreen, ManualSessionSheet): a row
+each with ■ only, never folded; no limit; a session edited from the activity's page in a sheet of date and time pickers. Its own
+place for the strip (the Track list only) lost in T3b.4g, so it is drawn inside the approved frame (the Today strip). The first
+run drew it with no Today strip: it then sat on the front by Today's calm alone, re-deciding T3b.4g's question.
+
+**The walk** from Today, the target the timer started last: see every timer's time; pause and resume it; stop it; open its page
+and return; a forgotten timer that really ended two hours in; correct the session just stopped; correct yesterday's. A time is
+set as on the approved sheets (the box, the dial's hour and minute, Done).
+
+**Placeholders** (no data yet): Reading's usual length 45 min; the app next opened 3 h after a limit passes, a mark noticed after
+twice that; a 3x-usual limit asks once a week about a run that was only long. The order of "open" and "notify" rests on the 3 h.
+
+**Result:** the control lost (654; taps 36 against 23-31). 37 options on the front.
+
+| Option | Taps (worst n) | Forgotten h | Notifications | Edit taps | Rank sum |
+|---|---|---|---|---|---|
+| each · asks when opened · 3x usual · after a stop (reverses 09) | 23 | 5.25 | 0 | 14 | 332 |
+| each · asks when opened · **12 h** · after a stop | 23 | 15 | 0 | 14 | 380 |
+| each · notification · **12 h** · after a stop | 24 | 12 | 1 | 14 | 430.5 |
+| each · asks when opened · 12 h · Review | 26 | 15 | 0 | 17 | 443.5 |
+| fold beyond 3 · asks when opened · 3x usual · after a stop | 31 at 5 running | 5.25 | 0 | 14 | 558 |
+| one combined card · asks when opened · 3x usual · after a stop | 31 at 2+ running | 5.25 | 0 | 14 | 600 |
+
+- **A card each wins.** Folding saves rows on Today (3-4 against 5) but costs 8 taps once the target is folded and hides 40-100%
+  of the times; every fold option sits lower.
+- **Edit right after a stop wins** the common correction (5 taps against 8); Review's timeline is next and wins yesterday's.
+- **The limit decides most of the front:** 36 of 37 front options use 3x usual, which reverses decision 09. Keeping 07 and 09,
+  the best is a card each · the app asks when opened · 12 h · Edit after a stop (380), then the notification instead (430.5).
+
+Status: **T3b.3 scored: awaiting the owner's pick (and whether decision 09's limit stands).**

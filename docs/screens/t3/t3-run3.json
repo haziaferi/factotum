@@ -1,0 +1,3046 @@
+[
+ {
+  "v": {
+   "many": "each",
+   "forgot": "notify",
+   "cap": "h12",
+   "edit": "page"
+  },
+  "taps": 28,
+  "taps_n": {
+   "1": 28,
+   "2": 28,
+   "3": 28,
+   "5": 28
+  },
+  "scale_growth": 0,
+  "reach_taps": 1,
+  "seen": 1.0,
+  "stop_taps": 1,
+  "forgot_h": 12.0,
+  "unasked_h": 0.0,
+  "today_rows": 5,
+  "consistency": 2.0,
+  "notif": 1,
+  "false_asks": 0,
+  "impossible": 0,
+  "edit_taps": 18,
+  "reach": 3.496,
+  "small": [],
+  "reverses": []
+ },
+ {
+  "v": {
+   "many": "each",
+   "forgot": "notify",
+   "cap": "h12",
+   "edit": "after"
+  },
+  "taps": 24,
+  "taps_n": {
+   "1": 24,
+   "2": 24,
+   "3": 24,
+   "5": 24
+  },
+  "scale_growth": 0,
+  "reach_taps": 1,
+  "seen": 1.0,
+  "stop_taps": 1,
+  "forgot_h": 12.0,
+  "unasked_h": 0.0,
+  "today_rows": 5,
+  "consistency": 2.0,
+  "notif": 1,
+  "false_asks": 0,
+  "impossible": 0,
+  "edit_taps": 14,
+  "reach": 3.513,
+  "small": [],
+  "reverses": []
+ },
+ {
+  "v": {
+   "many": "each",
+   "forgot": "notify",
+   "cap": "h12",
+   "edit": "review"
+  },
+  "taps": 27,
+  "taps_n": {
+   "1": 27,
+   "2": 27,
+   "3": 27,
+   "5": 27
+  },
+  "scale_growth": 0,
+  "reach_taps": 1,
+  "seen": 1.0,
+  "stop_taps": 1,
+  "forgot_h": 12.0,
+  "unasked_h": 0.0,
+  "today_rows": 5,
+  "consistency": 1.5,
+  "notif": 1,
+  "false_asks": 0,
+  "impossible": 0,
+  "edit_taps": 17,
+  "reach": 3.4,
+  "small": [],
+  "reverses": []
+ },
+ {
+  "v": {
+   "many": "each",
+   "forgot": "notify",
+   "cap": "usual3",
+   "edit": "page"
+  },
+  "taps": 28,
+  "taps_n": {
+   "1": 28,
+   "2": 28,
+   "3": 28,
+   "5": 28
+  },
+  "scale_growth": 0,
+  "reach_taps": 1,
+  "seen": 1.0,
+  "stop_taps": 1,
+  "forgot_h": 2.25,
+  "unasked_h": 0.0,
+  "today_rows": 5,
+  "consistency": 2.0,
+  "notif": 2,
+  "false_asks": 1,
+  "impossible": 0,
+  "edit_taps": 18,
+  "reach": 3.496,
+  "small": [],
+  "reverses": [
+   "09: the limit is one personal setting"
+  ]
+ },
+ {
+  "v": {
+   "many": "each",
+   "forgot": "notify",
+   "cap": "usual3",
+   "edit": "after"
+  },
+  "taps": 24,
+  "taps_n": {
+   "1": 24,
+   "2": 24,
+   "3": 24,
+   "5": 24
+  },
+  "scale_growth": 0,
+  "reach_taps": 1,
+  "seen": 1.0,
+  "stop_taps": 1,
+  "forgot_h": 2.25,
+  "unasked_h": 0.0,
+  "today_rows": 5,
+  "consistency": 2.0,
+  "notif": 2,
+  "false_asks": 1,
+  "impossible": 0,
+  "edit_taps": 14,
+  "reach": 3.513,
+  "small": [],
+  "reverses": [
+   "09: the limit is one personal setting"
+  ]
+ },
+ {
+  "v": {
+   "many": "each",
+   "forgot": "notify",
+   "cap": "usual3",
+   "edit": "review"
+  },
+  "taps": 27,
+  "taps_n": {
+   "1": 27,
+   "2": 27,
+   "3": 27,
+   "5": 27
+  },
+  "scale_growth": 0,
+  "reach_taps": 1,
+  "seen": 1.0,
+  "stop_taps": 1,
+  "forgot_h": 2.25,
+  "unasked_h": 0.0,
+  "today_rows": 5,
+  "consistency": 1.5,
+  "notif": 2,
+  "false_asks": 1,
+  "impossible": 0,
+  "edit_taps": 17,
+  "reach": 3.4,
+  "small": [],
+  "reverses": [
+   "09: the limit is one personal setting"
+  ]
+ },
+ {
+  "v": {
+   "many": "each",
+   "forgot": "open",
+   "cap": "h12",
+   "edit": "page"
+  },
+  "taps": 27,
+  "taps_n": {
+   "1": 27,
+   "2": 27,
+   "3": 27,
+   "5": 27
+  },
+  "scale_growth": 0,
+  "reach_taps": 1,
+  "seen": 1.0,
+  "stop_taps": 1,
+  "forgot_h": 15.0,
+  "unasked_h": 0.0,
+  "today_rows": 5,
+  "consistency": 2.0,
+  "notif": 0,
+  "false_asks": 0,
+  "impossible": 0,
+  "edit_taps": 18,
+  "reach": 3.389,
+  "small": [],
+  "reverses": []
+ },
+ {
+  "v": {
+   "many": "each",
+   "forgot": "open",
+   "cap": "h12",
+   "edit": "after"
+  },
+  "taps": 23,
+  "taps_n": {
+   "1": 23,
+   "2": 23,
+   "3": 23,
+   "5": 23
+  },
+  "scale_growth": 0,
+  "reach_taps": 1,
+  "seen": 1.0,
+  "stop_taps": 1,
+  "forgot_h": 15.0,
+  "unasked_h": 0.0,
+  "today_rows": 5,
+  "consistency": 2.0,
+  "notif": 0,
+  "false_asks": 0,
+  "impossible": 0,
+  "edit_taps": 14,
+  "reach": 3.405,
+  "small": [],
+  "reverses": []
+ },
+ {
+  "v": {
+   "many": "each",
+   "forgot": "open",
+   "cap": "h12",
+   "edit": "review"
+  },
+  "taps": 26,
+  "taps_n": {
+   "1": 26,
+   "2": 26,
+   "3": 26,
+   "5": 26
+  },
+  "scale_growth": 0,
+  "reach_taps": 1,
+  "seen": 1.0,
+  "stop_taps": 1,
+  "forgot_h": 15.0,
+  "unasked_h": 0.0,
+  "today_rows": 5,
+  "consistency": 1.5,
+  "notif": 0,
+  "false_asks": 0,
+  "impossible": 0,
+  "edit_taps": 17,
+  "reach": 3.301,
+  "small": [],
+  "reverses": []
+ },
+ {
+  "v": {
+   "many": "each",
+   "forgot": "open",
+   "cap": "usual3",
+   "edit": "page"
+  },
+  "taps": 27,
+  "taps_n": {
+   "1": 27,
+   "2": 27,
+   "3": 27,
+   "5": 27
+  },
+  "scale_growth": 0,
+  "reach_taps": 1,
+  "seen": 1.0,
+  "stop_taps": 1,
+  "forgot_h": 5.25,
+  "unasked_h": 0.0,
+  "today_rows": 5,
+  "consistency": 2.0,
+  "notif": 0,
+  "false_asks": 1,
+  "impossible": 0,
+  "edit_taps": 18,
+  "reach": 3.389,
+  "small": [],
+  "reverses": [
+   "09: the limit is one personal setting"
+  ]
+ },
+ {
+  "v": {
+   "many": "each",
+   "forgot": "open",
+   "cap": "usual3",
+   "edit": "after"
+  },
+  "taps": 23,
+  "taps_n": {
+   "1": 23,
+   "2": 23,
+   "3": 23,
+   "5": 23
+  },
+  "scale_growth": 0,
+  "reach_taps": 1,
+  "seen": 1.0,
+  "stop_taps": 1,
+  "forgot_h": 5.25,
+  "unasked_h": 0.0,
+  "today_rows": 5,
+  "consistency": 2.0,
+  "notif": 0,
+  "false_asks": 1,
+  "impossible": 0,
+  "edit_taps": 14,
+  "reach": 3.405,
+  "small": [],
+  "reverses": [
+   "09: the limit is one personal setting"
+  ]
+ },
+ {
+  "v": {
+   "many": "each",
+   "forgot": "open",
+   "cap": "usual3",
+   "edit": "review"
+  },
+  "taps": 26,
+  "taps_n": {
+   "1": 26,
+   "2": 26,
+   "3": 26,
+   "5": 26
+  },
+  "scale_growth": 0,
+  "reach_taps": 1,
+  "seen": 1.0,
+  "stop_taps": 1,
+  "forgot_h": 5.25,
+  "unasked_h": 0.0,
+  "today_rows": 5,
+  "consistency": 1.5,
+  "notif": 0,
+  "false_asks": 1,
+  "impossible": 0,
+  "edit_taps": 17,
+  "reach": 3.301,
+  "small": [],
+  "reverses": [
+   "09: the limit is one personal setting"
+  ]
+ },
+ {
+  "v": {
+   "many": "each",
+   "forgot": "mark",
+   "cap": "h12",
+   "edit": "page"
+  },
+  "taps": 28,
+  "taps_n": {
+   "1": 28,
+   "2": 28,
+   "3": 28,
+   "5": 28
+  },
+  "scale_growth": 0,
+  "reach_taps": 1,
+  "seen": 1.0,
+  "stop_taps": 1,
+  "forgot_h": 18.0,
+  "unasked_h": 0.0,
+  "today_rows": 5,
+  "consistency": 2.0,
+  "notif": 0,
+  "false_asks": 0,
+  "impossible": 0,
+  "edit_taps": 18,
+  "reach": 3.496,
+  "small": [],
+  "reverses": []
+ },
+ {
+  "v": {
+   "many": "each",
+   "forgot": "mark",
+   "cap": "h12",
+   "edit": "after"
+  },
+  "taps": 24,
+  "taps_n": {
+   "1": 24,
+   "2": 24,
+   "3": 24,
+   "5": 24
+  },
+  "scale_growth": 0,
+  "reach_taps": 1,
+  "seen": 1.0,
+  "stop_taps": 1,
+  "forgot_h": 18.0,
+  "unasked_h": 0.0,
+  "today_rows": 5,
+  "consistency": 2.0,
+  "notif": 0,
+  "false_asks": 0,
+  "impossible": 0,
+  "edit_taps": 14,
+  "reach": 3.513,
+  "small": [],
+  "reverses": []
+ },
+ {
+  "v": {
+   "many": "each",
+   "forgot": "mark",
+   "cap": "h12",
+   "edit": "review"
+  },
+  "taps": 27,
+  "taps_n": {
+   "1": 27,
+   "2": 27,
+   "3": 27,
+   "5": 27
+  },
+  "scale_growth": 0,
+  "reach_taps": 1,
+  "seen": 1.0,
+  "stop_taps": 1,
+  "forgot_h": 18.0,
+  "unasked_h": 0.0,
+  "today_rows": 5,
+  "consistency": 1.5,
+  "notif": 0,
+  "false_asks": 0,
+  "impossible": 0,
+  "edit_taps": 17,
+  "reach": 3.4,
+  "small": [],
+  "reverses": []
+ },
+ {
+  "v": {
+   "many": "each",
+   "forgot": "mark",
+   "cap": "usual3",
+   "edit": "page"
+  },
+  "taps": 28,
+  "taps_n": {
+   "1": 28,
+   "2": 28,
+   "3": 28,
+   "5": 28
+  },
+  "scale_growth": 0,
+  "reach_taps": 1,
+  "seen": 1.0,
+  "stop_taps": 1,
+  "forgot_h": 8.25,
+  "unasked_h": 0.0,
+  "today_rows": 5,
+  "consistency": 2.0,
+  "notif": 0,
+  "false_asks": 1,
+  "impossible": 0,
+  "edit_taps": 18,
+  "reach": 3.496,
+  "small": [],
+  "reverses": [
+   "09: the limit is one personal setting"
+  ]
+ },
+ {
+  "v": {
+   "many": "each",
+   "forgot": "mark",
+   "cap": "usual3",
+   "edit": "after"
+  },
+  "taps": 24,
+  "taps_n": {
+   "1": 24,
+   "2": 24,
+   "3": 24,
+   "5": 24
+  },
+  "scale_growth": 0,
+  "reach_taps": 1,
+  "seen": 1.0,
+  "stop_taps": 1,
+  "forgot_h": 8.25,
+  "unasked_h": 0.0,
+  "today_rows": 5,
+  "consistency": 2.0,
+  "notif": 0,
+  "false_asks": 1,
+  "impossible": 0,
+  "edit_taps": 14,
+  "reach": 3.513,
+  "small": [],
+  "reverses": [
+   "09: the limit is one personal setting"
+  ]
+ },
+ {
+  "v": {
+   "many": "each",
+   "forgot": "mark",
+   "cap": "usual3",
+   "edit": "review"
+  },
+  "taps": 27,
+  "taps_n": {
+   "1": 27,
+   "2": 27,
+   "3": 27,
+   "5": 27
+  },
+  "scale_growth": 0,
+  "reach_taps": 1,
+  "seen": 1.0,
+  "stop_taps": 1,
+  "forgot_h": 8.25,
+  "unasked_h": 0.0,
+  "today_rows": 5,
+  "consistency": 1.5,
+  "notif": 0,
+  "false_asks": 1,
+  "impossible": 0,
+  "edit_taps": 17,
+  "reach": 3.4,
+  "small": [],
+  "reverses": [
+   "09: the limit is one personal setting"
+  ]
+ },
+ {
+  "v": {
+   "many": "each",
+   "forgot": "auto",
+   "cap": "h12",
+   "edit": "page"
+  },
+  "taps": 33,
+  "taps_n": {
+   "1": 33,
+   "2": 33,
+   "3": 33,
+   "5": 33
+  },
+  "scale_growth": 0,
+  "reach_taps": 1,
+  "seen": 1.0,
+  "stop_taps": 1,
+  "forgot_h": 12.0,
+  "unasked_h": 12.0,
+  "today_rows": 5,
+  "consistency": 2.0,
+  "notif": 0,
+  "false_asks": 0,
+  "impossible": 0,
+  "edit_taps": 18,
+  "reach": 3.496,
+  "small": [],
+  "reverses": [
+   "07: ends a span without the person"
+  ]
+ },
+ {
+  "v": {
+   "many": "each",
+   "forgot": "auto",
+   "cap": "h12",
+   "edit": "after"
+  },
+  "taps": 29,
+  "taps_n": {
+   "1": 29,
+   "2": 29,
+   "3": 29,
+   "5": 29
+  },
+  "scale_growth": 0,
+  "reach_taps": 1,
+  "seen": 1.0,
+  "stop_taps": 1,
+  "forgot_h": 12.0,
+  "unasked_h": 12.0,
+  "today_rows": 5,
+  "consistency": 2.0,
+  "notif": 0,
+  "false_asks": 0,
+  "impossible": 0,
+  "edit_taps": 14,
+  "reach": 3.513,
+  "small": [],
+  "reverses": [
+   "07: ends a span without the person"
+  ]
+ },
+ {
+  "v": {
+   "many": "each",
+   "forgot": "auto",
+   "cap": "h12",
+   "edit": "review"
+  },
+  "taps": 31,
+  "taps_n": {
+   "1": 31,
+   "2": 31,
+   "3": 31,
+   "5": 31
+  },
+  "scale_growth": 0,
+  "reach_taps": 1,
+  "seen": 1.0,
+  "stop_taps": 1,
+  "forgot_h": 12.0,
+  "unasked_h": 12.0,
+  "today_rows": 5,
+  "consistency": 1.5,
+  "notif": 0,
+  "false_asks": 0,
+  "impossible": 0,
+  "edit_taps": 17,
+  "reach": 3.4,
+  "small": [],
+  "reverses": [
+   "07: ends a span without the person"
+  ]
+ },
+ {
+  "v": {
+   "many": "each",
+   "forgot": "auto",
+   "cap": "usual3",
+   "edit": "page"
+  },
+  "taps": 33,
+  "taps_n": {
+   "1": 33,
+   "2": 33,
+   "3": 33,
+   "5": 33
+  },
+  "scale_growth": 0,
+  "reach_taps": 1,
+  "seen": 1.0,
+  "stop_taps": 1,
+  "forgot_h": 2.25,
+  "unasked_h": 2.25,
+  "today_rows": 5,
+  "consistency": 2.0,
+  "notif": 0,
+  "false_asks": 1,
+  "impossible": 0,
+  "edit_taps": 18,
+  "reach": 3.496,
+  "small": [],
+  "reverses": [
+   "07: ends a span without the person",
+   "09: the limit is one personal setting"
+  ]
+ },
+ {
+  "v": {
+   "many": "each",
+   "forgot": "auto",
+   "cap": "usual3",
+   "edit": "after"
+  },
+  "taps": 29,
+  "taps_n": {
+   "1": 29,
+   "2": 29,
+   "3": 29,
+   "5": 29
+  },
+  "scale_growth": 0,
+  "reach_taps": 1,
+  "seen": 1.0,
+  "stop_taps": 1,
+  "forgot_h": 2.25,
+  "unasked_h": 2.25,
+  "today_rows": 5,
+  "consistency": 2.0,
+  "notif": 0,
+  "false_asks": 1,
+  "impossible": 0,
+  "edit_taps": 14,
+  "reach": 3.513,
+  "small": [],
+  "reverses": [
+   "07: ends a span without the person",
+   "09: the limit is one personal setting"
+  ]
+ },
+ {
+  "v": {
+   "many": "each",
+   "forgot": "auto",
+   "cap": "usual3",
+   "edit": "review"
+  },
+  "taps": 31,
+  "taps_n": {
+   "1": 31,
+   "2": 31,
+   "3": 31,
+   "5": 31
+  },
+  "scale_growth": 0,
+  "reach_taps": 1,
+  "seen": 1.0,
+  "stop_taps": 1,
+  "forgot_h": 2.25,
+  "unasked_h": 2.25,
+  "today_rows": 5,
+  "consistency": 1.5,
+  "notif": 0,
+  "false_asks": 1,
+  "impossible": 0,
+  "edit_taps": 17,
+  "reach": 3.4,
+  "small": [],
+  "reverses": [
+   "07: ends a span without the person",
+   "09: the limit is one personal setting"
+  ]
+ },
+ {
+  "v": {
+   "many": "fold2",
+   "forgot": "notify",
+   "cap": "h12",
+   "edit": "page"
+  },
+  "taps": 36,
+  "taps_n": {
+   "1": 28,
+   "2": 28,
+   "3": 36,
+   "5": 36
+  },
+  "scale_growth": 8,
+  "reach_taps": 2,
+  "seen": 0.4,
+  "stop_taps": 3,
+  "forgot_h": 12.0,
+  "unasked_h": 0.0,
+  "today_rows": 3,
+  "consistency": 1.5,
+  "notif": 1,
+  "false_asks": 0,
+  "impossible": 0,
+  "edit_taps": 18,
+  "reach": 3.691,
+  "small": [],
+  "reverses": []
+ },
+ {
+  "v": {
+   "many": "fold2",
+   "forgot": "notify",
+   "cap": "h12",
+   "edit": "after"
+  },
+  "taps": 32,
+  "taps_n": {
+   "1": 24,
+   "2": 24,
+   "3": 32,
+   "5": 32
+  },
+  "scale_growth": 8,
+  "reach_taps": 2,
+  "seen": 0.4,
+  "stop_taps": 3,
+  "forgot_h": 12.0,
+  "unasked_h": 0.0,
+  "today_rows": 3,
+  "consistency": 1.5,
+  "notif": 1,
+  "false_asks": 0,
+  "impossible": 0,
+  "edit_taps": 14,
+  "reach": 3.721,
+  "small": [],
+  "reverses": []
+ },
+ {
+  "v": {
+   "many": "fold2",
+   "forgot": "notify",
+   "cap": "h12",
+   "edit": "review"
+  },
+  "taps": 35,
+  "taps_n": {
+   "1": 27,
+   "2": 27,
+   "3": 35,
+   "5": 35
+  },
+  "scale_growth": 8,
+  "reach_taps": 2,
+  "seen": 0.4,
+  "stop_taps": 3,
+  "forgot_h": 12.0,
+  "unasked_h": 0.0,
+  "today_rows": 3,
+  "consistency": 1.0,
+  "notif": 1,
+  "false_asks": 0,
+  "impossible": 0,
+  "edit_taps": 17,
+  "reach": 3.519,
+  "small": [],
+  "reverses": []
+ },
+ {
+  "v": {
+   "many": "fold2",
+   "forgot": "notify",
+   "cap": "usual3",
+   "edit": "page"
+  },
+  "taps": 36,
+  "taps_n": {
+   "1": 28,
+   "2": 28,
+   "3": 36,
+   "5": 36
+  },
+  "scale_growth": 8,
+  "reach_taps": 2,
+  "seen": 0.4,
+  "stop_taps": 3,
+  "forgot_h": 2.25,
+  "unasked_h": 0.0,
+  "today_rows": 3,
+  "consistency": 1.5,
+  "notif": 2,
+  "false_asks": 1,
+  "impossible": 0,
+  "edit_taps": 18,
+  "reach": 3.691,
+  "small": [],
+  "reverses": [
+   "09: the limit is one personal setting"
+  ]
+ },
+ {
+  "v": {
+   "many": "fold2",
+   "forgot": "notify",
+   "cap": "usual3",
+   "edit": "after"
+  },
+  "taps": 32,
+  "taps_n": {
+   "1": 24,
+   "2": 24,
+   "3": 32,
+   "5": 32
+  },
+  "scale_growth": 8,
+  "reach_taps": 2,
+  "seen": 0.4,
+  "stop_taps": 3,
+  "forgot_h": 2.25,
+  "unasked_h": 0.0,
+  "today_rows": 3,
+  "consistency": 1.5,
+  "notif": 2,
+  "false_asks": 1,
+  "impossible": 0,
+  "edit_taps": 14,
+  "reach": 3.721,
+  "small": [],
+  "reverses": [
+   "09: the limit is one personal setting"
+  ]
+ },
+ {
+  "v": {
+   "many": "fold2",
+   "forgot": "notify",
+   "cap": "usual3",
+   "edit": "review"
+  },
+  "taps": 35,
+  "taps_n": {
+   "1": 27,
+   "2": 27,
+   "3": 35,
+   "5": 35
+  },
+  "scale_growth": 8,
+  "reach_taps": 2,
+  "seen": 0.4,
+  "stop_taps": 3,
+  "forgot_h": 2.25,
+  "unasked_h": 0.0,
+  "today_rows": 3,
+  "consistency": 1.0,
+  "notif": 2,
+  "false_asks": 1,
+  "impossible": 0,
+  "edit_taps": 17,
+  "reach": 3.519,
+  "small": [],
+  "reverses": [
+   "09: the limit is one personal setting"
+  ]
+ },
+ {
+  "v": {
+   "many": "fold2",
+   "forgot": "open",
+   "cap": "h12",
+   "edit": "page"
+  },
+  "taps": 35,
+  "taps_n": {
+   "1": 27,
+   "2": 27,
+   "3": 35,
+   "5": 35
+  },
+  "scale_growth": 8,
+  "reach_taps": 2,
+  "seen": 0.4,
+  "stop_taps": 3,
+  "forgot_h": 15.0,
+  "unasked_h": 0.0,
+  "today_rows": 3,
+  "consistency": 1.5,
+  "notif": 0,
+  "false_asks": 0,
+  "impossible": 0,
+  "edit_taps": 18,
+  "reach": 3.612,
+  "small": [],
+  "reverses": []
+ },
+ {
+  "v": {
+   "many": "fold2",
+   "forgot": "open",
+   "cap": "h12",
+   "edit": "after"
+  },
+  "taps": 31,
+  "taps_n": {
+   "1": 23,
+   "2": 23,
+   "3": 31,
+   "5": 31
+  },
+  "scale_growth": 8,
+  "reach_taps": 2,
+  "seen": 0.4,
+  "stop_taps": 3,
+  "forgot_h": 15.0,
+  "unasked_h": 0.0,
+  "today_rows": 3,
+  "consistency": 1.5,
+  "notif": 0,
+  "false_asks": 0,
+  "impossible": 0,
+  "edit_taps": 14,
+  "reach": 3.639,
+  "small": [],
+  "reverses": []
+ },
+ {
+  "v": {
+   "many": "fold2",
+   "forgot": "open",
+   "cap": "h12",
+   "edit": "review"
+  },
+  "taps": 34,
+  "taps_n": {
+   "1": 26,
+   "2": 26,
+   "3": 34,
+   "5": 34
+  },
+  "scale_growth": 8,
+  "reach_taps": 2,
+  "seen": 0.4,
+  "stop_taps": 3,
+  "forgot_h": 15.0,
+  "unasked_h": 0.0,
+  "today_rows": 3,
+  "consistency": 1.0,
+  "notif": 0,
+  "false_asks": 0,
+  "impossible": 0,
+  "edit_taps": 17,
+  "reach": 3.463,
+  "small": [],
+  "reverses": []
+ },
+ {
+  "v": {
+   "many": "fold2",
+   "forgot": "open",
+   "cap": "usual3",
+   "edit": "page"
+  },
+  "taps": 35,
+  "taps_n": {
+   "1": 27,
+   "2": 27,
+   "3": 35,
+   "5": 35
+  },
+  "scale_growth": 8,
+  "reach_taps": 2,
+  "seen": 0.4,
+  "stop_taps": 3,
+  "forgot_h": 5.25,
+  "unasked_h": 0.0,
+  "today_rows": 3,
+  "consistency": 1.5,
+  "notif": 0,
+  "false_asks": 1,
+  "impossible": 0,
+  "edit_taps": 18,
+  "reach": 3.612,
+  "small": [],
+  "reverses": [
+   "09: the limit is one personal setting"
+  ]
+ },
+ {
+  "v": {
+   "many": "fold2",
+   "forgot": "open",
+   "cap": "usual3",
+   "edit": "after"
+  },
+  "taps": 31,
+  "taps_n": {
+   "1": 23,
+   "2": 23,
+   "3": 31,
+   "5": 31
+  },
+  "scale_growth": 8,
+  "reach_taps": 2,
+  "seen": 0.4,
+  "stop_taps": 3,
+  "forgot_h": 5.25,
+  "unasked_h": 0.0,
+  "today_rows": 3,
+  "consistency": 1.5,
+  "notif": 0,
+  "false_asks": 1,
+  "impossible": 0,
+  "edit_taps": 14,
+  "reach": 3.639,
+  "small": [],
+  "reverses": [
+   "09: the limit is one personal setting"
+  ]
+ },
+ {
+  "v": {
+   "many": "fold2",
+   "forgot": "open",
+   "cap": "usual3",
+   "edit": "review"
+  },
+  "taps": 34,
+  "taps_n": {
+   "1": 26,
+   "2": 26,
+   "3": 34,
+   "5": 34
+  },
+  "scale_growth": 8,
+  "reach_taps": 2,
+  "seen": 0.4,
+  "stop_taps": 3,
+  "forgot_h": 5.25,
+  "unasked_h": 0.0,
+  "today_rows": 3,
+  "consistency": 1.0,
+  "notif": 0,
+  "false_asks": 1,
+  "impossible": 0,
+  "edit_taps": 17,
+  "reach": 3.463,
+  "small": [],
+  "reverses": [
+   "09: the limit is one personal setting"
+  ]
+ },
+ {
+  "v": {
+   "many": "fold2",
+   "forgot": "mark",
+   "cap": "h12",
+   "edit": "page"
+  },
+  "taps": 37,
+  "taps_n": {
+   "1": 28,
+   "2": 28,
+   "3": 37,
+   "5": 37
+  },
+  "scale_growth": 9,
+  "reach_taps": 2,
+  "seen": 0.4,
+  "stop_taps": 3,
+  "forgot_h": 18.0,
+  "unasked_h": 0.0,
+  "today_rows": 3,
+  "consistency": 1.5,
+  "notif": 0,
+  "false_asks": 0,
+  "impossible": 0,
+  "edit_taps": 18,
+  "reach": 3.691,
+  "small": [],
+  "reverses": []
+ },
+ {
+  "v": {
+   "many": "fold2",
+   "forgot": "mark",
+   "cap": "h12",
+   "edit": "after"
+  },
+  "taps": 33,
+  "taps_n": {
+   "1": 24,
+   "2": 24,
+   "3": 33,
+   "5": 33
+  },
+  "scale_growth": 9,
+  "reach_taps": 2,
+  "seen": 0.4,
+  "stop_taps": 3,
+  "forgot_h": 18.0,
+  "unasked_h": 0.0,
+  "today_rows": 3,
+  "consistency": 1.5,
+  "notif": 0,
+  "false_asks": 0,
+  "impossible": 0,
+  "edit_taps": 14,
+  "reach": 3.721,
+  "small": [],
+  "reverses": []
+ },
+ {
+  "v": {
+   "many": "fold2",
+   "forgot": "mark",
+   "cap": "h12",
+   "edit": "review"
+  },
+  "taps": 36,
+  "taps_n": {
+   "1": 27,
+   "2": 27,
+   "3": 36,
+   "5": 36
+  },
+  "scale_growth": 9,
+  "reach_taps": 2,
+  "seen": 0.4,
+  "stop_taps": 3,
+  "forgot_h": 18.0,
+  "unasked_h": 0.0,
+  "today_rows": 3,
+  "consistency": 1.0,
+  "notif": 0,
+  "false_asks": 0,
+  "impossible": 0,
+  "edit_taps": 17,
+  "reach": 3.519,
+  "small": [],
+  "reverses": []
+ },
+ {
+  "v": {
+   "many": "fold2",
+   "forgot": "mark",
+   "cap": "usual3",
+   "edit": "page"
+  },
+  "taps": 37,
+  "taps_n": {
+   "1": 28,
+   "2": 28,
+   "3": 37,
+   "5": 37
+  },
+  "scale_growth": 9,
+  "reach_taps": 2,
+  "seen": 0.4,
+  "stop_taps": 3,
+  "forgot_h": 8.25,
+  "unasked_h": 0.0,
+  "today_rows": 3,
+  "consistency": 1.5,
+  "notif": 0,
+  "false_asks": 1,
+  "impossible": 0,
+  "edit_taps": 18,
+  "reach": 3.691,
+  "small": [],
+  "reverses": [
+   "09: the limit is one personal setting"
+  ]
+ },
+ {
+  "v": {
+   "many": "fold2",
+   "forgot": "mark",
+   "cap": "usual3",
+   "edit": "after"
+  },
+  "taps": 33,
+  "taps_n": {
+   "1": 24,
+   "2": 24,
+   "3": 33,
+   "5": 33
+  },
+  "scale_growth": 9,
+  "reach_taps": 2,
+  "seen": 0.4,
+  "stop_taps": 3,
+  "forgot_h": 8.25,
+  "unasked_h": 0.0,
+  "today_rows": 3,
+  "consistency": 1.5,
+  "notif": 0,
+  "false_asks": 1,
+  "impossible": 0,
+  "edit_taps": 14,
+  "reach": 3.721,
+  "small": [],
+  "reverses": [
+   "09: the limit is one personal setting"
+  ]
+ },
+ {
+  "v": {
+   "many": "fold2",
+   "forgot": "mark",
+   "cap": "usual3",
+   "edit": "review"
+  },
+  "taps": 36,
+  "taps_n": {
+   "1": 27,
+   "2": 27,
+   "3": 36,
+   "5": 36
+  },
+  "scale_growth": 9,
+  "reach_taps": 2,
+  "seen": 0.4,
+  "stop_taps": 3,
+  "forgot_h": 8.25,
+  "unasked_h": 0.0,
+  "today_rows": 3,
+  "consistency": 1.0,
+  "notif": 0,
+  "false_asks": 1,
+  "impossible": 0,
+  "edit_taps": 17,
+  "reach": 3.519,
+  "small": [],
+  "reverses": [
+   "09: the limit is one personal setting"
+  ]
+ },
+ {
+  "v": {
+   "many": "fold2",
+   "forgot": "auto",
+   "cap": "h12",
+   "edit": "page"
+  },
+  "taps": 41,
+  "taps_n": {
+   "1": 33,
+   "2": 33,
+   "3": 41,
+   "5": 41
+  },
+  "scale_growth": 8,
+  "reach_taps": 2,
+  "seen": 0.4,
+  "stop_taps": 3,
+  "forgot_h": 12.0,
+  "unasked_h": 12.0,
+  "today_rows": 3,
+  "consistency": 1.5,
+  "notif": 0,
+  "false_asks": 0,
+  "impossible": 0,
+  "edit_taps": 18,
+  "reach": 3.691,
+  "small": [],
+  "reverses": [
+   "07: ends a span without the person"
+  ]
+ },
+ {
+  "v": {
+   "many": "fold2",
+   "forgot": "auto",
+   "cap": "h12",
+   "edit": "after"
+  },
+  "taps": 37,
+  "taps_n": {
+   "1": 29,
+   "2": 29,
+   "3": 37,
+   "5": 37
+  },
+  "scale_growth": 8,
+  "reach_taps": 2,
+  "seen": 0.4,
+  "stop_taps": 3,
+  "forgot_h": 12.0,
+  "unasked_h": 12.0,
+  "today_rows": 3,
+  "consistency": 1.5,
+  "notif": 0,
+  "false_asks": 0,
+  "impossible": 0,
+  "edit_taps": 14,
+  "reach": 3.721,
+  "small": [],
+  "reverses": [
+   "07: ends a span without the person"
+  ]
+ },
+ {
+  "v": {
+   "many": "fold2",
+   "forgot": "auto",
+   "cap": "h12",
+   "edit": "review"
+  },
+  "taps": 39,
+  "taps_n": {
+   "1": 31,
+   "2": 31,
+   "3": 39,
+   "5": 39
+  },
+  "scale_growth": 8,
+  "reach_taps": 2,
+  "seen": 0.4,
+  "stop_taps": 3,
+  "forgot_h": 12.0,
+  "unasked_h": 12.0,
+  "today_rows": 3,
+  "consistency": 1.0,
+  "notif": 0,
+  "false_asks": 0,
+  "impossible": 0,
+  "edit_taps": 17,
+  "reach": 3.519,
+  "small": [],
+  "reverses": [
+   "07: ends a span without the person"
+  ]
+ },
+ {
+  "v": {
+   "many": "fold2",
+   "forgot": "auto",
+   "cap": "usual3",
+   "edit": "page"
+  },
+  "taps": 41,
+  "taps_n": {
+   "1": 33,
+   "2": 33,
+   "3": 41,
+   "5": 41
+  },
+  "scale_growth": 8,
+  "reach_taps": 2,
+  "seen": 0.4,
+  "stop_taps": 3,
+  "forgot_h": 2.25,
+  "unasked_h": 2.25,
+  "today_rows": 3,
+  "consistency": 1.5,
+  "notif": 0,
+  "false_asks": 1,
+  "impossible": 0,
+  "edit_taps": 18,
+  "reach": 3.691,
+  "small": [],
+  "reverses": [
+   "07: ends a span without the person",
+   "09: the limit is one personal setting"
+  ]
+ },
+ {
+  "v": {
+   "many": "fold2",
+   "forgot": "auto",
+   "cap": "usual3",
+   "edit": "after"
+  },
+  "taps": 37,
+  "taps_n": {
+   "1": 29,
+   "2": 29,
+   "3": 37,
+   "5": 37
+  },
+  "scale_growth": 8,
+  "reach_taps": 2,
+  "seen": 0.4,
+  "stop_taps": 3,
+  "forgot_h": 2.25,
+  "unasked_h": 2.25,
+  "today_rows": 3,
+  "consistency": 1.5,
+  "notif": 0,
+  "false_asks": 1,
+  "impossible": 0,
+  "edit_taps": 14,
+  "reach": 3.721,
+  "small": [],
+  "reverses": [
+   "07: ends a span without the person",
+   "09: the limit is one personal setting"
+  ]
+ },
+ {
+  "v": {
+   "many": "fold2",
+   "forgot": "auto",
+   "cap": "usual3",
+   "edit": "review"
+  },
+  "taps": 39,
+  "taps_n": {
+   "1": 31,
+   "2": 31,
+   "3": 39,
+   "5": 39
+  },
+  "scale_growth": 8,
+  "reach_taps": 2,
+  "seen": 0.4,
+  "stop_taps": 3,
+  "forgot_h": 2.25,
+  "unasked_h": 2.25,
+  "today_rows": 3,
+  "consistency": 1.0,
+  "notif": 0,
+  "false_asks": 1,
+  "impossible": 0,
+  "edit_taps": 17,
+  "reach": 3.519,
+  "small": [],
+  "reverses": [
+   "07: ends a span without the person",
+   "09: the limit is one personal setting"
+  ]
+ },
+ {
+  "v": {
+   "many": "fold3",
+   "forgot": "notify",
+   "cap": "h12",
+   "edit": "page"
+  },
+  "taps": 36,
+  "taps_n": {
+   "1": 28,
+   "2": 28,
+   "3": 28,
+   "5": 36
+  },
+  "scale_growth": 8,
+  "reach_taps": 2,
+  "seen": 0.6,
+  "stop_taps": 3,
+  "forgot_h": 12.0,
+  "unasked_h": 0.0,
+  "today_rows": 4,
+  "consistency": 1.5,
+  "notif": 1,
+  "false_asks": 0,
+  "impossible": 0,
+  "edit_taps": 18,
+  "reach": 3.622,
+  "small": [],
+  "reverses": []
+ },
+ {
+  "v": {
+   "many": "fold3",
+   "forgot": "notify",
+   "cap": "h12",
+   "edit": "after"
+  },
+  "taps": 32,
+  "taps_n": {
+   "1": 24,
+   "2": 24,
+   "3": 24,
+   "5": 32
+  },
+  "scale_growth": 8,
+  "reach_taps": 2,
+  "seen": 0.6,
+  "stop_taps": 3,
+  "forgot_h": 12.0,
+  "unasked_h": 0.0,
+  "today_rows": 4,
+  "consistency": 1.5,
+  "notif": 1,
+  "false_asks": 0,
+  "impossible": 0,
+  "edit_taps": 14,
+  "reach": 3.645,
+  "small": [],
+  "reverses": []
+ },
+ {
+  "v": {
+   "many": "fold3",
+   "forgot": "notify",
+   "cap": "h12",
+   "edit": "review"
+  },
+  "taps": 35,
+  "taps_n": {
+   "1": 27,
+   "2": 27,
+   "3": 27,
+   "5": 35
+  },
+  "scale_growth": 8,
+  "reach_taps": 2,
+  "seen": 0.6,
+  "stop_taps": 3,
+  "forgot_h": 12.0,
+  "unasked_h": 0.0,
+  "today_rows": 4,
+  "consistency": 1.0,
+  "notif": 1,
+  "false_asks": 0,
+  "impossible": 0,
+  "edit_taps": 17,
+  "reach": 3.49,
+  "small": [],
+  "reverses": []
+ },
+ {
+  "v": {
+   "many": "fold3",
+   "forgot": "notify",
+   "cap": "usual3",
+   "edit": "page"
+  },
+  "taps": 36,
+  "taps_n": {
+   "1": 28,
+   "2": 28,
+   "3": 28,
+   "5": 36
+  },
+  "scale_growth": 8,
+  "reach_taps": 2,
+  "seen": 0.6,
+  "stop_taps": 3,
+  "forgot_h": 2.25,
+  "unasked_h": 0.0,
+  "today_rows": 4,
+  "consistency": 1.5,
+  "notif": 2,
+  "false_asks": 1,
+  "impossible": 0,
+  "edit_taps": 18,
+  "reach": 3.622,
+  "small": [],
+  "reverses": [
+   "09: the limit is one personal setting"
+  ]
+ },
+ {
+  "v": {
+   "many": "fold3",
+   "forgot": "notify",
+   "cap": "usual3",
+   "edit": "after"
+  },
+  "taps": 32,
+  "taps_n": {
+   "1": 24,
+   "2": 24,
+   "3": 24,
+   "5": 32
+  },
+  "scale_growth": 8,
+  "reach_taps": 2,
+  "seen": 0.6,
+  "stop_taps": 3,
+  "forgot_h": 2.25,
+  "unasked_h": 0.0,
+  "today_rows": 4,
+  "consistency": 1.5,
+  "notif": 2,
+  "false_asks": 1,
+  "impossible": 0,
+  "edit_taps": 14,
+  "reach": 3.645,
+  "small": [],
+  "reverses": [
+   "09: the limit is one personal setting"
+  ]
+ },
+ {
+  "v": {
+   "many": "fold3",
+   "forgot": "notify",
+   "cap": "usual3",
+   "edit": "review"
+  },
+  "taps": 35,
+  "taps_n": {
+   "1": 27,
+   "2": 27,
+   "3": 27,
+   "5": 35
+  },
+  "scale_growth": 8,
+  "reach_taps": 2,
+  "seen": 0.6,
+  "stop_taps": 3,
+  "forgot_h": 2.25,
+  "unasked_h": 0.0,
+  "today_rows": 4,
+  "consistency": 1.0,
+  "notif": 2,
+  "false_asks": 1,
+  "impossible": 0,
+  "edit_taps": 17,
+  "reach": 3.49,
+  "small": [],
+  "reverses": [
+   "09: the limit is one personal setting"
+  ]
+ },
+ {
+  "v": {
+   "many": "fold3",
+   "forgot": "open",
+   "cap": "h12",
+   "edit": "page"
+  },
+  "taps": 35,
+  "taps_n": {
+   "1": 27,
+   "2": 27,
+   "3": 27,
+   "5": 35
+  },
+  "scale_growth": 8,
+  "reach_taps": 2,
+  "seen": 0.6,
+  "stop_taps": 3,
+  "forgot_h": 15.0,
+  "unasked_h": 0.0,
+  "today_rows": 4,
+  "consistency": 1.5,
+  "notif": 0,
+  "false_asks": 0,
+  "impossible": 0,
+  "edit_taps": 18,
+  "reach": 3.533,
+  "small": [],
+  "reverses": []
+ },
+ {
+  "v": {
+   "many": "fold3",
+   "forgot": "open",
+   "cap": "h12",
+   "edit": "after"
+  },
+  "taps": 31,
+  "taps_n": {
+   "1": 23,
+   "2": 23,
+   "3": 23,
+   "5": 31
+  },
+  "scale_growth": 8,
+  "reach_taps": 2,
+  "seen": 0.6,
+  "stop_taps": 3,
+  "forgot_h": 15.0,
+  "unasked_h": 0.0,
+  "today_rows": 4,
+  "consistency": 1.5,
+  "notif": 0,
+  "false_asks": 0,
+  "impossible": 0,
+  "edit_taps": 14,
+  "reach": 3.553,
+  "small": [],
+  "reverses": []
+ },
+ {
+  "v": {
+   "many": "fold3",
+   "forgot": "open",
+   "cap": "h12",
+   "edit": "review"
+  },
+  "taps": 34,
+  "taps_n": {
+   "1": 26,
+   "2": 26,
+   "3": 26,
+   "5": 34
+  },
+  "scale_growth": 8,
+  "reach_taps": 2,
+  "seen": 0.6,
+  "stop_taps": 3,
+  "forgot_h": 15.0,
+  "unasked_h": 0.0,
+  "today_rows": 4,
+  "consistency": 1.0,
+  "notif": 0,
+  "false_asks": 0,
+  "impossible": 0,
+  "edit_taps": 17,
+  "reach": 3.414,
+  "small": [],
+  "reverses": []
+ },
+ {
+  "v": {
+   "many": "fold3",
+   "forgot": "open",
+   "cap": "usual3",
+   "edit": "page"
+  },
+  "taps": 35,
+  "taps_n": {
+   "1": 27,
+   "2": 27,
+   "3": 27,
+   "5": 35
+  },
+  "scale_growth": 8,
+  "reach_taps": 2,
+  "seen": 0.6,
+  "stop_taps": 3,
+  "forgot_h": 5.25,
+  "unasked_h": 0.0,
+  "today_rows": 4,
+  "consistency": 1.5,
+  "notif": 0,
+  "false_asks": 1,
+  "impossible": 0,
+  "edit_taps": 18,
+  "reach": 3.533,
+  "small": [],
+  "reverses": [
+   "09: the limit is one personal setting"
+  ]
+ },
+ {
+  "v": {
+   "many": "fold3",
+   "forgot": "open",
+   "cap": "usual3",
+   "edit": "after"
+  },
+  "taps": 31,
+  "taps_n": {
+   "1": 23,
+   "2": 23,
+   "3": 23,
+   "5": 31
+  },
+  "scale_growth": 8,
+  "reach_taps": 2,
+  "seen": 0.6,
+  "stop_taps": 3,
+  "forgot_h": 5.25,
+  "unasked_h": 0.0,
+  "today_rows": 4,
+  "consistency": 1.5,
+  "notif": 0,
+  "false_asks": 1,
+  "impossible": 0,
+  "edit_taps": 14,
+  "reach": 3.553,
+  "small": [],
+  "reverses": [
+   "09: the limit is one personal setting"
+  ]
+ },
+ {
+  "v": {
+   "many": "fold3",
+   "forgot": "open",
+   "cap": "usual3",
+   "edit": "review"
+  },
+  "taps": 34,
+  "taps_n": {
+   "1": 26,
+   "2": 26,
+   "3": 26,
+   "5": 34
+  },
+  "scale_growth": 8,
+  "reach_taps": 2,
+  "seen": 0.6,
+  "stop_taps": 3,
+  "forgot_h": 5.25,
+  "unasked_h": 0.0,
+  "today_rows": 4,
+  "consistency": 1.0,
+  "notif": 0,
+  "false_asks": 1,
+  "impossible": 0,
+  "edit_taps": 17,
+  "reach": 3.414,
+  "small": [],
+  "reverses": [
+   "09: the limit is one personal setting"
+  ]
+ },
+ {
+  "v": {
+   "many": "fold3",
+   "forgot": "mark",
+   "cap": "h12",
+   "edit": "page"
+  },
+  "taps": 37,
+  "taps_n": {
+   "1": 28,
+   "2": 28,
+   "3": 28,
+   "5": 37
+  },
+  "scale_growth": 9,
+  "reach_taps": 2,
+  "seen": 0.6,
+  "stop_taps": 3,
+  "forgot_h": 18.0,
+  "unasked_h": 0.0,
+  "today_rows": 4,
+  "consistency": 1.5,
+  "notif": 0,
+  "false_asks": 0,
+  "impossible": 0,
+  "edit_taps": 18,
+  "reach": 3.622,
+  "small": [],
+  "reverses": []
+ },
+ {
+  "v": {
+   "many": "fold3",
+   "forgot": "mark",
+   "cap": "h12",
+   "edit": "after"
+  },
+  "taps": 33,
+  "taps_n": {
+   "1": 24,
+   "2": 24,
+   "3": 24,
+   "5": 33
+  },
+  "scale_growth": 9,
+  "reach_taps": 2,
+  "seen": 0.6,
+  "stop_taps": 3,
+  "forgot_h": 18.0,
+  "unasked_h": 0.0,
+  "today_rows": 4,
+  "consistency": 1.5,
+  "notif": 0,
+  "false_asks": 0,
+  "impossible": 0,
+  "edit_taps": 14,
+  "reach": 3.645,
+  "small": [],
+  "reverses": []
+ },
+ {
+  "v": {
+   "many": "fold3",
+   "forgot": "mark",
+   "cap": "h12",
+   "edit": "review"
+  },
+  "taps": 36,
+  "taps_n": {
+   "1": 27,
+   "2": 27,
+   "3": 27,
+   "5": 36
+  },
+  "scale_growth": 9,
+  "reach_taps": 2,
+  "seen": 0.6,
+  "stop_taps": 3,
+  "forgot_h": 18.0,
+  "unasked_h": 0.0,
+  "today_rows": 4,
+  "consistency": 1.0,
+  "notif": 0,
+  "false_asks": 0,
+  "impossible": 0,
+  "edit_taps": 17,
+  "reach": 3.49,
+  "small": [],
+  "reverses": []
+ },
+ {
+  "v": {
+   "many": "fold3",
+   "forgot": "mark",
+   "cap": "usual3",
+   "edit": "page"
+  },
+  "taps": 37,
+  "taps_n": {
+   "1": 28,
+   "2": 28,
+   "3": 28,
+   "5": 37
+  },
+  "scale_growth": 9,
+  "reach_taps": 2,
+  "seen": 0.6,
+  "stop_taps": 3,
+  "forgot_h": 8.25,
+  "unasked_h": 0.0,
+  "today_rows": 4,
+  "consistency": 1.5,
+  "notif": 0,
+  "false_asks": 1,
+  "impossible": 0,
+  "edit_taps": 18,
+  "reach": 3.622,
+  "small": [],
+  "reverses": [
+   "09: the limit is one personal setting"
+  ]
+ },
+ {
+  "v": {
+   "many": "fold3",
+   "forgot": "mark",
+   "cap": "usual3",
+   "edit": "after"
+  },
+  "taps": 33,
+  "taps_n": {
+   "1": 24,
+   "2": 24,
+   "3": 24,
+   "5": 33
+  },
+  "scale_growth": 9,
+  "reach_taps": 2,
+  "seen": 0.6,
+  "stop_taps": 3,
+  "forgot_h": 8.25,
+  "unasked_h": 0.0,
+  "today_rows": 4,
+  "consistency": 1.5,
+  "notif": 0,
+  "false_asks": 1,
+  "impossible": 0,
+  "edit_taps": 14,
+  "reach": 3.645,
+  "small": [],
+  "reverses": [
+   "09: the limit is one personal setting"
+  ]
+ },
+ {
+  "v": {
+   "many": "fold3",
+   "forgot": "mark",
+   "cap": "usual3",
+   "edit": "review"
+  },
+  "taps": 36,
+  "taps_n": {
+   "1": 27,
+   "2": 27,
+   "3": 27,
+   "5": 36
+  },
+  "scale_growth": 9,
+  "reach_taps": 2,
+  "seen": 0.6,
+  "stop_taps": 3,
+  "forgot_h": 8.25,
+  "unasked_h": 0.0,
+  "today_rows": 4,
+  "consistency": 1.0,
+  "notif": 0,
+  "false_asks": 1,
+  "impossible": 0,
+  "edit_taps": 17,
+  "reach": 3.49,
+  "small": [],
+  "reverses": [
+   "09: the limit is one personal setting"
+  ]
+ },
+ {
+  "v": {
+   "many": "fold3",
+   "forgot": "auto",
+   "cap": "h12",
+   "edit": "page"
+  },
+  "taps": 41,
+  "taps_n": {
+   "1": 33,
+   "2": 33,
+   "3": 33,
+   "5": 41
+  },
+  "scale_growth": 8,
+  "reach_taps": 2,
+  "seen": 0.6,
+  "stop_taps": 3,
+  "forgot_h": 12.0,
+  "unasked_h": 12.0,
+  "today_rows": 4,
+  "consistency": 1.5,
+  "notif": 0,
+  "false_asks": 0,
+  "impossible": 0,
+  "edit_taps": 18,
+  "reach": 3.622,
+  "small": [],
+  "reverses": [
+   "07: ends a span without the person"
+  ]
+ },
+ {
+  "v": {
+   "many": "fold3",
+   "forgot": "auto",
+   "cap": "h12",
+   "edit": "after"
+  },
+  "taps": 37,
+  "taps_n": {
+   "1": 29,
+   "2": 29,
+   "3": 29,
+   "5": 37
+  },
+  "scale_growth": 8,
+  "reach_taps": 2,
+  "seen": 0.6,
+  "stop_taps": 3,
+  "forgot_h": 12.0,
+  "unasked_h": 12.0,
+  "today_rows": 4,
+  "consistency": 1.5,
+  "notif": 0,
+  "false_asks": 0,
+  "impossible": 0,
+  "edit_taps": 14,
+  "reach": 3.645,
+  "small": [],
+  "reverses": [
+   "07: ends a span without the person"
+  ]
+ },
+ {
+  "v": {
+   "many": "fold3",
+   "forgot": "auto",
+   "cap": "h12",
+   "edit": "review"
+  },
+  "taps": 39,
+  "taps_n": {
+   "1": 31,
+   "2": 31,
+   "3": 31,
+   "5": 39
+  },
+  "scale_growth": 8,
+  "reach_taps": 2,
+  "seen": 0.6,
+  "stop_taps": 3,
+  "forgot_h": 12.0,
+  "unasked_h": 12.0,
+  "today_rows": 4,
+  "consistency": 1.0,
+  "notif": 0,
+  "false_asks": 0,
+  "impossible": 0,
+  "edit_taps": 17,
+  "reach": 3.49,
+  "small": [],
+  "reverses": [
+   "07: ends a span without the person"
+  ]
+ },
+ {
+  "v": {
+   "many": "fold3",
+   "forgot": "auto",
+   "cap": "usual3",
+   "edit": "page"
+  },
+  "taps": 41,
+  "taps_n": {
+   "1": 33,
+   "2": 33,
+   "3": 33,
+   "5": 41
+  },
+  "scale_growth": 8,
+  "reach_taps": 2,
+  "seen": 0.6,
+  "stop_taps": 3,
+  "forgot_h": 2.25,
+  "unasked_h": 2.25,
+  "today_rows": 4,
+  "consistency": 1.5,
+  "notif": 0,
+  "false_asks": 1,
+  "impossible": 0,
+  "edit_taps": 18,
+  "reach": 3.622,
+  "small": [],
+  "reverses": [
+   "07: ends a span without the person",
+   "09: the limit is one personal setting"
+  ]
+ },
+ {
+  "v": {
+   "many": "fold3",
+   "forgot": "auto",
+   "cap": "usual3",
+   "edit": "after"
+  },
+  "taps": 37,
+  "taps_n": {
+   "1": 29,
+   "2": 29,
+   "3": 29,
+   "5": 37
+  },
+  "scale_growth": 8,
+  "reach_taps": 2,
+  "seen": 0.6,
+  "stop_taps": 3,
+  "forgot_h": 2.25,
+  "unasked_h": 2.25,
+  "today_rows": 4,
+  "consistency": 1.5,
+  "notif": 0,
+  "false_asks": 1,
+  "impossible": 0,
+  "edit_taps": 14,
+  "reach": 3.645,
+  "small": [],
+  "reverses": [
+   "07: ends a span without the person",
+   "09: the limit is one personal setting"
+  ]
+ },
+ {
+  "v": {
+   "many": "fold3",
+   "forgot": "auto",
+   "cap": "usual3",
+   "edit": "review"
+  },
+  "taps": 39,
+  "taps_n": {
+   "1": 31,
+   "2": 31,
+   "3": 31,
+   "5": 39
+  },
+  "scale_growth": 8,
+  "reach_taps": 2,
+  "seen": 0.6,
+  "stop_taps": 3,
+  "forgot_h": 2.25,
+  "unasked_h": 2.25,
+  "today_rows": 4,
+  "consistency": 1.0,
+  "notif": 0,
+  "false_asks": 1,
+  "impossible": 0,
+  "edit_taps": 17,
+  "reach": 3.49,
+  "small": [],
+  "reverses": [
+   "07: ends a span without the person",
+   "09: the limit is one personal setting"
+  ]
+ },
+ {
+  "v": {
+   "many": "one",
+   "forgot": "notify",
+   "cap": "h12",
+   "edit": "page"
+  },
+  "taps": 36,
+  "taps_n": {
+   "1": 28,
+   "2": 36,
+   "3": 36,
+   "5": 36
+  },
+  "scale_growth": 8,
+  "reach_taps": 2,
+  "seen": 0.0,
+  "stop_taps": 3,
+  "forgot_h": 12.0,
+  "unasked_h": 0.0,
+  "today_rows": 1,
+  "consistency": 1.5,
+  "notif": 1,
+  "false_asks": 0,
+  "impossible": 0,
+  "edit_taps": 18,
+  "reach": 3.768,
+  "small": [],
+  "reverses": []
+ },
+ {
+  "v": {
+   "many": "one",
+   "forgot": "notify",
+   "cap": "h12",
+   "edit": "after"
+  },
+  "taps": 32,
+  "taps_n": {
+   "1": 24,
+   "2": 32,
+   "3": 32,
+   "5": 32
+  },
+  "scale_growth": 8,
+  "reach_taps": 2,
+  "seen": 0.0,
+  "stop_taps": 3,
+  "forgot_h": 12.0,
+  "unasked_h": 0.0,
+  "today_rows": 1,
+  "consistency": 1.5,
+  "notif": 1,
+  "false_asks": 0,
+  "impossible": 0,
+  "edit_taps": 14,
+  "reach": 3.844,
+  "small": [],
+  "reverses": []
+ },
+ {
+  "v": {
+   "many": "one",
+   "forgot": "notify",
+   "cap": "h12",
+   "edit": "review"
+  },
+  "taps": 35,
+  "taps_n": {
+   "1": 27,
+   "2": 35,
+   "3": 35,
+   "5": 35
+  },
+  "scale_growth": 8,
+  "reach_taps": 2,
+  "seen": 0.0,
+  "stop_taps": 3,
+  "forgot_h": 12.0,
+  "unasked_h": 0.0,
+  "today_rows": 1,
+  "consistency": 1.0,
+  "notif": 1,
+  "false_asks": 0,
+  "impossible": 0,
+  "edit_taps": 17,
+  "reach": 3.339,
+  "small": [],
+  "reverses": []
+ },
+ {
+  "v": {
+   "many": "one",
+   "forgot": "notify",
+   "cap": "usual3",
+   "edit": "page"
+  },
+  "taps": 36,
+  "taps_n": {
+   "1": 28,
+   "2": 36,
+   "3": 36,
+   "5": 36
+  },
+  "scale_growth": 8,
+  "reach_taps": 2,
+  "seen": 0.0,
+  "stop_taps": 3,
+  "forgot_h": 2.25,
+  "unasked_h": 0.0,
+  "today_rows": 1,
+  "consistency": 1.5,
+  "notif": 2,
+  "false_asks": 1,
+  "impossible": 0,
+  "edit_taps": 18,
+  "reach": 3.768,
+  "small": [],
+  "reverses": [
+   "09: the limit is one personal setting"
+  ]
+ },
+ {
+  "v": {
+   "many": "one",
+   "forgot": "notify",
+   "cap": "usual3",
+   "edit": "after"
+  },
+  "taps": 32,
+  "taps_n": {
+   "1": 24,
+   "2": 32,
+   "3": 32,
+   "5": 32
+  },
+  "scale_growth": 8,
+  "reach_taps": 2,
+  "seen": 0.0,
+  "stop_taps": 3,
+  "forgot_h": 2.25,
+  "unasked_h": 0.0,
+  "today_rows": 1,
+  "consistency": 1.5,
+  "notif": 2,
+  "false_asks": 1,
+  "impossible": 0,
+  "edit_taps": 14,
+  "reach": 3.844,
+  "small": [],
+  "reverses": [
+   "09: the limit is one personal setting"
+  ]
+ },
+ {
+  "v": {
+   "many": "one",
+   "forgot": "notify",
+   "cap": "usual3",
+   "edit": "review"
+  },
+  "taps": 35,
+  "taps_n": {
+   "1": 27,
+   "2": 35,
+   "3": 35,
+   "5": 35
+  },
+  "scale_growth": 8,
+  "reach_taps": 2,
+  "seen": 0.0,
+  "stop_taps": 3,
+  "forgot_h": 2.25,
+  "unasked_h": 0.0,
+  "today_rows": 1,
+  "consistency": 1.0,
+  "notif": 2,
+  "false_asks": 1,
+  "impossible": 0,
+  "edit_taps": 17,
+  "reach": 3.339,
+  "small": [],
+  "reverses": [
+   "09: the limit is one personal setting"
+  ]
+ },
+ {
+  "v": {
+   "many": "one",
+   "forgot": "open",
+   "cap": "h12",
+   "edit": "page"
+  },
+  "taps": 35,
+  "taps_n": {
+   "1": 27,
+   "2": 35,
+   "3": 35,
+   "5": 35
+  },
+  "scale_growth": 8,
+  "reach_taps": 2,
+  "seen": 0.0,
+  "stop_taps": 3,
+  "forgot_h": 15.0,
+  "unasked_h": 0.0,
+  "today_rows": 1,
+  "consistency": 1.5,
+  "notif": 0,
+  "false_asks": 0,
+  "impossible": 0,
+  "edit_taps": 18,
+  "reach": 3.733,
+  "small": [],
+  "reverses": []
+ },
+ {
+  "v": {
+   "many": "one",
+   "forgot": "open",
+   "cap": "h12",
+   "edit": "after"
+  },
+  "taps": 31,
+  "taps_n": {
+   "1": 23,
+   "2": 31,
+   "3": 31,
+   "5": 31
+  },
+  "scale_growth": 8,
+  "reach_taps": 2,
+  "seen": 0.0,
+  "stop_taps": 3,
+  "forgot_h": 15.0,
+  "unasked_h": 0.0,
+  "today_rows": 1,
+  "consistency": 1.5,
+  "notif": 0,
+  "false_asks": 0,
+  "impossible": 0,
+  "edit_taps": 14,
+  "reach": 3.788,
+  "small": [],
+  "reverses": []
+ },
+ {
+  "v": {
+   "many": "one",
+   "forgot": "open",
+   "cap": "h12",
+   "edit": "review"
+  },
+  "taps": 34,
+  "taps_n": {
+   "1": 26,
+   "2": 34,
+   "3": 34,
+   "5": 34
+  },
+  "scale_growth": 8,
+  "reach_taps": 2,
+  "seen": 0.0,
+  "stop_taps": 3,
+  "forgot_h": 15.0,
+  "unasked_h": 0.0,
+  "today_rows": 1,
+  "consistency": 1.0,
+  "notif": 0,
+  "false_asks": 0,
+  "impossible": 0,
+  "edit_taps": 17,
+  "reach": 3.42,
+  "small": [],
+  "reverses": []
+ },
+ {
+  "v": {
+   "many": "one",
+   "forgot": "open",
+   "cap": "usual3",
+   "edit": "page"
+  },
+  "taps": 35,
+  "taps_n": {
+   "1": 27,
+   "2": 35,
+   "3": 35,
+   "5": 35
+  },
+  "scale_growth": 8,
+  "reach_taps": 2,
+  "seen": 0.0,
+  "stop_taps": 3,
+  "forgot_h": 5.25,
+  "unasked_h": 0.0,
+  "today_rows": 1,
+  "consistency": 1.5,
+  "notif": 0,
+  "false_asks": 1,
+  "impossible": 0,
+  "edit_taps": 18,
+  "reach": 3.733,
+  "small": [],
+  "reverses": [
+   "09: the limit is one personal setting"
+  ]
+ },
+ {
+  "v": {
+   "many": "one",
+   "forgot": "open",
+   "cap": "usual3",
+   "edit": "after"
+  },
+  "taps": 31,
+  "taps_n": {
+   "1": 23,
+   "2": 31,
+   "3": 31,
+   "5": 31
+  },
+  "scale_growth": 8,
+  "reach_taps": 2,
+  "seen": 0.0,
+  "stop_taps": 3,
+  "forgot_h": 5.25,
+  "unasked_h": 0.0,
+  "today_rows": 1,
+  "consistency": 1.5,
+  "notif": 0,
+  "false_asks": 1,
+  "impossible": 0,
+  "edit_taps": 14,
+  "reach": 3.788,
+  "small": [],
+  "reverses": [
+   "09: the limit is one personal setting"
+  ]
+ },
+ {
+  "v": {
+   "many": "one",
+   "forgot": "open",
+   "cap": "usual3",
+   "edit": "review"
+  },
+  "taps": 34,
+  "taps_n": {
+   "1": 26,
+   "2": 34,
+   "3": 34,
+   "5": 34
+  },
+  "scale_growth": 8,
+  "reach_taps": 2,
+  "seen": 0.0,
+  "stop_taps": 3,
+  "forgot_h": 5.25,
+  "unasked_h": 0.0,
+  "today_rows": 1,
+  "consistency": 1.0,
+  "notif": 0,
+  "false_asks": 1,
+  "impossible": 0,
+  "edit_taps": 17,
+  "reach": 3.42,
+  "small": [],
+  "reverses": [
+   "09: the limit is one personal setting"
+  ]
+ },
+ {
+  "v": {
+   "many": "one",
+   "forgot": "mark",
+   "cap": "h12",
+   "edit": "page"
+  },
+  "taps": 37,
+  "taps_n": {
+   "1": 28,
+   "2": 37,
+   "3": 37,
+   "5": 37
+  },
+  "scale_growth": 9,
+  "reach_taps": 2,
+  "seen": 0.0,
+  "stop_taps": 3,
+  "forgot_h": 18.0,
+  "unasked_h": 0.0,
+  "today_rows": 1,
+  "consistency": 1.5,
+  "notif": 0,
+  "false_asks": 0,
+  "impossible": 0,
+  "edit_taps": 18,
+  "reach": 3.768,
+  "small": [],
+  "reverses": []
+ },
+ {
+  "v": {
+   "many": "one",
+   "forgot": "mark",
+   "cap": "h12",
+   "edit": "after"
+  },
+  "taps": 33,
+  "taps_n": {
+   "1": 24,
+   "2": 33,
+   "3": 33,
+   "5": 33
+  },
+  "scale_growth": 9,
+  "reach_taps": 2,
+  "seen": 0.0,
+  "stop_taps": 3,
+  "forgot_h": 18.0,
+  "unasked_h": 0.0,
+  "today_rows": 1,
+  "consistency": 1.5,
+  "notif": 0,
+  "false_asks": 0,
+  "impossible": 0,
+  "edit_taps": 14,
+  "reach": 3.844,
+  "small": [],
+  "reverses": []
+ },
+ {
+  "v": {
+   "many": "one",
+   "forgot": "mark",
+   "cap": "h12",
+   "edit": "review"
+  },
+  "taps": 36,
+  "taps_n": {
+   "1": 27,
+   "2": 36,
+   "3": 36,
+   "5": 36
+  },
+  "scale_growth": 9,
+  "reach_taps": 2,
+  "seen": 0.0,
+  "stop_taps": 3,
+  "forgot_h": 18.0,
+  "unasked_h": 0.0,
+  "today_rows": 1,
+  "consistency": 1.0,
+  "notif": 0,
+  "false_asks": 0,
+  "impossible": 0,
+  "edit_taps": 17,
+  "reach": 3.339,
+  "small": [],
+  "reverses": []
+ },
+ {
+  "v": {
+   "many": "one",
+   "forgot": "mark",
+   "cap": "usual3",
+   "edit": "page"
+  },
+  "taps": 37,
+  "taps_n": {
+   "1": 28,
+   "2": 37,
+   "3": 37,
+   "5": 37
+  },
+  "scale_growth": 9,
+  "reach_taps": 2,
+  "seen": 0.0,
+  "stop_taps": 3,
+  "forgot_h": 8.25,
+  "unasked_h": 0.0,
+  "today_rows": 1,
+  "consistency": 1.5,
+  "notif": 0,
+  "false_asks": 1,
+  "impossible": 0,
+  "edit_taps": 18,
+  "reach": 3.768,
+  "small": [],
+  "reverses": [
+   "09: the limit is one personal setting"
+  ]
+ },
+ {
+  "v": {
+   "many": "one",
+   "forgot": "mark",
+   "cap": "usual3",
+   "edit": "after"
+  },
+  "taps": 33,
+  "taps_n": {
+   "1": 24,
+   "2": 33,
+   "3": 33,
+   "5": 33
+  },
+  "scale_growth": 9,
+  "reach_taps": 2,
+  "seen": 0.0,
+  "stop_taps": 3,
+  "forgot_h": 8.25,
+  "unasked_h": 0.0,
+  "today_rows": 1,
+  "consistency": 1.5,
+  "notif": 0,
+  "false_asks": 1,
+  "impossible": 0,
+  "edit_taps": 14,
+  "reach": 3.844,
+  "small": [],
+  "reverses": [
+   "09: the limit is one personal setting"
+  ]
+ },
+ {
+  "v": {
+   "many": "one",
+   "forgot": "mark",
+   "cap": "usual3",
+   "edit": "review"
+  },
+  "taps": 36,
+  "taps_n": {
+   "1": 27,
+   "2": 36,
+   "3": 36,
+   "5": 36
+  },
+  "scale_growth": 9,
+  "reach_taps": 2,
+  "seen": 0.0,
+  "stop_taps": 3,
+  "forgot_h": 8.25,
+  "unasked_h": 0.0,
+  "today_rows": 1,
+  "consistency": 1.0,
+  "notif": 0,
+  "false_asks": 1,
+  "impossible": 0,
+  "edit_taps": 17,
+  "reach": 3.339,
+  "small": [],
+  "reverses": [
+   "09: the limit is one personal setting"
+  ]
+ },
+ {
+  "v": {
+   "many": "one",
+   "forgot": "auto",
+   "cap": "h12",
+   "edit": "page"
+  },
+  "taps": 41,
+  "taps_n": {
+   "1": 33,
+   "2": 41,
+   "3": 41,
+   "5": 41
+  },
+  "scale_growth": 8,
+  "reach_taps": 2,
+  "seen": 0.0,
+  "stop_taps": 3,
+  "forgot_h": 12.0,
+  "unasked_h": 12.0,
+  "today_rows": 1,
+  "consistency": 1.5,
+  "notif": 0,
+  "false_asks": 0,
+  "impossible": 0,
+  "edit_taps": 18,
+  "reach": 3.768,
+  "small": [],
+  "reverses": [
+   "07: ends a span without the person"
+  ]
+ },
+ {
+  "v": {
+   "many": "one",
+   "forgot": "auto",
+   "cap": "h12",
+   "edit": "after"
+  },
+  "taps": 37,
+  "taps_n": {
+   "1": 29,
+   "2": 37,
+   "3": 37,
+   "5": 37
+  },
+  "scale_growth": 8,
+  "reach_taps": 2,
+  "seen": 0.0,
+  "stop_taps": 3,
+  "forgot_h": 12.0,
+  "unasked_h": 12.0,
+  "today_rows": 1,
+  "consistency": 1.5,
+  "notif": 0,
+  "false_asks": 0,
+  "impossible": 0,
+  "edit_taps": 14,
+  "reach": 3.844,
+  "small": [],
+  "reverses": [
+   "07: ends a span without the person"
+  ]
+ },
+ {
+  "v": {
+   "many": "one",
+   "forgot": "auto",
+   "cap": "h12",
+   "edit": "review"
+  },
+  "taps": 39,
+  "taps_n": {
+   "1": 31,
+   "2": 39,
+   "3": 39,
+   "5": 39
+  },
+  "scale_growth": 8,
+  "reach_taps": 2,
+  "seen": 0.0,
+  "stop_taps": 3,
+  "forgot_h": 12.0,
+  "unasked_h": 12.0,
+  "today_rows": 1,
+  "consistency": 1.0,
+  "notif": 0,
+  "false_asks": 0,
+  "impossible": 0,
+  "edit_taps": 17,
+  "reach": 3.339,
+  "small": [],
+  "reverses": [
+   "07: ends a span without the person"
+  ]
+ },
+ {
+  "v": {
+   "many": "one",
+   "forgot": "auto",
+   "cap": "usual3",
+   "edit": "page"
+  },
+  "taps": 41,
+  "taps_n": {
+   "1": 33,
+   "2": 41,
+   "3": 41,
+   "5": 41
+  },
+  "scale_growth": 8,
+  "reach_taps": 2,
+  "seen": 0.0,
+  "stop_taps": 3,
+  "forgot_h": 2.25,
+  "unasked_h": 2.25,
+  "today_rows": 1,
+  "consistency": 1.5,
+  "notif": 0,
+  "false_asks": 1,
+  "impossible": 0,
+  "edit_taps": 18,
+  "reach": 3.768,
+  "small": [],
+  "reverses": [
+   "07: ends a span without the person",
+   "09: the limit is one personal setting"
+  ]
+ },
+ {
+  "v": {
+   "many": "one",
+   "forgot": "auto",
+   "cap": "usual3",
+   "edit": "after"
+  },
+  "taps": 37,
+  "taps_n": {
+   "1": 29,
+   "2": 37,
+   "3": 37,
+   "5": 37
+  },
+  "scale_growth": 8,
+  "reach_taps": 2,
+  "seen": 0.0,
+  "stop_taps": 3,
+  "forgot_h": 2.25,
+  "unasked_h": 2.25,
+  "today_rows": 1,
+  "consistency": 1.5,
+  "notif": 0,
+  "false_asks": 1,
+  "impossible": 0,
+  "edit_taps": 14,
+  "reach": 3.844,
+  "small": [],
+  "reverses": [
+   "07: ends a span without the person",
+   "09: the limit is one personal setting"
+  ]
+ },
+ {
+  "v": {
+   "many": "one",
+   "forgot": "auto",
+   "cap": "usual3",
+   "edit": "review"
+  },
+  "taps": 39,
+  "taps_n": {
+   "1": 31,
+   "2": 39,
+   "3": 39,
+   "5": 39
+  },
+  "scale_growth": 8,
+  "reach_taps": 2,
+  "seen": 0.0,
+  "stop_taps": 3,
+  "forgot_h": 2.25,
+  "unasked_h": 2.25,
+  "today_rows": 1,
+  "consistency": 1.0,
+  "notif": 0,
+  "false_asks": 1,
+  "impossible": 0,
+  "edit_taps": 17,
+  "reach": 3.339,
+  "small": [],
+  "reverses": [
+   "07: ends a span without the person",
+   "09: the limit is one personal setting"
+  ]
+ },
+ {
+  "v": {
+   "many": "chronicle",
+   "forgot": "chronicle",
+   "cap": "chronicle",
+   "edit": "chronicle",
+   "control": true
+  },
+  "why": "Chronicle's answers inside the approved frame (T3b.4g's Today strip): a row each, never folded; no limit, never asks; sessions edited from the activity's page in its sheet of date and time pickers",
+  "control": true,
+  "taps": 36,
+  "taps_n": {
+   "1": 36,
+   "2": 36,
+   "3": 36,
+   "5": 36
+  },
+  "scale_growth": 0,
+  "reach_taps": 1,
+  "seen": 1.0,
+  "stop_taps": 1,
+  "forgot_h": 24.0,
+  "unasked_h": 24.0,
+  "today_rows": 5,
+  "consistency": 1.5,
+  "notif": 0,
+  "impossible": 0,
+  "edit_taps": 20,
+  "reach": 3.462,
+  "small": [],
+  "reverses": []
+ }
+]
