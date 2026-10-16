@@ -2119,4 +2119,13 @@ week a summary with doorways, Saved charts for comparing; the Hub's Pinned and r
 today's amount (T3b.4g drew both on the page). They come from the hand-counted walk (one task each), not from a measured
 drawing; for the owner.
 
-Status: **T3b.6 scored: awaiting the owner's settling, thing by thing.**
+Status (then): **T3b.6 scored: awaiting the owner's settling, thing by thing.**
+
+**Held (owner, 2026-10-16):** "Before answering these questions, redundancy cannot be fully assessed for Measuring until the single
+tracker screen is defined. T3b.4g, T3b.5, T3b.6 all partially overlap and contradict, claiming to be the tracker's screen, and all
+are incomplete: for example, no graphs, which have been mentioned multiple times, have been scored/included yet." T3b.4g drew a
+running view above a history list, T3b.5 put goals on the page beside "other statistics" never drawn, T3b.6 assumed charts and
+sessions there; none drew the whole page. T3b.6's settling waits for the item's page, defined as one screen (T3b.7).
+
+Status: **T3b.6 held; next T3b.7, the tracker's or activity's page as one screen.**
+
