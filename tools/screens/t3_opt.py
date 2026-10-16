@@ -3962,7 +3962,8 @@ T.PICKED = {"routines": [{"preview": "none", "seq": "plain"}, {"preview": "energ
             "pace5": [{"time": "dial", "pauses": "sentence", "move": "dial", "drag": "none", "face": "chooser"}],   # with - / + beside every box (owner, 2026-10-15)
             "pace6": [{"layout": "tightAC", "stepper": 32}], "pacerun": [{"view": "page", "today": "strip", "rest_end": "auto", "stop": "long"}],
             "run3": [{"many": "each", "forgot": "open", "cap": "usual3", "edit": "after"}],
-            "goals": [{"place": "page", "shows": "plain", "glance": "row", "set": "sentence"}]}   # '20 of 30 min/day' under the name, before 'last' (owner)   # no chips; evenly <-> at in place; Reset breaks (owner, 2026-10-15)
+            "goals": [{"place": "page", "shows": "plain", "glance": "row", "set": "sentence"}],
+            "gtoday": [{"form": "collapsed", "pos": "bottom"}]}   # first tap: the pinned goals and All; All: every goal, day, week, month (owner)   # '20 of 30 min/day' under the name, before 'last' (owner)   # no chips; evenly <-> at in place; Reset breaks (owner, 2026-10-15)
 T.SUPERSEDED = {"paceplace": "where it lives while running, rescored with the owner's answers (2026-10-15): T3b.4g replaced it",
                 "pace4": "N breaks evenly, the ring for showing and selecting (owner, 2026-10-15): T3b.4e replaced it",
                 "pace3": "the ring is always the whole run, a real dial for times (owner, 2026-10-15): T3b.4d replaced it",

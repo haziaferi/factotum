@@ -1787,4 +1787,22 @@ on its page), Loop (every item on its home list with its value).
 - Caveat: the drawing's Today holds 4 agenda items and 4 routines; a longer day pushes any bottom block further down.
 - The Measuring row in the T3b.5 drawing now reads as picked: “20 of 30 min/day · last 14:20” under the name.
 
-Status: **T3b.5b scored: awaiting the owner's pick.**
+Status (then): **T3b.5b scored: awaiting the owner's pick.**
+
+### T3b.5b approved: a collapsed row at the bottom of Today, pinned first, then All (owner, 2026-10-16)
+
+“Collapsed row, bottom, on first tap it shows pinned goals and ‘All’ under them, clicking ‘All’ unwraps the full list of
+goals.” The front option collapsed · bottom (34.5), refined:
+- **One row at the bottom of Today**, below the Routines: “Goals (20) ›”, the same at any number of goals; nothing pushed.
+- **First tap:** the pinned goals, then “All” under them. **“All”:** every goal, day first, then week, then month.
+- **Every row is the item itself:** its name, the goal line as on Measuring (“20 of 30 min/day · last 14:20”) and its one-tap
+  control (▶ starts the activity, +1 logs the tracker).
+- Taps from Today: a pinned goal's row 1, its control 2; any other goal 2 (All), its control 3. Pinning is done on the goal
+  (on the item's page).
+PICKED gtoday `{"form":"collapsed","pos":"bottom"}` (with the pinned step).
+
+Owed: whether the row remembers being open; where a goal is pinned (the item's page, by default); the Measuring row and the
+item's page as picked in T3b.5.
+
+Status: **T3b.1d, T3b.3, T3b.4e/f/g, T3b.5 and T3b.5b approved.** Next in T3b: time totals and charts.
+
