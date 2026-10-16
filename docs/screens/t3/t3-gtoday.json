@@ -1,0 +1,266 @@
+[
+ {
+  "v": {
+   "form": "none",
+   "pos": "top"
+  },
+  "taps": 22,
+  "taps_n": {
+   "5": 17,
+   "20": 22
+  },
+  "impossible": 0,
+  "rows": 0,
+  "push": 0,
+  "below_fold": 0,
+  "calm": 0.0,
+  "glance": 0,
+  "see_taps": 4,
+  "consistency": 1.0,
+  "small": []
+ },
+ {
+  "v": {
+   "form": "summary",
+   "pos": "top"
+  },
+  "taps": 12,
+  "taps_n": {
+   "5": 12,
+   "20": 12
+  },
+  "impossible": 0,
+  "rows": 1,
+  "push": 68,
+  "below_fold": 0,
+  "calm": 2.2142857142857144,
+  "glance": 0,
+  "see_taps": 2,
+  "consistency": 0.5,
+  "small": []
+ },
+ {
+  "v": {
+   "form": "summary",
+   "pos": "bottom"
+  },
+  "taps": 12,
+  "taps_n": {
+   "5": 12,
+   "20": 12
+  },
+  "impossible": 0,
+  "rows": 1,
+  "push": 0,
+  "below_fold": 0,
+  "calm": 1.0,
+  "glance": 0,
+  "see_taps": 2,
+  "consistency": 0.5,
+  "small": []
+ },
+ {
+  "v": {
+   "form": "pinned",
+   "pos": "top"
+  },
+  "taps": 10,
+  "taps_n": {
+   "5": 8,
+   "20": 10
+  },
+  "impossible": 0,
+  "rows": 3,
+  "push": 213,
+  "below_fold": 0,
+  "calm": 6.803571428571429,
+  "glance": 0.15,
+  "see_taps": 0,
+  "consistency": 1.0,
+  "small": []
+ },
+ {
+  "v": {
+   "form": "pinned",
+   "pos": "bottom"
+  },
+  "taps": 13,
+  "taps_n": {
+   "5": 11,
+   "20": 13
+  },
+  "impossible": 0,
+  "rows": 3,
+  "push": 0,
+  "below_fold": 1,
+  "calm": 3.0,
+  "glance": 0.15,
+  "see_taps": 1,
+  "consistency": 1.0,
+  "small": []
+ },
+ {
+  "v": {
+   "form": "unmet",
+   "pos": "top"
+  },
+  "taps": 12,
+  "taps_n": {
+   "5": 8,
+   "20": 12
+  },
+  "impossible": 0,
+  "rows": 4,
+  "push": 261,
+  "below_fold": 0,
+  "calm": 8.660714285714285,
+  "glance": 0.15,
+  "see_taps": 1,
+  "consistency": 1.0,
+  "small": []
+ },
+ {
+  "v": {
+   "form": "unmet",
+   "pos": "bottom"
+  },
+  "taps": 15,
+  "taps_n": {
+   "5": 11,
+   "20": 15
+  },
+  "impossible": 0,
+  "rows": 4,
+  "push": 0,
+  "below_fold": 1,
+  "calm": 4.0,
+  "glance": 0.15,
+  "see_taps": 2,
+  "consistency": 1.0,
+  "small": []
+ },
+ {
+  "v": {
+   "form": "collapsed",
+   "pos": "top"
+  },
+  "taps": 7,
+  "taps_n": {
+   "5": 7,
+   "20": 7
+  },
+  "impossible": 0,
+  "rows": 1,
+  "push": 68,
+  "below_fold": 0,
+  "calm": 2.2142857142857144,
+  "glance": 0,
+  "see_taps": 1,
+  "consistency": 1.0,
+  "small": []
+ },
+ {
+  "v": {
+   "form": "collapsed",
+   "pos": "bottom"
+  },
+  "taps": 7,
+  "taps_n": {
+   "5": 7,
+   "20": 7
+  },
+  "impossible": 0,
+  "rows": 1,
+  "push": 0,
+  "below_fold": 0,
+  "calm": 1.0,
+  "glance": 0,
+  "see_taps": 1,
+  "consistency": 1.0,
+  "small": []
+ },
+ {
+  "v": {
+   "form": "streak",
+   "pos": "streak",
+   "control": true,
+   "control_app": "streak"
+  },
+  "why": "Streak: every goal's card on Today, expanded, with a bar, a percent and a flame",
+  "control": true,
+  "taps": 9,
+  "taps_n": {},
+  "impossible": 0,
+  "rows": 20,
+  "push": 2240,
+  "below_fold": 1,
+  "calm": 66,
+  "glance": 1.0,
+  "see_taps": 2,
+  "consistency": 0.0,
+  "small": []
+ },
+ {
+  "v": {
+   "form": "timety",
+   "pos": "timety",
+   "control": true,
+   "control_app": "timety"
+  },
+  "why": "Timety: one card for a single daily focus goal over all time; no goal of an item",
+  "control": true,
+  "taps": 36,
+  "taps_n": {},
+  "impossible": 4,
+  "rows": 1,
+  "push": 83,
+  "below_fold": 0,
+  "calm": 5.482142857142858,
+  "glance": 0.05,
+  "see_taps": 9,
+  "consistency": 0.0,
+  "small": []
+ },
+ {
+  "v": {
+   "form": "chronicle",
+   "pos": "chronicle",
+   "control": true,
+   "control_app": "chronicle"
+  },
+  "why": "Chronicle: nothing on Today; each goal on its item's page",
+  "control": true,
+  "taps": 23,
+  "taps_n": {},
+  "impossible": 0,
+  "rows": 0,
+  "push": 0,
+  "below_fold": 0,
+  "calm": 0,
+  "glance": 0,
+  "see_taps": 4,
+  "consistency": 0.5,
+  "small": []
+ },
+ {
+  "v": {
+   "form": "loop",
+   "pos": "loop",
+   "control": true,
+   "control_app": "loop"
+  },
+  "why": "Loop: every item on its home list with its value, no target said",
+  "control": true,
+  "taps": 16,
+  "taps_n": {},
+  "impossible": 1,
+  "rows": 40,
+  "push": 2240,
+  "below_fold": 1,
+  "calm": 80,
+  "glance": 0.5,
+  "see_taps": 1,
+  "consistency": 0.5,
+  "small": []
+ }
+]

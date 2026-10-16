@@ -1747,5 +1747,44 @@ PICKED goals `{"place":"page","shows":"plain","glance":"row","set":"sentence"}`.
 
 Owed: the row's second line with a goal (the Measuring drawings, T3b.1d, carry “last” only); the period's short form.
 
-Status: **T3b.1d, T3b.3, T3b.4e/f/g and T3b.5 approved.** Next in T3b: time totals and charts.
+Status (then): **T3b.1d, T3b.3, T3b.4e/f/g and T3b.5 approved.** Next in T3b: time totals and charts.
 
+**The owner's follow-up (2026-10-16):** “The goal shows inside the tracker or activity's page itself as well, together with other
+options and statistics. I saw no examples of bars, rings or percents in the mockup.” The page now draws one option of each form
+that missed the front (bar, ring, percent; the form and steppers) beside the pick.
+
+### T3b.5b Goals on Today, measured with 5 and 20 goals (owner, 2026-10-16)
+
+“The presence of Goals in Today needs to be thought through correctly: since measurements could go up to 40, even if only 20 of
+them have goals, this would still cause a problem in the Today screen, no matter whether it's at the top or at the bottom.” T3b.5
+had drawn Today with 2 goals and counted it as a fixed 1 on Calm. Answers: measured with 5 and 20 goals (of 40 items), the worse
+counting; the Measuring row and the item's page stay as picked; the forms: nothing, a summary line, pinned goals, today's unmet day
+goals (three, then “+N more”), and the owner's collapsed row listing goals by priority (day, week, month); “these are not just
+goals, these are activities and trackers that can be started from there”: every row carries the item's one-tap control (▶ or +1).
+
+Part `gtoday`: form × top / bottom of Today (9 options). Measured on the drawings: the rows added, how far the Agenda is pushed
+(from the Today with no goals), and whether the goals sit below the fold. Four controls in the same frame: Streak (every goal's
+card on Today, with a bar, a percent and a flame), Timety (one card for one daily focus goal), Chronicle (nothing on Today; each goal
+on its page), Loop (every item on its home list with its value).
+
+**Result: all four controls lost.**
+
+| Option | Taps at 5 / 20 goals | Rows added | Agenda pushed | Rank sum |
+|---|---|---|---|---|
+| collapsed row · bottom | 7 / 7 | 1 | 0 | 34.5 ★ |
+| pinned goals (3) · top | 8 / 10 | 3 | 213 px | 34.5 ★ |
+| collapsed row · top | 7 / 7 | 1 | 68 px | 36.5 |
+| unmet day goals · top | 8 / 12 | 4 | 261 px | 40.5 |
+| pinned goals · bottom | 11 / 13 | 3 | 0, but below the fold | 45 |
+| nothing on Today | 17 / 22 | 0 | 0 | 49.5 ★ |
+| summary line · bottom | 12 / 12 | 1 | 0 | 49 |
+
+- **The collapsed row does not grow** with the number of goals (one row at 5 and at 20), and it is the fewest taps.
+- **Pinned goals** stay at the number the person pins (3 here) and show them without a tap; at the top they push the Agenda
+  down 213 px, at the bottom they run below the fold (a scroll), so they lead only at the top.
+- A first run measured only where the first goal row starts: the pinned block at the bottom looked above the fold while its
+  last two rows sat under the bar (seen in the drawing). The fold now takes the last goal row.
+- Caveat: the drawing's Today holds 4 agenda items and 4 routines; a longer day pushes any bottom block further down.
+- The Measuring row in the T3b.5 drawing now reads as picked: “20 of 30 min/day · last 14:20” under the name.
+
+Status: **T3b.5b scored: awaiting the owner's pick.**
