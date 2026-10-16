@@ -909,9 +909,11 @@ def ranked(p):
         least = min(r["_shortfall"] for r in ok)
         tol = keys[0][1]
         lead = [r for r in ok if r["_shortfall"] <= least + tol]
+    w = WEIGHTS.get(p, {})
+    dom = [a for a in ax if w.get(a, 1) >= 1]
     for r in ok:
-        r["front"] = r in lead and not any(all(o[a] <= r[a] for a in ax) and any(o[a] < r[a] for a in ax) for o in lead if o is not r)
-        r["total"] = sum(r[a] for a in ax)
+        r["front"] = r in lead and not any(all(o[a] <= r[a] for a in dom) and any(o[a] < r[a] for a in dom) for o in lead if o is not r)
+        r["total"] = sum(r[a] * w.get(a, 1) for a in ax)
     return rows, ok, axes
 
 
@@ -921,6 +923,7 @@ PICKED = {}  # part: [option dicts] the owner picked; the page shows them, folds
 SUPERSEDED = {}  # part: why it was superseded; the page folds the whole part
 DRAW_MAX = {}  # part: how many options to draw (default 6)
 LEAD = {}  # part: (measure, tolerance): only options within the tolerance of the best can reach the front
+WEIGHTS = {}  # part: {axis: weight}; an axis under 1 counts in the total at its weight and does not decide the front
 REFS_INFO = set()  # parts whose reference distance is shown, not ranked
 TITLES = {"g": "G. Where actions sit, the same on every screen, and their text", "h": "H. Closing the capture sheet with text not added", "a": "A. Where the toast sits", "b": "B. How long Undo lasts, several in a row, the way back", "c": "C. The dialogs: empty Trash, discard changes",
           "d": "D. The sync clash", "e": "E. Permission asks: when", "f": "F. Failures"}
@@ -959,7 +962,8 @@ def scores_page():
                 "".join("<td>%s</td>" % cell(r.get(c)) for c in cols),
                 "".join("<td class=ax>%g</td>" % r[a] if r in ok else "<td class=ax>—</td>" for a in axes),
                 "%g" % r["total"] if r in ok else "—", "★" if r.get("front") else "", ("control · " if r.get("control") else "") + gate))
-        axis_line = "; ".join("<b>%s</b> = rank-sum of %s" % (a, ", ".join(k.lstrip("-") + (" (more is better)" if k.startswith("-") else "") for k in ks)) for a, ks in axes.items())
+        axis_line = "; ".join("<b>%s</b> = rank-sum of %s%s" % (a, ", ".join(k.lstrip("-") + (" (more is better)" if k.startswith("-") else "") for k in ks),
+                                                                 (" (weight %g in the total; not deciding the front)" % WEIGHTS[p][a]) if WEIGHTS.get(p, {}).get(a, 1) < 1 else "") for a, ks in axes.items())
         verdict = (("<b>Control lost:</b> off the front; %d of %d passing variants have a lower sum." if len(ctls) == 1 else
                      "<b>Every control lost:</b> all off the front; %d of %d passing variants have a lower sum than the best control.") % (worse, len(ok) - len(ctls))) if lost[p] else "<b>CONTROL DID NOT LOSE.</b>"
         doc_ = ""

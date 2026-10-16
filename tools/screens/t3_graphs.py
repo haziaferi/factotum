@@ -1,0 +1,795 @@
+"""T3b.7a the graphs, scored per kind of value before the item's page is re-scored (owner, 2026-10-16).
+
+Registered into t3_opt's parts by t3_opt itself (register(globals()) at its end), so the usual run scores them:
+    python tools/screens/t3_opt.py gk_count gk_rating gk_yesno gk_choice gk_add gk_level page_html scores
+
+The kinds, each with 30 placeholder days ending Fri 16 Oct 2026 (a day with no entry is None):
+  gk_count   Water, glasses a day, goal 8 (counts)
+  gk_rating  Mood, 1 to 5 (ratings)
+  gk_yesno   Walk, done or not (yes/no)
+  gk_choice  Lunch: home, out, packed, skipped (choices)
+  gk_add     Reading, minutes a day, goal 30 (an amount that adds up)
+  gk_level   Weight, kg, goal 70, not every day (an amount that does not add up)
+
+Forms come from the graph survey (_screens-sources/t3/goals/graphs/notes.md: openScale, Loop, Track & Graph, Chronicle,
+Streak, aTimeLogger, Timety, drip). No heatmap (owner). Each option is a form x its y-axis (grid / the two ends / none) x
+the values printed (none / the last / every one); a weight's y-range (fit to the data / a plausible band, drip's way /
+from zero) is a fourth dimension. Each kind has two controls, the surveyed apps' own charts, which must lose.
+
+Axes (owner): fit to the data, readability at phone size, calm, mental load; consistency the lowest weight (0.25, in the
+total only).
+  Fit (computed from the drawing and the data): a day with no entry drawn as zero; a line across days with no entry; bars
+    not from zero; a sum implied of a value that does not add up (bars, area, a running total of a weight); a quantity
+    implied of a rating (bars from zero); a line through whole counts; smoothing that invents values; the goal outside the
+    range; two units on one axis or two axes.
+  Readability (measured in headless Edge at 360x740, and the geometry): the smallest text, text overlapping text or cut at
+    the edge, the smallest mark, pixels for one meaningful step (a glass, a rating step, 5 min, 0.5 kg; a day's cell for
+    yes/no and choices).
+  Calm: ink (the marks' area over the chart's), day-to-day jitter in pixels (a range fit to the data makes 0.3 kg look like
+    a fall), comparative or gamified elements (percent scores, streaks).
+  Mental load: the cost of answering each kind's three questions from the graph (0 read off, 1 a visual comparison or a
+    count up to 7, 2 a sum or a count to 30, 3 not answerable) - HAND-SET per form, a reading of what each form shows,
+    flagged; plus the numbers printed / 10, a second series, a legend to look up.
+  Consistency: how many other kinds use the same form (one family of graphs across the app).
+"""
+import math
+
+# ==== the data ===================================================================================================================
+DAYS = 30
+X_LABELS = ((0, "17 Sep"), (14, "1 Oct"), (29, "16 Oct"))
+WATER = [5, 7, 8, 4, 6, 8, 9, 3, 5, None, 8, 6, 5, 8, 7, 4, 6, 8, 5, 7, 9, None, 5, 8, 7, 6, 4, 8, 7, 5]
+MOOD = [3, 4, 3, 2, 4, 4, 5, 3, None, 3, 2, 2, 3, 4, 4, 3, 5, 4, None, 3, 3, 4, 2, 3, 4, 4, None, 4, 5, 4]
+WALK = [1, 1, 0, 1, 1, 0, 0, 1, 1, 1, 0, 1, 1, 1, 1, 0, 0, 1, 0, 1, 1, 1, 0, 0, 1, 1, 1, 0, 1, 1]
+LUNCH = ["home", "out", "home", "packed", "home", "out", "skipped", "home", "packed", "packed", "home", "out", "home", "skipped",
+         "packed", "packed", "home", "home", "out", "packed", "home", "skipped", "packed", "packed", "home", "out", "home", "packed", "packed", None]
+CHOICES = ("home", "packed", "out", "skipped")
+READING = [20, 35, 0, 45, 30, 25, 0, 50, 30, 20, 40, 0, 35, 30, 25, 45, 0, 30, 20, 35, 40, 0, 25, 30, 45, 20, 0, 35, 30, 20]
+WEIGHT = [73.8, None, 73.9, 73.4, None, 73.2, None, 73.0, 73.1, None, 73.2, 72.8, None, 72.9, 72.6, None, 72.5, 72.4, None, 72.3,
+          72.5, None, 72.4, 72.1, None, 72.0, 72.2, None, 72.1, 72.4]
+
+W, H, BOT = 312, 132, 16          # the chart's width, the plot's height, the date row under it
+TOP = 10                          # room above the plot for a printed value
+KINDS = {
+    "count": dict(name="Water", vals=WATER, goal=8, lo=0, hi=10, ticks=(0, 2, 4, 6, 8, 10), step=1, unit="glasses"),
+    "rating": dict(name="Mood", vals=MOOD, goal=None, lo=1, hi=5, ticks=(1, 2, 3, 4, 5), step=1, unit=""),
+    "yesno": dict(name="Walk", vals=WALK, goal=None, lo=0, hi=7, ticks=(0, 7), step=None, unit="days"),
+    "choice": dict(name="Lunch", vals=LUNCH, goal=None, lo=0, hi=1, ticks=(), step=None, unit=""),
+    "add": dict(name="Reading", vals=READING, goal=30, lo=0, hi=60, ticks=(0, 20, 40, 60), step=5, unit="min"),
+    "level": dict(name="Weight", vals=WEIGHT, goal=70, lo=None, hi=None, ticks=None, step=0.5, unit="kg"),
+}
+LEVEL_RANGE = {"fit": (71.8, 74.0, (72, 73, 74)), "plausible": (69, 75, (69, 70, 71, 72, 73, 74, 75)), "zero": (0, 80, (0, 20, 40, 60, 80))}
+
+FORMS = {
+    "count": ["bars", "stubs", "lollipop", "dots", "line", "weeks", "dist"],
+    "rating": ["strip", "line", "bars", "band", "dist", "avg"],
+    "yesno": ["ticks", "weeks", "tally", "runs", "cumul"],
+    "choice": ["strip", "hbars", "stacked", "pie", "rows"],
+    "add": ["bars", "stubs", "lollipop", "weeks", "cumul", "line", "bars_avg"],
+    "level": ["line", "dots", "avg", "smooth", "band", "bars", "area", "spark"],
+}
+NO_AXIS = {"count": {"dist"}, "rating": {"dist"}, "yesno": {"ticks", "tally", "runs"}, "choice": set(FORMS["choice"]), "add": set(), "level": {"spark"}}   # no y-axis to draw
+SAME = {"dist": ("last",), "tally": ("last", "every"), "spark": ("last", "every"), "pie": ("last",), "hbars": ("last",), "runs": ("last",)}   # values that draw nothing new
+# the three questions per kind, and what each form costs to answer them (HAND-SET, a reading of the form; see the docstring)
+QUESTIONS = {
+    "count": ("today against the goal", "a usual day", "more or less than before"),
+    "rating": ("a usual day", "the low days", "better or worse than before"),
+    "yesno": ("days this week", "days this month", "when it was missed"),
+    "choice": ("the most often", "how it changed", "a given day"),
+    "add": ("today against the goal", "this week's total", "more or less than before"),
+    "level": ("now", "the trend", "the distance to the goal"),
+}
+COSTS = {
+    "count": {"bars": (0, 1, 1), "stubs": (0, 1, 1), "lollipop": (0, 1, 1), "dots": (0, 1, 1), "line": (0, 1, 0), "weeks": (3, 2, 0), "dist": (3, 0, 3)},
+    "rating": {"strip": (1, 0, 1), "line": (1, 1, 0.5), "bars": (1, 0, 1), "band": (0, 1, 0), "dist": (0, 0, 3), "avg": (0, 0, 0)},
+    "yesno": {"ticks": (1, 2, 0), "weeks": (0, 2, 3), "tally": (1, 0, 0), "runs": (2, 2, 0), "cumul": (1, 0, 1)},
+    "choice": {"strip": (2, 1, 0), "hbars": (0, 3, 3), "stacked": (1, 0, 3), "pie": (1, 3, 3), "rows": (1, 1, 0)},
+    "add": {"bars": (0, 2, 1), "stubs": (0, 2, 1), "lollipop": (0, 2, 1), "weeks": (3, 0, 0), "cumul": (1, 1, 0), "line": (0, 2, 0.5), "bars_avg": (0, 2, 0)},
+    "level": {"line": (1, 0, 1), "dots": (1, 1, 1), "avg": (1, 0, 1), "smooth": (1, 0, 1), "band": (2, 0, 1), "bars": (1, 1, 1), "area": (1, 0, 1), "spark": (0, 0, 3)},
+}
+DAILY = {"bars", "stubs", "lollipop", "dots", "line", "strip", "avg", "smooth", "area", "bars_avg", "ticks", "tally", "cumul", "rows", "spark"}   # a mark per day
+
+
+ENCODING = {"line": 0, "dots": 0, "strip": 0, "avg": 0, "smooth": 0, "cumul": 0, "lollipop": 0, "ticks": 0, "tally": 0, "rows": 0, "spark": 0,
+            "area": 1, "bars": 1, "stubs": 1, "bars_avg": 1, "weeks": 1, "dist": 1, "hbars": 1, "runs": 1, "band": 1, "stacked": 2, "pie": 2,
+            "chronicle": 1, "trackandgraph": 0, "loop": 0, "streak": 0, "atimelogger": 2, "timety": 0, "openscale": 0, "openscale_home": 0}
+CTL_ENCODING = {("choice", "trackandgraph"): 2}
+STEP_ENOUGH, MARK_ENOUGH = 12, 6   # HAND-SET: a step or a mark this size is plainly seen; more pixels read no better
+NOISE_FLAT = 3   # HAND-SET: day-to-day jitter under 3 px reads as flat; less is no calmer (a range from zero bought calm with an unreadable trend)
+
+
+def fmt(x):
+    return ("%g" % round(x, 1)) if isinstance(x, float) else str(x)
+
+
+def valid(kind):
+    def ok(v):
+        if v.get("control"):
+            return True
+        f = v["form"]
+        if f in NO_AXIS[kind] and v["yaxis"] != "none":
+            return False   # no axis to draw
+        if v["values"] in SAME.get(f, ()):
+            return False   # the same drawing as another option
+        if kind == "choice" and f in ("strip", "rows") and v["values"] == "last":
+            return False   # the last day's choice is its own mark already
+        if kind == "choice" and f == "strip" and v["values"] == "every":
+            return False   # every day's letter is the strip itself
+        if kind in ("count", "add") and v["range"] == "fit" and f != "line":
+            return False   # a length read from a cut baseline misleads; only a line may fit its range
+        return True
+    return ok
+
+
+# ==== drawing ===================================================================================================================
+class Chart:
+    """One chart: the marks, and the geometry the scorer reads (ink, the smallest mark, pixels per step, jitter)."""
+
+    def __init__(self, kind, v):
+        self.k, self.v, self.cfg = kind, v, KINDS[kind]
+        self.parts, self.ink, self.marks = [], 0.0, []
+        self.misfit, self.series, self.legend, self.compare = {}, 1, 0, 0
+        ya = v.get("yaxis", "none")
+        self.g = 0 if ya == "none" else 26
+        if kind == "level":
+            lo, hi, ticks = LEVEL_RANGE[v.get("range", "fit")]
+        elif v.get("range") == "fit":
+            have = [x for x in self.cfg["vals"] if x is not None]
+            lo, hi = min(have), max(have)
+            ticks = tuple(round(lo + (hi - lo) * k / 3) for k in range(4))
+        else:
+            lo, hi, ticks = self.cfg["lo"], self.cfg["hi"], self.cfg["ticks"]
+        self.lo, self.hi, self.ticks = lo, hi, ticks
+        self.pw = W - self.g - 4
+        self.sw = self.pw / DAYS
+        self.ys = []   # y of every daily mark, for jitter
+
+    def x(self, i):
+        return self.g + i * self.sw + self.sw / 2
+
+    def y(self, val, lo=None, hi=None):
+        lo = self.lo if lo is None else lo
+        hi = self.hi if hi is None else hi
+        return TOP + H - (val - lo) / ((hi - lo) or 1) * H
+
+    def add(self, svg, area=0.0, mark=None):
+        self.parts.append(svg)
+        self.ink += area
+        if mark is not None:
+            self.marks.append(mark)
+
+    def text(self, x, y, t, size=11, anchor="middle", dim=True):
+        self.parts.append('<text x="%.1f" y="%.1f" font-size="%g" fill="var(--%s)" text-anchor="%s">%s</text>' % (x, y, size, "dim" if dim else "ink", anchor, t))
+
+    def rect(self, x, y, w, h, fill="var(--ink)", rx=2, mark=True):
+        h = max(h, 0)
+        self.add('<rect x="%.1f" y="%.1f" width="%.1f" height="%.1f" rx="%g" fill="%s"/>' % (x, y, w, h, rx, fill), w * h, min(w, h) if (h > 0 and mark) else None)
+
+    def dot(self, x, y, r=3, fill="var(--ink)"):
+        self.add('<circle cx="%.1f" cy="%.1f" r="%g" fill="%s"/>' % (x, y, r, fill), math.pi * r * r, 2 * r)
+
+    def poly(self, pts, width=2, colour="var(--ink)", dash=""):
+        d = " ".join("%.1f,%.1f" % p for p in pts)
+        length = sum(math.dist(pts[i], pts[i + 1]) for i in range(len(pts) - 1))
+        self.add('<polyline points="%s" style="fill:none;stroke:%s;stroke-width:%g"%s/>' % (d, colour, width, ' stroke-dasharray="%s"' % dash if dash else ""), length * width, width)
+
+    def axis(self):
+        ya = self.v.get("yaxis", "none")
+        self.parts.append('<line x1="%d" x2="%d" y1="%.1f" y2="%.1f" stroke="var(--dim)" stroke-width="1"/>' % (self.g, W - 4, TOP + H, TOP + H))
+        if ya != "none" and self.ticks:
+            shown = self.ticks if ya == "grid" else (self.ticks[0], self.ticks[-1])
+            for t in shown:
+                yy = self.y(t)
+                if ya == "grid" and t != self.ticks[0]:
+                    self.parts.append('<line x1="%d" x2="%d" y1="%.1f" y2="%.1f" stroke="var(--zone2)" stroke-width="1"/>' % (self.g, W - 4, yy, yy))
+                self.text(self.g - 4, yy + 4, fmt(t), 12, "end")
+        for i, t in X_LABELS:
+            self.text(min(max(self.x(i), 20 + self.g), W - 24), TOP + H + 13, t, 12)
+
+    def goal(self, val, label=None):
+        if val is None:
+            return
+        if not (self.lo <= val <= self.hi):
+            self.misfit["goal outside the range"] = 1
+            return
+        yy = self.y(val)
+        self.parts.append('<line x1="%d" x2="%d" y1="%.1f" y2="%.1f" stroke="var(--dim)" stroke-width="1" stroke-dasharray="4 4"/>' % (self.g, W - 4, yy, yy))
+        self.text(W - 6, yy - 3, label or "goal %s" % fmt(val), 12, "end")
+
+    def values(self, pts, show):
+        """The values printed: the last, or every one (pts: (x, y, text))."""
+        if show == "last" and pts:
+            x, y, t = pts[-1]
+            self.text(min(x, W - 12), y - 5, t, 12, "middle", dim=False)
+        elif show == "every":
+            for x, y, t in pts:
+                self.text(x, y - 4, t, 9, "middle")
+
+    def svg(self):
+        return ('<svg width="%d" height="%d" viewBox="0 0 %d %d" role="img" aria-label="chart">%s</svg>' % (W, TOP + H + BOT + 2, W, TOP + H + BOT + 2, "".join(self.parts)))
+
+
+def daily_bars(c, vals, stubs, from_zero_lo=None):
+    base = c.y(c.lo if from_zero_lo is None else from_zero_lo)
+    pts = []
+    for i, val in enumerate(vals):
+        if val is None:
+            if stubs:
+                c.rect(c.x(i) - c.sw / 2 + 1.5, base - 2, c.sw - 3, 2, "var(--dim)", 0, mark=False)   # no entry, not a value
+            else:
+                c.misfit["no entry drawn as zero"] = 1
+            continue
+        yy = c.y(val)
+        c.rect(c.x(i) - c.sw / 2 + 1.5, yy, c.sw - 3, base - yy)
+        c.ys.append(yy)
+        pts.append((c.x(i), yy, fmt(val)))
+    return pts
+
+
+def line_through(c, vals, dots=False, smooth=False, width=2):
+    pts, seg, prev_none, out = [], [], False, []
+    for i, val in enumerate(vals):
+        if val is None:
+            prev_none = True
+            continue
+        if prev_none and pts and not (c.k == "level" and dots):   # a weight's entries joined, each a dot: drip's and openScale's way
+            c.misfit["a line across days with no entry"] = 0.5
+        prev_none = False
+        p = (c.x(i), c.y(val))
+        pts.append(p)
+        c.ys.append(p[1])
+        out.append((p[0], p[1], fmt(val)))
+    if smooth:   # openScale's spline: midpoints eased, values that were never entered drawn between entries
+        c.misfit["smoothing invents values"] = 0.5
+        sm = []
+        for i in range(len(pts) - 1):
+            (x0, y0), (x1, y1) = pts[i], pts[i + 1]
+            for t in (0, 0.25, 0.5, 0.75):
+                e = t * t * (3 - 2 * t)
+                sm.append((x0 + (x1 - x0) * t, y0 + (y1 - y0) * e))
+        sm.append(pts[-1])
+        c.poly(sm, width)
+    else:
+        c.poly(pts, width)
+    if dots:
+        for x, y in pts:
+            c.dot(x, y, 3)
+    return out
+
+
+def weekly(vals):
+    """Four full weeks back from today, then the two days before them: (first day, values)."""
+    out, end = [], DAYS
+    while end > 0:
+        start = max(0, end - 7)
+        out.insert(0, (start, vals[start:end]))
+        end = start
+    return out
+
+
+def draw(kind, v):
+    if v.get("control"):
+        return draw_control(kind, v["control_app"])
+    c = Chart(kind, v)
+    cfg, f, show = c.cfg, v["form"], v.get("values", "none")
+    vals = cfg["vals"]
+    if kind in ("count", "add", "rating", "level"):
+        if kind == "level" and f in ("bars", "area"):
+            c.misfit["a sum implied of a weight"] = 1
+        if kind == "rating" and f == "bars":
+            c.misfit["a quantity implied of a rating"] = 0.5
+        if kind in ("count", "rating") and f == "line":
+            c.misfit["a line through whole values"] = 0.5
+        if kind == "add" and f == "line":
+            c.misfit["a line between daily totals"] = 0.5
+        if f in ("bars", "stubs", "bars_avg"):
+            if kind == "level" and c.lo > 0:
+                c.misfit["bars not from zero"] = 1
+            c.axis()
+            pts = daily_bars(c, vals, f == "stubs" or kind == "level", c.lo)
+            if f == "bars_avg":
+                av = [sum(x for x in vals[max(0, i - 6):i + 1] if x is not None) / max(1, sum(1 for x in vals[max(0, i - 6):i + 1] if x is not None)) for i in range(DAYS)]
+                c.poly([(c.x(i), c.y(a)) for i, a in enumerate(av)], 2, "var(--dim)")
+                c.series = 2
+            c.goal(cfg["goal"])
+            c.values(pts, show)
+        elif f == "lollipop":
+            c.axis()
+            pts = []
+            for i, val in enumerate(vals):
+                if val is None:
+                    continue
+                yy = c.y(val)
+                c.add('<line x1="%.1f" x2="%.1f" y1="%.1f" y2="%.1f" stroke="var(--ink)" stroke-width="1.5"/>' % (c.x(i), c.x(i), c.y(c.lo), yy), 1.5 * (c.y(c.lo) - yy), 1.5)
+                c.dot(c.x(i), yy, 3.5)
+                c.ys.append(yy)
+                pts.append((c.x(i), yy, fmt(val)))
+            c.goal(cfg["goal"])
+            c.values(pts, show)
+        elif f == "dots" and kind == "count":   # a dot per glass, stacked (Loop's frequency dots, read as units)
+            c.axis()
+            pts = []
+            for i, val in enumerate(vals):
+                if val is None:
+                    continue
+                for k in range(val):
+                    c.dot(c.x(i), c.y(k + 0.5), min(3.2, c.sw / 2 - 1))
+                c.ys.append(c.y(val))
+                pts.append((c.x(i), c.y(val), fmt(val)))
+            c.goal(cfg["goal"])
+            c.values(pts, show)
+        elif f in ("line", "smooth", "area"):
+            c.axis()
+            if f == "area":
+                pp = [(c.x(i), c.y(x)) for i, x in enumerate(vals) if x is not None]
+                c.add('<polygon points="%s %.1f,%.1f %.1f,%.1f" fill="var(--zone2)"/>' % (" ".join("%.1f,%.1f" % p for p in pp), pp[-1][0], c.y(c.lo), pp[0][0], c.y(c.lo)),
+                      sum(c.y(c.lo) - p[1] for p in pp) * c.sw * 0.4)
+            pts = line_through(c, vals, dots=(kind == "level" and f == "line"), smooth=(f == "smooth"))
+            c.goal(cfg["goal"])
+            c.values(pts, show)
+        elif f in ("strip", "dots", "avg"):   # a dot per day at its value; avg adds a 7-day mean (a second series)
+            c.axis()
+            pts = []
+            for i, val in enumerate(vals):
+                if val is None:
+                    continue
+                c.dot(c.x(i), c.y(val), 3.2, "var(--dim)" if f == "avg" else "var(--ink)")
+                c.ys.append(c.y(val))
+                pts.append((c.x(i), c.y(val), fmt(val)))
+            if f == "avg":
+                av = []
+                for i in range(DAYS):
+                    w = [x for x in vals[max(0, i - 6):i + 1] if x is not None]
+                    av.append((c.x(i), c.y(sum(w) / len(w))) if w else None)
+                c.poly([p for p in av if p], 2)
+                c.series = 2
+            c.goal(cfg["goal"])
+            c.values(pts, show)
+        elif f == "band":   # each week's lowest to highest, its mean a line
+            c.axis()
+            pts = []
+            for start, wk in weekly(vals):
+                w = [x for x in wk if x is not None]
+                if not w:
+                    continue
+                x0, x1 = c.g + start * c.sw + 3, c.g + (start + len(wk)) * c.sw - 3
+                c.rect(x0, c.y(max(w)), x1 - x0, max(2, c.y(min(w)) - c.y(max(w))), "var(--zone2)", 4)
+                m = sum(w) / len(w)
+                c.poly([(x0, c.y(m)), (x1, c.y(m))], 2)
+                c.ys.append(c.y(m))
+                pts.append(((x0 + x1) / 2, c.y(max(w)), fmt(round(m, 1))))
+            c.series = 2
+            c.goal(cfg["goal"])
+            c.values(pts, show)
+        elif f == "weeks":   # each week's total (the last a part week)
+            wks = weekly(vals)
+            tot = [sum(x for x in wk if x is not None) for _, wk in wks]
+            c.lo, c.hi = 0, (80 if kind == "count" else 300)
+            c.ticks = (0, 40, 80) if kind == "count" else (0, 100, 200, 300)
+            c.axis()
+            pts = []
+            for (start, wk), t in zip(wks, tot):
+                x0, x1 = c.g + start * c.sw + 3, c.g + (start + len(wk)) * c.sw - 3
+                c.rect(x0, c.y(t), x1 - x0, c.y(0) - c.y(t))
+                c.ys.append(c.y(t))
+                pts.append(((x0 + x1) / 2, c.y(t), fmt(t)))
+            c.goal(cfg["goal"] * 7, "a week's goal %s" % fmt(cfg["goal"] * 7))
+            c.values(pts, show)
+        elif f == "cumul":   # the month's running total against the goal's pace
+            run, acc = [], 0
+            for x in vals:
+                acc += x or 0
+                run.append(acc)
+            c.lo, c.hi, c.ticks = 0, 1000, (0, 500, 1000)
+            c.axis()
+            c.poly([(c.x(i), c.y(r)) for i, r in enumerate(run)], 2)
+            c.ys += [c.y(r) for r in run]
+            c.parts.append('<line x1="%.1f" x2="%.1f" y1="%.1f" y2="%.1f" stroke="var(--dim)" stroke-width="1" stroke-dasharray="4 4"/>' % (c.x(0), c.x(DAYS - 1), c.y(cfg["goal"]), c.y(cfg["goal"] * DAYS)))
+            c.text(W - 6, c.y(cfg["goal"] * DAYS) + 12, "goal's pace", 11, "end")
+            c.values([(c.x(i), c.y(r), fmt(r)) for i, r in enumerate(run)], show)
+        elif f == "dist":   # days at each value
+            levels = list(range(0, 11)) if kind == "count" else [1, 2, 3, 4, 5]
+            cnt = [sum(1 for x in vals if x == k) for k in levels]
+            bw = W / len(levels)
+            top = max(cnt)
+            pts = []
+            for j, (k, n) in enumerate(zip(levels, cnt)):
+                hh = n / top * H
+                c.rect(j * bw + 3, TOP + H - hh, bw - 6, hh)
+                c.text(j * bw + bw / 2, TOP + H + 13, str(k), 11)
+                pts.append((j * bw + bw / 2, TOP + H - hh, str(n)))
+            c.parts.append('<line x1="0" x2="%d" y1="%.1f" y2="%.1f" stroke="var(--dim)" stroke-width="1"/>' % (W, TOP + H, TOP + H))
+            c.values(pts, "every" if show == "every" else "none")
+        elif f == "spark":   # today's value large, a sparkline beside it (no axis, no goal drawn)
+            last = [x for x in vals if x is not None][-1]
+            c.parts.append('<text x="0" y="40" font-size="26" fill="var(--ink)">%s</text><text x="0" y="58" font-size="12" fill="var(--dim)">kg today</text>' % fmt(last))
+            c.g, c.pw = 100, W - 104
+            c.sw = c.pw / DAYS
+            pp = [(c.x(i), 8 + (c.hi - x) / ((c.hi - c.lo) or 1) * 50) for i, x in enumerate(vals) if x is not None]
+            c.poly(pp, 2)
+            c.ys += [p[1] for p in pp]
+            if any(x is None for x in vals):
+                c.misfit["a line across days with no entry"] = 0.5
+            c.misfit["the goal not drawn"] = 1 if not (c.lo <= cfg["goal"] <= c.hi) else 0
+        return finish(c)
+    if kind == "yesno":
+        if f == "ticks":
+            for i, d in enumerate(vals):
+                if d:
+                    c.rect(c.x(i) - c.sw / 2 + 1, TOP + H - 26, c.sw - 2, 26, "var(--ink)", 3)
+                else:
+                    c.rect(c.x(i) - c.sw / 2 + 1, TOP + H - 26, c.sw - 2, 26, "var(--zone2)", 3)
+                c.ys.append(0)
+            c.axis()
+            if show != "none":
+                c.text(W - 4, TOP + H - 34, "%d of 30 days" % sum(vals) if show == "last" else "this week %d · 30 days %d" % (sum(vals[-7:]), sum(vals)), 12, "end", False)
+        elif f == "tally":   # the month's number large, a tick per day under it
+            c.parts.append('<text x="0" y="%d" font-size="26" fill="var(--ink)">%d</text><text x="40" y="%d" font-size="13" fill="var(--dim)">of 30 days · %d this week</text>' % (TOP + 60, sum(vals), TOP + 60, sum(vals[-7:])))
+            for i, d in enumerate(vals):
+                c.rect(c.x(i) - c.sw / 2 + 1, TOP + H - 26, c.sw - 2, 26, "var(--ink)" if d else "var(--zone2)", 3)
+                c.ys.append(0)
+            c.axis()
+        elif f == "weeks":
+            c.lo, c.hi, c.ticks = 0, 7, (0, 7)
+            c.axis()
+            pts = []
+            for start, wk in weekly(vals):
+                t = sum(wk)
+                x0, x1 = c.g + start * c.sw + 3, c.g + (start + len(wk)) * c.sw - 3
+                c.rect(x0, c.y(t), x1 - x0, c.y(0) - c.y(t))
+                pts.append(((x0 + x1) / 2, c.y(t), "%d" % t))
+            c.values(pts, show)
+        elif f == "runs":   # each run of days in a row as a bar along time (Loop's best streaks, kept in time)
+            i = 0
+            pts = []
+            while i < DAYS:
+                if vals[i]:
+                    j = i
+                    while j < DAYS and vals[j]:
+                        j += 1
+                    c.rect(c.g + i * c.sw + 1, TOP + H - 30, (j - i) * c.sw - 2, 14, "var(--ink)", 7)
+                    pts.append((c.g + (i + j) / 2 * c.sw, TOP + H - 30, "%d" % (j - i)))
+                    i = j
+                else:
+                    i += 1
+            c.axis()
+            c.values(pts, show)
+        elif f == "cumul":
+            run, acc = [], 0
+            for d in vals:
+                acc += d
+                run.append(acc)
+            c.lo, c.hi, c.ticks = 0, 30, (0, 10, 20, 30)
+            c.axis()
+            c.poly([(c.x(i), c.y(r)) for i, r in enumerate(run)], 2)
+            c.values([(c.x(i), c.y(r), "%d" % r) for i, r in enumerate(run)], show)
+        return finish(c)
+    # choices
+    letters = {"home": "H", "packed": "P", "out": "O", "skipped": "–"}
+    shade = {"home": "var(--ink)", "packed": "var(--dim)", "out": "var(--zone2)", "skipped": "none"}
+    cnt = {k: sum(1 for x in vals if x == k) for k in CHOICES}
+    if f == "strip":   # a letter per day
+        for i, x in enumerate(vals):
+            if x:
+                c.text(c.x(i), TOP + H - 8, letters[x], 11, "middle", False)
+                c.marks.append(7)
+                c.ink += 30
+        c.axis()
+        c.parts.append('<text x="0" y="%d" font-size="11" fill="var(--dim)">H home · P packed · O out · – skipped</text>' % (TOP + H - 40))
+        c.legend = 1
+    elif f == "rows":   # a row per choice, a mark on its days (small multiples, labelled)
+        rh = H / len(CHOICES)
+        c.g = 56
+        c.pw = W - c.g - 4
+        c.sw = c.pw / DAYS
+        for j, k in enumerate(CHOICES):
+            yy = TOP + j * rh + rh / 2
+            c.text(0, yy + 4, k, 11, "start")
+            for i, x in enumerate(vals):
+                if x == k:
+                    c.rect(c.x(i) - c.sw / 2 + 1, yy - 8, c.sw - 2, 16, "var(--ink)", 3)
+            if show == "every":
+                c.text(W - 2, yy + 4, str(cnt[k]), 9, "end")
+        c.axis()
+    elif f == "hbars":   # days per choice, most first
+        order = sorted(CHOICES, key=lambda k: -cnt[k])
+        rh = H / len(order)
+        top = max(cnt.values())
+        for j, k in enumerate(order):
+            yy = TOP + j * rh
+            c.text(0, yy + rh / 2 + 4, k, 12, "start")
+            c.rect(64, yy + rh / 2 - 7, (W - 100) * cnt[k] / top, 14)
+            if show != "none":
+                c.text(64 + (W - 100) * cnt[k] / top + 6, yy + rh / 2 + 4, str(cnt[k]), 12, "start", False)
+    elif f == "stacked":   # each week split by choice
+        wks = weekly(vals)
+        for start, wk in wks:
+            x0 = c.g + start * c.sw + 3
+            ww = len(wk) * c.sw - 6
+            acc = 0
+            n = len(wk)
+            for k in CHOICES:
+                m = sum(1 for x in wk if x == k)
+                if m:
+                    hh = m / n * H
+                    c.rect(x0, TOP + H - acc - hh, ww, hh, shade[k] if shade[k] != "none" else "var(--bg)", 0)
+                    if shade[k] == "none":
+                        c.parts.append('<rect x="%.1f" y="%.1f" width="%.1f" height="%.1f" fill="none" stroke="var(--dim)"/>' % (x0, TOP + H - acc - hh, ww, hh))
+                    if show == "every":
+                        c.text(x0 + ww / 2, TOP + H - acc - hh / 2 + 3, str(m), 9, "middle")
+                    acc += hh
+        c.axis()
+        c.parts.append('<text x="0" y="8" font-size="11" fill="var(--dim)">■ home  ▤ packed  □ out  ▢ skipped</text>')
+        c.legend = 1
+        c.series = 4
+    elif f == "pie":
+        c.add(pie_svg(cnt, show != "none"), math.pi * 55 * 55, 20)
+        c.legend = 1
+        c.series = 4
+    return finish(c)
+
+
+def pie_svg(cnt, pct, cx=80, cy=TOP + 66, r=55):
+    tot = sum(cnt.values())
+    fills = {"home": "var(--ink)", "packed": "var(--dim)", "out": "var(--zone2)", "skipped": "var(--bg)"}
+    out, a = [], -math.pi / 2
+    for k in CHOICES:
+        da = cnt[k] / tot * 2 * math.pi
+        x0, y0 = cx + r * math.cos(a), cy + r * math.sin(a)
+        x1, y1 = cx + r * math.cos(a + da), cy + r * math.sin(a + da)
+        out.append('<path d="M%.1f,%.1f L%.1f,%.1f A%d,%d 0 %d 1 %.1f,%.1f Z" fill="%s" stroke="var(--dim)" stroke-width="0.5"/>' % (cx, cy, x0, y0, r, r, 1 if da > math.pi else 0, x1, y1, fills[k]))
+        if pct:
+            m = a + da / 2
+            out.append('<text x="%.1f" y="%.1f" font-size="10" fill="var(--dim)" text-anchor="middle">%d%%</text>' % (cx + r * 0.68 * math.cos(m), cy + r * 0.68 * math.sin(m) + 3, round(cnt[k] / tot * 100)))
+        a += da
+    for j, k in enumerate(CHOICES):
+        out.append('<rect x="160" y="%d" width="10" height="10" fill="%s" stroke="var(--dim)" stroke-width="0.5"/><text x="176" y="%d" font-size="11" fill="var(--dim)">%s</text>' % (TOP + 30 + j * 20, fills[k], TOP + 39 + j * 20, k))
+    return "".join(out)
+
+
+# ==== the controls: the surveyed apps' own charts ===============================================================================
+CONTROLS = {
+    "count": [("chronicle", "Chronicle's tracker chart: mode chips, Day/Week/Month/Quarter, a 'Daily average' card of bars with no axis, a stub for a day with no entry"),
+              ("trackandgraph", "Track & Graph's line graph: a dynamic range fit to the data, a line through every entry, a y-axis")],
+    "rating": [("chronicle", "Chronicle's 'Daily average' bars for a rating, no axis"),
+               ("trackandgraph", "Track & Graph's line graph, a dynamic range")],
+    "yesno": [("loop", "Loop's habit page: an overview of score, month and year percentages, and the score line 0-100 %"),
+              ("streak", "Streak's statistics: completions, best and current streak, completion rate, and the days as squares")],
+    "choice": [("atimelogger", "aTimeLogger's pie: a slice per choice, the percent inside, a legend"),
+               ("trackandgraph", "Track & Graph's pie chart with a legend")],
+    "add": [("timety", "Timety's 'Productivity synergy': focus minutes and a second count on one shared axis, a legend"),
+            ("chronicle", "Chronicle's 'Daily average' bars, no axis, mode and period chips")],
+    "level": [("openscale", "openScale's Graph tab: four series smoothed, two y-axes (BMI left, kcal right) with the weight on the kcal scale, a legend"),
+              ("openscale_home", "openScale's overview: a smoothed line, a dot per entry, every date labelled")],
+}
+CTL_COSTS = {   # the three questions, as COSTS (hand-set, read from the survey's notes)
+    ("count", "chronicle"): (3, 2, 1), ("count", "trackandgraph"): (1, 1, 0),
+    ("rating", "chronicle"): (2, 1, 1), ("rating", "trackandgraph"): (1, 1, 0.5),
+    ("yesno", "loop"): (2, 1, 3), ("yesno", "streak"): (2, 0, 1),
+    ("choice", "atimelogger"): (0, 3, 3), ("choice", "trackandgraph"): (1, 3, 3),
+    ("add", "timety"): (1, 2, 1), ("add", "chronicle"): (3, 2, 1),
+    ("level", "openscale"): (2, 2, 3), ("level", "openscale_home"): (1, 0, 3),
+}
+
+
+def chips(words, on):
+    return '<div class="gl" style="display:flex;gap:4px;font-size:12px;margin:2px 0">%s</div>' % "".join(
+        '<span style="padding:4px 8px;border-radius:12px;%s">%s</span>' % ("background:var(--zone2);font-weight:600" if w == on else "box-shadow:inset 0 0 0 1px var(--dim)", w) for w in words)
+
+
+def draw_control(kind, app):
+    cfg = KINDS[kind]
+    vals = cfg["vals"]
+    pre = ""
+    if app == "chronicle":
+        c = Chart(kind, {"form": "stubs", "yaxis": "none", "values": "none"})
+        if kind == "rating":
+            c.lo = 0
+            c.misfit["a quantity implied of a rating"] = 0.5
+        c.parts.append('<line x1="0" x2="%d" y1="%.1f" y2="%.1f" stroke="var(--dim)" stroke-width="1"/>' % (W, TOP + H, TOP + H))
+        daily_bars(c, vals, True, c.lo)
+        for i in range(0, DAYS, 7):
+            c.text(c.x(i), TOP + H + 13, "MTWTFSS"[(i + 3) % 7], 11)
+        pre = chips(["Trend", "Hour", "Weekday", "Month day"], "Trend") + chips(["Day", "Week", "Month", "Quarter"], "Month") + '<div class="gl" style="font-size:13px;margin-top:4px">Daily average · Zoom</div>'
+    elif app == "trackandgraph":
+        if kind == "choice":
+            c = Chart(kind, {"form": "pie", "yaxis": "none", "values": "none"})
+            cnt = {k: sum(1 for x in vals if x == k) for k in CHOICES}
+            c.add(pie_svg(cnt, False), math.pi * 55 * 55, 20)
+            c.legend, c.series = 1, 4
+        else:
+            c = Chart(kind, {"form": "line", "yaxis": "grid", "values": "none"})
+            have = [x for x in vals if x is not None]
+            c.lo, c.hi = min(have), max(have)   # range style "Dynamic"
+            if kind == "rating" and (c.lo > 1 or c.hi < 5):
+                c.misfit["the scale cut short"] = 1
+            step = (c.hi - c.lo) / 4
+            c.ticks = tuple(round(c.lo + step * k, 1) for k in range(5))
+            c.axis()
+            line_through(c, vals)
+            if kind in ("count", "rating"):
+                c.misfit["a line through whole values"] = 0.5
+    elif app == "atimelogger":
+        c = Chart(kind, {"form": "pie", "yaxis": "none", "values": "every"})
+        cnt = {k: sum(1 for x in vals if x == k) for k in CHOICES}
+        c.add(pie_svg(cnt, True), math.pi * 55 * 55, 20)
+        c.legend, c.series = 1, 4
+    elif app == "timety":
+        c = Chart(kind, {"form": "line", "yaxis": "grid", "values": "none"})
+        c.lo, c.hi, c.ticks = 0, 60, (0, 20, 40, 60)
+        c.axis()
+        line_through(c, vals, dots=True)
+        sessions = [0 if x == 0 else (1 if x < 30 else 2) for x in vals]
+        c.poly([(c.x(i), c.y(s)) for i, s in enumerate(sessions)], 2, "var(--dim)")
+        c.series, c.legend = 2, 1
+        c.misfit["two units on one axis"] = 1
+        c.parts.append('<text x="%d" y="8" font-size="11" fill="var(--dim)">— focus minutes  — sessions</text>' % c.g)
+    elif app == "loop":
+        c = Chart(kind, {"form": "line", "yaxis": "grid", "values": "none"})
+        score, s = [], 0.0
+        for d in vals:   # Loop's habit strength: an exponential mean
+            s = s * 0.9 + d * 0.1
+            score.append(s * 100)
+        c.lo, c.hi, c.ticks = 0, 100, (0, 20, 40, 60, 80, 100)
+        c.axis()
+        c.poly([(c.x(i), c.y(x)) for i, x in enumerate(score)], 2)
+        for i in range(0, DAYS, 7):
+            c.dot(c.x(i), c.y(score[i]), 3)
+        c.misfit["a derived score, not the days"] = 0.5
+        c.compare = 3
+        pre = '<div class="gl" style="display:flex;gap:10px;font-size:13px"><b>%d%%</b> score <b>+5%%</b> month <b>+12%%</b> year <b>%d</b> total</div>' % (round(score[-1]), sum(vals))
+    elif app == "streak":
+        c = Chart(kind, {"form": "ticks", "yaxis": "none", "values": "none"})
+        cell = 22
+        for i, d in enumerate(vals):
+            r, col = divmod(i, 10)
+            c.rect(col * (cell + 4), TOP + 40 + r * (cell + 4), cell, cell, "var(--ink)" if d else "var(--zone2)", 4)
+        c.compare = 3
+        pre = '<div class="gl" style="display:flex;gap:6px;font-size:12px"><span><b>18</b> completions</span><span><b>4</b> best streak</span><span><b>2</b> current streak</span><span><b>60%</b> rate</span></div>'
+    elif app == "openscale":
+        c = Chart(kind, {"form": "smooth", "yaxis": "grid", "values": "none"})
+        c.g, c.pw = 34, W - 70
+        c.sw = c.pw / DAYS
+        c.lo, c.hi, c.ticks = 0, 2000, ()
+        c.parts.append('<line x1="%d" x2="%d" y1="%.1f" y2="%.1f" stroke="var(--dim)"/>' % (c.g, c.g + c.pw, TOP + H, TOP + H))
+        for k, t in enumerate(("25.55", "25.65", "25.75")):
+            c.text(c.g - 3, TOP + H - k * 50 + 4, t, 9, "end")
+        for k, t in enumerate(("0", "1000", "2000")):
+            c.text(c.g + c.pw + 3, TOP + H - k * 60 + 4, t, 9, "start")
+        line_through(c, vals, smooth=True)
+        bmi = [None if x is None else 25.55 + (x - 72) * 0.1 for x in vals]
+        c.poly([(c.x(i), TOP + H - (b - 25.55) / 0.3 * 150) for i, b in enumerate(bmi) if b is not None], 2, "var(--dim)")
+        c.poly([(c.x(i), TOP + 30 + (i % 5) * 3) for i in range(DAYS)], 1.5, "var(--dim)", "2 2")
+        c.poly([(c.x(i), TOP + 70 - (i % 3) * 4) for i in range(DAYS)], 1.5, "var(--dim)", "6 2")
+        c.series, c.legend = 4, 1
+        c.misfit["two y-axes"] = 1
+        c.misfit["the goal not drawn"] = 1
+        c.parts.append('<text x="%d" y="8" font-size="10" fill="var(--dim)">— weight — BMI ┄ fat ╌ kcal</text>' % c.g)
+        for i, t in X_LABELS:
+            c.text(c.x(i), TOP + H + 13, t, 10)
+    else:   # openscale_home
+        c = Chart(kind, {"form": "smooth", "yaxis": "none", "values": "every", "range": "fit"})
+        c.parts.append('<line x1="0" x2="%d" y1="%.1f" y2="%.1f" stroke="var(--dim)"/>' % (W, TOP + H, TOP + H))
+        pts = line_through(c, vals, dots=True, smooth=True)
+        c.misfit["the goal not drawn"] = 1
+        for i, x in enumerate(vals):
+            if x is not None:
+                c.text(c.x(i), TOP + H + 13, "%02d/%02d" % ((17 + i - 1) % 30 + 1 if i < 14 else i - 13, 9 if i < 14 else 10), 9)
+        c.values(pts, "every")
+    m = finish(c)
+    m["html"] = pre + m["html"]
+    m["control"] = True
+    return m
+
+
+def finish(c):
+    jit = [abs(c.ys[i + 1] - c.ys[i]) for i in range(len(c.ys) - 1)]
+    jit.sort()
+    noise = jit[len(jit) // 2] if jit else 0
+    if c.k in ("count", "rating"):
+        step = H / ((c.hi - c.lo) or 1) * c.cfg["step"] if c.v.get("form") not in ("dist", "weeks") else H / ((c.hi - c.lo) or 1) * (7 if c.v.get("form") == "weeks" else 1)
+    elif c.k == "add":
+        step = H / ((c.hi - c.lo) or 1) * (5 if c.v.get("form") != "cumul" and c.v.get("form") != "weeks" else 30)
+    elif c.k == "level":
+        step = (50 if c.v.get("form") == "spark" else H) / ((c.hi - c.lo) or 1) * c.cfg["step"]
+    else:
+        step = c.sw   # a day's cell
+    return {"html": '<div class="gk">%s</div>' % c.svg(), "ink": round(c.ink / (W * H), 4), "min_mark": round(min(c.marks), 2) if c.marks else 0,
+            "step_px": round(step, 2), "noise_px": round(noise, 2), "misfit": dict(c.misfit), "series": c.series, "legend": c.legend, "compare": c.compare}
+
+
+# ==== measuring and scoring =====================================================================================================
+GK_JS = r"""(function(){var g=document.querySelector('[data-sec=graph]');var gb=g.getBoundingClientRect();
+var ts=[].slice.call(g.querySelectorAll('text,.gl span,.gl b,.gl'));ts=ts.filter(function(t){return !(t.classList&&t.classList.contains('gl')&&t.children.length)});
+var o={min_font:99,overlaps:0,cut:0,numbers:0,elements:g.querySelectorAll('svg *').length};
+var bs=ts.map(function(t){return t.getBoundingClientRect()});
+ts.forEach(function(t,i){var f=parseFloat(getComputedStyle(t).fontSize);if(f<o.min_font)o.min_font=f;
+ if(!(t.parentElement&&t.parentElement.closest('.gl')&&t.parentElement!==t))o.numbers+=(t.textContent.match(/\d+([.,]\d+)?/g)||[]).length;
+ var b=bs[i];if(b.left<gb.left-1||b.right>gb.right+1)o.cut++});
+for(var i=0;i<bs.length;i++)for(var j=i+1;j<bs.length;j++){var a=bs[i],b=bs[j];
+ if(ts[i].contains(ts[j])||ts[j].contains(ts[i]))continue;
+ if(a.width&&b.width&&a.left<b.right-1&&b.left<a.right-1&&a.top<b.bottom-1&&b.top<a.bottom-1)o.overlaps++}
+return o})()"""
+
+
+def shared(kind, form):
+    return sum(1 for k, fs in FORMS.items() if k != kind and form in fs)
+
+
+def make_part(ns, kind):
+    T, kit, ipdoc = ns["T"], ns["kit"], ns["ipdoc"]
+
+    def page(v):
+        m = draw(kind, v)
+        body = '<div class="zone" style="padding-bottom:8px"><div class="iph">Last 30 days</div><div data-sec="graph">%s</div></div>' % m["html"]
+        return ipdoc(kit.phone(kit.header(KINDS[kind]["name"], (("⚙", "Settings"),), ("‹", "Back")), body, kit.bar("Hub"))), m
+
+    def score(v):
+        d, m = page(v)
+        key = "gk-%s-%s" % (kind, "-".join(str(x) for x in v.values()))
+        b = T.probe(d, key, GK_JS)
+        if v.get("control"):
+            costs = CTL_COSTS[(kind, v["control_app"])]
+            sh = 0
+        else:
+            f = v["form"]
+            costs = list(COSTS[kind][f])
+            show, ya = v["values"], v["yaxis"]
+            if kind == "level":   # now: printed, read off an axis, or not at all
+                costs[0] = 0 if (show in ("last", "every") or f == "spark") else ({"grid": 1, "ends": 2, "none": 3}[ya] if f in DAILY else max(2, {"grid": 1, "ends": 2, "none": 3}[ya]))
+            if kind == "add" and f == "weeks" and show != "none":
+                costs[1] = 0   # this week's total printed
+            if kind in ("count", "add") and f in DAILY and show == "none" and ya == "none" and f != "dots":
+                costs[1] = max(costs[1], 2)   # a usual day / a week's sum with nothing to read amounts from
+            if kind == "level" and "goal outside the range" in m["misfit"]:
+                costs[2] = 3
+            if kind == "yesno" and show != "none" and f in ("ticks", "weeks", "cumul"):
+                costs[1] = min(costs[1], 0 if f != "weeks" else 2)
+            # an amount asked of a mark with neither an axis nor a printed value: only guessed (found 2026-10-16: the bare weekly
+            # bars ranked first for "this week's total")
+            read = 0 if show != "none" else {"grid": 1, "ends": 1, "none": 2}[ya]
+            if kind == "add" and f == "weeks":
+                costs[1] = read
+            if kind == "yesno" and f == "weeks":
+                costs[0] = read
+            if kind == "yesno" and f == "cumul":
+                costs[1] = read
+            if kind == "rating" and f != "dist" and show == "none" and ya == "none":
+                costs[0] = max(costs[0], 2)   # a usual rating from unlabelled heights
+            if kind == "choice" and f in ("hbars", "pie") and show != "none":
+                costs[0] = 0
+            sh = shared(kind, f)
+        fit = sum(m["misfit"].values())
+        enc = CTL_ENCODING.get((kind, v.get("control_app")), ENCODING[v["control_app"] if v.get("control") else v["form"]])
+        load = sum(costs) + b["numbers"] / 10 + (m["series"] - 1) * 0.5 + m["legend"]
+        return {"fit": fit, "misfit": ", ".join(sorted(k for k, x in m["misfit"].items() if x)) or "-", "min_font": b["min_font"], "overlaps": b["overlaps"],
+                "cut": b["cut"], "min_mark": m["min_mark"], "step_px": m["step_px"], "encoding": enc,
+                "mark_seen": min(m["min_mark"], MARK_ENOUGH), "step_seen": min(m["step_px"], STEP_ENOUGH), "noise_seen": max(m["noise_px"], NOISE_FLAT), "ink": m["ink"], "noise_px": m["noise_px"], "compare": m["compare"],
+                "costs": list(costs), "numbers": b["numbers"], "load": round(load, 2), "shared": sh, "small": []}
+
+    part = "gk_" + kind
+    space = {"form": FORMS[kind], "yaxis": ["grid", "ends", "none"], "values": ["none", "last", "every"]}
+    if kind == "level":
+        space["range"] = ["fit", "plausible", "zero"]
+    if kind in ("count", "add"):
+        space["range"] = ["zero", "fit"]
+    T.SPACES[part] = space
+    T.SCORERS[part] = score
+    T.VALID[part] = valid(kind)
+    T.CONTROLS[part] = [({k: app for k in space} | {"control": True, "control_app": app}, why) for app, why in CONTROLS[kind]]
+    T.TITLES[part] = "T3b.7a Graphs for %s: %s (%s)" % ({"count": "counts", "rating": "ratings", "yesno": "yes/no", "choice": "choices", "add": "amounts that add up",
+                                                         "level": "amounts that do not add up"}[kind], KINDS[kind]["name"], "; ".join(QUESTIONS[kind]))
+    T.DRAW[part] = lambda v: [page(v)[0]]
+    T.POOL[part] = lambda ok: [r for r in ok if r.get("front")] + [min((r for r in ok if not r["v"].get("control") and r["v"]["form"] == f), key=lambda r: r["total"])
+                                                                   for f in FORMS[kind] if not any(r.get("front") and r["v"].get("form") == f for r in ok)]   # every form drawn once
+    T.DRAW_MAX[part] = 18
+    T.AXES[part] = {"Fit": ("fit",), "Readability": ("-min_font", "overlaps", "cut", "-mark_seen", "-step_seen", "encoding"), "Calm": ("ink", "noise_seen", "compare"),
+                    "Mental load": ("load",), "Consistency": ("-shared",)}
+    T.WEIGHTS[part] = {"Consistency": 0.25}
+    T.REFS_INFO.add(part)
+    for k, tol in (("_ink", 0.01), ("_noise_seen", 1.0), ("_step_seen", 0.5), ("_load", 0.1), ("_mark_seen", 0.5)):
+        T.v2.TOL.setdefault(k, tol)
+
+
+def register(ns):
+    for kind in KINDS:
+        make_part(ns, kind)

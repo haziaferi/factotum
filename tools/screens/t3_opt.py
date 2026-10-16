@@ -13,6 +13,7 @@ Parts:
   tkind    T3b.5e how time is held: spans, amounts, or both (owner, 2026-10-16)
   where    T3b.6 one home per thing, the repeats scored together (owner, 2026-10-16)
   ipage    T3b.7 the tracker's or activity's page, as one screen, with its graphs (owner, 2026-10-16)
+  gk_*     T3b.7a the graphs per kind of value: gk_count gk_rating gk_yesno gk_choice gk_add gk_level (t3_graphs.py)
   pace6    T3b.4f the approved Paced sentence: steppers the boxes' height, flowing or one part per line (owner, 2026-10-15)
   pace5    T3b.4e the Paced timer: N breaks evenly in the sentence; the ring shows and selects (owner, 2026-10-15)
   pace4    T3b.4d the Paced timer: a real dial for times, the run ring for pauses as fractions (owner, 2026-10-15)
@@ -4713,6 +4714,9 @@ T.SUPERSEDED = {"tunit": "time is always an activity's (T3b.5e, owner 2026-10-16
 T.v2.TOL.setdefault("_reach_log", 0.05)
 T.v2.TOL.setdefault("_reach_mean", 0.05)
 T.v2.TOL.setdefault("_reach_filter", 0.05)
+
+import t3_graphs  # noqa: E402  (T3b.7a: the graphs per kind of value, registered into the parts above)
+t3_graphs.register(globals())
 
 
 if __name__ == "__main__":

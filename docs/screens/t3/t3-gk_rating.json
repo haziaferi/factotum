@@ -1,0 +1,1480 @@
+[
+ {
+  "v": {
+   "form": "strip",
+   "yaxis": "grid",
+   "values": "none"
+  },
+  "fit": 0,
+  "misfit": "-",
+  "min_font": 12,
+  "overlaps": 0,
+  "cut": 0,
+  "min_mark": 6.4,
+  "step_px": 33.0,
+  "encoding": 0,
+  "mark_seen": 6,
+  "step_seen": 12,
+  "noise_seen": 33.0,
+  "ink": 0.0211,
+  "noise_px": 33.0,
+  "compare": 0,
+  "costs": [
+   1,
+   0,
+   1
+  ],
+  "numbers": 8,
+  "load": 2.8,
+  "shared": 1,
+  "small": []
+ },
+ {
+  "v": {
+   "form": "strip",
+   "yaxis": "grid",
+   "values": "last"
+  },
+  "fit": 0,
+  "misfit": "-",
+  "min_font": 12,
+  "overlaps": 0,
+  "cut": 0,
+  "min_mark": 6.4,
+  "step_px": 33.0,
+  "encoding": 0,
+  "mark_seen": 6,
+  "step_seen": 12,
+  "noise_seen": 33.0,
+  "ink": 0.0211,
+  "noise_px": 33.0,
+  "compare": 0,
+  "costs": [
+   1,
+   0,
+   1
+  ],
+  "numbers": 9,
+  "load": 2.9,
+  "shared": 1,
+  "small": []
+ },
+ {
+  "v": {
+   "form": "strip",
+   "yaxis": "grid",
+   "values": "every"
+  },
+  "fit": 0,
+  "misfit": "-",
+  "min_font": 9,
+  "overlaps": 0,
+  "cut": 0,
+  "min_mark": 6.4,
+  "step_px": 33.0,
+  "encoding": 0,
+  "mark_seen": 6,
+  "step_seen": 12,
+  "noise_seen": 33.0,
+  "ink": 0.0211,
+  "noise_px": 33.0,
+  "compare": 0,
+  "costs": [
+   1,
+   0,
+   1
+  ],
+  "numbers": 35,
+  "load": 5.5,
+  "shared": 1,
+  "small": []
+ },
+ {
+  "v": {
+   "form": "strip",
+   "yaxis": "ends",
+   "values": "none"
+  },
+  "fit": 0,
+  "misfit": "-",
+  "min_font": 12,
+  "overlaps": 0,
+  "cut": 0,
+  "min_mark": 6.4,
+  "step_px": 33.0,
+  "encoding": 0,
+  "mark_seen": 6,
+  "step_seen": 12,
+  "noise_seen": 33.0,
+  "ink": 0.0211,
+  "noise_px": 33.0,
+  "compare": 0,
+  "costs": [
+   1,
+   0,
+   1
+  ],
+  "numbers": 5,
+  "load": 2.5,
+  "shared": 1,
+  "small": []
+ },
+ {
+  "v": {
+   "form": "strip",
+   "yaxis": "ends",
+   "values": "last"
+  },
+  "fit": 0,
+  "misfit": "-",
+  "min_font": 12,
+  "overlaps": 0,
+  "cut": 0,
+  "min_mark": 6.4,
+  "step_px": 33.0,
+  "encoding": 0,
+  "mark_seen": 6,
+  "step_seen": 12,
+  "noise_seen": 33.0,
+  "ink": 0.0211,
+  "noise_px": 33.0,
+  "compare": 0,
+  "costs": [
+   1,
+   0,
+   1
+  ],
+  "numbers": 6,
+  "load": 2.6,
+  "shared": 1,
+  "small": []
+ },
+ {
+  "v": {
+   "form": "strip",
+   "yaxis": "ends",
+   "values": "every"
+  },
+  "fit": 0,
+  "misfit": "-",
+  "min_font": 9,
+  "overlaps": 0,
+  "cut": 0,
+  "min_mark": 6.4,
+  "step_px": 33.0,
+  "encoding": 0,
+  "mark_seen": 6,
+  "step_seen": 12,
+  "noise_seen": 33.0,
+  "ink": 0.0211,
+  "noise_px": 33.0,
+  "compare": 0,
+  "costs": [
+   1,
+   0,
+   1
+  ],
+  "numbers": 32,
+  "load": 5.2,
+  "shared": 1,
+  "small": []
+ },
+ {
+  "v": {
+   "form": "strip",
+   "yaxis": "none",
+   "values": "none"
+  },
+  "fit": 0,
+  "misfit": "-",
+  "min_font": 12,
+  "overlaps": 0,
+  "cut": 0,
+  "min_mark": 6.4,
+  "step_px": 33.0,
+  "encoding": 0,
+  "mark_seen": 6,
+  "step_seen": 12,
+  "noise_seen": 33.0,
+  "ink": 0.0211,
+  "noise_px": 33.0,
+  "compare": 0,
+  "costs": [
+   2,
+   0,
+   1
+  ],
+  "numbers": 3,
+  "load": 3.3,
+  "shared": 1,
+  "small": []
+ },
+ {
+  "v": {
+   "form": "strip",
+   "yaxis": "none",
+   "values": "last"
+  },
+  "fit": 0,
+  "misfit": "-",
+  "min_font": 12,
+  "overlaps": 0,
+  "cut": 0,
+  "min_mark": 6.4,
+  "step_px": 33.0,
+  "encoding": 0,
+  "mark_seen": 6,
+  "step_seen": 12,
+  "noise_seen": 33.0,
+  "ink": 0.0211,
+  "noise_px": 33.0,
+  "compare": 0,
+  "costs": [
+   1,
+   0,
+   1
+  ],
+  "numbers": 4,
+  "load": 2.4,
+  "shared": 1,
+  "small": []
+ },
+ {
+  "v": {
+   "form": "strip",
+   "yaxis": "none",
+   "values": "every"
+  },
+  "fit": 0,
+  "misfit": "-",
+  "min_font": 9,
+  "overlaps": 0,
+  "cut": 0,
+  "min_mark": 6.4,
+  "step_px": 33.0,
+  "encoding": 0,
+  "mark_seen": 6,
+  "step_seen": 12,
+  "noise_seen": 33.0,
+  "ink": 0.0211,
+  "noise_px": 33.0,
+  "compare": 0,
+  "costs": [
+   1,
+   0,
+   1
+  ],
+  "numbers": 30,
+  "load": 5.0,
+  "shared": 1,
+  "small": []
+ },
+ {
+  "v": {
+   "form": "line",
+   "yaxis": "grid",
+   "values": "none"
+  },
+  "fit": 1.0,
+  "misfit": "a line across days with no entry, a line through whole values",
+  "min_font": 12,
+  "overlaps": 0,
+  "cut": 0,
+  "min_mark": 2,
+  "step_px": 33.0,
+  "encoding": 0,
+  "mark_seen": 2,
+  "step_seen": 12,
+  "noise_seen": 33.0,
+  "ink": 0.0422,
+  "noise_px": 33.0,
+  "compare": 0,
+  "costs": [
+   1,
+   1,
+   0.5
+  ],
+  "numbers": 8,
+  "load": 3.3,
+  "shared": 3,
+  "small": []
+ },
+ {
+  "v": {
+   "form": "line",
+   "yaxis": "grid",
+   "values": "last"
+  },
+  "fit": 1.0,
+  "misfit": "a line across days with no entry, a line through whole values",
+  "min_font": 12,
+  "overlaps": 0,
+  "cut": 0,
+  "min_mark": 2,
+  "step_px": 33.0,
+  "encoding": 0,
+  "mark_seen": 2,
+  "step_seen": 12,
+  "noise_seen": 33.0,
+  "ink": 0.0422,
+  "noise_px": 33.0,
+  "compare": 0,
+  "costs": [
+   1,
+   1,
+   0.5
+  ],
+  "numbers": 9,
+  "load": 3.4,
+  "shared": 3,
+  "small": []
+ },
+ {
+  "v": {
+   "form": "line",
+   "yaxis": "grid",
+   "values": "every"
+  },
+  "fit": 1.0,
+  "misfit": "a line across days with no entry, a line through whole values",
+  "min_font": 9,
+  "overlaps": 0,
+  "cut": 0,
+  "min_mark": 2,
+  "step_px": 33.0,
+  "encoding": 0,
+  "mark_seen": 2,
+  "step_seen": 12,
+  "noise_seen": 33.0,
+  "ink": 0.0422,
+  "noise_px": 33.0,
+  "compare": 0,
+  "costs": [
+   1,
+   1,
+   0.5
+  ],
+  "numbers": 35,
+  "load": 6.0,
+  "shared": 3,
+  "small": []
+ },
+ {
+  "v": {
+   "form": "line",
+   "yaxis": "ends",
+   "values": "none"
+  },
+  "fit": 1.0,
+  "misfit": "a line across days with no entry, a line through whole values",
+  "min_font": 12,
+  "overlaps": 0,
+  "cut": 0,
+  "min_mark": 2,
+  "step_px": 33.0,
+  "encoding": 0,
+  "mark_seen": 2,
+  "step_seen": 12,
+  "noise_seen": 33.0,
+  "ink": 0.0422,
+  "noise_px": 33.0,
+  "compare": 0,
+  "costs": [
+   1,
+   1,
+   0.5
+  ],
+  "numbers": 5,
+  "load": 3.0,
+  "shared": 3,
+  "small": []
+ },
+ {
+  "v": {
+   "form": "line",
+   "yaxis": "ends",
+   "values": "last"
+  },
+  "fit": 1.0,
+  "misfit": "a line across days with no entry, a line through whole values",
+  "min_font": 12,
+  "overlaps": 0,
+  "cut": 0,
+  "min_mark": 2,
+  "step_px": 33.0,
+  "encoding": 0,
+  "mark_seen": 2,
+  "step_seen": 12,
+  "noise_seen": 33.0,
+  "ink": 0.0422,
+  "noise_px": 33.0,
+  "compare": 0,
+  "costs": [
+   1,
+   1,
+   0.5
+  ],
+  "numbers": 6,
+  "load": 3.1,
+  "shared": 3,
+  "small": []
+ },
+ {
+  "v": {
+   "form": "line",
+   "yaxis": "ends",
+   "values": "every"
+  },
+  "fit": 1.0,
+  "misfit": "a line across days with no entry, a line through whole values",
+  "min_font": 9,
+  "overlaps": 0,
+  "cut": 0,
+  "min_mark": 2,
+  "step_px": 33.0,
+  "encoding": 0,
+  "mark_seen": 2,
+  "step_seen": 12,
+  "noise_seen": 33.0,
+  "ink": 0.0422,
+  "noise_px": 33.0,
+  "compare": 0,
+  "costs": [
+   1,
+   1,
+   0.5
+  ],
+  "numbers": 32,
+  "load": 5.7,
+  "shared": 3,
+  "small": []
+ },
+ {
+  "v": {
+   "form": "line",
+   "yaxis": "none",
+   "values": "none"
+  },
+  "fit": 1.0,
+  "misfit": "a line across days with no entry, a line through whole values",
+  "min_font": 12,
+  "overlaps": 0,
+  "cut": 0,
+  "min_mark": 2,
+  "step_px": 33.0,
+  "encoding": 0,
+  "mark_seen": 2,
+  "step_seen": 12,
+  "noise_seen": 33.0,
+  "ink": 0.0428,
+  "noise_px": 33.0,
+  "compare": 0,
+  "costs": [
+   2,
+   1,
+   0.5
+  ],
+  "numbers": 3,
+  "load": 3.8,
+  "shared": 3,
+  "small": []
+ },
+ {
+  "v": {
+   "form": "line",
+   "yaxis": "none",
+   "values": "last"
+  },
+  "fit": 1.0,
+  "misfit": "a line across days with no entry, a line through whole values",
+  "min_font": 12,
+  "overlaps": 0,
+  "cut": 0,
+  "min_mark": 2,
+  "step_px": 33.0,
+  "encoding": 0,
+  "mark_seen": 2,
+  "step_seen": 12,
+  "noise_seen": 33.0,
+  "ink": 0.0428,
+  "noise_px": 33.0,
+  "compare": 0,
+  "costs": [
+   1,
+   1,
+   0.5
+  ],
+  "numbers": 4,
+  "load": 2.9,
+  "shared": 3,
+  "small": []
+ },
+ {
+  "v": {
+   "form": "line",
+   "yaxis": "none",
+   "values": "every"
+  },
+  "fit": 1.0,
+  "misfit": "a line across days with no entry, a line through whole values",
+  "min_font": 9,
+  "overlaps": 0,
+  "cut": 0,
+  "min_mark": 2,
+  "step_px": 33.0,
+  "encoding": 0,
+  "mark_seen": 2,
+  "step_seen": 12,
+  "noise_seen": 33.0,
+  "ink": 0.0428,
+  "noise_px": 33.0,
+  "compare": 0,
+  "costs": [
+   1,
+   1,
+   0.5
+  ],
+  "numbers": 30,
+  "load": 5.5,
+  "shared": 3,
+  "small": []
+ },
+ {
+  "v": {
+   "form": "bars",
+   "yaxis": "grid",
+   "values": "none"
+  },
+  "fit": 1.5,
+  "misfit": "a quantity implied of a rating, no entry drawn as zero",
+  "min_font": 12,
+  "overlaps": 0,
+  "cut": 0,
+  "min_mark": 6.4,
+  "step_px": 33.0,
+  "encoding": 1,
+  "mark_seen": 6,
+  "step_seen": 12,
+  "noise_seen": 33.0,
+  "ink": 0.3436,
+  "noise_px": 33.0,
+  "compare": 0,
+  "costs": [
+   1,
+   0,
+   1
+  ],
+  "numbers": 8,
+  "load": 2.8,
+  "shared": 3,
+  "small": []
+ },
+ {
+  "v": {
+   "form": "bars",
+   "yaxis": "grid",
+   "values": "last"
+  },
+  "fit": 1.5,
+  "misfit": "a quantity implied of a rating, no entry drawn as zero",
+  "min_font": 12,
+  "overlaps": 0,
+  "cut": 0,
+  "min_mark": 6.4,
+  "step_px": 33.0,
+  "encoding": 1,
+  "mark_seen": 6,
+  "step_seen": 12,
+  "noise_seen": 33.0,
+  "ink": 0.3436,
+  "noise_px": 33.0,
+  "compare": 0,
+  "costs": [
+   1,
+   0,
+   1
+  ],
+  "numbers": 9,
+  "load": 2.9,
+  "shared": 3,
+  "small": []
+ },
+ {
+  "v": {
+   "form": "bars",
+   "yaxis": "grid",
+   "values": "every"
+  },
+  "fit": 1.5,
+  "misfit": "a quantity implied of a rating, no entry drawn as zero",
+  "min_font": 9,
+  "overlaps": 0,
+  "cut": 0,
+  "min_mark": 6.4,
+  "step_px": 33.0,
+  "encoding": 1,
+  "mark_seen": 6,
+  "step_seen": 12,
+  "noise_seen": 33.0,
+  "ink": 0.3436,
+  "noise_px": 33.0,
+  "compare": 0,
+  "costs": [
+   1,
+   0,
+   1
+  ],
+  "numbers": 35,
+  "load": 5.5,
+  "shared": 3,
+  "small": []
+ },
+ {
+  "v": {
+   "form": "bars",
+   "yaxis": "ends",
+   "values": "none"
+  },
+  "fit": 1.5,
+  "misfit": "a quantity implied of a rating, no entry drawn as zero",
+  "min_font": 12,
+  "overlaps": 0,
+  "cut": 0,
+  "min_mark": 6.4,
+  "step_px": 33.0,
+  "encoding": 1,
+  "mark_seen": 6,
+  "step_seen": 12,
+  "noise_seen": 33.0,
+  "ink": 0.3436,
+  "noise_px": 33.0,
+  "compare": 0,
+  "costs": [
+   1,
+   0,
+   1
+  ],
+  "numbers": 5,
+  "load": 2.5,
+  "shared": 3,
+  "small": []
+ },
+ {
+  "v": {
+   "form": "bars",
+   "yaxis": "ends",
+   "values": "last"
+  },
+  "fit": 1.5,
+  "misfit": "a quantity implied of a rating, no entry drawn as zero",
+  "min_font": 12,
+  "overlaps": 0,
+  "cut": 0,
+  "min_mark": 6.4,
+  "step_px": 33.0,
+  "encoding": 1,
+  "mark_seen": 6,
+  "step_seen": 12,
+  "noise_seen": 33.0,
+  "ink": 0.3436,
+  "noise_px": 33.0,
+  "compare": 0,
+  "costs": [
+   1,
+   0,
+   1
+  ],
+  "numbers": 6,
+  "load": 2.6,
+  "shared": 3,
+  "small": []
+ },
+ {
+  "v": {
+   "form": "bars",
+   "yaxis": "ends",
+   "values": "every"
+  },
+  "fit": 1.5,
+  "misfit": "a quantity implied of a rating, no entry drawn as zero",
+  "min_font": 9,
+  "overlaps": 0,
+  "cut": 0,
+  "min_mark": 6.4,
+  "step_px": 33.0,
+  "encoding": 1,
+  "mark_seen": 6,
+  "step_seen": 12,
+  "noise_seen": 33.0,
+  "ink": 0.3436,
+  "noise_px": 33.0,
+  "compare": 0,
+  "costs": [
+   1,
+   0,
+   1
+  ],
+  "numbers": 32,
+  "load": 5.2,
+  "shared": 3,
+  "small": []
+ },
+ {
+  "v": {
+   "form": "bars",
+   "yaxis": "none",
+   "values": "none"
+  },
+  "fit": 1.5,
+  "misfit": "a quantity implied of a rating, no entry drawn as zero",
+  "min_font": 12,
+  "overlaps": 0,
+  "cut": 0,
+  "min_mark": 7.27,
+  "step_px": 33.0,
+  "encoding": 1,
+  "mark_seen": 6,
+  "step_seen": 12,
+  "noise_seen": 33.0,
+  "ink": 0.3901,
+  "noise_px": 33.0,
+  "compare": 0,
+  "costs": [
+   2,
+   0,
+   1
+  ],
+  "numbers": 3,
+  "load": 3.3,
+  "shared": 3,
+  "small": []
+ },
+ {
+  "v": {
+   "form": "bars",
+   "yaxis": "none",
+   "values": "last"
+  },
+  "fit": 1.5,
+  "misfit": "a quantity implied of a rating, no entry drawn as zero",
+  "min_font": 12,
+  "overlaps": 0,
+  "cut": 0,
+  "min_mark": 7.27,
+  "step_px": 33.0,
+  "encoding": 1,
+  "mark_seen": 6,
+  "step_seen": 12,
+  "noise_seen": 33.0,
+  "ink": 0.3901,
+  "noise_px": 33.0,
+  "compare": 0,
+  "costs": [
+   1,
+   0,
+   1
+  ],
+  "numbers": 4,
+  "load": 2.4,
+  "shared": 3,
+  "small": []
+ },
+ {
+  "v": {
+   "form": "bars",
+   "yaxis": "none",
+   "values": "every"
+  },
+  "fit": 1.5,
+  "misfit": "a quantity implied of a rating, no entry drawn as zero",
+  "min_font": 9,
+  "overlaps": 0,
+  "cut": 0,
+  "min_mark": 7.27,
+  "step_px": 33.0,
+  "encoding": 1,
+  "mark_seen": 6,
+  "step_seen": 12,
+  "noise_seen": 33.0,
+  "ink": 0.3901,
+  "noise_px": 33.0,
+  "compare": 0,
+  "costs": [
+   1,
+   0,
+   1
+  ],
+  "numbers": 30,
+  "load": 5.0,
+  "shared": 3,
+  "small": []
+ },
+ {
+  "v": {
+   "form": "band",
+   "yaxis": "grid",
+   "values": "none"
+  },
+  "fit": 0,
+  "misfit": "-",
+  "min_font": 12,
+  "overlaps": 0,
+  "cut": 0,
+  "min_mark": 2,
+  "step_px": 33.0,
+  "encoding": 1,
+  "mark_seen": 2,
+  "step_seen": 12,
+  "noise_seen": 16.5,
+  "ink": 0.5017,
+  "noise_px": 16.5,
+  "compare": 0,
+  "costs": [
+   0,
+   1,
+   0
+  ],
+  "numbers": 8,
+  "load": 2.3,
+  "shared": 1,
+  "small": []
+ },
+ {
+  "v": {
+   "form": "band",
+   "yaxis": "grid",
+   "values": "last"
+  },
+  "fit": 0,
+  "misfit": "-",
+  "min_font": 12,
+  "overlaps": 0,
+  "cut": 0,
+  "min_mark": 2,
+  "step_px": 33.0,
+  "encoding": 1,
+  "mark_seen": 2,
+  "step_seen": 12,
+  "noise_seen": 16.5,
+  "ink": 0.5017,
+  "noise_px": 16.5,
+  "compare": 0,
+  "costs": [
+   0,
+   1,
+   0
+  ],
+  "numbers": 9,
+  "load": 2.4,
+  "shared": 1,
+  "small": []
+ },
+ {
+  "v": {
+   "form": "band",
+   "yaxis": "grid",
+   "values": "every"
+  },
+  "fit": 0,
+  "misfit": "-",
+  "min_font": 9,
+  "overlaps": 0,
+  "cut": 0,
+  "min_mark": 2,
+  "step_px": 33.0,
+  "encoding": 1,
+  "mark_seen": 2,
+  "step_seen": 12,
+  "noise_seen": 16.5,
+  "ink": 0.5017,
+  "noise_px": 16.5,
+  "compare": 0,
+  "costs": [
+   0,
+   1,
+   0
+  ],
+  "numbers": 13,
+  "load": 2.8,
+  "shared": 1,
+  "small": []
+ },
+ {
+  "v": {
+   "form": "band",
+   "yaxis": "ends",
+   "values": "none"
+  },
+  "fit": 0,
+  "misfit": "-",
+  "min_font": 12,
+  "overlaps": 0,
+  "cut": 0,
+  "min_mark": 2,
+  "step_px": 33.0,
+  "encoding": 1,
+  "mark_seen": 2,
+  "step_seen": 12,
+  "noise_seen": 16.5,
+  "ink": 0.5017,
+  "noise_px": 16.5,
+  "compare": 0,
+  "costs": [
+   0,
+   1,
+   0
+  ],
+  "numbers": 5,
+  "load": 2.0,
+  "shared": 1,
+  "small": []
+ },
+ {
+  "v": {
+   "form": "band",
+   "yaxis": "ends",
+   "values": "last"
+  },
+  "fit": 0,
+  "misfit": "-",
+  "min_font": 12,
+  "overlaps": 0,
+  "cut": 0,
+  "min_mark": 2,
+  "step_px": 33.0,
+  "encoding": 1,
+  "mark_seen": 2,
+  "step_seen": 12,
+  "noise_seen": 16.5,
+  "ink": 0.5017,
+  "noise_px": 16.5,
+  "compare": 0,
+  "costs": [
+   0,
+   1,
+   0
+  ],
+  "numbers": 6,
+  "load": 2.1,
+  "shared": 1,
+  "small": []
+ },
+ {
+  "v": {
+   "form": "band",
+   "yaxis": "ends",
+   "values": "every"
+  },
+  "fit": 0,
+  "misfit": "-",
+  "min_font": 9,
+  "overlaps": 0,
+  "cut": 0,
+  "min_mark": 2,
+  "step_px": 33.0,
+  "encoding": 1,
+  "mark_seen": 2,
+  "step_seen": 12,
+  "noise_seen": 16.5,
+  "ink": 0.5017,
+  "noise_px": 16.5,
+  "compare": 0,
+  "costs": [
+   0,
+   1,
+   0
+  ],
+  "numbers": 10,
+  "load": 2.5,
+  "shared": 1,
+  "small": []
+ },
+ {
+  "v": {
+   "form": "band",
+   "yaxis": "none",
+   "values": "none"
+  },
+  "fit": 0,
+  "misfit": "-",
+  "min_font": 12,
+  "overlaps": 0,
+  "cut": 0,
+  "min_mark": 2,
+  "step_px": 33.0,
+  "encoding": 1,
+  "mark_seen": 2,
+  "step_seen": 12,
+  "noise_seen": 16.5,
+  "ink": 0.5529,
+  "noise_px": 16.5,
+  "compare": 0,
+  "costs": [
+   2,
+   1,
+   0
+  ],
+  "numbers": 3,
+  "load": 3.8,
+  "shared": 1,
+  "small": []
+ },
+ {
+  "v": {
+   "form": "band",
+   "yaxis": "none",
+   "values": "last"
+  },
+  "fit": 0,
+  "misfit": "-",
+  "min_font": 12,
+  "overlaps": 0,
+  "cut": 0,
+  "min_mark": 2,
+  "step_px": 33.0,
+  "encoding": 1,
+  "mark_seen": 2,
+  "step_seen": 12,
+  "noise_seen": 16.5,
+  "ink": 0.5529,
+  "noise_px": 16.5,
+  "compare": 0,
+  "costs": [
+   0,
+   1,
+   0
+  ],
+  "numbers": 4,
+  "load": 1.9,
+  "shared": 1,
+  "small": []
+ },
+ {
+  "v": {
+   "form": "band",
+   "yaxis": "none",
+   "values": "every"
+  },
+  "fit": 0,
+  "misfit": "-",
+  "min_font": 9,
+  "overlaps": 0,
+  "cut": 0,
+  "min_mark": 2,
+  "step_px": 33.0,
+  "encoding": 1,
+  "mark_seen": 2,
+  "step_seen": 12,
+  "noise_seen": 16.5,
+  "ink": 0.5529,
+  "noise_px": 16.5,
+  "compare": 0,
+  "costs": [
+   0,
+   1,
+   0
+  ],
+  "numbers": 8,
+  "load": 2.3,
+  "shared": 1,
+  "small": []
+ },
+ {
+  "v": {
+   "form": "dist",
+   "yaxis": "none",
+   "values": "none"
+  },
+  "fit": 0,
+  "misfit": "-",
+  "min_font": 11,
+  "overlaps": 0,
+  "cut": 0,
+  "min_mark": 36.0,
+  "step_px": 33.0,
+  "encoding": 1,
+  "mark_seen": 6,
+  "step_seen": 12,
+  "noise_seen": 3,
+  "ink": 0.4437,
+  "noise_px": 0,
+  "compare": 0,
+  "costs": [
+   0,
+   0,
+   3
+  ],
+  "numbers": 5,
+  "load": 3.5,
+  "shared": 1,
+  "small": []
+ },
+ {
+  "v": {
+   "form": "dist",
+   "yaxis": "none",
+   "values": "every"
+  },
+  "fit": 0,
+  "misfit": "-",
+  "min_font": 9,
+  "overlaps": 0,
+  "cut": 0,
+  "min_mark": 36.0,
+  "step_px": 33.0,
+  "encoding": 1,
+  "mark_seen": 6,
+  "step_seen": 12,
+  "noise_seen": 3,
+  "ink": 0.4437,
+  "noise_px": 0,
+  "compare": 0,
+  "costs": [
+   0,
+   0,
+   3
+  ],
+  "numbers": 10,
+  "load": 4.0,
+  "shared": 1,
+  "small": []
+ },
+ {
+  "v": {
+   "form": "avg",
+   "yaxis": "grid",
+   "values": "none"
+  },
+  "fit": 0,
+  "misfit": "-",
+  "min_font": 12,
+  "overlaps": 0,
+  "cut": 0,
+  "min_mark": 2,
+  "step_px": 33.0,
+  "encoding": 0,
+  "mark_seen": 2,
+  "step_seen": 12,
+  "noise_seen": 33.0,
+  "ink": 0.0372,
+  "noise_px": 33.0,
+  "compare": 0,
+  "costs": [
+   0,
+   0,
+   0
+  ],
+  "numbers": 8,
+  "load": 1.3,
+  "shared": 1,
+  "small": []
+ },
+ {
+  "v": {
+   "form": "avg",
+   "yaxis": "grid",
+   "values": "last"
+  },
+  "fit": 0,
+  "misfit": "-",
+  "min_font": 12,
+  "overlaps": 0,
+  "cut": 0,
+  "min_mark": 2,
+  "step_px": 33.0,
+  "encoding": 0,
+  "mark_seen": 2,
+  "step_seen": 12,
+  "noise_seen": 33.0,
+  "ink": 0.0372,
+  "noise_px": 33.0,
+  "compare": 0,
+  "costs": [
+   0,
+   0,
+   0
+  ],
+  "numbers": 9,
+  "load": 1.4,
+  "shared": 1,
+  "small": []
+ },
+ {
+  "v": {
+   "form": "avg",
+   "yaxis": "grid",
+   "values": "every"
+  },
+  "fit": 0,
+  "misfit": "-",
+  "min_font": 9,
+  "overlaps": 0,
+  "cut": 0,
+  "min_mark": 2,
+  "step_px": 33.0,
+  "encoding": 0,
+  "mark_seen": 2,
+  "step_seen": 12,
+  "noise_seen": 33.0,
+  "ink": 0.0372,
+  "noise_px": 33.0,
+  "compare": 0,
+  "costs": [
+   0,
+   0,
+   0
+  ],
+  "numbers": 35,
+  "load": 4.0,
+  "shared": 1,
+  "small": []
+ },
+ {
+  "v": {
+   "form": "avg",
+   "yaxis": "ends",
+   "values": "none"
+  },
+  "fit": 0,
+  "misfit": "-",
+  "min_font": 12,
+  "overlaps": 0,
+  "cut": 0,
+  "min_mark": 2,
+  "step_px": 33.0,
+  "encoding": 0,
+  "mark_seen": 2,
+  "step_seen": 12,
+  "noise_seen": 33.0,
+  "ink": 0.0372,
+  "noise_px": 33.0,
+  "compare": 0,
+  "costs": [
+   0,
+   0,
+   0
+  ],
+  "numbers": 5,
+  "load": 1.0,
+  "shared": 1,
+  "small": []
+ },
+ {
+  "v": {
+   "form": "avg",
+   "yaxis": "ends",
+   "values": "last"
+  },
+  "fit": 0,
+  "misfit": "-",
+  "min_font": 12,
+  "overlaps": 0,
+  "cut": 0,
+  "min_mark": 2,
+  "step_px": 33.0,
+  "encoding": 0,
+  "mark_seen": 2,
+  "step_seen": 12,
+  "noise_seen": 33.0,
+  "ink": 0.0372,
+  "noise_px": 33.0,
+  "compare": 0,
+  "costs": [
+   0,
+   0,
+   0
+  ],
+  "numbers": 6,
+  "load": 1.1,
+  "shared": 1,
+  "small": []
+ },
+ {
+  "v": {
+   "form": "avg",
+   "yaxis": "ends",
+   "values": "every"
+  },
+  "fit": 0,
+  "misfit": "-",
+  "min_font": 9,
+  "overlaps": 0,
+  "cut": 0,
+  "min_mark": 2,
+  "step_px": 33.0,
+  "encoding": 0,
+  "mark_seen": 2,
+  "step_seen": 12,
+  "noise_seen": 33.0,
+  "ink": 0.0372,
+  "noise_px": 33.0,
+  "compare": 0,
+  "costs": [
+   0,
+   0,
+   0
+  ],
+  "numbers": 32,
+  "load": 3.7,
+  "shared": 1,
+  "small": []
+ },
+ {
+  "v": {
+   "form": "avg",
+   "yaxis": "none",
+   "values": "none"
+  },
+  "fit": 0,
+  "misfit": "-",
+  "min_font": 12,
+  "overlaps": 0,
+  "cut": 0,
+  "min_mark": 2,
+  "step_px": 33.0,
+  "encoding": 0,
+  "mark_seen": 2,
+  "step_seen": 12,
+  "noise_seen": 33.0,
+  "ink": 0.0383,
+  "noise_px": 33.0,
+  "compare": 0,
+  "costs": [
+   2,
+   0,
+   0
+  ],
+  "numbers": 3,
+  "load": 2.8,
+  "shared": 1,
+  "small": []
+ },
+ {
+  "v": {
+   "form": "avg",
+   "yaxis": "none",
+   "values": "last"
+  },
+  "fit": 0,
+  "misfit": "-",
+  "min_font": 12,
+  "overlaps": 0,
+  "cut": 0,
+  "min_mark": 2,
+  "step_px": 33.0,
+  "encoding": 0,
+  "mark_seen": 2,
+  "step_seen": 12,
+  "noise_seen": 33.0,
+  "ink": 0.0383,
+  "noise_px": 33.0,
+  "compare": 0,
+  "costs": [
+   0,
+   0,
+   0
+  ],
+  "numbers": 4,
+  "load": 0.9,
+  "shared": 1,
+  "small": []
+ },
+ {
+  "v": {
+   "form": "avg",
+   "yaxis": "none",
+   "values": "every"
+  },
+  "fit": 0,
+  "misfit": "-",
+  "min_font": 9,
+  "overlaps": 0,
+  "cut": 0,
+  "min_mark": 2,
+  "step_px": 33.0,
+  "encoding": 0,
+  "mark_seen": 2,
+  "step_seen": 12,
+  "noise_seen": 33.0,
+  "ink": 0.0383,
+  "noise_px": 33.0,
+  "compare": 0,
+  "costs": [
+   0,
+   0,
+   0
+  ],
+  "numbers": 30,
+  "load": 3.5,
+  "shared": 1,
+  "small": []
+ },
+ {
+  "v": {
+   "form": "chronicle",
+   "yaxis": "chronicle",
+   "values": "chronicle",
+   "control": true,
+   "control_app": "chronicle"
+  },
+  "why": "Chronicle's 'Daily average' bars for a rating, no axis",
+  "control": true,
+  "fit": 0.5,
+  "misfit": "a quantity implied of a rating",
+  "min_font": 11,
+  "overlaps": 0,
+  "cut": 0,
+  "min_mark": 7.27,
+  "step_px": 26.4,
+  "encoding": 1,
+  "mark_seen": 6,
+  "step_seen": 12,
+  "noise_seen": 26.4,
+  "ink": 0.4389,
+  "noise_px": 26.4,
+  "compare": 0,
+  "costs": [
+   2,
+   1,
+   1
+  ],
+  "numbers": 0,
+  "load": 4.0,
+  "shared": 0,
+  "small": []
+ },
+ {
+  "v": {
+   "form": "trackandgraph",
+   "yaxis": "trackandgraph",
+   "values": "trackandgraph",
+   "control": true,
+   "control_app": "trackandgraph"
+  },
+  "why": "Track & Graph's line graph, a dynamic range",
+  "control": true,
+  "fit": 2.0,
+  "misfit": "a line across days with no entry, a line through whole values, the scale cut short",
+  "min_font": 12,
+  "overlaps": 0,
+  "cut": 0,
+  "min_mark": 2,
+  "step_px": 44.0,
+  "encoding": 0,
+  "mark_seen": 2,
+  "step_seen": 12,
+  "noise_seen": 44.0,
+  "ink": 0.0542,
+  "noise_px": 44.0,
+  "compare": 0,
+  "costs": [
+   1,
+   1,
+   0.5
+  ],
+  "numbers": 8,
+  "load": 3.3,
+  "shared": 0,
+  "small": []
+ }
+]

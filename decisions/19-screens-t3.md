@@ -2173,6 +2173,60 @@ its data list; graphs on their own tab).
 - Tiles, the distribution, the band and the area never reach the front; the sparkline did only before the axis labels stopped
   counting.
 
-Status: **T3b.7 scored: awaiting the owner's pick; then T3b.6 settled against it.**
+Status (then): **T3b.7 scored: awaiting the owner's pick; then T3b.6 settled against it.**
+
+### T3b.7a The graphs, per kind of value, from real apps (owner, 2026-10-16)
+
+The owner asked whether T3b.7's graphs came from real-world examples (they did not: they were drawn from the dataviz rules),
+and to survey the apps on the phone and more if relevant, score the graphs per kind of value first, then re-score the page.
+Axes (owner): fit to the data, readability at phone size, calm, mental load; “Consistency has the lowest weight, other
+screens currently display no graphs and accuracy/readability of data representation is much more important in this scoring
+pass”. Placeholder data only, deleted at the end.
+
+**The survey** (geometry and labels only, in the gitignored `_screens-sources/t3/goals/graphs/notes.md`): openScale (a
+smoothed line with a dot per entry; its Graph tab puts four series on two y-axes, the weight drawn flat on a kcal scale),
+Loop (a percent score, its line, history bars with values, streak bars), Track & Graph (graphs as separate components; a
+line's range “Dynamic”, fit to the data), Chronicle (bars with no axis, a stub for a day with no entry), Streak (completion
+and streak tiles, days as squares), aTimeLogger (a pie with a legend; bars behind a paywall), Timety (two units on one
+axis), drip (from F-Droid: one column per day, weekends shaded, a recessive 0.5° grid, the y-range fixed to the plausible
+band so one value does not stretch it). OpenTracks/FitoTrack skipped (owner).
+
+**Six parts, one per kind** (`tools/screens/t3_graphs.py`, registered into `t3_opt.py`), 30 placeholder days each: Water
+(counts, goal 8), Mood (1–5), Walk (yes/no), Lunch (a choice of four), Reading (minutes that add up, goal 30), Weight (kg,
+not every day, goal 70). Each option: a form × the y-axis (grid / the two ends / none) × the values printed (none / the
+last / every one); for counts and minutes a range from zero or fit to the data (a line only); for the weight a range fit,
+plausible (drip's) or from zero. 392 options and 12 controls, the surveyed apps' own charts.
+
+- Fit, computed from the drawing and the data: a day with no entry drawn as zero; a line across empty days (a weight's
+  entries joined with a dot each excepted); bars not from zero; a sum implied of a weight; a rating drawn as a quantity, or
+  its scale cut short; a line through whole values; smoothing; the goal outside the range; two units or two axes.
+- Readability, measured at 360×740: the smallest text, text overlapping or cut, the smallest mark and the pixels for one
+  step (both capped where plainly seen: 6 px and 12 px, hand-set), and the encoding by Cleveland and McGill's ranking
+  (position, length, angle, shade).
+- Calm: the marks' ink, day-to-day jitter in pixels (floored at 3 px, hand-set), percent scores and streaks.
+- Mental load: each kind's three questions answered from the graph (0 read off … 3 not answerable; **hand-set per form**),
+  the numbers printed / 10, a second series, a legend.
+- Consistency: forms shared with the other kinds, weight 0.25 in the total and not deciding the front (toast_opt's new
+  `WEIGHTS`).
+
+**Fixed on the way:** Chronicle's control was charged less than the options for reading today against a goal it does not
+draw; Track & Graph's line reached the counts' front on its fitted range, which the options lacked (added, for lines only);
+bare weekly bars ranked first for a total nothing on them states (an amount with neither axis nor value now costs 2);
+Streak's and the pies' controls reached the front on 11 px date labels and on pixels past the point of seeing (labels now
+12 px, readability capped, encoding counted, the choices' bars thin); a weight's range from zero was “calmest” by hiding
+the trend (the jitter floor); a crashed run left stale weight scores that the rerun resumed (cleared and rescored).
+
+**Result: all twelve controls lost.** The fronts:
+- Counts: a dot per glass; a line or lollipops with today's number printed; the days at each count.
+- Ratings: a dot per day at its level, today's printed; the dots under a 7-day mean.
+- Yes/no: a mark per day with “18 of 30 days”; the running count, today's printed.
+- Choices: a letter per day; days per choice as thin bars, most first; a row per choice.
+- Minutes: the month's running total against the goal's pace; lollipops; a line; weekly totals; bars under a 7-day mean.
+- Weight: dots or a line in the plausible range with today's value printed; smoothed lines; a sparkline; the weekly band;
+  one line from zero survives on a near-tie in ink (flagged: its 0.8 px step reads nothing).
+
+Status: **T3b.7a scored: awaiting the owner's pick per kind; then T3b.7 re-scored with the picks (the order question, the
+additive and non-additive split), then T3b.6.**
+
 
 
