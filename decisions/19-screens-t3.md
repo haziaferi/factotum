@@ -1686,5 +1686,49 @@ ask and "nothing ended without the person" stand).
 Owed to the data layer: how an activity's usual length is computed, and the limit before an activity has sessions; the ask
 card's state (one ask per span until answered; Keep restarts the count); Edit offered beside Undo while the stopped card shows.
 
-Status: **T3b.1d, T3b.3, T3b.4e, T3b.4f and T3b.4g approved.** Next in T3b: goals; time totals and charts.
+Status (then): **T3b.1d, T3b.3, T3b.4e, T3b.4f and T3b.4g approved.** Next in T3b: goals; time totals and charts.
 
+### T3b.5 Goals, against six apps (owner, 2026-10-16)
+
+The owner's answers: goals first, apart from time totals and charts; axes Taps, Calm (the register), Glance, Consistency; the
+control Tendril's goals, then (Tendril has none) "look for apps with a similar purpose, you can download any needed ones" and
+"Goals need to be scored against more than one option". Where goals live and how progress shows were answered on 2026-10-13
+(score all; a plain number among the forms; nothing guilt-laden).
+
+**The survey** (geometry and labels only, notes in the gitignored `_screens-sources/t3/goals/notes.md`): Timety and Streak installed
+through Droid-ify (Shizuku started over adb for it), aTimeLogger through Aurora; Loop on the phone; Chronicle and Tendril read from
+their code; Track & Graph has no goals. A placeholder Streak habit "Reading" stays on the phone with the other samples.
+- **Chronicle:** a Goals section on the item's page; a sheet (Recurring / Milestone, target typed, Per chips, Add); a bar under a headline.
+- **Timety:** one daily focus goal for all time (a Home card, set in Settings by typed hours and minutes); milestones on their own screen,
+  updated by hand; a habit's days a week by a slider. No goal for one activity or tracker.
+- **Streak:** the goal inside a habit's form (Amount, Time, "Daily goal − 30m +", 41 dp steppers); "Any amount counts"; Today's card
+  "0m/30m", a bar, a percent and a flame streak.
+- **aTimeLogger:** a Goals tab; a form with three wheels (hours, minutes, period), Don't exceed / Reach, notified when reached.
+- **Loop:** a measurable habit's typed target and frequency (day, week, month), at least / at most.
+- **Tendril:** no goals; amounts read plain.
+
+**Part `goals`, 144 options:** place page / screen / both · shows plain / bar / ring / percent · glance none / the Measuring row / Today /
+both · set by the sentence ("[30 min] a [day]", the approved box, dial and − / +) / a form (Chronicle's) / steppers (Streak's).
+**Six controls**, each placed in the options' frame (every walk from Factotum's Today), each with its own controls and impossible
+steps. The scorer now takes several controls per part, and every one must lose.
+
+The walk: set Reading 30 min a day; see its progress; see every goal; change it to 45 min; a milestone of 20 h; Water 8 a day.
+Rule constants (flagged): Calm counts a bar or ring 1, a percent 2, a streak counter 2, progress on Today 1, on a row 0.5.
+
+**Result: all six controls lost** (Loop 567, Streak 637, Chronicle 684, Tendril 814, aTimeLogger 840, Timety 916). 10 options on the
+front, **all plain and all set by the sentence**; they differ in the place and the glance (Calm against Glance).
+
+| Option | Taps (+ keyboards) | Calm | Glance | Consistency | Rank sum |
+|---|---|---|---|---|---|
+| the page · plain · Today and the row · sentence | 39 (+2) | 1.5 | 2 | 3.0 | 330 |
+| page and a Goals screen · plain · Today and the row · sentence | 39 (+2) | 1.5 | 2 | 3.0 | 330 |
+| a Goals screen · plain · Today and the row · sentence | 38 (+2) | 1.5 | 2 | 2.5 | 332 |
+| page and a Goals screen · plain · Today only · sentence | 39 (+2) | 1 | 1 | 3.0 | 358 |
+| the page · plain · the row only · sentence | 41 (+2) | 0.5 | 1 | 3.0 | 412 |
+
+- **Plain wins Calm and Consistency** (Tendril's rule, an amount reads plain); bars, rings and percents never reach the front.
+- **The sentence wins** over steppers on big targets (20 h is 19 steps) and over the form on consistency; the form is fewest taps
+  but types every target.
+- **Loop is the strongest control:** a typed target on the item's form is cheap; it loses on milestones (none) and consistency.
+
+Status: **T3b.5 scored: awaiting the owner's pick.**

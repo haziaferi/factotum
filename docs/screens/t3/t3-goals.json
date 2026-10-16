@@ -1,0 +1,3626 @@
+[
+ {
+  "v": {
+   "place": "page",
+   "shows": "plain",
+   "glance": "none",
+   "set": "sentence"
+  },
+  "taps": 46,
+  "keyboards": 2,
+  "impossible": 0,
+  "walk": {
+   "set": 9,
+   "see": 4,
+   "all": 6,
+   "change": 8,
+   "milestone": 12,
+   "tracker": 7
+  },
+  "calm": 0,
+  "glance": 0,
+  "see_taps": 4,
+  "consistency": 3.0,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "page",
+   "shows": "plain",
+   "glance": "none",
+   "set": "form"
+  },
+  "taps": 39,
+  "keyboards": 4,
+  "impossible": 0,
+  "walk": {
+   "set": 7,
+   "see": 4,
+   "all": 6,
+   "change": 7,
+   "milestone": 8,
+   "tracker": 7
+  },
+  "calm": 0,
+  "glance": 0,
+  "see_taps": 4,
+  "consistency": 2.0,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "page",
+   "shows": "plain",
+   "glance": "none",
+   "set": "steppers"
+  },
+  "taps": 64,
+  "keyboards": 0,
+  "impossible": 0,
+  "walk": {
+   "set": 6,
+   "see": 4,
+   "all": 6,
+   "change": 9,
+   "milestone": 26,
+   "tracker": 13
+  },
+  "calm": 0,
+  "glance": 0,
+  "see_taps": 4,
+  "consistency": 2.5,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "page",
+   "shows": "plain",
+   "glance": "row",
+   "set": "sentence"
+  },
+  "taps": 41,
+  "keyboards": 2,
+  "impossible": 0,
+  "walk": {
+   "set": 9,
+   "see": 2,
+   "all": 3,
+   "change": 8,
+   "milestone": 12,
+   "tracker": 7
+  },
+  "calm": 0.5,
+  "glance": 1,
+  "see_taps": 2,
+  "consistency": 3.0,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "page",
+   "shows": "plain",
+   "glance": "row",
+   "set": "form"
+  },
+  "taps": 34,
+  "keyboards": 4,
+  "impossible": 0,
+  "walk": {
+   "set": 7,
+   "see": 2,
+   "all": 3,
+   "change": 7,
+   "milestone": 8,
+   "tracker": 7
+  },
+  "calm": 0.5,
+  "glance": 1,
+  "see_taps": 2,
+  "consistency": 2.0,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "page",
+   "shows": "plain",
+   "glance": "row",
+   "set": "steppers"
+  },
+  "taps": 59,
+  "keyboards": 0,
+  "impossible": 0,
+  "walk": {
+   "set": 6,
+   "see": 2,
+   "all": 3,
+   "change": 9,
+   "milestone": 26,
+   "tracker": 13
+  },
+  "calm": 0.5,
+  "glance": 1,
+  "see_taps": 2,
+  "consistency": 2.5,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "page",
+   "shows": "plain",
+   "glance": "today",
+   "set": "sentence"
+  },
+  "taps": 42,
+  "keyboards": 2,
+  "impossible": 0,
+  "walk": {
+   "set": 9,
+   "see": 0,
+   "all": 6,
+   "change": 8,
+   "milestone": 12,
+   "tracker": 7
+  },
+  "calm": 1,
+  "glance": 1,
+  "see_taps": 0,
+  "consistency": 3.0,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "page",
+   "shows": "plain",
+   "glance": "today",
+   "set": "form"
+  },
+  "taps": 35,
+  "keyboards": 4,
+  "impossible": 0,
+  "walk": {
+   "set": 7,
+   "see": 0,
+   "all": 6,
+   "change": 7,
+   "milestone": 8,
+   "tracker": 7
+  },
+  "calm": 1,
+  "glance": 1,
+  "see_taps": 0,
+  "consistency": 2.0,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "page",
+   "shows": "plain",
+   "glance": "today",
+   "set": "steppers"
+  },
+  "taps": 60,
+  "keyboards": 0,
+  "impossible": 0,
+  "walk": {
+   "set": 6,
+   "see": 0,
+   "all": 6,
+   "change": 9,
+   "milestone": 26,
+   "tracker": 13
+  },
+  "calm": 1,
+  "glance": 1,
+  "see_taps": 0,
+  "consistency": 2.5,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "page",
+   "shows": "plain",
+   "glance": "both",
+   "set": "sentence"
+  },
+  "taps": 39,
+  "keyboards": 2,
+  "impossible": 0,
+  "walk": {
+   "set": 9,
+   "see": 0,
+   "all": 3,
+   "change": 8,
+   "milestone": 12,
+   "tracker": 7
+  },
+  "calm": 1.5,
+  "glance": 2,
+  "see_taps": 0,
+  "consistency": 3.0,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "page",
+   "shows": "plain",
+   "glance": "both",
+   "set": "form"
+  },
+  "taps": 32,
+  "keyboards": 4,
+  "impossible": 0,
+  "walk": {
+   "set": 7,
+   "see": 0,
+   "all": 3,
+   "change": 7,
+   "milestone": 8,
+   "tracker": 7
+  },
+  "calm": 1.5,
+  "glance": 2,
+  "see_taps": 0,
+  "consistency": 2.0,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "page",
+   "shows": "plain",
+   "glance": "both",
+   "set": "steppers"
+  },
+  "taps": 57,
+  "keyboards": 0,
+  "impossible": 0,
+  "walk": {
+   "set": 6,
+   "see": 0,
+   "all": 3,
+   "change": 9,
+   "milestone": 26,
+   "tracker": 13
+  },
+  "calm": 1.5,
+  "glance": 2,
+  "see_taps": 0,
+  "consistency": 2.5,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "page",
+   "shows": "bar",
+   "glance": "none",
+   "set": "sentence"
+  },
+  "taps": 46,
+  "keyboards": 2,
+  "impossible": 0,
+  "walk": {
+   "set": 9,
+   "see": 4,
+   "all": 6,
+   "change": 8,
+   "milestone": 12,
+   "tracker": 7
+  },
+  "calm": 1,
+  "glance": 0,
+  "see_taps": 4,
+  "consistency": 2.5,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "page",
+   "shows": "bar",
+   "glance": "none",
+   "set": "form"
+  },
+  "taps": 39,
+  "keyboards": 4,
+  "impossible": 0,
+  "walk": {
+   "set": 7,
+   "see": 4,
+   "all": 6,
+   "change": 7,
+   "milestone": 8,
+   "tracker": 7
+  },
+  "calm": 1,
+  "glance": 0,
+  "see_taps": 4,
+  "consistency": 1.5,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "page",
+   "shows": "bar",
+   "glance": "none",
+   "set": "steppers"
+  },
+  "taps": 64,
+  "keyboards": 0,
+  "impossible": 0,
+  "walk": {
+   "set": 6,
+   "see": 4,
+   "all": 6,
+   "change": 9,
+   "milestone": 26,
+   "tracker": 13
+  },
+  "calm": 1,
+  "glance": 0,
+  "see_taps": 4,
+  "consistency": 2.0,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "page",
+   "shows": "bar",
+   "glance": "row",
+   "set": "sentence"
+  },
+  "taps": 41,
+  "keyboards": 2,
+  "impossible": 0,
+  "walk": {
+   "set": 9,
+   "see": 2,
+   "all": 3,
+   "change": 8,
+   "milestone": 12,
+   "tracker": 7
+  },
+  "calm": 1.5,
+  "glance": 1,
+  "see_taps": 2,
+  "consistency": 2.5,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "page",
+   "shows": "bar",
+   "glance": "row",
+   "set": "form"
+  },
+  "taps": 34,
+  "keyboards": 4,
+  "impossible": 0,
+  "walk": {
+   "set": 7,
+   "see": 2,
+   "all": 3,
+   "change": 7,
+   "milestone": 8,
+   "tracker": 7
+  },
+  "calm": 1.5,
+  "glance": 1,
+  "see_taps": 2,
+  "consistency": 1.5,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "page",
+   "shows": "bar",
+   "glance": "row",
+   "set": "steppers"
+  },
+  "taps": 59,
+  "keyboards": 0,
+  "impossible": 0,
+  "walk": {
+   "set": 6,
+   "see": 2,
+   "all": 3,
+   "change": 9,
+   "milestone": 26,
+   "tracker": 13
+  },
+  "calm": 1.5,
+  "glance": 1,
+  "see_taps": 2,
+  "consistency": 2.0,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "page",
+   "shows": "bar",
+   "glance": "today",
+   "set": "sentence"
+  },
+  "taps": 42,
+  "keyboards": 2,
+  "impossible": 0,
+  "walk": {
+   "set": 9,
+   "see": 0,
+   "all": 6,
+   "change": 8,
+   "milestone": 12,
+   "tracker": 7
+  },
+  "calm": 2,
+  "glance": 1,
+  "see_taps": 0,
+  "consistency": 2.5,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "page",
+   "shows": "bar",
+   "glance": "today",
+   "set": "form"
+  },
+  "taps": 35,
+  "keyboards": 4,
+  "impossible": 0,
+  "walk": {
+   "set": 7,
+   "see": 0,
+   "all": 6,
+   "change": 7,
+   "milestone": 8,
+   "tracker": 7
+  },
+  "calm": 2,
+  "glance": 1,
+  "see_taps": 0,
+  "consistency": 1.5,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "page",
+   "shows": "bar",
+   "glance": "today",
+   "set": "steppers"
+  },
+  "taps": 60,
+  "keyboards": 0,
+  "impossible": 0,
+  "walk": {
+   "set": 6,
+   "see": 0,
+   "all": 6,
+   "change": 9,
+   "milestone": 26,
+   "tracker": 13
+  },
+  "calm": 2,
+  "glance": 1,
+  "see_taps": 0,
+  "consistency": 2.0,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "page",
+   "shows": "bar",
+   "glance": "both",
+   "set": "sentence"
+  },
+  "taps": 39,
+  "keyboards": 2,
+  "impossible": 0,
+  "walk": {
+   "set": 9,
+   "see": 0,
+   "all": 3,
+   "change": 8,
+   "milestone": 12,
+   "tracker": 7
+  },
+  "calm": 2.5,
+  "glance": 2,
+  "see_taps": 0,
+  "consistency": 2.5,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "page",
+   "shows": "bar",
+   "glance": "both",
+   "set": "form"
+  },
+  "taps": 32,
+  "keyboards": 4,
+  "impossible": 0,
+  "walk": {
+   "set": 7,
+   "see": 0,
+   "all": 3,
+   "change": 7,
+   "milestone": 8,
+   "tracker": 7
+  },
+  "calm": 2.5,
+  "glance": 2,
+  "see_taps": 0,
+  "consistency": 1.5,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "page",
+   "shows": "bar",
+   "glance": "both",
+   "set": "steppers"
+  },
+  "taps": 57,
+  "keyboards": 0,
+  "impossible": 0,
+  "walk": {
+   "set": 6,
+   "see": 0,
+   "all": 3,
+   "change": 9,
+   "milestone": 26,
+   "tracker": 13
+  },
+  "calm": 2.5,
+  "glance": 2,
+  "see_taps": 0,
+  "consistency": 2.0,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "page",
+   "shows": "ring",
+   "glance": "none",
+   "set": "sentence"
+  },
+  "taps": 46,
+  "keyboards": 2,
+  "impossible": 0,
+  "walk": {
+   "set": 9,
+   "see": 4,
+   "all": 6,
+   "change": 8,
+   "milestone": 12,
+   "tracker": 7
+  },
+  "calm": 1,
+  "glance": 0,
+  "see_taps": 4,
+  "consistency": 2.0,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "page",
+   "shows": "ring",
+   "glance": "none",
+   "set": "form"
+  },
+  "taps": 39,
+  "keyboards": 4,
+  "impossible": 0,
+  "walk": {
+   "set": 7,
+   "see": 4,
+   "all": 6,
+   "change": 7,
+   "milestone": 8,
+   "tracker": 7
+  },
+  "calm": 1,
+  "glance": 0,
+  "see_taps": 4,
+  "consistency": 1.0,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "page",
+   "shows": "ring",
+   "glance": "none",
+   "set": "steppers"
+  },
+  "taps": 64,
+  "keyboards": 0,
+  "impossible": 0,
+  "walk": {
+   "set": 6,
+   "see": 4,
+   "all": 6,
+   "change": 9,
+   "milestone": 26,
+   "tracker": 13
+  },
+  "calm": 1,
+  "glance": 0,
+  "see_taps": 4,
+  "consistency": 1.5,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "page",
+   "shows": "ring",
+   "glance": "row",
+   "set": "sentence"
+  },
+  "taps": 41,
+  "keyboards": 2,
+  "impossible": 0,
+  "walk": {
+   "set": 9,
+   "see": 2,
+   "all": 3,
+   "change": 8,
+   "milestone": 12,
+   "tracker": 7
+  },
+  "calm": 1.5,
+  "glance": 1,
+  "see_taps": 2,
+  "consistency": 2.0,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "page",
+   "shows": "ring",
+   "glance": "row",
+   "set": "form"
+  },
+  "taps": 34,
+  "keyboards": 4,
+  "impossible": 0,
+  "walk": {
+   "set": 7,
+   "see": 2,
+   "all": 3,
+   "change": 7,
+   "milestone": 8,
+   "tracker": 7
+  },
+  "calm": 1.5,
+  "glance": 1,
+  "see_taps": 2,
+  "consistency": 1.0,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "page",
+   "shows": "ring",
+   "glance": "row",
+   "set": "steppers"
+  },
+  "taps": 59,
+  "keyboards": 0,
+  "impossible": 0,
+  "walk": {
+   "set": 6,
+   "see": 2,
+   "all": 3,
+   "change": 9,
+   "milestone": 26,
+   "tracker": 13
+  },
+  "calm": 1.5,
+  "glance": 1,
+  "see_taps": 2,
+  "consistency": 1.5,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "page",
+   "shows": "ring",
+   "glance": "today",
+   "set": "sentence"
+  },
+  "taps": 42,
+  "keyboards": 2,
+  "impossible": 0,
+  "walk": {
+   "set": 9,
+   "see": 0,
+   "all": 6,
+   "change": 8,
+   "milestone": 12,
+   "tracker": 7
+  },
+  "calm": 2,
+  "glance": 1,
+  "see_taps": 0,
+  "consistency": 2.0,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "page",
+   "shows": "ring",
+   "glance": "today",
+   "set": "form"
+  },
+  "taps": 35,
+  "keyboards": 4,
+  "impossible": 0,
+  "walk": {
+   "set": 7,
+   "see": 0,
+   "all": 6,
+   "change": 7,
+   "milestone": 8,
+   "tracker": 7
+  },
+  "calm": 2,
+  "glance": 1,
+  "see_taps": 0,
+  "consistency": 1.0,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "page",
+   "shows": "ring",
+   "glance": "today",
+   "set": "steppers"
+  },
+  "taps": 60,
+  "keyboards": 0,
+  "impossible": 0,
+  "walk": {
+   "set": 6,
+   "see": 0,
+   "all": 6,
+   "change": 9,
+   "milestone": 26,
+   "tracker": 13
+  },
+  "calm": 2,
+  "glance": 1,
+  "see_taps": 0,
+  "consistency": 1.5,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "page",
+   "shows": "ring",
+   "glance": "both",
+   "set": "sentence"
+  },
+  "taps": 39,
+  "keyboards": 2,
+  "impossible": 0,
+  "walk": {
+   "set": 9,
+   "see": 0,
+   "all": 3,
+   "change": 8,
+   "milestone": 12,
+   "tracker": 7
+  },
+  "calm": 2.5,
+  "glance": 2,
+  "see_taps": 0,
+  "consistency": 2.0,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "page",
+   "shows": "ring",
+   "glance": "both",
+   "set": "form"
+  },
+  "taps": 32,
+  "keyboards": 4,
+  "impossible": 0,
+  "walk": {
+   "set": 7,
+   "see": 0,
+   "all": 3,
+   "change": 7,
+   "milestone": 8,
+   "tracker": 7
+  },
+  "calm": 2.5,
+  "glance": 2,
+  "see_taps": 0,
+  "consistency": 1.0,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "page",
+   "shows": "ring",
+   "glance": "both",
+   "set": "steppers"
+  },
+  "taps": 57,
+  "keyboards": 0,
+  "impossible": 0,
+  "walk": {
+   "set": 6,
+   "see": 0,
+   "all": 3,
+   "change": 9,
+   "milestone": 26,
+   "tracker": 13
+  },
+  "calm": 2.5,
+  "glance": 2,
+  "see_taps": 0,
+  "consistency": 1.5,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "page",
+   "shows": "percent",
+   "glance": "none",
+   "set": "sentence"
+  },
+  "taps": 46,
+  "keyboards": 2,
+  "impossible": 0,
+  "walk": {
+   "set": 9,
+   "see": 4,
+   "all": 6,
+   "change": 8,
+   "milestone": 12,
+   "tracker": 7
+  },
+  "calm": 2,
+  "glance": 0,
+  "see_taps": 4,
+  "consistency": 2.0,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "page",
+   "shows": "percent",
+   "glance": "none",
+   "set": "form"
+  },
+  "taps": 39,
+  "keyboards": 4,
+  "impossible": 0,
+  "walk": {
+   "set": 7,
+   "see": 4,
+   "all": 6,
+   "change": 7,
+   "milestone": 8,
+   "tracker": 7
+  },
+  "calm": 2,
+  "glance": 0,
+  "see_taps": 4,
+  "consistency": 1.0,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "page",
+   "shows": "percent",
+   "glance": "none",
+   "set": "steppers"
+  },
+  "taps": 64,
+  "keyboards": 0,
+  "impossible": 0,
+  "walk": {
+   "set": 6,
+   "see": 4,
+   "all": 6,
+   "change": 9,
+   "milestone": 26,
+   "tracker": 13
+  },
+  "calm": 2,
+  "glance": 0,
+  "see_taps": 4,
+  "consistency": 1.5,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "page",
+   "shows": "percent",
+   "glance": "row",
+   "set": "sentence"
+  },
+  "taps": 41,
+  "keyboards": 2,
+  "impossible": 0,
+  "walk": {
+   "set": 9,
+   "see": 2,
+   "all": 3,
+   "change": 8,
+   "milestone": 12,
+   "tracker": 7
+  },
+  "calm": 2.5,
+  "glance": 1,
+  "see_taps": 2,
+  "consistency": 2.0,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "page",
+   "shows": "percent",
+   "glance": "row",
+   "set": "form"
+  },
+  "taps": 34,
+  "keyboards": 4,
+  "impossible": 0,
+  "walk": {
+   "set": 7,
+   "see": 2,
+   "all": 3,
+   "change": 7,
+   "milestone": 8,
+   "tracker": 7
+  },
+  "calm": 2.5,
+  "glance": 1,
+  "see_taps": 2,
+  "consistency": 1.0,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "page",
+   "shows": "percent",
+   "glance": "row",
+   "set": "steppers"
+  },
+  "taps": 59,
+  "keyboards": 0,
+  "impossible": 0,
+  "walk": {
+   "set": 6,
+   "see": 2,
+   "all": 3,
+   "change": 9,
+   "milestone": 26,
+   "tracker": 13
+  },
+  "calm": 2.5,
+  "glance": 1,
+  "see_taps": 2,
+  "consistency": 1.5,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "page",
+   "shows": "percent",
+   "glance": "today",
+   "set": "sentence"
+  },
+  "taps": 42,
+  "keyboards": 2,
+  "impossible": 0,
+  "walk": {
+   "set": 9,
+   "see": 0,
+   "all": 6,
+   "change": 8,
+   "milestone": 12,
+   "tracker": 7
+  },
+  "calm": 3,
+  "glance": 1,
+  "see_taps": 0,
+  "consistency": 2.0,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "page",
+   "shows": "percent",
+   "glance": "today",
+   "set": "form"
+  },
+  "taps": 35,
+  "keyboards": 4,
+  "impossible": 0,
+  "walk": {
+   "set": 7,
+   "see": 0,
+   "all": 6,
+   "change": 7,
+   "milestone": 8,
+   "tracker": 7
+  },
+  "calm": 3,
+  "glance": 1,
+  "see_taps": 0,
+  "consistency": 1.0,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "page",
+   "shows": "percent",
+   "glance": "today",
+   "set": "steppers"
+  },
+  "taps": 60,
+  "keyboards": 0,
+  "impossible": 0,
+  "walk": {
+   "set": 6,
+   "see": 0,
+   "all": 6,
+   "change": 9,
+   "milestone": 26,
+   "tracker": 13
+  },
+  "calm": 3,
+  "glance": 1,
+  "see_taps": 0,
+  "consistency": 1.5,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "page",
+   "shows": "percent",
+   "glance": "both",
+   "set": "sentence"
+  },
+  "taps": 39,
+  "keyboards": 2,
+  "impossible": 0,
+  "walk": {
+   "set": 9,
+   "see": 0,
+   "all": 3,
+   "change": 8,
+   "milestone": 12,
+   "tracker": 7
+  },
+  "calm": 3.5,
+  "glance": 2,
+  "see_taps": 0,
+  "consistency": 2.0,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "page",
+   "shows": "percent",
+   "glance": "both",
+   "set": "form"
+  },
+  "taps": 32,
+  "keyboards": 4,
+  "impossible": 0,
+  "walk": {
+   "set": 7,
+   "see": 0,
+   "all": 3,
+   "change": 7,
+   "milestone": 8,
+   "tracker": 7
+  },
+  "calm": 3.5,
+  "glance": 2,
+  "see_taps": 0,
+  "consistency": 1.0,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "page",
+   "shows": "percent",
+   "glance": "both",
+   "set": "steppers"
+  },
+  "taps": 57,
+  "keyboards": 0,
+  "impossible": 0,
+  "walk": {
+   "set": 6,
+   "see": 0,
+   "all": 3,
+   "change": 9,
+   "milestone": 26,
+   "tracker": 13
+  },
+  "calm": 3.5,
+  "glance": 2,
+  "see_taps": 0,
+  "consistency": 1.5,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "screen",
+   "shows": "plain",
+   "glance": "none",
+   "set": "sentence"
+  },
+  "taps": 41,
+  "keyboards": 2,
+  "impossible": 0,
+  "walk": {
+   "set": 9,
+   "see": 3,
+   "all": 3,
+   "change": 7,
+   "milestone": 12,
+   "tracker": 7
+  },
+  "calm": 0,
+  "glance": 0,
+  "see_taps": 3,
+  "consistency": 2.5,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "screen",
+   "shows": "plain",
+   "glance": "none",
+   "set": "form"
+  },
+  "taps": 34,
+  "keyboards": 4,
+  "impossible": 0,
+  "walk": {
+   "set": 7,
+   "see": 3,
+   "all": 3,
+   "change": 6,
+   "milestone": 8,
+   "tracker": 7
+  },
+  "calm": 0,
+  "glance": 0,
+  "see_taps": 3,
+  "consistency": 1.5,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "screen",
+   "shows": "plain",
+   "glance": "none",
+   "set": "steppers"
+  },
+  "taps": 59,
+  "keyboards": 0,
+  "impossible": 0,
+  "walk": {
+   "set": 6,
+   "see": 3,
+   "all": 3,
+   "change": 8,
+   "milestone": 26,
+   "tracker": 13
+  },
+  "calm": 0,
+  "glance": 0,
+  "see_taps": 3,
+  "consistency": 2.0,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "screen",
+   "shows": "plain",
+   "glance": "row",
+   "set": "sentence"
+  },
+  "taps": 40,
+  "keyboards": 2,
+  "impossible": 0,
+  "walk": {
+   "set": 9,
+   "see": 2,
+   "all": 3,
+   "change": 7,
+   "milestone": 12,
+   "tracker": 7
+  },
+  "calm": 0.5,
+  "glance": 1,
+  "see_taps": 2,
+  "consistency": 2.5,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "screen",
+   "shows": "plain",
+   "glance": "row",
+   "set": "form"
+  },
+  "taps": 33,
+  "keyboards": 4,
+  "impossible": 0,
+  "walk": {
+   "set": 7,
+   "see": 2,
+   "all": 3,
+   "change": 6,
+   "milestone": 8,
+   "tracker": 7
+  },
+  "calm": 0.5,
+  "glance": 1,
+  "see_taps": 2,
+  "consistency": 1.5,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "screen",
+   "shows": "plain",
+   "glance": "row",
+   "set": "steppers"
+  },
+  "taps": 58,
+  "keyboards": 0,
+  "impossible": 0,
+  "walk": {
+   "set": 6,
+   "see": 2,
+   "all": 3,
+   "change": 8,
+   "milestone": 26,
+   "tracker": 13
+  },
+  "calm": 0.5,
+  "glance": 1,
+  "see_taps": 2,
+  "consistency": 2.0,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "screen",
+   "shows": "plain",
+   "glance": "today",
+   "set": "sentence"
+  },
+  "taps": 38,
+  "keyboards": 2,
+  "impossible": 0,
+  "walk": {
+   "set": 9,
+   "see": 0,
+   "all": 3,
+   "change": 7,
+   "milestone": 12,
+   "tracker": 7
+  },
+  "calm": 1,
+  "glance": 1,
+  "see_taps": 0,
+  "consistency": 2.5,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "screen",
+   "shows": "plain",
+   "glance": "today",
+   "set": "form"
+  },
+  "taps": 31,
+  "keyboards": 4,
+  "impossible": 0,
+  "walk": {
+   "set": 7,
+   "see": 0,
+   "all": 3,
+   "change": 6,
+   "milestone": 8,
+   "tracker": 7
+  },
+  "calm": 1,
+  "glance": 1,
+  "see_taps": 0,
+  "consistency": 1.5,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "screen",
+   "shows": "plain",
+   "glance": "today",
+   "set": "steppers"
+  },
+  "taps": 56,
+  "keyboards": 0,
+  "impossible": 0,
+  "walk": {
+   "set": 6,
+   "see": 0,
+   "all": 3,
+   "change": 8,
+   "milestone": 26,
+   "tracker": 13
+  },
+  "calm": 1,
+  "glance": 1,
+  "see_taps": 0,
+  "consistency": 2.0,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "screen",
+   "shows": "plain",
+   "glance": "both",
+   "set": "sentence"
+  },
+  "taps": 38,
+  "keyboards": 2,
+  "impossible": 0,
+  "walk": {
+   "set": 9,
+   "see": 0,
+   "all": 3,
+   "change": 7,
+   "milestone": 12,
+   "tracker": 7
+  },
+  "calm": 1.5,
+  "glance": 2,
+  "see_taps": 0,
+  "consistency": 2.5,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "screen",
+   "shows": "plain",
+   "glance": "both",
+   "set": "form"
+  },
+  "taps": 31,
+  "keyboards": 4,
+  "impossible": 0,
+  "walk": {
+   "set": 7,
+   "see": 0,
+   "all": 3,
+   "change": 6,
+   "milestone": 8,
+   "tracker": 7
+  },
+  "calm": 1.5,
+  "glance": 2,
+  "see_taps": 0,
+  "consistency": 1.5,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "screen",
+   "shows": "plain",
+   "glance": "both",
+   "set": "steppers"
+  },
+  "taps": 56,
+  "keyboards": 0,
+  "impossible": 0,
+  "walk": {
+   "set": 6,
+   "see": 0,
+   "all": 3,
+   "change": 8,
+   "milestone": 26,
+   "tracker": 13
+  },
+  "calm": 1.5,
+  "glance": 2,
+  "see_taps": 0,
+  "consistency": 2.0,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "screen",
+   "shows": "bar",
+   "glance": "none",
+   "set": "sentence"
+  },
+  "taps": 41,
+  "keyboards": 2,
+  "impossible": 0,
+  "walk": {
+   "set": 9,
+   "see": 3,
+   "all": 3,
+   "change": 7,
+   "milestone": 12,
+   "tracker": 7
+  },
+  "calm": 1,
+  "glance": 0,
+  "see_taps": 3,
+  "consistency": 2.0,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "screen",
+   "shows": "bar",
+   "glance": "none",
+   "set": "form"
+  },
+  "taps": 34,
+  "keyboards": 4,
+  "impossible": 0,
+  "walk": {
+   "set": 7,
+   "see": 3,
+   "all": 3,
+   "change": 6,
+   "milestone": 8,
+   "tracker": 7
+  },
+  "calm": 1,
+  "glance": 0,
+  "see_taps": 3,
+  "consistency": 1.0,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "screen",
+   "shows": "bar",
+   "glance": "none",
+   "set": "steppers"
+  },
+  "taps": 59,
+  "keyboards": 0,
+  "impossible": 0,
+  "walk": {
+   "set": 6,
+   "see": 3,
+   "all": 3,
+   "change": 8,
+   "milestone": 26,
+   "tracker": 13
+  },
+  "calm": 1,
+  "glance": 0,
+  "see_taps": 3,
+  "consistency": 1.5,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "screen",
+   "shows": "bar",
+   "glance": "row",
+   "set": "sentence"
+  },
+  "taps": 40,
+  "keyboards": 2,
+  "impossible": 0,
+  "walk": {
+   "set": 9,
+   "see": 2,
+   "all": 3,
+   "change": 7,
+   "milestone": 12,
+   "tracker": 7
+  },
+  "calm": 1.5,
+  "glance": 1,
+  "see_taps": 2,
+  "consistency": 2.0,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "screen",
+   "shows": "bar",
+   "glance": "row",
+   "set": "form"
+  },
+  "taps": 33,
+  "keyboards": 4,
+  "impossible": 0,
+  "walk": {
+   "set": 7,
+   "see": 2,
+   "all": 3,
+   "change": 6,
+   "milestone": 8,
+   "tracker": 7
+  },
+  "calm": 1.5,
+  "glance": 1,
+  "see_taps": 2,
+  "consistency": 1.0,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "screen",
+   "shows": "bar",
+   "glance": "row",
+   "set": "steppers"
+  },
+  "taps": 58,
+  "keyboards": 0,
+  "impossible": 0,
+  "walk": {
+   "set": 6,
+   "see": 2,
+   "all": 3,
+   "change": 8,
+   "milestone": 26,
+   "tracker": 13
+  },
+  "calm": 1.5,
+  "glance": 1,
+  "see_taps": 2,
+  "consistency": 1.5,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "screen",
+   "shows": "bar",
+   "glance": "today",
+   "set": "sentence"
+  },
+  "taps": 38,
+  "keyboards": 2,
+  "impossible": 0,
+  "walk": {
+   "set": 9,
+   "see": 0,
+   "all": 3,
+   "change": 7,
+   "milestone": 12,
+   "tracker": 7
+  },
+  "calm": 2,
+  "glance": 1,
+  "see_taps": 0,
+  "consistency": 2.0,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "screen",
+   "shows": "bar",
+   "glance": "today",
+   "set": "form"
+  },
+  "taps": 31,
+  "keyboards": 4,
+  "impossible": 0,
+  "walk": {
+   "set": 7,
+   "see": 0,
+   "all": 3,
+   "change": 6,
+   "milestone": 8,
+   "tracker": 7
+  },
+  "calm": 2,
+  "glance": 1,
+  "see_taps": 0,
+  "consistency": 1.0,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "screen",
+   "shows": "bar",
+   "glance": "today",
+   "set": "steppers"
+  },
+  "taps": 56,
+  "keyboards": 0,
+  "impossible": 0,
+  "walk": {
+   "set": 6,
+   "see": 0,
+   "all": 3,
+   "change": 8,
+   "milestone": 26,
+   "tracker": 13
+  },
+  "calm": 2,
+  "glance": 1,
+  "see_taps": 0,
+  "consistency": 1.5,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "screen",
+   "shows": "bar",
+   "glance": "both",
+   "set": "sentence"
+  },
+  "taps": 38,
+  "keyboards": 2,
+  "impossible": 0,
+  "walk": {
+   "set": 9,
+   "see": 0,
+   "all": 3,
+   "change": 7,
+   "milestone": 12,
+   "tracker": 7
+  },
+  "calm": 2.5,
+  "glance": 2,
+  "see_taps": 0,
+  "consistency": 2.0,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "screen",
+   "shows": "bar",
+   "glance": "both",
+   "set": "form"
+  },
+  "taps": 31,
+  "keyboards": 4,
+  "impossible": 0,
+  "walk": {
+   "set": 7,
+   "see": 0,
+   "all": 3,
+   "change": 6,
+   "milestone": 8,
+   "tracker": 7
+  },
+  "calm": 2.5,
+  "glance": 2,
+  "see_taps": 0,
+  "consistency": 1.0,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "screen",
+   "shows": "bar",
+   "glance": "both",
+   "set": "steppers"
+  },
+  "taps": 56,
+  "keyboards": 0,
+  "impossible": 0,
+  "walk": {
+   "set": 6,
+   "see": 0,
+   "all": 3,
+   "change": 8,
+   "milestone": 26,
+   "tracker": 13
+  },
+  "calm": 2.5,
+  "glance": 2,
+  "see_taps": 0,
+  "consistency": 1.5,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "screen",
+   "shows": "ring",
+   "glance": "none",
+   "set": "sentence"
+  },
+  "taps": 41,
+  "keyboards": 2,
+  "impossible": 0,
+  "walk": {
+   "set": 9,
+   "see": 3,
+   "all": 3,
+   "change": 7,
+   "milestone": 12,
+   "tracker": 7
+  },
+  "calm": 1,
+  "glance": 0,
+  "see_taps": 3,
+  "consistency": 1.5,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "screen",
+   "shows": "ring",
+   "glance": "none",
+   "set": "form"
+  },
+  "taps": 34,
+  "keyboards": 4,
+  "impossible": 0,
+  "walk": {
+   "set": 7,
+   "see": 3,
+   "all": 3,
+   "change": 6,
+   "milestone": 8,
+   "tracker": 7
+  },
+  "calm": 1,
+  "glance": 0,
+  "see_taps": 3,
+  "consistency": 0.5,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "screen",
+   "shows": "ring",
+   "glance": "none",
+   "set": "steppers"
+  },
+  "taps": 59,
+  "keyboards": 0,
+  "impossible": 0,
+  "walk": {
+   "set": 6,
+   "see": 3,
+   "all": 3,
+   "change": 8,
+   "milestone": 26,
+   "tracker": 13
+  },
+  "calm": 1,
+  "glance": 0,
+  "see_taps": 3,
+  "consistency": 1.0,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "screen",
+   "shows": "ring",
+   "glance": "row",
+   "set": "sentence"
+  },
+  "taps": 40,
+  "keyboards": 2,
+  "impossible": 0,
+  "walk": {
+   "set": 9,
+   "see": 2,
+   "all": 3,
+   "change": 7,
+   "milestone": 12,
+   "tracker": 7
+  },
+  "calm": 1.5,
+  "glance": 1,
+  "see_taps": 2,
+  "consistency": 1.5,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "screen",
+   "shows": "ring",
+   "glance": "row",
+   "set": "form"
+  },
+  "taps": 33,
+  "keyboards": 4,
+  "impossible": 0,
+  "walk": {
+   "set": 7,
+   "see": 2,
+   "all": 3,
+   "change": 6,
+   "milestone": 8,
+   "tracker": 7
+  },
+  "calm": 1.5,
+  "glance": 1,
+  "see_taps": 2,
+  "consistency": 0.5,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "screen",
+   "shows": "ring",
+   "glance": "row",
+   "set": "steppers"
+  },
+  "taps": 58,
+  "keyboards": 0,
+  "impossible": 0,
+  "walk": {
+   "set": 6,
+   "see": 2,
+   "all": 3,
+   "change": 8,
+   "milestone": 26,
+   "tracker": 13
+  },
+  "calm": 1.5,
+  "glance": 1,
+  "see_taps": 2,
+  "consistency": 1.0,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "screen",
+   "shows": "ring",
+   "glance": "today",
+   "set": "sentence"
+  },
+  "taps": 38,
+  "keyboards": 2,
+  "impossible": 0,
+  "walk": {
+   "set": 9,
+   "see": 0,
+   "all": 3,
+   "change": 7,
+   "milestone": 12,
+   "tracker": 7
+  },
+  "calm": 2,
+  "glance": 1,
+  "see_taps": 0,
+  "consistency": 1.5,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "screen",
+   "shows": "ring",
+   "glance": "today",
+   "set": "form"
+  },
+  "taps": 31,
+  "keyboards": 4,
+  "impossible": 0,
+  "walk": {
+   "set": 7,
+   "see": 0,
+   "all": 3,
+   "change": 6,
+   "milestone": 8,
+   "tracker": 7
+  },
+  "calm": 2,
+  "glance": 1,
+  "see_taps": 0,
+  "consistency": 0.5,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "screen",
+   "shows": "ring",
+   "glance": "today",
+   "set": "steppers"
+  },
+  "taps": 56,
+  "keyboards": 0,
+  "impossible": 0,
+  "walk": {
+   "set": 6,
+   "see": 0,
+   "all": 3,
+   "change": 8,
+   "milestone": 26,
+   "tracker": 13
+  },
+  "calm": 2,
+  "glance": 1,
+  "see_taps": 0,
+  "consistency": 1.0,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "screen",
+   "shows": "ring",
+   "glance": "both",
+   "set": "sentence"
+  },
+  "taps": 38,
+  "keyboards": 2,
+  "impossible": 0,
+  "walk": {
+   "set": 9,
+   "see": 0,
+   "all": 3,
+   "change": 7,
+   "milestone": 12,
+   "tracker": 7
+  },
+  "calm": 2.5,
+  "glance": 2,
+  "see_taps": 0,
+  "consistency": 1.5,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "screen",
+   "shows": "ring",
+   "glance": "both",
+   "set": "form"
+  },
+  "taps": 31,
+  "keyboards": 4,
+  "impossible": 0,
+  "walk": {
+   "set": 7,
+   "see": 0,
+   "all": 3,
+   "change": 6,
+   "milestone": 8,
+   "tracker": 7
+  },
+  "calm": 2.5,
+  "glance": 2,
+  "see_taps": 0,
+  "consistency": 0.5,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "screen",
+   "shows": "ring",
+   "glance": "both",
+   "set": "steppers"
+  },
+  "taps": 56,
+  "keyboards": 0,
+  "impossible": 0,
+  "walk": {
+   "set": 6,
+   "see": 0,
+   "all": 3,
+   "change": 8,
+   "milestone": 26,
+   "tracker": 13
+  },
+  "calm": 2.5,
+  "glance": 2,
+  "see_taps": 0,
+  "consistency": 1.0,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "screen",
+   "shows": "percent",
+   "glance": "none",
+   "set": "sentence"
+  },
+  "taps": 41,
+  "keyboards": 2,
+  "impossible": 0,
+  "walk": {
+   "set": 9,
+   "see": 3,
+   "all": 3,
+   "change": 7,
+   "milestone": 12,
+   "tracker": 7
+  },
+  "calm": 2,
+  "glance": 0,
+  "see_taps": 3,
+  "consistency": 1.5,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "screen",
+   "shows": "percent",
+   "glance": "none",
+   "set": "form"
+  },
+  "taps": 34,
+  "keyboards": 4,
+  "impossible": 0,
+  "walk": {
+   "set": 7,
+   "see": 3,
+   "all": 3,
+   "change": 6,
+   "milestone": 8,
+   "tracker": 7
+  },
+  "calm": 2,
+  "glance": 0,
+  "see_taps": 3,
+  "consistency": 0.5,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "screen",
+   "shows": "percent",
+   "glance": "none",
+   "set": "steppers"
+  },
+  "taps": 59,
+  "keyboards": 0,
+  "impossible": 0,
+  "walk": {
+   "set": 6,
+   "see": 3,
+   "all": 3,
+   "change": 8,
+   "milestone": 26,
+   "tracker": 13
+  },
+  "calm": 2,
+  "glance": 0,
+  "see_taps": 3,
+  "consistency": 1.0,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "screen",
+   "shows": "percent",
+   "glance": "row",
+   "set": "sentence"
+  },
+  "taps": 40,
+  "keyboards": 2,
+  "impossible": 0,
+  "walk": {
+   "set": 9,
+   "see": 2,
+   "all": 3,
+   "change": 7,
+   "milestone": 12,
+   "tracker": 7
+  },
+  "calm": 2.5,
+  "glance": 1,
+  "see_taps": 2,
+  "consistency": 1.5,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "screen",
+   "shows": "percent",
+   "glance": "row",
+   "set": "form"
+  },
+  "taps": 33,
+  "keyboards": 4,
+  "impossible": 0,
+  "walk": {
+   "set": 7,
+   "see": 2,
+   "all": 3,
+   "change": 6,
+   "milestone": 8,
+   "tracker": 7
+  },
+  "calm": 2.5,
+  "glance": 1,
+  "see_taps": 2,
+  "consistency": 0.5,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "screen",
+   "shows": "percent",
+   "glance": "row",
+   "set": "steppers"
+  },
+  "taps": 58,
+  "keyboards": 0,
+  "impossible": 0,
+  "walk": {
+   "set": 6,
+   "see": 2,
+   "all": 3,
+   "change": 8,
+   "milestone": 26,
+   "tracker": 13
+  },
+  "calm": 2.5,
+  "glance": 1,
+  "see_taps": 2,
+  "consistency": 1.0,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "screen",
+   "shows": "percent",
+   "glance": "today",
+   "set": "sentence"
+  },
+  "taps": 38,
+  "keyboards": 2,
+  "impossible": 0,
+  "walk": {
+   "set": 9,
+   "see": 0,
+   "all": 3,
+   "change": 7,
+   "milestone": 12,
+   "tracker": 7
+  },
+  "calm": 3,
+  "glance": 1,
+  "see_taps": 0,
+  "consistency": 1.5,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "screen",
+   "shows": "percent",
+   "glance": "today",
+   "set": "form"
+  },
+  "taps": 31,
+  "keyboards": 4,
+  "impossible": 0,
+  "walk": {
+   "set": 7,
+   "see": 0,
+   "all": 3,
+   "change": 6,
+   "milestone": 8,
+   "tracker": 7
+  },
+  "calm": 3,
+  "glance": 1,
+  "see_taps": 0,
+  "consistency": 0.5,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "screen",
+   "shows": "percent",
+   "glance": "today",
+   "set": "steppers"
+  },
+  "taps": 56,
+  "keyboards": 0,
+  "impossible": 0,
+  "walk": {
+   "set": 6,
+   "see": 0,
+   "all": 3,
+   "change": 8,
+   "milestone": 26,
+   "tracker": 13
+  },
+  "calm": 3,
+  "glance": 1,
+  "see_taps": 0,
+  "consistency": 1.0,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "screen",
+   "shows": "percent",
+   "glance": "both",
+   "set": "sentence"
+  },
+  "taps": 38,
+  "keyboards": 2,
+  "impossible": 0,
+  "walk": {
+   "set": 9,
+   "see": 0,
+   "all": 3,
+   "change": 7,
+   "milestone": 12,
+   "tracker": 7
+  },
+  "calm": 3.5,
+  "glance": 2,
+  "see_taps": 0,
+  "consistency": 1.5,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "screen",
+   "shows": "percent",
+   "glance": "both",
+   "set": "form"
+  },
+  "taps": 31,
+  "keyboards": 4,
+  "impossible": 0,
+  "walk": {
+   "set": 7,
+   "see": 0,
+   "all": 3,
+   "change": 6,
+   "milestone": 8,
+   "tracker": 7
+  },
+  "calm": 3.5,
+  "glance": 2,
+  "see_taps": 0,
+  "consistency": 0.5,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "screen",
+   "shows": "percent",
+   "glance": "both",
+   "set": "steppers"
+  },
+  "taps": 56,
+  "keyboards": 0,
+  "impossible": 0,
+  "walk": {
+   "set": 6,
+   "see": 0,
+   "all": 3,
+   "change": 8,
+   "milestone": 26,
+   "tracker": 13
+  },
+  "calm": 3.5,
+  "glance": 2,
+  "see_taps": 0,
+  "consistency": 1.0,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "both",
+   "shows": "plain",
+   "glance": "none",
+   "set": "sentence"
+  },
+  "taps": 42,
+  "keyboards": 2,
+  "impossible": 0,
+  "walk": {
+   "set": 9,
+   "see": 3,
+   "all": 3,
+   "change": 8,
+   "milestone": 12,
+   "tracker": 7
+  },
+  "calm": 0,
+  "glance": 0,
+  "see_taps": 3,
+  "consistency": 3.0,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "both",
+   "shows": "plain",
+   "glance": "none",
+   "set": "form"
+  },
+  "taps": 35,
+  "keyboards": 4,
+  "impossible": 0,
+  "walk": {
+   "set": 7,
+   "see": 3,
+   "all": 3,
+   "change": 7,
+   "milestone": 8,
+   "tracker": 7
+  },
+  "calm": 0,
+  "glance": 0,
+  "see_taps": 3,
+  "consistency": 2.0,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "both",
+   "shows": "plain",
+   "glance": "none",
+   "set": "steppers"
+  },
+  "taps": 60,
+  "keyboards": 0,
+  "impossible": 0,
+  "walk": {
+   "set": 6,
+   "see": 3,
+   "all": 3,
+   "change": 9,
+   "milestone": 26,
+   "tracker": 13
+  },
+  "calm": 0,
+  "glance": 0,
+  "see_taps": 3,
+  "consistency": 2.5,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "both",
+   "shows": "plain",
+   "glance": "row",
+   "set": "sentence"
+  },
+  "taps": 41,
+  "keyboards": 2,
+  "impossible": 0,
+  "walk": {
+   "set": 9,
+   "see": 2,
+   "all": 3,
+   "change": 8,
+   "milestone": 12,
+   "tracker": 7
+  },
+  "calm": 0.5,
+  "glance": 1,
+  "see_taps": 2,
+  "consistency": 3.0,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "both",
+   "shows": "plain",
+   "glance": "row",
+   "set": "form"
+  },
+  "taps": 34,
+  "keyboards": 4,
+  "impossible": 0,
+  "walk": {
+   "set": 7,
+   "see": 2,
+   "all": 3,
+   "change": 7,
+   "milestone": 8,
+   "tracker": 7
+  },
+  "calm": 0.5,
+  "glance": 1,
+  "see_taps": 2,
+  "consistency": 2.0,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "both",
+   "shows": "plain",
+   "glance": "row",
+   "set": "steppers"
+  },
+  "taps": 59,
+  "keyboards": 0,
+  "impossible": 0,
+  "walk": {
+   "set": 6,
+   "see": 2,
+   "all": 3,
+   "change": 9,
+   "milestone": 26,
+   "tracker": 13
+  },
+  "calm": 0.5,
+  "glance": 1,
+  "see_taps": 2,
+  "consistency": 2.5,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "both",
+   "shows": "plain",
+   "glance": "today",
+   "set": "sentence"
+  },
+  "taps": 39,
+  "keyboards": 2,
+  "impossible": 0,
+  "walk": {
+   "set": 9,
+   "see": 0,
+   "all": 3,
+   "change": 8,
+   "milestone": 12,
+   "tracker": 7
+  },
+  "calm": 1,
+  "glance": 1,
+  "see_taps": 0,
+  "consistency": 3.0,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "both",
+   "shows": "plain",
+   "glance": "today",
+   "set": "form"
+  },
+  "taps": 32,
+  "keyboards": 4,
+  "impossible": 0,
+  "walk": {
+   "set": 7,
+   "see": 0,
+   "all": 3,
+   "change": 7,
+   "milestone": 8,
+   "tracker": 7
+  },
+  "calm": 1,
+  "glance": 1,
+  "see_taps": 0,
+  "consistency": 2.0,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "both",
+   "shows": "plain",
+   "glance": "today",
+   "set": "steppers"
+  },
+  "taps": 57,
+  "keyboards": 0,
+  "impossible": 0,
+  "walk": {
+   "set": 6,
+   "see": 0,
+   "all": 3,
+   "change": 9,
+   "milestone": 26,
+   "tracker": 13
+  },
+  "calm": 1,
+  "glance": 1,
+  "see_taps": 0,
+  "consistency": 2.5,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "both",
+   "shows": "plain",
+   "glance": "both",
+   "set": "sentence"
+  },
+  "taps": 39,
+  "keyboards": 2,
+  "impossible": 0,
+  "walk": {
+   "set": 9,
+   "see": 0,
+   "all": 3,
+   "change": 8,
+   "milestone": 12,
+   "tracker": 7
+  },
+  "calm": 1.5,
+  "glance": 2,
+  "see_taps": 0,
+  "consistency": 3.0,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "both",
+   "shows": "plain",
+   "glance": "both",
+   "set": "form"
+  },
+  "taps": 32,
+  "keyboards": 4,
+  "impossible": 0,
+  "walk": {
+   "set": 7,
+   "see": 0,
+   "all": 3,
+   "change": 7,
+   "milestone": 8,
+   "tracker": 7
+  },
+  "calm": 1.5,
+  "glance": 2,
+  "see_taps": 0,
+  "consistency": 2.0,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "both",
+   "shows": "plain",
+   "glance": "both",
+   "set": "steppers"
+  },
+  "taps": 57,
+  "keyboards": 0,
+  "impossible": 0,
+  "walk": {
+   "set": 6,
+   "see": 0,
+   "all": 3,
+   "change": 9,
+   "milestone": 26,
+   "tracker": 13
+  },
+  "calm": 1.5,
+  "glance": 2,
+  "see_taps": 0,
+  "consistency": 2.5,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "both",
+   "shows": "bar",
+   "glance": "none",
+   "set": "sentence"
+  },
+  "taps": 42,
+  "keyboards": 2,
+  "impossible": 0,
+  "walk": {
+   "set": 9,
+   "see": 3,
+   "all": 3,
+   "change": 8,
+   "milestone": 12,
+   "tracker": 7
+  },
+  "calm": 1,
+  "glance": 0,
+  "see_taps": 3,
+  "consistency": 2.5,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "both",
+   "shows": "bar",
+   "glance": "none",
+   "set": "form"
+  },
+  "taps": 35,
+  "keyboards": 4,
+  "impossible": 0,
+  "walk": {
+   "set": 7,
+   "see": 3,
+   "all": 3,
+   "change": 7,
+   "milestone": 8,
+   "tracker": 7
+  },
+  "calm": 1,
+  "glance": 0,
+  "see_taps": 3,
+  "consistency": 1.5,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "both",
+   "shows": "bar",
+   "glance": "none",
+   "set": "steppers"
+  },
+  "taps": 60,
+  "keyboards": 0,
+  "impossible": 0,
+  "walk": {
+   "set": 6,
+   "see": 3,
+   "all": 3,
+   "change": 9,
+   "milestone": 26,
+   "tracker": 13
+  },
+  "calm": 1,
+  "glance": 0,
+  "see_taps": 3,
+  "consistency": 2.0,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "both",
+   "shows": "bar",
+   "glance": "row",
+   "set": "sentence"
+  },
+  "taps": 41,
+  "keyboards": 2,
+  "impossible": 0,
+  "walk": {
+   "set": 9,
+   "see": 2,
+   "all": 3,
+   "change": 8,
+   "milestone": 12,
+   "tracker": 7
+  },
+  "calm": 1.5,
+  "glance": 1,
+  "see_taps": 2,
+  "consistency": 2.5,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "both",
+   "shows": "bar",
+   "glance": "row",
+   "set": "form"
+  },
+  "taps": 34,
+  "keyboards": 4,
+  "impossible": 0,
+  "walk": {
+   "set": 7,
+   "see": 2,
+   "all": 3,
+   "change": 7,
+   "milestone": 8,
+   "tracker": 7
+  },
+  "calm": 1.5,
+  "glance": 1,
+  "see_taps": 2,
+  "consistency": 1.5,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "both",
+   "shows": "bar",
+   "glance": "row",
+   "set": "steppers"
+  },
+  "taps": 59,
+  "keyboards": 0,
+  "impossible": 0,
+  "walk": {
+   "set": 6,
+   "see": 2,
+   "all": 3,
+   "change": 9,
+   "milestone": 26,
+   "tracker": 13
+  },
+  "calm": 1.5,
+  "glance": 1,
+  "see_taps": 2,
+  "consistency": 2.0,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "both",
+   "shows": "bar",
+   "glance": "today",
+   "set": "sentence"
+  },
+  "taps": 39,
+  "keyboards": 2,
+  "impossible": 0,
+  "walk": {
+   "set": 9,
+   "see": 0,
+   "all": 3,
+   "change": 8,
+   "milestone": 12,
+   "tracker": 7
+  },
+  "calm": 2,
+  "glance": 1,
+  "see_taps": 0,
+  "consistency": 2.5,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "both",
+   "shows": "bar",
+   "glance": "today",
+   "set": "form"
+  },
+  "taps": 32,
+  "keyboards": 4,
+  "impossible": 0,
+  "walk": {
+   "set": 7,
+   "see": 0,
+   "all": 3,
+   "change": 7,
+   "milestone": 8,
+   "tracker": 7
+  },
+  "calm": 2,
+  "glance": 1,
+  "see_taps": 0,
+  "consistency": 1.5,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "both",
+   "shows": "bar",
+   "glance": "today",
+   "set": "steppers"
+  },
+  "taps": 57,
+  "keyboards": 0,
+  "impossible": 0,
+  "walk": {
+   "set": 6,
+   "see": 0,
+   "all": 3,
+   "change": 9,
+   "milestone": 26,
+   "tracker": 13
+  },
+  "calm": 2,
+  "glance": 1,
+  "see_taps": 0,
+  "consistency": 2.0,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "both",
+   "shows": "bar",
+   "glance": "both",
+   "set": "sentence"
+  },
+  "taps": 39,
+  "keyboards": 2,
+  "impossible": 0,
+  "walk": {
+   "set": 9,
+   "see": 0,
+   "all": 3,
+   "change": 8,
+   "milestone": 12,
+   "tracker": 7
+  },
+  "calm": 2.5,
+  "glance": 2,
+  "see_taps": 0,
+  "consistency": 2.5,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "both",
+   "shows": "bar",
+   "glance": "both",
+   "set": "form"
+  },
+  "taps": 32,
+  "keyboards": 4,
+  "impossible": 0,
+  "walk": {
+   "set": 7,
+   "see": 0,
+   "all": 3,
+   "change": 7,
+   "milestone": 8,
+   "tracker": 7
+  },
+  "calm": 2.5,
+  "glance": 2,
+  "see_taps": 0,
+  "consistency": 1.5,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "both",
+   "shows": "bar",
+   "glance": "both",
+   "set": "steppers"
+  },
+  "taps": 57,
+  "keyboards": 0,
+  "impossible": 0,
+  "walk": {
+   "set": 6,
+   "see": 0,
+   "all": 3,
+   "change": 9,
+   "milestone": 26,
+   "tracker": 13
+  },
+  "calm": 2.5,
+  "glance": 2,
+  "see_taps": 0,
+  "consistency": 2.0,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "both",
+   "shows": "ring",
+   "glance": "none",
+   "set": "sentence"
+  },
+  "taps": 42,
+  "keyboards": 2,
+  "impossible": 0,
+  "walk": {
+   "set": 9,
+   "see": 3,
+   "all": 3,
+   "change": 8,
+   "milestone": 12,
+   "tracker": 7
+  },
+  "calm": 1,
+  "glance": 0,
+  "see_taps": 3,
+  "consistency": 2.0,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "both",
+   "shows": "ring",
+   "glance": "none",
+   "set": "form"
+  },
+  "taps": 35,
+  "keyboards": 4,
+  "impossible": 0,
+  "walk": {
+   "set": 7,
+   "see": 3,
+   "all": 3,
+   "change": 7,
+   "milestone": 8,
+   "tracker": 7
+  },
+  "calm": 1,
+  "glance": 0,
+  "see_taps": 3,
+  "consistency": 1.0,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "both",
+   "shows": "ring",
+   "glance": "none",
+   "set": "steppers"
+  },
+  "taps": 60,
+  "keyboards": 0,
+  "impossible": 0,
+  "walk": {
+   "set": 6,
+   "see": 3,
+   "all": 3,
+   "change": 9,
+   "milestone": 26,
+   "tracker": 13
+  },
+  "calm": 1,
+  "glance": 0,
+  "see_taps": 3,
+  "consistency": 1.5,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "both",
+   "shows": "ring",
+   "glance": "row",
+   "set": "sentence"
+  },
+  "taps": 41,
+  "keyboards": 2,
+  "impossible": 0,
+  "walk": {
+   "set": 9,
+   "see": 2,
+   "all": 3,
+   "change": 8,
+   "milestone": 12,
+   "tracker": 7
+  },
+  "calm": 1.5,
+  "glance": 1,
+  "see_taps": 2,
+  "consistency": 2.0,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "both",
+   "shows": "ring",
+   "glance": "row",
+   "set": "form"
+  },
+  "taps": 34,
+  "keyboards": 4,
+  "impossible": 0,
+  "walk": {
+   "set": 7,
+   "see": 2,
+   "all": 3,
+   "change": 7,
+   "milestone": 8,
+   "tracker": 7
+  },
+  "calm": 1.5,
+  "glance": 1,
+  "see_taps": 2,
+  "consistency": 1.0,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "both",
+   "shows": "ring",
+   "glance": "row",
+   "set": "steppers"
+  },
+  "taps": 59,
+  "keyboards": 0,
+  "impossible": 0,
+  "walk": {
+   "set": 6,
+   "see": 2,
+   "all": 3,
+   "change": 9,
+   "milestone": 26,
+   "tracker": 13
+  },
+  "calm": 1.5,
+  "glance": 1,
+  "see_taps": 2,
+  "consistency": 1.5,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "both",
+   "shows": "ring",
+   "glance": "today",
+   "set": "sentence"
+  },
+  "taps": 39,
+  "keyboards": 2,
+  "impossible": 0,
+  "walk": {
+   "set": 9,
+   "see": 0,
+   "all": 3,
+   "change": 8,
+   "milestone": 12,
+   "tracker": 7
+  },
+  "calm": 2,
+  "glance": 1,
+  "see_taps": 0,
+  "consistency": 2.0,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "both",
+   "shows": "ring",
+   "glance": "today",
+   "set": "form"
+  },
+  "taps": 32,
+  "keyboards": 4,
+  "impossible": 0,
+  "walk": {
+   "set": 7,
+   "see": 0,
+   "all": 3,
+   "change": 7,
+   "milestone": 8,
+   "tracker": 7
+  },
+  "calm": 2,
+  "glance": 1,
+  "see_taps": 0,
+  "consistency": 1.0,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "both",
+   "shows": "ring",
+   "glance": "today",
+   "set": "steppers"
+  },
+  "taps": 57,
+  "keyboards": 0,
+  "impossible": 0,
+  "walk": {
+   "set": 6,
+   "see": 0,
+   "all": 3,
+   "change": 9,
+   "milestone": 26,
+   "tracker": 13
+  },
+  "calm": 2,
+  "glance": 1,
+  "see_taps": 0,
+  "consistency": 1.5,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "both",
+   "shows": "ring",
+   "glance": "both",
+   "set": "sentence"
+  },
+  "taps": 39,
+  "keyboards": 2,
+  "impossible": 0,
+  "walk": {
+   "set": 9,
+   "see": 0,
+   "all": 3,
+   "change": 8,
+   "milestone": 12,
+   "tracker": 7
+  },
+  "calm": 2.5,
+  "glance": 2,
+  "see_taps": 0,
+  "consistency": 2.0,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "both",
+   "shows": "ring",
+   "glance": "both",
+   "set": "form"
+  },
+  "taps": 32,
+  "keyboards": 4,
+  "impossible": 0,
+  "walk": {
+   "set": 7,
+   "see": 0,
+   "all": 3,
+   "change": 7,
+   "milestone": 8,
+   "tracker": 7
+  },
+  "calm": 2.5,
+  "glance": 2,
+  "see_taps": 0,
+  "consistency": 1.0,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "both",
+   "shows": "ring",
+   "glance": "both",
+   "set": "steppers"
+  },
+  "taps": 57,
+  "keyboards": 0,
+  "impossible": 0,
+  "walk": {
+   "set": 6,
+   "see": 0,
+   "all": 3,
+   "change": 9,
+   "milestone": 26,
+   "tracker": 13
+  },
+  "calm": 2.5,
+  "glance": 2,
+  "see_taps": 0,
+  "consistency": 1.5,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "both",
+   "shows": "percent",
+   "glance": "none",
+   "set": "sentence"
+  },
+  "taps": 42,
+  "keyboards": 2,
+  "impossible": 0,
+  "walk": {
+   "set": 9,
+   "see": 3,
+   "all": 3,
+   "change": 8,
+   "milestone": 12,
+   "tracker": 7
+  },
+  "calm": 2,
+  "glance": 0,
+  "see_taps": 3,
+  "consistency": 2.0,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "both",
+   "shows": "percent",
+   "glance": "none",
+   "set": "form"
+  },
+  "taps": 35,
+  "keyboards": 4,
+  "impossible": 0,
+  "walk": {
+   "set": 7,
+   "see": 3,
+   "all": 3,
+   "change": 7,
+   "milestone": 8,
+   "tracker": 7
+  },
+  "calm": 2,
+  "glance": 0,
+  "see_taps": 3,
+  "consistency": 1.0,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "both",
+   "shows": "percent",
+   "glance": "none",
+   "set": "steppers"
+  },
+  "taps": 60,
+  "keyboards": 0,
+  "impossible": 0,
+  "walk": {
+   "set": 6,
+   "see": 3,
+   "all": 3,
+   "change": 9,
+   "milestone": 26,
+   "tracker": 13
+  },
+  "calm": 2,
+  "glance": 0,
+  "see_taps": 3,
+  "consistency": 1.5,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "both",
+   "shows": "percent",
+   "glance": "row",
+   "set": "sentence"
+  },
+  "taps": 41,
+  "keyboards": 2,
+  "impossible": 0,
+  "walk": {
+   "set": 9,
+   "see": 2,
+   "all": 3,
+   "change": 8,
+   "milestone": 12,
+   "tracker": 7
+  },
+  "calm": 2.5,
+  "glance": 1,
+  "see_taps": 2,
+  "consistency": 2.0,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "both",
+   "shows": "percent",
+   "glance": "row",
+   "set": "form"
+  },
+  "taps": 34,
+  "keyboards": 4,
+  "impossible": 0,
+  "walk": {
+   "set": 7,
+   "see": 2,
+   "all": 3,
+   "change": 7,
+   "milestone": 8,
+   "tracker": 7
+  },
+  "calm": 2.5,
+  "glance": 1,
+  "see_taps": 2,
+  "consistency": 1.0,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "both",
+   "shows": "percent",
+   "glance": "row",
+   "set": "steppers"
+  },
+  "taps": 59,
+  "keyboards": 0,
+  "impossible": 0,
+  "walk": {
+   "set": 6,
+   "see": 2,
+   "all": 3,
+   "change": 9,
+   "milestone": 26,
+   "tracker": 13
+  },
+  "calm": 2.5,
+  "glance": 1,
+  "see_taps": 2,
+  "consistency": 1.5,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "both",
+   "shows": "percent",
+   "glance": "today",
+   "set": "sentence"
+  },
+  "taps": 39,
+  "keyboards": 2,
+  "impossible": 0,
+  "walk": {
+   "set": 9,
+   "see": 0,
+   "all": 3,
+   "change": 8,
+   "milestone": 12,
+   "tracker": 7
+  },
+  "calm": 3,
+  "glance": 1,
+  "see_taps": 0,
+  "consistency": 2.0,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "both",
+   "shows": "percent",
+   "glance": "today",
+   "set": "form"
+  },
+  "taps": 32,
+  "keyboards": 4,
+  "impossible": 0,
+  "walk": {
+   "set": 7,
+   "see": 0,
+   "all": 3,
+   "change": 7,
+   "milestone": 8,
+   "tracker": 7
+  },
+  "calm": 3,
+  "glance": 1,
+  "see_taps": 0,
+  "consistency": 1.0,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "both",
+   "shows": "percent",
+   "glance": "today",
+   "set": "steppers"
+  },
+  "taps": 57,
+  "keyboards": 0,
+  "impossible": 0,
+  "walk": {
+   "set": 6,
+   "see": 0,
+   "all": 3,
+   "change": 9,
+   "milestone": 26,
+   "tracker": 13
+  },
+  "calm": 3,
+  "glance": 1,
+  "see_taps": 0,
+  "consistency": 1.5,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "both",
+   "shows": "percent",
+   "glance": "both",
+   "set": "sentence"
+  },
+  "taps": 39,
+  "keyboards": 2,
+  "impossible": 0,
+  "walk": {
+   "set": 9,
+   "see": 0,
+   "all": 3,
+   "change": 8,
+   "milestone": 12,
+   "tracker": 7
+  },
+  "calm": 3.5,
+  "glance": 2,
+  "see_taps": 0,
+  "consistency": 2.0,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "both",
+   "shows": "percent",
+   "glance": "both",
+   "set": "form"
+  },
+  "taps": 32,
+  "keyboards": 4,
+  "impossible": 0,
+  "walk": {
+   "set": 7,
+   "see": 0,
+   "all": 3,
+   "change": 7,
+   "milestone": 8,
+   "tracker": 7
+  },
+  "calm": 3.5,
+  "glance": 2,
+  "see_taps": 0,
+  "consistency": 1.0,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "both",
+   "shows": "percent",
+   "glance": "both",
+   "set": "steppers"
+  },
+  "taps": 57,
+  "keyboards": 0,
+  "impossible": 0,
+  "walk": {
+   "set": 6,
+   "see": 0,
+   "all": 3,
+   "change": 9,
+   "milestone": 26,
+   "tracker": 13
+  },
+  "calm": 3.5,
+  "glance": 2,
+  "see_taps": 0,
+  "consistency": 1.5,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "chronicle",
+   "shows": "chronicle",
+   "glance": "chronicle",
+   "set": "chronicle",
+   "control": true,
+   "control_app": "chronicle"
+  },
+  "why": "Chronicle: a Goals section on the item's page, a sheet (kind, target typed, Per chips), a bar under the headline; no glance in the app",
+  "control": true,
+  "taps": 42,
+  "keyboards": 4,
+  "impossible": 0,
+  "walk": {
+   "set": 8,
+   "see": 4,
+   "all": 7,
+   "change": 7,
+   "milestone": 8,
+   "tracker": 8
+  },
+  "calm": 1,
+  "glance": 0,
+  "see_taps": 4,
+  "consistency": 1.5,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "timety",
+   "shows": "timety",
+   "glance": "timety",
+   "set": "timety",
+   "control": true,
+   "control_app": "timety"
+  },
+  "why": "Timety: one daily focus goal for all time (Settings, a Home card), milestones on their own screen updated by hand; no goal per activity or tracker",
+  "control": true,
+  "taps": 47,
+  "keyboards": 11,
+  "impossible": 4,
+  "walk": {
+   "set": 9,
+   "see": 9,
+   "all": 3,
+   "change": 9,
+   "milestone": 8,
+   "tracker": 9
+  },
+  "calm": 4,
+  "glance": 1,
+  "see_taps": 9,
+  "consistency": 0.5,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "streak",
+   "shows": "streak",
+   "glance": "streak",
+   "set": "streak",
+   "control": true,
+   "control_app": "streak"
+  },
+  "why": "Streak: a goal inside a habit's form (Amount, Time, steppers), Today's card with a bar, a percent and a flame streak; no milestones",
+  "control": true,
+  "taps": 35,
+  "keyboards": 3,
+  "impossible": 1,
+  "walk": {
+   "set": 8,
+   "see": 0,
+   "all": 0,
+   "change": 9,
+   "milestone": 9,
+   "tracker": 9
+  },
+  "calm": 6,
+  "glance": 1,
+  "see_taps": 0,
+  "consistency": 1.5,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "atimelogger",
+   "shows": "atimelogger",
+   "glance": "atimelogger",
+   "set": "atimelogger",
+   "control": true,
+   "control_app": "atimelogger"
+  },
+  "why": "aTimeLogger: a Goals tab, a form with three wheels (hours, minutes, period), notified when reached; no trackers",
+  "control": true,
+  "taps": 52,
+  "keyboards": 4,
+  "impossible": 1,
+  "walk": {
+   "set": 14,
+   "see": 3,
+   "all": 3,
+   "change": 8,
+   "milestone": 15,
+   "tracker": 9
+  },
+  "calm": 2,
+  "glance": 0,
+  "see_taps": 3,
+  "consistency": 1.0,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "loop",
+   "shows": "loop",
+   "glance": "loop",
+   "set": "loop",
+   "control": true,
+   "control_app": "loop"
+  },
+  "why": "Loop: a measurable habit's typed target and frequency, the day cells show the value; no milestones",
+  "control": true,
+  "taps": 35,
+  "keyboards": 5,
+  "impossible": 1,
+  "walk": {
+   "set": 7,
+   "see": 2,
+   "all": 3,
+   "change": 7,
+   "milestone": 9,
+   "tracker": 7
+  },
+  "calm": 0.5,
+  "glance": 1,
+  "see_taps": 2,
+  "consistency": 2.0,
+  "small": []
+ },
+ {
+  "v": {
+   "place": "tendril",
+   "shows": "tendril",
+   "glance": "tendril",
+   "set": "tendril",
+   "control": true,
+   "control_app": "tendril"
+  },
+  "why": "Tendril: no goals (amounts read plain)",
+  "control": true,
+  "taps": 54,
+  "keyboards": 12,
+  "impossible": 6,
+  "walk": {
+   "set": 9,
+   "see": 9,
+   "all": 9,
+   "change": 9,
+   "milestone": 9,
+   "tracker": 9
+  },
+  "calm": 0,
+  "glance": 0,
+  "see_taps": 9,
+  "consistency": 1.0,
+  "small": []
+ }
+]

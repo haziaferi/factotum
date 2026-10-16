@@ -808,6 +808,12 @@ AXES = {
 VALID = {}   # part -> predicate over an option; combinations it rejects are not scored
 
 
+def controls_of(p):
+    """A part's controls: one (option, why) pair, or a list of them (every one must lose)."""
+    c = CONTROLS[p]
+    return list(c) if isinstance(c, list) else [c]
+
+
 def run_part(p):
     """Every option of a part, scored. SCREENS_WORKERS=n scores n at once: each score waits on headless Edge, so threads
     run them side by side (2026-10-14: the merged Measuring list has ten thousand options); the order of rows is kept."""
@@ -847,9 +853,9 @@ def run_part(p):
     for vv, sc in zip(combos, scored):
         rows.append(dict(v=vv, **sc))
         print(p, rows[-1], flush=True)
-    cv, why = CONTROLS[p]
-    rows.append(dict(v=cv, why=why, control=True, **SCORERS[p](cv)))
-    print(p, "control", rows[-1], flush=True)
+    for cv, why in controls_of(p):
+        rows.append(dict(v=cv, why=why, control=True, **SCORERS[p](cv)))
+        print(p, "control", rows[-1], flush=True)
     with open(os.path.join(OUT, PREFIX + "-%s.json" % p), "w", encoding="utf-8", newline=chr(10)) as fh:
         json.dump(rows, fh, indent=1, ensure_ascii=False)
     if os.path.exists(partial):
@@ -927,9 +933,10 @@ def scores_page():
         if not os.path.exists(os.path.join(OUT, PREFIX + "-%s.json" % p)):
             continue
         rows, ok, axes = ranked(p)
-        ctl = next(r for r in rows if r.get("control"))
-        lost[p] = ctl in ok and not ctl.get("front")
-        worse = sum(1 for r in ok if r is not ctl and r.get("total", 0) < ctl.get("total", 1e9))
+        ctls = [r for r in rows if r.get("control")]
+        ctl = min(ctls, key=lambda r: r.get("total", 1e9))   # the best control: the one the verdict counts against
+        lost[p] = all(c in ok and not c.get("front") for c in ctls)
+        worse = sum(1 for r in ok if not r.get("control") and r.get("total", 0) < ctl.get("total", 1e9))
         vk = [k for k in dict.fromkeys(k for r in rows for k in r["v"]) if k not in ("control", "limit")]
         cols = [k for k in rows[0] if k not in ("v", "why", "control", "hidden_names", "small", "front", "total") and not k.startswith("_") and k not in axes] + (["ref_distance"] if "Refs" in axes and "ref_distance" not in rows[0] else [])
 
@@ -953,11 +960,12 @@ def scores_page():
                 "".join("<td class=ax>%g</td>" % r[a] if r in ok else "<td class=ax>—</td>" for a in axes),
                 "%g" % r["total"] if r in ok else "—", "★" if r.get("front") else "", ("control · " if r.get("control") else "") + gate))
         axis_line = "; ".join("<b>%s</b> = rank-sum of %s" % (a, ", ".join(k.lstrip("-") + (" (more is better)" if k.startswith("-") else "") for k in ks)) for a, ks in axes.items())
-        verdict = ("<b>Control lost:</b> off the front; %d of %d passing variants have a lower sum." % (worse, len(ok) - 1)) if lost[p] else "<b>CONTROL DID NOT LOSE.</b>"
+        verdict = (("<b>Control lost:</b> off the front; %d of %d passing variants have a lower sum." if len(ctls) == 1 else
+                     "<b>Every control lost:</b> all off the front; %d of %d passing variants have a lower sum than the best control.") % (worse, len(ok) - len(ctls))) if lost[p] else "<b>CONTROL DID NOT LOSE.</b>"
         doc_ = ""
         out.append('<h2 id="%s">%s</h2><p class=dim>%d variants and the control · %d pass the gate · %d on the front (★).</p>%s<p class=dim>Axes, lower is better: %s.</p>'
                    '<p>Control: %s. %s</p><div class=wrap><table><tr>%s</tr>%s</table></div>' % (
-                       p, TITLES[p], len(rows) - 1, len(ok), sum(1 for r in ok if r.get("front")), doc_, axis_line, H.escape(ctl["why"]), verdict, head, "".join(body)))
+                       p, TITLES[p], len(rows) - len(ctls), len(ok), sum(1 for r in ok if r.get("front")), doc_, axis_line, " · ".join(H.escape(c["why"]) for c in ctls), verdict, head, "".join(body)))
     page = """<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Toast Score Tables</title>
 <style>:root{--bg:#fafafa;--fg:#1c1c1c;--dim:#777;--line:#ddd;--fr:#f0f0f0}
 @media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#121212;--fg:#eee;--dim:#999;--line:#333;--fr:#1f1f1f}}
@@ -1028,9 +1036,9 @@ def options_page():
         fr = sorted(pool, key=lambda r: (not r.get("front"), r["total"]))[:DRAW_MAX.get(p, 6)]
         is_pick = lambda r: any(all(r["v"].get(k) == x for k, x in want.items()) for want in PICKED.get(p, []))
         fr += [r for r in ok if is_pick(r) and r not in fr and not r.get("control")]   # a pick is drawn even off the first six
-        ctl = next(r for r in rows if r.get("control"))
+        ctls = [r for r in rows if r.get("control")]
         figs = []
-        for r in fr + [ctl]:
+        for r in fr + ctls:
             v = r["v"]
             cap = ("<b>Control</b>: " if r.get("control") else "") + label(r) + "<br><span class=dim>" + nums(r, axes) + "</span>"
             if p == "a":
@@ -1057,7 +1065,7 @@ def options_page():
         if p == "b":
             figs.append(fig("Way back: ⋯ in the header, Undo and History", b_way_doc("menu")) + fig("Way back: ⚙ › Recently done", b_way_doc("recent")) +
                         fig("Way back: ⚙ › Trash", b_way_doc("trash")))
-        rows_drawn = fr + [ctl]
+        rows_drawn = fr + ctls
         note = '<p class=dim>Every row is in <a href="%s-scores.html#%s">the tables</a>.</p>' % (PREFIX, p)
         if p in SUPERSEDED:
             secs.append('<details><summary><b>%s</b>: superseded (%s)</summary>%s<div class=flex>%s</div></details>' % (TITLES[p], SUPERSEDED[p], note, "".join(figs)))
