@@ -1843,5 +1843,52 @@ results files, the scorer code and the decision records stay.
   and the option pages of approved parts (capture v4, labels, legend, empty states, toasts).
 - **T2:** nothing superseded. Every mention of a deleted file in decisions 17 and 19 is marked “removed 2026-10-16, in git history”.
 
-Status: **T3b.1d, T3b.3, T3b.4e/f/g, T3b.5 and T3b.5b approved; three consistency questions open (above).** Next: time totals
-and charts.
+Status (then): three consistency questions open.
+
+**The owner's answers to the three (2026-10-16):**
+1. **One pin.** Pinning an item pins it everywhere: the Hub's Pinned and recent (T1.4), and first in Today's Goals row.
+2. **A reached day goal:** “If the only goal is daily, it folds like done items, if instead it has a daily goal and a weekly or
+   monthly, etc. goal, it moves to the end.”
+3. **The wording:** “Score readability of different options at a small text size and at the Measurements screen density and each
+   row's density, considering the string of text shouldn't be too long.” Scored as T3b.5c below.
+
+### T3b.5c The goal line's wording on the Measuring row (owner, 2026-10-16)
+
+Part `gword`, 30 options: the form “[N]% today” / “20 of 30 min” / “20/30 min” / “20 min · goal 30” / “10 min to go” × the
+period said as “today, this week, this month” or “/day, /week, /month” × the goal and “last” on one line, “last” dropped
+where a goal shows, or two lines. Drawn in the approved Measuring row (13 px under the name, the item's control on the right),
+19 goals among the 40 items (the two running activities left out), at 360×740. Axes (the owner's): readability at small text
+(symbols to parse, one-letter units, a line without its period), fit (cut lines; rows above the bar), length (the characters
+past what the narrowest goal row holds beside its control, measured), calm (“to go”, a percent), consistency (with the rest
+of the app). Four controls, the reference apps' own readouts in the row: Streak “20m/30m”, Timety “20 / 30 m”, aTimeLogger's
+time left “00:10:00”, Chronicle “20 / 30 min · today”.
+
+**Measures fixed on the way** (each found because a control reached the front): readability first counted symbols only, so
+Streak's “5c/8c” won on length while saying neither its unit nor its period (one-letter units and a missing period now count);
+length first rewarded any shorter line, but the owner asked for a line that is not too long (a limit, now measured from the
+row's free width); that width was first read off the line's own box, which spans the row (now the text's own width).
+
+**Result: all four controls lost** (Chronicle 145, Timety 164, aTimeLogger 173, Streak 178).
+
+| Line (Coffee, a day goal) | Layout | Rank sum |
+|---|---|---|
+| “5 of 8 cups today” | “last” dropped | 106.5 ★ |
+| “5 cups today · goal 8” | “last” dropped | 107.5 ★ |
+| “62% today · last 11:40” | one line | 108 ★ |
+| “5 of 8 cups today · last 11:40” | one line | 117 ★ |
+| “5 of 8 cups/day” | “last” dropped | 125.5 |
+
+- **The period words win** over “/day” in every form: they parse at 13 px without a symbol and match Measuring's own “3 glasses
+  today” and Today's “Done today”.
+- **Two lines never reach the front:** 7 goal rows above the bar instead of 10.
+- **“to go” and the percent** pay on calm; the percent stays on the front by being the shortest with “last” kept.
+
+**Consistency, applied elsewhere (the owner asked whether a better solution applies elsewhere too):**
+- Whatever line is picked is the goal's one wording: the Measuring row, the Goals row on Today and the item's page say it alike
+  (the T3b.5b drawings use “/day” and are redrawn with the pick).
+- The period words match Measuring's “today” already; the goal sentence that sets a goal keeps “[30 min] a [day]” (setting, not
+  reading).
+- One-letter units cost readability (“2 of 3 h this week”): writing “hours” in full applies to the Paced sheet's lengths
+  too (“1 h 30”) — for the owner.
+
+Status: **T3b.5c scored: awaiting the owner's pick.**

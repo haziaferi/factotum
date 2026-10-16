@@ -1,0 +1,660 @@
+[
+ {
+  "v": {
+   "form": "pct",
+   "period": "window",
+   "layout": "one"
+  },
+  "cut": 0,
+  "fit": 10,
+  "longest": 27,
+  "cap": 30,
+  "over": 0,
+  "goal_chars": 14,
+  "abbrev": 0,
+  "no_period": 0,
+  "symbols": 1,
+  "calm": 1,
+  "consistency": 2.0,
+  "small": []
+ },
+ {
+  "v": {
+   "form": "pct",
+   "period": "window",
+   "layout": "drop"
+  },
+  "cut": 0,
+  "fit": 10,
+  "longest": 14,
+  "cap": 27,
+  "over": 0,
+  "goal_chars": 14,
+  "abbrev": 0,
+  "no_period": 0,
+  "symbols": 1,
+  "calm": 1,
+  "consistency": 1.5,
+  "small": []
+ },
+ {
+  "v": {
+   "form": "pct",
+   "period": "window",
+   "layout": "two"
+  },
+  "cut": 0,
+  "fit": 7,
+  "longest": 14,
+  "cap": 27,
+  "over": 0,
+  "goal_chars": 14,
+  "abbrev": 0,
+  "no_period": 0,
+  "symbols": 1,
+  "calm": 1,
+  "consistency": 1.0,
+  "small": []
+ },
+ {
+  "v": {
+   "form": "pct",
+   "period": "per",
+   "layout": "one"
+  },
+  "cut": 0,
+  "fit": 10,
+  "longest": 22,
+  "cap": 28,
+  "over": 0,
+  "goal_chars": 9,
+  "abbrev": 0,
+  "no_period": 0,
+  "symbols": 2,
+  "calm": 1,
+  "consistency": 1.5,
+  "small": []
+ },
+ {
+  "v": {
+   "form": "pct",
+   "period": "per",
+   "layout": "drop"
+  },
+  "cut": 0,
+  "fit": 10,
+  "longest": 9,
+  "cap": 24,
+  "over": 0,
+  "goal_chars": 9,
+  "abbrev": 0,
+  "no_period": 0,
+  "symbols": 2,
+  "calm": 1,
+  "consistency": 1.0,
+  "small": []
+ },
+ {
+  "v": {
+   "form": "pct",
+   "period": "per",
+   "layout": "two"
+  },
+  "cut": 0,
+  "fit": 7,
+  "longest": 10,
+  "cap": 24,
+  "over": 0,
+  "goal_chars": 9,
+  "abbrev": 0,
+  "no_period": 0,
+  "symbols": 2,
+  "calm": 1,
+  "consistency": 0.5,
+  "small": []
+ },
+ {
+  "v": {
+   "form": "of",
+   "period": "window",
+   "layout": "one"
+  },
+  "cut": 0,
+  "fit": 10,
+  "longest": 37,
+  "cap": 31,
+  "over": 6,
+  "goal_chars": 26,
+  "abbrev": 1,
+  "no_period": 0,
+  "symbols": 0,
+  "calm": 0,
+  "consistency": 2.0,
+  "small": []
+ },
+ {
+  "v": {
+   "form": "of",
+   "period": "window",
+   "layout": "drop"
+  },
+  "cut": 0,
+  "fit": 10,
+  "longest": 26,
+  "cap": 30,
+  "over": 0,
+  "goal_chars": 26,
+  "abbrev": 1,
+  "no_period": 0,
+  "symbols": 0,
+  "calm": 0,
+  "consistency": 1.5,
+  "small": []
+ },
+ {
+  "v": {
+   "form": "of",
+   "period": "window",
+   "layout": "two"
+  },
+  "cut": 0,
+  "fit": 7,
+  "longest": 26,
+  "cap": 29,
+  "over": 0,
+  "goal_chars": 26,
+  "abbrev": 1,
+  "no_period": 0,
+  "symbols": 0,
+  "calm": 0,
+  "consistency": 1.0,
+  "small": []
+ },
+ {
+  "v": {
+   "form": "of",
+   "period": "per",
+   "layout": "one"
+  },
+  "cut": 0,
+  "fit": 10,
+  "longest": 32,
+  "cap": 31,
+  "over": 1,
+  "goal_chars": 21,
+  "abbrev": 1,
+  "no_period": 0,
+  "symbols": 1,
+  "calm": 0,
+  "consistency": 1.5,
+  "small": []
+ },
+ {
+  "v": {
+   "form": "of",
+   "period": "per",
+   "layout": "drop"
+  },
+  "cut": 0,
+  "fit": 10,
+  "longest": 21,
+  "cap": 29,
+  "over": 0,
+  "goal_chars": 21,
+  "abbrev": 1,
+  "no_period": 0,
+  "symbols": 1,
+  "calm": 0,
+  "consistency": 1.0,
+  "small": []
+ },
+ {
+  "v": {
+   "form": "of",
+   "period": "per",
+   "layout": "two"
+  },
+  "cut": 0,
+  "fit": 7,
+  "longest": 21,
+  "cap": 29,
+  "over": 0,
+  "goal_chars": 21,
+  "abbrev": 1,
+  "no_period": 0,
+  "symbols": 1,
+  "calm": 0,
+  "consistency": 0.5,
+  "small": []
+ },
+ {
+  "v": {
+   "form": "slash",
+   "period": "window",
+   "layout": "one"
+  },
+  "cut": 0,
+  "fit": 10,
+  "longest": 34,
+  "cap": 31,
+  "over": 3,
+  "goal_chars": 23,
+  "abbrev": 1,
+  "no_period": 0,
+  "symbols": 2,
+  "calm": 0,
+  "consistency": 2.0,
+  "small": []
+ },
+ {
+  "v": {
+   "form": "slash",
+   "period": "window",
+   "layout": "drop"
+  },
+  "cut": 0,
+  "fit": 10,
+  "longest": 23,
+  "cap": 29,
+  "over": 0,
+  "goal_chars": 23,
+  "abbrev": 1,
+  "no_period": 0,
+  "symbols": 2,
+  "calm": 0,
+  "consistency": 1.5,
+  "small": []
+ },
+ {
+  "v": {
+   "form": "slash",
+   "period": "window",
+   "layout": "two"
+  },
+  "cut": 0,
+  "fit": 7,
+  "longest": 23,
+  "cap": 29,
+  "over": 0,
+  "goal_chars": 23,
+  "abbrev": 1,
+  "no_period": 0,
+  "symbols": 2,
+  "calm": 0,
+  "consistency": 1.0,
+  "small": []
+ },
+ {
+  "v": {
+   "form": "slash",
+   "period": "per",
+   "layout": "one"
+  },
+  "cut": 0,
+  "fit": 10,
+  "longest": 29,
+  "cap": 30,
+  "over": 0,
+  "goal_chars": 18,
+  "abbrev": 1,
+  "no_period": 0,
+  "symbols": 3,
+  "calm": 0,
+  "consistency": 1.5,
+  "small": []
+ },
+ {
+  "v": {
+   "form": "slash",
+   "period": "per",
+   "layout": "drop"
+  },
+  "cut": 0,
+  "fit": 10,
+  "longest": 18,
+  "cap": 27,
+  "over": 0,
+  "goal_chars": 18,
+  "abbrev": 1,
+  "no_period": 0,
+  "symbols": 3,
+  "calm": 0,
+  "consistency": 1.0,
+  "small": []
+ },
+ {
+  "v": {
+   "form": "slash",
+   "period": "per",
+   "layout": "two"
+  },
+  "cut": 0,
+  "fit": 7,
+  "longest": 18,
+  "cap": 27,
+  "over": 0,
+  "goal_chars": 18,
+  "abbrev": 1,
+  "no_period": 0,
+  "symbols": 3,
+  "calm": 0,
+  "consistency": 0.5,
+  "small": []
+ },
+ {
+  "v": {
+   "form": "goal",
+   "period": "window",
+   "layout": "one"
+  },
+  "cut": 4,
+  "fit": 10,
+  "longest": 41,
+  "cap": 32,
+  "over": 9,
+  "goal_chars": 30,
+  "abbrev": 1,
+  "no_period": 0,
+  "symbols": 1,
+  "calm": 0,
+  "consistency": 2.5,
+  "small": []
+ },
+ {
+  "v": {
+   "form": "goal",
+   "period": "window",
+   "layout": "drop"
+  },
+  "cut": 0,
+  "fit": 10,
+  "longest": 30,
+  "cap": 31,
+  "over": 0,
+  "goal_chars": 30,
+  "abbrev": 1,
+  "no_period": 0,
+  "symbols": 1,
+  "calm": 0,
+  "consistency": 2.0,
+  "small": []
+ },
+ {
+  "v": {
+   "form": "goal",
+   "period": "window",
+   "layout": "two"
+  },
+  "cut": 0,
+  "fit": 7,
+  "longest": 30,
+  "cap": 29,
+  "over": 1,
+  "goal_chars": 30,
+  "abbrev": 1,
+  "no_period": 0,
+  "symbols": 1,
+  "calm": 0,
+  "consistency": 1.5,
+  "small": []
+ },
+ {
+  "v": {
+   "form": "goal",
+   "period": "per",
+   "layout": "one"
+  },
+  "cut": 0,
+  "fit": 10,
+  "longest": 36,
+  "cap": 32,
+  "over": 4,
+  "goal_chars": 25,
+  "abbrev": 1,
+  "no_period": 0,
+  "symbols": 2,
+  "calm": 0,
+  "consistency": 2.0,
+  "small": []
+ },
+ {
+  "v": {
+   "form": "goal",
+   "period": "per",
+   "layout": "drop"
+  },
+  "cut": 0,
+  "fit": 10,
+  "longest": 25,
+  "cap": 31,
+  "over": 0,
+  "goal_chars": 25,
+  "abbrev": 1,
+  "no_period": 0,
+  "symbols": 2,
+  "calm": 0,
+  "consistency": 1.5,
+  "small": []
+ },
+ {
+  "v": {
+   "form": "goal",
+   "period": "per",
+   "layout": "two"
+  },
+  "cut": 0,
+  "fit": 7,
+  "longest": 25,
+  "cap": 29,
+  "over": 0,
+  "goal_chars": 25,
+  "abbrev": 1,
+  "no_period": 0,
+  "symbols": 2,
+  "calm": 0,
+  "consistency": 1.0,
+  "small": []
+ },
+ {
+  "v": {
+   "form": "togo",
+   "period": "window",
+   "layout": "one"
+  },
+  "cut": 0,
+  "fit": 10,
+  "longest": 38,
+  "cap": 31,
+  "over": 7,
+  "goal_chars": 27,
+  "abbrev": 1,
+  "no_period": 0,
+  "symbols": 0,
+  "calm": 1,
+  "consistency": 2.0,
+  "small": []
+ },
+ {
+  "v": {
+   "form": "togo",
+   "period": "window",
+   "layout": "drop"
+  },
+  "cut": 0,
+  "fit": 10,
+  "longest": 27,
+  "cap": 30,
+  "over": 0,
+  "goal_chars": 27,
+  "abbrev": 1,
+  "no_period": 0,
+  "symbols": 0,
+  "calm": 1,
+  "consistency": 1.5,
+  "small": []
+ },
+ {
+  "v": {
+   "form": "togo",
+   "period": "window",
+   "layout": "two"
+  },
+  "cut": 0,
+  "fit": 7,
+  "longest": 27,
+  "cap": 29,
+  "over": 0,
+  "goal_chars": 27,
+  "abbrev": 1,
+  "no_period": 0,
+  "symbols": 0,
+  "calm": 1,
+  "consistency": 1.0,
+  "small": []
+ },
+ {
+  "v": {
+   "form": "togo",
+   "period": "per",
+   "layout": "one"
+  },
+  "cut": 0,
+  "fit": 10,
+  "longest": 33,
+  "cap": 30,
+  "over": 3,
+  "goal_chars": 22,
+  "abbrev": 1,
+  "no_period": 0,
+  "symbols": 1,
+  "calm": 1,
+  "consistency": 1.5,
+  "small": []
+ },
+ {
+  "v": {
+   "form": "togo",
+   "period": "per",
+   "layout": "drop"
+  },
+  "cut": 0,
+  "fit": 10,
+  "longest": 22,
+  "cap": 29,
+  "over": 0,
+  "goal_chars": 22,
+  "abbrev": 1,
+  "no_period": 0,
+  "symbols": 1,
+  "calm": 1,
+  "consistency": 1.0,
+  "small": []
+ },
+ {
+  "v": {
+   "form": "togo",
+   "period": "per",
+   "layout": "two"
+  },
+  "cut": 0,
+  "fit": 7,
+  "longest": 22,
+  "cap": 29,
+  "over": 0,
+  "goal_chars": 22,
+  "abbrev": 1,
+  "no_period": 0,
+  "symbols": 1,
+  "calm": 1,
+  "consistency": 0.5,
+  "small": []
+ },
+ {
+  "v": {
+   "form": "streak",
+   "period": "-",
+   "layout": "drop",
+   "control": true
+  },
+  "why": "Streak's readout, \"20m/30m\", in place of the row's \"last\"",
+  "control": true,
+  "cut": 0,
+  "fit": 10,
+  "longest": 7,
+  "cap": 23,
+  "over": 0,
+  "goal_chars": 7,
+  "abbrev": 2,
+  "no_period": 19,
+  "symbols": 2,
+  "calm": 0,
+  "consistency": 0.0,
+  "small": []
+ },
+ {
+  "v": {
+   "form": "timety",
+   "period": "-",
+   "layout": "drop",
+   "control": true
+  },
+  "why": "Timety's readout, \"20 / 30 m\", in place of the row's \"last\"",
+  "control": true,
+  "cut": 0,
+  "fit": 10,
+  "longest": 14,
+  "cap": 30,
+  "over": 0,
+  "goal_chars": 14,
+  "abbrev": 1,
+  "no_period": 19,
+  "symbols": 2,
+  "calm": 0,
+  "consistency": 0.0,
+  "small": []
+ },
+ {
+  "v": {
+   "form": "atl",
+   "period": "-",
+   "layout": "drop",
+   "control": true
+  },
+  "why": "aTimeLogger's time left as a clock, \"00:10:00\", in place of the row's \"last\"",
+  "control": true,
+  "cut": 0,
+  "fit": 10,
+  "longest": 8,
+  "cap": 31,
+  "over": 0,
+  "goal_chars": 8,
+  "abbrev": 0,
+  "no_period": 19,
+  "symbols": 3,
+  "calm": 1,
+  "consistency": 0.0,
+  "small": []
+ },
+ {
+  "v": {
+   "form": "chronicle",
+   "period": "-",
+   "layout": "drop",
+   "control": true
+  },
+  "why": "Chronicle's headline and window, \"20 / 30 min · today\", in place of the row's \"last\"",
+  "control": true,
+  "cut": 0,
+  "fit": 10,
+  "longest": 27,
+  "cap": 32,
+  "over": 0,
+  "goal_chars": 27,
+  "abbrev": 1,
+  "no_period": 0,
+  "symbols": 3,
+  "calm": 0,
+  "consistency": 1.0,
+  "small": []
+ }
+]
