@@ -1597,4 +1597,16 @@ holding ■ on a card showed no progress; an end could be moved before now; the 
 the phone (360 px) overflowed a 375 px screen (now at most the page's width, no sideways scroll).
 Every task then walked on every sheet with real presses: all pass, no page errors.
 
-Status: **T3b.1d, T3b.4e and T3b.4f approved; T3b.4g scored, trial page fixed (lost taps): awaiting the owner's trial and pick.**
+Status (then): **T3b.1d, T3b.4e and T3b.4f approved; T3b.4g scored, trial page fixed (lost taps): awaiting the owner's trial and pick.**
+
+The owner's trial (2026-10-16), taps per sheet over the seven tasks, against the walk's estimate: page · strip · auto · long 13 (15);
+· confirm 15 (17); · tap · long 17 (16), 3 early Dones (2 while a finished rest waited for its tap); own screen 18 (15);
+· undo 18 (16), 2 early Dones (the mistap stopped Reading; Undo had to be noticed); no strip 31 (31). Break Down Timer not tried.
+
+"A new end" took open, Edit and + three times: "Because I can't type the number in" (owner, 2026-10-16). The page drifted from
+the scored design: the walk counted Edit, the end box, the dial's hour and minute, as on the approved Paced sheet (T3b.4e/f);
+the page had only − / +. Now the end box is the approved one: a tap opens the dial (the hour, then the minute), ⌨ types
+instead, − / + move 5 min. While the keyboard types, the phone is not redrawn under it. Tested with real input: by the dial
+5 taps, typed 4 taps and the digits; every task on every sheet still passes. The scores are unchanged (they assumed the box).
+
+Status: **T3b.1d, T3b.4e and T3b.4f approved; T3b.4g trialled; the end box made the approved one: awaiting the owner's pick.**
