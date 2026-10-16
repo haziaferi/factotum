@@ -33,6 +33,9 @@ total only).
   Consistency: how many other kinds use the same form (one family of graphs across the app).
 """
 import math
+import threading
+
+LOCK = threading.Lock()
 
 # ==== the data ===================================================================================================================
 DAYS = 30
@@ -715,6 +718,42 @@ def shared(kind, form):
     return sum(1 for k, fs in FORMS.items() if k != kind and form in fs)
 
 
+def answer_costs(kind, v, m):
+    """The three questions' costs for an option or a control, and the forms it shares with the other kinds."""
+    if v.get("control"):
+        costs = CTL_COSTS[(kind, v["control_app"])]
+        sh = 0
+    else:
+        f = v["form"]
+        costs = list(COSTS[kind][f])
+        show, ya = v["values"], v["yaxis"]
+        if kind == "level":   # now: printed, read off an axis, or not at all
+            costs[0] = 0 if (show in ("last", "every") or f == "spark") else ({"grid": 1, "ends": 2, "none": 3}[ya] if f in DAILY else max(2, {"grid": 1, "ends": 2, "none": 3}[ya]))
+        if kind == "add" and f == "weeks" and show != "none":
+            costs[1] = 0   # this week's total printed
+        if kind in ("count", "add") and f in DAILY and show == "none" and ya == "none" and f != "dots":
+            costs[1] = max(costs[1], 2)   # a usual day / a week's sum with nothing to read amounts from
+        if kind == "level" and "goal outside the range" in m["misfit"]:
+            costs[2] = 3
+        if kind == "yesno" and show != "none" and f in ("ticks", "weeks", "cumul"):
+            costs[1] = min(costs[1], 0 if f != "weeks" else 2)
+        # an amount asked of a mark with neither an axis nor a printed value: only guessed (found 2026-10-16: the bare weekly
+        # bars ranked first for "this week's total")
+        read = 0 if show != "none" else {"grid": 1, "ends": 1, "none": 2}[ya]
+        if kind == "add" and f == "weeks":
+            costs[1] = read
+        if kind == "yesno" and f == "weeks":
+            costs[0] = read
+        if kind == "yesno" and f == "cumul":
+            costs[1] = read
+        if kind == "rating" and f != "dist" and show == "none" and ya == "none":
+            costs[0] = max(costs[0], 2)   # a usual rating from unlabelled heights
+        if kind == "choice" and f in ("hbars", "pie") and show != "none":
+            costs[0] = 0
+        sh = shared(kind, f)
+    return costs, sh
+
+
 def make_part(ns, kind):
     T, kit, ipdoc = ns["T"], ns["kit"], ns["ipdoc"]
 
@@ -727,37 +766,7 @@ def make_part(ns, kind):
         d, m = page(v)
         key = "gk-%s-%s" % (kind, "-".join(str(x) for x in v.values()))
         b = T.probe(d, key, GK_JS)
-        if v.get("control"):
-            costs = CTL_COSTS[(kind, v["control_app"])]
-            sh = 0
-        else:
-            f = v["form"]
-            costs = list(COSTS[kind][f])
-            show, ya = v["values"], v["yaxis"]
-            if kind == "level":   # now: printed, read off an axis, or not at all
-                costs[0] = 0 if (show in ("last", "every") or f == "spark") else ({"grid": 1, "ends": 2, "none": 3}[ya] if f in DAILY else max(2, {"grid": 1, "ends": 2, "none": 3}[ya]))
-            if kind == "add" and f == "weeks" and show != "none":
-                costs[1] = 0   # this week's total printed
-            if kind in ("count", "add") and f in DAILY and show == "none" and ya == "none" and f != "dots":
-                costs[1] = max(costs[1], 2)   # a usual day / a week's sum with nothing to read amounts from
-            if kind == "level" and "goal outside the range" in m["misfit"]:
-                costs[2] = 3
-            if kind == "yesno" and show != "none" and f in ("ticks", "weeks", "cumul"):
-                costs[1] = min(costs[1], 0 if f != "weeks" else 2)
-            # an amount asked of a mark with neither an axis nor a printed value: only guessed (found 2026-10-16: the bare weekly
-            # bars ranked first for "this week's total")
-            read = 0 if show != "none" else {"grid": 1, "ends": 1, "none": 2}[ya]
-            if kind == "add" and f == "weeks":
-                costs[1] = read
-            if kind == "yesno" and f == "weeks":
-                costs[0] = read
-            if kind == "yesno" and f == "cumul":
-                costs[1] = read
-            if kind == "rating" and f != "dist" and show == "none" and ya == "none":
-                costs[0] = max(costs[0], 2)   # a usual rating from unlabelled heights
-            if kind == "choice" and f in ("hbars", "pie") and show != "none":
-                costs[0] = 0
-            sh = shared(kind, f)
+        costs, sh = answer_costs(kind, v, m)
         fit = sum(m["misfit"].values())
         enc = CTL_ENCODING.get((kind, v.get("control_app")), ENCODING[v["control_app"] if v.get("control") else v["form"]])
         load = sum(costs) + b["numbers"] / 10 + (m["series"] - 1) * 0.5 + m["legend"]
@@ -790,6 +799,110 @@ def make_part(ns, kind):
         T.v2.TOL.setdefault(k, tol)
 
 
+# ==== T3b.7b: the graphs scored inside the item's page (owner, 2026-10-16) =========================================================
+"""
+  "To assess density and legibility, I think graphs should be scored inside their context/page" (owner). Each option is the
+  item's page: the now line and its control, the graph under its period control (7 d / 30 d / 1 y chips, or ‹ October ›),
+  and the history under day headers, in both of T3b.7's orders (now, graph, history / now, history, graph), with the plot
+  80, 130 or 180 px tall. Axes: T3b.7a's four and consistency (0.25), and T3b.7's density (history rows seen, text cut),
+  glance (now, a drawn graph and a history row above the fold) and taps (the graph, a year, editing an entry, the settings).
+"""
+PAGES = {
+    "count": dict(now=("5 glasses today", "last 11:40"), ctl="+ 1 glass", hist=[("Today 11:40", "+ 1 glass"), ("Today 09:15", "+ 2 glasses"), ("Yesterday 20:10", "+ 1 glass"), ("Yesterday 16:05", "+ 2 glasses")]),
+    "rating": dict(now=("4 today", "13:10"), ctl="Rate", hist=[("Today 13:10", "4"), ("Yesterday 21:00", "5"), ("Wed 20:30", "4"), ("Tue 19:45", "2")]),
+    "yesno": dict(now=("Done today", "07:40"), ctl="✓", hist=[("Today 07:40", "done"), ("Yesterday 18:10", "done"), ("Tue 07:30", "done"), ("Mon 08:00", "done")]),
+    "choice": dict(now=("Not logged today", "yesterday packed"), ctl="Log", hist=[("Yesterday 13:00", "packed"), ("Wed 12:40", "packed"), ("Tue 13:10", "home"), ("Mon 12:30", "out")]),
+    "add": dict(now=("20 min today", "last 13:40"), ctl="▶", hist=[("Today 13:20–13:40", "20 min"), ("Yesterday 21:00–21:30", "30 min"), ("Yesterday +15 min", "15 min"), ("Mon 20:40–21:15", "35 min")]),
+    "level": dict(now=("72.4 kg", "today 07:30 · goal 70 kg"), ctl="Log", hist=[("Today 07:30", "72.4 kg"), ("Yesterday 07:25", "72.1 kg"), ("Mon 07:40", "72.3 kg"), ("Sun 08:10", "72.0 kg")]),
+}
+CTX = {"order": ["ngh", "nhg"], "period": ["chips", "swipe"], "height": [80, 130, 180]}
+# a real history runs long: 12 rows over six days, so the fold decides what is read (found 2026-10-16: with 4 rows every page
+# fitted, both orders tied and density could not tell the heights apart)
+MORE = {"count": [("Wed 18:30", "+ 1 glass"), ("Wed 12:10", "+ 2 glasses"), ("Tue 19:00", "+ 1 glass"), ("Tue 10:45", "+ 2 glasses"), ("Mon 17:20", "+ 1 glass"), ("Mon 08:30", "+ 1 glass"), ("Sun 20:00", "+ 2 glasses"), ("Sun 11:15", "+ 1 glass")],
+        "rating": [("Mon 21:10", "3"), ("Sun 20:40", "4"), ("Sat 19:30", "4"), ("Fri 21:00", "3"), ("Thu 20:15", "5"), ("Wed 19:50", "2"), ("Tue 21:20", "3"), ("Mon 20:05", "4")],
+        "yesno": [("Sun 09:10", "done"), ("Sat 17:40", "done"), ("Fri 07:35", "done"), ("Wed 18:00", "done"), ("Tue 07:45", "done"), ("Mon 08:10", "done"), ("Sun 10:00", "done"), ("Sat 16:30", "done")],
+        "choice": [("Sun 13:30", "home"), ("Sat 12:50", "out"), ("Fri 13:05", "packed"), ("Thu 12:45", "packed"), ("Wed 13:15", "home"), ("Tue 12:20", "skipped"), ("Mon 13:00", "home"), ("Sun 12:40", "out")],
+        "add": [("Mon 13:00–13:25", "25 min"), ("Sun 21:10–21:55", "45 min"), ("Sat 20:30–21:00", "30 min"), ("Fri 21:15–21:35", "20 min"), ("Thu 22:00–22:35", "35 min"), ("Wed 21:00–21:40", "40 min"), ("Tue 20:50–21:15", "25 min"), ("Mon 21:30–22:00", "30 min")],
+        "level": [("Sat 07:50", "72.2 kg"), ("Thu 07:35", "72.5 kg"), ("Wed 07:45", "72.3 kg"), ("Mon 07:30", "72.4 kg"), ("Sat 08:05", "72.6 kg"), ("Fri 07:40", "72.5 kg"), ("Wed 07:30", "72.8 kg"), ("Tue 07:55", "72.9 kg")]}
+for _k, _rows in MORE.items():
+    PAGES[_k]["hist"] = PAGES[_k]["hist"] + _rows
+
+
+def page_html(kind, v, kit):
+    """The item's page around one graph (T3b.7's frame), and the chart's own measures."""
+    global H
+    with LOCK:
+        old = H
+        H = v.get("height", 130) if not v.get("control") else 130
+        try:
+            m = draw(kind, v)
+        finally:
+            H = old
+    pg = PAGES[kind]
+    e = kit.e
+    now = '<div class="ipn" data-sec="now"><span class="v"><b>%s</b><s>%s</s></span><span class="c" data-tap="Now control">%s</span></div>' % (e(pg["now"][0]), e(pg["now"][1]), e(pg["ctl"]))
+    if v.get("period", "chips") == "chips" or v.get("control"):
+        per = '<div class="ipr"><span data-tap="Range 7d">7 d</span><span class="on" data-tap="Range 30d">30 d</span><span data-tap="Range 1y">1 y</span></div>'
+    else:
+        per = '<div class="ipr"><span data-tap="Range prev">‹</span><span class="mo" data-tap="Range month">October</span><span data-tap="Range next">›</span></div>'
+    graph = '<div data-sec="graph">%s%s</div>' % (per, m["html"])
+    days = []   # a header per run of one day, so last week's Monday is not merged into this week's
+    for when, what in pg["hist"]:
+        d, t = when.split(" ", 1)
+        if not days or days[-1][0] != d:
+            days.append((d, []))
+        days[-1][1].append((t, what))
+    rows = "".join('<div class="iph">%s</div>' % d + "".join('<div class="ipl" data-tap="History row"><span class="t">%s</span>%s</div>' % (e(t), e(w)) for t, w in r) for d, r in days)
+    hist = '<div data-sec="hist"><div class="iph">History</div>%s</div>' % rows
+    body = now + (graph + hist if (v.get("control") or v.get("order", "ngh") == "ngh") else hist + graph)
+    html = kit.phone(kit.header(KINDS[kind]["name"], (("⚙", "Settings"),), ("‹", "Back")), '<div class="zone" style="padding-bottom:8px">%s</div>' % body, kit.bar("Hub"))
+    return html, m
+
+
+def make_page_part(ns, kind):
+    T, kit, ipdoc, IP_JS = ns["T"], ns["kit"], ns["ipdoc"], ns["IP_JS"]
+    js = "(function(){var a=%s;var b=%s;a.gcut=b.cut;delete b.cut;for(var k in b)a[k]=b[k];return a})()" % (IP_JS, GK_JS)
+
+    def page(v):
+        html, m = page_html(kind, v, kit)
+        return ipdoc(html), m
+
+    def score(v):
+        d, m = page(v)
+        b = T.probe(d, "gp-%s-%s" % (kind, "-".join(str(x) for x in v.values())), js)
+        costs, sh = answer_costs(kind, v, m)
+        fold = b["fold"]
+        glance = (b["now_bottom"] <= fold) + (1 if b["has_graph"] and b["graph_bottom"] <= fold else 0) + (b["row_bottom"] <= fold)
+        year = 1 if (v.get("control") or v["period"] == "chips") else 2
+        taps = (0 if b["graph_bottom"] <= fold else 1) + year + 1 + (0 if b["row_bottom"] <= fold else 1) + 1
+        enc = CTL_ENCODING.get((kind, v.get("control_app")), ENCODING[v["control_app"] if v.get("control") else v["form"]])
+        load = sum(costs) + b["numbers"] / 10 + (m["series"] - 1) * 0.5 + m["legend"]
+        return {"fit": sum(m["misfit"].values()), "misfit": ", ".join(sorted(k for k, x in m["misfit"].items() if x)) or "-",
+                "min_font": b["min_font"], "overlaps": b["overlaps"], "gcut": b["gcut"], "encoding": enc, "min_mark": m["min_mark"], "step_px": m["step_px"],
+                "mark_seen": min(m["min_mark"], MARK_ENOUGH), "step_seen": min(m["step_px"], STEP_ENOUGH), "noise_seen": max(m["noise_px"], NOISE_FLAT),
+                "ink": m["ink"], "noise_px": m["noise_px"], "compare": m["compare"], "costs": list(costs), "load": round(load, 2), "shared": sh,
+                "rows_seen": b["rows_seen"], "cut": b["cut"], "glance": glance, "taps": taps, "small": []}
+
+    part = "gp_" + kind
+    space = dict(T.SPACES["gk_" + kind]) | CTX
+    T.SPACES[part] = space
+    T.SCORERS[part] = score
+    T.VALID[part] = valid(kind)
+    T.CONTROLS[part] = [({k: app for k in space} | {"control": True, "control_app": app}, why + "; in the same page") for app, why in CONTROLS[kind]]
+    T.TITLES[part] = T.TITLES["gk_" + kind].replace("T3b.7a Graphs for", "T3b.7b Graphs in the page for")
+    T.DRAW[part] = lambda v: [page(v)[0]]
+    T.POOL[part] = lambda ok: [r for r in ok if r.get("front")] + [min((r for r in ok if not r["v"].get("control") and r["v"]["form"] == f), key=lambda r: r["total"])
+                                                                   for f in FORMS[kind] if not any(r.get("front") and r["v"].get("form") == f for r in ok)]
+    T.DRAW_MAX[part] = 18
+    T.AXES[part] = {"Fit": ("fit",), "Readability": ("-min_font", "overlaps", "gcut", "-mark_seen", "-step_seen", "encoding"), "Calm": ("ink", "noise_seen", "compare"),
+                    "Mental load": ("load",), "Density": ("-rows_seen", "cut"), "Glance": ("-glance",), "Taps": ("taps",), "Consistency": ("-shared",)}
+    T.WEIGHTS[part] = {"Consistency": 0.25}
+    T.REFS_INFO.add(part)
+    T.SUPERSEDED["gk_" + kind] = "scored inside the item's page (owner, 2026-10-16: density and legibility need the context): T3b.7b replaced it"
+
+
 def register(ns):
     for kind in KINDS:
         make_part(ns, kind)
+    for kind in KINDS:
+        make_page_part(ns, kind)

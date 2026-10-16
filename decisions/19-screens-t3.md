@@ -2225,8 +2225,28 @@ the trend (the jitter floor); a crashed run left stale weight scores that the re
 - Weight: dots or a line in the plausible range with today's value printed; smoothed lines; a sparkline; the weekly band;
   one line from zero survives on a near-tie in ink (flagged: its 0.8 px step reads nothing).
 
-Status: **T3b.7a scored: awaiting the owner's pick per kind; then T3b.7 re-scored with the picks (the order question, the
+Status (then): **T3b.7a scored: awaiting the owner's pick per kind; then T3b.7 re-scored with the picks (the order question, the
 additive and non-additive split), then T3b.6.**
 
+### T3b.7b The graphs scored inside the item's page (owner, 2026-10-16)
 
+The owner: “To assess density and legibility, I think graphs should be scored inside their context/page”. Answers: both of
+T3b.7's orders (now, graph, history / now, history, graph) with the period control (chips / ‹ October ›); the plot's height
+80, 130 or 180 px; one page per kind; axes T3b.7a's four and consistency (0.25), plus T3b.7's density (history rows seen, text
+cut), glance (now, a drawn graph and a history row above the fold) and taps (the graph, a year, editing an entry, settings).
+Parts `gp_*` (T3b.7a's `gk_*` superseded, kept on record): 4,700 pages, 12 controls (each app's chart in the same page).
 
+**Fixed on the way:** the first run gave each page 4 history rows, so every page fitted, both orders tied and density could
+not tell heights apart; each item now has 12 rows over six days (a header per run of one day).
+
+**Result: all twelve controls lost.** On every front the period is chips (a year in one tap). The order: now, graph,
+history leads every kind (glance 3: now, graph and a row in view); now, history, graph shows 6 rows but drops the graph
+below the fold, and stays on the fronts only on that trade. The height depends on the kind:
+- Counts (Water): a dot per glass, 130 or 80 px, no axis; also a line or lollipops with today's number, the days at each count.
+- Ratings (Mood): 80 px only: a dot per day at its level with today's number; the dots under a 7-day mean.
+- Yes/no (Walk): a mark per day with “18 of 30 days” at 80 px, or the running count at 180.
+- Choices (Lunch): a letter per day at 80 px; a row per choice or thin bars per choice at 130–180.
+- Minutes (Reading): the running total against the goal's pace or a line at 80 px; lollipops, bars under a 7-day mean.
+- Weight: dots in the plausible range with today's value at 180 px (a 0.5 kg step 15 px tall), or at 80 px (6.7 px).
+
+Status: **T3b.7b scored: awaiting the owner's pick per kind (and so the order and height); then T3b.6.**
