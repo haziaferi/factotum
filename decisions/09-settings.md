@@ -69,7 +69,7 @@ scoped-live is "dominated" only because no owner app syncs settings live today, 
 A source survey before building slice 09 found settings the decision does not place, and no backup to carry them. The owner answered:
 
 1. **The day view's "show standalone reminders" switch is per device** (DEVICE_PREF): it keeps a small screen uncluttered, so a phone and a desktop may differ. It rides in the backup and does not sync.
-2. **The long-timer limit (ADR 07) is a PERSONAL setting**, 12 hours by default, the same on every device, so two devices never disagree about when to ask or where "end it at the limit" ends a span.
+2. **The long-timer limit (ADR 07) is a PERSONAL setting**, 12 hours by default, the same on every device, so two devices never disagree about when to ask or where "end it at the limit" ends a span. **[Reversed 2026-10-16]** The limit is 3x the activity's usual length, not one setting (owner, T3b.3, decision 19); how "usual" is computed, and the limit for an activity with no sessions yet, are owed to the data layer.
 3. **This slice builds the settings part of a backup only**: an export of the PERSONAL and DEVICE_PREF settings, and a restore that writes only those. A full backup of all data is specified and built later, with the shells.
 4. **App lock is per device**: the PIN is a SECRET, which never leaves the device, and the lock's on/off and grace period are DEVICE_PREF.
 

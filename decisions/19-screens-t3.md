@@ -1671,4 +1671,20 @@ twice that; a 3x-usual limit asks once a week about a run that was only long. Th
 - **The limit decides most of the front:** 36 of 37 front options use 3x usual, which reverses decision 09. Keeping 07 and 09,
   the best is a card each · the app asks when opened · 12 h · Edit after a stop (380), then the notification instead (430.5).
 
-Status: **T3b.3 scored: awaiting the owner's pick (and whether decision 09's limit stands).**
+Status (then): **T3b.3 scored: awaiting the owner's pick (and whether decision 09's limit stands).**
+
+### T3b.3 approved: a card each, asked when opened, 3x the usual length, Edit after a stop (owner, 2026-10-16)
+
+The owner picked the top-ranked option (332): **every running timer has its own card** on Today's strip, never folded; a timer
+past its limit is **asked about on Today the next time the app opens** ("Still going?" Keep / End at… / At the limit), no
+notification; **the limit is 3x the activity's usual length**; a session is corrected from **Edit beside Undo** on the stopped
+card, older ones from the activity's page. PICKED run3 `{"many":"each","forgot":"open","cap":"usual3","edit":"after"}`.
+
+**Decision 09 reversed** (the limit was one PERSONAL setting, 12 h): marked in decision 09 and the SPEC; decision 07 amended (the
+ask and "nothing ended without the person" stand).
+
+Owed to the data layer: how an activity's usual length is computed, and the limit before an activity has sessions; the ask
+card's state (one ask per span until answered; Keep restarts the count); Edit offered beside Undo while the stopped card shows.
+
+Status: **T3b.1d, T3b.3, T3b.4e, T3b.4f and T3b.4g approved.** Next in T3b: goals; time totals and charts.
+
