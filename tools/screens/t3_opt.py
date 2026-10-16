@@ -11,6 +11,7 @@ Parts:
   gword    T3b.5c the goal line's wording on the Measuring row (owner, 2026-10-16)
   tunit    T3b.5d time on a tracker when units are typed (owner, 2026-10-16)
   tkind    T3b.5e how time is held: spans, amounts, or both (owner, 2026-10-16)
+  where    T3b.6 one home per thing, the repeats scored together (owner, 2026-10-16)
   pace6    T3b.4f the approved Paced sentence: steppers the boxes' height, flowing or one part per line (owner, 2026-10-15)
   pace5    T3b.4e the Paced timer: N breaks evenly in the sentence; the ring shows and selects (owner, 2026-10-15)
   pace4    T3b.4d the Paced timer: a real dial for times, the run ring for pauses as fractions (owner, 2026-10-15)
@@ -4162,6 +4163,101 @@ def score_tkind(v):
     return {"taps": taps, "keyboards": keys, "errors": errors, "load": load, "consistency": cons, "impossible": 0, "small": []}
 
 
+# ==== Part where: T3b.6 one home per thing, the repeats scored together (owner, 2026-10-16) =======================================
+"""
+  The owner (2026-10-16): "all these screens are redundant if all added singularly. Let's go back to the purpose map to assess this
+  problem clearly." Answers: score it, all together, with redundancy an axis; shortcuts on Today are not redundancy (Today is a
+  master board); a repeat may be kept, made a doorway (one line opening the home), removed, or left to the person (a setting),
+  scored per element, as hiding a running timer costs more than hiding a static goal; axes: redundancy, the extent of possible
+  customization, taps to reach, glance, mental load, consistency. The control: the map as it stood (every repeat kept).
+  One dimension per thing of the purpose map's what-where table (docs/screens/purpose-map.json), each a few coherent variants:
+  start    Start or log an item: home Measuring's rows; the item's page keeps its control (keep) or not (remove)
+  running  A running timer: home the item's page; Measuring's strip kept / a doorway ("2 running ›") / removed / the person's choice
+  amount   Today's amount and when last: home Measuring's row; the page and Review's day keep it, make it a doorway, or drop it
+  goal     Goal progress: home the row (the page and a chart line repeat) or the page (the row by the goal-line setting, or nothing)
+  sessions Sessions and their edits: home the page; Review's day timeline keeps them, makes them doorways, or drops them
+  charts   Totals and charts: home the item's page or This week or Saved charts; the others doorways or gone
+  shortcut Shortcut lists: one pin everywhere (owner), with Recent kept, removed, or the person's choice; or the Hub's list dropped
+  Each variant's measures are counted by hand from the walk below (flagged): redundancy (a kept repeat 1, a doorway 0.5, the
+  person's choice its default); customization (each thing the person can set); taps (from Today, for the walk's tasks); glance
+  (what reads without opening anything, Today counted); mental load (places a thing lives, and the item's page crowded past 4
+  things); consistency (forms of the same thing that read or act differently).
+  The walk: start an item while on its page; pause a timer from Measuring; read today's amount on the page; read goal progress
+  without opening anything; edit yesterday's session from the week's review; compare two items' totals this month; reach an
+  item seen yesterday that is not pinned.
+"""
+WHERE_VARIANTS = {
+    "start": {
+        "keep":   dict(red=1, cust=0, taps=1, glance=0, load=2, cons=0, page=1),
+        "remove": dict(red=0, cust=0, taps=3, glance=0, load=1, cons=0, page=0),
+    },
+    "running": {
+        "keep":     dict(red=1, cust=0, taps=1, glance=1, load=2, cons=0, page=1),
+        "doorway":  dict(red=0.5, cust=0, taps=2, glance=0.5, load=1.5, cons=1, page=1),
+        "remove":   dict(red=0, cust=0, taps=2, glance=0, load=1, cons=0, page=1),
+        "choice":   dict(red=1, cust=1, taps=1, glance=1, load=2, cons=0, page=1),
+    },
+    "amount": {
+        "page_week":     dict(red=2, cust=0, taps=0, glance=1, load=3, cons=0, page=1),
+        "page_doorway":  dict(red=1.5, cust=0, taps=0, glance=1, load=2.5, cons=1, page=1),
+        "page_only":     dict(red=1, cust=0, taps=0, glance=1, load=2, cons=0, page=1),
+        "row_only":      dict(red=0, cust=0, taps=2, glance=1, load=1, cons=0, page=0),
+    },
+    "goal": {
+        "row_page_chart":   dict(red=2, cust=1, taps=0, glance=1, load=3, cons=0, page=1),
+        "row_page":         dict(red=1, cust=1, taps=0, glance=1, load=2, cons=0, page=1),
+        "page_row_setting": dict(red=1, cust=2, taps=0, glance=1, load=2, cons=0, page=1),
+        "page_only":        dict(red=0, cust=0, taps=3, glance=0, load=1, cons=0, page=1),
+        "row_only":         dict(red=0, cust=1, taps=0, glance=1, load=1, cons=1, page=0),   # goals set on the page but never read there
+    },
+    "sessions": {
+        "review_keep":    dict(red=1, cust=0, taps=2, glance=0, load=2, cons=0, page=1),
+        "review_doorway": dict(red=0.5, cust=0, taps=3, glance=0, load=1.5, cons=1, page=1),
+        "page_only":      dict(red=0, cust=0, taps=5, glance=0, load=1, cons=0, page=1),
+    },
+    "charts": {
+        "page_week_saved": dict(red=1, cust=1, taps=2, glance=0, load=2, cons=0, page=1),   # the page its item's; This week a summary + doorways; Saved charts for comparing
+        "page_week":       dict(red=0, cust=0, taps=IMPOSSIBLE, glance=0, load=1, cons=0, page=1),   # no place to compare two items
+        "week_home":       dict(red=0.5, cust=0, taps=2, glance=0, load=1.5, cons=1, page=0),   # every chart in This week; the page a doorway
+        "saved_home":      dict(red=0.5, cust=2, taps=3, glance=0, load=1.5, cons=1, page=0),   # the person builds their charts; the page a doorway to its own
+    },
+    "shortcut": {
+        "pin_recent":    dict(red=1, cust=1, taps=2, glance=1, load=2, cons=0, page=0),
+        "pin_only":      dict(red=0, cust=1, taps=3, glance=0, load=1, cons=0, page=0),
+        "pin_choice":    dict(red=1, cust=2, taps=2, glance=1, load=2, cons=0, page=0),
+        "no_hub_list":   dict(red=0.5, cust=1, taps=2, glance=1, load=1.5, cons=0, page=0),   # the Hub's Pinned and recent dropped: Today is the board
+    },
+}
+WHERE_SPACE = {k: list(v) for k, v in WHERE_VARIANTS.items()}
+# the map as it stood (every repeat kept): charts in four places, two lists of items beside the pins
+WHERE_CONTROL = dict(red=1 + 1 + 2 + 2 + 1 + 3 + 1.5, cust=1 + 1, taps=1 + 1 + 0 + 0 + 2 + 2 + 2, glance=1 + 1 + 1 + 1, load=2 + 2 + 3 + 3 + 2 + 4 + 2.5,
+                     cons=1, page=6)
+
+
+def score_where(v):
+    if v.get("control"):
+        t = dict(WHERE_CONTROL)
+    else:
+        t = {k: 0 for k in ("red", "cust", "taps", "glance", "load", "cons", "page")}
+        for thing, choice in v.items():
+            for k, x in WHERE_VARIANTS[thing][choice].items():
+                t[k] += x
+    crowd = max(0, t["page"] - 4) * 0.5   # the item's page holding more than four things
+    imp = 1 if t["taps"] >= IMPOSSIBLE else 0
+    return {"redundancy": t["red"], "custom": t["cust"], "taps": t["taps"], "glance": t["glance"], "load": t["load"] + crowd,
+            "inconsistent": t["cons"], "page_things": t["page"], "impossible": imp, "small": []}
+
+
+def where_doc(v):
+    if v.get("control"):
+        rows = [("Every repeat kept", "the map as it stood on 2026-10-16")]
+    else:
+        rows = [(k, x.replace("_", " ")) for k, x in v.items()]
+    body = '<div class="zone"><h4>%s</h4>%s</div>' % ("Control" if v.get("control") else "Homes and repeats",
+                                                      "".join('<div class="prow2"><span class="t">%s</span>%s</div>' % (e(a), e(b)) for a, b in rows))
+    return gdoc(kit.phone(kit.header("Where", ()), body, kit.bar("Hub")))
+
+
 def build_refs():
     with open(os.path.join(T.OUT, "t3-references.json"), encoding="utf-8") as fh:
         src = json.load(fh)
@@ -4186,9 +4282,10 @@ def build_refs():
 T.PREFIX, T.REFS, T.NAME = "t3", "t3-refs.json", "T3 habits, trackers, time, goals, charts and checklists"
 T.OUT = os.path.join(os.path.dirname(M2.T.OUT), "t3")
 # T3.1 "habits" (presence, the first scoring) is kept in t3-habits-v1.json and in the code above; T3a replaced it (owner, 2026-10-13)
-T.SPACES = {"tkind": TKIND_SPACE, "tunit": TUNIT_SPACE, "gword": GWORD_SPACE, "gtoday": GTODAY_SPACE, "goals": GOALS_SPACE, "run3": RUN3_SPACE, "pacerun": PACERUN_SPACE, "pace6": PACE6_SPACE, "pace5": PACE5_SPACE, "pace4": PACE4_SPACE, "pace3": PACE3_SPACE, "paceplace": PPLACE_SPACE, "pace": PACE_SPACE, "measure3": MEAS3_SPACE, "acts": ACTS_SPACE, "measure2": MEAS2_SPACE, "measure": MEAS_SPACE, "trackers": TRK_SPACE, "basics": BASICS_SPACE, "addhabit": ADD_SPACE, "routines": ROUT_SPACE, "addsent": SENT_SPACE, "hsheet": HSHEET_SPACE, "premise": PREMISE_SPACE, "habits2": H2_SPACE}
-T.SCORERS = {"tkind": score_tkind, "tunit": score_tunit, "gword": score_gword, "gtoday": score_gtoday, "goals": score_goals, "run3": score_run3, "pacerun": score_pacerun, "pace6": score_pace6, "pace5": score_pace5, "pace4": score_pace4, "pace3": score_pace3, "paceplace": score_paceplace, "pace": score_pace, "measure3": score_measure3, "acts": score_acts, "measure2": score_measure2, "measure": score_measure, "trackers": score_trackers, "basics": score_basics, "addhabit": score_addhabit, "routines": score_routines, "addsent": score_addsent, "hsheet": score_hsheet, "premise": score_premise, "habits2": score_habits2}
-T.CONTROLS = {"tkind": [({"model": app, "control": True, "control_app": app}, TK_CONTROL_WHY[app]) for app in TK_CONTROLS],
+T.SPACES = {"where": WHERE_SPACE, "tkind": TKIND_SPACE, "tunit": TUNIT_SPACE, "gword": GWORD_SPACE, "gtoday": GTODAY_SPACE, "goals": GOALS_SPACE, "run3": RUN3_SPACE, "pacerun": PACERUN_SPACE, "pace6": PACE6_SPACE, "pace5": PACE5_SPACE, "pace4": PACE4_SPACE, "pace3": PACE3_SPACE, "paceplace": PPLACE_SPACE, "pace": PACE_SPACE, "measure3": MEAS3_SPACE, "acts": ACTS_SPACE, "measure2": MEAS2_SPACE, "measure": MEAS_SPACE, "trackers": TRK_SPACE, "basics": BASICS_SPACE, "addhabit": ADD_SPACE, "routines": ROUT_SPACE, "addsent": SENT_SPACE, "hsheet": HSHEET_SPACE, "premise": PREMISE_SPACE, "habits2": H2_SPACE}
+T.SCORERS = {"where": score_where, "tkind": score_tkind, "tunit": score_tunit, "gword": score_gword, "gtoday": score_gtoday, "goals": score_goals, "run3": score_run3, "pacerun": score_pacerun, "pace6": score_pace6, "pace5": score_pace5, "pace4": score_pace4, "pace3": score_pace3, "paceplace": score_paceplace, "pace": score_pace, "measure3": score_measure3, "acts": score_acts, "measure2": score_measure2, "measure": score_measure, "trackers": score_trackers, "basics": score_basics, "addhabit": score_addhabit, "routines": score_routines, "addsent": score_addsent, "hsheet": score_hsheet, "premise": score_premise, "habits2": score_habits2}
+T.CONTROLS = {"where": ({k: "as it stood" for k in WHERE_SPACE} | {"control": True}, "The purpose map as it stood on 2026-10-16: every repeat kept, charts in four places, Recent and the Hub list beside the pins"),
+              "tkind": [({"model": app, "control": True, "control_app": app}, TK_CONTROL_WHY[app]) for app in TK_CONTROLS],
               "tunit": [({"how": app, "control": True, "control_app": app}, TU_CONTROL_WHY[app]) for app in TU_CONTROLS],
               "gword": [({"form": f, "period": "-", "layout": "drop", "numbers": "-", "control": True}, why) for f, why in GW_CONTROLS],
               "gtoday": [({k: app for k in GTODAY_SPACE} | {"control": True, "control_app": app}, GT_CONTROL_WHY[app]) for app in GT_CONTROLS],
@@ -4256,8 +4353,8 @@ T.AXES = {"pace4": {"Taps": ("taps",), "Customization": ("impossible", "step_150
                      "Choice": ("-filter_says_mid",), "Consistency": ("like_today",), "Density": ("-rows_seen", "cut"), "Calm": ("clutter", "desk_clutter")},
           "habits": {"Ease": ("log_actions", "reach_log"), "Presence": ("-presence_shown", "presence_marks"), "Calm": ("guilt_marks", "clutter", "desk_clutter"),
                      "Density": ("-rows_seen", "cut"), "Consistency": ("like_today",)}}
-T.TITLES = {"tkind": "T3b.5e How time is held: only spans, kept apart, or spans and amounts on one item", "tunit": "T3b.5d Time on a tracker when units are typed: a Duration kind, or recognised time words", "gword": "T3b.5c The goal line on the Measuring row: wording, period words, layout", "gtoday": "T3b.5b Goals on Today, measured with 5 and 20 goals: nothing, a summary, pinned, unmet, a collapsed row", "goals": "T3b.5 Goals: where they live, how progress shows, the glance, how one is set", "run3": "T3b.3 Several running timers, a forgotten timer, editing a session", "pacerun": "T3b.4g Where the Paced timer lives while running: the view, a Today strip, a rest's end, Stop's guard", "pace6": "T3b.4f The approved Paced sentence: steppers at the boxes' height, flowing or one part per line", "pace5": "T3b.4e The Paced timer: N breaks evenly in the sentence; the ring shows and selects", "pace4": "T3b.4d The Paced timer: a real dial for times, the run ring for pauses as fractions", "pace3": "T3b.4c The Paced timer sheet around a clock face: run input, placer, exact words, rhythm", "paceplace": "T3b.4b Where the Paced timer lives: set and running", "pace": "T3b.4 The Paced timer sheet: setting the run, placing pauses (chimes or rests)", "measure3": "T3b.1d The Measuring list: trackers and activities as one, each item's control by how it is measured", "acts": "T3b.2 The Activities list: running timers, adding a past session, Same as last (Chronicle's Last used)", "measure2": "T3b.1c The Measuring list, scroll counted at 12 and 30 items: compact rows, folding labels, most used first", "measure": "T3b.1b The Measuring list, taps first: merged with activities or apart, rows or cards, what Log does (a control per kind)", "trackers": "T3b.1 The Trackers list: rows or cards, what a row says, what Log does, grouping", "habits2": "T3a.1c The Habits list: the optional name, and every if as a header", "premise": "T3a.2d What tapping the premise box opens: nothing, or the ifs with the same connective", "hsheet": "T3a.2c The New habit sheet (prototype): the blanks as text boxes in the sentence, or opened above it", "addsent": "T3a.2b Adding a habit as an open sentence: the When sheet, in place, or fields; energy and routine as words or rows", "routines": "T3a.1b The Habits list with routines: the 'what to expect' preview, how the sequence shows", "addhabit": "T3a.2 Adding a habit: in place or a sheet, the If, the block", "basics": "T3a.1 Habits as Daily basics: layout, the energy filter, its mark, done today", "habits": "T3.1 The Habits list: presence, grouping, where Log sits, a count's amount"}
-T.DRAW = {"tkind": lambda v: [gdoc(kit.phone(kit.header(v["control_app"].capitalize(), ()), '<div class="zone"><h4>Control</h4><p>%s</p></div>' % TK_CONTROL_WHY[v["control_app"]], kit.bar("Hub")))] if v.get("control") else [gdoc(tk_phone(v))], "tunit": lambda v: [tudoc(kit.phone(kit.header(v["control_app"].capitalize(), ()), '<div class="zone"><h4>Control</h4><p>%s</p></div>' % TU_CONTROL_WHY[v["control_app"]], kit.bar("Hub")))] if v.get("control") else [tudoc(tunit_phone(v))], "gword": lambda v: [m3doc(gword_phone(v))], "gtoday": lambda v: [gdoc(kit.phone(kit.header(v["control_app"].capitalize(), ()), '<div class="zone"><h4>Control</h4><p>%s</p></div>' % GT_CONTROL_WHY[v["control_app"]], kit.bar("Hub")))] if v.get("control") else [gdoc_t(gt_today(v, 5)), gdoc_t(gt_today(v, 20))], "goals": lambda v: [gdoc(kit.phone(kit.header(v["control_app"].capitalize(), ()), '<div class="zone"><h4>Control</h4><p>%s</p></div>' % G_CONTROL_WHY[v["control_app"]], kit.bar("Hub")))] if v.get("control") else [gdoc(goals_where(v)), gdoc(goals_glance(v))] + ([gdoc(goals_glance(v, "row"))] if v["glance"] == "both" else []), "run3": lambda v: [r3doc(r3_edit_place(v))] if v.get("control") else [r3doc(r3_today(v)), r3doc(r3_today(v, 5, True)), r3doc(r3_edit_place(v))], "pacerun": lambda v: [pdoc(pacerun_phone(v))] if v.get("control") else [prdoc(pacerun_phone(v)), prdoc(pacerun_phone(v, "today"))], "pace6": lambda v: [p6doc(pace6_phone(v, P6_STATES[0])), p6doc(pace6_phone(v, P6_STATES[5])), p6doc(pace6_phone(v, P6_STATES[8]))], "pace5": lambda v: [pdoc(pace5_phone(v)) if v.get("control") else p4doc(pace5_phone(v))], "pace4": lambda v: [pdoc(pace4_phone(v)) if v.get("control") else p4doc(pace4_phone(v))], "pace3": lambda v: [pdoc(pace3_phone(v)) if v.get("control") else p3doc(pace3_phone(v))], "paceplace": lambda v: [ppdoc(pp_running(v)), ppdoc(pp_today(v))], "pace": lambda v: [pdoc(pace_phone(v))], "measure3": lambda v: [m3doc(measure3_phone(v, ITEMS3_12, v.get("group", "") not in ("flat", "labels"))), m3doc(measure3_phone(v, ITEMS3_40)), measure3_desk(v)], "acts": lambda v: [adoc2(acts_phone(v, ACTS12, v.get("arrange") == "hybrid")), adoc2(acts_phone(v, ACTS30)), acts_desk(v)], "measure2": lambda v: [m2doc(measure2_phone(v, ITEMS12, v.get("group", "") in ("folding", "hybrid_fit", "hybrid_6", "hybrid_pinned"))), m2doc(measure2_phone(v, ITEMS30)), measure2_desk(v)], "measure": lambda v: [mdoc(measure_phone(v)), measure_desk(v)], "trackers": lambda v: [tdoc(trackers_phone(v))] + ([] if v.get("control") else [tdoc(trackers_phone(v, True))]) + [trackers_desk(v)], "habits2": lambda v: [h2doc(habits2_phone(v)), habits2_desk(v)], "premise": lambda v: [premise_doc(v)], "hsheet": lambda v: [adoc(addhabit_phone({"control": True}))] if v.get("control") else [hsheet_doc(v, st) for _, _, st in HSTATES], "addsent": lambda v: [sdoc(addsent_phone(v))] + ([] if (v.get("control") or v["form"] == "fields") else [sdoc(addsent_phone(v, True))]), "routines": lambda v: [rdoc(routines_phone(v)), rdoc(routines_phone(v, "low")), routines_desk(v)], "addhabit": lambda v: [adoc(addhabit_phone(v))], "basics": lambda v: [bdoc(basics_phone(v)), basics_desk(v)], "habits": lambda v: [hdoc(habits_phone(v)), habits_desk(v)]}
+T.TITLES = {"where": "T3b.6 One home per thing: where each repeat goes (kept, a doorway, removed, the person's choice)", "tkind": "T3b.5e How time is held: only spans, kept apart, or spans and amounts on one item", "tunit": "T3b.5d Time on a tracker when units are typed: a Duration kind, or recognised time words", "gword": "T3b.5c The goal line on the Measuring row: wording, period words, layout", "gtoday": "T3b.5b Goals on Today, measured with 5 and 20 goals: nothing, a summary, pinned, unmet, a collapsed row", "goals": "T3b.5 Goals: where they live, how progress shows, the glance, how one is set", "run3": "T3b.3 Several running timers, a forgotten timer, editing a session", "pacerun": "T3b.4g Where the Paced timer lives while running: the view, a Today strip, a rest's end, Stop's guard", "pace6": "T3b.4f The approved Paced sentence: steppers at the boxes' height, flowing or one part per line", "pace5": "T3b.4e The Paced timer: N breaks evenly in the sentence; the ring shows and selects", "pace4": "T3b.4d The Paced timer: a real dial for times, the run ring for pauses as fractions", "pace3": "T3b.4c The Paced timer sheet around a clock face: run input, placer, exact words, rhythm", "paceplace": "T3b.4b Where the Paced timer lives: set and running", "pace": "T3b.4 The Paced timer sheet: setting the run, placing pauses (chimes or rests)", "measure3": "T3b.1d The Measuring list: trackers and activities as one, each item's control by how it is measured", "acts": "T3b.2 The Activities list: running timers, adding a past session, Same as last (Chronicle's Last used)", "measure2": "T3b.1c The Measuring list, scroll counted at 12 and 30 items: compact rows, folding labels, most used first", "measure": "T3b.1b The Measuring list, taps first: merged with activities or apart, rows or cards, what Log does (a control per kind)", "trackers": "T3b.1 The Trackers list: rows or cards, what a row says, what Log does, grouping", "habits2": "T3a.1c The Habits list: the optional name, and every if as a header", "premise": "T3a.2d What tapping the premise box opens: nothing, or the ifs with the same connective", "hsheet": "T3a.2c The New habit sheet (prototype): the blanks as text boxes in the sentence, or opened above it", "addsent": "T3a.2b Adding a habit as an open sentence: the When sheet, in place, or fields; energy and routine as words or rows", "routines": "T3a.1b The Habits list with routines: the 'what to expect' preview, how the sequence shows", "addhabit": "T3a.2 Adding a habit: in place or a sheet, the If, the block", "basics": "T3a.1 Habits as Daily basics: layout, the energy filter, its mark, done today", "habits": "T3.1 The Habits list: presence, grouping, where Log sits, a count's amount"}
+T.DRAW = {"where": lambda v: [where_doc(v)], "tkind": lambda v: [gdoc(kit.phone(kit.header(v["control_app"].capitalize(), ()), '<div class="zone"><h4>Control</h4><p>%s</p></div>' % TK_CONTROL_WHY[v["control_app"]], kit.bar("Hub")))] if v.get("control") else [gdoc(tk_phone(v))], "tunit": lambda v: [tudoc(kit.phone(kit.header(v["control_app"].capitalize(), ()), '<div class="zone"><h4>Control</h4><p>%s</p></div>' % TU_CONTROL_WHY[v["control_app"]], kit.bar("Hub")))] if v.get("control") else [tudoc(tunit_phone(v))], "gword": lambda v: [m3doc(gword_phone(v))], "gtoday": lambda v: [gdoc(kit.phone(kit.header(v["control_app"].capitalize(), ()), '<div class="zone"><h4>Control</h4><p>%s</p></div>' % GT_CONTROL_WHY[v["control_app"]], kit.bar("Hub")))] if v.get("control") else [gdoc_t(gt_today(v, 5)), gdoc_t(gt_today(v, 20))], "goals": lambda v: [gdoc(kit.phone(kit.header(v["control_app"].capitalize(), ()), '<div class="zone"><h4>Control</h4><p>%s</p></div>' % G_CONTROL_WHY[v["control_app"]], kit.bar("Hub")))] if v.get("control") else [gdoc(goals_where(v)), gdoc(goals_glance(v))] + ([gdoc(goals_glance(v, "row"))] if v["glance"] == "both" else []), "run3": lambda v: [r3doc(r3_edit_place(v))] if v.get("control") else [r3doc(r3_today(v)), r3doc(r3_today(v, 5, True)), r3doc(r3_edit_place(v))], "pacerun": lambda v: [pdoc(pacerun_phone(v))] if v.get("control") else [prdoc(pacerun_phone(v)), prdoc(pacerun_phone(v, "today"))], "pace6": lambda v: [p6doc(pace6_phone(v, P6_STATES[0])), p6doc(pace6_phone(v, P6_STATES[5])), p6doc(pace6_phone(v, P6_STATES[8]))], "pace5": lambda v: [pdoc(pace5_phone(v)) if v.get("control") else p4doc(pace5_phone(v))], "pace4": lambda v: [pdoc(pace4_phone(v)) if v.get("control") else p4doc(pace4_phone(v))], "pace3": lambda v: [pdoc(pace3_phone(v)) if v.get("control") else p3doc(pace3_phone(v))], "paceplace": lambda v: [ppdoc(pp_running(v)), ppdoc(pp_today(v))], "pace": lambda v: [pdoc(pace_phone(v))], "measure3": lambda v: [m3doc(measure3_phone(v, ITEMS3_12, v.get("group", "") not in ("flat", "labels"))), m3doc(measure3_phone(v, ITEMS3_40)), measure3_desk(v)], "acts": lambda v: [adoc2(acts_phone(v, ACTS12, v.get("arrange") == "hybrid")), adoc2(acts_phone(v, ACTS30)), acts_desk(v)], "measure2": lambda v: [m2doc(measure2_phone(v, ITEMS12, v.get("group", "") in ("folding", "hybrid_fit", "hybrid_6", "hybrid_pinned"))), m2doc(measure2_phone(v, ITEMS30)), measure2_desk(v)], "measure": lambda v: [mdoc(measure_phone(v)), measure_desk(v)], "trackers": lambda v: [tdoc(trackers_phone(v))] + ([] if v.get("control") else [tdoc(trackers_phone(v, True))]) + [trackers_desk(v)], "habits2": lambda v: [h2doc(habits2_phone(v)), habits2_desk(v)], "premise": lambda v: [premise_doc(v)], "hsheet": lambda v: [adoc(addhabit_phone({"control": True}))] if v.get("control") else [hsheet_doc(v, st) for _, _, st in HSTATES], "addsent": lambda v: [sdoc(addsent_phone(v))] + ([] if (v.get("control") or v["form"] == "fields") else [sdoc(addsent_phone(v, True))]), "routines": lambda v: [rdoc(routines_phone(v)), rdoc(routines_phone(v, "low")), routines_desk(v)], "addhabit": lambda v: [adoc(addhabit_phone(v))], "basics": lambda v: [bdoc(basics_phone(v)), basics_desk(v)], "habits": lambda v: [hdoc(habits_phone(v)), habits_desk(v)]}
 T.POOL = {"trackers": lambda ok: [min((r for r in ok if r.get("front") and r["v"]["layout"] == lay and r["v"]["log"] == lg), key=lambda r: r["total"])
                                     for lay in ("rows", "grid") for lg in ("sheet", "default", "stepper")
                                     if any(r.get("front") and r["v"]["layout"] == lay and r["v"]["log"] == lg for r in ok)]
@@ -4293,6 +4390,10 @@ T.AXES["gword"] = {"Readability": ("symbols", "abbrev", "no_period"), "Fit": ("c
 T.VALID["gword"] = gw_valid
 T.POOL["tunit"] = lambda ok: [r for r in ok if not r["v"].get("control")]
 T.POOL["tkind"] = lambda ok: [r for r in ok if not r["v"].get("control")]
+T.POOL["where"] = lambda ok: [r for r in ok if r.get("front")]
+T.DRAW_MAX["where"] = 12
+T.AXES["where"] = {"Redundancy": ("redundancy",), "Customization": ("-custom",), "Taps": ("taps",), "Possible": ("impossible",), "Glance": ("-glance",),
+                   "Mental load": ("load",), "Consistency": ("inconsistent",)}
 T.AXES["tkind"] = {"Taps": ("taps", "keyboards"), "Possible": ("impossible",), "Errors": ("errors",), "Mental load": ("load",), "Consistency": ("-consistency",)}
 T.AXES["tunit"] = {"Taps": ("taps", "keyboards"), "Possible": ("impossible",), "Errors": ("errors",), "Mental load": ("load",), "Consistency": ("-consistency",)}
 T.POOL["gtoday"] = lambda ok: [r for r in ok if not r["v"].get("control")]

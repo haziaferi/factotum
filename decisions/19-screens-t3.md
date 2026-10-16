@@ -2082,12 +2082,41 @@ Owed to the data layer: an activity's untimed time (an amount and its day, besid
 spans plus the sum of amounts (decision 07 extended; the week and goal periods still the sum of their days), the capture line's
 “+1 h 45” as an amount (today) and “09:00–18:00” as a span; sync rows for amounts (ADR 01).
 
-Status: **T3b.5 reopened (workshop: the goal line's setting, counter goals); T3b.5b, T3b.5c and T3b.5e approved.** Next in T3b:
-the T3b.5 workshop, then time totals and charts.
+Status (then): T3b.5 reopened; T3b.5b, T3b.5c and T3b.5e approved.
 
+### T3b.6 Redundancy: one home per thing, the repeats scored together (owner, 2026-10-16)
 
+“There is one discussion to have now, and it's the fact that all these screens are redundant if all added singularly. Let's go
+back to the purpose map to assess this problem clearly.” Laid out by what a person reads or does with an item and every place it
+shows: starting or logging appeared in 3 places, a running timer in 3, goal progress in 3, totals and charts in 5, shortcut lists
+in 3. Answers: score it, all together, redundancy an axis; **shortcuts on Today are not redundancy** (“The whole point of Today
+is to create something like a master board to keep all relevant elements easy to reach”); some screens will change as the app is
+defined; the purpose map marks resolved overlaps **wrapped** (O1, O2, O6), gains a **what-where table** checked by its script (one
+home per thing, every repeat outside Today listed until scored), and **merges duplicates** (Trackers and Activities are one
+Measuring entry; a tracker's detail is the item's page). A repeat may be kept, a doorway (one line that opens the home), removed,
+or the person's choice, scored per element (“a visible/hidden timer while it's running vs a visible/hidden static goal”). Axes:
+redundancy, the extent of possible customization, taps to reach, glance, mental load, consistency.
 
+Part `where`: one dimension per thing (start, running, amount, goal, sessions, charts, shortcut), 7,680 combinations, against
+the map as it stood (every repeat kept). Each variant's measures are counted by hand from a seven-task walk (flagged; see the
+part's docstring). **The control lost** (25,555 against 14,318). 188 combinations on the front; what the front leans to:
 
+| Thing | On the front (of 188) |
+|---|---|
+| Start or log | the page without its own control 121 · kept 67 |
+| A running timer, Measuring's strip | removed 92 · the person's choice 91 · a doorway 5 |
+| Today's amount | only on Measuring's row 121 · also on the page 67 |
+| Goal progress | only the row 113 · the page, the row by the setting 69 · only the page 6 |
+| Sessions | the page and Review's day 108 · only the page 48 · Review's day as doorways 32 |
+| Totals and charts | Saved charts the home 81 · the page + This week + Saved charts 62 · This week the home 30 |
+| Shortcut lists | the Hub's list dropped 74 · pins only 58 · Recent the person's choice 56 |
 
+Best rank sum (14,318): the page without its own start control; Measuring's strip the person's choice; today's amount on the row
+only; goal progress at home on the page, on the row by the setting (T3b.5c); sessions only on the page; charts on the page, This
+week a summary with doorways, Saved charts for comparing; the Hub's Pinned and recent dropped (Today is the board).
 
+**Read with care:** two leaning results contradict approved screens: a page without its start control, and a page without
+today's amount (T3b.4g drew both on the page). They come from the hand-counted walk (one task each), not from a measured
+drawing; for the owner.
 
+Status: **T3b.6 scored: awaiting the owner's settling, thing by thing.**
