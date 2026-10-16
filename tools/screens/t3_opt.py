@@ -3419,7 +3419,7 @@ T.PICKED = {"routines": [{"preview": "none", "seq": "plain"}, {"preview": "energ
             "measure2": [{"scope": "apart", "layout": "rows", "says": "last", "log": "inline", "group": "hybrid_fit", "order": "recent"}],
             "measure3": [{"layout": "rows", "says": "last", "log": "inline", "group": "hybrid_fit", "order": "recent", "running": "strip", "past": "page", "plan": "chip"}],
             "pace5": [{"time": "dial", "pauses": "sentence", "move": "dial", "drag": "none", "face": "chooser"}],   # with - / + beside every box (owner, 2026-10-15)
-            "pace6": [{"layout": "tightAC", "stepper": 32}]}   # no chips; evenly <-> at in place; Reset breaks (owner, 2026-10-15)
+            "pace6": [{"layout": "tightAC", "stepper": 32}], "pacerun": [{"view": "page", "today": "strip", "rest_end": "auto", "stop": "long"}]}   # no chips; evenly <-> at in place; Reset breaks (owner, 2026-10-15)
 T.SUPERSEDED = {"paceplace": "where it lives while running, rescored with the owner's answers (2026-10-15): T3b.4g replaced it",
                 "pace4": "N breaks evenly, the ring for showing and selecting (owner, 2026-10-15): T3b.4e replaced it",
                 "pace3": "the ring is always the whole run, a real dial for times (owner, 2026-10-15): T3b.4d replaced it",

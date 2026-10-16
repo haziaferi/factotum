@@ -1609,4 +1609,20 @@ the page had only − / +. Now the end box is the approved one: a tap opens the 
 instead, − / + move 5 min. While the keyboard types, the phone is not redrawn under it. Tested with real input: by the dial
 5 taps, typed 4 taps and the digits; every task on every sheet still passes. The scores are unchanged (they assumed the box).
 
-Status: **T3b.1d, T3b.4e and T3b.4f approved; T3b.4g trialled; the end box made the approved one: awaiting the owner's pick.**
+Status (then): **T3b.1d, T3b.4e and T3b.4f approved; T3b.4g trialled; the end box made the approved one: awaiting the owner's pick.**
+
+### T3b.4g approved: the activity's page, a Today strip, work resumes, Stop by holding (owner, 2026-10-16)
+
+"Record the top-ranked sheet as the T3b.4g pick." The running Paced timer lives on **the activity's page**, reached by
+tapping its card. **Today carries a strip**: one card per running timer, with ‖ / ▶ and ■ on the card itself. When a rest
+ends, **work resumes on its own**. **■ stops on a held press** (half a second, with a progress line); a quick tap says
+"hold ■", and any stop can be undone for 10 s in the card. While running, the page offers Pause, Skip, +5 min, Edit
+(the end box as on the Paced sheet: the dial, ⌨, − / +) and Stop. Rank #1 of the scored space (94.5; the control 247);
+in the owner's trial the fewest taps (13 over seven tasks) and no early Dones. PICKED pacerun
+`{"view":"page","today":"strip","rest_end":"auto","stop":"long"}`.
+
+Owed to the data layer: a running timer's pause (and its total) and an end that can move while it runs; skipped rests;
+a stop that can be undone for a few seconds before it is written.
+
+Status: **T3b.1d, T3b.4e, T3b.4f and T3b.4g approved.** Next in T3b: several running timers at once (partly covered by
+the Today strip), goals, editing a session, time totals and charts.
