@@ -1996,7 +1996,39 @@ Status (then): **T3b.1d, T3b.3, T3b.4e/f/g, T3b.5, T3b.5b and T3b.5c approved.**
   typed word, so what the list gave for free (that HOURS is time) has to come from somewhere else. Asked: time and other
   bases than 10.
 
-Status: **T3b.5 reopened (workshop); T3b.5b and T3b.5c approved; the typed unit asked.**
+Status (then): **T3b.5 reopened (workshop); T3b.5b and T3b.5c approved; the typed unit asked.**
+
+### T3b.5d Typed units, and time (owner, 2026-10-16)
+
+A typed unit loses what Chronicle's list gave for free: that a value is time (base 60: 90 min is 1 h 30, “1.5” hours is 1 h 30,
+and “1.5k min” is nonsense), that “m” is metres or minutes, that 1,200 g is 1.2 kg, that a body weight does not add up, that
+“8.000” is eight thousand in Italian and eight in English, and that “1 glasses” is wrong. The owner's answers:
+- **A known set of units is recognised** as it is typed: metric with prefixes (g / kg, ml / l, m / km), imperial (in / ft, oz / lb),
+  € and $; anything else is counted as typed; an ambiguous word (“m”) is asked once. Compact numbers (“8k”) then apply to
+  plain counts, and a recognised unit moves to its larger prefix instead (“1.2 kg”, not “1.2k g”).
+- **A tracker whose readings do not add up** (weight, temperature) has a goal to reach a value (“70 kg”), read against the latest
+  reading; whether readings add up is said when the tracker is created.
+- **Singular and plural** are typed together when they differ (“glass / glasses”); one word when not (kg, km).
+- **Time:** scored (part `tunit`), the owner's axes: taps and typing, errors, mental load, consistency; not the person's own words
+  for time (“the tracker would be Sleep and the user would just log time”).
+
+| Option | Taps (+ typing) | Errors | Load | Consistency | Rank sum |
+|---|---|---|---|---|---|
+| **A Duration kind** (chosen when the tracker is made; h and min; the approved dial) | 12 (+1) | 0 | 0 | 2 | 10.5 ★ |
+| Recognised time words in the typed unit | 13 (+2) | 1.5 | 0.5 | 1.5 | 17.5 |
+| Chronicle: hours from its list, decimals (control) | 10 (+4) | 1 | 2 | 0 | 19.5 |
+| Loop: a typed word, decimals (control) | 10 (+5) | 2 | 2 | 0.5 | 21 |
+| Track & Graph: a duration switch, h m s fields, no goals (control) | 19 (+6) | 0 | 0 | 0.5 | 21.5 |
+
+**The Duration kind wins on every axis** against recognised words: nothing to recognise or mistype, no “m” to ask, time read
+as activities read it, logged with the approved dial. The controls lost.
+
+Owed to the data layer: the unit becomes typed text with a recognised dimension (time leaves the unit list as a kind of its own,
+DURATION), singular and plural, an “adds up” flag per tracker and goals that reach a value; decimal and thousands separators
+read by the device's language.
+
+Status: **T3b.5d scored: awaiting the owner's pick (a Duration kind leads).**
+
 
 
 

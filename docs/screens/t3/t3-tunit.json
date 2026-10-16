@@ -1,0 +1,74 @@
+[
+ {
+  "v": {
+   "how": "kind"
+  },
+  "taps": 12,
+  "keyboards": 1,
+  "errors": 0,
+  "load": 0,
+  "consistency": 2.0,
+  "impossible": 0,
+  "small": []
+ },
+ {
+  "v": {
+   "how": "words"
+  },
+  "taps": 13,
+  "keyboards": 2,
+  "errors": 1.5,
+  "load": 0.5,
+  "consistency": 1.5,
+  "impossible": 0,
+  "small": []
+ },
+ {
+  "v": {
+   "how": "chronicle",
+   "control": true,
+   "control_app": "chronicle"
+  },
+  "why": "Chronicle: hours picked from its unit list, logged and set as decimals (7.5)",
+  "control": true,
+  "taps": 10,
+  "keyboards": 4,
+  "errors": 1,
+  "load": 2,
+  "consistency": 0.0,
+  "impossible": 0,
+  "small": []
+ },
+ {
+  "v": {
+   "how": "trackandgraph",
+   "control": true,
+   "control_app": "trackandgraph"
+  },
+  "why": "Track & Graph: a number tracker switched to \"a time or duration\", h, m and s fields; no goals",
+  "control": true,
+  "taps": 19,
+  "keyboards": 6,
+  "errors": 0,
+  "load": 0,
+  "consistency": 0.5,
+  "impossible": 1,
+  "small": []
+ },
+ {
+  "v": {
+   "how": "loop",
+   "control": true,
+   "control_app": "loop"
+  },
+  "why": "Loop: the unit a typed word, every value a typed decimal, no sense of time",
+  "control": true,
+  "taps": 10,
+  "keyboards": 5,
+  "errors": 2,
+  "load": 2,
+  "consistency": 0.5,
+  "impossible": 0,
+  "small": []
+ }
+]
