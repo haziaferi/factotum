@@ -1731,4 +1731,21 @@ front, **all plain and all set by the sentence**; they differ in the place and t
   but types every target.
 - **Loop is the strongest control:** a typed target on the item's form is cheap; it loses on milestones (none) and consistency.
 
-Status: **T3b.5 scored: awaiting the owner's pick.**
+Status (then): **T3b.5 scored: awaiting the owner's pick.**
+
+### T3b.5 approved: progress on the Measuring row, no Goals screen (owner, 2026-10-16)
+
+“In Measuring, Goals is not its own page but adds, for example, ‘20 of 30 min/day’ or ‘8 of 10 km/month’ written under
+the tracker or activity's name, before ‘last [time]’.” The front option **the page · plain · the row only · sentence** (412,
+the calmest of the front), with the owner's wording:
+- **No Goals screen.** A goal shows on its item's row in Measuring, under the name: the amount, “of”, the target and its period
+  (`/day`, `/week`, `/month`; a milestone `in all`), then “last [time]” as approved (T3b.1d), e.g. “20 of 30 min/day · last 14:20”.
+- **Nothing on Today.** Plain numbers, no bar, ring or percent.
+- **Set on the item's page** with the sentence “[30 min] a [day]” (the approved box, dial and − / +; the period word cycles day,
+  week, month, in all). Taken as the default because the owner ruled out a screen of its own; to confirm with the next screen.
+PICKED goals `{"place":"page","shows":"plain","glance":"row","set":"sentence"}`.
+
+Owed: the row's second line with a goal (the Measuring drawings, T3b.1d, carry “last” only); the period's short form.
+
+Status: **T3b.1d, T3b.3, T3b.4e/f/g and T3b.5 approved.** Next in T3b: time totals and charts.
+
