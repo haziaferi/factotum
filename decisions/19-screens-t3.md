@@ -2027,7 +2027,47 @@ Owed to the data layer: the unit becomes typed text with a recognised dimension 
 DURATION), singular and plural, an “adds up” flag per tracker and goals that reach a value; decimal and thousands separators
 read by the device's language.
 
-Status: **T3b.5d scored: awaiting the owner's pick (a Duration kind leads).**
+Status (then): **T3b.5d scored: awaiting the owner's pick (a Duration kind leads).**
+
+**The owner (2026-10-16):** “Activities become duration trackers?” A Duration tracker would mostly duplicate an activity that is
+never started with the timer: an activity already takes time logged afterwards (T3b.1d, “Studying 40 min”). Explained: an
+activity's spans total by covering time once where they overlap (a duplicate log counts once) and count for the day they
+started; a tracker's readings simply add (a duplicate doubles) and count for the day logged. Then: “Score them against each
+other but consider both being true at the same time as well: Sleep, first log is from 23:00 to 06:30, second log is +1h (nap).
+Work, first log is 09:00-18:00, second log is +1h45min (overtime).”
+
+### T3b.5e How time is held: only spans, kept apart, or both on one item (owner, 2026-10-16)
+
+Part `tkind`, five ways: only spans, an amount becoming a span ending now; only spans, an amount asking when (prefilled after the
+item's last span); kept apart (Sleep a Duration tracker of amounts, Work an activity of spans); spans and amounts on one item, an
+amount counting on the day logged, or on a day it defaults to (today; one tap for yesterday). Totals: spans once where they
+overlap, amounts added. The walk: the owner's four logs, plus yesterday's overtime logged this morning. Axes: taps and typing,
+errors (wrong totals in the walk; duplicates that cannot be caught), mental load, consistency. Controls: Chronicle (sessions only,
+start and end pickers), Track & Graph (durations only, no timer), Loop (minutes in a day's cell). Counted by hand from the walk
+(flagged).
+
+Fixed on the way: Chronicle reached the front on zero wrong totals, which it gets by making the person set every start and end;
+“asks when” had been charged an error for the nap left at its prefilled 06:30, though its person would change the hour as
+Chronicle's does. Charged the three taps that do it instead; Chronicle then lost.
+
+| Way | Taps (+ typing) | Wrong totals | Load | Consistency | Rank sum |
+|---|---|---|---|---|---|
+| Only spans, “+1 h 45” ends now | 6 (+4) | 2 (overtime 16:45-18:30 overlaps Work: 1 h 15 lost; yesterday's hour today) | 0 | 2 | 19 ★ |
+| Only spans, an amount asks when | 13 (+4) | 0 | 1 | 2 | 20.5 ★ |
+| Both on one item, the day logged | 6 (+4) | 1.5 (yesterday's hour today; a repeated amount never caught) | 0.5 | 1 | 21.5 ★ |
+| Both on one item, a day picked (today by default) | 7 (+4) | 0.5 (a repeated amount never caught) | 0.5 | 1 | 21.5 ★ |
+| Chronicle (control) | 27 (+0) | 0 | 2 | 1 | 25.5 |
+| Kept apart: Sleep a Duration tracker | 6 (+4) | 3.5 (the night counts Tuesday; overtime as above; duplicates) | 1 | 0 | 29.5 |
+| Loop / Track & Graph (controls) | 17-22 | 0.5-1.5, no timer | 1-2 | 0 | 38.5 / 40 |
+
+- **Kept apart loses outright:** a Duration tracker beside activities answers the owner's question with no; T3b.5d's “Duration
+  kind” is superseded by it (time is held by activities; typed units are never time).
+- **The trade:** “ends now” is fewest taps but swallows overtime logged right after a span; “asks when” gets every total right at
+  a when to check each time; “both on one item” gets them right with one tap for another day, but an amount sits on no hour
+  of Review's day timeline and a repeated amount is never caught.
+
+Status: **T3b.5e scored: awaiting the owner's pick.**
+
 
 
 

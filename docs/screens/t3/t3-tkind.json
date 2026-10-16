@@ -1,0 +1,110 @@
+[
+ {
+  "v": {
+   "model": "spans_now"
+  },
+  "taps": 6,
+  "keyboards": 4,
+  "errors": 2.0,
+  "load": 0.0,
+  "consistency": 2.0,
+  "impossible": 0,
+  "small": []
+ },
+ {
+  "v": {
+   "model": "spans_ask"
+  },
+  "taps": 13,
+  "keyboards": 4,
+  "errors": 0.0,
+  "load": 1.0,
+  "consistency": 2.0,
+  "impossible": 0,
+  "small": []
+ },
+ {
+  "v": {
+   "model": "apart"
+  },
+  "taps": 6,
+  "keyboards": 4,
+  "errors": 3.5,
+  "load": 1.0,
+  "consistency": 0.0,
+  "impossible": 0,
+  "small": []
+ },
+ {
+  "v": {
+   "model": "both_logday"
+  },
+  "taps": 6,
+  "keyboards": 4,
+  "errors": 1.5,
+  "load": 0.5,
+  "consistency": 1.0,
+  "impossible": 0,
+  "small": []
+ },
+ {
+  "v": {
+   "model": "both_pickday"
+  },
+  "taps": 7,
+  "keyboards": 4,
+  "errors": 0.5,
+  "load": 0.5,
+  "consistency": 1.0,
+  "impossible": 0,
+  "small": []
+ },
+ {
+  "v": {
+   "model": "chronicle",
+   "control": true,
+   "control_app": "chronicle"
+  },
+  "why": "Chronicle: sessions only, each from a sheet of start and end pickers",
+  "control": true,
+  "taps": 27,
+  "keyboards": 0,
+  "errors": 0.0,
+  "load": 2.0,
+  "consistency": 1.0,
+  "impossible": 0,
+  "small": []
+ },
+ {
+  "v": {
+   "model": "trackandgraph",
+   "control": true,
+   "control_app": "trackandgraph"
+  },
+  "why": "Track & Graph: durations only, h m s fields, no timer",
+  "control": true,
+  "taps": 22,
+  "keyboards": 8,
+  "errors": 1.5,
+  "load": 1.0,
+  "consistency": 0.0,
+  "impossible": 1,
+  "small": []
+ },
+ {
+  "v": {
+   "model": "loop",
+   "control": true,
+   "control_app": "loop"
+  },
+  "why": "Loop: minutes typed in each day's cell, no timer",
+  "control": true,
+  "taps": 17,
+  "keyboards": 6,
+  "errors": 0.5,
+  "load": 2.0,
+  "consistency": 0.0,
+  "impossible": 1,
+  "small": []
+ }
+]
