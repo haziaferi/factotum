@@ -1891,4 +1891,74 @@ row's free width); that width was first read off the line's own box, which spans
 - One-letter units cost readability (“2 of 3 h this week”): writing “hours” in full applies to the Paced sheet's lengths
   too (“1 h 30”) — for the owner.
 
-Status: **T3b.5c scored: awaiting the owner's pick.**
+Status (then): **T3b.5c scored: awaiting the owner's pick.**
+
+### T3b.5c re-scored: the owner's units and mental load (owner, 2026-10-16)
+
+“cups is specific to water, which other measurement words could change this scoring?” The run had used 19 goals (h, min,
+cups, glasses, rows, pages, sketches, pieces, one without a unit); a check with harder words (big numbers with separators,
+decimals, long and two-word units) moved the leader: “5 of 8 cups today” ran 7 characters over the row.
+
+Then: “I'm trying to add mental load into consideration. Seeing big numbers like 8.000 of 10.000 can be anxiety inducing even
+when they pose no threat, but seeing 20% says little of what the person should expect to have to do (5 more cups of water or 30
+more miles to run?). ‘10 to go’ proposes a solution that instead can create performance anxiety or inhibit task initiation.”
+Answers: two new forms, **done only** (“5 glasses today”; the goal on the item's page, and on the row once reached) and
+**compact big numbers** (“8k of 10k steps”, a choice for every form); mental load counts numbers to hold, big numbers, the
+arithmetic to know what's left, demand framing; the percent stays, load decides; the units: steps, km, kcal, time (min; past
+60 “[X] h [Y] min”), €, words, pages, chapters, reps, g, kg, and a counter with no unit (Laundry).
+**Added without a question:** *Informs*, whether the line says how much is left to do (the owner's point against the percent),
+so that a line saying nothing never reads as the least load.
+
+Part `gword` now: 6 forms × 2 period styles × 3 layouts × plain or compact numbers (66 valid; a percent has nothing to
+compact), 19 goals in the owner's units, the same four controls. **All four lost** (Timety 486, Streak 517, aTimeLogger 522,
+Chronicle 538). 9 on the front; **compact numbers win in every form**.
+
+| Line (Walking, steps a day) | Layout | Load (numbers, big, arithmetic, demand) | Says what's left | Rank sum |
+|---|---|---|---|---|
+| “8k steps today” (done only) | “last” dropped | 2 · 0 · 0 · 0 | no (on the page) | 332.5 ★ |
+| “2k steps to go today” | “last” dropped | 2 · 0 · 0 · 1 | yes | 363.5 ★ |
+| “80% today · last 11:40” | one line | 1 · 0 · 2 · 0 | half (no amounts) | 381 ★ |
+| “8k of 10k steps today” | “last” dropped | 3 · 0 · 1 · 0 | yes | 389 ★ |
+| “8k steps today · goal 10k” | “last” dropped | 3 · 0 · 1 · 0 | yes | 412.5 ★ |
+
+- **The trade is load against knowing what's left:** done only carries the least load and says nothing of the goal on the row;
+  “of” and “goal” say it at one subtraction; “to go” says it outright at the cost of the demand; the percent is shortest but
+  needs a product and hides the amounts.
+- **Time** (“45 min of 1 h 30 min today”) holds 3 numbers and is the longest line in the “of” form; compact numbers do not help it.
+
+**The owner's requests, recorded (not scored yet):**
+1. **The goal line visible by default, switchable to hidden** in a tracker's or activity's own settings, or for all in the
+   Measuring page's settings.
+2. **Counter goals:** a goal with no deadline that, once met, fires a reminder and resets. Example: Laundry, no unit (clothing or
+   linens), a goal of 25, a When reminder tied to the goal from the tracker's page (“Remind me when the goal is met”); at the 25th
+   log the reminder appears and the tracker resets to 0. **Owed to the data layer:** a goal kind with no window that resets at its
+   target, and a reminder triggered by a goal (SPEC §3.7 goals, §3.4 reminders).
+
+Status (then): **T3b.5c re-scored: awaiting the owner's pick; the two requests to place.**
+
+**The owner's form (2026-10-16):** “I think ‘8k steps today · 75%’ could solve the confusion that the percentage alone created
+and present both today's result and what it means for the big picture, at that point a low percentage does not diminish or hide
+the work already done.” Added as `donepct`. Two measures changed with it:
+- **Informs is three facts**, 0 or 1 each: what is done, the goal or its share, what is left (said, or one subtraction away). “of”,
+  “slash” and “goal” 3; the owner's form 2; the percent, “to go” and done only 1.
+- **Calm:** a percent alone stays a score (1); beside the work done it counts 0.5, after the owner's point (a hand-set rule).
+
+**Result (all four controls lost; 11 on the front):**
+
+| Line | Load (numbers, big, arithmetic, demand) | Informs | Rank sum |
+|---|---|---|---|
+| “8k steps today” (done only, “last” dropped) | 2 · 0 · 0 · 0 | 1 | 372 ★ |
+| “8k of 10k steps today” | 3 · 0 · 1 · 0 | 3 | 435.5 ★ |
+| “80% today · last 11:40” | 1 · 0 · 2 · 0 | 1 | 441.5 ★ |
+| “8k steps today · goal 10k” | 3 · 0 · 1 · 0 | 3 | 459 ★ |
+| “2k steps to go today” | 2 · 0 · 0 · 1 | 1 | 463 ★ |
+| “8k steps today · 80%” (the owner's) | 3 · 0 · 2 · 0 | 2 | 509 ★ |
+
+- **The owner's form is on the front** and fits every row; it trails on mental load (a time line holds three numbers,
+  “2 h 15 min this week · 45%”, and what's left needs a division) and on readability (“·” and “%” to parse), and says
+  two of the three facts (not the amount left).
+- “8k of 10k steps today” says all three facts at one subtraction, and leads among the lines that say what's left.
+
+Status: **T3b.5c re-scored with the owner's form: awaiting the pick; the two requests to place.**
+
+

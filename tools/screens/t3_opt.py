@@ -3815,70 +3815,124 @@ GT_CONTROL_WHY = {"streak": "Streak: every goal's card on Today, expanded, with 
 # ==== Part gword: T3b.5c the goal line's wording on the Measuring row (owner, 2026-10-16) ==========================================
 """
   The owner (2026-10-16), on "20 of 30 min/day": "Score readability of different options at a small text size and at the
-  Measurements screen density and each row's density, considering the string of text shouldn't be too long." Answers: the forms
-  "[N]% today", "20 of 30 min", "20/30 min", "20 min · goal 30", "10 min to go"; each period said as "today / this week / this
-  month" or "/day / /week / /month"; the layouts: the goal and "last" on one line (cut with …), "last" dropped where a goal
-  shows, two lines under the name. Axes: readability at small text, fit (the screen's and the row's density), length, calm,
-  consistency ("assess if a better solution can be found and applied elsewhere as well").
-  form    pct / of / slash / goal / togo
-  period  window (today, this week, this month) / per (/day, /week, /month)
-  layout  one / drop / two
-  Drawn in the approved Measuring row (T3b.1d's pick: 13 px under the 15 px name, the item's control on the right: ▶ with its
-  ↻ chip for an activity, "+ 1 glass" for a number), 20 goals among the 40 items, every goal row open, at 360x740.
-  Measured: the goal rows whose line is cut; how many rows fit above the bar; the longest line in characters. Rule-based
-  (flagged): readability counts the symbols a 13 px line must parse (/ % ·) and two numbers set against each other; calm counts
-  "to go" (a shortfall) and a percent (a score).
+  Measurements screen density and each row's density, considering the string of text shouldn't be too long." Then, on mental
+  load: "Seeing big numbers like 8.000 of 10.000 can be anxiety inducing even when they pose no threat, but seeing 20% says little
+  of what the person should expect to have to do (5 more cups of water or 30 more miles to run?). '10 to go' proposes a solution
+  that instead can create performance anxiety or inhibit task initiation."
+  form     pct ("62% today") / of ("5 of 8 glasses today") / slash ("5/8 glasses today") / goal ("5 glasses today · goal 8") /
+           togo ("3 glasses to go today") / done ("5 glasses today"; the goal on the item's page, and on the row once reached)
+  period   window (today, this week, this month) / per (/day, /week, /month)
+  layout   one (the goal and "last" on one line, cut with …) / drop ("last" dropped where a goal shows) / two (two lines)
+  numbers  plain ("8,000 of 10,000") / compact ("8k of 10k" wherever a number has 4 or more digits)
+  The goals: the owner's units (2026-10-16) - steps, km, kcal, time (min; past 60 "[X] h [Y] min"), €, words, pages, chapters,
+  reps, g, kg - and a counter with no unit and no period (Laundry, 12 of 25: its reminder fires at the goal and it resets).
+  Axes: readability at 13 px (symbols, one-letter units, a line that hides its period), fit (cut lines, rows above the bar), length
+  (characters past what the narrowest goal row holds beside its control, measured), calm, consistency, mental load (the owner's
+  four counts: numbers to hold, big numbers, arithmetic to know what's left, demand framing), and informs (whether the line says
+  how much is left to do - the owner's point against the percent - so that saying nothing never reads as the least load).
+  Rule constants (flagged): arithmetic counts a percent 2 (a product), of / slash / goal 1 (a difference), to go and done 0.
 """
-GWORD_SPACE = {"form": ["pct", "of", "slash", "goal", "togo"], "period": ["window", "per"], "layout": ["one", "drop", "two"]}
-GW_PER = {"day": ("today", "/day"), "week": ("this week", "/week"), "month": ("this month", "/month")}
+GWORD_SPACE = {"form": ["pct", "of", "slash", "goal", "togo", "done", "donepct"], "period": ["window", "per"], "layout": ["one", "drop", "two"],
+               "numbers": ["plain", "compact"]}
+GW_PER = {"day": ("today", "/day"), "week": ("this week", "/week"), "month": ("this month", "/month"), "none": ("", "")}
+# (name, kind, unit, done, target, period, reached): the owner's units; time in minutes; the counter has no unit and no period
+GW_GOALS = [("Walking", "number", "steps", 8000, 10000, "day", False), ("Running", "activity", "km", 4.2, 10, "week", False),
+            ("Calories", "number", "kcal", 1800, 2200, "day", False), ("Reading", "activity", "time", 45, 90, "day", False),
+            ("Piano", "activity", "time", 135, 300, "week", False), ("Savings", "number", "€", 40, 100, "month", False),
+            ("Writing", "activity", "words", 1200, 2000, "day", False), ("Book", "number", "pages", 120, 300, "week", False),
+            ("Novel", "number", "chapters", 3, 5, "week", False), ("Push-ups", "number", "reps", 30, 50, "day", False),
+            ("Protein", "number", "g", 85, 100, "day", False), ("Lifting", "number", "kg", 1200, 3000, "week", False),
+            ("Laundry", "number", "", 12, 25, "none", False), ("Water", "number", "glasses", 5, 8, "day", False),
+            ("Meditation", "activity", "time", 20, 30, "day", False), ("Study", "activity", "time", 600, 1200, "month", False),
+            ("Steps week", "number", "steps", 45000, 70000, "week", False), ("Stretching", "activity", "time", 30, 30, "day", True),
+            ("Spanish", "number", "words", 8500, 20000, "month", False)]
+GW_USUAL = {"steps": "1,000 steps", "kcal": "100 kcal", "€": "€5", "words": "100 words", "pages": "10 pages", "chapters": "1 chapter",
+            "reps": "10 reps", "g": "10 g", "kg": "100 kg", "": "1", "glasses": "1 glass"}
 
 
-def gw_goals():
-    """20 goals among the 40 items: every activity and the number trackers with a usual amount; periods day, week, month in turn."""
-    out, i = [], 0
-    for it in ITEMS3_40:
-        if it["running"]:
-            continue
-        if it["k"] == "activity":
-            unit, a, t = "min", 20, 30
-        elif it["k"] == "number" and it["usual"]:
-            unit = it["usual"].split(" ", 1)[1] if " " in it["usual"] else ""
-            unit = {"glass": "glasses", "cup": "cups", "piece": "pieces", "sketch": "sketches"}.get(unit, unit)
-            a, t = 5, 8
-        else:
-            continue
-        per = ("day", "week", "month")[i % 3]
-        if per != "day" and unit == "min":
-            unit, a, t = "h", 2, 3
-        out.append((it["n"], unit, a, t, per))
-        i += 1
-        if len(out) == 20:
-            break
-    return out
+def gw_num(x, compact):
+    if compact and abs(x) >= 1000:
+        k = x / 1000
+        return ("%gk" % round(k, 1)) if k < 100 else "%dk" % round(k)
+    return "{:,}".format(x) if isinstance(x, int) and abs(x) >= 1000 else ("%g" % x)
 
 
-def gw_line(v, unit, a, t, per):
+def gw_time(m):
+    m = int(round(m))
+    if m < 60:
+        return "%d min" % m
+    h, r = divmod(m, 60)
+    return "%d h %d min" % (h, r) if r else "%d h" % h
+
+
+def gw_amount(unit, x, compact):
+    """An amount with its unit: time in min or "[X] h [Y] min", € before the number."""
+    if unit == "time":
+        return gw_time(x)
+    if unit == "€":
+        return "€" + gw_num(x, compact)
+    return gw_num(x, compact) + ((" " + unit) if unit else "")
+
+
+def gw_bare(unit, x, compact):
+    """The number alone, where the unit is said once for two numbers ("5 of 8 glasses")."""
+    if unit == "time":
+        return gw_time(x)
+    if unit == "€":
+        return "€" + gw_num(x, compact)
+    return gw_num(x, compact)
+
+
+def gw_line(v, name, kind, unit, a, t, per, reached=False):
     w, p = GW_PER[per]
-    u = (" " + unit) if unit else ""
+    c = v.get("numbers") == "compact"
     f, by_window = v["form"], v["period"] == "window"
+    tail = (" " + w if w else "") if by_window else p
+    tail_sp = tail if tail.startswith(" ") or not tail else tail   # "/day" glues to the unit
+    u = ("" if unit in ("time", "€", "") else " " + unit)
     if f == "pct":
-        return "%d%% %s" % (round(100 * a / t), w) if by_window else "%d%%%s" % (round(100 * a / t), p)
+        return "%d%%%s" % (round(100 * a / t), tail_sp)
     if f == "of":
-        return "%d of %d%s %s" % (a, t, u, w) if by_window else "%d of %d%s%s" % (a, t, u, p)
+        return "%s of %s%s%s" % (gw_bare(unit, a, c), gw_bare(unit, t, c), u, tail_sp)
     if f == "slash":
-        return "%d/%d%s %s" % (a, t, u, w) if by_window else "%d/%d%s%s" % (a, t, u, p)
+        return "%s/%s%s%s" % (gw_bare(unit, a, c), gw_bare(unit, t, c), u, tail_sp)
     if f == "goal":
-        return "%d%s %s · goal %d" % (a, u, w, t) if by_window else "%d%s · goal %d%s" % (a, u, t, p)
-    if f == "streak":   # Streak: "0m/30m" (minutes as m, no period)
-        return "%d%s/%d%s" % (a, "m" if unit == "min" else unit[:1], t, "m" if unit == "min" else unit[:1])
-    if f == "timety":   # Timety: "0 / 90 m"
-        return "%d / %d %s" % (a, t, "m" if unit == "min" else unit)
-    if f == "atl":   # aTimeLogger: the time left as a clock, "00:10:00"
-        return "%02d:%02d:00" % divmod((t - a) * (60 if unit == "h" else 1), 60) if unit in ("min", "h") else "%d left" % (t - a)
-    if f == "chronicle":   # Chronicle: a headline and its window, "20 / 30 min · today"
-        return "%d / %d%s · %s" % (a, t, u, w)
-    left = "%d%s to go" % (t - a, u)
-    return "%s %s" % (left, w) if by_window else "%s%s" % (left, p)
+        return "%s%s · goal %s%s" % (gw_amount(unit, a, c), (" " + w if (by_window and w) else ""), gw_bare(unit, t, c) + (u if unit == "" else ""), "" if by_window else p)
+    if f == "togo":
+        left = t - a
+        if left <= 0:
+            return "goal reached%s" % tail_sp
+        return "%s to go%s" % (gw_amount(unit, left, c), tail_sp)
+    if f == "donepct":   # what is done, then its share of the goal (owner, 2026-10-16)
+        return gw_amount(unit, a, c) + (" " + w if (by_window and w) else (p if not by_window else "")) + " · %d%%" % round(100 * a / t)
+    # done: what is done; the goal only once reached
+    return gw_amount(unit, a, c) + (" " + w if (by_window and w) else (p if not by_window else "")) + (" · goal reached" if reached else "")
+
+
+# the controls: the reference apps' own readouts (survey 2026-10-16), each in place of the row's "last"
+def gw_ctl_line(app, name, kind, unit, a, t, per, reached=False):
+    w, _ = GW_PER[per]
+    if app == "streak":   # "0m/30m": minutes as m, other units by their first letter
+        sx = (lambda x: "%dm" % x) if unit == "time" else (lambda x: "%s%s" % (gw_num(x, False), unit[:1]))
+        return "%s/%s" % (sx(a), sx(t))
+    if app == "timety":   # "0 / 90 m"
+        return "%s / %s %s" % (gw_num(a, False) if unit != "time" else int(a), gw_num(t, False) if unit != "time" else int(t), "m" if unit == "time" else unit)
+    if app == "atl":   # the time left as a clock, "00:10:00"; other units "n left"
+        left = t - a
+        return "%02d:%02d:00" % divmod(int(left), 60) if unit == "time" else "%s left" % gw_num(left, False)
+    return "%s / %s%s%s" % (gw_bare(unit, a, False), gw_bare(unit, t, False), "" if unit in ("time", "€", "") else " " + unit, (" · " + w) if w else "")   # Chronicle
+
+
+GW_CONTROLS = [("streak", "Streak's readout, \"20m/30m\", in place of the row's \"last\""),
+               ("timety", "Timety's readout, \"20 / 30 m\", in place of the row's \"last\""),
+               ("atl", "aTimeLogger's time left as a clock, \"00:10:00\", in place of the row's \"last\""),
+               ("chronicle", "Chronicle's headline and window, \"20 / 30 min · today\", in place of the row's \"last\"")]
+
+
+def gw_lines(v):
+    if v.get("control"):
+        return [gw_ctl_line(v["form"], *g) for g in GW_GOALS]
+    return [gw_line(v, *g) for g in GW_GOALS]
 
 
 GW_JS = ("(function(){var bar=document.querySelector('.bar').getBoundingClientRect().top;var o={cut:0,fit:0,rows:0,longest:0};"
@@ -3890,53 +3944,65 @@ GW_JS = ("(function(){var bar=document.querySelector('.bar').getBoundingClientRe
          "var cap=(lim-x0)/(tw/n);o.cap=o.cap==null?cap:Math.min(o.cap,cap)}})});o.cap=Math.floor(o.cap||0);return o})()")
 
 
-GW_CONTROLS = [("streak", "Streak's readout, \"20m/30m\", in place of the row's \"last\""),
-               ("timety", "Timety's readout, \"20 / 30 m\", in place of the row's \"last\""),
-               ("atl", "aTimeLogger's time left as a clock, \"00:10:00\", in place of the row's \"last\""),
-               ("chronicle", "Chronicle's headline and window, \"20 / 30 min · today\", in place of the row's \"last\"")]
-
-
 def gword_phone(v):
     mv = dict(T.PICKED["measure3"][0])
     rows = []
-    for name, unit, a, t, per in gw_goals():
-        it = dict(next(x for x in ITEMS3_40 if x["n"] == name))
-        goal = gw_line(v, unit, a, t, per)
-        it["last"] = {"one": goal + " · " + it["last"], "drop": goal, "two": goal}[v.get("layout", "drop")]
+    lines = gw_lines(v)
+    for (name, kind, unit, a, t, per, reached), goal in zip(GW_GOALS, lines):
+        last = "last 11:40"
+        it = {"n": name, "k": kind, "lab": "Goals", "today": "", "f": 1, "cur": a, "recent": None, "running": None,
+              "plan": "25 min" if kind == "activity" else None, "usual": None if kind == "activity" else GW_USUAL.get(unit)}
+        lay = v.get("layout", "drop")
+        it["last"] = {"one": goal + " · " + last, "drop": goal, "two": goal}[lay]
         h = m3_item(it, mv).replace('data-tr="', 'data-goal="1" data-tr="', 1)
-        if v.get("layout") == "two":   # "last" on a line of its own under the goal
-            h = h.replace('</span></span>', '</span><span class="bsub">%s</span></span>' % e(dict(next(x for x in ITEMS3_40 if x["n"] == name))["last"]), 1)
+        if lay == "two":   # "last" on a line of its own under the goal
+            h = h.replace('</span></span>', '</span><span class="bsub">%s</span></span>' % last, 1)
         rows.append(h)
     body = '<div class="zone">%s</div>' % "".join(rows)
     return kit.phone(kit.header("Measuring", (("⌕", "Search"), ("✎", "Edit")), ("‹", "Back")), body, kit.bar("Hub"))
 
 
-def gw_read(lines, v):
-    """(one-letter units, lines without their period) over the goal lines."""
+def gw_read(lines):
+    """(one-letter units, lines that hide their period) over the goal lines; the counter has none to say."""
     abbrev = max(len(re.findall(r"(?<![A-Za-z])[a-z](?![A-Za-z])", x)) for x in lines)
     words = ("today", "this week", "this month", "/day", "/week", "/month")
-    no_period = sum(1 for x in lines if not any(w in x for w in words))
+    no_period = sum(1 for (g, x) in zip(GW_GOALS, lines) if g[5] != "none" and not any(w in x for w in words))
     return abbrev, no_period
+
+
+def gw_load(v, lines):
+    """The owner's four counts of mental load, the worst line counting for the first two."""
+    nums = lambda x: re.findall(r"\d[\d,.]*k?", x)
+    hold = max(len(nums(x)) for x in lines)
+    big = max(sum(1 for n in nums(x) if len(re.sub(r"\D", "", n.rstrip("k"))) >= 4 or ("," in n)) for x in lines)
+    f = v["form"]
+    arith = {"pct": 2, "of": 1, "slash": 1, "goal": 1, "togo": 0, "done": 0, "donepct": 2, "streak": 1, "timety": 1, "atl": 0, "chronicle": 1}[f]
+    demand = 1 if f in ("togo", "atl") else 0
+    informs = {"pct": 1, "of": 3, "slash": 3, "goal": 3, "togo": 1, "done": 1, "donepct": 2, "streak": 3, "timety": 3, "atl": 1, "chronicle": 3}[f]
+    return hold, big, arith, demand, informs
 
 
 def score_gword(v):
     d = m3doc(gword_phone(v))
-    m = T.probe(d, "gw-%s-%s-%s" % (v["form"], v["period"], v["layout"]), GW_JS)
-    if v.get("control"):
-        lines = [gw_line(v, *g[1:]) for g in gw_goals()]
-        ab, nop = gw_read(lines, v)
-        return {"cut": m["cut"], "fit": m["fit"], "longest": m["longest"], "cap": m["cap"], "over": max(0, m["longest"] - m["cap"]), "goal_chars": max(len(x) for x in lines), "abbrev": ab, "no_period": nop,
-                "symbols": max(sum(x.count(c) for c in "/%·:") for x in lines) + 1, "calm": 1 if v["form"] == "atl" else 0,
-                "consistency": 0.0 if v["form"] != "chronicle" else 1.0, "small": []}
-    lines = [gw_line(v, *g[1:]) for g in gw_goals()]
-    sym = max(sum(x.count(c) for c in "/%·:") for x in lines) + (1 if v["form"] in ("slash", "streak", "timety", "chronicle") else 0)   # 20/30 reads as a date or a fraction
-    ab, nop = gw_read(lines, v)
-    return {"cut": m["cut"], "fit": m["fit"], "longest": m["longest"], "cap": m["cap"], "over": max(0, m["longest"] - m["cap"]), "goal_chars": max(len(x) for x in lines), "abbrev": ab, "no_period": nop,
-            "symbols": sym, "calm": (1 if v["form"] == "togo" else 0) + (1 if v["form"] == "pct" else 0),
+    m = T.probe(d, "gw-%s-%s-%s-%s" % (v["form"], v.get("period", "-"), v.get("layout", "drop"), v.get("numbers", "plain")), GW_JS)
+    lines = gw_lines(v)
+    ab, nop = gw_read(lines)
+    hold, big, arith, demand, informs = gw_load(v, lines)
+    ctl = v.get("control")
+    sym = max(sum(x.count(c) for c in "/%·:") for x in lines) + (1 if (v["form"] in ("slash", "streak", "timety", "chronicle")) else 0)
+    return {"cut": m["cut"], "fit": m["fit"], "longest": m["longest"], "cap": m["cap"], "over": max(0, m["longest"] - m["cap"]),
+            "symbols": sym, "abbrev": ab, "no_period": nop,
+            "calm": (1 if v["form"] in ("togo", "atl") else 0) + {"pct": 1, "donepct": 0.5}.get(v["form"], 0),
+            "hold": hold, "big": big, "arith": arith, "demand": demand, "informs": informs,
             # like the rest of the app: Measuring says "3 glasses today" and Today "Done today" (window words); the row keeps its
-            # approved "last" (one line); the amount first, as Measuring says it (goal form)
-            "consistency": (1.0 if v["period"] == "window" else 0.5) + {"one": 1.0, "drop": 0.5, "two": 0.0}[v["layout"]] + (0.5 if v["form"] == "goal" else 0.0),
+            # approved "last" (one line); the amount first, as Measuring says it (goal, done)
+            "consistency": 0.0 if ctl and v["form"] != "chronicle" else (1.0 if ctl else
+                           (1.0 if v["period"] == "window" else 0.5) + {"one": 1.0, "drop": 0.5, "two": 0.0}[v["layout"]] + (0.5 if v["form"] in ("goal", "done", "donepct") else 0.0)),
             "small": []}
+
+
+def gw_valid(v):
+    return not (v["form"] == "pct" and v["numbers"] == "compact")   # a percent has no big numbers to compact
 
 
 def build_refs():
@@ -3965,7 +4031,7 @@ T.OUT = os.path.join(os.path.dirname(M2.T.OUT), "t3")
 # T3.1 "habits" (presence, the first scoring) is kept in t3-habits-v1.json and in the code above; T3a replaced it (owner, 2026-10-13)
 T.SPACES = {"gword": GWORD_SPACE, "gtoday": GTODAY_SPACE, "goals": GOALS_SPACE, "run3": RUN3_SPACE, "pacerun": PACERUN_SPACE, "pace6": PACE6_SPACE, "pace5": PACE5_SPACE, "pace4": PACE4_SPACE, "pace3": PACE3_SPACE, "paceplace": PPLACE_SPACE, "pace": PACE_SPACE, "measure3": MEAS3_SPACE, "acts": ACTS_SPACE, "measure2": MEAS2_SPACE, "measure": MEAS_SPACE, "trackers": TRK_SPACE, "basics": BASICS_SPACE, "addhabit": ADD_SPACE, "routines": ROUT_SPACE, "addsent": SENT_SPACE, "hsheet": HSHEET_SPACE, "premise": PREMISE_SPACE, "habits2": H2_SPACE}
 T.SCORERS = {"gword": score_gword, "gtoday": score_gtoday, "goals": score_goals, "run3": score_run3, "pacerun": score_pacerun, "pace6": score_pace6, "pace5": score_pace5, "pace4": score_pace4, "pace3": score_pace3, "paceplace": score_paceplace, "pace": score_pace, "measure3": score_measure3, "acts": score_acts, "measure2": score_measure2, "measure": score_measure, "trackers": score_trackers, "basics": score_basics, "addhabit": score_addhabit, "routines": score_routines, "addsent": score_addsent, "hsheet": score_hsheet, "premise": score_premise, "habits2": score_habits2}
-T.CONTROLS = {"gword": [({"form": f, "period": "-", "layout": "drop", "control": True}, why) for f, why in GW_CONTROLS],
+T.CONTROLS = {"gword": [({"form": f, "period": "-", "layout": "drop", "numbers": "-", "control": True}, why) for f, why in GW_CONTROLS],
               "gtoday": [({k: app for k in GTODAY_SPACE} | {"control": True, "control_app": app}, GT_CONTROL_WHY[app]) for app in GT_CONTROLS],
               "goals": [({k: app for k in GOALS_SPACE} | {"control": True, "control_app": app}, G_CONTROL_WHY[app]) for app in G_CONTROLS],
               "run3": ({k: "chronicle" for k in RUN3_SPACE} | {"control": True}, "Chronicle's answers inside the approved frame (T3b.4g's Today strip): a row each, never folded; no limit, never asks; sessions edited from the activity's page in its sheet of date and time pickers"),
@@ -4063,7 +4129,9 @@ T.DRAW_MAX["goals"] = 16
 T.VALID["gtoday"] = gt_valid
 T.POOL["gword"] = lambda ok: [r for r in ok if r.get("front")]
 T.DRAW_MAX["gword"] = 10
-T.AXES["gword"] = {"Readability": ("symbols", "abbrev", "no_period"), "Fit": ("cut", "-fit"), "Length": ("over",), "Calm": ("calm",), "Consistency": ("-consistency",)}
+T.AXES["gword"] = {"Readability": ("symbols", "abbrev", "no_period"), "Fit": ("cut", "-fit"), "Length": ("over",), "Calm": ("calm",), "Consistency": ("-consistency",),
+                   "Mental load": ("hold", "big", "arith", "demand"), "Informs": ("-informs",)}
+T.VALID["gword"] = gw_valid
 T.POOL["gtoday"] = lambda ok: [r for r in ok if not r["v"].get("control")]
 T.DRAW_MAX["gtoday"] = 9
 T.AXES["gtoday"] = {"Taps": ("taps",), "Possible": ("impossible",), "Calm": ("calm",), "Glance": ("-glance", "see_taps", "below_fold"), "Consistency": ("-consistency",)}
