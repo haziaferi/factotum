@@ -228,7 +228,7 @@ Each step of 4 dp on ▤ saves 0.09 bits on a rarely used action, and changes no
 
 **The imbalance was already in A′ as approved:** its 48 px black ✓ is 36% of the sheet's mass, 1.8× the text. Size matters much less than fill: going from 48 to 56 adds a few points; filling the disc multiplies the mass by four. ▤ is light in every form (2–5%); the word "Details" is the heaviest, and the only one whose meaning is plain.
 
-**Critique** (`design-critique-plus`, `craftkit ui` on `docs/screens/t1/sheet-candidates.html`):
+**Critique** (`design-critique-plus`, `craftkit ui` on `docs/screens/t1/sheet-candidates.html` (removed 2026-10-16, in git history)):
 - *Measured:*
   - every label passes AA;
   - 9 type sizes, 5 corner radii, and 5 of 9 spacing values off the 4 px grid. These are Low, and are settled when type and density are scored.
@@ -320,7 +320,7 @@ Each is drawn with three inputs (an event, a tracker log, a journal line) and me
 - drawn height 32 against 36, and tonal against plain ✓, tie on every measure;
 - once every control shares one drawn height no taller than the text box, harmony separates only the kind row, the one option that adds a second row of controls.
 
-**Prefixes against the plain chip:** the prefix variant's extra height is only its hint line. Mockups: `docs/screens/t1/capture-v2.html`.
+**Prefixes against the plain chip:** the prefix variant's extra height is only its hint line. Mockups: `docs/screens/t1/capture-v2.html` (removed 2026-10-16, in git history).
 
 ## T1.3 v3: prefixes with ⋯, and opening the full form (owner, 2026-10-07)
 
@@ -365,7 +365,7 @@ The reference captures add **Any.do's inline add** (on the phone, gitignored). I
 - **On the line,** title, underline and highlight tie, and keeping the linked chips under a list does worse everywhere.
 - **The same winners hold for all ten kinds and for the top three.**
 
-Mockups: `docs/screens/t1/capture-v3.html` and `docs/screens/t1/form-options.html`.
+Mockups: `docs/screens/t1/capture-v3.html` (removed 2026-10-16, in git history) and `docs/screens/t1/form-options.html` (removed 2026-10-16, in git history).
 
 ## T1.3 v4: the short ⋯ list, the kind chip, shorthands (owner, 2026-10-07)
 
@@ -645,7 +645,7 @@ The internal names, and the T0 pages already settled, keep the lowercase form; t
 - whether cut-off controls (scrolling inside the picker) are acceptable;
 - a two-step picker, the date first and then the time, as Todoist and TickTick do, which was not yet scored.
 
-Mockups: `docs/screens/t1/picker-options.html`.
+Mockups: `docs/screens/t1/picker-options.html` (removed 2026-10-16, in git history).
 
 **T1.5 re-scored (2026-10-08) under the owner's rule that everything a task needs is visible.**
 
@@ -689,7 +689,7 @@ Also: the empty space was trimmed (labels moved inside their rows, less padding)
 
 **The calendar-first runs are kept as a record:** `picker-opt.json` (one view or two steps, presets included) and `picker2-opt.json` (a menu from the tapped word; stopped and superseded).
 
-Mockups: `docs/screens/t1/picker-options.html`.
+Mockups: `docs/screens/t1/picker-options.html` (removed 2026-10-16, in git history).
 
 **Wheel cost corrected (owner, 2026-10-08):** "typing numbers or tapping on a clock shape is way faster than scrolling a wheel one hour and one minute at a time."
 - **One wheel step is now one action.** From 09:00, 14:30 takes 11 steps and 15:00 takes 6. Before, each wheel counted one drag however far it spun.
@@ -716,7 +716,7 @@ Two-step sheet with duration presets:
 
 **The task set has no exact-minute time,** which is the one case where typing beats the dial (14:37). So the combination costs nothing measurable, and keeps typing for exact minutes and for anyone who prefers it.
 
-Mockups: `docs/screens/t1/picker-options.html` (the steps, the keyboard state, and each entry alone for comparison).
+Mockups: `docs/screens/t1/picker-options.html` (removed 2026-10-16, in git history) (the steps, the keyboard state, and each entry alone for comparison).
 
 **Approved (owner, 2026-10-08): the dial and the typed field in one sheet.** Two steps in a sheet: ⋯ › Date (or the full page's Date row) opens the month with its day load and Done; a day tapped opens the time view, with the typed field and its 09:00 and 21:00 suggestions, the dial under it, the duration presets and Done. The keyboard rises only when the field is tapped. On Windows, the two-column drop-down: the month beside the time. Tapping a highlighted date or time offers "Keep as text" and opens no picker. T1.5 is now a section of `docs/screens/t1/screens.html` (`tier_t1.py`, `OPTIONS_T15`).
 
@@ -782,7 +782,7 @@ Mockups: `docs/screens/t1/picker-options.html` (the steps, the keyboard state, a
   - **Presets first versus builder:** presets cost 6.7 more actions, and their opening view is smaller and calmer.
   - **Sheet versus page:** a sheet has better reach (2.7 against 3.4); a page is calmer and covers everything.
 
-Mockups: `docs/screens/t1/repeat-options.html` (`tools/screens/repeat_page.py`).
+Mockups: `docs/screens/t1/repeat-options.html` (removed 2026-10-16, in git history) (`tools/screens/repeat_page.py`).
 
 **Cron's reach (owner's question, 2026-10-08: "How many of the repeat options could cron cover?").** Read from `core/.../recurrence/Cron.kt`, which is Mnemo's five numeric fields with lists, ranges and steps, and no `L W #`.
 - **3 of the 10 tasks today:**
@@ -848,7 +848,7 @@ Mockups: `docs/screens/t1/repeat-options.html` (`tools/screens/repeat_page.py`).
   - **Only the Major Second options keep the small text at 12 px or more (12.5 px).** The other ratios drop it to 10.5–11.5 px.
   - Recommendation: the sentence one step above the controls, the small text at least 12 px; the exact sizes are settled in the type pass (decision 15).
 
-Mockups: `docs/screens/t1/repeat3-options.html`.
+Mockups: `docs/screens/t1/repeat3-options.html` (removed 2026-10-16, in git history).
 
 **Round 4 (owner, 2026-10-08): the sentence sheet tidied** (`tools/screens/repeat4_opt.py`).
 
@@ -911,7 +911,7 @@ Every state of the chosen design is drawn for review, because round 3's redundan
 - **The 1–31 grid** makes the month view taller than the screen; its header is cut off (the tallest view averages 71% against 61% for typed).
 - **Caveat:** no task picks an arbitrary day of the month. There the grid costs 1 tap, and a typed day 3 actions with the keyboard up.
 
-Mockups, every state: `docs/screens/t1/repeat4-options.html`.
+Mockups, every state: `docs/screens/t1/repeat4-options.html` (removed 2026-10-16, in git history).
 
 ## T1.5 + T1.6 merged: one "When" sentence (owner's workshop, 2026-10-08)
 
@@ -1039,7 +1039,7 @@ Mockups, every state: `docs/screens/t1/repeat4-options.html`.
 - **Fixed after the owner's report (2026-10-08): "T1.5 + T1.6 in screens.html did not render."**
   - **The cause:** the section's images were separate files, which a viewer that loads the page alone cannot reach.
   - **The images are now inlined,** as greyscale WebP, 40% of the PNGs' size.
-  - **The page was then over the viewer's size limit.** The superseded explorations (the T1.5 picker, and T1.3's ✓/▤ sizes) moved to `superseded.html`, linked where they were. `screens.html` keeps the approved screens only (453 KB).
+  - **The page was then over the viewer's size limit.** The superseded explorations (the T1.5 picker, and T1.3's ✓/▤ sizes) moved to `superseded.html` (removed 2026-10-16, in git history), linked where they were. `screens.html` keeps the approved screens only (453 KB).
   - **Sections are newest first (owner):** T1.5 + T1.6, T1.4, T1.3, T1.2, T1.1.
 
 **Cron extensions built (owner, 2026-10-08: "Cron work first").**
@@ -1583,7 +1583,7 @@ Drawn: `docs/screens/t1/labels-dots.html` (`labels-f.json`).
    - A label's only number is the count of what carries it.
 
 **T1.9 approved (owner, 2026-10-10):** "Approved, erase all discarded screens so far in screen HTML to make room for the chosen T1.9 screen."
-- `screens.html` now holds the chosen screens only. The options not picked in T1.1–T1.4, and the notes pointing to superseded explorations, are erased from it (`tier_t1.KEEP_NOT_PICKED = False`). The scores, the decisions and `superseded.html` keep the record; `superseded.html` is unchanged.
+- `screens.html` now holds the chosen screens only. The options not picked in T1.1–T1.4, and the notes pointing to superseded explorations, are erased from it (`tier_t1.KEEP_NOT_PICKED = False`). The scores, the decisions and `superseded.html` (removed 2026-10-16, in git history) keep the record; `superseded.html` (removed 2026-10-16, in git history) is unchanged.
 - The T1.9 section is at the top. The page is 455 KB, so its images keep their quality (no re-encoding needed); the separate T1.9 page is removed.
 - T1 is complete: T1.1–T1.9 are approved.
 

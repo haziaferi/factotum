@@ -58,6 +58,7 @@ def main():
         imgs.append({"src": i["src"], "caption": lab, "note": sub + " · " + note})
     with open(os.path.join(HERE, "pace_try.tmpl.html"), encoding="utf-8") as fh:
         page = fh.read()
+    sheets, imgs = sheets[:1], []   # the approved sheet only; the unpicked sheets and their images are discarded (owner, 2026-10-16)
     data = json.dumps({"sheets": sheets, "imgs": imgs}, ensure_ascii=False).replace("</", "<\\/")
     out = os.path.join(M.T.OUT, "pace-try.html")
     with open(out, "w", encoding="utf-8", newline="\n") as fh:

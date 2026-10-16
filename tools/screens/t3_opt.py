@@ -3517,7 +3517,7 @@ def g_row(v, name, txt, tap):
 def g_set(v):
     if v["set"] == "sentence":
         return ('<div class="gs"><span class="stp" data-tap="Set minus">−</span><span class="box" data-tap="Set box">%s</span><span class="stp" data-tap="Set plus">+</span>'
-                '<span class="w" data-tap="Set per">a day</span><span class="w" data-tap="Set add" style="margin-left:auto">Add</span></div>') % kit.ud("30 min")
+                '<span class="w" data-tap="Set per">a day</span><span class="w" data-tap="Set add" style="margin-left:auto">Done</span></div>') % kit.ud("30 min")
     if v["set"] == "steppers":
         return ('<div class="gs">Goal <span class="stp" data-tap="Set minus" style="margin-left:auto">−</span><span class="box">%s</span><span class="stp" data-tap="Set plus">+</span></div>'
                 '<div class="gf"><div class="chips"><span data-tap="Set day">Day</span><span data-tap="Set week">Week</span><span data-tap="Set month">Month</span><span data-tap="Set all">In all</span></div>'
@@ -3674,7 +3674,8 @@ GT_TRACKERS = {"Water", "Steps", "Mood", "Coffee", "Pages", "Weight", "Sleep"}
 GT_CSS = PR_CSS + """
 .gt{display:flex;align-items:center;min-height:56px;border-bottom:1px solid var(--zone2)}.gt .nm{flex:1;display:flex;flex-direction:column}
 .gt .nm b{font-weight:500;font-size:15px}.gt .nm s{text-decoration:none;font-size:13px;color:var(--dim)}
-.gt .ctl{min-width:48px;min-height:48px;display:grid;place-items:center;border-radius:24px;box-shadow:inset 0 0 0 1px var(--dim)}
+.gt .ctl{min-width:48px;min-height:48px;padding:0 10px;display:grid;place-items:center;border-radius:24px;box-shadow:inset 0 0 0 1px var(--dim);font-size:14px;white-space:nowrap}
+.fh{display:flex;align-items:center;gap:8px;min-height:48px;font-size:15px}.fh .t{flex:1}.fh .c{color:var(--dim);font-size:13px}
 .gsum{display:flex;align-items:center;justify-content:space-between;min-height:48px;font-size:15px}
 """
 
@@ -3694,8 +3695,11 @@ def gt_order(n):
     return day, rest
 
 
+GT_CTL = {"Water": "+ 1 glass", "Coffee": "+ 1 cup", "Pages": "+ 10", "Steps": "Log", "Weight": "Log", "Sleep": "Log", "Mood": "Log"}
+
+
 def gt_row(name, sub):
-    ctl = "+1" if name in GT_TRACKERS else "▶"
+    ctl = GT_CTL.get(name, "▶")   # the Measuring row's own control (T3b.1d): + usual / Log for a tracker, ▶ for an activity
     return ('<div class="gt" data-tap="Goal %s"><span class="nm"><b>%s</b><s>%s</s></span><span class="ctl" data-tap="Ctl %s">%s</span></div>'
             % (name, kit.ud(name), sub, name, ctl))
 
@@ -3721,7 +3725,7 @@ def gt_block(v, n):
         shown = day[:3]
         more = '<div class="gsum" data-tap="More goals">+%d more <b>›</b></div>' % (len(day) - 3) if len(day) > 3 else ""
         return '<div class="zone"><h4>Goals today</h4>' + "".join(gt_row(x, gt_sub(x, "day")) for x in shown) + more + "</div>"
-    return '<div class="zone"><div class="gsum" data-tap="Goals open">Goals (%d) <b>›</b></div></div>' % n   # collapsed, as it is left
+    return '<div class="zone"><div class="gsum fh" data-tap="Goals open"><span class="t">Goals</span><span class="c">%d</span>▸</div></div>' % n   # a folded label (T3b.1d), as it is left
 
 
 def gt_today(v, n):

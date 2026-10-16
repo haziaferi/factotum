@@ -620,7 +620,7 @@ Next: T3b Measuring (trackers, activities and timers, goals).
 
 ## T3b.1 The Trackers list: scored (2026-10-13)
 
-Trackers are what is counted or rated; a habit is yes/no (T3a). The four kinds are Chronicle's: a number with a unit, yes/no, a rating 1-5, a choice. No goal shows on this list: goals are their own T3b screen, and an amount reads plain, never as a fraction (T3.1, Tendril's rule).
+Trackers are what is counted or rated; a habit is yes/no (T3a). The four kinds are Chronicle's: a number with a unit, yes/no, a rating 1-5, a choice. No goal shows on this list: goals are their own T3b screen, and an amount reads plain, never as a fraction (T3.1, Tendril's rule). **[Superseded 2026-10-16, T3b.5]** A goal shows on its Measuring row in words: “20 of 30 min/day” (owner).
 
 **References** (`docs/screens/t3/t3-references.json`, `trackers_list`; screenshots in `_screens-sources/t3/`):
 - **Chronicle** (source app), Data tab:
@@ -1386,7 +1386,7 @@ Status (then): **T3b.1d and T3b.4e approved; T3b.4b scored (where it lives, pend
 
 **With two options and five axes, all three reach the front.** The control escapes only through space and reach (its larger steppers sit closer to the thumb), and it breaks the owner's box-height rule.
 
-The comparison drawing is `docs/screens/t3/pace6-compare.png`: both layouts in three states.
+The comparison drawing is `docs/screens/t3/pace6-compare.png` (removed 2026-10-16, in git history): both layouts in three states.
 
 Status (then): **T3b.1d and T3b.4e approved; T3b.4f (the sentence's layout) scored, awaiting the owner's pick; T3b.4b scored.**
 
@@ -1410,7 +1410,7 @@ Status (then): **T3b.1d and T3b.4e approved; T3b.4f (the sentence's layout) scor
 
 **What the tight layout's movement is.** Nothing moves while a stepper or a word is tapped. The end box moves once, when Until becomes From: the start box takes its place, and the end box goes beside "to".
 
-Drawing: `docs/screens/t3/pace6-tight-32.png`.
+Drawing: `docs/screens/t3/pace6-tight-32.png` (removed 2026-10-16, in git history).
 
 Status (then): **T3b.1d and T3b.4e approved; T3b.4f scored (tight, 32 dp drawn), awaiting the owner's pick; T3b.4b scored.**
 
@@ -1426,7 +1426,7 @@ Status (then): **T3b.1d and T3b.4e approved; T3b.4f scored (tight, 32 dp drawn),
 | **B:** without "with" | 338 px |
 | **A + C:** without "of", a 72 dp box with 14 px text, 4 px gaps | 339 px ("1 h 55 min" still fits) |
 
-**Both B and A + C were added as layouts and drawn** (`docs/screens/t3/pace6-onerow.png`). Neither overflows in any state, and each is 207 px tall at its tallest.
+**Both B and A + C were added as layouts and drawn** (`docs/screens/t3/pace6-onerow.png` (removed 2026-10-16, in git history)). Neither overflows in any state, and each is 207 px tall at its tallest.
 
 | Layout (32 dp) | Rank sum | Tapped control moves | Others move | Height | Reach |
 |---|---|---|---|---|---|
@@ -1444,7 +1444,7 @@ Status (then): **T3b.1d and T3b.4e approved; T3b.4f scored (B and A + C drawn), 
 - **"Reset breaks":** a text button beside Undo and Redo, at their 48 dp height, in place of the ×. The readout takes its own line above them, because readout, Reset, ↶ and ↷ wrapped on one line.
 - **Measured:** nothing overflows, and Reset and Undo share a row and a height. The sentence is now 271 px at its tallest, up from 207.
 
-Drawing: `docs/screens/t3/pace6-chips.png`.
+Drawing: `docs/screens/t3/pace6-chips.png` (removed 2026-10-16, in git history).
 
 Status (then): **T3b.1d and T3b.4e approved; T3b.4f scored (B and A + C with chips and Reset breaks), awaiting the owner's pick; T3b.4b scored.**
 
@@ -1466,7 +1466,7 @@ Status (then): **T3b.1d and T3b.4e approved; T3b.4f scored (B and A + C with chi
 - the sentence is 231 px at its tallest (from 271 with chips);
 - rank sums at 32 dp: A + C 34, B 36.5.
 
-Drawing: `docs/screens/t3/pace6-where.png`.
+Drawing: `docs/screens/t3/pace6-where.png` (removed 2026-10-16, in git history).
 
 Status (then): **T3b.1d and T3b.4e approved; T3b.4f scored (B and A + C, evenly ↔ at a time), awaiting the owner's pick; T3b.4b scored.**
 
@@ -1804,5 +1804,44 @@ PICKED gtoday `{"form":"collapsed","pos":"bottom"}` (with the pinned step).
 Owed: whether the row remembers being open; where a goal is pinned (the item's page, by default); the Measuring row and the
 item's page as picked in T3b.5.
 
-Status: **T3b.1d, T3b.3, T3b.4e/f/g, T3b.5 and T3b.5b approved.** Next in T3b: time totals and charts.
+Status (then): **T3b.1d, T3b.3, T3b.4e/f/g, T3b.5 and T3b.5b approved.** Next in T3b: time totals and charts.
 
+### T3b.5 and T3b.5b checked against the other screens (owner, 2026-10-16)
+
+“Check T3b.5 and T3b.5b for consistency with other screens before anything is settled.” Checked against decisions 17-19 and
+the approved drawings. **Fixed, as the approved rules already say** (no new choice):
+- **The Goals row on Today is a label** like Recent and every Measuring label (T3b.1d): its name, its count and the fold glyph
+  (“Goals 20 ▸”), not “Goals (20) ›” (› opens a screen elsewhere). Its open state is remembered, as the labels' is
+  (device state): this settles T3b.5b's “whether the row remembers being open”.
+- **A goal row carries its item's Measuring control** by kind (T3b.1d): “+ usual” (“+ 1 glass”), Yes, rating chips, recent
+  choices, Log, and ▶ (with its ↻ chip) for an activity; the drawing had “+1” for every tracker.
+- **The goal sentence closes with Done**, as the When sheet does (T1.5 + T1.6); the drawing had “Add”.
+- **Consistent already:** “last 14:20” is the Measuring row's wording; the sentence's period word cycles in place as For /
+  Until / From and evenly / at do; plain numbers (T3.1); a running goal's item shows “running” and ■ as on Measuring.
+
+**Re-scored with the fixes:** the scores and both picks are unchanged (T3b.5 412 on the front; T3b.5b 34.5 on the front).
+
+**For the owner (choices, not fixes):**
+1. **T3b.1's rule** “No goal shows on this list … an amount reads plain, never as a fraction” (2026-10-13) is reversed by T3b.5's
+   “20 of 30 min/day” on the Measuring row (the owner's words). Recorded as superseded there; the row says it in words (“of”),
+   never “20/30” or a percent.
+2. **Two kinds of pin:** the Hub's “Pinned and recent” (T1.4) pins screens and items; T3b.5b pins goals. One pin, or two?
+3. **A reached day goal:** Today folds done items into “Done today · n” (decision 15). Does a goal reached today fold the same way
+   in the Goals list, or stay with “30 of 30 min/day”?
+
+### Discarded screens deleted (owner, 2026-10-16)
+
+“Delete past discarded screens.” Answers: every tier; their drawings on the pages, the unpicked trial sheets and the images; the
+results files, the scorer code and the decision records stay.
+- **T3:** the 12 superseded parts are listed on `t3-options.html` with one line each (why, and a link to their scores), no drawings
+  (`toast_opt.options_page` skips SUPERSEDED parts). The trial pages keep the approved sheet only: `pace-try.html` (the approved
+  sentence and dial; the unpicked sheets and the mode × place images gone) and `run-try.html` (the picked place; the unpicked
+  sheets and the control gone). The six pace6 comparison images are deleted.
+- **T1:** `capture-v2.html`, `capture-v3.html`, `form-options.html`, `form-options-ten.html`, `sheet-candidates.html`,
+  `picker-options.html`, `repeat-options.html`, `repeat3-options.html`, `repeat4-options.html` and `superseded.html` deleted;
+  `tier_t1.py` no longer writes `superseded.html`. Kept: the approved `screens.html`, `capture-approved.html`, the When prototype,
+  and the option pages of approved parts (capture v4, labels, legend, empty states, toasts).
+- **T2:** nothing superseded. Every mention of a deleted file in decisions 17 and 19 is marked “removed 2026-10-16, in git history”.
+
+Status: **T3b.1d, T3b.3, T3b.4e/f/g, T3b.5 and T3b.5b approved; three consistency questions open (above).** Next: time totals
+and charts.

@@ -30,7 +30,7 @@ def main():
     picked = [by[json.dumps({k: w[k] for k in KEYS}, sort_keys=True)] for w in want]
     ctl = next(r for r in rows if r["v"].get("control"))
     sheets = []
-    for r in picked + [ctl]:
+    for r in picked[:1]:   # the approved sheet only (owner, 2026-10-16: the unpicked sheets and the control are discarded)
         v = r["v"]
         lab, sub = label(v)
         sheets.append({"id": "bdt" if v.get("control") else "-".join(v[k] for k in KEYS), "label": lab, "sub": sub,

@@ -1028,6 +1028,9 @@ def options_page():
     for p in sorted(SPACES):
         if not os.path.exists(os.path.join(OUT, PREFIX + "-%s.json" % p)):
             continue
+        if p in SUPERSEDED:   # discarded screens are not drawn (owner, 2026-10-16: "Delete past discarded screens"); the scores and the record stay
+            secs.append('<p class=dim><b>%s</b>: superseded (%s). Drawings removed; its scores stay in <a href="%s-scores.html#%s">the tables</a>.</p>' % (H.escape(TITLES[p]), H.escape(SUPERSEDED[p]), PREFIX, p))
+            continue
         rows, ok, axes = ranked(p)
         # small parts: every option drawn (the owner chooses among them); large ones: the front, lowest sum first, up to four
         pool = [r for r in ok if not r.get("control")] if len(rows) <= 7 else [r for r in ok if r.get("front") and not r.get("control")]
