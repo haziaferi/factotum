@@ -2066,7 +2066,25 @@ Chronicle's does. Charged the three taps that do it instead; Chronicle then lost
   a when to check each time; “both on one item” gets them right with one tap for another day, but an amount sits on no hour
   of Review's day timeline and a repeated amount is never caught.
 
-Status: **T3b.5e scored: awaiting the owner's pick.**
+Status (then): **T3b.5e scored: awaiting the owner's pick.**
+
+### T3b.5e approved: spans and amounts on one activity, an amount's day picked (owner, 2026-10-16)
+
+The owner picked **both on one item, day picked** (21.5, on the front):
+- **An activity holds spans and amounts.** A span has a start and an end (the timer, “Sleep 23:00–06:30”); an amount has none
+  (“Sleep +1 h”, “Work +1 h 45”) and counts on a day: today by default, one tap for yesterday (or another day).
+- **A day's total** is the time its spans cover, counted once where they overlap (decision 07), **plus** its amounts.
+- **There is no Duration tracker:** time is always an activity's; a typed unit is never time (T3b.5d's Duration kind superseded).
+- **Known costs, accepted:** an amount has no hour, so Review's day timeline shows it apart (an untimed line under the day,
+  e.g. “+1 h 45 Work”); an amount logged twice by mistake is not caught.
+
+Owed to the data layer: an activity's untimed time (an amount and its day, beside `time_span`), the day totals as the union of
+spans plus the sum of amounts (decision 07 extended; the week and goal periods still the sum of their days), the capture line's
+“+1 h 45” as an amount (today) and “09:00–18:00” as a span; sync rows for amounts (ADR 01).
+
+Status: **T3b.5 reopened (workshop: the goal line's setting, counter goals); T3b.5b, T3b.5c and T3b.5e approved.** Next in T3b:
+the T3b.5 workshop, then time totals and charts.
+
 
 
 
