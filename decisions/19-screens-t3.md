@@ -2352,5 +2352,40 @@ page's rows escaped the asymmetry measure (rows now found by kind); the tools' p
 - Heights: ratings 80 first; minutes and weight 130; choices 130; counts and yes/no any (their marks do not grow).
 - The past entry on the history line or by a long press; beside the log control only for counts.
 
-Status: **T3b.7d scored: the owner picks the template (one for every kind, or per kind), the period control and the
+Status (then): **T3b.7d scored: the owner picks the template (one for every kind, or per kind), the period control and the
 height; then T3b.6.**
+
+### T3b.7e The item's page with its function hierarchy (owner, 2026-10-17)
+
+The owner: “function hierarchy hasn't been taken into account at all. E.g. Labels are not as important as the
+tracking/timer panel. Logging an entry shouldn't be hidden in the History line. Taller graphs score higher on readability
+but hide information behind scrolling, which is a similar issue to number of taps.”
+
+**Owner's answers:** the hierarchy, rank 1 first: the tracking panel (today's value, Log, the timer and Paced, adding a
+past entry), the goal line, the graph, the statistics, History, Pin, the note, labels (settings in the ⚙ sheet); a past
+entry is made in Log's sheet (today preset, a day field), no control of its own; an element below the first screen costs
+a scroll in Taps, by importance; Hierarchy = order follows rank, prominence follows rank, above the fold by rank; single
+actions may be glyph buttons; **Pin is a glyph just left of Settings** (owner, the same turn).
+
+**Part `ip4_*`** (T3b.7d's `ip3_*` and T3b.7c's `ip2_*` superseded): template × period control × height × the note and
+labels as rows, as glyphs in the header, or as a spread glyph strip × top or bottom; importance 9 − rank (hand-set).
+Hierarchy measured on tagged elements: order inversions and area inversions weighted by the rank gap (the header's
+actions outside the content's order), and the importance-weighted share on the first screen.
+
+**Fixed on the way:** the control page's parts were untagged and escaped Hierarchy (tagged by function); with Harmony
+leading alone, pages with the labels and note above the tracking panel (46 rank-gaps of inversions) still reached every
+front, so **Hierarchy co-leads with Harmony** (my call, flagged; reversible); the machinery's lead on several measures
+used the first measure's tolerance for all (each shortfall now in its own tolerance; parts with equal tolerances rank as
+before: measure3 keeps its 82 on the front).
+
+**Result: every control lost; every front keeps the hierarchy (at most 1 rank-gap), and nothing on a front scrolls.**
+- The note and labels as a spread glyph strip at the bottom win almost everywhere (glyphs in the header for yes/no):
+  as rows they took the room a taller graph needed and sat above higher-ranked parts.
+- With the extras compacted, taller graphs cost no scroll: weight, choices and counts reach 180 dp, minutes 130–180,
+  yes/no 130; ratings fit at every height.
+- Cards lead ratings, minutes and weight; grid and cards counts; flat yes/no; choices spread over all four.
+- The period: the segmented control and ‹ October › share the fronts.
+
+Status: **T3b.7e scored: the owner picks the template, period control and height (one for every kind, or per kind); then
+T3b.6.** Phone cleanup paused: the Sci-Fin session took the phone mid-confirmation in Loop (Walk and Water perhaps
+deleted); Tendril, Chronicle and Track & Graph samples still owed.

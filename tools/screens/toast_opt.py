@@ -904,11 +904,12 @@ def ranked(p):
         best = {k: min(r[k] for r in ok) for k, _ in keys}
         # several measures (one list at two sizes): the worse shortfall from each one's best counts (found 2026-10-13: the bests
         # at 12 and 30 items came from different designs, and "within the tolerance of both" left the front empty)
+        # each shortfall in its own tolerance (2026-10-17: Harmony's five measures and Hierarchy's three lead together; one
+        # shared tolerance let a page with labels above the tracking panel through); equal tolerances rank as before
         for r in ok:
-            r["_shortfall"] = max(r[k] - best[k] for k, _ in keys)
+            r["_shortfall"] = max((r[k] - best[k]) / t for k, t in keys)
         least = min(r["_shortfall"] for r in ok)
-        tol = keys[0][1]
-        lead = [r for r in ok if r["_shortfall"] <= least + tol]
+        lead = [r for r in ok if r["_shortfall"] <= least + 1]
     w = WEIGHTS.get(p, {})
     dom = [a for a in ax if w.get(a, 1) >= 1]
     for r in ok:

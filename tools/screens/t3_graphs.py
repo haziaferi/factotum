@@ -1312,6 +1312,200 @@ def make_ip3_part(ns, kind):
         T.v2.TOL.setdefault(k, tol)
 
 
+# ==== T3b.7e: the item's page with its function hierarchy (owner, 2026-10-17) =====================================================
+"""
+  The owner: “function hierarchy hasn't been taken into account at all. E.g. Labels are not as important as the
+  tracking/timer panel. Logging an entry shouldn't be hidden in the History line. Taller graphs score higher on readability
+  but hide information behind scrolling, which is a similar issue to number of taps.” Answers:
+  - the hierarchy (rank 1 first): the tracking panel (today's value, Log, the timer and Paced, adding a past entry), the goal
+    line, the graph (with its period control), the statistics, History, Pin, the note, labels; settings in the ⚙ sheet;
+  - a past entry is made inside Log's sheet (today preset, a day field): no control of its own on the page;
+  - an element below the first screen costs one scroll in Taps, multiplied by its importance (rank 1 a whole scroll);
+  - Hierarchy = order follows rank (inversions weighted by the rank gap), prominence follows rank (an element's area
+    against a higher-ranked one's, weighted the same way), above the fold by rank (the importance-weighted share fully on
+    the first screen); and single-action elements may be glyph buttons: Pin, the note and labels as glyphs in the header
+    or in a spread strip, against rows; Pin a glyph just left of Settings (owner, the same turn).
+  Importance weight of rank r: 9 - r (HAND-SET from the owner's order: the panel 8 ... labels 1).
+"""
+IP4_SPACE = {"template": ["cards", "grid", "form", "flat"], "period": ["segmented", "month"], "height": [80, 100, 130, 180],
+             "extras": ["rows", "glyphs_header", "glyphs_strip"], "notes": ["top", "bottom"]}
+IP4_RANK = {"panel": 1, "goal": 2, "graph": 3, "stats": 4, "hist": 5, "pin": 6, "note": 7, "labels": 8}
+
+
+def ip4_valid(v):
+    if v.get("control"):
+        return True
+    return not (v["extras"] == "glyphs_header" and v["notes"] == "bottom")   # glyphs in the header have no top or bottom
+
+
+def ip4_page(kind, v, kit):
+    global H
+    e = kit.e
+    pg = PAGES[kind]
+    with LOCK:
+        old = H
+        H = 130 if v.get("control") else v["height"]
+        try:
+            m = draw(kind, {"control": True, "control_app": CONTROLS[kind][0][0]} if v.get("control") else dict(IP2_PICK[kind]))
+        finally:
+            H = old
+    if v.get("control"):
+        html, _ = ip2_page(kind, v, kit)
+        for sec, el in (("now", "panel"), ("graph", "graph"), ("stats", "stats"), ("goal", "goal"), ("hist", "hist")):   # its parts by what they do
+            html = html.replace('<div data-sec="%s"' % sec, '<div data-sec="%s" data-el="%s"' % (sec, el), 1)
+        return html, m, ["log", "chips", "chart", "tiles", "goal", "list"]
+    facts = ip3_facts(kind)
+    ex = v["extras"]
+    head = [("\U0001f4dd", "Note"), ("\U0001f3f7", "Labels")] if ex == "glyphs_header" else []
+    head += [("\U0001f4cc", "Pin"), ("⚙", "Settings")]   # the pin a glyph just left of Settings (owner, 2026-10-17)
+    pin = ""
+    if ex == "rows":
+        notes = ('<div data-sec="notes"><div class="ipr" data-row="box" data-el="labels" style="justify-content:space-between"><span data-tap="Labels">%s</span>'
+                 '<span data-tap="Labels add">+ label</span></div><div class="ipl" data-tap="Note" data-el="note"><span class="t" style="color:var(--dim)">Add a note</span></div></div>') % IP2_LABELS[kind]
+    elif ex == "glyphs_strip":
+        notes = ('<div data-sec="notes" class="ipr" data-row="box" style="justify-content:space-around">'
+                 '<span data-tap="Note" data-el="note" aria-label="Add a note">\U0001f4dd</span><span data-tap="Labels" data-el="labels" aria-label="Labels">\U0001f3f7</span></div>')
+    else:
+        notes = ""
+    ctl = '<span class="c" data-tap="Now control">%s</span>' % e(pg["ctl"])
+    if kind == "add":
+        ctl += '<span class="c" data-tap="Paced" style="background:var(--zone2);color:var(--ink)">⏱</span>'
+    now = '<div class="ipn" data-sec="now" data-row="box" data-el="panel"><span class="v"><b>%s</b><s>%s</s></span>%s</div>' % (e(pg["now"][0]), e(pg["now"][1]), ctl)
+    goal_text = IP2_GOAL.get(kind)
+    goal = '<div data-sec="goal" class="ipl" data-el="goal"><span class="t" data-tap="Goal"%s>%s</span>%s</div>' % (
+        "" if goal_text else ' style="color:var(--dim)"', e(goal_text or "Set a goal"), pin)
+    hist = ('<div data-sec="hist" class="ipl" data-row="box" data-el="hist" style="justify-content:space-between"><span data-tap="History">History · %d entries</span>'
+            '<span style="min-width:48px;min-height:48px;display:grid;place-items:center">›</span></div>') % len(pg["hist"])
+    per = ip3_period(v)
+    t = v["template"]
+    if t == "cards":
+        stats = '<div data-sec="stats" data-el="stats" class="ip3t" data-row="box">%s</div>' % "".join("<div><b>%s</b><s>%s</s></div>" % (e(a), e(b)) for a, b in facts)
+        body = now + goal + '<div data-el="graph">%s<div class="card" data-sec="graph">%s</div></div>' % (per, m["html"]) + stats + '<div class="card">%s</div>' % hist
+        seq = ["log", "goal", "period", "card", "chart", "tiles", "list"]
+    elif t == "grid":
+        stats = '<div data-sec="stats" data-el="stats" class="ip3g" data-row="box">%s</div>' % "".join("<div><s>%s</s><b>%s</b></div>" % (e(b), e(a)) for a, b in facts)
+        body = now + goal + stats + '<div data-el="graph">%s<div data-sec="graph">%s</div></div>' % (per, m["html"]) + hist
+        seq = ["log", "goal", "grid", "period", "chart", "list"]
+    elif t == "form":
+        stats = '<div data-sec="stats" data-el="stats" class="ipl" data-row="box" style="justify-content:space-between"><span data-tap="Stats">Statistics · %d</span><span>›</span></div>' % len(facts)
+        body = now + goal + '<div data-el="graph"><div class="ip3f">Period</div>%s<div data-sec="graph">%s</div></div>' % (per, m["html"]) + stats + hist
+        seq = ["log", "goal", "period", "chart", "folded", "list"]
+    else:
+        stats = '<div data-sec="stats" data-el="stats" class="ip3l" data-row="box">%s</div>' % "".join("<span><b>%s</b> %s</span>" % (e(a), e(b)) for a, b in facts)
+        body = now + goal + stats + '<div data-el="graph">%s<div data-sec="graph">%s</div></div>' % (per, m["html"]) + hist
+        seq = ["log", "goal", "line", "period", "chart", "list"]
+    if notes:
+        if v["notes"] == "top":
+            body, seq = notes + body, ["notes"] + seq
+        else:
+            body, seq = body + notes, seq + ["notes"]
+    hdr = kit.header(KINDS[kind]["name"], tuple(head), ("‹", "Back"))
+    for glyph, name in head:   # the header's glyph buttons carry their element
+        el = {"Pin": "pin", "Note": "note", "Labels": "labels"}.get(name)
+        if el:
+            hdr = hdr.replace('data-tap="%s"' % name, 'data-tap="%s" data-el="%s"' % (name, el), 1)
+    html = kit.phone(hdr, '<div class="zone" style="padding-bottom:8px">%s</div>' % body, kit.bar("Hub"))
+    return html, m, seq
+
+
+HIER_JS = r"""(function(){var bar=document.querySelector('.bar').getBoundingClientRect().top;var o={els:{}};
+document.querySelectorAll('[data-el]').forEach(function(x){var b=x.getBoundingClientRect();if(b.height==0)return;var k=x.getAttribute('data-el');
+ var cur=o.els[k];var a=b.width*b.height;if(!cur||b.top<cur.top)o.els[k]={top:Math.round(b.top),bottom:Math.round(b.bottom),area:Math.round(a),above:b.bottom<=bar?1:0,hdr:x.closest('.hdr')?1:0}});
+return o})()"""
+
+
+def ip4_hierarchy(els):
+    """Order and prominence inversions weighted by the rank gap, and the importance-weighted share above the fold."""
+    present = [(k, IP4_RANK[k], els[k]) for k in IP4_RANK if k in els]
+    order = prom = 0.0
+    for i, (ka, ra, a) in enumerate(present):
+        for kb, rb, b in present[i + 1:]:
+            hi, lo = (a, b) if ra < rb else (b, a)
+            gap = abs(ra - rb)
+            if lo["top"] < hi["top"] and not (lo["hdr"] or hi["hdr"]):   # the header's actions stand outside the content's order
+                order += gap
+            if lo["area"] > hi["area"]:
+                prom += gap
+    wsum = sum(9 - r for _, r, _ in present) or 1
+    fold = sum((9 - r) * e["above"] for _, r, e in present) / wsum
+    scroll = sum((9 - r) / 8.0 for _, r, e in present if not e["above"])   # a scroll per element below the fold, by importance
+    return order, prom, round(fold, 3), round(scroll, 3)
+
+
+IP4_REACH = ("Now control", "Pin", "Note", "Labels", "History", "Range 1y", "Settings", "Goal")
+
+
+def make_ip4_part(ns, kind):
+    T, kit, ipdoc = ns["T"], ns["kit"], ns["ipdoc"]
+    js = "(function(){var a=%s;var b=%s;var c=%s;var d=%s;a.gcut=b.cut;a.min_font=b.min_font;a.overlaps=b.overlaps;a.h=c;a.els=d.els;return a})()" % (IP2_JS, GK_JS, HARMONY_JS, HIER_JS)
+
+    def page(v):
+        html, m, seq = ip4_page(kind, v, kit)
+        return ipdoc(html).replace("</style>", IP3_CSS + "</style>", 1), m, seq
+
+    def score(v):
+        d, m, seq = page(v)
+        key = "ip4-%s-%s" % (kind, "-".join(str(x) for x in v.values()))
+        b = T.probe(d, key, js)
+        ctl = v.get("control")
+        hb_, vb_ = ip3_balance(d, key, b["h"])
+        costs, _ = answer_costs(kind, {"control": True, "control_app": CONTROLS[kind][0][0]} if ctl else dict(IP2_PICK[kind]), m)
+        els = b["els"]
+        order, prom, fold, scroll = ip4_hierarchy(els)
+        # taps: one per element reached (a missing one 3), a past entry Log then its day field (2), a year by the control, the
+        # folded statistics opened; then a scroll per element below the fold, by importance (owner)
+        taps = sum(1 if t in b["taps"] else 3 for t in IP4_REACH) + 2
+        taps += (0 if (ctl or v["period"] == "segmented") else 1)
+        if not ctl and v["template"] == "form":
+            taps += 1
+        taps += scroll
+        seen = b["seen"]
+        glance = sum(seen.get(k, 0) for k in ("now", "goal", "graph", "hist")) + (seen.get("stats", 0) if (not ctl and v["template"] != "form") else 0)
+        load = sum(costs) + b["numbers"] / 10 + (m["series"] - 1) * 0.5 + m["legend"]
+        gaps = b["h"]["gaps"]
+        consistency = 0 if ctl else (1 if v["period"] == "month" else 0)
+        fold_area = 360.0 * max(1, b["h"]["content"][1] - b["h"]["content"][0])
+        return {"fit": sum(m["misfit"].values()), "min_font": b["min_font"], "overlaps": b["overlaps"], "gcut": b["gcut"],
+                "mark_seen": min(m["min_mark"], MARK_ENOUGH), "step_seen": min(m["step_px"], STEP_ENOUGH), "step_px": m["step_px"],
+                "encoding": CTL_ENCODING.get((kind, CONTROLS[kind][0][0]), ENCODING[CONTROLS[kind][0][0]]) if ctl else ENCODING[IP2_PICK[kind]["form"]],
+                "ink": m["ink"], "noise_seen": max(m["noise_px"], NOISE_FLAT), "compare": m["compare"], "clutter": b["clutter"],
+                "load": round(load, 2), "unseen": b["unseen"], "cut": b["cut"], "glance": glance, "taps": round(taps, 3), "scroll": scroll,
+                "order_inv": order, "prom_inv": prom, "fold_share": fold, "consistency": consistency,
+                "asym": round(b["h"]["asym"] / fold_area, 4), "balance_h": round(hb_, 3), "balance_v": round(vb_, 3),
+                "rhythm": len(set(gaps)) + sum(1 for g in gaps if g % 4), "edges": b["h"]["lefts"] + b["h"]["rights"] - 2,
+                "likeness": likeness(seq), "seq": " ".join(seq), "small": []}
+
+    part = "ip4_" + kind
+    T.SPACES[part] = dict(IP4_SPACE)
+    T.SCORERS[part] = score
+    T.VALID[part] = ip4_valid
+    ctl_app = CONTROLS[kind][0][0]
+    T.CONTROLS[part] = [({k: ctl_app for k in IP4_SPACE} | {"control": True, "control_app": ctl_app},
+                         "a Chronicle-like page: Start and Log session, range chips, %s's chart, statistics tiles, a Goals section, the recent entries unfolded" % ctl_app)]
+    T.TITLES[part] = "T3b.7e The item's page with its function hierarchy: %s (template, period control, height, pin, note and labels as rows or glyphs)" % KINDS[kind]["name"]
+    T.DRAW[part] = lambda v: [page(v)[0]]
+    T.POOL[part] = lambda ok: ([r for r in ok if r.get("front")] +
+                               [min((r for r in ok if not r["v"].get("control") and r["v"][k] == x), key=lambda r: r["total"])
+                                for k in ("height", "template", "period", "extras") for x in IP4_SPACE[k]])   # every height, template, period and form drawn
+    T.DRAW_MAX[part] = 26
+    T.AXES[part] = {"Harmony": ("asym", "balance_h", "balance_v", "rhythm", "edges"), "Hierarchy": ("order_inv", "prom_inv", "-fold_share"),
+                    "Fit": ("fit",), "Readability": ("-min_font", "overlaps", "gcut", "-mark_seen", "-step_seen", "encoding"),
+                    "Calm": ("ink", "noise_seen", "compare", "clutter"), "Mental load": ("load",), "Density": ("unseen", "cut"),
+                    "Glance": ("-glance",), "Taps": ("taps",), "Likeness": ("likeness",), "Consistency": ("-consistency",)}
+    T.WEIGHTS[part] = {"Taps": 2, "Consistency": 2}
+    total = 1
+    for x in IP4_SPACE.values():
+        total *= len(x)
+    # HAND-SET: within 5% of the best on Harmony AND on Hierarchy (Hierarchy co-leads: with Harmony alone, labels and the note
+    # above the tracking panel, 46 rank-gaps of inversions, reached every front, the failure the owner named)
+    T.LEAD[part] = [("Harmony", round(0.05 * 5 * total)), ("Hierarchy", round(0.05 * 3 * total))]   # 5% of each axis's own rank-sum range
+    T.REFS_INFO.add(part)
+    T.SUPERSEDED["ip3_" + kind] = "function hierarchy, a past entry in Log's sheet, a scroll as a tap by importance (owner, 2026-10-17): T3b.7e replaced it"
+    T.SUPERSEDED["ip2_" + kind] = "re-scored from real apps' structures and the function hierarchy (T3b.7d, T3b.7e)"
+    for k, tol in (("_scroll", 0.05),):
+        T.v2.TOL.setdefault(k, tol)
+
+
 def register(ns):
     for kind in KINDS:
         make_part(ns, kind)
@@ -1321,6 +1515,8 @@ def register(ns):
         make_ip2_part(ns, kind)
     for kind in KINDS:
         make_ip3_part(ns, kind)
+    for kind in KINDS:
+        make_ip4_part(ns, kind)
     T = ns["T"]
     T.SUPERSEDED["ipage"] = "its graphs and order settled in the page (T3b.7b, owner 2026-10-17), its contents re-scored with the history folded (T3b.7c)"
     c = dict(order="ngh", period="chips", yaxis="none")   # the owner's picks (2026-10-17); the weight's height still open
