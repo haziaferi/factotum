@@ -40,6 +40,8 @@ The Hub's Routines card already lists Habits, Trackers, Activities, Checklists, 
 
 ## Survey samples left on the phone (to delete when T3's survey ends)
 
+**Removed 2026-10-17** (owner: “Proceed with removing earlier samples inside my own apps”): Loop's Walk and Water deleted; Tendril's Walk and Water moved to its Trash (kept there until purged); Chronicle's tracker Water deleted (Sleep, Reading and the archived activity untouched); Track & Graph's Water deleted. The survey-only apps (Timety, Streak, aTimeLogger, openScale, OpenTracks, drip, Waistline, FitoTrack, Gadgetbridge, Habitify) uninstalled the same day; Daylio's entry deleted, the app kept. Still on the phone from T3b.4: Zazen, Goodtime, Meditation and Time Planner's empty schedule.
+
 - **Loop Habit Tracker** (installed for the T1 survey on 2026-10-05): the sample habits "Walk" (from T1, with today ticked on 2026-10-13) and "Water" (measured: 8 glasses a day, added 2026-10-13).
 - **Tendril debug:** the sample habits "Walk" (Morning) and "Water" (any time, counts glasses, 8 a day), added 2026-10-13.
 - **Chronicle debug** (Data tab): the sample tracker "Water" (a number, no unit) with one reading of 1, added 2026-10-13. The tracker "Sleep", the activity "Reading" and one archived activity were there before and are not ours.
