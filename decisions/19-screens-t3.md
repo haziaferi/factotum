@@ -2302,10 +2302,55 @@ density cannot tell the placements apart:
 - **Heights, measured:** counts 80, 100 or 130 dp; ratings 80; yes/no and choices any (their marks do not grow); minutes 130
   or 180 (at 80 a 30-minute step is 2.4 dp); weight 180 only (a 0.5 kg step 15 dp, against 6.7 at 80).
 
-Status: **T3b.7c scored: the placements are the owner's choice (the measures tie); then T3b.6.**
+Status (then): **T3b.7c scored: the placements are the owner's choice (the measures tie); then T3b.6.**
 
 **Pages cleaned (owner, 2026-10-17: “clean up the HTML files by removing scores and screens of past discarded options”):**
 `toast_opt`'s options and scores pages now show a superseded part as one line, and a decided part as its picks only (the
 options not picked and the controls leave the drawings; the score table keeps the picks and the controls' verdict). Every
 score stays in the part's `t3-<part>.json`. T3b.7 (`ipage`) marked superseded by T3b.7b and T3b.7c. T3 and T2 rebuilt
 (T3 options 3.3 MB to about 1.5, scores 13.9 MB to about 4); T1's pages predate the picks in the machinery and were left.
+
+### T3b.7d The item's page from real apps' structures, with Harmony (owner, 2026-10-17)
+
+The owner: every height drawn for every kind (consistency); chips are not used on other screens; “all large asymmetric
+empty spaces need to be reconsidered as something to avoid, as they break the ‘glance’ flow of the page” (the space
+beside the chips); the page's organisation needs real-world examples for its structure; is Harmony an axis anywhere?
+
+**Harmony found:** not as an axis here (only palette harmony), but the cross-project axis harvest
+(`Sci-Fin/design/axis-catalogue-2026-10-14.md`) holds its parts: unjustified empty space (Factotum `capture_v3.py`),
+visual balance (craftkit imgstat), focal point (`sheet_weight.py`), spacing rhythm (typography-spacing-core).
+
+**Owner's answers:** Harmony = asymmetric empty space, left/right and top/bottom balance “without sacrificing density”,
+spacing rhythm, edge alignment; period controls a full-width segmented control and ‹ October › as T2's calendar (a
+chart swipe dropped: decision 17 has no swipes); the survey from the phone's apps, more FOSS (Droid-ify) and proprietary
+(Aurora); axes T3b.7c's plus Harmony (leads), Likeness to the survey, Consistency raised; weights on a 1–4 scale: Taps 2,
+Consistency 2, the rest 1. Templates (owner): cards, grid, form, flat.
+
+**The structure survey** (`_screens-sources/t3/goals/structure/notes.md`, geometry only, placeholder data deleted, the
+ten survey apps uninstalled; Daylio, Bearable and the budget app kept with our data removed): Daylio (one ‹ month ›
+header for the whole statistics page, full-width cards, a card's foot filled at both ends), Habitify (← name ✦ ⋮, tabs,
+one full-width ‹ ott, 2026 ⌄ › header, a streak card, statistics as tiles in pairs, a calendar card, chart cards),
+Waistline (full-width dropdowns stacked before the chart, a folded timeline), FitoTrack (a two-column label/value grid
+before and after each chart), a budget app (a card row two-thirds full: the lopsided gap), Bearable (account wall,
+skipped), Gadgetbridge (needs a device; from its listing).
+
+**Part `ip3_*`**, 384 pages a kind: template × period control × height 80 / 100 / 130 / 180 dp × past entry × pin ×
+note and labels; two facts a kind in every template. Harmony measured: asymmetric empty area of every row of boxes, the
+first screen's ink split both ways (screenshots through the kept-open browser), gaps between blocks, distinct edges.
+Harmony leads within 5% of its rank-sum range (hand-set).
+
+**Fixed on the way:** the labels row left 183 dp empty at its right (“+ label” now at the right edge), and the history
+line 189 dp (its chevron now at the right edge): design fixes the measure found, applied to every option; the control
+page's rows escaped the asymmetry measure (rows now found by kind); the tools' plugin paths pointed at the old
+`gold-standard-local` marketplace (now any marketplace).
+
+**Result: every control lost.** Once the rows are filled at both ends, Harmony turns on balance, mostly top/bottom:
+- **Cards (Habitify, Daylio) leads four kinds** (ratings, choices, minutes, weight): the graph in a card and paired tiles
+  spread the ink down the screen (top/bottom imbalance 0.06–0.08 against 0.22–0.28 for flat).
+- **Flat leads counts and yes/no**, whose graphs are light; grid follows close; form (folded statistics) is last everywhere.
+- **‹ October › leads the totals** (consistency with T2, weight 2); the segmented control stays on every front.
+- Heights: ratings 80 first; minutes and weight 130; choices 130; counts and yes/no any (their marks do not grow).
+- The past entry on the history line or by a long press; beside the log control only for counts.
+
+Status: **T3b.7d scored: the owner picks the template (one for every kind, or per kind), the period control and the
+height; then T3b.6.**

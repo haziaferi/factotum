@@ -1055,6 +1055,263 @@ def make_ip2_part(ns, kind):
     T.REFS_INFO.add(part)
 
 
+# ==== T3b.7d: the item's page from real apps' structures, with Harmony (owner, 2026-10-17) ========================================
+"""
+  The owner: every height drawn for every kind (consistency); chips are not used elsewhere; "all large asymmetric empty
+  spaces need to be reconsidered as something to avoid, as they break the glance flow of the page"; the page's
+  organisation taken from real apps' structures (survey: _screens-sources/t3/goals/structure/notes.md: Daylio, Habitify,
+  Waistline, FitoTrack, a budget app; Loop, Chronicle, openScale and drip from the graph survey).
+  Templates (owner): cards (Habitify, Daylio: the period as one full-width header, the graph in a card, the statistics as
+  paired tiles), grid (FitoTrack: the statistics as a two-column label/value grid above the graph), form (Waistline: the
+  period as a labelled full-width row, the statistics folded under the graph), flat (T3b.7c: a statistics line).
+  Period (owner): a full-width segmented control (7 d / 30 d / 1 y) or "‹ October ›" as T2's calendar (no swipes,
+  decision 17). Every kind's picked graph at 80 / 100 / 130 / 180 dp; the past entry, the pin, the note and labels as
+  T3b.7c. Two facts per kind everywhere, so no template shows more than another.
+  Harmony (owner: visual balance both ways without sacrificing density, asymmetric empty space, left/right and top/bottom
+  balance, spacing rhythm, edge alignment):
+    asym      the empty area on one side only of every row of boxes (controls, chips, tiles, a statistics line), dp^2
+              over the first screen's area (a row's two margins differing by more than 8 dp);
+    balance   the first screen's ink (luma departing from the ground) split left/right and top/bottom, |share - 0.5|,
+              from a screenshot through the kept-open browser (~/.claude/tools/headless_browser.py);
+    rhythm    the vertical gaps between the page's blocks: distinct values, and those not a multiple of 4 dp;
+    edges     distinct left and right edges of the page's blocks.
+  Harmony leads (owner): only pages within 5% of the rank-sum range of the best Harmony reach the front (HAND-SET).
+  Weights (owner, a 1-4 scale): Taps 2, Consistency 2, the rest 1. Likeness: the edit distance of the page's block
+  sequence to the nearest surveyed app's (token map HAND-SET).
+"""
+import os as _os
+import sys as _sys
+
+_sys.path.insert(0, _os.path.expanduser(r"~\.claude\tools"))
+IP3_SPACE = {"template": ["cards", "grid", "form", "flat"], "period": ["segmented", "month"], "height": [80, 100, 130, 180],
+             "past": ["beside", "histline", "longpress"], "pin": ["header", "goal"], "notes": ["top", "bottom"]}
+IP3_CSS = """
+.seg{display:flex;border-radius:24px;box-shadow:inset 0 0 0 1px var(--dim);overflow:hidden;margin:4px 0}.seg span{flex:1;min-height:48px;display:grid;place-items:center;font-size:13px}
+.seg span.on{background:var(--zone2);font-weight:600}
+.card{border-radius:12px;box-shadow:inset 0 0 0 1px var(--zone2);padding:8px 12px}
+.ip3t{display:grid;grid-template-columns:1fr 1fr;gap:8px}.ip3t div{border-radius:12px;background:var(--zone2);padding:8px 12px}.ip3t b{display:block;font-size:20px}.ip3t s{text-decoration:none;font-size:12px;color:var(--dim)}
+.ip3g{display:grid;grid-template-columns:1fr 1fr;gap:2px 16px;margin:4px 0}.ip3g s{display:block;text-decoration:none;font-size:12px;color:var(--dim)}.ip3g b{display:block;font-size:17px;font-weight:600}
+.ip3l{display:flex;justify-content:space-between;font-size:14px;margin:4px 0}.ip3f{font-size:12px;color:var(--dim);margin:6px 0 0}
+"""
+SURVEY_SEQ = {"habitify": ["period", "card", "tiles", "calendar", "chart", "chart"], "daylio": ["period", "card", "chart", "card"],
+              "fitotrack": ["grid", "chart", "grid"], "waistline": ["period", "chart", "folded"], "loop": ["tiles", "chart", "chart", "calendar", "list"],
+              "chronicle": ["log", "period", "chart", "tiles", "list"], "openscale": ["chart", "list"]}
+
+
+def ip3_facts(kind):
+    """Two facts per kind, as (value, label)."""
+    vals = [x for x in KINDS[kind]["vals"] if x is not None]
+    if kind == "count":
+        return [("%d" % round(sum(vals) / len(vals)), "usual a day"), ("%d" % sum(vals), "this month")]
+    if kind == "rating":
+        return [("%.1f" % (sum(vals) / len(vals)), "usual"), ("%d" % sum(1 for x in vals if x <= 2), "low days")]
+    if kind == "yesno":
+        gap = run = 0
+        for d in WALK:
+            run = 0 if d else run + 1
+            gap = max(gap, run)
+        return [("%d" % sum(WALK), "days this month"), ("%d days" % gap, "longest gap")]
+    if kind == "choice":
+        top = max(CHOICES, key=lambda k: sum(1 for x in LUNCH if x == k))
+        return [(top, "most often"), ("%d of %d" % (sum(1 for x in LUNCH if x == top), len(vals)), "days %s" % top)]
+    if kind == "add":
+        return [("%d min" % sum(vals), "this month"), ("%d min" % round(sum(vals) / len(vals)), "usual a day")]
+    return [("%+.1f kg" % (vals[-1] - vals[0]), "this month"), ("%.1f" % min(vals), "lowest")]
+
+
+def ip3_period(v):
+    if v["period"] == "segmented":
+        return '<div class="seg" data-row="box" data-sec="period"><span data-tap="Range 7d">7 d</span><span class="on" data-tap="Range 30d">30 d</span><span data-tap="Range 1y">1 y</span></div>'
+    return ('<div class="ipr" data-row="box" data-sec="period"><span data-tap="Range prev">‹</span><span class="mo" data-tap="Range month">October 2026</span>'
+            '<span data-tap="Range next">›</span></div>')
+
+
+def ip3_page(kind, v, kit):
+    global H
+    e = kit.e
+    pg = PAGES[kind]
+    with LOCK:
+        old = H
+        H = 130 if v.get("control") else v["height"]
+        try:
+            m = draw(kind, {"control": True, "control_app": CONTROLS[kind][0][0]} if v.get("control") else dict(IP2_PICK[kind]))
+        finally:
+            H = old
+    if v.get("control"):
+        html, _ = ip2_page(kind, v, kit)
+        return html, m, ["log", "chips", "chart", "tiles", "goal", "list"]
+    facts = ip3_facts(kind)
+    head_btns = ((("\U0001f4cc", "Pin"),) if v["pin"] == "header" else ()) + (("⚙", "Settings"),)
+    pin = '<span data-tap="Pin" style="min-width:48px;min-height:48px;display:grid;place-items:center">\U0001f4cc</span>' if v["pin"] == "goal" else ""
+    # the labels at the left, "+ label" at the right edge: the row was lopsided, 183 dp empty at its right (Harmony, 2026-10-17)
+    notes = ('<div data-sec="notes"><div class="ipr" data-row="box" style="justify-content:space-between"><span data-tap="Labels">%s</span><span data-tap="Labels add">+ label</span></div>'
+             '<div class="ipl" data-tap="Note"><span class="t" style="color:var(--dim)">Add a note</span></div></div>') % IP2_LABELS[kind]
+    ctl = '<span class="c" data-tap="Now control">%s</span>' % e(pg["ctl"])
+    if kind == "add":
+        ctl += '<span class="c" data-tap="Paced" style="background:var(--zone2);color:var(--ink)">⏱</span>'
+    if v["past"] == "beside":
+        ctl += '<span class="c" data-tap="Past entry" style="background:none;box-shadow:inset 0 0 0 1px var(--dim);color:var(--ink)">Earlier…</span>'
+    now = '<div class="ipn" data-sec="now" data-row="box"><span class="v"><b>%s</b><s>%s</s></span>%s</div>' % (e(pg["now"][0]), e(pg["now"][1]), ctl)
+    goal_text = IP2_GOAL.get(kind)
+    goal = '<div data-sec="goal" class="ipl"><span class="t" data-tap="Goal"%s>%s</span>%s</div>' % (
+        "" if goal_text else ' style="color:var(--dim)"', e(goal_text or "Set a goal"), pin)
+    # the line's two ends filled: "+ Add past" or the chevron at the right edge (the lone text left 189 dp empty, 2026-10-17)
+    hist = '<div data-sec="hist" class="ipl" data-row="box" style="justify-content:space-between"><span data-tap="History">History · %d entries</span>%s</div>' % (
+        len(pg["hist"]), '<span data-tap="Past entry" style="min-height:48px;display:grid;place-items:center;padding:0 8px">+ Add past</span>' if v["past"] == "histline"
+        else '<span style="min-width:48px;min-height:48px;display:grid;place-items:center">›</span>')
+    t = v["template"]
+    if t == "cards":
+        stats = '<div data-sec="stats" class="ip3t" data-row="box">%s</div>' % "".join("<div><b>%s</b><s>%s</s></div>" % (e(a), e(b)) for a, b in facts)
+        body = now + goal + ip3_period(v) + '<div class="card" data-sec="graph">%s</div>' % m["html"] + stats + '<div class="card">%s</div>' % hist
+        seq = ["log", "goal", "period", "card", "chart", "tiles", "list"]
+    elif t == "grid":
+        stats = '<div data-sec="stats" class="ip3g" data-row="box">%s</div>' % "".join("<div><s>%s</s><b>%s</b></div>" % (e(b), e(a)) for a, b in facts)
+        body = now + goal + stats + ip3_period(v) + '<div data-sec="graph">%s</div>' % m["html"] + hist
+        seq = ["log", "goal", "grid", "period", "chart", "list"]
+    elif t == "form":
+        period = '<div class="ip3f">Period</div>' + ip3_period(v)
+        stats = '<div data-sec="stats" class="ipl" data-row="box" style="justify-content:space-between"><span data-tap="Stats">Statistics · %d</span><span>›</span></div>' % len(facts)
+        body = now + goal + period + '<div data-sec="graph">%s</div>' % m["html"] + stats + hist
+        seq = ["log", "goal", "period", "chart", "folded", "list"]
+    else:
+        stats = '<div data-sec="stats" class="ip3l" data-row="box">%s</div>' % "".join("<span><b>%s</b> %s</span>" % (e(a), e(b)) for a, b in facts)
+        body = now + goal + stats + ip3_period(v) + '<div data-sec="graph">%s</div>' % m["html"] + hist
+        seq = ["log", "goal", "line", "period", "chart", "list"]
+    if v["notes"] == "top":
+        body, seq = notes + body, ["notes"] + seq
+    else:
+        body, seq = body + notes, seq + ["notes"]
+    html = kit.phone(kit.header(KINDS[kind]["name"], head_btns, ("‹", "Back")), '<div class="zone" style="padding-bottom:8px">%s</div>' % body, kit.bar("Hub"))
+    return html, m, seq
+
+
+def edit_distance(a, b):
+    d = list(range(len(b) + 1))
+    for i, x in enumerate(a, 1):
+        prev, d[0] = d[0], i
+        for j, y in enumerate(b, 1):
+            prev, d[j] = d[j], min(d[j] + 1, d[j - 1] + 1, prev + (x != y))
+    return d[len(b)]
+
+
+def likeness(seq):
+    core = [s for s in seq if s not in ("goal", "notes")]   # the item's own extras, absent from every surveyed app
+    return round(min(edit_distance(core, s) / max(len(core), len(s)) for s in SURVEY_SEQ.values()), 3)
+
+
+HARMONY_JS = r"""(function(){var z=document.querySelector('.zone'),zb=z.getBoundingClientRect(),bar=document.querySelector('.bar').getBoundingClientRect().top;
+var ph=document.querySelector('.phone').getBoundingClientRect(),hd=document.querySelector('.hdr').getBoundingClientRect();
+var o={asym:0,gaps:[],lefts:{},rights:{},phone:[ph.left,ph.top,ph.width,ph.height],content:[hd.bottom-ph.top,bar-ph.top]};
+document.querySelectorAll('[data-row=box],.ipr,.ipt,.ipn,.seg').forEach(function(r){var b=r.getBoundingClientRect();if(b.top>=bar||b.height==0)return;
+ var L=1e9,R=-1e9;[].slice.call(r.children).forEach(function(c){var cb=c.getBoundingClientRect();if(cb.width==0)return;L=Math.min(L,cb.left);R=Math.max(R,cb.right)});
+ if(L>R)return;var el=L-b.left,er=b.right-R,d=Math.abs(el-er);if(d>8)o.asym+=(d-8)*Math.min(b.height,bar-b.top)});
+var kids=[].slice.call(z.children).map(function(c){return c.getBoundingClientRect()}).filter(function(b){return b.height>0&&b.top<bar});
+kids.sort(function(a,b){return a.top-b.top});
+for(var i=1;i<kids.length;i++)o.gaps.push(Math.round(kids[i].top-kids[i-1].bottom));
+kids.forEach(function(b){o.lefts[Math.round(b.left/2)*2]=1;o.rights[Math.round(b.right/2)*2]=1});
+o.lefts=Object.keys(o.lefts).length;o.rights=Object.keys(o.rights).length;return o})()"""
+
+
+def ip3_balance(doc_html, key, geom):
+    """The first screen's ink split left/right and top/bottom, from a screenshot through the kept-open browser."""
+    import headless_browser as hb
+    from PIL import Image
+    shots = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "..", "..", "_screens-sources", "t3", "harmony-shots")
+    _os.makedirs(shots, exist_ok=True)
+    png = _os.path.join(shots, key + ".png")
+    hb.screenshot(doc_html, png, 660, 1040)   # the probe's viewport, so the phone sits where it was measured
+    x, y, w, h = geom["phone"]
+    top, bottom = geom["content"]
+    im = Image.open(png).convert("L").crop((int(x), int(y + top), int(x + w), int(y + bottom)))
+    _os.remove(png)
+    px = im.load()
+    W_, H_ = im.size
+    hist = im.histogram()
+    ground = max(range(256), key=lambda i: hist[i])
+    left = right = upper = lower = 0.0
+    for j in range(0, H_, 2):
+        for i in range(0, W_, 2):
+            m = abs(px[i, j] - ground) / 255.0
+            if m < 0.04:
+                continue
+            if i < W_ / 2:
+                left += m
+            else:
+                right += m
+            if j < H_ / 2:
+                upper += m
+            else:
+                lower += m
+    tot = (left + right) or 1
+    return abs(left / tot - 0.5), abs(upper / tot - 0.5)
+
+
+IP3_REACH = ("Now control", "Past entry", "Pin", "Note", "Labels", "History", "Range 1y", "Settings", "Goal")
+
+
+def make_ip3_part(ns, kind):
+    T, kit, ipdoc = ns["T"], ns["kit"], ns["ipdoc"]
+    js = "(function(){var a=%s;var b=%s;var c=%s;a.gcut=b.cut;a.min_font=b.min_font;a.overlaps=b.overlaps;a.h=c;return a})()" % (IP2_JS, GK_JS, HARMONY_JS)
+
+    def page(v):
+        html, m, seq = ip3_page(kind, v, kit)
+        return ipdoc(html).replace("</style>", IP3_CSS + "</style>", 1), m, seq
+
+    def score(v):
+        d, m, seq = page(v)
+        key = "ip3-%s-%s" % (kind, "-".join(str(x) for x in v.values()))
+        b = T.probe(d, key, js)
+        ctl = v.get("control")
+        hb_, vb_ = ip3_balance(d, key, b["h"])
+        costs, _ = answer_costs(kind, {"control": True, "control_app": CONTROLS[kind][0][0]} if ctl else dict(IP2_PICK[kind]), m)
+        taps = sum((1 + (0 if b["taps"][t] else 1)) if t in b["taps"] else 3 for t in IP3_REACH) + (1 if (not ctl and v["past"] == "longpress") else 0) + 2
+        if not ctl and v["template"] == "form":
+            taps += 1 + (0 if b["seen"].get("stats") else 1)   # the folded statistics opened
+        year = 1 if (ctl or v["period"] == "segmented") else 2   # a year: one segment, or the month's picker then the year
+        taps += year - 1
+        seen = b["seen"]
+        glance = sum(seen.get(k, 0) for k in ("now", "goal", "graph", "hist")) + (seen.get("stats", 0) if (not ctl and v["template"] != "form") else 0)
+        load = sum(costs) + b["numbers"] / 10 + (m["series"] - 1) * 0.5 + m["legend"]
+        gaps = b["h"]["gaps"]
+        consistency = 0 if ctl else (1 if v["period"] == "month" else 0) + (1 if v["pin"] == "goal" else 0)
+        fold_area = 360.0 * max(1, b["h"]["content"][1] - b["h"]["content"][0])
+        return {"fit": sum(m["misfit"].values()), "min_font": b["min_font"], "overlaps": b["overlaps"], "gcut": b["gcut"],
+                "mark_seen": min(m["min_mark"], MARK_ENOUGH), "step_seen": min(m["step_px"], STEP_ENOUGH), "step_px": m["step_px"],
+                "encoding": CTL_ENCODING.get((kind, CONTROLS[kind][0][0]), ENCODING[CONTROLS[kind][0][0]]) if ctl else ENCODING[IP2_PICK[kind]["form"]],
+                "ink": m["ink"], "noise_seen": max(m["noise_px"], NOISE_FLAT), "compare": m["compare"], "clutter": b["clutter"],
+                "load": round(load, 2), "unseen": b["unseen"], "cut": b["cut"], "glance": glance, "taps": taps,
+                "hidden": 1 if (not ctl and v["past"] == "longpress") else 0, "consistency": consistency,
+                "asym": round(b["h"]["asym"] / fold_area, 4), "balance_h": round(hb_, 3), "balance_v": round(vb_, 3),
+                "rhythm": len(set(gaps)) + sum(1 for g in gaps if g % 4), "edges": b["h"]["lefts"] + b["h"]["rights"] - 2,
+                "likeness": likeness(seq), "seq": " ".join(seq), "small": []}
+
+    part = "ip3_" + kind
+    T.SPACES[part] = dict(IP3_SPACE)
+    T.SCORERS[part] = score
+    T.VALID[part] = lambda v: True
+    ctl_app = CONTROLS[kind][0][0]
+    T.CONTROLS[part] = [({k: ctl_app for k in IP3_SPACE} | {"control": True, "control_app": ctl_app},
+                         "a Chronicle-like page: Start and Log session, range chips, %s's chart, statistics tiles, a Goals section, the recent entries unfolded" % ctl_app)]
+    T.TITLES[part] = "T3b.7d The item's page from real apps' structures, with Harmony: %s (template, period control, height, past entry, pin, note and labels)" % KINDS[kind]["name"]
+    T.DRAW[part] = lambda v: [page(v)[0]]
+    T.POOL[part] = lambda ok: ([r for r in ok if r.get("front")] +
+                               [min((r for r in ok if not r["v"].get("control") and r["v"][k] == x), key=lambda r: r["total"])
+                                for k in ("height", "template", "period") for x in IP3_SPACE[k]])   # every height, template and period drawn (owner)
+    T.DRAW_MAX[part] = 24
+    T.AXES[part] = {"Harmony": ("asym", "balance_h", "balance_v", "rhythm", "edges"), "Fit": ("fit",),
+                    "Readability": ("-min_font", "overlaps", "gcut", "-mark_seen", "-step_seen", "encoding"),
+                    "Calm": ("ink", "noise_seen", "compare", "clutter"), "Mental load": ("load",), "Density": ("unseen", "cut"),
+                    "Glance": ("-glance",), "Taps": ("taps",), "Discoverability": ("hidden",), "Likeness": ("likeness",), "Consistency": ("-consistency",)}
+    T.WEIGHTS[part] = {"Taps": 2, "Consistency": 2}
+    n = 1
+    for x in IP3_SPACE.values():
+        n *= len(x)
+    T.LEAD[part] = ("Harmony", round(0.05 * 5 * (n + 1)))   # HAND-SET: within 5% of the Harmony rank-sum range of the best
+    T.REFS_INFO.add(part)
+    for k, tol in (("_asym", 0.002), ("_balance_h", 0.01), ("_balance_v", 0.01)):
+        T.v2.TOL.setdefault(k, tol)
+
+
 def register(ns):
     for kind in KINDS:
         make_part(ns, kind)
@@ -1062,6 +1319,8 @@ def register(ns):
         make_page_part(ns, kind)
     for kind in KINDS:
         make_ip2_part(ns, kind)
+    for kind in KINDS:
+        make_ip3_part(ns, kind)
     T = ns["T"]
     T.SUPERSEDED["ipage"] = "its graphs and order settled in the page (T3b.7b, owner 2026-10-17), its contents re-scored with the history folded (T3b.7c)"
     c = dict(order="ngh", period="chips", yaxis="none")   # the owner's picks (2026-10-17); the weight's height still open

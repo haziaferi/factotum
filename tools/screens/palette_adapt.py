@@ -36,7 +36,7 @@ OUT_HTML = os.path.join(ROOT, "docs", "screens", "t0", "palette-adapted.html")
 OUT_MD = os.path.join(ROOT, "docs", "screens", "t0", "palette-adapted.md")
 RUNS = os.path.join(ROOT, "_screens-sources", "palette-adapt")
 ENGINE = os.path.dirname(sorted(glob.glob(os.path.expanduser(
-    "~/.claude/plugins/cache/gold-standard-local/design-optimization/*/engine/designkit_cli.py")))[-1])
+    "~/.claude/plugins/cache/*/design-optimization/*/engine/designkit_cli.py")))[-1])
 DK = os.path.join(ENGINE, "designkit_cli.py")
 GROUND = {"light": "#F4F4F2", "dark": "#17181A"}
 ROLES = ["primary", "secondary", "accent", "surface", "text"]

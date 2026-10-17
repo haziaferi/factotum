@@ -50,7 +50,7 @@ import screen_score as ss  # noqa: E402
 import tier_t1 as t  # noqa: E402
 
 CRAFT = sorted(glob.glob(os.path.expanduser(r"~/.claude/plugins/synced/*/creative-design-suite/engine")))[-1]
-DESIGN = sorted(glob.glob(os.path.expanduser(r"~/.claude/plugins/cache/gold-standard-local/design-optimization/*/engine")))[-1]
+DESIGN = sorted(glob.glob(os.path.expanduser(r"~/.claude/plugins/cache/*/design-optimization/*/engine")))[-1]
 sys.path[:0] = [CRAFT, DESIGN]
 from craftkit import imgstat  # noqa: E402
 from designkit import layout as dk_layout  # noqa: E402

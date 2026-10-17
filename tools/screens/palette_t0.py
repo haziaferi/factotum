@@ -19,7 +19,7 @@ import subprocess
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 OUT_MD = os.path.join(ROOT, "docs", "screens", "t0", "palette.md")
 OUT_HTML = os.path.join(ROOT, "docs", "screens", "t0", "palette.html")
-DK = sorted(glob.glob(os.path.expanduser("~/.claude/plugins/cache/gold-standard-local/design-optimization/*/engine/designkit_cli.py")))[-1]
+DK = sorted(glob.glob(os.path.expanduser("~/.claude/plugins/cache/*/design-optimization/*/engine/designkit_cli.py")))[-1]
 
 # ---- the owner's keywords (★ = picked with the oblique skill) and the lexicon colour each hue comes from ----
 MODULES = [
