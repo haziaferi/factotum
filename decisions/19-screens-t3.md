@@ -2303,3 +2303,9 @@ density cannot tell the placements apart:
   or 180 (at 80 a 30-minute step is 2.4 dp); weight 180 only (a 0.5 kg step 15 dp, against 6.7 at 80).
 
 Status: **T3b.7c scored: the placements are the owner's choice (the measures tie); then T3b.6.**
+
+**Pages cleaned (owner, 2026-10-17: “clean up the HTML files by removing scores and screens of past discarded options”):**
+`toast_opt`'s options and scores pages now show a superseded part as one line, and a decided part as its picks only (the
+options not picked and the controls leave the drawings; the score table keeps the picks and the controls' verdict). Every
+score stays in the part's `t3-<part>.json`. T3b.7 (`ipage`) marked superseded by T3b.7b and T3b.7c. T3 and T2 rebuilt
+(T3 options 3.3 MB to about 1.5, scores 13.9 MB to about 4); T1's pages predate the picks in the machinery and were left.

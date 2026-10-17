@@ -935,6 +935,9 @@ def scores_page():
     for p in sorted(SPACES):
         if not os.path.exists(os.path.join(OUT, PREFIX + "-%s.json" % p)):
             continue
+        if p in SUPERSEDED:   # discarded: one line; every score stays in the JSON record (owner, 2026-10-17)
+            out.append('<p class=dim id="%s"><b>%s</b>: superseded (%s). Every score is kept in <code>%s-%s.json</code>.</p>' % (p, H.escape(TITLES[p]), H.escape(SUPERSEDED[p]), PREFIX, p))
+            continue
         rows, ok, axes = ranked(p)
         ctls = [r for r in rows if r.get("control")]
         ctl = min(ctls, key=lambda r: r.get("total", 1e9))   # the best control: the one the verdict counts against
@@ -952,6 +955,9 @@ def scores_page():
                 return "∞"
             return "%g" % x if isinstance(x, (int, float)) else H.escape(str(x))
         order = sorted(rows, key=lambda r: (r not in ok, not r.get("front"), r.get("total", 1e9)))
+        picked = PICKED.get(p)
+        if picked:   # decided: the picks and the controls; the rest in the JSON record
+            order = [r for r in order if r.get("control") or any(all(r["v"].get(k) == x for k, x in w.items()) for w in picked)]
         head = "".join("<th>%s</th>" % k for k in vk) + "".join("<th>%s</th>" % c for c in cols) + "".join("<th class=ax>%s</th>" % a for a in axes) + "<th class=ax>sum</th><th>front</th><th>gate</th>"
         body = []
         for r in order:
@@ -967,6 +973,7 @@ def scores_page():
         verdict = (("<b>Control lost:</b> off the front; %d of %d passing variants have a lower sum." if len(ctls) == 1 else
                      "<b>Every control lost:</b> all off the front; %d of %d passing variants have a lower sum than the best control.") % (worse, len(ok) - len(ctls))) if lost[p] else "<b>CONTROL DID NOT LOSE.</b>"
         doc_ = ""
+        doc_ = ('<p class=dim><b>Picked.</b> Only the picks and the controls are shown; every other row is kept in <code>%s-%s.json</code>.</p>' % (PREFIX, p)) if picked else ""
         out.append('<h2 id="%s">%s</h2><p class=dim>%d variants and the control · %d pass the gate · %d on the front (★).</p>%s<p class=dim>Axes, lower is better: %s.</p>'
                    '<p>Control: %s. %s</p><div class=wrap><table><tr>%s</tr>%s</table></div>' % (
                        p, TITLES[p], len(rows) - len(ctls), len(ok), sum(1 for r in ok if r.get("front")), doc_, axis_line, " · ".join(H.escape(c["why"]) for c in ctls), verdict, head, "".join(body)))
@@ -1033,7 +1040,7 @@ def options_page():
         if not os.path.exists(os.path.join(OUT, PREFIX + "-%s.json" % p)):
             continue
         if p in SUPERSEDED:   # discarded screens are not drawn (owner, 2026-10-16: "Delete past discarded screens"); the scores and the record stay
-            secs.append('<p class=dim><b>%s</b>: superseded (%s). Drawings removed; its scores stay in <a href="%s-scores.html#%s">the tables</a>.</p>' % (H.escape(TITLES[p]), H.escape(SUPERSEDED[p]), PREFIX, p))
+            secs.append('<p class=dim><b>%s</b>: superseded (%s). Every score is kept in <code>%s-%s.json</code>.</p>' % (H.escape(TITLES[p]), H.escape(SUPERSEDED[p]), PREFIX, p))
             continue
         rows, ok, axes = ranked(p)
         # small parts: every option drawn (the owner chooses among them); large ones: the front, lowest sum first, up to four
@@ -1044,6 +1051,8 @@ def options_page():
         is_pick = lambda r: any(all(r["v"].get(k) == x for k, x in want.items()) for want in PICKED.get(p, []))
         fr += [r for r in ok if is_pick(r) and r not in fr and not r.get("control")]   # a pick is drawn even off the first six
         ctls = [r for r in rows if r.get("control")]
+        if p in PICKED:   # decided: only the picks are drawn; what was not picked, and the control, stay in the JSON record
+            fr, ctls = [r for r in ok if is_pick(r) and not r.get("control")], []
         figs = []
         for r in fr + ctls:
             v = r["v"]
@@ -1080,8 +1089,8 @@ def options_page():
             n = len(rows_drawn)
             picked = [f for r, f in zip(rows_drawn, figs[:n]) if is_pick(r)]
             rest = [f for r, f in zip(rows_drawn, figs[:n]) if not is_pick(r)] + figs[n:]
-            secs.append('<h2>%s <span class=dim>· picked</span></h2>%s<div class=flex>%s</div><details><summary>Not picked (%d), and the control</summary><div class=flex>%s</div></details>' % (
-                TITLES[p], note, "".join(picked), len(rest) - 1, "".join(rest)))
+            secs.append('<h2>%s <span class=dim>· picked</span></h2><p class=dim>The options not picked and the control are kept in <code>%s-%s.json</code>.</p><div class=flex>%s</div>' % (
+                TITLES[p], PREFIX, p, "".join(picked + rest)))
         else:
             secs.append('<h2>%s</h2><p class=dim>Every option where there are seven or fewer (★ on the front), otherwise the front, lowest sum first; then the control. Every row is in <a href="%s-scores.html#%s">the tables</a>.</p><div class=flex>%s</div>' % (
                 TITLES[p], PREFIX, p, "".join(figs)))
