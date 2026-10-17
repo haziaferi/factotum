@@ -2249,4 +2249,26 @@ below the fold, and stays on the fronts only on that trade. The height depends o
 - Minutes (Reading): the running total against the goal's pace or a line at 80 px; lollipops, bars under a 7-day mean.
 - Weight: dots in the plausible range with today's value at 180 px (a 0.5 kg step 15 px tall), or at 80 px (6.7 px).
 
-Status: **T3b.7b scored: awaiting the owner's pick per kind (and so the order and height); then T3b.6.**
+Status (then): **T3b.7b scored: awaiting the owner's pick per kind (and so the order and height); then T3b.6.**
+
+**The owner's picks (2026-10-17):** every page now, graph, history (`ngh`), the period as 7 d / 30 d / 1 y chips, no y-axis:
+
+| Kind | Graph | Values printed | Range | Height | Its rank |
+|---|---|---|---|---|---|
+| Counts (Water) | a dot per glass | none | from zero | 80 px | 5th of 782, front |
+| Ratings (Mood) | a dot per day at its level | today's | the scale | 80 px | 1st of 566 |
+| Yes/no (Walk) | a mark per day | “18 of 30 days” | - | 80 px | 1st of 290 |
+| Choices (Lunch) | a letter per day | none | - | 80 px | 1st of 122 |
+| Minutes (Reading) | the month's running total against the goal's pace | none | from zero | 80 px | 1st of 866 |
+| Weight | dots | today's | plausible | **open: 180 or 80** | 180 1st, 80 5th of 2,306 |
+
+- **Every past log, everywhere, hidden under a collapsed line** (owner). The history no longer competes with the graph
+  for the fold, so the heights above were measured against a page that no longer exists: they hold until the page is
+  re-scored with its new contents.
+- **On the item's page** (owner): the log control; the Paced timer's controls; optionally a goal and a reminder tied to
+  it; a button opening the item's settings as a bottom sheet; “something else?” asked.
+- The weight's height, asked: the dots are 6.4 px at every height; what shrinks at 80 px is the room between values (a
+  0.5 kg step 6.7 px, about one dot, against 15 px at 180), the month's 1.9 kg trend about 25 px against 57.
+
+Status: **T3b.7b picked (the weight's height open); next the item's page re-scored with its new contents and the history
+folded; then T3b.6.**

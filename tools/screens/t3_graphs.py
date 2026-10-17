@@ -906,3 +906,9 @@ def register(ns):
         make_part(ns, kind)
     for kind in KINDS:
         make_page_part(ns, kind)
+    T = ns["T"]
+    c = dict(order="ngh", period="chips", yaxis="none")   # the owner's picks (2026-10-17); the weight's height still open
+    T.PICKED.update({"gp_add": [dict(c, form="cumul", values="none", range="zero", height=80)], "gp_choice": [dict(c, form="strip", values="none", height=80)],
+                     "gp_count": [dict(c, form="dots", values="none", range="zero", height=80)], "gp_rating": [dict(c, form="strip", values="last", height=80)],
+                     "gp_yesno": [dict(c, form="ticks", values="last", height=80)],
+                     "gp_level": [dict(c, form="dots", values="last", range="plausible", height=180), dict(c, form="dots", values="last", range="plausible", height=80)]})
