@@ -2270,5 +2270,36 @@ Status (then): **T3b.7b scored: awaiting the owner's pick per kind (and so the o
 - The weight's height, asked: the dots are 6.4 px at every height; what shrinks at 80 px is the room between values (a
   0.5 kg step 6.7 px, about one dot, against 15 px at 180), the month's 1.9 kg trend about 25 px against 57.
 
-Status: **T3b.7b picked (the weight's height open); next the item's page re-scored with its new contents and the history
+Status (then): **T3b.7b picked (the weight's height open); next the item's page re-scored with its new contents and the history
 folded; then T3b.6.**
+
+### T3b.7c The item's page with its new contents (owner, 2026-10-17)
+
+The owner's answers: heights re-scored in the new page, 100 dp added, everything measured in dp (the mock is 360 dp wide;
+its CSS px are dp); on the page a note the user adds, labels, Undo of the last log, adding a past entry, Pin to Today, and a
+statistics line scored against the graph conveying the same; in the settings sheet the habits built on it, labels, Delete
+(to the Trash) and a counter goal's reset; editing an entry scored later. Placements scored (owner: “score all”): a past
+entry beside the log control, on the folded history line, or by a long press; the pin in the header or on the goal line;
+the note and labels under the name or at the bottom. The statistics per kind as proposed (counts usual a day and the month's
+total; ratings usual; yes/no days this month and the longest gap; choices the most often; minutes the month's total and
+usual a day; weight the month's change and the lowest). Axes T3b.7b's, taps now to every element (a missing one costs 3),
+plus discoverability (a long press is hidden) and clutter (tap targets and text pieces on the first screen, in Calm).
+Parts `ip2_*`, 144 pages a kind; the control a Chronicle-like page (Log session, range chips, the kind's app chart, tiles,
+Goals, recent entries unfolded).
+
+**Fixed on the way:** ink was measured over the chart's own area, so a taller chart with the same marks read calmer (yes/no
+and choices first came out best at 180; **T3b.7b's height ranks carried the same bias**, now superseded here); ink is over a
+fixed 130 dp plot. Clutter counted text in the page's body only, so the header's pin went uncounted; density counted
+sections, so statistics carried by the graph counted one fewer; the statistics line was one text piece against two in the
+graph. All three corrected.
+
+**Result: every control lost; with the history folded, every option fits on the first screen**, so taps, glance and
+density cannot tell the placements apart:
+- the note and labels at the top or the bottom, the pin in the header or on the goal line, and the past entry's three
+  places all reach the fronts in equal numbers; a long press trades a hidden control for one item less on screen;
+- the statistics: a line or the graph carrying them tie (the same facts, the same pieces); none trades a lower mental load
+  (the facts read, not worked out) for fewer pieces on screen.
+- **Heights, measured:** counts 80, 100 or 130 dp; ratings 80; yes/no and choices any (their marks do not grow); minutes 130
+  or 180 (at 80 a 30-minute step is 2.4 dp); weight 180 only (a 0.5 kg step 15 dp, against 6.7 at 80).
+
+Status: **T3b.7c scored: the placements are the owner's choice (the measures tie); then T3b.6.**

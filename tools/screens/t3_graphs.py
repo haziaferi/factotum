@@ -387,7 +387,7 @@ def draw(kind, v):
             c.poly([(c.x(i), c.y(r)) for i, r in enumerate(run)], 2)
             c.ys += [c.y(r) for r in run]
             c.parts.append('<line x1="%.1f" x2="%.1f" y1="%.1f" y2="%.1f" stroke="var(--dim)" stroke-width="1" stroke-dasharray="4 4"/>' % (c.x(0), c.x(DAYS - 1), c.y(cfg["goal"]), c.y(cfg["goal"] * DAYS)))
-            c.text(W - 6, c.y(cfg["goal"] * DAYS) + 12, "goal's pace", 11, "end")
+            c.text(W - 6, c.y(cfg["goal"] * DAYS) + 12, "goal's pace", 12, "end")
             c.values([(c.x(i), c.y(r), fmt(r)) for i, r in enumerate(run)], show)
         elif f == "dist":   # days at each value
             levels = list(range(0, 11)) if kind == "count" else [1, 2, 3, 4, 5]
@@ -473,11 +473,11 @@ def draw(kind, v):
     if f == "strip":   # a letter per day
         for i, x in enumerate(vals):
             if x:
-                c.text(c.x(i), TOP + H - 8, letters[x], 11, "middle", False)
+                c.text(c.x(i), TOP + H - 8, letters[x], 12, "middle", False)
                 c.marks.append(7)
                 c.ink += 30
         c.axis()
-        c.parts.append('<text x="0" y="%d" font-size="11" fill="var(--dim)">H home · P packed · O out · – skipped</text>' % (TOP + H - 40))
+        c.parts.append('<text x="0" y="%d" font-size="12" fill="var(--dim)">H home · P packed · O out · – skipped</text>' % (TOP + H - 40))
         c.legend = 1
     elif f == "rows":   # a row per choice, a mark on its days (small multiples, labelled)
         rh = H / len(CHOICES)
@@ -696,7 +696,8 @@ def finish(c):
         step = (50 if c.v.get("form") == "spark" else H) / ((c.hi - c.lo) or 1) * c.cfg["step"]
     else:
         step = c.sw   # a day's cell
-    return {"html": '<div class="gk">%s</div>' % c.svg(), "ink": round(c.ink / (W * H), 4), "min_mark": round(min(c.marks), 2) if c.marks else 0,
+    # ink over a fixed 130 dp plot, not the chart's own area (found 2026-10-17: a taller chart with the same marks read calmer)
+    return {"html": '<div class="gk">%s</div>' % c.svg(), "ink": round(c.ink / (W * 130), 4), "min_mark": round(min(c.marks), 2) if c.marks else 0,
             "step_px": round(step, 2), "noise_px": round(noise, 2), "misfit": dict(c.misfit), "series": c.series, "legend": c.legend, "compare": c.compare}
 
 
@@ -901,11 +902,166 @@ def make_page_part(ns, kind):
     T.SUPERSEDED["gk_" + kind] = "scored inside the item's page (owner, 2026-10-16: density and legibility need the context): T3b.7b replaced it"
 
 
+# ==== T3b.7c: the item's page with its new contents (owner, 2026-10-17) ===========================================================
+"""
+  The owner's picks per kind (T3b.7b), every past log folded under one line, and on the page: the log control (Paced beside
+  it on an activity), Undo of the last log, adding a past entry, Pin to Today (one pin), an optional goal with its reminder,
+  a note and labels, a statistics line scored against the graph conveying the same, and the settings behind ⚙ as a bottom
+  sheet (habits built on it, labels, Delete, a counter goal's reset). Measured in dp (the mock is 360 dp wide; its CSS px
+  are dp).
+  Dimensions: the plot's height 80 / 100 / 130 / 180 dp; the statistics as a line, in the graph, or not shown; adding a past
+  entry beside the log control, on the folded history line, or by a long press; the pin in the header or on the goal line;
+  the note and labels under the name or at the bottom.
+  The statistics (owner, the proposal): counts usual a day and this month's total; ratings usual; yes/no days this month
+  and the longest gap; choices the most often; minutes this month's total and usual a day; weight the month's change and
+  the lowest. Their costs when not shown are HAND-SET (STAT_COSTS), as the graph questions'.
+"""
+IP2_PICK = {"count": dict(form="dots", yaxis="none", values="none", range="zero"), "rating": dict(form="strip", yaxis="none", values="last"),
+            "yesno": dict(form="ticks", yaxis="none", values="last"), "choice": dict(form="strip", yaxis="none", values="none"),
+            "add": dict(form="cumul", yaxis="none", values="none", range="zero"), "level": dict(form="dots", yaxis="none", values="last", range="plausible")}
+IP2_SPACE = {"height": [80, 100, 130, 180], "stats": ["line", "graph", "none"], "past": ["beside", "histline", "longpress"],
+             "pin": ["header", "goal"], "notes": ["top", "bottom"]}
+IP2_LABELS = {"count": "health", "rating": "wellbeing", "yesno": "health", "choice": "food", "add": "leisure", "level": "health"}
+IP2_GOAL = {"count": "5 of 8 glasses today · reminder 20:00", "add": "20 of 30 min today · reminder 21:00", "level": "goal 70 kg · reminder Mon 07:30"}
+STAT_COSTS = {"count": (1, 2), "rating": (1,), "yesno": (0, 1), "choice": (2,), "add": (0, 1), "level": (1, 1)}   # HAND-SET: each statistic read off the picked graph alone
+
+
+def ip2_stats(kind):
+    vals = [x for x in KINDS[kind]["vals"] if x is not None]
+    if kind == "count":
+        return ["usual %d a day" % round(sum(vals) / len(vals)), "%d this month" % sum(vals)]
+    if kind == "rating":
+        return ["usual %.1f" % (sum(vals) / len(vals))]
+    if kind == "yesno":
+        gap, run = 0, 0
+        for d in WALK:
+            run = 0 if d else run + 1
+            gap = max(gap, run)
+        return ["%d days this month" % sum(WALK), "longest gap %d days" % gap]
+    if kind == "choice":
+        top = max(CHOICES, key=lambda k: sum(1 for x in LUNCH if x == k))
+        return ["mostly %s" % top]
+    if kind == "add":
+        return ["%d min this month" % sum(vals), "usual %d min" % round(sum(vals) / len(vals))]
+    return ["%+.1f kg this month" % (vals[-1] - vals[0]), "lowest %.1f" % min(vals)]
+
+
+def ip2_graph_stats(kind, html):
+    """The same statistics carried by the graph: a labelled usual line, the total or the change written on the chart."""
+    st = ip2_stats(kind)
+    return '<div class="gl" style="display:flex;justify-content:space-between;font-size:12px;color:var(--dim);margin:-2px 0 2px">%s</div>%s' % (
+        "".join("<span>%s</span>" % s for s in st), html)
+
+
+def ip2_page(kind, v, kit):
+    global H
+    e = kit.e
+    pg = PAGES[kind]
+    with LOCK:
+        old = H
+        H = 130 if v.get("control") else v["height"]
+        try:
+            m = draw(kind, {"control": True, "control_app": CONTROLS[kind][0][0]} if v.get("control") else dict(IP2_PICK[kind]))
+        finally:
+            H = old
+    if v.get("control"):   # a Chronicle-like page: Start / Log session, chips, the app's chart, tiles, Goals, recent entries unfolded
+        st = ip2_stats(kind)
+        rows = "".join('<div class="ipl" data-tap="History row"><span class="t">%s</span>%s</div>' % (e(a), e(b)) for a, b in pg["hist"][:4])
+        body = ('<div data-sec="now"><div class="ipr"><span class="on" data-tap="Now control" style="flex:1">%s</span><span data-tap="Past entry" style="flex:1">Log session</span></div></div>' % e(pg["ctl"]) +
+                '<div data-sec="graph"><div class="ipr"><span>7 d</span><span class="on">30 d</span><span>90 d</span><span data-tap="Range 1y">1 y</span></div>%s</div>' % m["html"] +
+                '<div data-sec="stats" class="ipt">%s</div>' % "".join("<div><b>%s</b><s>%s</s></div>" % tuple((s.split(" ", 1) + [""])[:2]) for s in st) +
+                ('<div data-sec="goal"><div class="iph">Goals</div><div class="ipl" data-tap="Pin"><span class="t">%s</span></div></div>' % e(IP2_GOAL[kind]) if kind in IP2_GOAL else "") +
+                '<div data-sec="hist"><div class="iph">Recent sessions</div>%s</div>' % rows)
+        html = kit.phone(kit.header(KINDS[kind]["name"], (("⋮", "Settings"),), ("‹", "Back")), '<div class="zone" style="padding-bottom:8px">%s</div>' % body, kit.bar("Hub"))
+        return html, m
+    head_btns = ((("\U0001f4cc", "Pin"),) if v["pin"] == "header" else ()) + (("⚙", "Settings"),)
+    notes = ('<div data-sec="notes"><div class="ipr"><span data-tap="Labels">%s</span><span data-tap="Labels add">+ label</span></div>'
+             '<div class="ipl" data-tap="Note"><span class="t" style="color:var(--dim)">Add a note</span></div></div>') % IP2_LABELS[kind]
+    ctl = '<span class="c" data-tap="Now control">%s</span>' % e(pg["ctl"])
+    if kind == "add":
+        ctl += '<span class="c" data-tap="Paced" style="background:var(--zone2);color:var(--ink)">⏱</span>'
+    if v["past"] == "beside":
+        ctl += '<span class="c" data-tap="Past entry" style="background:none;box-shadow:inset 0 0 0 1px var(--dim);color:var(--ink)">Earlier…</span>'
+    now = '<div class="ipn" data-sec="now"><span class="v"><b>%s</b><s>%s</s></span>%s</div>' % (e(pg["now"][0]), e(pg["now"][1]), ctl)
+    goal = ""
+    if kind in IP2_GOAL:
+        goal = '<div data-sec="goal" class="ipl"><span class="t" data-tap="Goal">%s</span>%s</div>' % (e(IP2_GOAL[kind]), '<span data-tap="Pin" style="min-width:48px;min-height:48px;display:grid;place-items:center">\U0001f4cc</span>' if v["pin"] == "goal" else "")
+    else:
+        goal = '<div data-sec="goal" class="ipl"><span class="t" data-tap="Goal" style="color:var(--dim)">Set a goal</span>%s</div>' % ('<span data-tap="Pin" style="min-width:48px;min-height:48px;display:grid;place-items:center">\U0001f4cc</span>' if v["pin"] == "goal" else "")
+    stats = '<div data-sec="stats" style="font-size:14px;margin:4px 0;display:flex;gap:14px">%s</div>' % "".join("<span>%s</span>" % s for s in ip2_stats(kind)) if v["stats"] == "line" else ""
+    chart = ip2_graph_stats(kind, m["html"]) if v["stats"] == "graph" else m["html"]
+    graph = '<div data-sec="graph"><div class="ipr"><span data-tap="Range 7d">7 d</span><span class="on" data-tap="Range 30d">30 d</span><span data-tap="Range 1y">1 y</span></div>%s</div>' % chart
+    hist = '<div data-sec="hist" class="ipl"><span class="t" data-tap="History">History · %d entries ›</span>%s</div>' % (
+        len(pg["hist"]), '<span data-tap="Past entry" style="min-height:48px;display:grid;place-items:center;padding:0 8px">+ Add past</span>' if v["past"] == "histline" else "")
+    body = (notes if v["notes"] == "top" else "") + now + goal + stats + graph + hist + (notes if v["notes"] == "bottom" else "")
+    html = kit.phone(kit.header(KINDS[kind]["name"], head_btns, ("‹", "Back")), '<div class="zone" style="padding-bottom:8px">%s</div>' % body, kit.bar("Hub"))
+    return html, m
+
+
+IP2_JS = r"""(function(){var bar=document.querySelector('.bar').getBoundingClientRect().top,top=document.querySelector('.body').getBoundingClientRect().top;
+var o={fold:Math.round(bar-top),seen:{},cut:0,clutter:0,numbers:0,taps:{}};
+o.unseen=0;['now','goal','stats','graph','hist','notes'].forEach(function(k){var s=document.querySelector('[data-sec='+k+']');if(!s)return;var b=s.getBoundingClientRect();o.seen[k]=b.bottom<=bar?1:0;if(b.bottom>bar)o.unseen++});
+document.querySelectorAll('.ipl,.ipn,.ipt div,.ipr span,[data-sec=stats]').forEach(function(x){if(x.scrollWidth>x.clientWidth+1)o.cut++});
+document.querySelectorAll('[data-tap]').forEach(function(x){var b=x.getBoundingClientRect();o.taps[x.getAttribute('data-tap')]=b.bottom<=bar&&b.top>=0?1:0;if(b.bottom<=bar&&b.top>=0)o.clutter++});
+var txt='';var w=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT);while(w.nextNode()){var n=w.currentNode;if(!n.textContent.trim()||n.parentElement.closest('.bar,script,style'))continue;var p=n.parentElement.getBoundingClientRect();if(p.bottom<=bar&&p.top>=0){o.clutter++;if(!n.parentElement.closest('svg')&&p.top>=top)txt+=' '+n.textContent}}
+o.numbers=(txt.match(/\d+([.,]\d+)?/g)||[]).length;return o})()"""
+IP2_REACH = ("Now control", "Past entry", "Pin", "Note", "Labels", "History", "Range 1y", "Settings", "Goal")
+
+
+def make_ip2_part(ns, kind):
+    T, kit, ipdoc = ns["T"], ns["kit"], ns["ipdoc"]
+    js = "(function(){var a=%s;var b=%s;a.gcut=b.cut;a.min_font=b.min_font;a.overlaps=b.overlaps;return a})()" % (IP2_JS, GK_JS)
+
+    def page(v):
+        html, m = ip2_page(kind, v, kit)
+        return ipdoc(html), m
+
+    def score(v):
+        d, m = page(v)
+        b = T.probe(d, "ip2-%s-%s" % (kind, "-".join(str(x) for x in v.values())), js)
+        ctl = v.get("control")
+        costs, _ = answer_costs(kind, {"control": True, "control_app": CONTROLS[kind][0][0]} if ctl else dict(IP2_PICK[kind]), m)
+        stat = 0 if (ctl or v["stats"] != "none") else sum(STAT_COSTS[kind])
+        # taps to reach each element from the page as it opens: one, and a scroll when it is below the fold; a long press is one,
+        # and hidden; an entry's edit is the history line, then the entry (and Undo is one tap on its snackbar, the same for all)
+        taps = sum((1 + (0 if b["taps"][t] else 1)) if t in b["taps"] else 3 for t in IP2_REACH) + (1 if (not ctl and v["past"] == "longpress") else 0) + 2   # a missing element: 3
+        hidden = 1 if (not ctl and v["past"] == "longpress") else 0
+        seen = b["seen"]
+        glance = seen.get("now", 0) + seen.get("goal", 0) + seen.get("graph", 0) + seen.get("hist", 0) + (seen.get("stats", 0) if not ctl and v["stats"] == "line" else (1 if not ctl and v["stats"] == "graph" and seen.get("graph") else 0))
+        load = sum(costs) + stat + b["numbers"] / 10 + (m["series"] - 1) * 0.5 + m["legend"]
+        consistency = 0 if ctl else (1 if v["pin"] == "goal" else 0)   # T3b.5b pins goals: the pin on the goal it pins
+        return {"fit": sum(m["misfit"].values()) + (1 if ctl else 0) * 0, "min_font": b["min_font"], "overlaps": b["overlaps"], "gcut": b["gcut"],
+                "mark_seen": min(m["min_mark"], MARK_ENOUGH), "step_seen": min(m["step_px"], STEP_ENOUGH), "step_px": m["step_px"],
+                "encoding": CTL_ENCODING.get((kind, CONTROLS[kind][0][0]), ENCODING[CONTROLS[kind][0][0]]) if ctl else ENCODING[IP2_PICK[kind]["form"]],
+                "ink": m["ink"], "noise_seen": max(m["noise_px"], NOISE_FLAT), "compare": m["compare"], "clutter": b["clutter"],
+                "load": round(load, 2), "stat_cost": stat, "numbers": b["numbers"], "unseen": b["unseen"], "cut": b["cut"],
+                "glance": glance, "taps": taps, "hidden": hidden, "consistency": consistency, "fold": b["fold"], "small": []}
+
+    part = "ip2_" + kind
+    T.SPACES[part] = dict(IP2_SPACE)
+    T.SCORERS[part] = score
+    T.VALID[part] = lambda v: True
+    ctl_app = CONTROLS[kind][0][0]
+    T.CONTROLS[part] = [({k: ctl_app for k in IP2_SPACE} | {"control": True, "control_app": ctl_app},
+                         "a Chronicle-like page: Start and Log session, range chips, %s's chart, statistics tiles, a Goals section, the recent entries unfolded" % ctl_app)]
+    T.TITLES[part] = "T3b.7c The item's page with its new contents: %s (the picked graph; height, statistics, past entry, pin, note and labels)" % KINDS[kind]["name"]
+    T.DRAW[part] = lambda v: [page(v)[0]]
+    T.POOL[part] = lambda ok: [r for r in ok if r.get("front")]
+    T.DRAW_MAX[part] = 16
+    T.AXES[part] = {"Fit": ("fit",), "Readability": ("-min_font", "overlaps", "gcut", "-mark_seen", "-step_seen", "encoding"),
+                    "Calm": ("ink", "noise_seen", "compare", "clutter"), "Mental load": ("load",), "Density": ("unseen", "cut"),
+                    "Glance": ("-glance",), "Taps": ("taps",), "Discoverability": ("hidden",), "Consistency": ("-consistency",)}
+    T.WEIGHTS[part] = {"Consistency": 0.25}
+    T.REFS_INFO.add(part)
+
+
 def register(ns):
     for kind in KINDS:
         make_part(ns, kind)
     for kind in KINDS:
         make_page_part(ns, kind)
+    for kind in KINDS:
+        make_ip2_part(ns, kind)
     T = ns["T"]
     c = dict(order="ngh", period="chips", yaxis="none")   # the owner's picks (2026-10-17); the weight's height still open
     T.PICKED.update({"gp_add": [dict(c, form="cumul", values="none", range="zero", height=80)], "gp_choice": [dict(c, form="strip", values="none", height=80)],
