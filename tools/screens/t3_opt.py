@@ -18,6 +18,8 @@ Parts:
   ip2_*    T3b.7c the item's page with its new contents, per kind (t3_graphs.py)
   ip3_*    T3b.7d the item's page from real apps' structures, with Harmony (t3_graphs.py)
   ip4_*    T3b.7e the item's page with its function hierarchy (t3_graphs.py)
+  ip5_*    T3b.7f every graph form at every height (t3_graphs.py)
+  ip5n_*   T3b.7f the note and labels: chips or words, rows, position (t3_graphs.py)
   pace6    T3b.4f the approved Paced sentence: steppers the boxes' height, flowing or one part per line (owner, 2026-10-15)
   pace5    T3b.4e the Paced timer: N breaks evenly in the sentence; the ring shows and selects (owner, 2026-10-15)
   pace4    T3b.4d the Paced timer: a real dial for times, the run ring for pauses as fractions (owner, 2026-10-15)

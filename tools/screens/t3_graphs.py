@@ -402,7 +402,7 @@ def draw(kind, v):
                 pts.append((j * bw + bw / 2, TOP + H - hh, str(n)))
             c.parts.append('<line x1="0" x2="%d" y1="%.1f" y2="%.1f" stroke="var(--dim)" stroke-width="1"/>' % (W, TOP + H, TOP + H))
             c.values(pts, "every" if show == "every" else "none")
-        elif f == "spark":   # today's value large, a sparkline beside it (no axis, no goal drawn)
+        elif f == "spark" and kind == "level" and not v.get("fill"):   # T3b.7a's: today's value large, a 50 px sparkline beside it
             last = [x for x in vals if x is not None][-1]
             c.parts.append('<text x="0" y="40" font-size="26" fill="var(--ink)">%s</text><text x="0" y="58" font-size="12" fill="var(--dim)">kg today</text>' % fmt(last))
             c.g, c.pw = 100, W - 104
@@ -413,6 +413,41 @@ def draw(kind, v):
             if any(x is None for x in vals):
                 c.misfit["a line across days with no entry"] = 0.5
             c.misfit["the goal not drawn"] = 1 if not (c.lo <= cfg["goal"] <= c.hi) else 0
+        elif f == "spark":   # T3b.7f: today's value large at the left, a word-sized graph filling the plot's height beside it
+            last = [x for x in vals if x is not None][-1]
+            unit = {"count": "glasses today", "rating": "today", "add": "min today", "level": "kg today"}[kind]
+            mid = TOP + H / 2
+            c.parts.append('<text x="0" y="%.1f" font-size="26" fill="var(--ink)">%s</text><text x="0" y="%.1f" font-size="12" fill="var(--dim)">%s</text>' % (mid + 4, fmt(last), mid + 22, unit))
+            c.g, c.pw = 100, W - 104
+            c.sw = c.pw / DAYS
+            c.parts.append('<line x1="%d" x2="%d" y1="%.1f" y2="%.1f" stroke="var(--dim)" stroke-width="1"/>' % (c.g, W - 4, TOP + H, TOP + H))
+            if kind in ("count", "add"):   # columns: a whole count or a day's total is a length, not a line between days
+                daily_bars(c, vals, True, c.lo)
+            elif kind == "rating":
+                for i, val in enumerate(vals):
+                    if val is not None:
+                        c.dot(c.x(i), c.y(val), 2.5)
+                        c.ys.append(c.y(val))
+            else:
+                line_through(c, vals, dots=True)
+            if cfg["goal"] is not None and c.lo <= cfg["goal"] <= c.hi:
+                yy = c.y(cfg["goal"])
+                c.parts.append('<line x1="%d" x2="%d" y1="%.1f" y2="%.1f" stroke="var(--dim)" stroke-width="1" stroke-dasharray="4 4"/>' % (c.g, W - 4, yy, yy))
+                c.text(0, mid + 38, "goal %s" % fmt(cfg["goal"]), 12, "start")
+            elif cfg["goal"] is not None:
+                c.misfit["goal outside the range"] = 1
+        elif f == "goalstrip":   # a cell per day: filled when the goal was reached (a win/loss strip)
+            met = 0
+            for i, val in enumerate(vals):
+                if val is None:
+                    continue
+                ok = val >= cfg["goal"]
+                met += ok
+                c.rect(c.x(i) - c.sw / 2 + 1, TOP + H - 26, c.sw - 2, 26, "var(--ink)" if ok else "var(--zone2)", 3)
+                c.ys.append(0)
+            c.axis()
+            if show != "none":
+                c.text(W - 4, TOP + H - 34, "goal reached %d of 30 days" % met, 12, "end", False)
         return finish(c)
     if kind == "yesno":
         if f == "ticks":
@@ -528,6 +563,56 @@ def draw(kind, v):
         c.add(pie_svg(cnt, show != "none"), math.pi * 55 * 55, 20)
         c.legend = 1
         c.series = 4
+    elif f == "lanes":   # T3b.7f: a lane per option, its full name once at the left, a dot on each of its days
+        rh = H / len(CHOICES)
+        c.g = 64
+        c.pw = W - c.g - 4
+        c.sw = c.pw / DAYS
+        for j, k in enumerate(CHOICES):
+            yy = TOP + j * rh + rh / 2
+            c.text(0, yy + 4, k, 12, "start")
+            c.parts.append('<line x1="%d" x2="%d" y1="%.1f" y2="%.1f" stroke="var(--zone2)" stroke-width="1"/>' % (c.g, W - 4, yy, yy))
+            for i, x in enumerate(vals):
+                if x == k:
+                    c.dot(c.x(i), yy, min(3.5, rh / 2 - 1))
+        c.axis()
+    elif f == "share":   # T3b.7f: one bar split by option, the names and day counts, then the last 7 days as words
+        order = sorted(CHOICES, key=lambda k: -cnt[k])
+        tot = sum(cnt.values())
+        x0 = 0.0
+        for k in order:
+            ww = (W - 4) * cnt[k] / tot
+            c.rect(x0, TOP, ww - 2, 24, shade[k] if shade[k] != "none" else "var(--bg)", 0)
+            if shade[k] == "none":
+                c.parts.append('<rect x="%.1f" y="%d" width="%.1f" height="24" fill="none" stroke="var(--dim)"/>' % (x0, TOP, ww - 2))
+            x0 += ww
+        c.parts.append('<text x="0" y="%d" font-size="12" fill="var(--ink)">%s</text>' % (TOP + 42, " · ".join("%s %d" % (k, cnt[k]) for k in order)))
+        days = ("Fri", "Sat", "Sun", "Mon", "Tue", "Wed", "Thu")   # indices 22-28: Fri 9 to Thu 15 Oct
+        recent = ["%s %s" % (d, vals[22 + i] or "–") for i, d in enumerate(days)][::-1]
+        c.parts.append('<text x="0" y="%d" font-size="12" fill="var(--dim)">%s</text><text x="0" y="%d" font-size="12" fill="var(--dim)">%s</text>' % (
+            TOP + 64, " · ".join(recent[:4]), TOP + 82, " · ".join(recent[4:])))
+        c.marks.append(24)
+        c.ink += 40 * 12
+    elif f == "glyphs":   # T3b.7f: a shape per day, the shapes the user's (settings); a legend of shape and name
+        def shape(k, x, y):
+            if k == "home":
+                c.dot(x, y, 4)
+            elif k == "packed":
+                c.rect(x - 4, y - 4, 8, 8, "var(--ink)", 0)
+            elif k == "out":
+                c.add('<polygon points="%.1f,%.1f %.1f,%.1f %.1f,%.1f" fill="var(--ink)"/>' % (x, y - 5, x - 5, y + 4, x + 5, y + 4), 45, 8)
+            else:
+                c.add('<circle cx="%.1f" cy="%.1f" r="3.5" fill="none" stroke="var(--ink)" stroke-width="1.5"/>' % (x, y), 22, 7)
+        for i, x in enumerate(vals):
+            if x:
+                shape(x, c.x(i), TOP + H - 10)
+        c.axis()
+        lx = 0
+        for k in CHOICES:
+            shape(k, lx + 5, TOP + H - 44)
+            c.text(lx + 13, TOP + H - 40, k, 12, "start")
+            lx += 13 + len(k) * 7 + 14
+        c.legend = 1
     return finish(c)
 
 
@@ -688,12 +773,14 @@ def finish(c):
     jit = [abs(c.ys[i + 1] - c.ys[i]) for i in range(len(c.ys) - 1)]
     jit.sort()
     noise = jit[len(jit) // 2] if jit else 0
-    if c.k in ("count", "rating"):
+    if c.v.get("form") in ("goalstrip", "share", "glyphs", "lanes"):
+        step = c.sw   # a day's cell
+    elif c.k in ("count", "rating"):
         step = H / ((c.hi - c.lo) or 1) * c.cfg["step"] if c.v.get("form") not in ("dist", "weeks") else H / ((c.hi - c.lo) or 1) * (7 if c.v.get("form") == "weeks" else 1)
     elif c.k == "add":
         step = H / ((c.hi - c.lo) or 1) * (5 if c.v.get("form") != "cumul" and c.v.get("form") != "weeks" else 30)
     elif c.k == "level":
-        step = (50 if c.v.get("form") == "spark" else H) / ((c.hi - c.lo) or 1) * c.cfg["step"]
+        step = (50 if (c.v.get("form") == "spark" and not c.v.get("fill")) else H) / ((c.hi - c.lo) or 1) * c.cfg["step"]
     else:
         step = c.sw   # a day's cell
     # ink over a fixed 130 dp plot, not the chart's own area (found 2026-10-17: a taller chart with the same marks read calmer)
@@ -1506,6 +1593,301 @@ def make_ip4_part(ns, kind):
         T.v2.TOL.setdefault(k, tol)
 
 
+# ==== T3b.7f: every form at every height; the note and labels redrawn (owner, 2026-10-17) =========================================
+"""
+  The owner: the two circles under the graph (the note and labels as faint emoji in rings) read as nothing; “"Note:" can be a
+  tappable word aligned to the left (underlined, leaving a thin gap between the elements above and below it), which opens a
+  rectangular text box. When the text box for the note is closed, the note text appears slightly greyer in a static card
+  with an invisible border, which can only be edited by tapping on the word "Note:" again. Labels will be displayed either
+  as small flat oval chips or as tappable words divided by a comma that end in a + (e.g. garden, home, hobby, +).” The
+  period: the segmented control (owner's pick). “Why does 100 dp score so low?” - nothing paid for height: no page
+  scrolled, so a taller graph only filled the screen, and a blank plot counted as filled. Lunch's letters: options may
+  share initials.
+  Answers: every form re-opened at every height (80/100/130/180 dp), with compact forms for small heights (a sparkline with
+  today's value large, a goal-met strip); Lunch adds lanes (full names), a share bar with the last 7 days as words, and a
+  shape per option; the note and labels scored as one row or two rows, below or above History; the pages newest first,
+  replaced passes one line each.
+  Each form keeps its best settings from T3b.7b (axis, values, range: the lowest Pareto sum there; the picks' own).
+  New measures: void (Harmony) - the tallest blank band inside the graph's box, dp beyond 24, from the screenshot; codes
+  (Readability) - a form that names options by an initial (two options may share it).
+  Two parts per kind, factored to keep the runs short (the note and labels barely touch the graph): ip5_ the graph form x
+  height x template, the note and labels fixed as one row of words below History; ip5n_ the note and labels (chips or
+  words x one row, the note first, the labels first x below or above History) x template, with the picked graph at 130 dp.
+"""
+VARIANT = {
+    "count": {"dots": ("none", "none", "zero"), "line": ("none", "last", "fit"), "lollipop": ("none", "last", "zero"), "stubs": ("ends", "none", "zero"),
+              "bars": ("ends", "none", "zero"), "weeks": ("ends", "none", "zero"), "dist": ("none", "none", "zero"), "spark": ("none", "none", "zero"),
+              "goalstrip": ("none", "last", "zero")},
+    "rating": {"strip": ("none", "last", None), "avg": ("ends", "none", None), "line": ("none", "last", None), "band": ("ends", "none", None),
+               "bars": ("ends", "none", None), "dist": ("none", "none", None), "spark": ("none", "none", None)},
+    "yesno": {"ticks": ("none", "last", None), "tally": ("none", "none", None), "cumul": ("none", "last", None), "runs": ("none", "none", None),
+              "weeks": ("none", "last", None)},
+    "choice": {"strip": ("none", "none", None), "lanes": ("none", "none", None), "hbars": ("none", "none", None), "stacked": ("none", "none", None),
+               "pie": ("none", "none", None), "share": ("none", "none", None), "glyphs": ("none", "none", None)},
+    "add": {"cumul": ("none", "none", "zero"), "line": ("none", "none", "zero"), "lollipop": ("none", "none", "zero"), "bars": ("ends", "none", "zero"),
+            "weeks": ("ends", "none", "zero"), "stubs": ("ends", "none", "zero"), "bars_avg": ("ends", "none", "zero"), "spark": ("none", "none", "zero"),
+            "goalstrip": ("none", "last", "zero")},
+    "level": {"dots": ("none", "last", "plausible"), "line": ("none", "last", "plausible"), "avg": ("none", "last", "plausible"),
+              "smooth": ("none", "last", "plausible"), "spark": ("none", "none", "plausible"), "bars": ("none", "last", "plausible"),
+              "band": ("none", "last", "zero"), "area": ("ends", "last", "plausible")},
+}
+IP5_FORMS = {k: list(v) for k, v in VARIANT.items()}
+# HAND-SET, as COSTS: the three questions read off each new form
+COSTS["count"].update({"spark": (0, 1, 0), "goalstrip": (1, 2, 1)})
+COSTS["rating"].update({"spark": (1, 1, 0)})
+COSTS["add"].update({"spark": (0, 2, 0), "goalstrip": (1, 3, 1)})
+COSTS["choice"].update({"lanes": (1, 1, 0), "share": (0, 3, 1), "glyphs": (2, 1, 0)})
+ENCODING.update({"goalstrip": 0, "lanes": 0, "share": 1, "glyphs": 0})
+DAILY.update({"goalstrip", "lanes", "glyphs"})
+CODES = {"strip": 1}   # options named by an initial: two may share one
+NOTE_TEXT = {"count": "A bottle on the desk helps.", "rating": "Low days follow short nights.", "yesno": "The river path, not the road.",
+             "choice": "Packing the night before works.", "add": "Phone in the other room.", "level": "Weigh after waking."}
+LABEL_WORDS = {"count": ("health", "home", "daily"), "rating": ("wellbeing", "evening", "journal"), "yesno": ("health", "outdoors", "morning"),
+               "choice": ("food", "home", "budget"), "add": ("leisure", "books", "evening"), "level": ("health", "morning", "goals")}
+IP5_CSS = """
+.ip5n{margin:6px 0}.nw{display:inline-flex;align-items:center;min-height:32px;font-size:14px;text-decoration:underline;text-underline-offset:3px;color:var(--ink)}
+.nc{border:1px solid transparent;border-radius:12px;padding:4px 0;font-size:14px;opacity:.72}
+.ip5r{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:6px 0}
+.ip5w{display:block;font-size:14px;line-height:32px;min-height:32px;margin:6px 0}.ip5w u{text-underline-offset:3px}
+.ip5c{display:flex;flex-wrap:wrap;align-items:center;gap:6px;min-height:32px;margin:6px 0}.ip5c span{height:24px;padding:0 10px;border-radius:12px;background:var(--zone2);font-size:12px;display:inline-flex;align-items:center}
+.ip5r .ip5w,.ip5r .ip5c{margin:0;justify-content:flex-end;text-align:right}
+"""
+IP5_SPACE = {"template": ["cards", "grid", "form", "flat"], "height": [80, 100, 130, 180]}   # the form per kind: IP5_FORMS
+IP5N_SPACE = {"template": ["cards", "grid", "form", "flat"], "labels": ["chips", "words"], "arrange": ["row", "note_first", "labels_first"],
+              "pos": ["below_hist", "above_hist"]}
+
+
+def ip5_graph(kind, form):
+    ya, show, rng = VARIANT[kind][form]
+    g = {"form": form, "yaxis": ya, "values": show, "fill": True}
+    if rng:
+        g["range"] = rng
+    return g
+
+
+def ip5_notes(kind, v, e):
+    words = LABEL_WORDS[kind]
+    if v["labels"] == "chips":
+        labels = '<div class="ip5c" data-el="labels"><span data-tap="Labels">%s</span>%s<span data-tap="Labels add">+</span></div>' % (
+            e(words[0]), "".join("<span>%s</span>" % e(w) for w in words[1:]))
+    else:
+        labels = '<div class="ip5w" data-el="labels"><u data-tap="Labels">%s</u>,%s, <u data-tap="Labels add">+</u></div>' % (
+            e(words[0]), ",".join(" <u>%s</u>" % e(w) for w in words[1:]))
+    card = '<div class="nc">%s</div>' % e(NOTE_TEXT[kind])
+    if v["arrange"] == "row":
+        return '<div class="ip5r" data-row="box"><a class="nw" data-tap="Note" data-el="note">Note:</a>%s</div><div class="ip5n">%s</div>' % (labels, card)
+    # the note's element is its word, in every arrangement: the card is static grey content with no border and no action, and
+    # as part of the element its box outranked History and the goal line (found 2026-10-17: the control led Hierarchy)
+    note = '<div class="ip5n"><a class="nw" data-tap="Note" data-el="note">Note:</a>%s</div>' % card
+    return note + labels if v["arrange"] == "note_first" else labels + note
+
+
+def ip5_page(kind, v, kit):
+    global H
+    e = kit.e
+    pg = PAGES[kind]
+    v = {"labels": "words", "arrange": "row", "pos": "below_hist", "height": 130, "form": IP2_PICK[kind]["form"]} | v
+    with LOCK:
+        old = H
+        H = 130 if v.get("control") else v["height"]
+        try:
+            m = draw(kind, {"control": True, "control_app": CONTROLS[kind][0][0]} if v.get("control") else ip5_graph(kind, v["form"]))
+        finally:
+            H = old
+    if v.get("control"):
+        html, _ = ip2_page(kind, v, kit)
+        for sec, el in (("now", "panel"), ("graph", "graph"), ("stats", "stats"), ("goal", "goal"), ("hist", "hist")):
+            html = html.replace('<div data-sec="%s"' % sec, '<div data-sec="%s" data-el="%s"' % (sec, el), 1)
+        return html, m, ["log", "chips", "chart", "tiles", "goal", "list"]
+    facts = ip3_facts(kind)
+    head = (("\U0001f4cc", "Pin"), ("⚙", "Settings"))   # the pin a glyph just left of Settings (owner, 2026-10-17)
+    notes = ip5_notes(kind, v, e)
+    ctl = '<span class="c" data-tap="Now control">%s</span>' % e(pg["ctl"])
+    if kind == "add":
+        ctl += '<span class="c" data-tap="Paced" style="background:var(--zone2);color:var(--ink)">⏱</span>'
+    now = '<div class="ipn" data-sec="now" data-row="box" data-el="panel"><span class="v"><b>%s</b><s>%s</s></span>%s</div>' % (e(pg["now"][0]), e(pg["now"][1]), ctl)
+    goal_text = IP2_GOAL.get(kind)
+    goal = '<div data-sec="goal" class="ipl" data-el="goal"><span class="t" data-tap="Goal"%s>%s</span></div>' % (
+        "" if goal_text else ' style="color:var(--dim)"', e(goal_text or "Set a goal"))
+    hist = ('<div data-sec="hist" class="ipl" data-row="box" data-el="hist" style="justify-content:space-between"><span data-tap="History">History · %d entries</span>'
+            '<span style="min-width:48px;min-height:48px;display:grid;place-items:center">›</span></div>') % len(pg["hist"])
+    per = ip3_period({"period": "segmented"})
+    above = v["pos"] == "above_hist"
+    t = v["template"]
+    if t == "cards":
+        stats = '<div data-sec="stats" data-el="stats" class="ip3t" data-row="box">%s</div>' % "".join("<div><b>%s</b><s>%s</s></div>" % (e(a), e(b)) for a, b in facts)
+        body = now + goal + '<div data-el="graph">%s<div class="card" data-sec="graph">%s</div></div>' % (per, m["html"]) + stats
+        tail = '<div class="card">%s</div>' % hist
+        seq = ["log", "goal", "period", "card", "chart", "tiles"]
+    elif t == "grid":
+        stats = '<div data-sec="stats" data-el="stats" class="ip3g" data-row="box">%s</div>' % "".join("<div><s>%s</s><b>%s</b></div>" % (e(b), e(a)) for a, b in facts)
+        body = now + goal + stats + '<div data-el="graph">%s<div data-sec="graph">%s</div></div>' % (per, m["html"])
+        tail = hist
+        seq = ["log", "goal", "grid", "period", "chart"]
+    elif t == "form":
+        stats = '<div data-sec="stats" data-el="stats" class="ipl" data-row="box" style="justify-content:space-between"><span data-tap="Stats">Statistics · %d</span><span>›</span></div>' % len(facts)
+        body = now + goal + '<div data-el="graph"><div class="ip3f">Period</div>%s<div data-sec="graph">%s</div></div>' % (per, m["html"]) + stats
+        tail = hist
+        seq = ["log", "goal", "period", "chart", "folded"]
+    else:
+        stats = '<div data-sec="stats" data-el="stats" class="ip3l" data-row="box">%s</div>' % "".join("<span><b>%s</b> %s</span>" % (e(a), e(b)) for a, b in facts)
+        body = now + goal + stats + '<div data-el="graph">%s<div data-sec="graph">%s</div></div>' % (per, m["html"])
+        tail = hist
+        seq = ["log", "goal", "line", "period", "chart"]
+    if above:
+        body, seq = body + '<div data-sec="notes">%s</div>' % notes + tail, seq + ["notes", "list"]
+    else:
+        body, seq = body + tail + '<div data-sec="notes">%s</div>' % notes, seq + ["list", "notes"]
+    hdr = kit.header(KINDS[kind]["name"], head, ("‹", "Back"))
+    hdr = hdr.replace('data-tap="Pin"', 'data-tap="Pin" data-el="pin"', 1)
+    html = kit.phone(hdr, '<div class="zone" style="padding-bottom:8px">%s</div>' % body, kit.bar("Hub"))
+    return html, m, seq
+
+
+GRAPH_JS = r"""(function(){var g=document.querySelector('[data-sec=graph]');if(!g)return null;var b=g.getBoundingClientRect();return [b.left,b.top,b.width,b.height]})()"""
+VOID_FREE = 24   # HAND-SET: a blank band up to 24 dp inside the graph's box is spacing (a card's padding and the room above the plot), not emptiness
+
+
+def ip5_balance(doc_html, key, geom, graph):
+    """ip3_balance's ink split with the graph's box masked out, and the tallest blank band inside the graph's box (dp beyond
+    VOID_FREE), from one screenshot."""
+    import headless_browser as hb
+    from PIL import Image
+    shots = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "..", "..", "_screens-sources", "t3", "harmony-shots")
+    _os.makedirs(shots, exist_ok=True)
+    png = _os.path.join(shots, key + ".png")
+    hb.screenshot(doc_html, png, 660, 1040)
+    full = Image.open(png).convert("L")
+    _os.remove(png)
+    x, y, w, h = geom["phone"]
+    top, bottom = geom["content"]
+    im = full.crop((int(x), int(y + top), int(x + w), int(y + bottom)))
+    if graph:   # the balance is the layout's: the graph's own ink left out (found 2026-10-17: filled bars and areas "balanced" the page
+        gx, gy, gw, gh = graph   # and led every front, bars for a weight among them); its emptiness is the void measure's
+        ghist = im.histogram()
+        im.paste(max(range(256), key=lambda i: ghist[i]), (int(gx - x), int(gy - y - top), int(gx - x + gw), int(gy - y - top + gh)))
+    px = im.load()
+    W_, H_ = im.size
+    hist = im.histogram()
+    ground = max(range(256), key=lambda i: hist[i])
+    left = right = upper = lower = 0.0
+    for j in range(0, H_, 2):
+        for i in range(0, W_, 2):
+            m = abs(px[i, j] - ground) / 255.0
+            if m < 0.04:
+                continue
+            if i < W_ / 2:
+                left += m
+            else:
+                right += m
+            if j < H_ / 2:
+                upper += m
+            else:
+                lower += m
+    tot = (left + right) or 1
+    void = 0
+    if graph:
+        gx, gy, gw, gh = graph
+        g = full.crop((int(gx) + 4, int(gy) + 2, int(gx + gw) - 4, int(min(gy + gh, y + bottom)) - 2))
+        gp = g.load()
+        gw_, gh_ = g.size
+        gh_hist = g.histogram()
+        gground = max(range(256), key=lambda i: gh_hist[i])
+        run = best = 0
+        for j in range(gh_):
+            if all(abs(gp[i, j] - gground) < 10 for i in range(0, gw_, 2)):
+                run += 1
+                best = max(best, run)
+            else:
+                run = 0
+        void = max(0, best - VOID_FREE)
+    return abs(left / tot - 0.5), abs(upper / tot - 0.5), void
+
+
+def make_ip5_part(ns, kind, notes_part):
+    T, kit, ipdoc = ns["T"], ns["kit"], ns["ipdoc"]
+    js = "(function(){var a=%s;var b=%s;var c=%s;var d=%s;a.gcut=b.cut;a.min_font=b.min_font;a.overlaps=b.overlaps;a.h=c;a.els=d.els;a.graph=%s;return a})()" % (
+        IP2_JS, GK_JS, HARMONY_JS, HIER_JS, GRAPH_JS)
+    space = dict(IP5N_SPACE) if notes_part else dict(IP5_SPACE, form=IP5_FORMS[kind])
+    part = ("ip5n_" if notes_part else "ip5_") + kind
+
+    def page(v):
+        html, m, seq = ip5_page(kind, v, kit)
+        return ipdoc(html).replace("</style>", IP3_CSS + IP5_CSS + "</style>", 1), m, seq
+
+    def score(v):
+        d, m, seq = page(v)
+        key = "%s-%s" % (part, "-".join(str(x) for x in v.values()))
+        b = T.probe(d, key, js)
+        ctl = v.get("control")
+        hb_, vb_, void = ip5_balance(d, key, b["h"], b.get("graph"))
+        form = CONTROLS[kind][0][0] if ctl else v.get("form", IP2_PICK[kind]["form"])
+        costs, _ = answer_costs(kind, {"control": True, "control_app": form} if ctl else ip5_graph(kind, form), m)
+        if not ctl and kind == "level" and form == "spark":
+            costs = [0, 0, 1]   # the line, the goal line drawn in the plausible band
+        if kind in ("count", "add", "level"):   # "today against the goal" / "now": the tracking panel and the goal line answer it
+            costs = [0] + list(costs[1:])       # on every page, so no graph earns it (found 2026-10-17: the sparkline's large value
+                                                # repeated the panel's and was credited for it); the repeat counts as clutter
+        order, prom, fold, scroll = ip4_hierarchy(b["els"])
+        taps = sum(1 if t in b["taps"] else 3 for t in IP4_REACH) + 2
+        if not ctl and v["template"] == "form":
+            taps += 1
+        taps += scroll
+        seen = b["seen"]
+        glance = sum(seen.get(k, 0) for k in ("now", "goal", "graph", "hist")) + (seen.get("stats", 0) if (not ctl and v["template"] != "form") else 0)
+        load = sum(costs) + b["numbers"] / 10 + (m["series"] - 1) * 0.5 + m["legend"]
+        gaps = b["h"]["gaps"]
+        if ctl:
+            consistency = 0
+        elif notes_part:   # the labels as words match the note's tappable word; chips are used nowhere else (owner, T3b.7d)
+            consistency = 1 if v["labels"] == "words" else 0
+        else:   # one family of graphs across the app: the other kinds drawing the same form
+            consistency = sum(1 for k, fs in IP5_FORMS.items() if k != kind and form in fs)
+        fold_area = 360.0 * max(1, b["h"]["content"][1] - b["h"]["content"][0])
+        return {"fit": sum(m["misfit"].values()), "min_font": b["min_font"], "overlaps": b["overlaps"], "gcut": b["gcut"],
+                "mark_seen": min(m["min_mark"], MARK_ENOUGH), "step_seen": min(m["step_px"], STEP_ENOUGH), "step_px": m["step_px"],
+                "encoding": CTL_ENCODING.get((kind, form), ENCODING[form]), "codes": 0 if ctl else CODES.get(form, 0) * (kind == "choice"),
+                "ink": m["ink"], "noise_seen": max(m["noise_px"], NOISE_FLAT), "compare": m["compare"], "clutter": b["clutter"],
+                "load": round(load, 2), "unseen": b["unseen"], "cut": b["cut"], "glance": glance, "taps": round(taps, 3), "scroll": scroll,
+                "order_inv": order, "prom_inv": prom, "fold_share": fold, "consistency": consistency,
+                "asym": round(b["h"]["asym"] / fold_area, 4), "balance_h": round(hb_, 3), "balance_v": round(vb_, 3), "void": void,
+                "rhythm": len(set(gaps)) + sum(1 for g in gaps if g % 4), "edges": b["h"]["lefts"] + b["h"]["rights"] - 2,
+                "likeness": likeness(seq), "seq": " ".join(seq), "misfit": ", ".join(sorted(k for k, x in m["misfit"].items() if x)) or "-", "small": []}
+
+    T.SPACES[part] = space
+    T.SCORERS[part] = score
+    T.VALID[part] = lambda v: True
+    ctl_app = CONTROLS[kind][0][0]
+    T.CONTROLS[part] = [({k: ctl_app for k in space} | {"control": True, "control_app": ctl_app},
+                         "a Chronicle-like page: Start and Log session, range chips, %s's chart, statistics tiles, a Goals section, the recent entries unfolded" % ctl_app)]
+    if notes_part:
+        T.TITLES[part] = "T3b.7f The note and labels: %s (labels as chips or words; one row or two; below or above History; template; the picked graph at 130 dp)" % KINDS[kind]["name"]
+        dims = ("labels", "arrange", "pos", "template")
+    else:
+        T.TITLES[part] = "T3b.7f Every graph at every height: %s (form, height, template; the note and labels one row of words below History)" % KINDS[kind]["name"]
+        dims = ("form", "height", "template")
+    T.DRAW[part] = lambda v: [page(v)[0]]
+    T.POOL[part] = lambda ok: ([r for r in ok if r.get("front")] +
+                               [min((r for r in ok if not r["v"].get("control") and r["v"][k] == x), key=lambda r: r["total"])
+                                for k in dims for x in space[k]])   # the best of every form, height, template, placement drawn
+    T.DRAW_MAX[part] = 40
+    T.AXES[part] = {"Harmony": ("asym", "balance_h", "balance_v", "rhythm", "edges", "void"), "Hierarchy": ("order_inv", "prom_inv", "-fold_share"),
+                    "Fit": ("fit",), "Readability": ("-min_font", "overlaps", "gcut", "-mark_seen", "-step_seen", "encoding", "codes"),
+                    "Calm": ("ink", "noise_seen", "compare", "clutter"), "Mental load": ("load",), "Density": ("unseen", "cut"),
+                    "Glance": ("-glance",), "Taps": ("taps",), "Likeness": ("likeness",), "Consistency": ("-consistency",)}
+    T.WEIGHTS[part] = {"Taps": 2, "Consistency": 2}
+    total = 1
+    for x in space.values():
+        total *= len(x)
+    # HAND-SET: Harmony within 5% of its rank-sum range (six measures now); Hierarchy within one rank-gap of the best, in its own
+    # unit (as a rank-sum, the folded statistics' one-gap edge put every front on one template, 2026-10-17)
+    T.LEAD[part] = [("Harmony", round(0.05 * 6 * total)), ("order_inv+prom_inv", 1)]
+    T.REFS_INFO.add(part)
+    for k, tol in (("_void", 4), ("_scroll", 0.05)):
+        T.v2.TOL.setdefault(k, tol)
+    T.SUPERSEDED["ip4_" + kind] = "every form re-opened at every height, the note and labels redrawn, the period segmented (owner, 2026-10-17): T3b.7f replaced it"
+
+
 def register(ns):
     for kind in KINDS:
         make_part(ns, kind)
@@ -1517,6 +1899,9 @@ def register(ns):
         make_ip3_part(ns, kind)
     for kind in KINDS:
         make_ip4_part(ns, kind)
+    for kind in KINDS:
+        make_ip5_part(ns, kind, False)
+        make_ip5_part(ns, kind, True)
     T = ns["T"]
     T.SUPERSEDED["ipage"] = "its graphs and order settled in the page (T3b.7b, owner 2026-10-17), its contents re-scored with the history folded (T3b.7c)"
     c = dict(order="ngh", period="chips", yaxis="none")   # the owner's picks (2026-10-17); the weight's height still open

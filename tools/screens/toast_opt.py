@@ -901,13 +901,16 @@ def ranked(p):
     lead = ok
     if p in LEAD:   # one measure leads (owner, 2026-10-13, P4 Measuring: fewest taps first); the rest break ties among those near the best
         keys = [LEAD[p]] if isinstance(LEAD[p], tuple) else LEAD[p]
-        best = {k: min(r[k] for r in ok) for k, _ in keys}
+        # a key may name raw measures, summed ("order_inv+prom_inv"): a tolerance in the measure's own unit, where a rank-sum
+        # turns a one-unit step shared by hundreds of tied options into a gap of hundreds (found 2026-10-17, T3b.7f)
+        val = lambda r, k: sum(float(r[x]) for x in k.split("+")) if "+" in k else r[k]
+        best = {k: min(val(r, k) for r in ok) for k, _ in keys}
         # several measures (one list at two sizes): the worse shortfall from each one's best counts (found 2026-10-13: the bests
         # at 12 and 30 items came from different designs, and "within the tolerance of both" left the front empty)
         # each shortfall in its own tolerance (2026-10-17: Harmony's five measures and Hierarchy's three lead together; one
         # shared tolerance let a page with labels above the tracking panel through); equal tolerances rank as before
         for r in ok:
-            r["_shortfall"] = max((r[k] - best[k]) / t for k, t in keys)
+            r["_shortfall"] = max((val(r, k) - best[k]) / t for k, t in keys)
         least = min(r["_shortfall"] for r in ok)
         lead = [r for r in ok if r["_shortfall"] <= least + 1]
     w = WEIGHTS.get(p, {})
@@ -930,14 +933,47 @@ TITLES = {"g": "G. Where actions sit, the same on every screen, and their text",
           "d": "D. The sync clash", "e": "E. Permission asks: when", "f": "F. Failures"}
 
 
+PAGE_RULES = ("<p class=dim><b>How this page is kept</b> (owner, 2026-10-17): the newest pass first. A part still open shows its front "
+              "and its control; a picked part shows only its picks; a part replaced by a later pass, or discarded, is one line naming the "
+              "commit that last scored it and the JSON file where every score stays. Nothing replaced is drawn.</p>")
+
+
+def chrono_parts():
+    """The parts with a record, newest first: the time their JSON first entered git (not yet committed: now), then the
+    commit that last touched each record (for the one-line entries of replaced parts)."""
+    import subprocess
+    import time
+    first, last = {}, {}
+    try:
+        log = subprocess.run(["git", "log", "--format=@%ct %h", "--name-only", "--", "."], cwd=OUT, capture_output=True, text=True, encoding="utf-8").stdout
+    except OSError:
+        log = ""
+    stamp = None
+    for line in log.splitlines():
+        if line.startswith("@"):
+            stamp = line[1:].split(" ")
+            continue
+        name = os.path.basename(line.strip())
+        if not name.startswith(PREFIX + "-") or not name.endswith(".json"):
+            continue
+        p = name[len(PREFIX) + 1:-5]
+        first[p] = int(stamp[0])          # the log runs newest first: the last seen is the first commit
+        last.setdefault(p, stamp[1])
+    now = int(time.time())
+    have = [p for p in SPACES if os.path.exists(os.path.join(OUT, PREFIX + "-%s.json" % p))]
+    return sorted(have, key=lambda p: (-first.get(p, now), p)), last
+
+
 def scores_page():
     import html as H
-    out, lost = [], {}
-    for p in sorted(SPACES):
+    out, lost = [PAGE_RULES], {}
+    parts, last = chrono_parts()
+    for p in parts:
         if not os.path.exists(os.path.join(OUT, PREFIX + "-%s.json" % p)):
             continue
         if p in SUPERSEDED:   # discarded: one line; every score stays in the JSON record (owner, 2026-10-17)
-            out.append('<p class=dim id="%s"><b>%s</b>: superseded (%s). Every score is kept in <code>%s-%s.json</code>.</p>' % (p, H.escape(TITLES[p]), H.escape(SUPERSEDED[p]), PREFIX, p))
+            out.append('<p class=dim id="%s"><b>%s</b>: replaced (%s). Last scored in %s; every score is kept in <code>%s-%s.json</code>.</p>' % (
+                p, H.escape(TITLES[p]), H.escape(SUPERSEDED[p]), last.get(p, "this run"), PREFIX, p))
             continue
         rows, ok, axes = ranked(p)
         ctls = [r for r in rows if r.get("control")]
@@ -1036,12 +1072,12 @@ def options_page():
     def nums(r, axes):
         return " · ".join("%s %g" % (a, r[a]) for a in axes) + " · sum %g" % r["total"] if "total" in r else "failed the gate"
 
-    secs = []
-    for p in sorted(SPACES):
-        if not os.path.exists(os.path.join(OUT, PREFIX + "-%s.json" % p)):
-            continue
-        if p in SUPERSEDED:   # discarded screens are not drawn (owner, 2026-10-16: "Delete past discarded screens"); the scores and the record stay
-            secs.append('<p class=dim><b>%s</b>: superseded (%s). Every score is kept in <code>%s-%s.json</code>.</p>' % (H.escape(TITLES[p]), H.escape(SUPERSEDED[p]), PREFIX, p))
+    secs = [PAGE_RULES]
+    parts, last = chrono_parts()
+    for p in parts:
+        if p in SUPERSEDED:   # replaced or discarded screens are not drawn (owner, 2026-10-16 and 10-17); the scores and the record stay
+            secs.append('<p class=dim><b>%s</b>: replaced (%s). Last scored in %s; every score is kept in <code>%s-%s.json</code>.</p>' % (
+                H.escape(TITLES[p]), H.escape(SUPERSEDED[p]), last.get(p, "this run"), PREFIX, p))
             continue
         rows, ok, axes = ranked(p)
         # small parts: every option drawn (the owner chooses among them); large ones: the front, lowest sum first, up to four

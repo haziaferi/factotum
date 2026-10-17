@@ -2388,6 +2388,61 @@ before: measure3 keeps its 82 on the front).
 - Cards lead ratings, minutes and weight; grid and cards counts; flat yes/no; choices spread over all four.
 - The period: the segmented control and ‹ October › share the fronts.
 
-Status: **T3b.7e scored: the owner picks the template, period control and height (one for every kind, or per kind); then
+Status (then): **T3b.7e scored: the owner picks the template, period control and height (one for every kind, or per kind); then
 T3b.6.** Phone cleanup paused: the Sci-Fin session took the phone mid-confirmation in Loop (Walk and Water perhaps
 deleted); Tendril, Chronicle and Track & Graph samples still owed.
+
+### T3b.7f Every graph at every height; the note and labels redrawn (owner, 2026-10-17)
+
+The owner: the two circles under the graph were unreadable (the note and labels as faint emoji in 48 dp rings); “Note:” a
+tappable underlined word at the left with a thin gap above and below, opening a text box, the saved note slightly greyer
+in a borderless static card, edited only through the word; labels as small flat oval chips or as underlined words
+“garden, home, hobby, +”; **the period: the segmented control** (owner's pick); why 100 dp scores low, and graphs
+that suit it (searched online, not from memory); Lunch's letters (options may share initials); the pages newest first
+with rules per pass.
+
+**Owner's answers:** re-open every form at every height, with compact forms added; Lunch tries lanes, a share bar with
+the last 7 days as words, and a shape per option; the note and labels scored as one row or two, below or above History;
+the pages newest first, a replaced pass one line (the commit and its JSON), nothing replaced drawn.
+
+**Why 100 dp lost in T3b.7e:** no page scrolled at any height, so height cost nothing; it moved only readability (to
+130 dp) and vertical balance, and the balance counted the graph's own ink and treated a blank plot as filled (Lunch's
+one-line strip in a 180 dp card reached the front).
+
+**Parts** (factored: the note and labels barely touch the graph): `ip5_*` form x height x template (the note and labels
+one row of words below History); `ip5n_*` labels (chips, words) x arrangement (one row, note first, labels first) x
+position (below, above History) x template, with the T3b.7b graph at 130 dp. Each form keeps its best T3b.7b settings.
+New forms: a sparkline with today's value large (counts, ratings, minutes, weight), a goal-met strip (counts, minutes),
+Lunch's lanes, share bar and shapes. New measures: void (Harmony; the tallest blank band inside the graph's box beyond
+24 dp, HAND-SET) and codes (Readability; options named by an initial).
+
+**Fixed on the way (each found by a wrong front):**
+- Hierarchy's lead as a rank-sum: hundreds of options tied, so a one-gap edge (a folded statistics line) put every front
+  on one template; it now leads in its own unit, within one rank-gap of the best (machinery: a lead key may sum raw
+  measures).
+- The balance counted the graph's ink: filled bars and areas led every front (bars for a weight among them); the graph's
+  box is masked out of the balance, its emptiness left to void.
+- The note's element: its word in one arrangement, word and card in the others; as a card it outranked History and the
+  goal line and the control led Hierarchy; the note is its word everywhere (the card is static grey content).
+- “Today against the goal” / “now” is answered by the tracking panel and goal line on every page: no graph
+  earns it (the sparkline's large value repeated the panel's and was credited).
+- Drawing: a space before each label comma; the sparkline's goal label sat on its bars (now under today's value).
+- The design critique (creative-design-suite): “Note:” is 32 dp tall and the label words about 20 dp; the thin gap
+  the owner asked for needs an invisible 48 dp hit area in the app (spec note, not drawn).
+
+**Result: every control lost.**
+- Height: once the blank plot and the graph's ink stopped counting, the shortest pages lead: 80 dp best for ratings,
+  yes/no, choices and minutes; counts 130 (80 and 100 within 30 of it); weight flat (180, 130, 100, 80 within 14).
+  100 dp sits second or third everywhere, no longer last.
+- Forms (lowest sum): counts the sparkline (columns), then line, dots; ratings sparkline, then strip; yes/no the running
+  total; Lunch the share bar, then strip and lanes (lanes fill most of its front); minutes and weight the sparkline.
+  The sparkline repeats today's value from the panel: an owner's judgement whether that is a cost.
+- Template: cards lead every kind (form shares several fronts).
+- The note and labels: below History in every kind; the note first, then the labels (labels first for yes/no and
+  minutes, within 2-13); **words beat chips in every kind** (consistency with the note's word, and calmer).
+
+**Pages:** `t3-options.html` and `t3-scores.html` are built newest pass first (the first commit of each part's record),
+with the rules at the top; a replaced or discarded part is one line naming the commit that last scored it and its JSON.
+
+Status: **T3b.7f scored: the owner picks the form and height per kind (or one height for all), the template, and the
+note and labels' form and order; then T3b.6.**
