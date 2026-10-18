@@ -21,6 +21,7 @@ Parts:
   ip5_*    T3b.7f every graph form at every height (t3_graphs.py)
   ip5n_*   T3b.7f the note and labels: chips or words, rows, position (t3_graphs.py)
   where2   T3b.6b one home per thing, settled against the item's page (t3_where2.py)
+  rv_*     T3c.2 Review's long spans per kind, and which day a session over midnight belongs to (t3_review.py)
   pace6    T3b.4f the approved Paced sentence: steppers the boxes' height, flowing or one part per line (owner, 2026-10-15)
   pace5    T3b.4e the Paced timer: N breaks evenly in the sentence; the ring shows and selects (owner, 2026-10-15)
   pace4    T3b.4d the Paced timer: a real dial for times, the run ring for pauses as fractions (owner, 2026-10-15)
@@ -4726,6 +4727,8 @@ import t3_graphs  # noqa: E402  (T3b.7a: the graphs per kind of value, registere
 t3_graphs.register(globals())
 import t3_where2  # noqa: E402  (T3b.6b: one home per thing, settled against the item's page)
 t3_where2.register(globals())
+import t3_review  # noqa: E402  (T3c.2: Review's long spans and midnight)
+t3_review.register(globals())
 
 
 if __name__ == "__main__":

@@ -1,0 +1,115 @@
+[
+ {
+  "v": {
+   "rule": "mean"
+  },
+  "fit": 0.0,
+  "honesty": 1.0,
+  "under": 0,
+  "thin": 2,
+  "mark_seen": 6,
+  "step_seen": 12,
+  "ink": 0.5808,
+  "noise_seen": 5.55,
+  "jumps": 0,
+  "load": 2.0,
+  "costs": [
+   0,
+   0,
+   2
+  ],
+  "shared": 3,
+  "small": []
+ },
+ {
+  "v": {
+   "rule": "total"
+  },
+  "fit": 0.0,
+  "honesty": 25.0,
+  "under": 24,
+  "thin": 2,
+  "mark_seen": 6,
+  "step_seen": 0.51,
+  "ink": 0.5418,
+  "noise_seen": 12.19,
+  "jumps": 2,
+  "load": 4.0,
+  "costs": [
+   1,
+   0,
+   3
+  ],
+  "shared": 2,
+  "small": []
+ },
+ {
+  "v": {
+   "rule": "goal_days"
+  },
+  "fit": 0.0,
+  "honesty": 1.0,
+  "under": 0,
+  "thin": 2,
+  "mark_seen": 6,
+  "step_seen": 12,
+  "ink": 0.3095,
+  "noise_seen": 16.81,
+  "jumps": 1,
+  "load": 3.0,
+  "costs": [
+   2,
+   1,
+   0
+  ],
+  "shared": 3,
+  "small": []
+ },
+ {
+  "v": {
+   "rule": "moving"
+  },
+  "fit": 0.0,
+  "honesty": 0.77,
+  "under": 0,
+  "thin": 1.53,
+  "mark_seen": 2,
+  "step_seen": 12,
+  "ink": 0.0463,
+  "noise_seen": 3,
+  "jumps": 0,
+  "load": 2.0,
+  "costs": [
+   0,
+   0,
+   2
+  ],
+  "shared": 3,
+  "small": []
+ },
+ {
+  "v": {
+   "rule": "zeros",
+   "control": true
+  },
+  "why": "empty counted as zero (no, for yes/no; the codes averaged, for choices): the error the owner ruled out",
+  "control": true,
+  "fit": 1.0,
+  "honesty": 25.0,
+  "under": 24,
+  "thin": 2,
+  "mark_seen": 6,
+  "step_seen": 12,
+  "ink": 0.4741,
+  "noise_seen": 7.02,
+  "jumps": 0,
+  "load": 3.0,
+  "costs": [
+   0,
+   1,
+   2
+  ],
+  "shared": 0,
+  "small": []
+ }
+]

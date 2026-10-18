@@ -1,0 +1,49 @@
+[
+ {
+  "v": {
+   "rule": "start"
+  },
+  "fragments": 0,
+  "short_days": 0,
+  "history_mismatch": 0,
+  "fit": 0,
+  "step_seen": 10.83,
+  "small": []
+ },
+ {
+  "v": {
+   "rule": "end"
+  },
+  "fragments": 0,
+  "short_days": 0,
+  "history_mismatch": 1,
+  "fit": 0,
+  "step_seen": 10.83,
+  "small": []
+ },
+ {
+  "v": {
+   "rule": "split"
+  },
+  "fragments": 66,
+  "short_days": 4,
+  "history_mismatch": 1,
+  "fit": 0,
+  "step_seen": 10.83,
+  "small": []
+ },
+ {
+  "v": {
+   "rule": "drop",
+   "control": true
+  },
+  "why": "a session over midnight not counted on any day (a day's bucket that only takes sessions wholly inside it)",
+  "control": true,
+  "fragments": 0,
+  "short_days": 0,
+  "history_mismatch": 1,
+  "fit": 1,
+  "step_seen": 10.83,
+  "small": []
+ }
+]

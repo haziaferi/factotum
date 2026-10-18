@@ -1,0 +1,115 @@
+[
+ {
+  "v": {
+   "rule": "mean"
+  },
+  "fit": 0.0,
+  "honesty": 11.0,
+  "under": 0,
+  "thin": 22,
+  "mark_seen": 6,
+  "step_seen": 8.12,
+  "ink": 0.0122,
+  "noise_seen": 3,
+  "jumps": 0,
+  "load": 2.0,
+  "costs": [
+   1,
+   0,
+   1
+  ],
+  "shared": 3,
+  "small": []
+ },
+ {
+  "v": {
+   "rule": "last"
+  },
+  "fit": 0.0,
+  "honesty": 11.0,
+  "under": 0,
+  "thin": 22,
+  "mark_seen": 6,
+  "step_seen": 8.12,
+  "ink": 0.0122,
+  "noise_seen": 3,
+  "jumps": 0,
+  "load": 1.0,
+  "costs": [
+   0,
+   0,
+   1
+  ],
+  "shared": 0,
+  "small": []
+ },
+ {
+  "v": {
+   "rule": "band"
+  },
+  "fit": 0.0,
+  "honesty": 11.0,
+  "under": 0,
+  "thin": 22,
+  "mark_seen": 2,
+  "step_seen": 8.12,
+  "ink": 0.0247,
+  "noise_seen": 3,
+  "jumps": 0,
+  "load": 2.5,
+  "costs": [
+   1,
+   0,
+   1
+  ],
+  "shared": 1,
+  "small": []
+ },
+ {
+  "v": {
+   "rule": "moving"
+  },
+  "fit": 0.0,
+  "honesty": 9.82,
+  "under": 0,
+  "thin": 19.64,
+  "mark_seen": 2,
+  "step_seen": 8.12,
+  "ink": 0.0159,
+  "noise_seen": 3,
+  "jumps": 0,
+  "load": 2.0,
+  "costs": [
+   1,
+   0,
+   1
+  ],
+  "shared": 3,
+  "small": []
+ },
+ {
+  "v": {
+   "rule": "zeros",
+   "control": true
+  },
+  "why": "empty counted as zero (no, for yes/no; the codes averaged, for choices): the error the owner ruled out",
+  "control": true,
+  "fit": 1.0,
+  "honesty": 45.0,
+  "under": 34,
+  "thin": 22,
+  "mark_seen": 6,
+  "step_seen": 8.12,
+  "ink": 0.0132,
+  "noise_seen": 157.39,
+  "jumps": 19,
+  "load": 9.0,
+  "costs": [
+   3,
+   3,
+   3
+  ],
+  "shared": 0,
+  "small": []
+ }
+]

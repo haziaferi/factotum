@@ -1,0 +1,93 @@
+[
+ {
+  "v": {
+   "rule": "mean"
+  },
+  "fit": 0.0,
+  "honesty": 1.5,
+  "under": 0,
+  "thin": 3,
+  "mark_seen": 6,
+  "step_seen": 12,
+  "ink": 0.0125,
+  "noise_seen": 16.06,
+  "jumps": 0,
+  "load": 2.0,
+  "costs": [
+   0,
+   0,
+   2
+  ],
+  "shared": 3,
+  "small": []
+ },
+ {
+  "v": {
+   "rule": "band"
+  },
+  "fit": 0.0,
+  "honesty": 1.5,
+  "under": 0,
+  "thin": 3,
+  "mark_seen": 2,
+  "step_seen": 12,
+  "ink": 0.2269,
+  "noise_seen": 16.06,
+  "jumps": 0,
+  "load": 2.5,
+  "costs": [
+   1,
+   0,
+   1
+  ],
+  "shared": 1,
+  "small": []
+ },
+ {
+  "v": {
+   "rule": "moving"
+  },
+  "fit": 0.0,
+  "honesty": 0.75,
+  "under": 0,
+  "thin": 1.5099999999999998,
+  "mark_seen": 2,
+  "step_seen": 12,
+  "ink": 0.0705,
+  "noise_seen": 5.42,
+  "jumps": 0,
+  "load": 2.0,
+  "costs": [
+   0,
+   0,
+   2
+  ],
+  "shared": 3,
+  "small": []
+ },
+ {
+  "v": {
+   "rule": "zeros",
+   "control": true
+  },
+  "why": "empty counted as zero (no, for yes/no; the codes averaged, for choices): the error the owner ruled out",
+  "control": true,
+  "fit": 1.0,
+  "honesty": 29.5,
+  "under": 28,
+  "thin": 3,
+  "mark_seen": 6,
+  "step_seen": 12,
+  "ink": 0.0132,
+  "noise_seen": 17.29,
+  "jumps": 0,
+  "load": 4.0,
+  "costs": [
+   1,
+   1,
+   2
+  ],
+  "shared": 0,
+  "small": []
+ }
+]

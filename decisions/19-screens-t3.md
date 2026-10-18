@@ -2612,4 +2612,42 @@ items on one graph is rare (Track & Graph with a hand-set offset and scale per l
 stacked cards per measure are the norm (FitoTrack, Daylio, Gadgetbridge); KPI rows against a scaled goal appear in
 Loop. Open for stage 2: which day a span over midnight belongs to (Gadgetbridge's sleep interval).
 
-Status: **T3c.1 survey done; next stage 2, aggregation per kind scored on the graph alone.**
+Status (then): **T3c.1 survey done; next stage 2, aggregation per kind scored on the graph alone.**
+
+### T3c.2 Review's long spans: one point per bucket, per kind; and midnight (owner, 2026-10-18)
+
+The owner: score every rule per kind, and the three midnight rules (“score all three”). **Parts `rv_*`**
+(`tools/screens/t3_review.py`): a year of placeholder logs per kind with gaps (about 15% of days unlogged, weight on
+45% of days, a three-week holiday with nothing logged); each rule drawn at 6 M (26 weeks) and Year (12 months) in a
+312 x 130 plot; Week and Month draw the days themselves, so the rules differ only there. Each kind's control: empty
+counted as zero (no for yes/no; the options' codes averaged for choices), the error the owner ruled out.
+`rv_midnight`: a Sleep night (23:10-07:00) and late Reading (23:30-00:20) drawn per day at Week and Month.
+
+**Axes (graph alone):** Fit, Honesty of averages (a total on a partial bucket drawn >10% under its logged days' rate;
+a bucket or window on under half its days drawn as any other, half a count each: the owner's “show as is” kept and
+its cost shown), Readability, Calm, Mental load (HAND-SET question costs, flagged), Consistency (2). No lead:
+Comparability and Taps belong to the whole screen (stages 3 and 5).
+
+**Fixed on the way:** the goal's dashed line counted as the smallest data mark; the moving mean escaped the
+few-logs cost; ink and a 1 px jitter difference were value-driven (empty-as-zero drew shorter, “calmer” bars and
+kept the control on two fronts): Calm is now the median jump in meaningful steps above the 3 px flat floor;
+Water's placeholder data almost never reached its goal (made to, about a quarter of days).
+
+**Result: every control lost.** Lowest sums and fronts (★):
+
+| Kind | Best | Also on the front | Off the front |
+|---|---|---|---|
+| Water (count) | mean of logged days ★ | 7-day moving mean | goal days; total (reads low on partial weeks) |
+| Reading (minutes) | 7-day moving mean ★ | mean of logged days; goal days | total |
+| Mood (rating) | mean of entries ★ | moving mean | low-high band |
+| Weight | mean of entries ★ | moving mean; last entry | band |
+| Walk (yes/no) | share of logged days ★ | runs | count of days (reads low on partial weeks) |
+| Lunch (choice) | split bar per bucket ★ | runs; most frequent | - |
+| Midnight | **the day it starts** ★ | - | the day it ends (unlike History); split (66 fragments, short days) |
+
+Totals and counts of days fail on honesty: a week with three logged days reads as a low week. The mean of logged
+days (the owner's rule) and the moving mean tie at the top for amounts; the bucket rule is the owner's stated idea,
+the moving mean Track & Graph's.
+
+Status: **T3c.2 scored: the owner picks the rule per kind and the midnight rule; then stage 3 (overlap and items,
+Comparability leading at 2 and 10 items).**
