@@ -2444,5 +2444,16 @@ Lunch's lanes, share bar and shapes. New measures: void (Harmony; the tallest bl
 **Pages:** `t3-options.html` and `t3-scores.html` are built newest pass first (the first commit of each part's record),
 with the rules at the top; a replaced or discarded part is one line naming the commit that last scored it and its JSON.
 
-Status: **T3b.7f scored: the owner picks the form and height per kind (or one height for all), the template, and the
+Status (then): **T3b.7f scored: the owner picks the form and height per kind (or one height for all), the template, and the
 note and labels' form and order; then T3b.6.**
+
+**Owner's picks (2026-10-18): cards for every kind; 80 dp, the weight 100 dp.** All on their fronts:
+- Reading: the sparkline (columns), 1st of 144.
+- Lunch: the share bar with the last 7 days as words, 1st of 112.
+- Water: dots, a dot per glass, 11th of 144.
+- Weight: the sparkline, 100 dp, 3rd of 128.
+- Mood: dots with the 7-day mean (avg), 10th of 112.
+- Walk: the running total, 1st of 80.
+
+Status: **T3b.7f graphs picked; open: the note and labels (words or chips, the note or the labels first; every kind
+puts them below History); then T3b.6.**
