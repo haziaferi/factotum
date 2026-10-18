@@ -2455,5 +2455,12 @@ note and labels' form and order; then T3b.6.**
 - Mood: dots with the 7-day mean (avg), 10th of 112.
 - Walk: the running total, 1st of 80.
 
-Status: **T3b.7f graphs picked; open: the note and labels (words or chips, the note or the labels first; every kind
+Status (then): **T3b.7f graphs picked; open: the note and labels (words or chips, the note or the labels first; every kind
 puts them below History); then T3b.6.**
+
+**Owner's picks (2026-10-18): the labels as words; the note first, then the labels, below History, on every screen.**
+On the picked cards template this is the lowest sum for Water, Mood, Lunch and Weight, 2nd for Reading and 3rd for Walk
+(of 48). It sits off the fronts only because Hierarchy's lead favours the form template, whose folded statistics line
+is smaller (one rank-gap); the cards were picked with the graphs.
+
+Status: **T3b.7f picked; next T3b.6, one home per thing, settled against the item's page.**
