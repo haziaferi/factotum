@@ -2586,5 +2586,18 @@ spans; the owner's rule (6 M by weeks, Year by months, means of logged days) is 
 scale is how T&G overlaps units; it needs setup, which Customization burden weighs. Loop's KPI rows are the bullet
 rows' nearest app form.
 
-Status: **T3c.1 phone survey done; next FOSS (Gadgetbridge, FitoTrack, Waistline through Droid-ify) and Aurora
+Status (then): **T3c.1 phone survey done; next FOSS (Gadgetbridge, FitoTrack, Waistline through Droid-ify) and Aurora
 (Bearable, Daylio), each download confirmed with the owner.**
+
+**FOSS survey (2026-10-18; FitoTrack, Waistline, Gadgetbridge installed through Droid-ify, approved, left installed; no
+data entered, every permission and personal-data prompt declined; Daylio and Bearable were already installed):**
+- **FitoTrack:** a period bar (day / week / month / year / all, with the period named) over one stacked card per
+  measure: small multiples by measure, the lanes candidate's app form.
+- **Waistline:** spans week / month / 3 months / 6 months / year / custom, one statistic at a time, bars or line; its
+  chart settings show the average and the goal by default (a trend line and a 7-day moving average off).
+- **Gadgetbridge:** a today dashboard of reorderable widgets (the customizable-board model, as Today) and a month
+  calendar of goal status; "show averages in charts"; and **a sleep interval deciding which day a session crossing
+  midnight belongs to** - Review's buckets need the same rule for sleep and any span over midnight (an open question
+  for the aggregation stage).
+
+Status: **T3c.1 FOSS survey done; next Aurora's two (Bearable, Daylio, already installed), then stage 2.**
