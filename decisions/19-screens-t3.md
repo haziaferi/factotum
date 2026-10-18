@@ -2546,4 +2546,24 @@ settling. T3b.7f's period control changes from three segments to five on the ite
 4. Today: the three forms, with the overlap picked; the owner picks.
 5. The whole Review screen and the item page's five segments, scored in their pages (as T3b.7f); the owner picks.
 
-Status: **T3c.1 Review defined; next its survey (online first).**
+Status (then): **T3c.1 Review defined; next its survey (online first).**
+
+**Online survey (2026-10-18; notes in `_screens-sources/t3/review/notes.md`, gitignored):**
+- **Long spans:** Apple Health's D · W · M · 6M · Y is the owner's idea almost exactly: each span reports an average
+  per day, 6M as a bar per week (one author's reading). HealthKit skips intervals with no samples rather than counting
+  zero; Garmin's weekly averages carry a count of days with data. Empty-is-not-zero is the platforms' own rule.
+- **Several items:** indexing each series to a common base cut comparison errors in a controlled study (Aigner et al.,
+  2011): the percent-of-goal and own-range candidates. Separate charts per series (small multiples, horizon graphs) did
+  better over long spans, shared-space lines over short ones (Javed et al.): lanes for 6M, Year and 10 items, overlap
+  for Today, Week and 2 items. Dual y-axes are criticised as arbitrary: a control, not an option.
+- **Today:** the bullet graph (Few: a label, one scale, the measure, a target mark, muted grey ranges) for today against
+  goals; Toggl's 15-minute day timeline for the day's entries and sessions.
+- **Yes/no and choices over a year:** only year grids (heatmaps, ruled out for graphs, T3b.7a) were found; runs as bars
+  in a lane per item would be a form of our own.
+
+**Candidates carried to stage 2 and 3:** overlap = indexed lines (percent of goal; own range), stacked lanes (small
+multiples), horizon rows, Gantt-like runs; Today = bullet rows, a day timeline, both; the control = dual y-axes on one
+chart (Oracle-like, up to four series) with every item overlaid.
+
+Status: **T3c.1 online survey done; next the survey on the phone (Chronicle's Charts, Track & Graph, Loop, openScale,
+Tendril's Review), then FOSS and Aurora, each download confirmed with the owner.**
