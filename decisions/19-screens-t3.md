@@ -2495,4 +2495,55 @@ week's charts, Saved charts: taps 15 against 19-23 on the front), so the lead is
 on the row (T3b.5, glance on the row) and the Hub's Pinned and recent (T1.4 A0). On the Hub, dropping the list wins on
 Harmony and Hierarchy while costing 3 taps to reach a recent item.
 
-Status: **T3b.6b scored: the owner settles each repeat.**
+Status (then): **T3b.6b scored: the owner settles each repeat.**
+
+### T3c.1 Review, defined before it is drawn (owner, 2026-10-18)
+
+The owner: “Review Thursday, This week and Saved charts are not supposed to be different screens. Instead, there should be
+one screen reachable from the Measuring page that handles this information via overlapping graphs. Review with a default
+today's data graph, and selectable weekly, monthly, 6-month and yearly spans. […] 6-month gets a weekly average to
+represent data, yearly gets a monthly average. When no log is made, the input is empty, not 0, it does not count towards
+the average. The daily review list could also belong under a collapsed line at the bottom in Journal (tbd).”
+
+**The definition (owner's answers, 2026-10-18):**
+- **One screen, Review,** replaces This week, Saved charts and Review's day. Reached from a glyph in Measuring's header
+  and from the Hub's Review card, which keeps one entry, Review (This week, Time totals and Charts leave as entries;
+  History to Journal, tbd). The day's list of entries: a collapsed line at the foot of Journal (tbd, not designed now).
+- **Spans, a segmented control, rolling and ending today:** Today (the default) · Week (7 days) · Month (30 days) ·
+  6 M (26 weeks) · Year (12 months). **The item's page takes the same five** (its 7 d · 30 d · 1 y replaced), with
+  the same rules; its graph forms and heights stay as picked (T3b.7f).
+- **One point per bucket:** a day in Week and Month, a week in 6 M, a month in Year. **Empty is not zero:** a day with
+  no log is left out of every average. A bucket resting on few logs is drawn like any other (owner: “show as is”).
+- **Aggregation, workshopped per kind and scored:** counts and minutes (the mean of logged days / the bucket's total /
+  days the goal was met); yes/no and choices (the share of logged days / a count of days / Gantt-like runs in a lane);
+  weight and ratings (the mean of entries, to confirm in the workshop).
+- **Overlap, scored:** percent of goal; each item scaled to its own range; stacked lanes on one time axis; and more
+  complex forms (Gantt, KPI rows, or a form of our own) found in the survey.
+- **Today, scored:** a timeline of the day (entries and sessions where they happened) / today against goals (KPI rows)
+  / both, stacked.
+- **Which items, scored:** saved sets the person picks / every item with data in the span / the items pinned to Today.
+
+**Axes:** T3b.7f's set (Harmony, Hierarchy, Fit, Readability, Calm, Mental load, Density, Glance, Taps, Likeness,
+Consistency) with Comparability (two items compared at a glance), Honesty of averages and Customization burden.
+**Comparability leads, measured with 2 and with 10 items.** Taps 2, Consistency 2 (as T3b.7), the rest 1. Consistency
+does not weigh a chart's width: Review's chart may be wider or narrower than the item page's.
+
+**Survey (geometry only, placeholder data, as before):** online examples (Gantt, KPI, small multiples, published
+screenshots and docs); on the phone (Chronicle's Charts, Track & Graph's group graphs, Loop, openScale, Tendril's
+Review); FOSS through Droid-ify (Gadgetbridge, FitoTrack, Waistline); Aurora (Bearable, Daylio and the like).
+Installs and removals as T3b.7d's: each download confirmed with the owner first, the apps removed after, our samples
+deleted.
+
+**Effects on earlier passes:** T3b.6b's Review's day, This week and Saved charts dimensions are moot (one Review screen);
+its other repeats (Measuring's strip, the row's amount and goal line, the Hub's lists) still await the owner's
+settling. T3b.7f's period control changes from three segments to five on the item's page.
+
+**The workflow, staged so each stage's pick narrows the next (fewer drawings, no re-runs):**
+1. Survey: online first (no installs), then the phone's apps, then FOSS and Aurora (downloads confirmed one by one).
+2. Aggregation per kind, scored on the graph alone (as T3b.7a): every rule x span for the six kinds; the owner picks.
+3. Overlap and items: the forms (percent, own range, lanes, Gantt/KPI/new) x the item sets, drawn with 2 and 10 items;
+   Comparability leads; the owner picks.
+4. Today: the three forms, with the overlap picked; the owner picks.
+5. The whole Review screen and the item page's five segments, scored in their pages (as T3b.7f); the owner picks.
+
+Status: **T3c.1 Review defined; next its survey (online first).**
