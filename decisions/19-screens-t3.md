@@ -2565,5 +2565,26 @@ Status (then): **T3c.1 Review defined; next its survey (online first).**
 multiples), horizon rows, Gantt-like runs; Today = bullet rows, a day timeline, both; the control = dual y-axes on one
 chart (Oracle-like, up to four series) with every item overlaid.
 
-Status: **T3c.1 online survey done; next the survey on the phone (Chronicle's Charts, Track & Graph, Loop, openScale,
+Status (then): **T3c.1 online survey done; next the survey on the phone (Chronicle's Charts, Track & Graph, Loop, openScale,
 Tendril's Review), then FOSS and Aurora, each download confirmed with the owner.**
+
+**Phone survey (2026-10-18; placeholders made and deleted; owner: survey apps stay installed from now on):**
+- **Track & Graph** is the nearest model: spans all / day / week / month / 3 months / 6 months / year / custom; a line
+  graph overlaps several items, each with a moving average (day to year) or totals per hour / day / week / month /
+  year, and an offset and scale per line to put different units on one axis (by hand); a bar chart totals or counts one
+  item per period.
+- **Loop:** KPI rows (today / week / month / quarter / year against the goal scaled to each); score and history with a
+  day / week / month / quarter / year bucket list; a weekday-by-week calendar grid and a weekday-by-month frequency
+  grid over a year.
+- **Chronicle:** a saved-chart builder (name, line / bar / pie, 7d / 30d / 90d, several sources as chips): the
+  "saved sets" candidate.
+- **Tendril's Review** is a triage queue, not a data review: no model for Review here.
+- openScale is not on the phone.
+
+**For the stages:** periods-as-buckets (Loop, T&G totals) and moving averages (T&G) are two distinct ways to build long
+spans; the owner's rule (6 M by weeks, Year by months, means of logged days) is the bucket way. Per-line offset and
+scale is how T&G overlaps units; it needs setup, which Customization burden weighs. Loop's KPI rows are the bullet
+rows' nearest app form.
+
+Status: **T3c.1 phone survey done; next FOSS (Gadgetbridge, FitoTrack, Waistline through Droid-ify) and Aurora
+(Bearable, Daylio), each download confirmed with the owner.**
