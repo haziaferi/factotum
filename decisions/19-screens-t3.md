@@ -2463,4 +2463,36 @@ On the picked cards template this is the lowest sum for Water, Mood, Lunch and W
 (of 48). It sits off the fronts only because Hierarchy's lead favours the form template, whose folded statistics line
 is smaller (one rank-gap); the cards were picked with the graphs.
 
-Status: **T3b.7f picked; next T3b.6, one home per thing, settled against the item's page.**
+Status (then): **T3b.7f picked; next T3b.6, one home per thing, settled against the item's page.**
+
+### T3b.6b One home per thing, settled against the item's page (owner, 2026-10-18)
+
+**Owner's answers:** the item's page is the fixed home of what T3b.7f gave it; only the repeats elsewhere are scored;
+drawn and measured, not hand-counted; This week, Saved charts and Review's day (T3c, undesigned) drawn as minimal frames
+from their sources with only the repeat varying, Harmony and Hierarchy measured on the designed screens only (Measuring
+T3b.1d, the Hub sheet T1.4 A0); axes: redundancy, customization, taps, glance, mental load, consistency, Harmony,
+Hierarchy, settings burden; **Redundancy leads**; Taps 2, Consistency 2.
+
+**Part `where2`** (`tools/screens/t3_where2.py`; T3b.6's `where` replaced): Measuring's running strip (kept, a doorway,
+removed, the person's choice) x the row's today amount (no, yes) x the row's goal line (shown, the person's choice,
+removed) x Review's day sessions (kept, doorways, removed) x This week's item charts (kept, totals with doorways,
+removed) x Saved charts (kept, removed) x the Hub's Pinned and recent (kept, pins only, the person's choice, dropped):
+1,728 options. The walk's seven tasks measured on the drawings (a scroll for a target below the fold, a tap for a folded
+label). The control: the source apps merged as they come (Chronicle's dashboard over Measuring, its Frequent list on
+the Hub, every repeat kept).
+
+**Flagged (my operationalisation, reversible):** Hierarchy on the other screens is “a screen's own function outranks a
+repeat of another screen's thing” (a repeat drawn above the screen's own rows is an inversion; the share of its own rows
+on the first screen); the lead is within one kept repeat of the least redundant (HAND-SET).
+
+**Result: the control lost** (rank 1,019 of 1,729). With Redundancy leading, the front (8) removes nearly everything:
+the strip removed (the running row's own ■ pauses it, one scroll down), the row says “last” only, the goal line
+removed on 6 of 8, This week's charts and Saved charts removed on 7, the Hub's Pinned and recent dropped on all 8;
+Review's day keeps its sessions on one. The lowest sums overall keep three repeats instead (Review's sessions, This
+week's charts, Saved charts: taps 15 against 19-23 on the front), so the lead is what removes them.
+
+**Read with care, for the owner:** three front results contradict approved screens: the strip (T3b.1d), the goal line
+on the row (T3b.5, glance on the row) and the Hub's Pinned and recent (T1.4 A0). On the Hub, dropping the list wins on
+Harmony and Hierarchy while costing 3 taps to reach a recent item.
+
+Status: **T3b.6b scored: the owner settles each repeat.**
