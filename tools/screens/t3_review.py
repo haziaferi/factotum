@@ -504,3 +504,7 @@ def register(ns):
     T.AXES[part] = {"Fit": ("fit", "short_days"), "Fragments": ("fragments",), "Consistency": ("history_mismatch",), "Readability": ("-step_seen",)}
     T.WEIGHTS[part] = {"Consistency": 2}
     T.REFS_INFO.add(part)
+    # the owner's picks (2026-10-18): the mean of logged days for all (a yes/no's share of logged days; a choice's shares of
+    # logged days, the split bar); a session over midnight on the day it starts
+    T.PICKED.update({"rv_count": [{"rule": "mean"}], "rv_add": [{"rule": "mean"}], "rv_rating": [{"rule": "mean"}], "rv_level": [{"rule": "mean"}],
+                     "rv_yesno": [{"rule": "share"}], "rv_choice": [{"rule": "split"}], "rv_midnight": [{"rule": "start"}]})

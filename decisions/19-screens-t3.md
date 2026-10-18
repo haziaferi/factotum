@@ -2649,5 +2649,16 @@ Totals and counts of days fail on honesty: a week with three logged days reads a
 days (the owner's rule) and the moving mean tie at the top for amounts; the bucket rule is the owner's stated idea,
 the moving mean Track & Graph's.
 
-Status: **T3c.2 scored: the owner picks the rule per kind and the midnight rule; then stage 3 (overlap and items,
+Status (then): **T3c.2 scored: the owner picks the rule per kind and the midnight rule; then stage 3 (overlap and items,
 Comparability leading at 2 and 10 items).**
+
+**Owner's picks (2026-10-18): the mean of logged days for every kind** (for yes/no the share of logged days; for a
+choice, which has no mean, each option's share of logged days: the split bar); **a session over midnight counts on the
+day it starts.**
+
+**Owner's note on colour:** the drawings are greys, so scoring may count overlap against forms that colour and opacity
+would resolve once palettes and themes are decided. For stage 3: series are drawn told apart by provisional means
+(line styles, opacity), and a series' identity is not counted against an overlapping form; marks hidden behind other
+marks still count (opacity reduces it; it does not remove it). Flagged as provisional until the palette pass.
+
+Status: **T3c.2 picked; next stage 3, overlap and items, Comparability leading at 2 and 10 items.**
