@@ -2600,4 +2600,16 @@ data entered, every permission and personal-data prompt declined; Daylio and Bea
   midnight belongs to** - Review's buckets need the same rule for sleep and any span over midnight (an open question
   for the aggregation stage).
 
-Status: **T3c.1 FOSS survey done; next Aurora's two (Bearable, Daylio, already installed), then stage 2.**
+Status (then): **T3c.1 FOSS survey done; next Aurora's two (Bearable, Daylio, already installed), then stage 2.**
+
+**Aurora's two (2026-10-18; no entries made):** Daylio's statistics are a column of cards for the calendar month (a
+streak row, the mood chart, the daily average mood, counts of moods and activities, often together, mood stability,
+goals, milestones), each a separate chart, none overlapping items. Bearable still opens on an account wall: not
+created; its comparison graph is known from its docs.
+
+**The survey in one line:** spans like the owner's are common (Apple Health, Track & Graph, Waistline); overlapping
+items on one graph is rare (Track & Graph with a hand-set offset and scale per line, Bearable's bar plus line);
+stacked cards per measure are the norm (FitoTrack, Daylio, Gadgetbridge); KPI rows against a scaled goal appear in
+Loop. Open for stage 2: which day a span over midnight belongs to (Gadgetbridge's sleep interval).
+
+Status: **T3c.1 survey done; next stage 2, aggregation per kind scored on the graph alone.**
