@@ -145,6 +145,10 @@ class Browser:
         return res["result"].get("value")
 
     def close(self):
+        try:   # the browser itself, over DevTools: the process we started may be only its launcher (Edge 155)
+            self.ws.send(json.dumps({"id": self.n + 1, "method": "Browser.close", "params": {}}))
+        except Exception:
+            pass
         try:
             self.proc.kill()
         except Exception:
@@ -154,8 +158,8 @@ class Browser:
 def evaluate(edge, cache, path, expr, w, h):
     """The value of expr on the page at path, in this thread's browser (started on first use, restarted if it died)."""
     b = getattr(_local, "browser", None)
-    if b is not None and b.proc.poll() is not None:
-        b = None
+    # a dead browser shows as a failed connection below, not by its launcher's exit: Edge 155's msedge.exe hands off to the
+    # real browser and exits, so polling it started a second browser on the same profile, which gave no port (2026-10-20)
     if b is None:
         b = Browser(edge, os.path.join(cache, "cdp-profile-%d" % threading.get_ident()))
         _local.browser = b

@@ -138,11 +138,26 @@ def measure(doc, w, h):
                 return json.load(fh)
         except ValueError:
             pass  # another worker was still writing it: measure again
-    res = _edge(["--dump-dom"], True, key, doc.replace("</body>", MEASURE_JS.replace("innerWidth", str(w)).replace("innerHeight", str(h)) + "</body>"), w + 300, h + 300)
-    m = re.search(r'<pre id="__measure">(.*?)</pre>', res.stdout, re.S)
-    if not m:
-        raise RuntimeError("measure failed: " + res.stderr[-400:])
-    data = json.loads(m.group(1).replace("&quot;", '"').replace("&amp;", "&"))
+    page = doc.replace("</body>", MEASURE_JS.replace("innerWidth", str(w)).replace("innerHeight", str(h)) + "</body>")
+    if os.environ.get("SCREENS_CDP", "1") == "1":
+        # the kept-open browser (2026-10-20: Edge 155's one-shot --dump-dom returns an empty page, so every tap gate failed)
+        import cdp
+        os.makedirs(CACHE, exist_ok=True)
+        src = os.path.join(CACHE, key + ".html")
+        tmp = "%s.%d.%d.tmp" % (src, os.getpid(), threading.get_ident())
+        with open(tmp, "w", encoding="utf-8", newline="\n") as fh:
+            fh.write(page)
+        os.replace(tmp, src)
+        txt = cdp.evaluate(EDGE, CACHE, src, "(function(){var p=document.getElementById('__measure');return p?p.textContent:null})()", w + 300, h + 300)
+        if not txt:
+            raise RuntimeError("measure failed: no result on the page")
+        data = json.loads(txt)
+    else:
+        res = _edge(["--dump-dom"], True, key, page, w + 300, h + 300)
+        m = re.search(r'<pre id="__measure">(.*?)</pre>', res.stdout, re.S)
+        if not m:
+            raise RuntimeError("measure failed: " + res.stderr[-400:])
+        data = json.loads(m.group(1).replace("&quot;", '"').replace("&amp;", "&"))
     tmp = "%s.%d.%d.tmp" % (cached, os.getpid(), threading.get_ident())
     with open(tmp, "w", encoding="utf-8") as fh:
         json.dump(data, fh)

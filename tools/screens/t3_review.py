@@ -339,6 +339,11 @@ def draw_span(kind, rule, span):
 def draw(kind, rule):
     """Both spans, and their measures."""
     out, m = [], {"ink": 0, "mark": 99, "step": 99, "under": 0, "thin": 0, "noise": 0, "numbers": 0, "legend": 0, "series": 1}
+    if kind == "choice" and rule == "split":   # the shades' key (2026-10-20: the split bar was drawn without one)
+        sw = '<span style="display:inline-block;width:10px;height:10px;margin:0 3px 0 8px;vertical-align:-1px;background:%s%s"></span>'
+        out.append('<div style="font-size:12px;color:var(--dim);margin:4px 0">%s</div>' % "".join(
+            (sw % (f, ";box-shadow:inset 0 0 0 1px var(--dim)" if o == "skipped" else "")) + o for o, f in (
+                ("home", "var(--ink)"), ("packed", "var(--dim)"), ("out", "var(--zone2)"), ("skipped", "var(--bg)"))))
     for span, title in (("6m", "6 M · a point per week"), ("year", "Year · a point per month")):
         p, step, under, thin = draw_span(kind, rule, span)
         out.append(p.svg(title))

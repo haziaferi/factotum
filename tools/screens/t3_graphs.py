@@ -1707,9 +1707,10 @@ def ip5_page(kind, v, kit):
         ctl += '<span class="c" data-tap="Paced" style="background:var(--zone2);color:var(--ink)">⏱</span>'
     now = '<div class="ipn" data-sec="now" data-row="box" data-el="panel"><span class="v"><b>%s</b><s>%s</s></span>%s</div>' % (e(pg["now"][0]), e(pg["now"][1]), ctl)
     goal_text = IP2_GOAL.get(kind)
-    goal = '<div data-sec="goal" class="ipl" data-el="goal"><span class="t" data-tap="Goal"%s>%s</span></div>' % (
+    # the goal line and History are tapped as whole 48 dp rows (2026-10-20: the tap sat on a 20 dp text span inside them)
+    goal = '<div data-sec="goal" class="ipl" data-el="goal" data-tap="Goal"><span class="t"%s>%s</span></div>' % (
         "" if goal_text else ' style="color:var(--dim)"', e(goal_text or "Set a goal"))
-    hist = ('<div data-sec="hist" class="ipl" data-row="box" data-el="hist" style="justify-content:space-between"><span data-tap="History">History · %d entries</span>'
+    hist = ('<div data-sec="hist" class="ipl" data-row="box" data-el="hist" data-tap="History" style="justify-content:space-between"><span>History · %d entries</span>'
             '<span style="min-width:48px;min-height:48px;display:grid;place-items:center">›</span></div>') % len(pg["hist"])
     per = ip3_period({"period": "segmented"})
     above = v["pos"] == "above_hist"
