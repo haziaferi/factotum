@@ -74,11 +74,11 @@ _see how things went over time; a weekly review (owner, 2026-10-05)_
 
 | Screen | Comes from | New in Factotum | Tier | Status | Overlaps |
 |---|---|---|---|---|---|
-| This week (the weekly review) | Tendril Review |  | T3c | pending | Saved charts, Time totals, Stability trend (in words), Ledger and sensory history |
-| Saved charts | Chronicle Charts |  | T3c | pending | A tracker's or activity's page (running view, sessions, goals, statistics and charts), Time totals |
-| Time totals | Tendril time logs; Chronicle |  | T3c | pending | Saved charts |
-| Stability trend (in words) | Equipoise |  | T3c or T4 | pending | This week (the weekly review) |
-| Ledger and sensory history | Equipoise |  | T3c or T4 | pending | This week (the weekly review) |
+| Review (one screen: overlapping graphs over Today · Week · Month · 6 M · Year; replaces This week, Saved charts, Time totals and Review's day) | Tendril Review; Chronicle Charts; Tendril time logs |  | T3c | defined (T3c.1, owner 2026-10-18); long spans picked (T3c.2: the mean of logged days, a session over midnight on its start day); overlap and items next | Saved charts, Time totals, Stability trend (in words), Ledger and sensory history |
+| Saved charts | Chronicle Charts |  | T3c | merged into Review (this_week), T3c.1 (owner, 2026-10-18) | A tracker's or activity's page (running view, sessions, goals, statistics and charts), Time totals |
+| Time totals | Tendril time logs; Chronicle |  | T3c | merged into Review (this_week), T3c.1 (owner, 2026-10-18) | Saved charts |
+| Stability trend (in words) | Equipoise |  | T3c or T4 | pending | Review (one screen: overlapping graphs over Today · Week · Month · 6 M · Year; replaces This week, Saved charts, Time totals and Review's day) |
+| Ledger and sensory history | Equipoise |  | T3c or T4 | pending | Review (one screen: overlapping graphs over Today · Week · Month · 6 M · Year; replaces This week, Saved charts, Time totals and Review's day) |
 
 ## P6 Noticing myself
 
@@ -147,7 +147,7 @@ _make the app work: settings, sync, trash, backup, lock, labels_
 
 | | Strength | Screens | Why |
 |---|---|---|---|
-| O3 | strong | This week (the weekly review), Saved charts, A tracker's or activity's page (running view, sessions, goals, statistics and charts), Time totals, Stability trend (in words), Ledger and sensory history | see how things went over time; time totals is a chart of activities, tracker detail a chart of one tracker |
+| O3 | strong | Review (one screen: overlapping graphs over Today · Week · Month · 6 M · Year; replaces This week, Saved charts, Time totals and Review's day), Saved charts, A tracker's or activity's page (running view, sessions, goals, statistics and charts), Time totals, Stability trend (in words), Ledger and sensory history | see how things went over time; time totals is a chart of activities, tracker detail a chart of one tracker |
 | O4 | medium | Calendar: Week (planner) · Month · 3 days, Habit planner (confirm the week into time blocks), Time blocks (setup) | lay out the week; two things are now called a planner |
 | O5 | medium | Check-in, Ledger (three masking scales, once a day), Sensory log, Journal (one page a day) | note how I am; the journal is free writing, the rest structured and quick |
 
@@ -169,14 +169,14 @@ Each thing a person reads or does has one home; Today may show any of it (a mast
 |---|---|---|---|---|---|
 | Start or log an item (▶, + usual, chips) | Measuring | the Goals row's rows (T3b.5b) | the item's page (approved (T3b.4g)) | capture line (T1.3); widgets (pending) | **to score** |
 | A running timer (pause, stop) | the item's page | the running strip (T3b.4g) | Measuring (Measuring's running strip (T3b.1d)) | Android's notification | **to score** |
-| Today's amount, and when last | Measuring | — | the item's page (approved); This week (Review's day (pending)) | — | **to score** |
-| Goal progress | **undecided (T3b.5 workshop)** | the Goals row (T3b.5b) | Measuring (the row's goal line (T3b.5c)); the item's page (the page (T3b.5)); Saved charts (a goal line (pending)) | — | **to score** |
+| Today's amount, and when last | Measuring | — | the item's page (approved); Journal (one page a day) (the day's list under a collapsed line (tbd, T3c.1)) | — | **to score** |
+| Goal progress | **undecided (T3b.5 workshop)** | the Goals row (T3b.5b) | Measuring (the row's goal line (T3b.5c)); the item's page (the page (T3b.5)); Review (Review's graphs (stage 3)) | — | **to score** |
 | Setting a goal | the item's page | — | — | — | T3b.5 (reopened) |
-| Sessions and their edits | the item's page | Edit beside Undo after a stop (T3b.3) | This week (Review's day timeline (pending)) | — | **to score** |
-| Totals and charts over time | **undecided** | — | the item's page (its statistics (owner, T3b.5)); Time totals (pending); Saved charts (pending); This week (pending) | — | **to score** |
+| Sessions and their edits | the item's page | Edit beside Undo after a stop (T3b.3) | Journal (one page a day) (the day's list under a collapsed line (tbd, T3c.1)) | — | **to score** |
+| Totals and charts over time | Review | — | the item's page (its graph and statistics, one item (T3b.7f)) | — | T3c.1 (Review defined), T3c.2 (long spans) |
 | Shortcut lists of items | **undecided** | pinned goals (T3b.5b) | Measuring (Recent (T3b.1d)); Hub (Pinned and recent (T1.4)) | one pin for all (owner, 2026-10-16) | **to score** |
 
-_14 repeats outside Today, in 7 things; 3 things with no home decided._
+_11 repeats outside Today, in 7 things; 2 things with no home decided._
 
 ## The owner's answers
 

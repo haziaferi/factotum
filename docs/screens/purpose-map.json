@@ -402,16 +402,25 @@
   },
   {
    "id": "this_week",
-   "name": "This week (the weekly review)",
+   "name": "Review (one screen: overlapping graphs over Today · Week · Month · 6 M · Year; replaces This week, Saved charts, Time totals and Review's day)",
    "purpose": "P5",
    "sources": [
-    "Tendril Review"
+    "Tendril Review",
+    "Chronicle Charts",
+    "Tendril time logs"
    ],
    "tier": "T3c",
-   "status": "pending",
-   "nav": [],
+   "status": "defined (T3c.1, owner 2026-10-18); long spans picked (T3c.2: the mean of logged days, a session over midnight on its start day); overlap and items next",
+   "nav": [
+    "Review from Measuring's header",
+    "Review from the Hub",
+    "time totals",
+    "build a saved chart"
+   ],
    "hub": [
-    "This week"
+    "Charts",
+    "This week",
+    "Time totals"
    ],
    "overlaps": [
     "charts",
@@ -419,7 +428,7 @@
     "trend",
     "self_history"
    ],
-   "short": "This week"
+   "short": "Review"
   },
   {
    "id": "charts",
@@ -429,13 +438,9 @@
     "Chronicle Charts"
    ],
    "tier": "T3c",
-   "status": "pending",
-   "nav": [
-    "build a saved chart"
-   ],
-   "hub": [
-    "Charts"
-   ],
+   "status": "merged into Review (this_week), T3c.1 (owner, 2026-10-18)",
+   "nav": [],
+   "hub": [],
    "overlaps": [
     "tracker_detail",
     "time_totals"
@@ -472,13 +477,9 @@
     "Chronicle"
    ],
    "tier": "T3c",
-   "status": "pending",
-   "nav": [
-    "time totals"
-   ],
-   "hub": [
-    "Time totals"
-   ],
+   "status": "merged into Review (this_week), T3c.1 (owner, 2026-10-18)",
+   "nav": [],
+   "hub": [],
    "overlaps": [
     "charts"
    ],
@@ -1071,8 +1072,8 @@
      "approved"
     ],
     [
-     "this_week",
-     "Review's day (pending)"
+     "journal",
+     "the day's list under a collapsed line (tbd, T3c.1)"
     ]
    ],
    "elsewhere": "",
@@ -1092,8 +1093,8 @@
      "the page (T3b.5)"
     ],
     [
-     "charts",
-     "a goal line (pending)"
+     "this_week",
+     "Review's graphs (stage 3)"
     ]
    ],
    "elsewhere": "",
@@ -1113,8 +1114,8 @@
    "today": "Edit beside Undo after a stop (T3b.3)",
    "repeats": [
     [
-     "this_week",
-     "Review's day timeline (pending)"
+     "journal",
+     "the day's list under a collapsed line (tbd, T3c.1)"
     ]
    ],
    "elsewhere": "",
@@ -1122,28 +1123,16 @@
   },
   {
    "thing": "Totals and charts over time",
-   "home": "undecided",
+   "home": "this_week",
    "today": "",
    "repeats": [
     [
      "tracker_detail",
-     "its statistics (owner, T3b.5)"
-    ],
-    [
-     "time_totals",
-     "pending"
-    ],
-    [
-     "charts",
-     "pending"
-    ],
-    [
-     "this_week",
-     "pending"
+     "its graph and statistics, one item (T3b.7f)"
     ]
    ],
    "elsewhere": "",
-   "scored": null
+   "scored": "T3c.1 (Review defined), T3c.2 (long spans)"
   },
   {
    "thing": "Shortcut lists of items",
