@@ -27,6 +27,7 @@ import importlib.util
 import io
 import json
 import os
+import sys
 import re
 import subprocess
 import tempfile
@@ -118,7 +119,14 @@ def render(doc, w, h):
     png = os.path.join(CACHE, key + ".png")
     if not os.path.exists(png):
         tmp = png.replace(".png", "-%d-%d.tmp.png" % (os.getpid(), threading.get_ident()))  # written aside, swapped in whole
-        _edge(["--screenshot=" + tmp], False, key, doc, w, h)
+        os.makedirs(CACHE, exist_ok=True)
+        if os.environ.get("SCREENS_CDP", "1") == "1":
+            # the kept-open browser (2026-10-20: Edge 155's one-shot --screenshot writes nothing, so every page build failed)
+            sys.path.insert(0, os.path.expanduser(os.path.join("~", ".claude", "tools")))
+            import headless_browser as hb
+            hb.screenshot(doc, tmp, w, h)
+        else:
+            _edge(["--screenshot=" + tmp], False, key, doc, w, h)
         if os.path.exists(tmp):
             os.replace(tmp, png)
     if not os.path.exists(png):
