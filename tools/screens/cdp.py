@@ -104,16 +104,22 @@ class Browser:
                                      stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         t0 = time.time()
         while not os.path.exists(port_file):
-            if time.time() - t0 > 30:
+            if time.time() - t0 > 90:   # a loaded machine (a page build rendering beside it) starts Edge slowly (2026-10-22)
+                self.proc.kill()
                 raise RuntimeError("Edge gave no DevTools port")
             time.sleep(0.05)
         time.sleep(0.1)
         port = open(port_file, encoding="utf-8").read().split()[0]
-        pages = []
+        pages, t1 = [], time.time()
         while not pages:
-            pages = [t for t in json.load(urllib.request.urlopen("http://127.0.0.1:%s/json/list" % port, timeout=10)) if t.get("type") == "page"]
+            try:
+                pages = [t for t in json.load(urllib.request.urlopen("http://127.0.0.1:%s/json/list" % port, timeout=30)) if t.get("type") == "page"]
+            except OSError:   # TimeoutError included: still starting
+                if time.time() - t1 > 90:
+                    self.proc.kill()
+                    raise RuntimeError("Edge gave no page list")
             if not pages:
-                time.sleep(0.1)
+                time.sleep(0.2)
         self.ws = _WS(pages[0]["webSocketDebuggerUrl"])
         self.n = 0
         self.call("Page.enable")
@@ -165,10 +171,14 @@ def evaluate(edge, cache, path, expr, w, h):
         # the process id in the name too: thread ids repeat across runs, and a browser left from an earlier run still holds its
         # profile, so the new one gave no port (2026-10-22)
         prof = os.path.join(cache, "cdp-profile-%d-%d" % (os.getpid(), threading.get_ident()))
-        try:
-            b = Browser(edge, prof)
-        except RuntimeError:   # a start that gave no port (seen once mid-build, 2026-10-22, not reproduced): once more, fresh
-            b = Browser(edge, prof + "-r%d" % int(time.time()))
+        b = None
+        for attempt in range(3):   # a start that gave no port or no page list (twice mid-build, 2026-10-22): again, fresh
+            try:
+                b = Browser(edge, prof if attempt == 0 else prof + "-r%d" % attempt)
+                break
+            except RuntimeError:
+                if attempt == 2:
+                    raise
         _local.browser = b
         with _lock:
             _all.append(b)
