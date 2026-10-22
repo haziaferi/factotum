@@ -164,7 +164,11 @@ def evaluate(edge, cache, path, expr, w, h):
     if b is None:
         # the process id in the name too: thread ids repeat across runs, and a browser left from an earlier run still holds its
         # profile, so the new one gave no port (2026-10-22)
-        b = Browser(edge, os.path.join(cache, "cdp-profile-%d-%d" % (os.getpid(), threading.get_ident())))
+        prof = os.path.join(cache, "cdp-profile-%d-%d" % (os.getpid(), threading.get_ident()))
+        try:
+            b = Browser(edge, prof)
+        except RuntimeError:   # a start that gave no port (seen once mid-build, 2026-10-22, not reproduced): once more, fresh
+            b = Browser(edge, prof + "-r%d" % int(time.time()))
         _local.browser = b
         with _lock:
             _all.append(b)
