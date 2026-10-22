@@ -2661,4 +2661,36 @@ would resolve once palettes and themes are decided. For stage 3: series are draw
 (line styles, opacity), and a series' identity is not counted against an overlapping form; marks hidden behind other
 marks still count (opacity reduces it; it does not remove it). Flagged as provisional until the palette pass.
 
-Status: **T3c.2 picked; next stage 3, overlap and items, Comparability leading at 2 and 10 items.**
+Status (then): **T3c.2 picked; next stage 3, overlap and items, Comparability leading at 2 and 10 items.**
+
+### Gaps fixed before stage 3 (2026-10-20/22)
+
+- **Tooling (Edge 155, updated 2026-10-16):** one-shot `--dump-dom` and `--screenshot` return nothing, and `cdp.py` took
+  the exiting launcher for a dead browser: every tap gate and page build would have failed. Measure and render now go
+  through the kept-open browser; a browser is closed over DevTools and waited for; profiles are named per process.
+- **The item page's goal line and History** were tapped on a 20 dp text span: the 48 dp rows carry the tap.
+- **Lunch's split bar** (T3c.2) had no key for its shades.
+- **The purpose map** listed This week, Saved charts and Time totals apart: Review is one screen there now.
+- **The note and labels' targets (owner, 2026-10-22): invisible tap areas of at least 42 x 42 dp,** centred on the word
+  “Note:” and on each label word and the +; the thin gaps stay and neighbouring areas may overlap. Measured: every area
+  42 x 42 dp or wider and reachable (hit-tested) on all six kinds' picked pages. An exception to the 48 dp rule, the
+  owner's.
+
+### T3b.6c The repeats re-scored with Review one screen (owner, 2026-10-22)
+
+T3b.6b scored Review's day, This week and Saved charts as separate screens; T3c.1 made them one (Review, from Measuring's
+header and the Hub's one-entry Review card). **Part `where3`** (`t3_where2.py`; `where2` replaced): Measuring's running
+strip x the row's today amount x the row's goal line x the Hub's Pinned and recent, 96 options, the drawings carrying
+Review's glyph and card; axes, weights and the Redundancy lead as T3b.6b. **The control lost** (rank 66 of 97).
+
+| Repeat | Front (4) | Lowest total |
+|---|---|---|
+| Measuring's running strip | removed 3, the person's choice 1 | removed (the running row's own ■, one scroll) |
+| The row's today amount | “last” only, all 4 | “last” only (today's amount ties) |
+| The row's goal line | removed 2, shown 1, a setting 1 | **shown** (T3b.5c's approved line; removed 27 behind) |
+| The Hub's Pinned and recent | dropped, all 4 | dropped (reaching a recent item: 5 taps against 2) |
+
+With Review fixed, the lowest total now keeps the goal line (T3b.5's glance), unlike T3b.6b. The strip and the Hub's
+list still contradict approved screens (T3b.1d, T1.4 A0); the Hub's list loses on Harmony and Hierarchy, not on taps.
+
+Status: **T3b.6c scored: the owner settles the four repeats; then stage 3 of Review.**

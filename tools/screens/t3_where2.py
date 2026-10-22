@@ -46,6 +46,7 @@ sys.path.insert(0, HERE)
 SPACE = {"strip": ["keep", "doorway", "remove", "choice"], "row_amount": ["last", "today_last"], "row_goal": ["shown", "choice", "removed"],
          "review": ["keep", "doorway", "remove"], "week": ["charts", "doorways", "remove"], "saved": ["keep", "remove"],
          "shortcut": ["pin_recent", "pin_only", "pin_choice", "no_hub_list"]}
+SPACE3 = {k: SPACE[k] for k in ("strip", "row_amount", "row_goal", "shortcut")}   # T3b.6c: Review one screen
 REDUNDANCY = {"strip": {"keep": 1, "doorway": 0.5, "remove": 0, "choice": 1}, "row_amount": {"last": 0, "today_last": 1},
               "row_goal": {"shown": 1, "choice": 1, "removed": 0}, "review": {"keep": 1, "doorway": 0.5, "remove": 0},
               "week": {"charts": 1, "doorways": 0.5, "remove": 0}, "saved": {"keep": 1, "remove": 0},
@@ -104,6 +105,8 @@ def register(ns):
         if control:   # Chronicle's dashboard over the list: every item's progress again, a streak and a percent
             dash = '<div class="astrip" data-rep="dash"><div class="sr"><span class="t">Today 64% · streak 12 · 7 of 11 goals</span></div></div>'
             html = html.replace('<div class="zone">', '<div class="zone">' + dash, 1)
+        if v.get("review") == "one":   # Review's glyph in Measuring's header (T3c.1)
+            html = html.replace('<span class="ttl">Measuring</span>', '<span class="ttl">Measuring</span>' + kit.icon_button("\u2197", "Review"), 1)
         return html
 
     MEAS_JS = r"""(function(){var bar=document.querySelector('.bar').getBoundingClientRect().top;var o={fold:Math.round(bar),rows:{},reps:[],first_row:null,nums:0,rows_seen:0,rows_all:0};
@@ -124,7 +127,7 @@ o.nums=(txt.match(/\d+([.,:]\d+)?/g)||[]).length;return o})()"""
                 "rhythm": len(set(h["gaps"])) + sum(1 for g in h["gaps"] if g % 4), "edges": h["lefts"] + h["rights"] - 2}
 
     def meas_measure(v, control=False):
-        key = "w2-meas-" + ("control" if control else "%s-%s-%s" % (v["strip"], v["row_amount"], v["row_goal"]))
+        key = "w2-meas-" + ("control" if control else "%s-%s-%s" % (v["strip"], v["row_amount"], v["row_goal"])) + ("-rv" if v.get("review") == "one" else "")
 
         def make():
             d = ns["m3doc"](meas_phone(v, control))
@@ -139,13 +142,16 @@ o.nums=(txt.match(/\d+([.,:]\d+)?/g)||[]).length;return o})()"""
     def hub_groups(v, control=False):
         out = []
         for name, glyph, feats in hub_opt.NOAPP:
+            if v.get("saved") == "review" and name == "Review":   # the card keeps one entry, Review (T3c.1)
+                out.append((name, glyph, ["Review"]))
+                continue
             fs = []
             for f in feats:
                 if f in ("Trackers", "Activities"):
                     if "Measuring" not in fs:
                         fs.append("Measuring")   # one Measuring entry (T3b.6, 2026-10-16)
                     continue
-                if f == "Charts" and (not control and v["saved"] == "remove"):
+                if f == "Charts" and ((not control and v["saved"] == "remove") or v.get("saved") == "review"):
                     continue
                 fs.append(f)
             out.append((name, glyph, fs))
@@ -175,7 +181,7 @@ document.querySelectorAll('.hubsheet .ft').forEach(function(f){var b=f.getBoundi
 o.lefts=Object.keys(o.lefts).length;o.rights=Object.keys(o.rights).length;return o})()"""
 
     def hub_measure(v, control=False):
-        key = "w2-hub-" + ("control" if control else "%s-%s" % (v["shortcut"], v["saved"]))
+        key = "w2-hub-" + ("control" if control else "%s-%s" % (v["shortcut"], v["saved"])) + ("-rv" if v.get("review") == "one" else "")
 
         def make():
             d = hub_opt.doc(hub_phone(v, control), "light", False)
@@ -260,13 +266,16 @@ o.lefts=Object.keys(o.lefts).length;o.rights=Object.keys(o.rights).length;return
         wreach = reach(water["bottom"] if water else None)
         amount = (0 if (control or v["row_amount"] == "today_last") else 1) + wreach
         goal = (0 if (control or v["row_goal"] != "removed") else 1) + wreach
-        rv = "keep" if control else v["review"]
-        edit = {"keep": 1, "doorway": 3, "remove": 5}[rv]
-        wk = "charts" if control else v["week"]
-        week = {"charts": 2, "doorways": 2, "remove": 4}[wk]
-        sv = "keep" if control else v["saved"]
-        charts_seen = (Hb["taps"].get("Charts") or [0, 0, 0])[2]
-        compare = (2 + (0 if charts_seen else 1) + 1) if sv == "keep" else 5   # Hub, Charts, the chart; or both pages read one by one
+        if v.get("review") == "one":   # T3b.6c: Review is one screen, the same for every option: these three cost the same
+            edit = week = compare = 0
+        else:
+            rv = "keep" if control else v["review"]
+            edit = {"keep": 1, "doorway": 3, "remove": 5}[rv]
+            wk = "charts" if control else v["week"]
+            week = {"charts": 2, "doorways": 2, "remove": 4}[wk]
+            sv = "keep" if control else v["saved"]
+            charts_seen = (Hb["taps"].get("Charts") or [0, 0, 0])[2]
+            compare = (2 + (0 if charts_seen else 1) + 1) if sv == "keep" else 5   # Hub, Charts, the chart; or both pages read one by one
         sc = "pin_recent" if control else v["shortcut"]
         lang = M["rows"].get("Language practice")   # used yesterday, not pinned, in a label folded under the open top
         recent = 2 if sc in ("pin_recent", "pin_choice") else 3 + reach(lang["bottom"] if lang else None) + 1
@@ -277,15 +286,17 @@ o.lefts=Object.keys(o.lefts).length;o.rights=Object.keys(o.rights).length;return
         M = meas_measure(v, ctl)
         Hb = hub_measure(v, ctl)
         w = walk(v, M, Hb, ctl)
+        one = v.get("review") == "one"
+        space = SPACE3 if one else SPACE
         if ctl:
-            red = sum(max(x.values()) for x in REDUNDANCY.values()) + 2   # Chronicle's dashboard and Frequent: two more copies
+            red = sum(max(REDUNDANCY[k].values()) for k in space) + 2   # Chronicle's dashboard and Frequent: two more copies
             cust, burden, cons, choice_n = 0, 0, 0, 0
         else:
-            red = sum(REDUNDANCY[k][v[k]] for k in SPACE)
+            red = sum(REDUNDANCY[k][v[k]] for k in space)
             choice_n = (v["strip"] == "choice") + (v["row_goal"] == "choice") + (v["shortcut"] == "pin_choice")
             cust = choice_n
             burden = (v["strip"] == "choice") * 1 + (v["row_goal"] == "choice") * 1.5 + (v["shortcut"] == "pin_choice") * 1
-            cons = (v["strip"] == "doorway") + (v["review"] == "doorway") + (v["week"] == "doorways")
+            cons = (v["strip"] == "doorway") + (0 if one else (v["review"] == "doorway") + (v["week"] == "doorways"))
         glance = 0
         water = M["rows"].get("Water")
         if water and water["bottom"] <= M["fold"]:
@@ -293,7 +304,7 @@ o.lefts=Object.keys(o.lefts).length;o.rights=Object.keys(o.rights).length;return
         if M["strip_stop"] is not None and M["strip_stop"] <= M["fold"]:
             glance += 1
         places = 1 + red   # the page, and every kept copy
-        load = places + M["nums"] / 10 + (1 if (not ctl and v["saved"] == "remove") else 0)   # holding one item's number to compare
+        load = places + M["nums"] / 10 + (1 if (not ctl and not one and v["saved"] == "remove") else 0)   # holding one item's number to compare
         # Hierarchy (flagged): a repeat drawn above the screen's own rows or cards; the screen's own rows on its first screen
         inv = sum(1 for r in M["reps"] if M["first_row"] is not None and r["top"] < M["first_row"])
         inv += 1 if (Hb["rep_top"] is not None and Hb["card_top"] is not None and Hb["rep_top"] < Hb["card_top"]) else 0
@@ -328,3 +339,25 @@ o.lefts=Object.keys(o.lefts).length;o.rights=Object.keys(o.rights).length;return
     T.LEAD[part] = [("redundancy", 1)]   # HAND-SET: within one kept repeat of the least redundant (owner: Redundancy leads)
     T.REFS_INFO.add(part)
     T.SUPERSEDED["where"] = "settled against the item's page, drawn and measured (owner, 2026-10-18): T3b.6b replaced it"
+
+    # ==== T3b.6c: the same, with Review one screen (T3c.1, owner 2026-10-22) ==========================================================
+    # Review's day, This week and Saved charts became one screen, Review (reached from Measuring's header and the Hub's Review
+    # card): those three dimensions are fixed, their walk tasks cost the same for every option, and the drawings carry
+    # Review's glyph on Measuring and the one-entry Review card on the Hub. The four repeats left are scored as before.
+    fill = lambda v: dict(v, review="one", week="review", saved="review")
+    part = "where3"
+    T.SPACES[part] = SPACE3
+    T.SCORERS[part] = lambda v: score(fill(v))
+    T.VALID[part] = lambda v: True
+    T.CONTROLS[part] = [({k: "merged" for k in SPACE3} | {"control": True},
+                         "the source apps merged as they come: every repeat kept, Chronicle's dashboard over Measuring and its Frequent list on the Hub")]
+    T.TITLES[part] = "T3b.6c One home per thing, with Review one screen: Measuring's running strip, the row's amount and goal line, the Hub's lists"
+    T.DRAW[part] = lambda v: [ns["m3doc"](meas_phone(fill(v), v.get("control"))), hub_opt.doc(hub_phone(fill(v), v.get("control")), "light", False)]
+    T.POOL[part] = lambda ok: ([r for r in ok if r.get("front")] +
+                               [min((r for r in ok if not r["v"].get("control") and r["v"][k] == x), key=lambda r: r["total"]) for k in SPACE3 for x in SPACE3[k]])
+    T.DRAW_MAX[part] = 14
+    T.AXES[part] = dict(T.AXES["where2"])
+    T.WEIGHTS[part] = {"Taps": 2, "Consistency": 2}
+    T.LEAD[part] = [("redundancy", 1)]
+    T.REFS_INFO.add(part)
+    T.SUPERSEDED["where2"] = "Review became one screen (T3c.1): its Review's day, This week and Saved charts dimensions are moot; T3b.6c re-scored the rest"

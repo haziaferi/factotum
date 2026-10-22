@@ -1651,6 +1651,7 @@ IP5_CSS = """
 .ip5w{display:block;font-size:14px;line-height:32px;min-height:32px;margin:6px 0}.ip5w u{text-underline-offset:3px}
 .ip5c{display:flex;flex-wrap:wrap;align-items:center;gap:6px;min-height:32px;margin:6px 0}.ip5c span{height:24px;padding:0 10px;border-radius:12px;background:var(--zone2);font-size:12px;display:inline-flex;align-items:center}
 .ip5r .ip5w,.ip5r .ip5c{margin:0;justify-content:flex-end;text-align:right}
+.nw,.hw{position:relative}.hit{position:absolute;left:50%;top:50%;width:100%;min-width:42px;height:42px;transform:translate(-50%,-50%)}
 """
 IP5_SPACE = {"template": ["cards", "grid", "form", "flat"], "height": [80, 100, 130, 180]}   # the form per kind: IP5_FORMS
 IP5N_SPACE = {"template": ["cards", "grid", "form", "flat"], "labels": ["chips", "words"], "arrange": ["row", "note_first", "labels_first"],
@@ -1671,14 +1672,17 @@ def ip5_notes(kind, v, e):
         labels = '<div class="ip5c" data-el="labels"><span data-tap="Labels">%s</span>%s<span data-tap="Labels add">+</span></div>' % (
             e(words[0]), "".join("<span>%s</span>" % e(w) for w in words[1:]))
     else:
-        labels = '<div class="ip5w" data-el="labels"><u data-tap="Labels">%s</u>,%s, <u data-tap="Labels add">+</u></div>' % (
-            e(words[0]), ",".join(" <u>%s</u>" % e(w) for w in words[1:]))
+        # each word carries an invisible tap area of at least 42 x 42 dp centred on it (owner, 2026-10-22): the thin gaps stay,
+        # neighbouring areas may overlap
+        hit = lambda w, tap: '<u class="hw">%s<i class="hit" data-tap="%s"></i></u>' % (w, tap)
+        labels = '<div class="ip5w" data-el="labels">%s,%s, %s</div>' % (
+            hit(e(words[0]), "Labels"), ",".join(" " + hit(e(w), "Label " + e(w)) for w in words[1:]), hit("+", "Labels add"))
     card = '<div class="nc">%s</div>' % e(NOTE_TEXT[kind])
     if v["arrange"] == "row":
-        return '<div class="ip5r" data-row="box"><a class="nw" data-tap="Note" data-el="note">Note:</a>%s</div><div class="ip5n">%s</div>' % (labels, card)
+        return '<div class="ip5r" data-row="box"><a class="nw" data-el="note">Note:<i class="hit" data-tap="Note"></i></a>%s</div><div class="ip5n">%s</div>' % (labels, card)
     # the note's element is its word, in every arrangement: the card is static grey content with no border and no action, and
     # as part of the element its box outranked History and the goal line (found 2026-10-17: the control led Hierarchy)
-    note = '<div class="ip5n"><a class="nw" data-tap="Note" data-el="note">Note:</a>%s</div>' % card
+    note = '<div class="ip5n"><a class="nw" data-el="note">Note:<i class="hit" data-tap="Note"></i></a>%s</div>' % card
     return note + labels if v["arrange"] == "note_first" else labels + note
 
 
