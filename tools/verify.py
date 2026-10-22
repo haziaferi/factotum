@@ -1,7 +1,8 @@
 """Run the measured verification brief (tools/brief/prompts.json, B-structured: 21/21 on
-Sonnet 5.5, 2026-09-30) over one contest's per-repo claim sets, in parallel.
+Sonnet 5.5, 2026-09-30) over one contest's per-repo claim sets, in parallel. Runs on Opus 5.5 only
+since 2026-10-23 (the owner's model floor); the 21/21 was measured on Sonnet and not re-measured.
 
-    python tools/verify.py decisions/verify/<contest>/inputs.json [--model claude-sonnet-5-5]
+    python tools/verify.py decisions/verify/<contest>/inputs.json [--model claude-opus-5-5]
 
 inputs.json: [{"repo": "tendril", "cwd": "<abs path>", "input": "<claims text>"}]
 Writes decisions/verify/<contest>/<repo>.json (the raw JSON the brief returns) and
@@ -16,7 +17,7 @@ from concurrent.futures import ThreadPoolExecutor
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BRIEF = "B-structured"
-ALLOWED_MODELS = {"claude-sonnet-5-5", "claude-opus-5-5"}
+ALLOWED_MODELS = {"claude-opus-5-5"}
 
 
 def run(model, system, item):
@@ -54,10 +55,10 @@ def parse(text):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("inputs")
-    ap.add_argument("--model", default="claude-sonnet-5-5")
+    ap.add_argument("--model", default="claude-opus-5-5")
     args = ap.parse_args()
     if args.model not in ALLOWED_MODELS:
-        raise SystemExit("model floor is Sonnet 5.5: use one of %s" % sorted(ALLOWED_MODELS))
+        raise SystemExit("model floor is Opus 5.5: use one of %s" % sorted(ALLOWED_MODELS))
     with open(os.path.join(ROOT, "tools", "brief", "prompts.json"), encoding="utf-8") as fh:
         system = json.load(fh)[BRIEF]["system"]
     with open(args.inputs, encoding="utf-8") as fh:
