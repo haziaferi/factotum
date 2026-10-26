@@ -88,8 +88,8 @@ figcaption{font-size:13px;color:var(--dim);margin-top:6px}
 
 def main():
     body = ['<h1>T2: items, calendar and alarms</h1><p>The approved screens (decision 18, owner, 2026-10-12 and 13), in greys, '
-            'placeholder data in dotted outlines. The options not picked, their scores and the reasons are in t2-options.html, '
-            't2-scores.html and decisions/18-screens-t2.md.</p>']
+            'placeholder data in dotted outlines. The picks and their controls are in t2-options.html and t2-scores.html; every '
+            'option\'s scores are in the parts\' JSON records, the reasons in decisions/18-screens-t2.md.</p>']
     for title, intro, figs in sections():
         body.append('<section><h2>%s</h2><p>%s</p><div class="figs">%s</div></section>' % (H.escape(title), H.escape(intro), figs))
     page = ('<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'

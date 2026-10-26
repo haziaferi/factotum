@@ -208,3 +208,22 @@ What was built and measured (`module-personalities.md` / `.html`, `tools/screens
 - There is one page per tier: `docs/screens/tN/screens.html`.
 
 **Next:** T1, the shared parts. Its questions come first.
+
+### Outputs cleaned (owner, 2026-10-26)
+
+Pages wholly replaced by later passes left `docs/screens/t0/`; each stays in git at the commit that last wrote it. No palette was picked: the slates wait in git for the colour pass. Kept: module-personalities (the open shortlist), colour-roles, compare and every `.md` note. `home-workshop.html` keeps the decided home only: the day layout (separate zones), check-in (a quiet line plus the widget), Windows home beside the last page opened, the Hub sheet as cards, and the hexagon on a tonal circle; its unchosen controls are in git at the commit before this one.
+
+- `docs/screens/t0/frame.html` (the first frame candidates; the bar was decided (Today · Calendar · Hub · Pages · slot 5)): `git show 7b57b81:docs/screens/t0/frame.html`
+- `docs/screens/t0/frames-all.html` (every frame candidate, phone and Windows; replaced by the decided bar and T1.1 A'): `git show 4bb5798:docs/screens/t0/frames-all.html`
+- `docs/screens/t0/nav-glance.html` (the shortlisted navigation variants; replaced by the decided bar (findings kept in nav-glance.md)): `git show 4bb5798:docs/screens/t0/nav-glance.html`
+- `docs/screens/t0/palette.html` (blended hues on three shells, already marked superseded): `git show 364825b:docs/screens/t0/palette.html`
+- `docs/screens/t0/palette.template.html` (its template): `git show 364825b:docs/screens/t0/palette.template.html`
+- `docs/screens/t0/palette-candidates.html` (the keyword candidates; replaced by the adapted palettes): `git show 364825b:docs/screens/t0/palette-candidates.html`
+- `docs/screens/t0/palette-candidates.template.html` (its template): `git show 364825b:docs/screens/t0/palette-candidates.template.html`
+- `docs/screens/t0/palette-adapted.html` (the adapted palettes; replaced by the groups): `git show 839b3ff:docs/screens/t0/palette-adapted.html`
+- `docs/screens/t0/palette-adapted.template.html` (its template): `git show 839b3ff:docs/screens/t0/palette-adapted.template.html`
+- `docs/screens/t0/palette-adapted.json` (its record): `git show 14410c1:docs/screens/t0/palette-adapted.json`
+- `docs/screens/t0/palette-groups.html` (the compatible groups; replaced by the first slate): `git show ffb28f4:docs/screens/t0/palette-groups.html`
+- `docs/screens/t0/palette-groups.template.html` (its template): `git show ffb28f4:docs/screens/t0/palette-groups.template.html`
+- `docs/screens/t0/palettes.html` (the first slate; replaced by the second (a palette is a full set)): `git show a409bac:docs/screens/t0/palettes.html`
+- `docs/screens/t0/module-palettes.html` (the second slate; replaced by module personalities): `git show bcec3f1:docs/screens/t0/module-palettes.html`

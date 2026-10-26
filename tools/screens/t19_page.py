@@ -52,7 +52,7 @@ def section(tag="approved"):
     rows = "".join("<tr><td>%s</td><td>%s</td><td>%s</td></tr>" % tuple(H.escape(x) for x in r) for r in TABLE)
     return ('<section id="t1-9"><h2>T1.9 Empty and error states <span class="tag">%s</span></h2>'
             '<p>Decision 17, 2026-10-09. The rule: one plain sentence and one action, no illustration, no cheer, no guilt (2026-10-07). '
-            'Every part was scored with a control and its tone measured (<a href="empty-scores.html">the tables</a>, <a href="empty-options.html">every option drawn</a>).</p>'
+            'Every part was scored with a control and its tone measured (<a href="empty-scores.html">the tables</a>, <a href="empty-options.html">the picks drawn</a>).</p>'
             '<h3>Decided by</h3><table><tr><th>Part</th><th>Choice and its measure</th><th>Scored as</th></tr>%s</table>'
             '<h3>Phone</h3><div class="refs">%s</div><h3>Windows</h3><div class="refs">%s</div></section>') % (tag, rows, figs, desk)
 

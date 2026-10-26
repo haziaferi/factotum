@@ -379,6 +379,10 @@ T.TITLES = {"empty": "Empty screens", "done": "Today: all done, or nothing plann
 T.DRAW = {"empty": lambda v: [doc(empty_phone("illustration" if v.get("control") else v["form"], sc)) for sc in SCREENS] + [empty_desk("illustration" if v.get("control") else v["form"])],
           "done": lambda v: [doc(done_phone(v))], "noresult": lambda v: [doc(h) for h in noresult_phones(v)], "field": lambda v: [doc(field_phone(v))],
           "banner": lambda v: [doc(banner_phone(v))], "first": lambda v: [doc(first_phone(v))], "loading": lambda v: [doc(loading_phone(v))]}
+# T1.9 decided (owner, 2026-10-09; decision 17): the pages draw the picks only (owner, 2026-10-26)
+T.PICKED = {"banner": [{"words": "what"}], "done": [{"sentences": "one", "fold": "kept"}], "empty": [{"form": "centred"}],
+            "field": [{"form": "inline"}], "first": [{"start": "tour"}], "loading": [{"show": "progressive"}],
+            "noresult": [{"form": "centred", "words": "repeat", "action": "none"}]}
 
 
 if __name__ == "__main__":

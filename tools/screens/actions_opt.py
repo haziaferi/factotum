@@ -398,6 +398,13 @@ T.TITLES.update({"g": "G (superseded 2026-10-09). One placement for all four scr
                  "n": "N. A screen's own actions", "s": "S. How a selection starts", "m": "M. A selection of mixed kinds", "t": "T. Trash's Pages section", "x": "X. Which pairing of I and S works together"})
 T.DRAW = {"i": lambda v: list(i_docs(v)), "n": lambda v: [doc(n_screen(s, {"Today": "header", "Pages": "bottom", "Reminders": "fab"}[s] if v["place"] == "control" else v["place"])) for s in N_SCREENS],
           "s": lambda v: [s_doc(v)], "m": lambda v: [m_doc(v)], "t": lambda v: [t_doc(v)], "x": x_docs}
+# T1.8 decided (owner, 2026-10-09; decision 17): the pages draw the picks only (owner, 2026-10-26); C's labels stay to rescore
+T.PICKED = {"a": [{"place": "anchored"}], "b": [{"timing": 7, "stack": "merge", "way": "trash"}],
+            "c": [{"form": "inplace", "order": "near", "confirm": "hold"}], "d": [{"form": "card", "answer": "stacked", "words": "words"}],
+            "e": [{"when": "need"}], "f": [{"form": "banner"}], "h": [{"close": "undo"}], "i": [{"place": "selbar"}], "m": [{"offer": "each"}],
+            "n": [{"place": "header"}], "s": [{"start": "longpress"}, {"start": "screen"}], "t": [{"pages": "grouped"}],
+            "x": [{"i": "selbar", "s": "longpress"}]}
+T.SUPERSEDED = {"g": "rescored as where actions live: I, N, S, M, T and X (2026-10-09)"}
 
 
 if __name__ == "__main__":

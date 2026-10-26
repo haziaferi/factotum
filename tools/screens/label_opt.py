@@ -544,108 +544,8 @@ def ref_distance(v, keys, refs):
     return round(sum(out) / len(out), 3)
 
 
-def rank():
-    with open(os.path.join(v2.OUT, "label-references.json"), encoding="utf-8") as fh:
-        refs = json.load(fh)["apps"]
-    parts = {
-        # A: density is title room (more is better), added height, rows lost and labels hidden
-        "a": ({"place": ("placement",), "look": ("look",)}, {"Clutter": ("clutter",), "Apart": ("neg_apart",), "Density": ("neg_title_room", "extra_h", "rows_lost", "hidden", "lines"),
-                                                               "Refs": ("ref_distance",)}),
-        "b": ({}, {"Ease": ("actions", "reach"), "Clutter": ("clutter", "covered", "controls"), "Shown": ("neg_labels_seen",), "Refs": ("ref_distance",)}),
-        "c": ({}, {"Ease": ("actions",), "Clutter": ("clutter",), "Shown": ("neg_shown",), "Refs": ("ref_distance",)}),
-        "d": ({}, {"Ease": ("actions",), "Clutter": ("clutter", "controls_per_row"), "Refs": ("ref_distance",)}),
-    }
-    keys = {"a": ("look", "placement"), "b": ("container", "shape"), "c": ("suggest",), "d": ("manage",)}
-    report = {}
-    for p, (_, axes) in parts.items():
-        with open(os.path.join(v2.OUT, "labels-%s.json" % p), encoding="utf-8") as fh:
-            rows = json.load(fh)
-        for r in rows:
-            v = dict(r["v"])
-            v.setdefault("suggest", v.get("place"))
-            v.setdefault("manage", v.get("form"))
-            r["ref_distance"] = ref_distance(v, keys[p], refs)
-            for k in ("apart", "title_room", "labels_seen", "shown"):
-                if k in r:
-                    r["neg_" + k] = -r[k]
-        ok = [r for r in rows if not r.get("small") and not r.get("unseen")]
-        for axis, ks in axes.items():
-            cols = [v2.ranks(ok, k, 1) for k in ks]
-            for i, r in enumerate(ok):
-                r[axis] = sum(c[i] for c in cols)
-        ax = list(axes)
-        front = [r for r in ok if not any(all(o[a] <= r[a] for a in ax) and any(o[a] < r[a] for a in ax) for o in ok if o is not r)]
-        report[p] = {"passed": len(ok), "of": len(rows), "front": [r["v"] for r in front],
-                     "rows": [{k: r.get(k) for k in ["v", "ref_distance"] + ax} for r in rows]}
-        print(p, "passed", len(ok), "of", len(rows), "front", len(front))
-        for r in sorted(front, key=lambda r: sum(r[a] for a in ax)):
-            print("  ", r["v"], {a: r[a] for a in ax}, "ref", r["ref_distance"])
-    with open(os.path.join(v2.OUT, "labels-rank.json"), "w", encoding="utf-8", newline=chr(10)) as fh:
-        json.dump(report, fh, indent=1, ensure_ascii=False)
-
-
-if __name__ == "__main__" and "rank" in sys.argv[1:]:
-    rank()
-
-
-# ==== the options page: the front of each part, drawn ===================================================================
-def page():
-    """docs/screens/t1/labels-options.html, its images inlined (greyscale WebP) so it renders wherever it is opened."""
-    import base64
-    import io
-    import html as H
-    from PIL import Image
-    with open(os.path.join(v2.OUT, "labels-rank.json"), encoding="utf-8") as fh:
-        rank_ = json.load(fh)
-
-    def img(d, w=300):
-        buf = io.BytesIO()
-        Image.open(ss.render(d, 360, 740)).convert("L").save(buf, "WEBP", quality=80)
-        return '<img width="%d" src="data:image/webp;base64,%s">' % (w, base64.b64encode(buf.getvalue()).decode("ascii"))
-
-    def fig(cap, d):
-        return '<figure>%s<figcaption>%s</figcaption></figure>' % (img(d), H.escape(cap))
-
-    def meas(part, v):
-        r = [x for x in rank_[part]["rows"] if x["v"] == v][0]
-        return " · ".join("%s %s" % (k, r[k]) for k in r if k != "v")
-
-    a = json.load(open(os.path.join(v2.OUT, "labels-a.json"), encoding="utf-8"))
-    sec = []
-    shown_a = [{"look": "tint", "overflow": "fit", "placement": "inline"}, {"look": "tint", "overflow": "first", "placement": "below"},
-               {"look": "hash", "overflow": "first", "placement": "inline"}, {"look": "text", "overflow": "first", "placement": "inline"},
-               {"look": "dot", "overflow": "fit", "placement": "inline"}]
-    figs = ""
-    for v in shown_a:
-        r = [x for x in a if x["v"] == v][0]
-        cap = "%s, %s, %s: title room %s px, +%s px a row, %d rows lost, %d labels hidden, clutter %s" % (
-            v["look"], {"fit": "as many as fit +n", "first": "first +n", "wrap": "wrap"}[v["overflow"]], v["placement"], r["title_room"], r["extra_h"], r["rows_lost"], r["hidden"], r["clutter"])
-        figs += fig(cap, doc(v))
-    sec.append('<h3>A. The chip on rows</h3><p class="dim">The front holds %d of 30; drawn: its leaders, and the dot for comparison.</p><div class="flex">%s</div>' % (len(rank_["a"]["front"]), figs))
-    b = json.load(open(os.path.join(v2.OUT, "labels-b.json"), encoding="utf-8"))
-    figs = ""
-    for v in ({"container": "sheet", "shape": "grid"}, {"container": "sheet", "shape": "list"}, {"container": "page", "shape": "list"}):
-        r = [x for x in b if x["v"] == v][0]
-        cap = "%s, %s: %d actions over 4 tasks, covers %d%%, %d labels shown, clutter %s" % (v["container"], v["shape"], r["actions"], 100 * r["covered"], r["labels_seen"], r["clutter"])
-        figs += fig(cap, picker_doc(v, "base")) + fig("…typing a new name: Create", picker_doc(v, "typed", True))
-    figs += fig("A page's labels, several (sheet, grid)", picker_doc({"container": "sheet", "shape": "grid"}, "base", False, True))
-    sec.append('<h3>B. The picker</h3><p class="dim">The keyboard\'s place and the pop-over cut off controls with a list.</p><div class="flex">%s</div>' % figs)
-    figs = "".join(fig("%s: typing #h" % p, c_doc({"place": p}, "#h")) for p in ("chips", "list"))
-    sec.append('<h3>C. Suggestions while typing #</h3><p class="dim">Chips and a list tie on every measure (14 actions); inline completion fails the 48 dp rule.</p><div class="flex">%s</div>' % figs)
-    figs = fig("direct: 17 actions, 6 controls a row", d_doc({"form": "direct"}, "list")) + fig("detail: 23 actions, 2 controls a row (the list)", d_doc({"form": "detail"}, "list")) + \
-        fig("detail: a label's page", d_doc({"form": "detail"}, "detail")) + fig("menu: 23 actions (a label's ⋯)", d_doc({"form": "menu"}, "menu"))
-    sec.append('<h3>D. Management, Settings › Labels</h3><div class="flex">%s</div>' % figs)
-    css = "body{font:14px/1.4 system-ui,sans-serif;padding:16px;background:#f4f4f2;color:#1d1d1b}h3{font-size:15px;margin:20px 0 6px}.dim{color:#6b6b66}.flex{display:flex;gap:12px;flex-wrap:wrap}figure{margin:0;max-width:300px}figcaption{font-size:12px;color:#6b6b66}"
-    out = ('<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>T1.7 label options</title><style>%s</style></head><body>'
-           '<h1 style="font-size:20px">T1.7 Labels: the options on each front</h1><p class="dim">Greys only (the dot, the tint and the outline take the label\'s colour later). '
-           'Scores: <code>tools/screens/label_opt.py</code>; references: 8 apps captured on the phone.</p>%s</body></html>') % (css, "".join(sec))
-    with open(os.path.join(v2.OUT, "labels-options.html"), "w", encoding="utf-8", newline=chr(10)) as fh:
-        fh.write(out)
-    print(len(out))
-
-
-if __name__ == "__main__" and "page" in sys.argv[1:]:
-    page()
+# The ranking (labels-rank.json) and the options pages it fed (labels-options.html, labels-dots.html, labels-rest.html) were
+# retired with them (owner, 2026-10-26): every option not picked. They are in git (decision 17, "Outputs cleaned").
 
 
 # ==== Part E: what tapping a label does, with the chip's target at 28 or 32 dp (owner, 2026-10-09) ====================
@@ -822,76 +722,10 @@ if __name__ == "__main__" and "fcentred" in sys.argv[1:]:
     run_f_centred()
 
 
-def dots_page():
-    """docs/screens/t1/labels-dots.html: part F drawn, images inlined."""
-    import base64
-    import io
-    import html as H
-    from PIL import Image
-    rows = json.load(open(os.path.join(v2.OUT, "labels-f.json"), encoding="utf-8"))
-    figs = ""
-    for r in rows:
-        v = r["v"]
-        buf = io.BytesIO()
-        Image.open(ss.render(f_doc(v), 360, 740)).convert("L").save(buf, "WEBP", quality=80)
-        cap = "%s · %s · %s: title room %s px, +%s px a row, %d rows lost, dots stray %d px%s, clutter %s" % (
-            {"lead": "under the time", "action": "by the action"}[v["place"]], {"dots": "up to 3 dots", "count": "dot + count", "stack": "stacked"}[v["several"]],
-            {"names": "view from the item's page", "tap": "dots tap to the view (32 dp)"}[v["entry"]], r["title_room"], r["extra_h"], r["rows_lost"], r["column"],
-            ", %.1f%% of a row a target" % (100 * r["exposure"]) if r["exposure"] else "", r["clutter"])
-        figs += '<figure><img width="300" src="data:image/webp;base64,%s"><figcaption>%s</figcaption></figure>' % (base64.b64encode(buf.getvalue()).decode("ascii"), H.escape(cap))
-    css = "body{font:14px/1.4 system-ui,sans-serif;padding:16px;background:#f4f4f2;color:#1d1d1b}.dim{color:#6b6b66}.flex{display:flex;gap:12px;flex-wrap:wrap}figure{margin:0;max-width:300px}figcaption{font-size:12px;color:#6b6b66}"
-    out = ('<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>T1.7 label dots</title><style>%s</style></head><body>'
-           '<h1 style="font-size:20px">T1.7 Labels as coloured dots</h1><p class="dim">Grey here; each dot takes its label\'s colour, chosen in the picker that keeps colours apart '
-           'for colour-blind vision. Names: a long press on the row, the item\'s page, and the filter bar of named dots on top.</p><div class="flex">%s</div></body></html>') % (css, figs)
-    with open(os.path.join(v2.OUT, "labels-dots.html"), "w", encoding="utf-8", newline=chr(10)) as fh:
-        fh.write(out)
-    print(len(out))
-
-
-if __name__ == "__main__" and "dotspage" in sys.argv[1:]:
-    dots_page()
-
-
 # ==== the chosen dot (owner, 2026-10-09: "Under the time, dot + count, all exactly vertically centered") ==============
 CHOSEN_DOT = {"place": "lead", "several": "count", "entry": "names", "centred": True}
 
 
-def rest_page():
-    """docs/screens/t1/labels-rest.html: the chosen dots, and the parts still open: the # chips above or below the
-    line, and Settings › Labels as direct controls or a page per label (with the dot), images inlined."""
-    import base64
-    import io
-    import html as H
-    from PIL import Image
-
-    def fig(cap, d):
-        buf = io.BytesIO()
-        Image.open(ss.render(d, 360, 740)).convert("L").save(buf, "WEBP", quality=80)
-        return '<figure><img width="300" src="data:image/webp;base64,%s"><figcaption>%s</figcaption></figure>' % (base64.b64encode(buf.getvalue()).decode("ascii"), H.escape(cap))
-
-    r = score_f(CHOSEN_DOT)
-    sec = '<h3>The chosen dots</h3><p class="dim">Under the time or mark, one dot and its count; every dot on one vertical line (strays %d px), titles %s px, no row height added.</p><div class="flex">%s</div>' % (
-        r["column"], r["title_room"], fig("Today and Pages, the chosen dots", f_doc(CHOSEN_DOT)))
-    sec += '<h3>The # suggestions: above or below the line</h3><div class="flex">%s%s%s</div>' % (
-        fig("Above: the line stays put while you type; reach 2.81", c_doc({"place": "above"}, "#h")),
-        fig("Below (the hint line's place): reach 2.49, the line moves up 25 px", c_doc({"place": "below"}, "#h")),
-        fig("Control (lost): a dialog over the line, OK after each pick; 18 actions, the line hidden", c_doc({"place": "dialog"}, "#h")))
-    sec += '<h3>Settings › Labels</h3><div class="flex">%s%s%s%s%s</div>' % (
-        fig("Direct controls: 17 actions, 6 controls a row", d_doc({"form": "direct"}, "list")),
-        fig("A page per label: the list (23 actions, 2 controls a row)", d_doc({"form": "detail"}, "list")),
-        fig("…a label's page: name, colour, scope, what carries it, Delete", d_doc({"form": "detail"}, "detail")),
-        fig("Control (lost): nested pages, a page per property with Save; 33 actions, clutter 0.059", d_doc({"form": "nested"}, "list")),
-        fig("…the control's label page: every property one more page away", d_doc({"form": "nested"}, "detail")))
-    css = "body{font:14px/1.4 system-ui,sans-serif;padding:16px;background:#f4f4f2;color:#1d1d1b}h3{font-size:15px;margin:20px 0 6px}.dim{color:#6b6b66}.flex{display:flex;gap:12px;flex-wrap:wrap}figure{margin:0;max-width:300px}figcaption{font-size:12px;color:#6b6b66}"
-    out = ('<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>T1.7 labels, the rest</title><style>%s</style></head><body>'
-           '<h1 style="font-size:20px">T1.7 Labels: the chosen dots, and the parts still open</h1><p class="dim">Every number is in labels-scores.html, one table per part, with its control.</p>%s</body></html>') % (css, sec)
-    with open(os.path.join(v2.OUT, "labels-rest.html"), "w", encoding="utf-8", newline=chr(10)) as fh:
-        fh.write(out)
-    print(len(out), r)
-
-
-if __name__ == "__main__" and "rest" in sys.argv[1:]:
-    rest_page()
 
 
 def run_d_legend():
@@ -977,7 +811,8 @@ def c_line_move(v):
 
 
 def scores_page():
-    """docs/screens/t1/labels-scores.html: one table per part, every variant, raw measures, rank-sum axes, the front."""
+    """docs/screens/t1/labels-scores.html: one table per part, the pick and the control (every variant still ranks; each
+    row is in the part's JSON record), raw measures, rank-sum axes, the front. A replaced part is one line."""
     import html as H
     with open(os.path.join(v2.OUT, "label-references.json"), encoding="utf-8") as fh:
         refs = json.load(fh)["apps"]
@@ -994,7 +829,12 @@ def scores_page():
     with open(os.path.join(v2.OUT, "labels-controls.json"), encoding="utf-8") as fh:
         controls = json.load(fh)
     lost = {}
+    replaced = {"a": ("the label became a dot (F)", "a0d5a30"), "e": ("the label became a dot (F); filtering and a page per label went to D", "59cb09d")}
     for p in "abcdef":
+        if p in replaced:   # its record left the folder (owner, 2026-10-26)
+            out.append('<p class=dim id="%s"><b>%s</b>: replaced (%s). Every score is kept in git: <code>git show %s:docs/screens/t1/labels-%s.json</code>.</p>' % (
+                p, titles[p], replaced[p][0], replaced[p][1], p))
+            continue
         with open(os.path.join(v2.OUT, "labels-%s.json" % p), encoding="utf-8") as fh:
             rows = json.load(fh)
         rows.append(dict(controls[p], control=True))
@@ -1043,6 +883,8 @@ def scores_page():
             "".join("<th class=ax>%s</th>" % a for a in ax) + "<th class=ax>sum</th><th>front</th><th>gate</th>"
         body = []
         for r in order:
+            if chosen.get(p) != r["v"] and not r.get("control"):   # the pick and the control only (owner, 2026-10-26)
+                continue
             gate = "pass" if r in ok else "fails: " + H.escape(", ".join(r.get("small", []) + r.get("unseen", [])))
             cls = " ".join(c for c in ("ch" if chosen.get(p) == r["v"] else "", "fr" if r.get("front") else "", "fail" if r not in ok else "", "ctl" if r.get("control") else "") if c)
             body.append('<tr class="%s">%s%s%s<td class=ax>%s</td><td>%s</td><td>%s</td></tr>' % (
@@ -1053,9 +895,9 @@ def scores_page():
         axis_line = "; ".join("<b>%s</b> = rank-sum of %s" % (a, ", ".join(k.lstrip("-") + (" (more is better)" if k.startswith("-") else "") for k in ks)) for a, ks in axes.items())
         verdict = ("<b>Control lost:</b> off the front; %d of %d passing variants have a lower sum." % (worse, len(ok) - 1)) if lost[p] else \
             ("<b>CONTROL DID NOT LOSE</b> (%s): the axes cannot tell it from a real option." % ("on the front" if ctl in ok else "it failed the gate instead"))
-        out.append('<h2 id="%s">%s</h2><p class=dim>%d variants and the control · %d pass the gate · %d on the Pareto front (★). %s</p>'
+        out.append('<h2 id="%s">%s</h2><p class=dim>%d variants and the control · %d pass the gate · %d on the Pareto front (★); the pick and the control shown, every row in <code>labels-%s.json</code>. %s</p>'
                    '<p class=dim>Axes, lower is better: %s.</p><p>Control: %s. %s</p><div class=wrap><table><tr>%s</tr>%s</table></div>' % (
-                       p, titles[p], len(rows) - 1, len(ok), sum(1 for r in ok if r.get("front")), tasks.get(p, ""), axis_line,
+                       p, titles[p], len(rows) - 1, len(ok), sum(1 for r in ok if r.get("front")), p, tasks.get(p, ""), axis_line,
                        H.escape(ctl["why"]), verdict, head, "".join(body)))
     legend = "".join("<li><b>%s</b>: %s</li>" % (k, H.escape(v)) for k, v in SCORE_HELP.items())
     doc = """<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Label Score Tables</title>
@@ -1154,8 +996,8 @@ def labels_section():
     desk = '<figure><img src="%s" width="560" alt="Windows, Today and Labels"><figcaption>Today with its dots beside Settings › Labels</figcaption></figure>' % img(labels_desk_doc(), 1100, 660, 560)
     return ('<section id="t1-7"><h2>T1.7 Labels <span class="tag">approved</span></h2>'
             '<p>A label is a coloured dot, not a chip: it takes no room from titles and adds no height. The name is read in the filter bar, '
-            'on the item\'s page, in the picker and in Settings › Labels, whose list doubles as the colour legend. Every variant, its measures '
-            'and a control per part: <a href="labels-scores.html">labels-scores.html</a>.</p>'
+            'on the item\'s page, in the picker and in Settings › Labels, whose list doubles as the colour legend. Each part\'s pick, its measures '
+            'and its control: <a href="labels-scores.html">labels-scores.html</a>.</p>'
             '<h3>Decided by</h3><table><tr><th>Part</th><th>Choice and its measure</th><th>Record</th></tr>%s</table>'
             '<h3>Phone</h3><div class="refs">%s</div><h3>Windows</h3><div class="refs">%s</div></section>') % (rows, figs, desk)
 

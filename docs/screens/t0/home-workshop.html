@@ -102,8 +102,6 @@ textarea{width:100%;min-height:150px;font:12px ui-monospace,monospace;background
 .bar div.hub{opacity:.85;color:var(--fg)}.bar div.hub.on{opacity:1;font-weight:600}
 .bar div.hub i{display:grid;place-items:center;padding:0}
 .hub-tonal .bar div.hub i,.bar.hub-tonal div.hub i{width:46px;height:30px;border-radius:999px;background:var(--zone);box-shadow:inset 0 0 0 1px var(--line)}
-.bar.hub-raised div.hub i{width:50px;height:50px;border-radius:50%;background:var(--fg);color:var(--bg);margin-top:-22px;box-shadow:0 4px 12px rgba(0,0,0,.25)}
-.bar.hub-raised div.hub{justify-content:flex-end;padding-bottom:6px}
 .rail .hubr{opacity:1;color:var(--fg)}.rail .hubr i{display:grid;place-items:center}
 .hubgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px;margin-top:10px}
 .hubcard{display:flex;flex-direction:column;gap:6px;background:var(--zone);border-radius:14px;padding:12px;cursor:pointer;box-shadow:inset 0 0 0 1px var(--line)}
@@ -143,19 +141,15 @@ Each element shows how often you use it per week (35 = several a day, 7 = daily,
 <div class="three" id="explain"></div>
 
 <h2>2. Build the home screen</h2>
-<p>Tick what belongs, reorder with the arrows, pick a day layout and where check-in sits. The phone updates as you go.
-When it looks right, copy the summary at the bottom and paste it back to me.</p>
+<p>Tick what belongs and reorder with the arrows; the phone updates as you go. The day layout and check-in are decided
+(owner, 2026-10-06; decision 15); the options not chosen are in git (decision 15, "Outputs cleaned").</p>
 <div class="ws">
   <div class="panel">
     <fieldset id="layoutSet"><legend>Day layout</legend>
       <label class="opt"><input type="radio" name="layout" value="zones" checked> <b>Separate zones</b>. Agenda, then routines, each in its own block.</label>
-      <label class="opt"><input type="radio" name="layout" value="blocks"> <b>One timeline by time block</b>. Morning, afternoon and evening, with tasks and habits mixed by when they happen.</label>
-      <label class="opt"><input type="radio" name="layout" value="now"> <b>Now, then later</b>. What's current at the top; the rest of the day folded.</label>
     </fieldset>
     <fieldset id="checkinSet"><legend>Check-in</legend>
-      <label class="opt"><input type="radio" name="checkin" value="line" checked> <b>One quiet line on home</b>. Never a prompt, no counts.</label>
-      <label class="opt"><input type="radio" name="checkin" value="off"> <b>Off home</b>. It's its own place in the bar.</label>
-      <label class="opt"><input type="radio" name="checkin" value="widget"> <b>Home line plus a phone widget</b>. Start a check-in without opening the app.</label>
+      <label class="opt"><input type="radio" name="checkin" value="widget" checked> <b>Home line plus a phone widget</b>. Start a check-in without opening the app.</label>
     </fieldset>
     <h3>Elements</h3>
     <div id="elements"></div>
@@ -177,7 +171,7 @@ When it looks right, copy the summary at the bottom and paste it back to me.</p>
 <div class="three" id="daytime"></div>
 
 <h2>4. Windows: what it opens on</h2>
-<p>Options 1 and 2, as asked. Both use the module rail on the left (W3's rail; whether Windows keeps W3 is still the navigation choice) and the same elements as the phone's home.
+<p>The chosen home, with the module rail on the left and the same elements as the phone's home.
 A window of 1100 × 660 is drawn; scroll sideways on a narrow screen.</p>
 <div id="windows"></div>
 
@@ -185,9 +179,8 @@ A window of 1100 × 660 is drawn; scroll sideways on a narrow screen.</p>
 <div id="navhome"></div>
 
 <h2>6. The Hub: symbol and centre slot</h2>
-<p><b>Decided (owner, 2026-10-07): the hexagon, on a tonal circle always on.</b> The other options stay below for reference.</p>
-<p>The owner renamed "All" to <b>Hub</b> and moved it to the centre (2026-10-06). The centre slot is where most apps put "create" (Daylio, YouTube, Instagram). That convention suits the Hub: its sheet opens on the capture line, and a long press captures straight away.
-Pick a symbol and a slot style: every bar on this page redraws with your choice.</p>
+<p><b>Decided (owner, 2026-10-07): the hexagon, on a tonal circle always on.</b> The other symbols and styles are in git (decision 15).</p>
+<p>The owner renamed "All" to <b>Hub</b> and moved it to the centre (2026-10-06). The centre slot is where most apps put "create" (Daylio, YouTube, Instagram). That convention suits the Hub: its sheet opens on the capture line, and a long press captures straight away.</p>
 <div id="hubpick"></div>
 
 <script>
@@ -227,6 +220,7 @@ const DEFAULT = () => ({layout:"zones", checkin:"widget", order:ELEMENTS.map(e=>
 const STORE = "factotum-home-ws-2";
 let state = DEFAULT();
 try { const s = JSON.parse(localStorage.getItem(STORE)); if (s && s.order && s.order.length === ELEMENTS.length && s.pair) state = s; } catch (e) {}
+Object.assign(state, {layout:"zones", checkin:"widget"});   // decided (owner, 2026-10-06): a stored older choice no longer applies
 const byId = Object.fromEntries(ELEMENTS.map(e=>[e.id,e]));
 const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 
@@ -291,21 +285,13 @@ function rowsOf(items) {
 function homeBody() {
   return rowsOf(shown()).map(r => r.two ? `<div class="two">${r.two[0].html}${r.two[1].html}</div>` : r.one.html).join("");
 }
-/* Hub (owner, 2026-10-06): "All" is renamed Hub and sits at the centre of the bar. Its symbol and slot style are
-   picked in section 6; the choice redraws every bar on this page. */
+/* Hub (owner, 2026-10-06): "All" is renamed Hub and sits at the centre of the bar. Its symbol and slot style were
+   decided on 2026-10-07 (section 6). */
 const HUB_ICONS = {
-  spokes: {name:"Hub and spokes", svg:'<circle cx="12" cy="12" r="3"/>' + [-90,-18,54,126,198].map(a=>{const r=a*Math.PI/180,c=Math.cos(r),s=Math.sin(r);
-    return `<line x1="${(12+3.6*c).toFixed(2)}" y1="${(12+3.6*s).toFixed(2)}" x2="${(12+7*c).toFixed(2)}" y2="${(12+7*s).toFixed(2)}"/><circle cx="${(12+8.6*c).toFixed(2)}" cy="${(12+8.6*s).toFixed(2)}" r="1.6" fill="currentColor"/>`;}).join("")},
-  wheel: {name:"Wheel hub", svg:'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="2.6"/>' + [0,60,120,180,240,300].map(a=>{const r=a*Math.PI/180;
-    return `<line x1="${(12+2.6*Math.cos(r)).toFixed(2)}" y1="${(12+2.6*Math.sin(r)).toFixed(2)}" x2="${(12+9*Math.cos(r)).toFixed(2)}" y2="${(12+9*Math.sin(r)).toFixed(2)}"/>`;}).join("")},
   hex: {name:"Hexagon and centre", svg:'<polygon points="' + [0,60,120,180,240,300].map(a=>{const r=(a-90)*Math.PI/180; return (12+9*Math.cos(r)).toFixed(2)+","+(12+9*Math.sin(r)).toFixed(2);}).join(" ") + '"/><circle cx="12" cy="12" r="2.4" fill="currentColor"/>'},
-  burst: {name:"Burst", svg:'<circle cx="12" cy="12" r="2.4" fill="currentColor"/>' + [0,45,90,135,180,225,270,315].map(a=>{const r=a*Math.PI/180;
-    return `<line x1="${(12+5*Math.cos(r)).toFixed(2)}" y1="${(12+5*Math.sin(r)).toFixed(2)}" x2="${(12+9.5*Math.cos(r)).toFixed(2)}" y2="${(12+9.5*Math.sin(r)).toFixed(2)}"/>`;}).join("")},
-  tiles: {name:"Four tiles (the old ⊞)", svg:'<rect x="4" y="4" width="7" height="7" rx="2"/><rect x="13" y="4" width="7" height="7" rx="2"/><rect x="4" y="13" width="7" height="7" rx="2"/><rect x="13" y="13" width="7" height="7" rx="2"/>'},
 };
-const HUB_STYLES = {plain:"Like the other slots", tonal:"Tonal circle, always on", raised:"Raised, filled"};
+const HUB_STYLES = {tonal:"Tonal circle, always on"};
 let hub = {icon:"hex", style:"tonal"};
-try { const h = JSON.parse(localStorage.getItem("factotum-hub-2")); if (h && HUB_ICONS[h.icon] && HUB_STYLES[h.style]) hub = h; } catch (e) {}
 const hubSvg = (icon = hub.icon) => `<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${HUB_ICONS[icon].svg}</svg>`;
 const BAR_MODS = {Today:"today", Calendar:"today", Week:"today", Routines:"routines", "check-in":"checkin", Pages:"pages"};
 const BAR = (on, items, h = hub) => `<div class="bar hub-${h.style}">${items.map(([g,l])=>l === "Hub"
@@ -325,9 +311,6 @@ function render() {
     <div class="wdg"><h5>Factotum</h5><div style="display:flex;justify-content:space-between;align-items:center;font-size:15px">How are things?<span class="faces"><span>›</span></span></div></div>
     <div class="wdg"><h5>Factotum · Next up</h5><div style="font-size:13px">09:00 Dentist<br><span style="color:#666">Water · 3 of 8</span></div></div>
     <div class="apps">${"<span></span>".repeat(8)}</div></div><p class="cap2">The phone's own home screen: a check-in widget that opens the check-in, here beside a "next up" one. What the check-in asks is a later tier.</p></div>`);
-  if (state.checkin === "off") pv.push(`<div>${phone("check-in", `<div class="line m checkin"><span class="t">How are things right now?</span><span class="go">›</span></div>
-    <div class="zone m checkin"><h4><span class="dot"></span>Also here</h4><div class="it"><span class="t">Ledger</span></div><div class="it"><span class="t">Sensory log</span></div><div class="it"><span class="t">How things have felt</span></div></div>`,
-    BAR("check-in", A_BAR), "checkin")}<p class="cap2">Off home: check-in is one tap away in the bar, with the ledger and sensory log beside it.</p></div>`);
   document.getElementById("previews").innerHTML = pv.join("");
   document.querySelectorAll("input[name=layout]").forEach(r => r.checked = r.value === state.layout);
   document.querySelectorAll("input[name=checkin]").forEach(r => r.checked = r.value === state.checkin);
@@ -410,12 +393,6 @@ const RAIL = `<div class="rail">${[["◷","Today","today"],["▦","Calendar","to
   .map(([g, l, m], i) => `<div class="${i===0?"on":""} m ${m}"><i>${g}</i>${l}<span class="kbd">Ctrl+${i+1}</span></div>`).join("")}<div class="sp"></div><div class="hubr"><i>${hubSvg()}</i>Hub</div></div>`;
 const deskHdr = `<div class="dhdr m today"><b>Today · Mon 5 Oct</b><span class="tabs2"><span>Day</span><span>Week</span><span>Month</span><span>Planner</span></span><span class="srch">⌕ Search everything <span class="kbd">Ctrl+K</span></span></div>`;
 function desk(main) { return `<div class="wrap"><div class="desk">${RAIL}<div class="dmain">${deskHdr}${main}</div></div></div>`; }
-function win1() {
-  return desk(`<div class="dcols3">
-    <div class="dcol">${PARTS.capture()}${PARTS.open()}${PARTS.agenda()}</div>
-    <div class="dcol">${PARTS.timers()}${PARTS.routines()}</div>
-    <div class="dcol">${PARTS.checkin()}${PARTS.ledger()}${PARTS.journal()}<div class="zone m pages"><h4><span class="dot"></span>Pinned pages</h4>${["Garden plan","Reading list","Trip","Work notes"].map(p=>`<div class="it"><span class="t">${p}</span></div>`).join("")}</div></div></div>`);
-}
 function win2() {
   return desk(`<div class="dcols2">
     <div class="dcol narrow">${homeBody()}</div>
@@ -426,8 +403,7 @@ function win2() {
 }
 function renderWindows() {
   document.getElementById("windows").innerHTML =
-    `<h3>Chosen (owner, 2026-10-06): home beside the last page opened</h3>${win2()}<p class="cap2" style="max-width:none">Your phone home, exactly as set in the builder, as a narrow column on the left. Beside it is the last page you opened, on either device, so the desktop resumes where you were. The journal tile stays on home because the open page is not always the journal.</p>` +
-    `<h3>Not chosen: the same home, in columns</h3>${win1()}<p class="cap2" style="max-width:none">Three columns. The left holds capture, still open and the agenda. The middle holds timers and routines. The right holds check-in, the ledger, the journal and pinned pages, unfolded because there is room.</p>`;
+    `<h3>Chosen (owner, 2026-10-06): home beside the last page opened</h3>${win2()}<p class="cap2" style="max-width:none">Your phone home, exactly as set in the builder, as a narrow column on the left. Beside it is the last page you opened, on either device, so the desktop resumes where you were. The journal tile stays on home because the open page is not always the journal.</p>`;
 }
 
 /* ---- section 5: navigation around this home. Numbers come from tools/screens/nav_home.py, injected below. ---- */
@@ -441,10 +417,7 @@ const SHEET_GROUPS = [["Calendar","▦","today",["Day","Week","Month","Planner"]
 const chips = list => `<div class="tiles">${list.map(t=>`<span>${t}</span>`).join("")}</div>`;
 function sheet(form) {
   const head = `<div class="cap" style="margin-bottom:6px"><span>+</span><span>Add… <b>water plants every 3 days</b></span></div><div class="note">Pinned and recent</div>${chips(["Journal","Ledger","Trackers","Garden plan"])}`;
-  let body;
-  if (form === "flat") body = SHEET_GROUPS.map(([m,,, all]) => `<div class="note" style="margin-top:6px">${m}</div>${chips(all)}`).join("");
-  else if (form === "cards") body = SHEET_GROUPS.map(([m,g,c,all]) => `<div class="zone m ${c} card2"><h4><span class="dot"></span>${g} ${m}<span class="lk">›</span></h4>${chips(all)}</div>`).join("");
-  else body = `<div class="fold2">${SHEET_GROUPS.map(([m,g,c,all,top]) => `<div class="zone m ${c} card2"><h4><span class="dot"></span>${g} ${m}<span class="lk">${all.length} ›</span></h4>${chips(top)}</div>`).join("")}</div>`;
+  const body = SHEET_GROUPS.map(([m,g,c,all]) => `<div class="zone m ${c} card2"><h4><span class="dot"></span>${g} ${m}<span class="lk">›</span></h4>${chips(all)}</div>`).join("");   // cards (owner, 2026-10-07)
   return `<div class="sheet">${head}${body}</div>`;
 }
 function phoneOver(overlay, on) {
@@ -469,44 +442,21 @@ function renderNavHome() {
     <li><b>The third slot is contested.</b> It is Routines (${slots(b.folders)}: ${b.folders.cost.toFixed(1)} steps a week) or a ledger pin (${slots(b.flat)}: ${b.flat.cost.toFixed(1)}). The order swaps with how much "reachable only from home" is assumed to cost. Drawn here: <b>Routines by default, and the slot can be pinned</b>, so the ledger can go there instead.</li>
     <li>A+ with this home costs ${NAV_HOME.aplus.cost.toFixed(1)} a week. Its check-in slot is now spent on something home already does.</li>
     </ul>
-    <p>The Hub sheet costs the same steps in all three forms below; they differ in how quickly a feature is found and how busy the sheet is:</p>
-    <table><tr><th>Hub sheet</th><th>Items scanned to find a feature</th><th>Clutter of the Hub screen (measured)</th></tr>
-    ${["flat","cards","folders"].map(s=>`<tr><td>${s}</td><td>${f(b[s].find)}</td><td>${b[s].clutter.toFixed(3)}</td></tr>`).join("")}</table>
+    <p>The Hub sheet is drawn as cards (owner, 2026-10-07): ${f(b.cards.find)} items scanned to find a feature, Hub screen clutter ${b.cards.clutter.toFixed(3)} (measured). The other forms are in git (decision 15).</p>
     <div class="three">${[
       [phoneOver("", "Today"), "Home with the owner's bar: Today · Calendar · Hub · Pages · check-in. The fifth slot (check-in) can be re-pinned to any screen in Edit home."],
       [weekScreen(), "Week: Day · Week · Month · Planner live here now, not on home."],
-      [phoneOver(sheet("flat"), "Hub"), "Hub, flat: every feature by name under its module. The least to draw; the slowest to scan."],
-      [phoneOver(sheet("cards"), "Hub"), "Hub, cards: each module a card in its hue, every feature shown. The quickest to scan; the busiest."],
-      [phoneOver(sheet("folders"), "Hub"), "Hub, folders: each module a card with its three most used features and a count; the rest are one tap further."],
+      [phoneOver(sheet(), "Hub"), "Hub, cards: each module a card in its hue, every feature shown."],
     ].map(([p,c]) => `<div>${p}<p class="cap2">${c}</p></div>`).join("")}</div>`;
 }
 
 /* ---- section 6: the Hub's symbol and slot style ---- */
-const HUB_NOTES = {
-  spokes: "Literal: one centre linked to the five modules. No other bar icon has its shape.",
-  wheel: "Says \"hub\" as in a wheel. At bar size, the ring and six spokes blur into a sun or a cog, close to Settings' ⚙.",
-  hex: "Abstract. It reads as \"node\" or \"block\", and says little about what the Hub holds. <b>Chosen (owner, 2026-10-07).</b>",
-  burst: "Reads as \"new\", \"highlights\" or a sun. The loudest of the five.",
-  tiles: "The \"all apps\" convention. At bar size it is close to Week's grid ▦, the slot beside it.",
-};
-const STYLE_NOTES = {
-  plain: "The quietest: only its place in the centre marks it.",
-  tonal: "A soft circle always behind it. It marks the centre without competing; it is the one accent the glance measure already allowed. <b>Chosen (owner, 2026-10-07).</b>",
-  raised: "The strongest. It reads as a \"create\" button, the busiest of the three, and the owner asked for calmer screens.",
-};
 function renderHub() {
-  const el = document.getElementById("hubpick");
-  el.innerHTML = `<fieldset><legend>Slot style</legend>${Object.entries(HUB_STYLES).map(([k, v]) =>
-      `<label class="opt"><input type="radio" name="hubstyle" value="${k}" ${hub.style===k?"checked":""}> <b>${v}</b>. ${STYLE_NOTES[k]}</label>`).join("")}</fieldset>
-    <div class="hubgrid">${Object.entries(HUB_ICONS).map(([k, v]) => `<label class="hubcard ${hub.icon===k?"sel":""}">
-      <input type="radio" name="hubicon" value="${k}" ${hub.icon===k?"checked":""}>
-      <span class="big">${hubSvg(k).replace('width="22" height="22"', 'width="56" height="56"')}</span>
-      <b>${v.name}</b><span class="dim">${HUB_NOTES[k]}</span>
-      <div class="phone-bar">${BAR("Today", A_BAR, {icon:k, style:hub.style})}</div></label>`).join("")}</div>`;
-  el.querySelectorAll("input[name=hubicon]").forEach(r => r.addEventListener("change", () => { hub.icon = r.value; saveHub(); }));
-  el.querySelectorAll("input[name=hubstyle]").forEach(r => r.addEventListener("change", () => { hub.style = r.value; saveHub(); }));
+  document.getElementById("hubpick").innerHTML = `<div class="hubgrid"><div class="hubcard sel">
+      <span class="big">${hubSvg().replace('width="22" height="22"', 'width="56" height="56"')}</span>
+      <b>${HUB_ICONS.hex.name}, ${HUB_STYLES.tonal.toLowerCase()}</b><span class="dim">Abstract: it reads as "node" or "block". The soft circle marks the centre without competing.</span>
+      <div class="phone-bar">${BAR("Today", A_BAR)}</div></div></div>`;
 }
-function saveHub() { try { localStorage.setItem("factotum-hub-2", JSON.stringify(hub)); } catch (e) {} render(); }
 
 function theme(dark) { document.documentElement.dataset.theme = dark ? "dark" : "light"; }
 let dark = matchMedia("(prefers-color-scheme: dark)").matches; theme(dark);

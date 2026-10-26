@@ -1614,3 +1614,40 @@ Drawn: `docs/screens/t1/labels-dots.html` (`labels-f.json`).
 - The separate typed field under the dial is gone. A one-line hint reads "Hour on the dial, or type the time in its box".
 
 It is done in `when-prototype.html`, and T1's page was rebuilt from it. The habit sheet (T3a.2c) has the same change.
+
+### Outputs cleaned (owner, 2026-10-26)
+
+Pages and records wholly replaced by later passes left `docs/screens/t1/`; each stays in git at the commit that last wrote it. Kept: the approved records, the picks' records, the references and picker3/picker-desk/repeat-references (evidence the When sheet still cites).
+
+- `docs/screens/t1/capture-v4.html` (T1.3's kind-display variants; replaced by capture-approved.html): `git show 45c63e6:docs/screens/t1/capture-v4.html`
+- `docs/screens/t1/legend-options.html` (T1.3's legend places; the pick is drawn in capture-approved.html): `git show e60a80e:docs/screens/t1/legend-options.html`
+- `docs/screens/t1/labels-options.html` (T1.7's chip fronts; the label became a dot): `git show ded4be6:docs/screens/t1/labels-options.html`
+- `docs/screens/t1/labels-dots.html` (T1.7's dot variants; the chosen dot is drawn in screens.html): `git show dd83df8:docs/screens/t1/labels-dots.html`
+- `docs/screens/t1/labels-rest.html` (T1.7's parts still open then; decided on 2026-10-09): `git show 8d5de57:docs/screens/t1/labels-rest.html`
+- `docs/screens/t1/labels-a.json` (T1.7 A, the chip; replaced by F, the dot): `git show a0d5a30:docs/screens/t1/labels-a.json`
+- `docs/screens/t1/labels-e.json` (T1.7 E, what tapping a chip does; replaced by F and D): `git show 59cb09d:docs/screens/t1/labels-e.json`
+- `docs/screens/t1/labels-rank.json` (the ranking behind labels-options.html): `git show ded4be6:docs/screens/t1/labels-rank.json`
+- `docs/screens/t1/toasts-g.json` (T1.8 G, replaced): `git show 9ffb12f:docs/screens/t1/toasts-g.json`
+- `docs/screens/t1/capture-v2.json` (T1.3 exploration): `git show 8b6b8f9:docs/screens/t1/capture-v2.json`
+- `docs/screens/t1/capture-v3.json` (T1.3 exploration): `git show 5ac72dd:docs/screens/t1/capture-v3.json`
+- `docs/screens/t1/capture-v4.json` (T1.3 exploration (the owner's v4 stays in capture-v4-owner.json)): `git show 45c63e6:docs/screens/t1/capture-v4.json`
+- `docs/screens/t1/capture-opt.json` (T1.3 exploration): `git show 343c324:docs/screens/t1/capture-opt.json`
+- `docs/screens/t1/sheet-weight.json` (T1.3's sheet weights): `git show 159a5ca:docs/screens/t1/sheet-weight.json`
+- `docs/screens/t1/picker-opt.json` (T1.5's calendar-first run): `git show 3922df2:docs/screens/t1/picker-opt.json`
+- `docs/screens/t1/picker-opt-split.json` (T1.5's calendar-first run): `git show 9d5e45d:docs/screens/t1/picker-opt-split.json`
+- `docs/screens/t1/repeat-opt.json` (T1.6 round 1): `git show 7784dee:docs/screens/t1/repeat-opt.json`
+- `docs/screens/t1/repeat-rank.json` (T1.6 round 1): `git show 7784dee:docs/screens/t1/repeat-rank.json`
+- `docs/screens/t1/repeat-merge.json` (T1.6 merge round): `git show ee0b725:docs/screens/t1/repeat-merge.json`
+- `docs/screens/t1/repeat-merge-rank.json` (T1.6 merge round): `git show ee0b725:docs/screens/t1/repeat-merge-rank.json`
+- `docs/screens/t1/repeat3-opt.json` (T1.6 round 3): `git show ee0b725:docs/screens/t1/repeat3-opt.json`
+- `docs/screens/t1/repeat4-stage1.json` (T1.6 round 4): `git show 6df39b7:docs/screens/t1/repeat4-stage1.json`
+- `docs/screens/t1/repeat4-stage2.json` (T1.6 round 4): `git show 6df39b7:docs/screens/t1/repeat4-stage2.json`
+
+Also (owner, 2026-10-26): the toast and empty-state pages (`actions_opt.py`, `empty_opt.py`) now set `PICKED` from the choices
+above (T1.8: S keeps both the long press and Select as a screen action; C's labels stay open to rescore; G is one line), so
+`toasts-options.html` and `empty-options.html` draw the picks only (135 and 53 drawings down to 27 and 11) and their score
+tables list the picks and controls (190 and 44 rows down to 42 and 21). `labels-scores.html` lists each part's pick and
+control, A and E one line each; `label_opt.py` no longer has the retired pages' code. The score tables on `screens.html` list
+the pick and the control (every option's row stays in `scores.md`). The verdicts are unchanged: the controls of A, C, I, S
+and X (toasts) and of Empty screens and Filtered to nothing stay on their fronts, as recorded above. `when-prototype.html`'s
+heading no longer says its variants are still to be scored; they stay for `when_start_opt.py`.

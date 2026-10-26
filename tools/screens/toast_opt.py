@@ -1123,9 +1123,9 @@ def options_page():
                 figs.append(fig(cap, h_doc(v)))
             else:  # parts registered by actions_opt
                 figs.append("".join((fig(cap if i == 0 else "…", d, 1100, 660, 420) if '<div class="desk">' in d else fig(cap if i == 0 else "…", d)) for i, d in enumerate(DRAW[p](v))))  # a Windows drawing at its own size
-        if p == "b":
-            figs.append(fig("Way back: ⋯ in the header, Undo and History", b_way_doc("menu")) + fig("Way back: ⚙ › Recently done", b_way_doc("recent")) +
-                        fig("Way back: ⚙ › Trash", b_way_doc("trash")))
+        if p == "b":   # the ways back; a picked part draws its own only
+            ways = (("menu", "Way back: ⋯ in the header, Undo and History"), ("recent", "Way back: ⚙ › Recently done"), ("trash", "Way back: ⚙ › Trash"))
+            figs.append("".join(fig(c, b_way_doc(w)) for w, c in ways if p not in PICKED or any(want.get("way") == w for want in PICKED[p])))
         rows_drawn = fr + ctls
         note = '<p class=dim>Every row is in <a href="%s-scores.html#%s">the tables</a>.</p>' % (PREFIX, p)
         if p in SUPERSEDED:

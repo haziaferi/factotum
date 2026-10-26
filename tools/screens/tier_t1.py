@@ -126,6 +126,14 @@ def options_html(items, approved=None):
         ", ".join(e(it[0]["id"]) for it in rest), "".join(block(*it) for it in rest))
 
 
+def shown(o, approved):
+    """A score table on an approved screen lists the pick and the control; every option's row stays in scores.md (owner, 2026-10-26)."""
+    return not approved or o["id"] == approved or o["how"] == "control"
+
+
+ROWS_NOTE = " The table lists the pick and the control; every option's row is in scores.md."
+
+
 def section_t11(refs):
     rows, fr, low = score_screen(OPTIONS_T11)
     ctrl = [i for i, o in enumerate(OPTIONS_T11) if o["how"] == "control"]
@@ -133,6 +141,8 @@ def section_t11(refs):
     head = "<tr><th>Option</th><th>Clutter (phone)</th><th>Clutter (Windows)</th><th>Strong nav items</th><th>Nav in the top quarter</th><th>Faint labels</th><th>Taps under 48 dp</th><th>Smallest text</th><th>Steps to Search · Capture · Hub · Settings</th><th></th></tr>"
     body = ""
     for o, r, i in zip(OPTIONS_T11, rows, range(len(rows))):
+        if not shown(o, APPROVED_T11):
+            continue
         steps = " · ".join("%s%s" % (v[0], "*" if v[1] == "declared" else "") for v in r["steps"].values())
         tag = "control" if o["how"] == "control" else ("front" if i in fr else "dominated")
         body += "<tr><td><b>%s</b> %s</td><td>%.3f</td><td>%.3f</td><td>%d</td><td>%d</td><td>%d</td><td>%s</td><td>%g px</td><td>%s</td><td>%s</td></tr>" % (
@@ -148,7 +158,7 @@ def section_t11(refs):
              'Lower is calmer. %s</p>'
              '<h3>Options</h3>%s<h3>States (approved: A′)</h3><div class="states">%s</div>'
              '<details><summary>Real apps compared (local screenshots, not in the public repo)</summary><div class="refs">%s</div></details></section>') % (
-        head, body, refrow, "The control loses, as it must." if beaten else "<b>The control is on the front: the measures are not discriminating.</b>",
+        head, body, refrow, ("The control loses, as it must." if beaten else "<b>The control is on the front: the measures are not discriminating.</b>") + ROWS_NOTE,
         opts, states, refimgs)
     return html_, rows, fr, beaten
 
@@ -379,7 +389,7 @@ def section_t12():
     head = "<tr><th>Option</th><th>Clutter (phone)</th><th>Clutter (Windows)</th><th>Rows in view</th><th>Blank left column</th><th>Title edges</th><th>Faint labels</th><th>Taps under 48 dp</th><th>Strong targets</th><th></th></tr>"
     body = "".join("<tr><td><b>%s</b> %s</td><td>%.3f</td><td>%.3f</td><td>%d</td><td>%d</td><td>%d</td><td>%d</td><td>%s</td><td>%d</td><td>%s</td></tr>" % (
         o["id"], e(o["name"]), r["clutter"], r["desk_clutter"], r["rows_visible"], r["blank_lead"], r["title_edges"], r["faint_n"], e(", ".join(r["small_taps"]) or "none"), r["strong"],
-        "control" if o["how"] == "control" else ("front" if i in fr else "dominated")) for i, (o, r) in enumerate(zip(OPTIONS_T12, rows)))
+        "control" if o["how"] == "control" else ("front" if i in fr else "dominated")) for i, (o, r) in enumerate(zip(OPTIONS_T12, rows)) if shown(o, APPROVED_T12))
     opts = options_html([(o, t12_phone(o["f"]), t12_desk(o["f"])) for o in OPTIONS_T12], APPROVED_T12)
     lead = next(o for o in OPTIONS_T12 if o["id"] == APPROVED_T12)  # states and variants are drawn on the approved row
     states = "".join('<div><div class="cap2">%s</div>%s</div>' % (e(n), h) for n, h in states_t12(lead["f"]))
@@ -395,7 +405,7 @@ def section_t12():
              '<h3>Scores</h3><table>%s%s</table><p class="dim">%s</p><h3>Options</h3>%s'
              '<h3>States (%s)</h3><div class="states">%s</div>'
              '<h3>Chapter: what a row shows (%s)</h3><p class="dim">The three variants from decision 17, to decide later. %s.</p><div class="states">%s</div></section>') % (
-        head, body, "The control loses, as it must." if beaten else "<b>The control is on the front.</b>", opts,
+        head, body, ("The control loses, as it must." if beaten else "<b>The control is on the front.</b>") + ROWS_NOTE, opts,
         e(lead["id"] + " · " + lead["name"]), states, e(lead["id"]), "; ".join(vscores), variants)
     return html_, rows, fr, beaten
 
@@ -431,14 +441,14 @@ def build_section(sid, title, intro, options, states, css, low, extra=None, appr
     body = "".join("<tr><td><b>%s</b> %s</td>%s<td>%s</td></tr>" % (
         o["id"], e(o["name"]), "".join("<td>%s</td>" % (COLS[k][1] % r[k]) for k in low),
         ("control" if o["how"] == "control" else ("front" if i in fr else "dominated")) + (" · fails: " + e(fails[i]) if fails.get(i) else ""))
-        for i, (o, r) in enumerate(zip(options, rows)))
+        for i, (o, r) in enumerate(zip(options, rows)) if shown(o, approved))
     opts = options_html([(o, o["phone"](), o["desk"]()) for o in options], approved)
     st = "".join('<div><div class="cap2">%s</div>%s</div>' % (e(n), f()) for n, f in states)
     smalls = sorted({x for r in rows for x in r["small_list"]})
     tag = ' <span class="tag">approved: %s</span>' % e(approved) if approved else ""
     html_ = ('<section id="%s"><h2>%s%s</h2><p>%s</p><h3>Scores</h3><table>%s%s</table><p class="dim">%s%s</p>'
              '<h3>Options</h3>%s<h3>States</h3><div class="states">%s</div></section>') % (
-        sid, e(title), tag, intro, head, body, "The control loses, as it must." if beaten else "<b>The control is on the front.</b>",
+        sid, e(title), tag, intro, head, body, ("The control loses, as it must." if beaten else "<b>The control is on the front.</b>") + (ROWS_NOTE if approved else ""),
         (" Small targets: " + e(", ".join(smalls)) + ".") if smalls else "", opts, st)
     return html_, rows, fr, beaten
 
@@ -1034,7 +1044,7 @@ def main():
         "t1-3", "T1.3 Capture sheet",
         "One line in plain language for every module (decision 17). Selected: v4 (owner, 2026-10-07), after scoring chips against "
         "highlighting, routing (kind chip, kind row, prefixes, Todoist's +, TickTick's ⋯), the add (Enter, ✓), the kind's display, the "
-        "shorthand legend and the placeholder: see capture-v2/v3/v4, legend-options and placeholder-opt beside this page. Taps exclude "
+        "shorthand legend and the placeholder: see capture-approved and placeholder-opt beside this page (the explorations are in git, decision 17). Taps exclude "
         "typing. Windows: a small window from anywhere.",
         OPTIONS_T13, STATES_T13, T13_CSS + __import__("legend_opt").CSS, ("clutter", "desk_clutter", "faint_n", "small", "steps_sum", "fields"), t13_extra, APPROVED_T13)
     co = _load_capture_opt()

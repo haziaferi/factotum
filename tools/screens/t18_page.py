@@ -102,7 +102,7 @@ def section():
     rows = "".join("<tr><td>%s</td><td>%s</td><td>%s</td></tr>" % tuple(H.escape(x) for x in r) for r in TABLE)
     return ('<section id="t1-8"><h2>T1.8 Toasts, dialogs and actions <span class="tag">approved</span></h2>'
             '<p>Decision 17, approved 2026-10-09. Every part was scored with a control (<a href="toasts-scores.html">the tables</a>, '
-            '<a href="toasts-options.html">every option drawn</a>); the words follow <a href="actions-inventory.md">the actions inventory</a>: '
+            '<a href="toasts-options.html">the picks drawn</a>); the words follow <a href="actions-inventory.md">the actions inventory</a>: '
             'Delete moves to Trash, Restore and Delete forever live in Trash, and only Delete forever and Empty Trash are held.</p>'
             '<h3>Decided by</h3><table><tr><th>Part</th><th>Choice and its measure</th><th>Scored as</th></tr>%s</table>'
             '<h3>Phone</h3><div class="refs">%s</div><h3>Windows</h3><div class="refs">%s</div></section>') % (rows, figs, desk)
