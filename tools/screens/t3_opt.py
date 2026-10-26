@@ -237,7 +237,7 @@ def score_habits(v):
 """
   Rescored on the owner's definition: habits are very basic daily yes/no things that are easy to forget (make the bed,
   brush teeth, wash the face, shower), held as if-then cues, with the least judgment possible; a clear reference on a
-  low day. The first scoring (t3-habits-v1.json) asked how presence shows; here no history is on the list at all.
+  low day. The first scoring (t3-habits-v1.json, in git at c3ce4ec) asked how presence shows; here no history is on the list at all.
   Fixed in every option: yes/no only; T1's own Log button at the row's right (owner: "the same as the Today's page");
   the cue is the habit's block (order) and its written cue (wording) (owner's answer c); each habit has an energy level
   (low, mid, high), and a filter shows only what can be handled now: High (the default) shows all, Mid shows low and
@@ -4549,7 +4549,7 @@ def build_refs():
 # ==== the tables and pages through toast_opt's machinery =========================================================================
 T.PREFIX, T.REFS, T.NAME = "t3", "t3-refs.json", "T3 habits, trackers, time, goals, charts and checklists"
 T.OUT = os.path.join(os.path.dirname(M2.T.OUT), "t3")
-# T3.1 "habits" (presence, the first scoring) is kept in t3-habits-v1.json and in the code above; T3a replaced it (owner, 2026-10-13)
+# T3.1 "habits" (presence, the first scoring) is kept in git (t3-habits-v1.json at c3ce4ec) and in the code above; T3a replaced it (owner, 2026-10-13)
 T.SPACES = {"ipage": IPAGE_SPACE, "where": WHERE_SPACE, "tkind": TKIND_SPACE, "tunit": TUNIT_SPACE, "gword": GWORD_SPACE, "gtoday": GTODAY_SPACE, "goals": GOALS_SPACE, "run3": RUN3_SPACE, "pacerun": PACERUN_SPACE, "pace6": PACE6_SPACE, "pace5": PACE5_SPACE, "pace4": PACE4_SPACE, "pace3": PACE3_SPACE, "paceplace": PPLACE_SPACE, "pace": PACE_SPACE, "measure3": MEAS3_SPACE, "acts": ACTS_SPACE, "measure2": MEAS2_SPACE, "measure": MEAS_SPACE, "trackers": TRK_SPACE, "basics": BASICS_SPACE, "addhabit": ADD_SPACE, "routines": ROUT_SPACE, "addsent": SENT_SPACE, "hsheet": HSHEET_SPACE, "premise": PREMISE_SPACE, "habits2": H2_SPACE}
 T.SCORERS = {"ipage": score_ipage, "where": score_where, "tkind": score_tkind, "tunit": score_tunit, "gword": score_gword, "gtoday": score_gtoday, "goals": score_goals, "run3": score_run3, "pacerun": score_pacerun, "pace6": score_pace6, "pace5": score_pace5, "pace4": score_pace4, "pace3": score_pace3, "paceplace": score_paceplace, "pace": score_pace, "measure3": score_measure3, "acts": score_acts, "measure2": score_measure2, "measure": score_measure, "trackers": score_trackers, "basics": score_basics, "addhabit": score_addhabit, "routines": score_routines, "addsent": score_addsent, "hsheet": score_hsheet, "premise": score_premise, "habits2": score_habits2}
 T.CONTROLS = {"ipage": [({k: app for k in IPAGE_SPACE} | {"control": True, "control_app": app}, IP_CONTROL_WHY[app]) for app in IP_CONTROLS],

@@ -182,7 +182,7 @@ Quantities (water, exercise, studying, knitting) are trackers.
 
 ## T3a.1 Habits as Daily basics: scored (2026-10-13)
 
-**Part `basics` in `tools/screens/t3_opt.py`.** The first scoring is kept as `t3-habits-v1.json`.
+**Part `basics` in `tools/screens/t3_opt.py`.** The first scoring is kept in git (`git show c3ce4ec:docs/screens/t3/t3-habits-v1.json`; the file left the folder 2026-10-26).
 
 **Fixed in every option:**
 - yes/no habits;
@@ -2694,3 +2694,11 @@ With Review fixed, the lowest total now keeps the goal line (T3b.5's glance), un
 list still contradict approved screens (T3b.1d, T1.4 A0); the Hub's list loses on Harmony and Hierarchy, not on taps.
 
 Status: **T3b.6c scored: the owner settles the four repeats; then stage 3 of Review.**
+
+### Outputs cleaned (owner, 2026-10-26)
+
+The 39 replaced parts' records (`t3-<part>.json`, 7.3 MB) and the first scoring `t3-habits-v1.json` left
+`docs/screens/t3/`; each page line now names the commit that holds the record (`git show <commit>:docs/screens/t3/t3-<part>.json`).
+Picked parts keep their full records (fronts, ranks and the control verdicts are computed from every row). Kept, as inputs or
+approved records: `habit-prototype.html` (T3a.2c's drawings render from it), `t3-references.json` (normalised into
+`t3-refs.json` each run), `pace-try.html` and `run-try.html` (already the approved sheet and the picked place only).

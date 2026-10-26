@@ -935,7 +935,16 @@ TITLES = {"g": "G. Where actions sit, the same on every screen, and their text",
 
 PAGE_RULES = ("<p class=dim><b>How this page is kept</b> (owner, 2026-10-17): the newest pass first. A part still open shows its front "
               "and its control; a picked part shows only its picks; a part replaced by a later pass, or discarded, is one line naming the "
-              "commit that last scored it and the JSON file where every score stays. Nothing replaced is drawn.</p>")
+              "commit that last scored it, which holds every score (its JSON record left the folder, owner 2026-10-26). Nothing replaced is drawn.</p>")
+
+
+def kept(p, last):
+    """Where a replaced part's scores are: its JSON record while it is in the folder, else the commit that last wrote it."""
+    name = PREFIX + "-%s.json" % p
+    if os.path.exists(os.path.join(OUT, name)) or p not in last:
+        return "Last scored in %s; every score is kept in <code>%s</code>." % (last.get(p, "this run"), name)
+    rel = os.path.relpath(os.path.join(OUT, name), os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))).replace(os.sep, "/")
+    return "Last scored in %s; every score is kept there: <code>git show %s:%s</code>." % (last[p], last[p], rel)
 
 
 def chrono_parts():
@@ -945,7 +954,8 @@ def chrono_parts():
     import time
     first, last = {}, {}
     try:
-        log = subprocess.run(["git", "log", "--format=@%ct %h", "--name-only", "--", "."], cwd=OUT, capture_output=True, text=True, encoding="utf-8").stdout
+        # added or modified only: the commit that removed a replaced part's record is not where its scores are
+        log = subprocess.run(["git", "log", "--diff-filter=AM", "--format=@%ct %h", "--name-only", "--", "."], cwd=OUT, capture_output=True, text=True, encoding="utf-8").stdout
     except OSError:
         log = ""
     stamp = None
@@ -960,7 +970,7 @@ def chrono_parts():
         first[p] = int(stamp[0])          # the log runs newest first: the last seen is the first commit
         last.setdefault(p, stamp[1])
     now = int(time.time())
-    have = [p for p in SPACES if os.path.exists(os.path.join(OUT, PREFIX + "-%s.json" % p))]
+    have = [p for p in SPACES if os.path.exists(os.path.join(OUT, PREFIX + "-%s.json" % p)) or (p in SUPERSEDED and p in last)]
     return sorted(have, key=lambda p: (-first.get(p, now), p)), last
 
 
@@ -969,11 +979,9 @@ def scores_page():
     out, lost = [PAGE_RULES], {}
     parts, last = chrono_parts()
     for p in parts:
-        if not os.path.exists(os.path.join(OUT, PREFIX + "-%s.json" % p)):
-            continue
-        if p in SUPERSEDED:   # discarded: one line; every score stays in the JSON record (owner, 2026-10-17)
-            out.append('<p class=dim id="%s"><b>%s</b>: replaced (%s). Last scored in %s; every score is kept in <code>%s-%s.json</code>.</p>' % (
-                p, H.escape(TITLES[p]), H.escape(SUPERSEDED[p]), last.get(p, "this run"), PREFIX, p))
+        if p in SUPERSEDED:   # discarded: one line; every score stays in the JSON record or its commit (owner, 2026-10-17 and 10-26)
+            out.append('<p class=dim id="%s"><b>%s</b>: replaced (%s). %s</p>' % (
+                p, H.escape(TITLES[p]), H.escape(SUPERSEDED[p]), kept(p, last)))
             continue
         rows, ok, axes = ranked(p)
         ctls = [r for r in rows if r.get("control")]
@@ -1075,9 +1083,9 @@ def options_page():
     secs = [PAGE_RULES]
     parts, last = chrono_parts()
     for p in parts:
-        if p in SUPERSEDED:   # replaced or discarded screens are not drawn (owner, 2026-10-16 and 10-17); the scores and the record stay
-            secs.append('<p class=dim><b>%s</b>: replaced (%s). Last scored in %s; every score is kept in <code>%s-%s.json</code>.</p>' % (
-                H.escape(TITLES[p]), H.escape(SUPERSEDED[p]), last.get(p, "this run"), PREFIX, p))
+        if p in SUPERSEDED:   # replaced or discarded screens are not drawn (owner, 2026-10-16 and 10-17); the scores stay in git
+            secs.append('<p class=dim><b>%s</b>: replaced (%s). %s</p>' % (
+                H.escape(TITLES[p]), H.escape(SUPERSEDED[p]), kept(p, last)))
             continue
         rows, ok, axes = ranked(p)
         # small parts: every option drawn (the owner chooses among them); large ones: the front, lowest sum first, up to four
