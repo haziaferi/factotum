@@ -361,3 +361,6 @@ o.lefts=Object.keys(o.lefts).length;o.rights=Object.keys(o.rights).length;return
     T.LEAD[part] = [("redundancy", 1)]
     T.REFS_INFO.add(part)
     T.SUPERSEDED["where2"] = "Review became one screen (T3c.1): its Review's day, This week and Saved charts dimensions are moot; T3b.6c re-scored the rest"
+    # owner, 2026-10-27: the strip, the goal line and the Hub's list are the person's (switches in the screen's own edit
+    # mode); the strip and the Hub's list start off, the goal line on. The drawing shows the switches on.
+    T.PICKED[part] = [{"strip": "choice", "row_amount": "last", "row_goal": "choice", "shortcut": "pin_choice"}]

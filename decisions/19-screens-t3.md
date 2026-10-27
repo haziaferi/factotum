@@ -2693,7 +2693,7 @@ Review's glyph and card; axes, weights and the Redundancy lead as T3b.6b. **The 
 With Review fixed, the lowest total now keeps the goal line (T3b.5's glance), unlike T3b.6b. The strip and the Hub's
 list still contradict approved screens (T3b.1d, T1.4 A0); the Hub's list loses on Harmony and Hierarchy, not on taps.
 
-Status: **T3b.6c scored: the owner settles the four repeats; then stage 3 of Review.**
+Status (then): **T3b.6c scored: the owner settles the four repeats; then stage 3 of Review.**
 
 ### Outputs cleaned (owner, 2026-10-26)
 
@@ -2702,3 +2702,22 @@ The 39 replaced parts' records (`t3-<part>.json`, 7.3 MB) and the first scoring 
 Picked parts keep their full records (fronts, ranks and the control verdicts are computed from every row). Kept, as inputs or
 approved records: `habit-prototype.html` (T3a.2c's drawings render from it), `t3-references.json` (normalised into
 `t3-refs.json` each run), `pace-try.html` and `run-try.html` (already the approved sheet and the picked place only).
+
+### T3b.6c picked (owner, 2026-10-27)
+
+Drawn first (the strip kept, as a doorway, removed; the Hub with its list), then picked:
+
+| Repeat | Pick |
+|---|---|
+| Measuring's running strip | **the person's choice, off by default**: a switch in Measuring's ✎ edit mode; off, the running row's own ■ is the one place |
+| The row's today amount | **“last” only** (“last 09:15”); today's amount is read on the goal line and the item's page |
+| The row's goal line | **the person's choice, on by default** (T3b.5c's line), switched off in Measuring's ✎ edit mode |
+| The Hub's Pinned and recent | **the person's choice, off by default**: a switch in the Hub's ⋯; off, the Hub is modules and their screens |
+
+The switches sit on the screens they change (T1.8 N: ✎ holds a screen's own edits). This amends T3b.1d (the strip) and
+T1.4 A0 (Pinned and recent): both stay available, off. Scored with every choice on by default, as the scorer counts a
+choice, the combination ranks 44 of 97 (total 786, off the front; the control 67th, the lowest total 555.5 removing the
+strip and the list). The defaults off remove two repeats the score charged; the three switches stay in its settings burden.
+The options page draws the pick with its switches on.
+
+Status: **T3b.6c picked; next stage 3 of Review (overlap forms × item sets at 2 and 10 items, Comparability leading).**
