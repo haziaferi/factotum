@@ -2852,12 +2852,21 @@ Bearable rotates).
 fixed-size buckets; yes/no's share becomes a dot at ≥ 4/9; the choice's split bar becomes a glyph row on Review); the
 groundwork's flagged choice-as-share is answered by the glyph row.
 
-**Open:** below a "down to" goal, whether the bottom stretches to a lower point (assumed yes, unconfirmed); the tie
+**Below the bottom (owner, 2026-10-28):** nothing falls below absent or 0, and no range stretches downwards. Reaching
+a goal is the person's to settle: they keep the tracker as is, turn it off, or change its goal (a prompt on reaching
+a goal, owed to the goal flow, not to Review). **Ranges belong to each tracker, not to its kind or unit:** "kg" may be
+the person's weight or a dumbbell's, which cannot share parameters, least of all in one graph. Consequences: the
+floor and range rules above are a tracker's settings with defaults, not rules per kind; Comparability's scale part
+(rank 1 for the same unit, `t3_overlap.py`) wrongly rewards two same-unit trackers on one axis and must rank by
+tracker instead; the item set gains a second kg tracker (a dumbbell) to expose it.
+
+**Open:** how a point past a "down to" goal is drawn until the person settles it (not blocking: the placeholder
+Weight stays above its goal); the tie
 glyph (side by side at 8 px fails; merged reads as "mixed"); whether the item page keeps T3b.7f's Lunch share bar; what
 the floor's own-data rule computes; the data owed (a glyph per option, a floor and its source per item, a goal's
 direction where T3b.5e does not store it); an optional phone check (Bearable, Garmin, xDrip-style markers), each
 install confirmed with the owner.
 
-Status: **Long spans settled in discussion; next make Co-movement and N concrete and measured, add the line-and-row
-pair, then score stage 3 (the new mixed-marks form against the overlay, lanes and the earlier forms, with its inner
+Status: **Long spans settled in discussion; next make Co-movement and N concrete and measured, rank Comparability's
+scale by tracker, add the dumbbell tracker and the line-and-row pair, then score stage 3 (the new mixed-marks form against the overlay, lanes and the earlier forms, with its inner
 choices), Co-movement and Comparability leading equally.**
