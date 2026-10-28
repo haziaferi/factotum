@@ -2794,5 +2794,70 @@ and stage 5 settles the box. Percent of goal is penalised wherever an item witho
 holds the control last at 2, behind at least two candidates at both sizes, and lanes and horizon behind it at 10, so
 a change to the data or the measure shows.
 
-Status: **Stage 3 groundwork done (the 10-item set, Comparability measured; the control last at 2 items, not at 10);
+Status (then): **Stage 3 groundwork done (the 10-item set, Comparability measured; the control last at 2 items, not at 10);
 next scoring stage 3's forms × item sets at 2 and 10 items, Comparability leading.**
+
+### Long spans: averaged buckets, rows for yes/no and choices (owner, 2026-10-28)
+
+The drawings showed the overlaid forms at 10 items as a tangle. The owner asked whether spans past a week should show
+averages, with a tap opening a detailed landscape view. It was discussed in a separate session; the outcome, its notes
+and mockups are in `_screens-sources/t3/review/` (`averages-discussion.md`, `-draft.md`, `averages-mockups/`;
+gitignored).
+
+**Review's purpose (owner):** seeing what moves together, not levels against goals.
+
+**Spans, six segments on Review and on the item's page:** Today (stage 4) · Week 7 × 1 day · Month 10 × 3 days ·
+**3 M 15 × 6 days (new)** · 6 M 20 × 9 days (density to be scored) · Year 26 × 14 days (owner's pick over 20 × 18).
+Each point is the mean of logged days in its bucket (T3c.2's rule; empty is not zero).
+
+**Every tracker keeps its nature:**
+- minutes, counts, weight and ratings are marks in the plot, each on its own range;
+- yes/no is a row on the x axis, a dot when at least 4/9 of the bucket's logged days are yes (2 of 3, 3 of 6, 4 of 9,
+  7 of 14 on full buckets); no, undecided and empty look alike;
+- choices are a row on the x axis showing the glyph of the bucket's most frequent option, a glyph the person gives
+  each option (new); the tie is open.
+
+**The goal is not drawn on Review** (owner: it does not matter for the correlation with another tracker); it sets
+the range:
+- no goal: own range with a floor (a minimum spread), asked at setup once the item has no goal; after 14 logged days
+  the app offers a floor from the item's own data, switchable either way;
+- "at least" goal: the top is the higher of the goal and the data, nothing clipped; the bottom is to be scored;
+- "down to" goal: the goal is the bottom, the top the higher of the data and goal + floor;
+- columns start at 0.
+
+**A new stage 3 form: always overlaid, mixed marks by kind past N trackers.** Mark pools (accepted): minutes and
+weight six line styles; ratings six markers; counts column, hollow column, then step lines; yes/no and choices one row
+each. Scored against the all-lines overlay, lanes and the earlier forms. Inside it, scored: a fixed grid against
+rolling buckets; 6 M at 20 × 9, 26 × 7 or 13 × 14; the bottom of an "at least" range (zero, the lowest point, the goal
+minus the floor); counts as columns or step lines first; N.
+
+**Axes:** a new **Co-movement** (can the eye see two items rise and fall together; parts to be made concrete: points
+at the same x, vertical room for slopes, peaks not hidden, unconnected marks counting against a trend) leads equally
+with **Comparability** (owner). Taps (2) and Consistency (2) apply at stage 5; Honesty of averages to the yes/no
+threshold and a fixed grid's open bucket; Customization burden to the floor, its switch and the option glyphs.
+The 2-item set adds a line-and-row pair (Mood + Walk) beside Reading + Mood.
+
+**Mockup readings (greys, placeholder data):** points that changed value overnight, fixed grid against rolling: Month
+2 items 0/18 against 19/20, 6 M 10 items 4/132 against 95/129 (a fixed grid steps one slot on the day a bucket opens,
+and its newest bucket is open, drawn hollow). An all-lines overlay at 10 items stays a tangle at 20 points; mixed
+marks tell items apart without reducing crowding; columns hide what is behind them and shrink to about 3 px at 26.
+The x-axis rows never cross. Clipping at an "at least" goal flattened Reading in about half its buckets, and a goal
+below the values flattened Weight: fixed by the range rules.
+
+**The landscape view moves to stage 5** (the whole Review screen). How it is reached (tap, rotation or both), what it
+shows and what Windows does stay open; the survey leans to tap or rotate (Garmin opens a tapped chart in landscape;
+Bearable rotates).
+
+**Amends:** T3c.1 (five segments become six, on the item page too); T3c.2 (6 M by weeks and Year by months become
+fixed-size buckets; yes/no's share becomes a dot at ≥ 4/9; the choice's split bar becomes a glyph row on Review); the
+groundwork's flagged choice-as-share is answered by the glyph row.
+
+**Open:** below a "down to" goal, whether the bottom stretches to a lower point (assumed yes, unconfirmed); the tie
+glyph (side by side at 8 px fails; merged reads as "mixed"); whether the item page keeps T3b.7f's Lunch share bar; what
+the floor's own-data rule computes; the data owed (a glyph per option, a floor and its source per item, a goal's
+direction where T3b.5e does not store it); an optional phone check (Bearable, Garmin, xDrip-style markers), each
+install confirmed with the owner.
+
+Status: **Long spans settled in discussion; next make Co-movement and N concrete and measured, add the line-and-row
+pair, then score stage 3 (the new mixed-marks form against the overlay, lanes and the earlier forms, with its inner
+choices), Co-movement and Comparability leading equally.**
