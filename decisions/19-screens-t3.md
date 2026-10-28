@@ -2720,4 +2720,79 @@ choice, the combination ranks 44 of 97 (total 786, off the front; the control 67
 strip and the list). The defaults off remove two repeats the score charged; the three switches stay in its settings burden.
 The options page draws the pick with its switches on.
 
-Status: **T3b.6c picked; next stage 3 of Review (overlap forms × item sets at 2 and 10 items, Comparability leading).**
+Status (then): **T3b.6c picked; next stage 3 of Review (overlap forms × item sets at 2 and 10 items, Comparability leading).**
+
+### Stage 3 groundwork: the 10-item set and Comparability (2026-10-28)
+
+Two prerequisites for stage 3, in `tools/screens/t3_overlap.py` (not a part yet; `table`, `sheet OUT.html` and
+`selftest` run it alone). The stage-3 forms are not scored or drawn here beyond throwaway sketches for the control.
+
+**The 10 items** (placeholders on t3_review's year, seeded per item, the holiday logging nothing; logged = share of the
+year's days):
+
+| Item | Kind | Unit | Goal | Logged |
+|---|---|---|---|---|
+| Water | count | glasses | 8 | 0.83 dense |
+| Push-ups | count | reps | none | 0.25 sparse |
+| Reading | minutes | min | 30 | 0.74 dense |
+| Practice | minutes | min | none | 0.26 sparse |
+| Walk | yes/no | share of days | none | 0.86 dense |
+| Stretch | yes/no | share of days | 5 days a week | 0.34 sparse |
+| Lunch | choices | share of days on “home” | none | 0.82 dense |
+| Weight | weight | kg | 70 | 0.46 |
+| Mood | ratings | 1-5 | none | 0.78 dense |
+| Focus | ratings | 1-10 | none | 0.28 sparse |
+
+**The 2-item set: Reading and Mood** (minutes with a goal, a rating without one): two units, one goal missing.
+Each bucket is the picked rule (T3c.2). **Provisional, flagged:** a choice enters an overlaid form as the share of
+logged days on its named option; the picked split bar is four stacked shares and cannot be overlaid, so stage 3 must
+say how a choice is drawn among other items.
+
+**Comparability** (lower is better): for a pair of shown items, over the buckets where both have a point, the sum of
+five parts, each 0 to 1. At 2 items the one pair; at 10 the mean over all 45 pairs. Each size is the mean of Month
+(30 days) and 6 M (26 weekly means). Every form is drawn in the same 312 x 260 box.
+- **Scale**, read from the drawing: same frame, mapping and unit of the plotted quantity 1; equal separate frames, same
+  unit, unfolded 2; same unit but unequal or folded frames 3; different units 4. Cost (rank − 1) / 3. Cleveland and
+  McGill (1984): position on a common scale is judged best, then on identical nonaligned scales; Heer, Kong and
+  Agrawala (2009) for the horizon's layers.
+- **Travel**: the vertical distance between the two compared marks over the box's height. Javed, McDonnel and
+  Elmqvist (2010): shared space suits a small visual span, split space a large one.
+- **Hidden**: the share of each compared series' ink under series drawn after it, times the provisional opacity (the
+  owner's note: opacity reduces it, does not remove it; identity not counted).
+- **Resolution**: pixels for a tenth of the plotted scale against 12 px (Heer et al. 2009: estimates degrade as charts
+  shrink).
+- **Flips**: the share of compared buckets whose drawn order (which sits higher in its frame) reverses under an
+  equally legitimate choice the form leaves free: dual axes from zero or fitted to the data (Isenberg, Bezerianos,
+  Dragicevic and Fekete 2011 on superimposed dual-scale charts); an own range over the span or over the year. Percent
+  of goal and runs leave none.
+
+Aigner, Kainz, Ma and Miksch (2011) found indexing cut comparison errors: the reason for the percent and own-range
+candidates, not a part. The survey's “Javed et al.” paper is Javed, McDonnel and Elmqvist.
+
+**HAND-SET (flagged):** the scale ranks' spacing (equal thirds); the five parts' equal weights; the box (260 px);
+the gap between lanes (4 px); the opacity (0.6, provisional until the palette pass); a plainly seen step (12 px,
+t3_graphs' constant); two horizon layers; the control's axes given to units in item order (the cap of four is
+T3c.1's); the line styles telling series apart (provisional); the items' names, scales and densities.
+
+**The control** (dual y-axes, every item overlaid on its unit's axis, up to four) against throwaway drawings of the
+five candidates:
+
+| Form | 2 items | 10 items |
+|---|---|---|
+| own range, overlaid | 0.49 | 0.68 |
+| stacked lanes | 0.93 | 1.69 |
+| horizon rows | 1.25 | 1.84 |
+| percent of goal (own range where no goal) | 1.44 | 1.11 |
+| Gantt-like runs | 1.50 | 1.22 |
+| **control: dual y-axes** | **1.65** (last) | **1.39** (4th of 6) |
+
+**At 2 items the control is last; at 10 it is not.** It loses to own range, percent of goal and runs at both sizes,
+but at 10 lanes and horizon rows fall behind it: ten lanes in 260 px leave 22 px each, 2.2 px for a tenth of a
+range (resolution 0.82 and 0.63). Constants were not tuned to change this; the box's height (HAND-SET) decides it,
+and stage 5 settles the box. Percent of goal is penalised wherever an item without a goal falls back to its own range
+(the 2-item set's scale part is 1.0, as dual axes'); runs compare occurrence only, which belongs to Fit. The self-check
+holds the control last at 2, behind at least two candidates at both sizes, and lanes and horizon behind it at 10, so
+a change to the data or the measure shows.
+
+Status: **Stage 3 groundwork done (the 10-item set, Comparability measured; the control last at 2 items, not at 10);
+next scoring stage 3's forms × item sets at 2 and 10 items, Comparability leading.**
