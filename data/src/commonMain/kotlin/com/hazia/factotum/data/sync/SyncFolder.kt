@@ -15,7 +15,7 @@ interface SyncFolder {
     fun read(path: String): ByteArray?
 
     /**
-     * Replaces the file at [path] with [bytes] in one step (§3.13 requirement 3): readers see the old
+     * Replaces the file at [path] with [bytes] in one step (SPEC:R36, requirement 3): readers see the old
      * file or the new one, never a mix. The bytes go first to `TEMP_PREFIX + name` beside it, which a
      * crash can leave behind; the exporter clears those in its own directory.
      */

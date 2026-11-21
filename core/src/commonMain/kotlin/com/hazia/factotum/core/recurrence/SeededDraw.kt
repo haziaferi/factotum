@@ -2,7 +2,7 @@ package com.hazia.factotum.core.recurrence
 
 /**
  * The random draws of ADR 04's two random kinds, the same on every device and every app version
- * (SPEC §3.4, measured in `docs/spikes-2026-10-01.md` §9.4). The seed is FNV-1a 64 of the UTF-8
+ * (SPEC:R64, measured in `docs/spikes-2026-10-01.md` §9.4). The seed is FNV-1a 64 of the UTF-8
  * key `itemId|occurrenceDate|kind`; the generator is SplitMix64, written here rather than taken
  * from `kotlin.random`, whose algorithm is free to change between Kotlin versions.
  * Ported from the spike's `tools/spikes/seeded_draw/Draw.java`.

@@ -97,7 +97,7 @@ internal data class RegulationEventEntity(
 
 /**
  * The one outcome still owed on this device, until the next open (Equipoise's `pending_outcome`):
- * this device's alone, never synced, as a reminder firing writes nothing that syncs (§3.13); only
+ * this device's alone, never synced, as a reminder firing writes nothing that syncs (SPEC:R36); only
  * the outcome it becomes syncs.
  */
 @Entity(tableName = "pending_outcome")

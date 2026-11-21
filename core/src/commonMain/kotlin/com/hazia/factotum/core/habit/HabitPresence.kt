@@ -43,7 +43,7 @@ fun dayOf(at: LocalDateTime, dayStart: LocalTime = LocalTime(0, 0)): LocalDate =
 
 /**
  * What a habit's Logs are allowed to say: presence, never absence. There is no streak, no count
- * of misses and nothing a screen could draw a chain from (SPEC §0.1.3). Ported from Chronicle's
+ * of misses and nothing a screen could draw a chain from (SPEC:R81). Ported from Chronicle's
  * `HabitPresence` (`domain/stats/HabitPresence.kt`), with the owner's counting rule and
  * Tendril's amounts for number habits.
  */

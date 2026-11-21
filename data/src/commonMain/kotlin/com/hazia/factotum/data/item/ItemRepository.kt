@@ -21,7 +21,7 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.LocalTime
 
-/** The one way the app writes items (SPEC §5.3), each write through [writes]. [newId] makes row ids (ULIDs). */
+/** The one way the app writes items (SPEC:R12), each write through [writes]. [newId] makes row ids (ULIDs). */
 internal class ItemRepository(
     private val db: FactotumDatabase,
     private val writes: LocalWrites,

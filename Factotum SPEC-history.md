@@ -1,0 +1,289 @@
+# Factotum spec history
+
+Not a source of current rules: `Factotum SPEC.md` is. One line per change, newest at the bottom. Retired wording is in git.
+
+- 2026-09-30 · R20 · added · folder sync, no server, no compatibility with source sync files · owner · 3f5fb8f
+- 2026-09-30 · R81 · added · no streaks or missed-day counts, in Habits only · owner · 3f5fb8f
+- 2026-09-30 · R198 · added · fresh start: nothing migrated from the source apps · owner · 3f5fb8f
+- 2026-09-30 · R199 · added · no sync server, accounts or cloud storage · owner · 3f5fb8f
+- 2026-10-01 · R01 · added · goal: every owner app's verified behaviour survives · unrecorded · 3f5fb8f
+- 2026-10-01 · R02 · added · goal: one home per concept · unrecorded · 3f5fb8f
+- 2026-10-01 · R03 · added · goal: a defect found in a source app is fixed, not carried over · unrecorded · 3f5fb8f
+- 2026-10-01 · R05 · added · platforms Android and Windows · owner · 3f5fb8f
+- 2026-10-01 · R06 · added · every sole-owner module moves across · owner · 3f5fb8f
+- 2026-10-01 · R07 · added · every visible choice is the owner's · owner · 3f5fb8f
+- 2026-10-01 · R10 · added · source apps and their paths · unrecorded · 3f5fb8f
+- 2026-10-01 · R11 · added · KMP split by layer · owner · 7eb5ba9
+- 2026-10-01 · R12 · added · every write through one repository layer · unrecorded · 3f5fb8f
+- 2026-10-01 · R13 · added · Factotum carries a corruption guard onto both drivers · unrecorded · 3f5fb8f
+- 2026-10-01 · R13 · changed · recovers only from CORRUPT and NOTADB; moves journal files · builder · 53f17a6
+- 2026-10-01 · R16 · added · imports hybrid behind a review gate · owner · 7eb5ba9
+- 2026-10-01 · R17 · added · llama.cpp: MIT llama and ggml only, notice shown · builder · a9b546b
+- 2026-10-01 · R18 · added · data model: synced tables by area · unrecorded · 3f5fb8f
+- 2026-10-01 · R19 · added · local-only stores · unrecorded · 3f5fb8f
+- 2026-10-01 · R21 · added · hybrid+: ULID, a stamp per field group, deleted_at in the existence group · owner · 3f5fb8f
+- 2026-10-01 · R21 · changed · a Row names its table · builder · a609097
+- 2026-10-01 · R22 · added · group values String, Long, Boolean, Double or null · builder · 53f17a6
+- 2026-10-01 · R22 · changed · a Double must be finite · builder · a609097
+- 2026-10-01 · R23 · added · a person is asked only about concurrent schedule changes · owner · 3f5fb8f
+- 2026-10-01 · R24 · added · answers carry settles; keep mine, take theirs, keep both · builder · 53f17a6
+- 2026-10-01 · R25 · added · the clock resumes from its stored high-water mark · builder · 53f17a6
+- 2026-10-01 · R27 · added · a permanent purge registry · owner · 3f5fb8f
+- 2026-10-01 · R27 · changed · looked up by id, re-checked only where an import changed it · builder · a609097
+- 2026-10-01 · R32 · added · the device id in its own file, written atomically · builder · 53f17a6
+- 2026-10-01 · R35 · added · device-log+copies: 16 KiB segments, snapshot every 64, 30 s debounce · owner · 5bc412a
+- 2026-10-01 · R35 · changed · snapshots named snapshot-<seq>.jsonl · builder · a609097
+- 2026-10-01 · R36 · added · five folder requirements · owner · 5bc412a
+- 2026-10-01 · R37 · added · conflict copies merged, then deleted · owner · 5bc412a
+- 2026-10-01 · R37 · changed · a copy in its own folder re-reads its own files; a new id owed · builder · a609097
+- 2026-10-01 · R38 · added · a local outbox decides what to export · builder · a609097
+- 2026-10-01 · R39 · added · imports commit in chunks of 2,000 lines · builder · a609097
+- 2026-10-01 · R40 · added · device-local read position per file · owner · 5bc412a
+- 2026-10-01 · R40 · changed · positions in bytes; torn files read again · builder · a609097
+- 2026-10-01 · R41 · added · unreadable lines skipped, re-read when the table set changes · builder · a609097
+- 2026-10-01 · R44 · added · tables reach the importer through RowTable; paging owed · builder · a609097
+- 2026-10-01 · R45 · added · DirectorySyncFolder; SAF with the Android shell · builder · a609097
+- 2026-10-01 · R46 · added · one item table, kinds TASK and EVENT · owner · 3f5fb8f
+- 2026-10-01 · R47 · added · names Item and TrackerReading; nothing called Entry · owner · 3f5fb8f
+- 2026-10-01 · R48 · added · groups schedule and status · owner · 3f5fb8f
+- 2026-10-01 · R50 · added · occurrences go to a completion log · owner · 3f5fb8f
+- 2026-10-01 · R53 · added · a standalone reminder is an item of kind REMINDER · owner · 3f5fb8f
+- 2026-10-01 · R55 · added · day-view toggle for standalone reminders, off by default · owner · 3f5fb8f
+- 2026-10-01 · R57 · added · snooze syncs and never overwrites the next occurrence · owner · 3f5fb8f
+- 2026-10-01 · R58 · added · a reminder on an item with no start date is refused · owner · 3f5fb8f
+- 2026-10-01 · R60 · added · missed: ALARM rings via setAlarmClock, NOTIFICATION fires once late · owner · 3f5fb8f
+- 2026-10-01 · R61 · added · a force-stopped app says so when it starts · owner · 3f5fb8f
+- 2026-10-01 · R62 · added · rrule+ext: RRULE, RULE_SET, RANDOM_DAYS, RANDOM_WINDOW, PLANNED · owner · 3f5fb8f
+- 2026-10-01 · R64 · added · seeded draws, so every device computes the same time · owner · 3f5fb8f
+- 2026-10-01 · R64 · changed · FNV-1a 64 seed and SplitMix64, measured · builder · a9b546b
+- 2026-10-01 · R65 · added · month ends anchor to the original date · owner · 3f5fb8f
+- 2026-10-01 · R65 · changed · DTSTART aligned; set times a RULE_SET · builder · a9b546b
+- 2026-10-01 · R68 · added · raw cron accepted, converted, never stored · owner · 3f5fb8f
+- 2026-10-01 · R69 · added · recurrence expansion is one engine for every item kind · unrecorded · 3f5fb8f
+- 2026-10-01 · R71 · added · one insert-once occurrence_edit log · owner · 3f5fb8f
+- 2026-10-01 · R73 · added · a clash on one occurrence asks the person · owner · 3f5fb8f
+- 2026-10-01 · R75 · added · renaming a series renames moved occurrences; tasks gain week and from edits · owner · 3f5fb8f
+- 2026-10-01 · R80 · added · a habit is an item of kind HABIT linked to a tracker · owner · 3f5fb8f
+- 2026-10-01 · R82 · added · presence derived as in HabitPresence · owner · 3f5fb8f
+- 2026-10-01 · R85 · added · HABIT carries block_id and duration_min · builder · a9b546b
+- 2026-10-01 · R86 · added · pause is pause_from and pause_until · owner · 3f5fb8f
+- 2026-10-01 · R92 · added · a PLANNED kind for Tendril's planner · owner · 3f5fb8f
+- 2026-10-01 · R97 · added · an activity is an item of kind ACTIVITY · owner · 3f5fb8f
+- 2026-10-01 · R98 · added · one time_span table; several timers at once · owner · 3f5fb8f
+- 2026-10-01 · R101 · added · a span counts for the day it started; a day's total is a union · owner · 3f5fb8f
+- 2026-10-01 · R109 · added · one label vocabulary · owner · 3f5fb8f
+- 2026-10-01 · R111 · added · a page carries many labels; activities, habits, trackers one · owner · 3f5fb8f
+- 2026-10-01 · R112 · added · label names unique ignoring case · owner · 3f5fb8f
+- 2026-10-01 · R118 · added · scoped-live: PERSONAL, DEVICE_PREF, DEVICE_STATE, SECRET · owner · 3f5fb8f
+- 2026-10-01 · R124 · added · one FTS4 index, unicode61, triggers · owner · 3f5fb8f
+- 2026-10-01 · R126 · added · triggers keep the index current, including on import · owner · 3f5fb8f
+- 2026-10-01 · R128 · added · queries AND prefix terms; block hits get snippets · owner · 3f5fb8f
+- 2026-10-01 · R129 · added · one check_in table, mood its own axis · owner · 3f5fb8f
+- 2026-10-01 · R130 · added · no numbers on the check-in screen · owner · 3f5fb8f
+- 2026-10-01 · R140 · added · per-row+revive: page parts are rows with stamps · owner · 3f5fb8f
+- 2026-10-01 · R142 · added · block order is a fractional key · owner · 3f5fb8f
+- 2026-10-01 · R143 · added · same-paragraph clash: later wins, loser to History · owner · 3f5fb8f
+- 2026-10-01 · R145 · added · a later edit to any part restores a trashed page · owner · 3f5fb8f
+- 2026-10-01 · R178 · added · relations add-only · owner · 3f5fb8f
+- 2026-10-01 · R190 · added · the words Label, Log and check-in · owner · 3f5fb8f
+- 2026-10-01 · R193 · added · the data layer first, with no screens · owner · 7eb5ba9
+- 2026-10-01 · R194 · added · schema slices in ADR dependency order · owner · 7eb5ba9
+- 2026-10-01 · R196 · added · triggers in common code work on both drivers (assumed) · unrecorded · 3f5fb8f
+- 2026-10-01 · R197 · added · FTS5 on target devices (spike) · unrecorded · 3f5fb8f
+- 2026-10-01 · R200 · added · source mechanisms dropped, behaviour kept elsewhere · owner · 3f5fb8f
+- 2026-10-01 · R201 · added · waking a powered-off phone is out of scope · unrecorded · 3f5fb8f
+- 2026-10-02 · R12 · changed · each write one transaction through the staged merge · builder · f60f29b
+- 2026-10-02 · R15 · added · the app's triggers are dropped before any upgrade · builder · 4b3af7a
+- 2026-10-02 · R25 · changed · each write saves the clock in its own transaction · builder · f60f29b
+- 2026-10-02 · R26 · added · a version no newer than the base is ignored · builder · f60f29b
+- 2026-10-02 · R34 · added · a recovered database reads its own folder files again · builder · cc343c4
+- 2026-10-02 · R38 · changed · exports queued by triggers on every synced table · builder · f60f29b
+- 2026-10-02 · R41 · changed · refused lines applied one by one, then dropped · builder · f60f29b
+- 2026-10-02 · R42 · added · rows wait in sync_waiting for their parents · builder · f60f29b
+- 2026-10-02 · R43 · added · a deleted row takes its merge state with it · builder · f60f29b
+- 2026-10-02 · R46 · changed · kind REMINDER · owner · 27be831
+- 2026-10-02 · R46 · changed · kind HABIT · owner · b96b0ba
+- 2026-10-02 · R46 · changed · kind ACTIVITY · owner · d108b8b
+- 2026-10-02 · R48 · changed · a third group, details · builder · f60f29b
+- 2026-10-02 · R49 · added · CHECK rules as triggers made again on every open · builder · f60f29b
+- 2026-10-02 · R49 · changed · item rules sit in COALESCE · builder · b96b0ba
+- 2026-10-02 · R50 · changed · two rows per occurrence allowed; reads take the later stamp · builder · f60f29b
+- 2026-10-02 · R50 · changed · the completion log names an occurrence by its date-time · builder · b8a48c4
+- 2026-10-02 · R51 · added · deleting a parent deletes its subtasks · builder · f60f29b
+- 2026-10-02 · R52 · added · the capacity query uses item_kind_date · builder · f60f29b
+- 2026-10-02 · R54 · added · reminder groups alert and status · builder · 27be831
+- 2026-10-02 · R55 · changed · the toggle is the DEVICE_PREF show_reminders_on_day · owner · cc343c4
+- 2026-10-02 · R56 · added · fire time from the start date, anchor and offset · builder · 27be831
+- 2026-10-02 · R57 · changed · a snooze holds for the firing it snoozed · builder · 27be831
+- 2026-10-02 · R58 · changed · refused by the repository, not a trigger · builder · 27be831
+- 2026-10-02 · R59 · added · deleting the last reminder deletes its item; keep both copies reminders · builder · 27be831
+- 2026-10-02 · R61 · changed · spike 5 runs with the Android shell · builder · 1f3b601
+- 2026-10-02 · R62 · changed · kind ROLLING · owner · b96b0ba
+- 2026-10-02 · R64 · changed · draws equal the spike's · builder · 1f3b601
+- 2026-10-02 · R65 · changed · DTSTART an occurrence only when it matches · builder · 1f3b601
+- 2026-10-02 · R66 · added · times are floating; UNTIL with Z read as local · builder · 1f3b601
+- 2026-10-02 · R67 · added · Tendril's RecurrenceSpec ported, extended and strict · builder · 1f3b601
+- 2026-10-02 · R70 · added · reminders fire at the next unresolved occurrence · builder · 1f3b601
+- 2026-10-02 · R70 · changed · the search starts the day before · builder · 99ae00e
+- 2026-10-02 · R72 · added · scopes reach occurrences where they are; FROM patterns · builder · b8a48c4
+- 2026-10-02 · R73 · changed · computed from seen-id sets, not a base stamp · builder · b8a48c4
+- 2026-10-02 · R74 · added · answers are correction edits; edits insert-once · builder · b8a48c4
+- 2026-10-02 · R76 · added · unapplied habit fields kept as raw JSON · builder · b8a48c4
+- 2026-10-02 · R76 · changed · block read; sort_order, rule_patch and pause stay as written · builder · ef1fbe8
+- 2026-10-02 · R77 · added · edits reaching reminders · builder · b8a48c4
+- 2026-10-02 · R79 · added · Chronicle's trackers move as they are; domain rules as triggers · builder · b96b0ba
+- 2026-10-02 · R80 · changed · tracker required, made with its habit in one write · owner · b96b0ba
+- 2026-10-02 · R82 · changed · what counts as presence; number habits show amounts · owner · b96b0ba
+- 2026-10-02 · R83 · added · habit types; a Log's default value; the DAY goal · builder · b96b0ba
+- 2026-10-02 · R84 · added · deleting a tracker deletes its habits and goals · owner · b96b0ba
+- 2026-10-02 · R85 · changed · columns by group; PLANNED columns · builder · ef1fbe8
+- 2026-10-02 · R86 · changed · pause keyed by habit · builder · ef1fbe8
+- 2026-10-02 · R87 · added · rolling habits as recurrence kind ROLLING · owner · b96b0ba
+- 2026-10-02 · R88 · added · a Log silences its occurrence · builder · b96b0ba
+- 2026-10-02 · R89 · added · time blocks, Tendril's five defaults on fixed ids · builder · ef1fbe8
+- 2026-10-02 · R90 · added · the week planner ported; expanding and editing outside it · builder · ef1fbe8
+- 2026-10-02 · R91 · added · a confirmed week laid out before other edits · builder · ef1fbe8
+- 2026-10-02 · R92 · changed · plan columns; n a day at i seconds; n a week suggested · builder · ef1fbe8
+- 2026-10-02 · R93 · added · placing order; overlaps reported · builder · ef1fbe8
+- 2026-10-02 · R94 · added · personal day of whole-day occurrences; one timed rule · builder · ef1fbe8
+- 2026-10-02 · R95 · added · an occurrence's block read; manual order on the item · builder · ef1fbe8
+- 2026-10-02 · R96 · added · n a day habits remind at each block's start · owner · 99ae00e
+- 2026-10-02 · R99 · added · five span groups · builder · d108b8b
+- 2026-10-02 · R100 · added · end >= start checked where written, not by a trigger · builder · d108b8b
+- 2026-10-02 · R101 · changed · totals per personal day; running spans count · builder · d108b8b
+- 2026-10-02 · R103 · added · goals on activities, Chronicle's windows · builder · d108b8b
+- 2026-10-02 · R104 · added · an activity is never deleted forever · owner · d108b8b
+- 2026-10-02 · R105 · added · finishing or deleting a task or habit ends its timers · owner · d108b8b
+- 2026-10-02 · R106 · added · a timer past a limit asks keep, end at a time, or end at the limit · owner · d108b8b
+- 2026-10-02 · R106 · changed · the limit a PERSONAL setting, 12 h · owner · cc343c4
+- 2026-10-02 · R110 · added · label scope choosable; narrowing only hides · owner · 4b3af7a
+- 2026-10-02 · R112 · changed · uniqueness by the repository, trimmed, NFC · builder · 4b3af7a
+- 2026-10-02 · R113 · added · same-name labels merge into the one made first · owner · 4b3af7a
+- 2026-10-02 · R114 · added · four label groups; label_id a group of its own · builder · 4b3af7a
+- 2026-10-02 · R115 · added · no foreign key on label_id · builder · 4b3af7a
+- 2026-10-02 · R117 · added · label time totals · owner · 4b3af7a
+- 2026-10-02 · R119 · added · a typed settings registry · builder · cc343c4
+- 2026-10-02 · R120 · added · the day boundary, a PERSONAL setting, default midnight · owner · b96b0ba
+- 2026-10-02 · R120 · changed · reminders switch DEVICE_PREF; app lock per device · owner · cc343c4
+- 2026-10-02 · R121 · added · PERSONAL rows setting:<key>; device_setting; SecretStore · builder · cc343c4
+- 2026-10-02 · R122 · added · repositories read settings on every call through PersonalSettings · builder · cc343c4
+- 2026-10-02 · R123 · added · the settings part of a backup, with stamps · owner · cc343c4
+- 2026-10-03 · R18 · changed · page tables of slices 12a-12d · builder · 9e1f27e
+- 2026-10-03 · R28 · added · an import that undoes a purge re-reads every file · builder · 29f23b1
+- 2026-10-03 · R115 · changed · page_label rows, one per page and label · builder · 55e501b
+- 2026-10-03 · R124 · changed · search_fts(text) beside a plain search_key · builder · 1f1b385
+- 2026-10-03 · R125 · added · search sources and owner answers · owner · 1f1b385
+- 2026-10-03 · R125 · changed · a journal day found under its date · builder · 9e1f27e
+- 2026-10-03 · R126 · changed · rebuilt on open when counts disagree · builder · 1f1b385
+- 2026-10-03 · R127 · added · nothing deleted shows; finished items marked · owner · 1f1b385
+- 2026-10-03 · R128 · changed · two letters; names first, then newest · owner · 1f1b385
+- 2026-10-03 · R131 · added · a check-in may be about a past day · owner · 0df9fc9
+- 2026-10-03 · R132 · added · three check-in groups; undone, not changed · builder · 0df9fc9
+- 2026-10-03 · R133 · added · Tendril's and Equipoise's scales · builder · 0df9fc9
+- 2026-10-03 · R134 · added · LowMoment and StabilityTrend ported; trend in words · owner · 0df9fc9
+- 2026-10-03 · R141 · added · page and block field groups · builder · 55e501b
+- 2026-10-03 · R142 · changed · a text key that never re-keys siblings · builder · 55e501b
+- 2026-10-03 · R143 · changed · keep-loser groups, sync_lost, base read from a peer · builder · 55e501b
+- 2026-10-03 · R144 · added · the notice syncs and shows until dismissed once · owner · 55e501b
+- 2026-10-03 · R145 · changed · revive after every import; revivals stamped above the deletion · builder · 55e501b
+- 2026-10-03 · R146 · added · automatic writes stamped from their cause and never revive · builder · 7b33b58
+- 2026-10-03 · R147 · added · trashing a page trashes its sub-pages; purge from the Trash · owner · 55e501b
+- 2026-10-03 · R148 · added · cycles and orphans shown at the top · builder · 55e501b
+- 2026-10-03 · R149 · added · local page History · builder · 55e501b
+- 2026-10-03 · R150 · added · database tables and their ids · builder · 1d1638a
+- 2026-10-03 · R151 · added · values as text; type changes keep stored values · owner · 1d1638a
+- 2026-10-03 · R152 · added · cells kept when replaced; picks merge · owner · 1d1638a
+- 2026-10-03 · R153 · added · deleting a property purged it at once · builder · 1d1638a
+- 2026-10-03 · R154 · added · options as rows; deleted reads empty; same names merge · owner · 1d1638a
+- 2026-10-03 · R155 · added · renames later-wins; view settings sync · owner · 1d1638a
+- 2026-10-03 · R156 · added · members by sub-page and doorway label · owner · 1d1638a
+- 2026-10-03 · R157 · added · views: one sort, one filter, Board columns · builder · 1d1638a
+- 2026-10-03 · R172 · added · canvas tables, groups and roots · builder · 7b33b58
+- 2026-10-03 · R173 · added · later position wins; moves carry the mind-map subtree · owner · 7b33b58
+- 2026-10-03 · R174 · added · deleting a card takes its lines; edits bring it back · owner · 7b33b58
+- 2026-10-03 · R175 · added · page cards show their page's state · owner · 7b33b58
+- 2026-10-03 · R176 · added · canvas History; card text and line labels kept · owner · 7b33b58
+- 2026-10-03 · R177 · added · the journal on fixed ids and one fixed stamp · owner · 9e1f27e
+- 2026-10-03 · R178 · changed · Road Map links removable and made again · owner · 9e1f27e
+- 2026-10-03 · R179 · added · always two-way relations from one stored link · owner · 9e1f27e
+- 2026-10-03 · R180 · added · blocked-by within a database · owner · 9e1f27e
+- 2026-10-03 · R181 · added · templates kept apart · owner · 9e1f27e
+- 2026-10-03 · R182 · added · template copies take structure, with new ids · owner · 9e1f27e
+- 2026-10-03 · R196 · changed · desktop half holds; device half with the Android shell · builder · 1f1b385
+- 2026-10-03 · R197 · changed · desktop measured; device half with the Android shell · builder · 1f1b385
+- 2026-10-04 · R14 · added · tools/schema_check.py guards committed Room schema files · builder · 65f5d41
+- 2026-10-04 · R18 · changed · regulation tables · builder · 4dddb89
+- 2026-10-04 · R19 · changed · pending_outcome added · builder · 4dddb89
+- 2026-10-04 · R33 · added · the composition root wires every repository and sync once · builder · edf5c98
+- 2026-10-04 · R60 · changed · Windows: tray rings the alarm; missed ones shown at next start · owner · 6cfef2b
+- 2026-10-04 · R78 · added · every occurrence edit kept · owner · 6cfef2b
+- 2026-10-04 · R105 · changed · a row trashed from the page side stops its task's timer · builder · edf5c98
+- 2026-10-04 · R120 · changed · onboarding answer and Mixed mode PERSONAL · builder · 4dddb89
+- 2026-10-04 · R125 · changed · checklists by name, then items · builder · 3c3dd80
+- 2026-10-04 · R135 · added · the direction engine, on demand from live outcomes · builder · 4dddb89
+- 2026-10-04 · R136 · added · outcome at next open, local and asked once · builder · 4dddb89
+- 2026-10-04 · R137 · added · the masking ledger day on a fixed id and stamp · builder · 4dddb89
+- 2026-10-04 · R138 · added · sensory logs, five channels · builder · 4dddb89
+- 2026-10-04 · R139 · added · burnout index on demand over fourteen personal days · owner · 4dddb89
+- 2026-10-04 · R159 · added · formulas and rollups, keys stored as ids, computed on read · owner · 71b27b6
+- 2026-10-04 · R160 · added · formulas checked together when written · builder · 71b27b6
+- 2026-10-04 · R161 · added · four changes from Tendril's formulas · builder · 71b27b6
+- 2026-10-04 · R162 · added · rows as tasks: one task per row page · owner · 7117bc8
+- 2026-10-04 · R163 · added · a row task's life is its page's · owner · 7117bc8
+- 2026-10-04 · R163 · changed · a row trashed from the page side stops its task's timer · builder · edf5c98
+- 2026-10-04 · R164 · added · a mirror-vs-person clash settled field-wise, never asked · owner · 7117bc8
+- 2026-10-04 · R165 · added · bound columns overlay the task · owner · 7117bc8
+- 2026-10-04 · R166 · added · repeating rows; intervals as plain rules · owner · 7117bc8
+- 2026-10-04 · R167 · added · rowsChanged() after local membership writes · builder · 7117bc8
+- 2026-10-04 · R167 · changed · offered by the composition root · builder · edf5c98
+- 2026-10-04 · R168 · added · images by hash, keep-loser picture group · owner · 65f5d41
+- 2026-10-04 · R169 · added · insert: upright, 2048 px, no metadata · owner · 65f5d41
+- 2026-10-04 · R170 · added · pictures carried through blobs/ · owner · 65f5d41
+- 2026-10-04 · R171 · added · folder copies collected after 30 days unnamed · owner · 65f5d41
+- 2026-10-04 · R183 · added · checklists: groups, reset as a stamp · owner · 3c3dd80
+- 2026-10-04 · R184 · added · a list's deletion takes its items just above their stamps · builder · 3c3dd80
+- 2026-10-04 · R185 · added · manual order; never blank · owner · 3c3dd80
+- 2026-10-04 · R186 · added · saved charts: sources as rows, personal-day series · owner · 3c3dd80
+- 2026-10-04 · R193 · changed · step 3 done; the composition root for step 4 · builder · edf5c98
+- 2026-10-04 · R193 · changed · the owner stops at the end of the data layer · owner · 6cfef2b
+- 2026-10-04 · R195 · added · sole-owner modules simplest first · owner · 71b27b6
+- 2026-10-05 · R04 · added · jobs and cadences, docs/screens/t0/jobs.md · owner · f5b2fe1
+- 2026-10-05 · R06 · changed · Claude text verbs dropped; widgets, LLM, quick-add, NL input move · owner · f5b2fe1
+- 2026-10-05 · R08 · added · app id and packages com.hazia.factotum · owner · f901399
+- 2026-10-05 · R08 · changed · installs with no .debug suffix · owner · 1913622
+- 2026-10-05 · R09 · added · personal use, signed with Tendril's shared debug key · owner · 1913622
+- 2026-10-05 · R158 · added · databases in pages, O6 · owner · e75cc23
+- 2026-10-05 · R187 · added · screens settled tier by tier; a register per cluster · owner · 1913622
+- 2026-10-05 · R188 · added · System, Light, Dark, plus a phone-only OLED option · owner · 1913622
+- 2026-10-05 · R189 · added · settings in two sections · owner · 1913622
+- 2026-10-05 · R191 · added · navigation pattern, destinations and icons open · owner · 1913622
+- 2026-10-05 · R192 · added · palette, type, shapes and density open · owner · 1913622
+- 2026-10-05 · R202 · added · Tendril's Claude text verbs dropped · owner · f5b2fe1
+- 2026-10-08 · R62 · changed · kinds RANDOM_TIMES and RANDOM_GAPS · owner · aae91d5
+- 2026-10-08 · R63 · added · RANDOM_TIMES and RANDOM_GAPS with ends, for the When sheet · owner · aae91d5
+- 2026-10-08 · R68 · changed · names, L, #, several lines as one rule · owner · 3aa6669
+- 2026-10-09 · R29 · added · one vocabulary for every kind; Archive dropped · owner · 0693fd3
+- 2026-10-09 · R30 · added · Delete shares one stamp; Restore brings back what it took · owner · 0693fd3
+- 2026-10-09 · R31 · added · Delete forever purges from the Trash, and travels · owner · 0693fd3
+- 2026-10-09 · R97 · changed · the archived flag dropped · owner · 0693fd3
+- 2026-10-09 · R104 · changed · Delete forever purges an activity with its spans · owner · 0693fd3
+- 2026-10-09 · R111 · changed · every item kind and a checklist carry at most one · owner · 0693fd3
+- 2026-10-09 · R116 · added · a label goes to the Trash · owner · 0693fd3
+- 2026-10-09 · R153 · changed · properties go to the Trash · owner · 0693fd3
+- 2026-10-09 · R154 · changed · Restore and Delete forever from the Trash · owner · 0693fd3
+- 2026-10-09 · R157 · changed · a deleted view through the Trash · owner · 0693fd3
+- 2026-10-09 · R174 · changed · cards through the Trash · owner · 0693fd3
+- 2026-10-10 · R31 · changed · gap fixed: Delete forever refuses a live row for every kind · builder · 9923b16
+- 2026-10-10 · R104 · changed · gap fixed: deleting an activity stops its timer · builder · 9923b16
+- 2026-10-10 · R105 · changed · gap fixed: deleting an activity stops its timer · builder · 9923b16
+- 2026-10-10 · R110 · changed · labels are global; scope dropped · owner · 9923b16
+- 2026-10-10 · R114 · changed · the scope group gone · builder · 9923b16
+- 2026-10-10 · R117 · changed · a label counts elements, with no time total · owner · 9923b16
+- 2026-10-16 · R101 · changed · a day's total adds the activity's amounts · owner · d044548
+- 2026-10-16 · R102 · added · spans and untimed amounts on one activity; no Duration tracker · owner · d044548
+- 2026-10-16 · R106 · changed · the limit is 3x the usual length; asked on Today when opened · owner · b2e8278
+- 2026-10-16 · R107 · added · how an activity's usual length is computed (owed) · owner · b2e8278
+- 2026-10-16 · R108 · added · the limit before an activity has sessions (owed) · owner · b2e8278
+- 2026-10-16 · R120 · changed · the timer limit no longer a setting · owner · b2e8278
+- 2026-11-21 · R04 · changed · folded into the spec from jobs.md, cells condensed · builder
+- 2026-11-21 · spec · migrated · rules from v0.40's sections, log and amendments; old file at 541abf9 · builder · 541abf9

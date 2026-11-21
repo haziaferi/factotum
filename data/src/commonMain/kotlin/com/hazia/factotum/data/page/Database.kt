@@ -112,7 +112,7 @@ internal data class PropertyEntity(
     /** A relation's matching column in [targetDatabaseId] (owner, 2026-10-03: a relation is always two-way). */
     @ColumnInfo(name = "pair_property_id") val pairPropertyId: String? = null,
     /**
-     * A computed column's definition (§7 step 3), written apart from its name and taking the later
+     * A computed column's definition (SPEC:R159), written apart from its name and taking the later
      * stamp: a [formula] with property ids for keys, or a rollup of [rollupTarget] over the rows its
      * relation [rollupRelation] links, by [rollupAggregation]. Null on every other column.
      */

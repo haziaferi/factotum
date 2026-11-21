@@ -19,7 +19,7 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
-/** Formulas and rollups (§7 step 3, Tendril's), with the owner's answers of 2026-10-03 (`decisions/14-sole-owner-modules.md`). */
+/** Formulas and rollups (SPEC:R159, Tendril's), with the owner's answers of 2026-10-03 (`decisions/14-sole-owner-modules.md`). */
 class FormulaColumnsTest {
 
     @get:Rule val tmp = TemporaryFolder()

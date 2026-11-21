@@ -350,8 +350,8 @@ ELEMENTS = [
     ("check-in", "Did it help? (Helped / No change / Not now)", "neutral; the tapped one primary container", "new"),
     ("check-in", "Ledger scale cells", "scale", ""),
     ("check-in", "Sensory channel chips", "neutral surface", ""),
-    ("check-in", "Steadiness, said in words", "neutral ink", "new: SPEC §3.5, no numbers or curves on the check-in screen"),
-    ("check-in", "Trend line", "primary", "moved: to the Look back sheet, off the check-in screen (SPEC §3.5)"),
+    ("check-in", "Steadiness, said in words", "neutral ink", "new: SPEC R130, no numbers or curves on the check-in screen"),
+    ("check-in", "Trend line", "primary", "moved: to the Look back sheet, off the check-in screen (SPEC R130)"),
     ("check-in", "Comparison line", "tertiary, dashed", "moved: as the trend line"),
     ("check-in", "Burnout notice", "state attention: edge and icon only", "changed: a banner; the ledger and the screen keep their colours (register: ambient, no colour-coded alerts)"),
     ("check-in", "First-time question (what helps when low)", "secondary container on the chosen answer", "new"),
@@ -582,7 +582,7 @@ def screens():
         '<div class="z">' + zh("Sensory") + '<div class="row" style="flex-wrap:wrap">' + "".join(
             '<span class="pill" style="background:var(--zone2)">%s</span>' % s for s in ("Sound · loud", "Light", "Touch", "Crowds")) + '</div></div>'
         '<div class="z">' + zh("Lately") + 'Steadier than the last fortnight.<div class="row"><span class="t"></span><span style="text-decoration:underline">Look back ›</span></div></div>'
-        '<div class="dim" style="font-size:9.5px;padding:0 4px">No numbers, averages or curves here (SPEC §3.5). Mixed mode and the notice threshold live in Settings.</div>'), None, stripe="cp", tall=True,
+        '<div class="dim" style="font-size:9.5px;padding:0 4px">No numbers, averages or curves here (SPEC R130). Mixed mode and the notice threshold live in Settings.</div>'), None, stripe="cp", tall=True,
         cap="check-in, the whole screen: check-in, regulation (suggestion, Mixed ask, outcome tap), ledger, sensory log, steadiness in words. Reached from Hub, home and the widget.")
     burnout = phone("check-in", (
         '<div class="z" style="box-shadow:inset 3px 0 0 var(--att)"><div class="row" style="align-items:flex-start"><span style="color:var(--att)">●</span>'
@@ -597,7 +597,7 @@ def screens():
         '<svg viewBox="0 0 130 50" width="100%" height="70"><path d="M0,32 C20,24 30,34 50,26 S80,16 100,22 S120,26 130,22" fill="none" stroke="var(--cp)" stroke-width="1.8"/>'
         '<path d="M0,36 C25,34 40,38 60,34 S100,30 130,32" fill="none" stroke="var(--ct)" stroke-width="1.2" stroke-dasharray="3 2"/></svg>'
         '<div class="row"><span class="t">Steadier than the last fortnight.</span></div><div class="row dim" style="font-size:9.5px">— this fortnight · - - the one before</div></div>'),
-        cap="Look back (to decide): the trend and comparison lines, on a sheet of their own, since SPEC §3.5 keeps curves off the check-in screen.")
+        cap="Look back (to decide): the trend and comparison lines, on a sheet of their own, since SPEC R130 keeps curves off the check-in screen.")
     first = phone("check-in", '<div class="z dim" style="height:120px">(check-in screen)</div>', None, stripe="cp", extra=(
         '<div class="scrim"></div><div class="sheet">' + zh("Once, the first time") + 'When you have a low moment, what usually helps?'
         '<div class="row" style="flex-wrap:wrap;margin-top:4px">' + "".join('<span class="pill" style="background:var(--%s)">%s</span>' % ("csc" if o == "Mixed: ask me" else "zone2", o)

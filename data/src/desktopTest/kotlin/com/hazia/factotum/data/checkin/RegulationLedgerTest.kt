@@ -31,7 +31,7 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
-/** Equipoise's regulation module (§7 step 3), with the owner's answers of 2026-10-03 (decision 14). */
+/** Equipoise's regulation module (SPEC:R135), with the owner's answers of 2026-10-03 (decision 14). */
 class RegulationLedgerTest {
 
     @get:Rule val tmp = TemporaryFolder()

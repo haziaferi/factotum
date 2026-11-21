@@ -144,7 +144,7 @@ fun slotTime(i: Int): LocalTime = LocalTime.fromSecondOfDay(i)
 /**
  * The occurrences of [this] for the item [itemId] starting at [dtstart], within `[from, to)`. The
  * random kinds draw from [itemId] and the occurrence's date, so every device computes the same
- * times and nothing drawn is stored (SPEC §3.4). A ROLLING item rolls from [lastDone], the day of
+ * times and nothing drawn is stored (SPEC:R64). A ROLLING item rolls from [lastDone], the day of
  * its last Log.
  */
 fun Recurrence.occurrences(
