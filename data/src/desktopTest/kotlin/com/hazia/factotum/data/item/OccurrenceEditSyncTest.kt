@@ -275,6 +275,55 @@ class OccurrenceEditSyncTest {
         assertEquals(at(20, 8, 45), second)
     }
 
+    // SPEC:R77
+    @Test
+    fun aRetimedOccurrenceFiresAtItsNewTimeWithoutBeingMoved() {
+        val (a, _, report) = pair { weeklyReport() }
+        val reminder = runBlocking { a.reminders.add(report, -15) }
+        runBlocking { a.occurrences.change(report, at(13, 9), EditChanges(time = LocalTime(11, 0))) }
+
+        val first = runBlocking { a.reminders.firings() }.single { it.reminderId == reminder }.at
+        val second = runBlocking { a.reminders.firings(after = first) }.single { it.reminderId == reminder }.at
+        val third = runBlocking { a.reminders.firings(after = second) }.single { it.reminderId == reminder }.at
+
+        assertEquals(listOf(at(6, 8, 45), at(13, 10, 45), at(20, 8, 45)), listOf(first, second, third))
+    }
+
+    // SPEC:R77
+    @Test
+    fun anAddedOccurrenceGivenATimeOnAWholeDayItemFiresAtThatTime() {
+        val (a, _, bins) = pair { items.createTask("bins", monday) }
+        runBlocking { a.reminders.add(bins, -24 * 60, anchor = LocalTime(20, 0)) }
+
+        runBlocking { a.occurrences.add(bins, LocalDateTime(LocalDate(2026, 10, 9), LocalTime(7, 30))) }
+
+        assertEquals(listOf(at(4, 20), at(8, 7, 30)), runBlocking { a.reminders.firings().map { it.at } + a.reminders.firings(after = at(4, 20)).map { it.at } })
+    }
+
+    // SPEC:R95
+    @Test
+    fun anOccurrencesBlockMovedOnTwoDevicesMergesWithoutAQuestion() {
+        val (a, b, stretch) = pair {
+            habits.create("stretch", monday, LocalTime(8, 0), Recurrence.Rule(requireNotNull(RRule.parse("FREQ=DAILY"))), blockId = "block-morning")
+        }
+        runBlocking {
+            a.occurrences.change(stretch, at(7, 8), EditChanges(block = Patch("block-evening")))
+            b.occurrences.change(stretch, at(7, 8), EditChanges(time = LocalTime(7, 0)))
+            a.occurrences.change(stretch, at(9, 8), EditChanges(block = Patch("block-evening")))
+            b.occurrences.change(stretch, at(9, 8), EditChanges(block = Patch("block-midday")))
+        }
+        settle(a, b)
+
+        for (d in listOf(a, b)) {
+            assertEquals(emptyList(), runBlocking { d.occurrences.questions() }, d.name)
+            val wednesday = d.shown(stretch).single { it.original == at(7, 8) }
+            assertEquals(at(7, 7) to Patch("block-evening"), wednesday.at to wednesday.block, d.name)
+        }
+        val friday = a.shown(stretch).single { it.original == at(9, 8) }.block
+        assertTrue(friday == Patch("block-evening") || friday == Patch("block-midday"), "$friday")
+        assertEquals(a.shown(stretch), b.shown(stretch))
+    }
+
     @Test
     fun anEditMustNameWhatItsScopeCovers() {
         val (a, _, report) = pair { weeklyReport() }
