@@ -73,7 +73,7 @@ class ImagesTest {
     }
 
     @Test
-    fun aGifABmpAndAnAnimationAreReadWebpAndHeicRefusedAndAJpegIsWrittenAtQuality85_SPEC_R169() {
+    fun aGifABmpAndAnAnimationAreReadWebpHeicAndCmykRefusedAndAJpegIsWrittenAtQuality85_SPEC_R169() {
         val scaler = DesktopImageScaler()
         for (format in listOf("gif", "bmp")) {
             val stored = scaler.scale(encode(picture(30, 20, Color.GREEN), format))
@@ -86,13 +86,19 @@ class ImagesTest {
         val first = read(scaler.scale(animation).bytes)
         assertTrue(Color(first.getRGB(8, 8)).let { it.red > 200 && it.blue < 60 }, "the first frame is kept")
 
-        // What the JDK cannot read: WebP and HEIC, by their headers. (A CMYK JPEG is read by JDK 21, not refused.)
+        // What the JDK cannot read: WebP and HEIC, by their headers. A CMYK JPEG, which JDK 21 reads
+        // without turning it into RGB, is refused too: bare, with an Adobe marker, and as YCCK.
         val webp = "RIFF".toByteArray() + byteArrayOf(26, 0, 0, 0) + "WEBPVP8 ".toByteArray() + ByteArray(18)
         val heic = byteArrayOf(0, 0, 0, 24) + "ftypheic".toByteArray() + ByteArray(4) + "mif1heic".toByteArray()
-        for ((name, bytes) in listOf("WebP" to webp, "HEIC" to heic)) {
+        val cmyk = cmykJpeg()
+        val refused = listOf("WebP" to webp, "HEIC" to heic, "CMYK" to cmyk, "Adobe CMYK" to withAdobe(cmyk, 0), "YCCK" to withAdobe(cmyk, 2))
+        for ((name, bytes) in refused) {
             val e = assertFailsWith<IllegalArgumentException>(name) { scaler.scale(bytes) }
             assertEquals("not a picture this device can read", e.message, name)
         }
+        // A JPEG of one channel, grey, is read.
+        val grey = BufferedImage(12, 12, BufferedImage.TYPE_BYTE_GRAY).apply { createGraphics().apply { color = Color.GRAY; fillRect(0, 0, 12, 12); dispose() } }
+        assertEquals(listOf(12, 12, "jpg"), scaler.scale(encode(grey, "jpg")).let { listOf(it.width, it.height, it.format) })
 
         // A JPEG is written at quality 85: the quantization tables the JDK's writer uses at 0.85.
         val photo = scaler.scale(encode(picture(64, 64, Color.ORANGE), "png"))
@@ -390,6 +396,29 @@ class ImagesTest {
             writer.dispose()
         }
         return out.toByteArray()
+    }
+
+    /** A JPEG of four channels, cyan and black at none, magenta and yellow at 200: a red CMYK picture, with no Adobe marker. */
+    private fun cmykJpeg(): ByteArray {
+        val raster = java.awt.image.Raster.createInterleavedRaster(java.awt.image.DataBuffer.TYPE_BYTE, 8, 8, 4, null)
+        for (y in 0 until 8) for (x in 0 until 8) raster.setPixel(x, y, intArrayOf(0, 200, 200, 0))
+        val writer = ImageIO.getImageWritersByFormatName("jpg").next()
+        val out = ByteArrayOutputStream()
+        try {
+            ImageIO.createImageOutputStream(out).use { stream ->
+                writer.output = stream
+                writer.write(null, javax.imageio.IIOImage(raster, null, null), null)
+            }
+        } finally {
+            writer.dispose()
+        }
+        return out.toByteArray()
+    }
+
+    /** [jpeg] with an Adobe APP14 marker of [transform] just after its start: 0 says CMYK, 2 says YCCK. */
+    private fun withAdobe(jpeg: ByteArray, transform: Int): ByteArray {
+        val adobe = listOf(0xFF, 0xEE, 0, 14) + "Adobe".map { it.code } + listOf(0, 100, 0, 0, 0, 0, transform)
+        return jpeg.copyOfRange(0, 2) + adobe.map { it.toByte() }.toByteArray() + jpeg.copyOfRange(2, jpeg.size)
     }
 
     private fun writeJpeg(image: BufferedImage, quality: Float, out: ByteArrayOutputStream) {

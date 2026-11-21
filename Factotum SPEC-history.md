@@ -320,3 +320,4 @@ Not a source of current rules: `Factotum SPEC.md` is. One line per change, newes
 - 2026-11-21 · R99 · changed · Acceptance names the five groups on five devices test · builder
 - 2026-11-21 · R100 · changed · Acceptance names the merged backwards span test · builder
 - 2026-11-21 · R103 · changed · Acceptance names the goal reached in each window test · builder
+- 2026-11-22 · R169 · changed · The desktop refuses a CMYK JPEG, as Values say; Acceptance names the CMYK cases · owner

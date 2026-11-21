@@ -2310,11 +2310,11 @@ One app that does what Tendril, Chronicle, Mnemo and Equipoise do, over one data
 | desktop | what the JDK's ImageIO reads: JPEG, PNG, GIF, BMP; its size before its pixels | WebP, HEIC, CMYK JPEGs, over 100 million pixels |
 | Android | what `ImageDecoder` reads | not listed in the source |
 
-**Evidence:** Not checked: Android's scaler needs a device check of orientation with a target size, and of HEIF with transparency. The desktop refuses no CMYK JPEG: JDK 21's ImageIO reads one, and `DesktopImageScaler` stores it (checked 2026-11-21).
+**Evidence:** Not checked: Android's scaler needs a device check of orientation with a target size, and of HEIF with transparency. JDK 21's ImageIO reads a CMYK JPEG without turning it into RGB, so it would be stored black; `DesktopImageScaler` refuses a JPEG whose frame header names four channels, CMYK or YCCK (checked 2026-11-22).
 
-**Acceptance:** `ImagesTest.aPictureIsScaledToAt2048TurnedUprightAndStrippedOfItsMetadata` and `aGifABmpAndAnAnimationAreReadWebpAndHeicRefusedAndAJpegIsWrittenAtQuality85_SPEC_R169` pass on the desktop; the device check passes on Android.
+**Acceptance:** `ImagesTest.aPictureIsScaledToAt2048TurnedUprightAndStrippedOfItsMetadata` and `aGifABmpAndAnAnimationAreReadWebpHeicAndCmykRefusedAndAJpegIsWrittenAtQuality85_SPEC_R169` pass on the desktop; the device check passes on Android.
 
-**Since:** 2026-11-21 · owner · migrated
+**Since:** 2026-11-22 · owner · migrated
 
 ### D-R170 · Pictures through the folder
 
@@ -2794,7 +2794,7 @@ Background, not a rule: Equipoise runs llama.cpp on Android only, and only in th
 - R166 · Repeating rows and intervals: `IntervalTest` and `RowTasksTest` pass.
 - R167 · Rows changed: A write that adds a page to a database through the screens is followed by `rowsChanged()`, and the new row has its task.
 - R168 · Pictures in pages: `ImagesTest` passes.
-- R169 · Inserting a picture: `ImagesTest.aPictureIsScaledToAt2048TurnedUprightAndStrippedOfItsMetadata` and `aGifABmpAndAnAnimationAreReadWebpAndHeicRefusedAndAJpegIsWrittenAtQuality85_SPEC_R169` pass on the desktop; the device check passes on Android.
+- R169 · Inserting a picture: `ImagesTest.aPictureIsScaledToAt2048TurnedUprightAndStrippedOfItsMetadata` and `aGifABmpAndAnAnimationAreReadWebpHeicAndCmykRefusedAndAJpegIsWrittenAtQuality85_SPEC_R169` pass on the desktop; the device check passes on Android.
 - R170 · Pictures through the folder: `ImagesTest` syncs a picture to a peer, damages a copy, and reads a waiting placeholder.
 - R171 · Collecting pictures: `ImagesTest` collects the folder copy after 30 days unnamed and keeps the device copy History names.
 - R172 · Canvas tables: `CanvasCasesTest` (`shared-canvas-nodes`) passes.

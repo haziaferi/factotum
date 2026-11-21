@@ -15,7 +15,8 @@ import javax.imageio.ImageWriteParam
 /**
  * The desktop's [ImageScaler], on the JDK's ImageIO: JPEG, PNG, GIF (its first frame) and BMP. It
  * writes no metadata, so a photo's camera details and location stay behind (answer 34). What the
- * JDK cannot read (WebP, HEIC, a CMYK JPEG) is refused as not a picture this device can read.
+ * JDK cannot read (WebP, HEIC) is refused as not a picture this device can read, and so is a CMYK
+ * JPEG, which the JDK reads without turning its colours into RGB, so it would be stored black.
  */
 class DesktopImageScaler : ImageScaler {
 
@@ -55,7 +56,8 @@ class DesktopImageScaler : ImageScaler {
      * n-th pixel, still at least twice the stored size, so a photo never fills memory either.
      */
     private fun decode(bytes: ByteArray): BufferedImage {
-        val input = ImageIO.createImageInputStream(ByteArrayInputStream(bytes)) ?: throw IOException("no input")
+        if (jpegChannels(bytes) == CMYK_CHANNELS) throw IOException("a CMYK JPEG")
+        val input =ImageIO.createImageInputStream(ByteArrayInputStream(bytes)) ?: throw IOException("no input")
         input.use {
             val reader = ImageIO.getImageReaders(input).asSequence().firstOrNull() ?: throw IOException("no reader")
             try {
@@ -70,6 +72,28 @@ class DesktopImageScaler : ImageScaler {
                 reader.dispose()
             }
         }
+    }
+
+    /**
+     * The channels [bytes]' JPEG frame header names, or null when it is no JPEG or names none
+     * before its first scan: four is CMYK, or YCCK with an Adobe marker, both CMYK pictures.
+     */
+    private fun jpegChannels(bytes: ByteArray): Int? {
+        fun u8(i: Int) = bytes[i].toInt() and 0xFF
+        if (bytes.size < 2 || u8(0) != 0xFF || u8(1) != 0xD8) return null
+        var at = 2
+        while (at + 9 < bytes.size && u8(at) == 0xFF) {
+            val marker = u8(at + 1)
+            when {
+                // A fill byte before a marker.
+                marker == 0xFF -> { at++; continue }
+                // A start of frame, SOF0 to SOF15 less DHT, JPG and DAC: its channel count is its ninth byte.
+                marker in 0xC0..0xCF && marker !in setOf(0xC4, 0xC8, 0xCC) -> return u8(at + 9)
+                marker == 0xDA -> return null
+            }
+            at += 2 + ((u8(at + 2) shl 8) or u8(at + 3))
+        }
+        return null
     }
 
     /** Whether any pixel lets what is behind it show: an RGBA picture with none, a screenshot most often, is stored as a JPEG. */
@@ -123,5 +147,6 @@ class DesktopImageScaler : ImageScaler {
     private companion object {
         const val JPEG_QUALITY = 0.85f
         const val MAX_PIXELS = 100_000_000L
+        const val CMYK_CHANNELS = 4
     }
 }
