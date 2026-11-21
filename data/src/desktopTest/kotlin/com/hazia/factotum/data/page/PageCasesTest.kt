@@ -3,6 +3,7 @@ package com.hazia.factotum.data.page
 import androidx.room.useReaderConnection
 import androidx.room.useWriterConnection
 import androidx.room.execSQL
+import com.hazia.factotum.core.sync.Stamp
 import com.hazia.factotum.data.FactotumDatabase
 import com.hazia.factotum.data.LocalWrites
 import com.hazia.factotum.data.label.LabelRepository
@@ -218,6 +219,96 @@ class PageCasesTest {
 
         for (d in listOf(a, b)) {
             for (p in listOf(trip, rome, day)) assertEquals(false, runBlocking { d.pages.page(p) }!!.trashed, p)
+        }
+    }
+
+    @Test
+    fun aMoveALabelOrASubPageMadeUnderItAfterTheTrashBringsAPageBackStampedJustAboveTheTrash_SPEC_R145() = two(16) { a, b ->
+        syncthing.now = 1_000
+        val moved = runBlocking { a.pages.create("Moved") }
+        val labelled = runBlocking { a.pages.create("Labelled") }
+        val parent = runBlocking { a.pages.create("Parent") }
+        val shelf = runBlocking { a.pages.create("Shelf") }
+        val work = runBlocking { a.labels.create("work") }
+        settle(listOf(a, b))
+        syncthing.now = 2_000
+        val trashed = listOf(moved, labelled, parent).associateWith { p ->
+            runBlocking { b.pages.trash(p) }
+            runBlocking { b.db.pageDao().pages(listOf(p)) }.single().let { Stamp(it.goneHlc, it.goneDevice) }
+        }
+        syncthing.now = 3_000
+        runBlocking { a.pages.move(moved, shelf) }
+        runBlocking { a.labels.labelPage(labelled, work) }
+        runBlocking { a.pages.create("Child", parentId = parent) }
+        settle(listOf(a, b))
+
+        for (d in listOf(a, b)) for ((p, gone) in trashed) {
+            val row = runBlocking { d.db.pageDao().pages(listOf(p)) }.single()
+            assertNull(row.deletedAt, "${d.name}: ${row.title} is back")
+            // A revival is stamped just above the trash it undoes: its time, its device and "~".
+            assertEquals(Stamp(gone.hlc, gone.device + "~"), Stamp(row.goneHlc, row.goneDevice), "${d.name}: ${row.title}'s revival")
+        }
+    }
+
+    @Test
+    fun twoGroupsOfOneBlockEditedOnTwoDevicesBothStand_SPEC_R141() = two(17) { a, b ->
+        syncthing.now = 1_000
+        val page = runBlocking { a.pages.create("Trip") }
+        val flights = runBlocking { a.pages.addBlock(page, content = "Flights") }
+        val pack = runBlocking { a.pages.addBlock(page, after = flights, content = "Pack", type = BlockType.TODO) }
+        settle(listOf(a, b))
+        syncthing.now = 2_000
+        runBlocking { b.pages.setAttrs(pack, BlockAttrs(checked = true)) }
+        runBlocking { b.pages.moveBlock(pack) }
+        syncthing.now = 3_000
+        runBlocking { a.pages.setType(pack, BlockType.BULLETED) }
+        runBlocking { a.pages.setText(pack, "Pack the bags") }
+        settle(listOf(a, b))
+
+        for (d in listOf(a, b)) {
+            val shown = runBlocking { d.pages.outline(page) }
+            // B's place and attributes, A's type and text.
+            assertEquals(listOf(pack, flights), shown.map { it.id }, d.name)
+            assertEquals(Triple(BlockType.BULLETED, "Pack the bags", BlockAttrs(checked = true)), shown.first().let { Triple(it.type, it.content, it.attrs) }, d.name)
+            assertEquals(emptyList(), runBlocking { d.pages.notices(page) }, d.name)
+        }
+    }
+
+    @Test
+    fun withThreeDevicesEveryReplacedTextIsKeptInAHistoryAndNoticedEverywhere_SPEC_R143() {
+        val w = World(tmp.root, 18)
+        try {
+            val (a, b, c) = listOf("A", "B", "C").map { w.Device(it) }
+            w.syncthing.now = 1_000
+            val page = runBlocking { a.pages.create("Trip") }
+            val hotel = runBlocking { a.pages.addBlock(page, content = "Hotel") }
+            w.settle(listOf(a, b, c))
+            w.syncthing.now = 2_000
+            runBlocking { a.pages.setText(hotel, "Hotel Roma") }
+            w.syncthing.now = 3_000
+            runBlocking { b.pages.setText(hotel, "Hotel Milano") }
+            w.syncthing.now = 4_000
+            runBlocking { c.pages.setText(hotel, "Hotel Napoli") }
+            // B and C each read A's text before they read each other's.
+            a.export()
+            w.syncthing.session("A", "B")
+            w.syncthing.session("A", "C")
+            b.import()
+            c.import()
+            w.settle(listOf(a, b, c))
+
+            val replaced = setOf("Hotel Roma", "Hotel Milano")
+            for (d in listOf(a, b, c)) {
+                assertEquals(listOf("Hotel Napoli"), d.texts(page), d.name)
+                assertEquals(replaced, runBlocking { d.pages.notices(page) }.map { it.lostText }.toSet(), d.name)
+            }
+            // Each replaced text is a MERGE version in at least one device's History.
+            for (text in replaced) {
+                val kept = listOf(a, b, c).filter { d -> runBlocking { d.db.pageDao().revisionsOf(page) }.any { it.reason == "MERGE" && "\"$text\"" in it.blocksJson } }
+                assertTrue(kept.isNotEmpty(), "$text is in no device's History")
+            }
+        } finally {
+            w.close()
         }
     }
 
