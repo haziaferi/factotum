@@ -73,6 +73,36 @@ class ImagesTest {
     }
 
     @Test
+    fun aGifABmpAndAnAnimationAreReadWebpAndHeicRefusedAndAJpegIsWrittenAtQuality85_SPEC_R169() {
+        val scaler = DesktopImageScaler()
+        for (format in listOf("gif", "bmp")) {
+            val stored = scaler.scale(encode(picture(30, 20, Color.GREEN), format))
+            assertEquals(listOf(30, 20, "jpg"), listOf(stored.width, stored.height, stored.format), format)
+            assertTrue(Color(read(stored.bytes).getRGB(15, 10)).green > 200, format)
+        }
+        // An animation keeps its first frame: red, then blue.
+        val animation = gifFrames(picture(16, 16, Color.RED), picture(16, 16, Color.BLUE))
+        assertEquals(2, ImageIO.getImageReadersByFormatName("gif").next().run { input = ImageIO.createImageInputStream(ByteArrayInputStream(animation)); getNumImages(true) })
+        val first = read(scaler.scale(animation).bytes)
+        assertTrue(Color(first.getRGB(8, 8)).let { it.red > 200 && it.blue < 60 }, "the first frame is kept")
+
+        // What the JDK cannot read: WebP and HEIC, by their headers. (A CMYK JPEG is read by JDK 21, not refused.)
+        val webp = "RIFF".toByteArray() + byteArrayOf(26, 0, 0, 0) + "WEBPVP8 ".toByteArray() + ByteArray(18)
+        val heic = byteArrayOf(0, 0, 0, 24) + "ftypheic".toByteArray() + ByteArray(4) + "mif1heic".toByteArray()
+        for ((name, bytes) in listOf("WebP" to webp, "HEIC" to heic)) {
+            val e = assertFailsWith<IllegalArgumentException>(name) { scaler.scale(bytes) }
+            assertEquals("not a picture this device can read", e.message, name)
+        }
+
+        // A JPEG is written at quality 85: the quantization tables the JDK's writer uses at 0.85.
+        val photo = scaler.scale(encode(picture(64, 64, Color.ORANGE), "png"))
+        assertEquals("jpg", photo.format)
+        val at85 = ByteArrayOutputStream().also { writeJpeg(picture(8, 8, Color.ORANGE), 0.85f, it) }.toByteArray()
+        assertTrue(quantization(at85).size >= 65)
+        assertEquals(quantization(at85), quantization(photo.bytes))
+    }
+
+    @Test
     fun aPictureInsertedOnOneDeviceShowsOnTheOtherAndIsStoredOnce() = two(1) { a, b ->
         syncthing.now = day
         val page = go { a.pages.create("Garden") }
@@ -344,6 +374,50 @@ class ImagesTest {
     private fun encode(image: BufferedImage, format: String) = ByteArrayOutputStream().also { ImageIO.write(image, format, it) }.toByteArray()
 
     private fun read(bytes: ByteArray) = requireNotNull(ImageIO.read(ByteArrayInputStream(bytes)))
+
+    /** An animated GIF of [frames], in order. */
+    private fun gifFrames(vararg frames: BufferedImage): ByteArray {
+        val writer = ImageIO.getImageWritersByFormatName("gif").next()
+        val out = ByteArrayOutputStream()
+        try {
+            ImageIO.createImageOutputStream(out).use { stream ->
+                writer.output = stream
+                writer.prepareWriteSequence(null)
+                for (f in frames) writer.writeToSequence(javax.imageio.IIOImage(f, null, null), null)
+                writer.endWriteSequence()
+            }
+        } finally {
+            writer.dispose()
+        }
+        return out.toByteArray()
+    }
+
+    private fun writeJpeg(image: BufferedImage, quality: Float, out: ByteArrayOutputStream) {
+        val writer = ImageIO.getImageWritersByFormatName("jpg").next()
+        try {
+            val param = writer.defaultWriteParam.apply { compressionMode = javax.imageio.ImageWriteParam.MODE_EXPLICIT; compressionQuality = quality }
+            ImageIO.createImageOutputStream(out).use { stream ->
+                writer.output = stream
+                writer.write(null, javax.imageio.IIOImage(image, null, null), param)
+            }
+        } finally {
+            writer.dispose()
+        }
+    }
+
+    /** The bodies of [jpeg]'s DQT segments, its quantization tables, up to its first scan. */
+    private fun quantization(jpeg: ByteArray): List<Int> {
+        val out = mutableListOf<Int>()
+        var i = 2
+        while (i + 4 <= jpeg.size && jpeg[i] == 0xFF.toByte()) {
+            val marker = jpeg[i + 1].toInt() and 0xFF
+            val length = ((jpeg[i + 2].toInt() and 0xFF) shl 8) or (jpeg[i + 3].toInt() and 0xFF)
+            if (marker == 0xDA) break
+            if (marker == 0xDB) for (k in i + 4 until i + 2 + length) out += jpeg[k].toInt() and 0xFF
+            i += 2 + length
+        }
+        return out
+    }
 
     /** [jpeg] with an APP1 EXIF segment saying [orientation] put just after its start. */
     private fun withExif(jpeg: ByteArray, orientation: Int): ByteArray {
