@@ -75,7 +75,7 @@ CHARTS = "core/src/commonMain/kotlin/com/hazia/factotum/core/chart/Charts.kt"
 ROW = "core/src/commonMain/kotlin/com/hazia/factotum/core/sync/Row.kt"
 ITEMTABLES = "data/src/commonMain/kotlin/com/hazia/factotum/data/item/ItemTables.kt"
 
-# slice -> [(name, file, old, new, test task, tests that must fail)]
+# slice ->[(name, file, old, new, test task, tests that must fail)]
 SLICES = {
     "01": [
         ("no ask (hybrid, not hybrid+)", MERGE, "if (mine.stamp != base && mine.values != theirs.values && theirs.settles",
@@ -993,6 +993,41 @@ SLICES = {
          ":data:desktopTest", {"aTemplateIsNoDatabaseRowAndNoBoardOffersIt_SPEC_R181"}),
         ("a board offers a template", CANVAS, '{ require(livePage(pageId).isTemplate != true) { "a template is not shown on a board" } }', "{}",
          ":data:desktopTest", {"aTemplateIsNoDatabaseRowAndNoBoardOffersIt_SPEC_R181"}),
+    ],
+    # The 2026-11-21 gap check's untested clauses: items, recurrence, habits and time (R66 to R103).
+    "gapB": [
+        ("an UNTIL ending in Z is refused", RRULE, 'Z?)?$"""', ')?$"""',
+         ":core:desktopTest", {"anUntilEndingInZIsReadAsLocal_SPEC_R66"}),
+        ("a retimed occurrence fires at the series' time", REMREPO, "if (timed(o)) o.at.time else", "if (timed(o)) (o.original ?: o.at).time else",
+         ":data:desktopTest", {"aRetimedOccurrenceFiresAtItsNewTimeWithoutBeingMoved"}),
+        ("an added occurrence's own time is ignored", EDITS, "if (it == null) at.time != MIDNIGHT else", "if (it == null) false else",
+         ":data:desktopTest", {"anAddedOccurrenceGivenATimeOnAWholeDayItemFiresAtThatTime"}),
+        ("a rating outside 1 to 5 is taken", TRIGGERS, "NEW.rating_value BETWEEN 1 AND 5", "1",
+         ":data:desktopTest", {"trackerAndReadingRulesHold"}),
+        ("a unit is taken on any tracker", TRIGGERS, "(NEW.type = 'NUMBER' AND NEW.unit IN (", "(NEW.unit IN (",
+         ":data:desktopTest", {"trackerAndReadingRulesHold"}),
+        ("a CHOICE tracker takes a default", TRIGGERS, "NEW.default_number IS NULL OR NEW.type = 'NUMBER'", "NEW.default_number IS NULL OR NEW.type IN ('NUMBER', 'CHOICE')",
+         ":data:desktopTest", {"trackerAndReadingRulesHold"}),
+        ("an explicit no is Logged as a yes", HABITS, "if (!given && type == TrackerType.BOOLEAN) true else yes", "if (type == TrackerType.BOOLEAN) true else yes",
+         ":data:desktopTest", {"aYesNoHabitLoggedWithAnExplicitValueKeepsIt"}),
+        ("a habit's details ask", ITEMTABLES, "ASK_GROUPS = setOf(SCHEDULE)", "ASK_GROUPS = setOf(SCHEDULE, DETAILS)",
+         ":data:desktopTest", {"habitColumnsChangedOnTwoDevicesAskOnlyForTheSchedule"}),
+        ("one Log quiets its whole day", HABITS, "            if (n > 0) left[day] = n - 1\n", "",
+         ":data:desktopTest", {"aLogNamingNoOccurrenceQuietsOnlyOneOfTheDays"}),
+        ("a timed occurrence's day is its date", HABITS, "if (timed) dayOf(o.at, dayStart) else o.at.date", "o.at.date",
+         ":data:desktopTest", {"aTimedOccurrenceBeforeTheDayStartBelongsToTheDayBefore"}),
+        ("a block is a schedule field", EDITS, '            time?.let { put("time", it) }\n', '            time?.let { put("time", it) }\n            block?.let { put("block", it) }\n',
+         ":data:desktopTest", {"anOccurrencesBlockMovedOnTwoDevicesMergesWithoutAQuestion"}),
+        ("a fractional order is truncated", ITEMDAO, "deleted_at IS NULL ORDER BY sort_order IS NULL, sort_order, id", "deleted_at IS NULL ORDER BY sort_order IS NULL, CAST(sort_order AS INTEGER), id",
+         ":data:desktopTest", {"reorderingAnActivityMovesItBetweenItsNewNeighbours"}),
+        ("a span edit writes every part", TIMEREPO, "if (row.value(group, field) != value) edited = ", "edited = ",
+         ":data:desktopTest", {"eachOfASpansFiveGroupsWrittenOnADifferentDeviceSurvives"}),
+        ("a span ending before it starts counts", TOTALS, "if (end > from) {", "if (end > from || end < start) {",
+         ":data:desktopTest", {"aMergedSpanEndingBeforeItStartsCountsAsNothing"}),
+        ("every goal counts its week", ACTIVITIES, "goalDays(GoalPeriod.valueOf(goal.period),", "goalDays(GoalPeriod.WEEK,",
+         ":data:desktopTest", {"aGoalIsReachedInEachWindowThroughTheRepository"}),
+        ("a milestone counts only its period", ACTIVITIES, 'goal.kind == "MILESTONE", today)', 'false, today)',
+         ":data:desktopTest", {"aGoalIsReachedInEachWindowThroughTheRepository"}),
     ],
 }
 
