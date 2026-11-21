@@ -176,10 +176,22 @@ Each row's test was written for the clause above, and each mutant, in `tools/mut
 | R40 | `FolderSyncTest.aFileThatShrankIsReadAgainFromTheStart` | `a shrunk file read from the old position` |
 | R48 | `FolderSyncTest.theDetailsAndStatusGroupsChangedOnTwoDevicesMergeWithNoQuestion` | `details and status ask` |
 | R50 | `FolderSyncTest.oneOccurrenceResolvedOnTwoDevicesReadsOneResultTheLater` | `the earlier completion read` |
-| R120 | `SettingsCasesTest.eachSettingKeyHasItsScopeAndDefaultAndThePersonalOnesSync` | `Mixed mode kept per device`, `the app lock grace defaults to 5 s` |
-| R121 | `SettingsCasesTest.aDevicePreferenceNeverReachesTheFolder` | `a device preference written to the synced table` |
+| R66 | `RecurrenceCasesTest.anUntilEndingInZIsReadAsLocal_SPEC_R66` | `an UNTIL ending in Z is refused` |
+| R77 | `OccurrenceEditSyncTest.aRetimedOccurrenceFiresAtItsNewTimeWithoutBeingMoved`, `anAddedOccurrenceGivenATimeOnAWholeDayItemFiresAtThatTime` | `a retimed occurrence fires at the series' time`, `an added occurrence's own time is ignored` |
+| R79 | `HabitCasesTest.trackerAndReadingRulesHold` | `a rating outside 1 to 5 is taken`, `a unit is taken on any tracker`, `a CHOICE tracker takes a default` |
+| R83 | `HabitCasesTest.aYesNoHabitLoggedWithAnExplicitValueKeepsIt` | `an explicit no is Logged as a yes` |
+| R85 | `HabitCasesTest.habitColumnsChangedOnTwoDevicesAskOnlyForTheSchedule` | `a habit's details ask` |
+| R88 | `HabitCasesTest.aLogNamingNoOccurrenceQuietsOnlyOneOfTheDays` | `one Log quiets its whole day` |
+| R94 | `PlannerCasesTest.aTimedOccurrenceBeforeTheDayStartBelongsToTheDayBefore` | `a timed occurrence's day is its date` |
+| R95 | `OccurrenceEditSyncTest.anOccurrencesBlockMovedOnTwoDevicesMergesWithoutAQuestion` | `a block is a schedule field` |
+| R97 | `TimeCasesTest.reorderingAnActivityMovesItBetweenItsNewNeighbours` | `a fractional order is truncated` |
+| R99 | `TimeCasesTest.eachOfASpansFiveGroupsWrittenOnADifferentDeviceSurvives` | `a span edit writes every part` |
+| R100 | `TimeCasesTest.aMergedSpanEndingBeforeItStartsCountsAsNothing` | `a span ending before it starts counts` |
+| R103 | `TimeCasesTest.aGoalIsReachedInEachWindowThroughTheRepository` | `every goal counts its week`, `a milestone counts only its period` |
 | R111 | `LabelCasesTest.aStandaloneReminderCarriesOneLabelAndASecondReplacesTheFirst_SPEC_R111` | `a standalone reminder takes no label` |
 | R117 | `VocabularyTest.aTemplateCarryingALabelIsNotCounted_SPEC_R117` | `a template carrying a label is counted` |
+| R120 | `SettingsCasesTest.eachSettingKeyHasItsScopeAndDefaultAndThePersonalOnesSync` | `Mixed mode kept per device`, `the app lock grace defaults to 5 s` |
+| R121 | `SettingsCasesTest.aDevicePreferenceNeverReachesTheFolder` | `a device preference written to the synced table` |
 | R141 | `PageCasesTest.twoGroupsOfOneBlockEditedOnTwoDevicesBothStand_SPEC_R141` | `a block's attributes take its type's stamp` |
 | R143 | `PageCasesTest.withThreeDevicesEveryReplacedTextIsKeptInAHistoryAndNoticedEverywhere_SPEC_R143` | `a winning local text looks agreed, on the database` |
 | R145 | `PageCasesTest.aMoveALabelOrASubPageMadeUnderItAfterTheTrashBringsAPageBackStampedJustAboveTheTrash_SPEC_R145` | `a move leaves a trashed page in the Trash`, `a label leaves a trashed page in the Trash`, `a sub-page made under a trashed page leaves it in the Trash`, `a revival takes a fresh stamp, read back` |

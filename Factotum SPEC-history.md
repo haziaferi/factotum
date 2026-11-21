@@ -308,3 +308,15 @@ Not a source of current rules: `Factotum SPEC.md` is. One line per change, newes
 - 2026-11-21 · R169 · changed · Acceptance names the GIF, BMP, animation, WebP, HEIC and quality test; CMYK not refused · builder
 - 2026-11-21 · R173 · changed · Acceptance names the frame and card moved apart test · builder
 - 2026-11-21 · R181 · changed · Acceptance names the no-row, no-picker template test · builder
+- 2026-11-21 · R66 · changed · Acceptance names the UNTIL-with-Z test · builder
+- 2026-11-21 · R77 · changed · Acceptance names the retimed and added-with-a-time firing tests · builder
+- 2026-11-21 · R79 · changed · Acceptance lists each trigger the tracker rules test refuses · builder
+- 2026-11-21 · R83 · changed · Acceptance names the explicit yes/no Log test · builder
+- 2026-11-21 · R85 · changed · Acceptance names the habit columns on two devices test · builder
+- 2026-11-21 · R88 · changed · Acceptance asserts the other two doses fire · builder
+- 2026-11-21 · R94 · changed · Acceptance names the timed occurrence before the day start test; its planner and Log uses not checked · builder
+- 2026-11-21 · R95 · changed · Acceptance names the block moved on two devices test · builder
+- 2026-11-21 · R97 · changed · Acceptance names the activity reorder test · builder
+- 2026-11-21 · R99 · changed · Acceptance names the five groups on five devices test · builder
+- 2026-11-21 · R100 · changed · Acceptance names the merged backwards span test · builder
+- 2026-11-21 · R103 · changed · Acceptance names the goal reached in each window test · builder

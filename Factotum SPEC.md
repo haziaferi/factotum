@@ -1118,11 +1118,11 @@ One app that does what Tendril, Chronicle, Mnemo and Equipoise do, over one data
 
 **Rule:** Every time in Factotum is a floating local date-time, and an `UNTIL` with a `Z` is read as local like every other time. Turning a time into an instant, with the DST-gap rule of R64, belongs to the shells' alarm code.
 
-**Evidence:** Not checked: no test parses one; `RRule.kt:57` takes the optional `Z`.
+**Evidence:** `RRule.kt:57` takes the optional `Z`.
 
-**Acceptance:** An `UNTIL` ending in `Z` is read as local.
+**Acceptance:** `RecurrenceCasesTest.anUntilEndingInZIsReadAsLocal_SPEC_R66` reads an `UNTIL` ending in `Z` as the same local time without it, and expands it to that day.
 
-**Since:** 2026-10-02 · builder · migrated
+**Since:** 2026-11-21 · builder · migrated
 
 ### D-R67 · The expander
 
@@ -1240,11 +1240,9 @@ One app that does what Tendril, Chronicle, Mnemo and Equipoise do, over one data
 
 **Rule:** Reminders fire on the edited occurrences: a skipped one is quiet, a moved or retimed one fires at its new time, and an added occurrence on a whole-day item fires at the anchor unless it was given a time.
 
-**Evidence:** Not checked: no test retimes an occurrence without moving it, or gives an added occurrence a time.
+**Acceptance:** `OccurrenceEditSyncTest.aSkippedOccurrenceDoesNotFireAndAMovedOneFiresAtItsNewTime`, `anAddedOccurrenceOnAWholeDayItemFiresAtTheAnchor`, `aRetimedOccurrenceFiresAtItsNewTimeWithoutBeingMoved` and `anAddedOccurrenceGivenATimeOnAWholeDayItemFiresAtThatTime` pass.
 
-**Acceptance:** `OccurrenceEditSyncTest.aSkippedOccurrenceDoesNotFireAndAMovedOneFiresAtItsNewTime` and `anAddedOccurrenceOnAWholeDayItemFiresAtTheAnchor` pass, and a retimed occurrence and an added one given a time fire at their times.
-
-**Since:** 2026-10-02 · builder · migrated
+**Since:** 2026-11-21 · builder · migrated
 
 ### D-R78 · Every edit is kept
 
@@ -1269,11 +1267,11 @@ One app that does what Tendril, Chronicle, Mnemo and Equipoise do, over one data
 | a unit only on a number tracker | trigger |
 | a CHOICE tracker has no default | trigger |
 
-**Evidence:** `TrackerRepository.kt:21` (`TrackerType`: NUMBER, BOOLEAN, RATING, CHOICE); `com.hazia.factotum.data.tracker`. Not checked: only one value per reading is refused in a test; a rating outside 1 to 5, a unit on a non-number tracker and a CHOICE default are not (`SchemaTriggers.kt:134`).
+**Evidence:** `TrackerRepository.kt:21` (`TrackerType`: NUMBER, BOOLEAN, RATING, CHOICE); `com.hazia.factotum.data.tracker`; the triggers are in `SchemaTriggers.kt`.
 
-**Acceptance:** `HabitCasesTest.trackerAndReadingRulesHold` refuses a reading breaking each rule.
+**Acceptance:** `HabitCasesTest.trackerAndReadingRulesHold` refuses a row breaking each rule: a reading with two values or none, a rating of 0 or 6 on a reading or a default, a unit on a yes/no or rating tracker, and a default of any kind on a CHOICE tracker.
 
-**Since:** 2026-10-02 · builder · migrated
+**Since:** 2026-11-21 · builder · migrated
 
 ### D-R80 · A habit is an item over a tracker
 
@@ -1311,11 +1309,9 @@ One app that does what Tendril, Chronicle, Mnemo and Equipoise do, over one data
 
 **Rule:** A habit is a yes/no, rating or number habit, and a Log must be of its tracker's kind. A Log with no value is a "yes", or the habit's amount per Log, which is the tracker's default value. A number habit's daily amount is Chronicle's recurring, automatic DAY goal, one per tracker.
 
-**Evidence:** Not checked: a yes/no habit Logged with an explicit value.
+**Acceptance:** `HabitCasesTest` Logs a number habit with and without a value, a rating habit (refused without one) and a yes/no habit without one, and `aYesNoHabitLoggedWithAnExplicitValueKeepsIt` keeps an explicit no and an explicit yes.
 
-**Acceptance:** `HabitCasesTest` Logs a number habit with and without a value, a rating habit (refused without one) and a yes/no habit without one.
-
-**Since:** 2026-10-02 · builder · migrated
+**Since:** 2026-11-21 · builder · migrated
 
 ### D-R84 · Deleting a tracker
 
@@ -1341,11 +1337,11 @@ One app that does what Tendril, Chronicle, Mnemo and Equipoise do, over one data
 | `roll_every`, `roll_unit` | schedule |
 | `plan_n`, `plan_per`, `plan_days`, `plan_blocks` | schedule (R92) |
 
-**Evidence:** Spike 2: the planner needs `block_id` (the habit's default time block) and `duration_min`. `RecurrenceColumns` is embedded in `ItemEntity`. Not checked: no test changes habit columns on two devices.
+**Evidence:** Spike 2: the planner needs `block_id` (the habit's default time block) and `duration_min`. `RecurrenceColumns` is embedded in `ItemEntity`.
 
-**Acceptance:** `HabitCasesTest` changes a details column and a schedule column on two devices and gets a question only for the schedule.
+**Acceptance:** `HabitCasesTest.habitColumnsChangedOnTwoDevicesAskOnlyForTheSchedule` changes a details column on two devices with no question, then a schedule column on two devices with one.
 
-**Since:** 2026-10-02 · builder · migrated
+**Since:** 2026-11-21 · builder · migrated
 
 ### D-R86 · Pause
 
@@ -1373,11 +1369,9 @@ One app that does what Tendril, Chronicle, Mnemo and Equipoise do, over one data
 
 **Rule:** A Log naming an occurrence silences that one. A Log naming none silences the first other occurrence of its personal day, so one dose of three leaves two. Logs go by the personal day.
 
-**Evidence:** Not checked: the test asserts the next firing, not the third dose.
+**Acceptance:** `HabitCasesTest.aLogNamingNoOccurrenceQuietsOnlyOneOfTheDays` Logs one dose of three, the other two still fire that day, and the next day's first fires as usual.
 
-**Acceptance:** `HabitCasesTest.aLogNamingNoOccurrenceQuietsOnlyOneOfTheDays` Logs one dose of three, and the other two stay due.
-
-**Since:** 2026-10-02 · builder · migrated
+**Since:** 2026-11-21 · builder · migrated
 
 ### D-R89 · Time blocks
 
@@ -1444,21 +1438,21 @@ One app that does what Tendril, Chronicle, Mnemo and Equipoise do, over one data
 
 **Rule:** The personal day of a whole-day occurrence is its own date; only a timed one moves to the day before when the day starts after midnight. An occurrence is timed when the item has a set time, its day's rule sets a time, or an edit gave it one, and this one rule serves the planner, pause, Logs and reminders.
 
-**Evidence:** Not checked: no test moves a timed occurrence to the day before (`OccurrenceEdits.kt:211`).
+**Evidence:** Not checked: the planner's placement and a Log of a timed occurrence before the day start.
 
-**Acceptance:** `PlannerCasesTest.aWholeDayOccurrenceIsPausedOnItsOwnDateWhenTheDayStartsLater` passes, and a timed occurrence before the day boundary belongs to the day before.
+**Acceptance:** `PlannerCasesTest.aWholeDayOccurrenceIsPausedOnItsOwnDateWhenTheDayStartsLater` and `aTimedOccurrenceBeforeTheDayStartBelongsToTheDayBefore` (a pause and its reminder read an occurrence before the day start as the day before's) pass.
 
-**Since:** 2026-10-02 · builder · migrated
+**Since:** 2026-11-21 · builder · migrated
 
 ### D-R95 · An occurrence's block and order
 
 **Rule:** An occurrence's block is ADR 11's `block` field, read and merged silently. An occurrence keeps its habit's manual order: `sort_order` on the item, then the item.
 
-**Evidence:** Not checked: no test does it; `block` is outside an edit's schedule fields (`OccurrenceEdits.kt:34`).
+**Evidence:** `block` is outside an edit's schedule fields (`OccurrenceEdits.kt:34`).
 
-**Acceptance:** An occurrence's block moved on one device while the other retimes the series gives no question.
+**Acceptance:** `OccurrenceEditSyncTest.anOccurrencesBlockMovedOnTwoDevicesMergesWithoutAQuestion` moves an occurrence's block on one device while the other retimes it, and moves another's block on both, with no question and one result on both devices; `PlannerTest.habitsInABlockFollowTheirManualOrderThenTheirId` passes.
 
-**Since:** 2026-10-02 · builder · migrated
+**Since:** 2026-11-21 · builder · migrated
 
 ### D-R96 · Reminders on an "n a day" habit
 
@@ -1476,13 +1470,13 @@ One app that does what Tendril, Chronicle, Mnemo and Equipoise do, over one data
 
 **Rule:** An activity is an item of kind ACTIVITY, with no dates and optionally an icon and a colour. An activity or a habit has a manual `sort_order`, fractional as Tendril's, which the planner follows inside a block.
 
-**Evidence:** ADR 07 (`decisions/07-timelog.md`), activity-item; `com.hazia.factotum.data.time`. Not checked: no test reorders an ordered activity.
+**Evidence:** ADR 07 (`decisions/07-timelog.md`), activity-item; `com.hazia.factotum.data.time`.
 
-**Acceptance:** `TimeCasesTest.activitiesKeepTheirOrderAndTheirColumnsStayTheirs` makes and orders activities, and reordering one moves it.
+**Acceptance:** `TimeCasesTest.activitiesKeepTheirOrderAndTheirColumnsStayTheirs` makes and orders activities, and `reorderingAnActivityMovesItBetweenItsNewNeighbours` moves one to a fractional key between two others.
 
 **Not:** An `archived` flag: dropped with schema 24 (owner, 2026-10-09), as the Trash replaces archiving (R29).
 
-**Since:** 2026-10-09 · owner · migrated
+**Since:** 2026-11-21 · owner · migrated
 
 ### D-R98 · One span table, several timers
 
@@ -1500,11 +1494,9 @@ One app that does what Tendril, Chronicle, Mnemo and Equipoise do, over one data
 
 **Why:** Each write touches only what it changes, so a stop, a deletion, a keep, a start time and a comment made on different devices all survive the merge, and nothing reopens or revives a span.
 
-**Evidence:** Not checked: the keep and start-time groups' survival is not asserted.
+**Acceptance:** `TimeCasesTest.aCommentWrittenOnOneDeviceDoesNotReopenATimerStoppedOnAnother`, `aStaleKeepOrStartEditDoesNotReopenOrReviveASpan` and `eachOfASpansFiveGroupsWrittenOnADifferentDeviceSurvives` (five devices, one group each) pass.
 
-**Acceptance:** `TimeCasesTest.aCommentWrittenOnOneDeviceDoesNotReopenATimerStoppedOnAnother` and the stale keep or start test pass, and each of the five groups written on a different device survives.
-
-**Since:** 2026-10-02 · builder · migrated
+**Since:** 2026-11-21 · builder · migrated
 
 ### D-R100 · A span's end is checked where it is written
 
@@ -1512,11 +1504,9 @@ One app that does what Tendril, Chronicle, Mnemo and Equipoise do, over one data
 
 **Why:** Start and end merge apart, and a row the database refused would stop every later import.
 
-**Evidence:** Not checked: no test counts such a span (`TimeTotals.kt:36`).
+**Acceptance:** `TimeCasesTest.tendrilExactlyOneOwner_aSpanHasOneOwnerOfAKindThatIsTimed` refuses an end before the start locally, and `aMergedSpanEndingBeforeItStartsCountsAsNothing` counts a span merged to end before its start as nothing.
 
-**Acceptance:** `TimeCasesTest` refuses an end before the start locally, and a merged span ending before its start counts as nothing.
-
-**Since:** 2026-10-02 · builder · migrated
+**Since:** 2026-11-21 · builder · migrated
 
 ### D-R101 · Day totals
 
@@ -1542,11 +1532,9 @@ One app that does what Tendril, Chronicle, Mnemo and Equipoise do, over one data
 
 **Rule:** A goal on an activity names the activity item. Its windows are Chronicle's, built from day totals: the day, the week from Monday, the month from the 1st, and a milestone over the last 400 days.
 
-**Evidence:** Not checked: only the week window goes through the repository, and no test reaches a goal.
+**Acceptance:** `TimeTotalsTest.goalWindowsAreTheDayTheWeekFromMondayTheMonthFromThe1stAndAMilestones400Days` checks each window's bounds, and `TimeCasesTest.aGoalIsReachedInEachWindowThroughTheRepository` reaches a day, week, month and milestone goal through `ActivityRepository`, each counting only its window.
 
-**Acceptance:** `TimeTotalsTest` checks each window's bounds, and a goal is reached in each window through `ActivityRepository`.
-
-**Since:** 2026-10-02 · builder · migrated
+**Since:** 2026-11-21 · builder · migrated
 
 ### D-R104 · Deleting an activity
 
@@ -2706,7 +2694,7 @@ Background, not a rule: Equipoise runs llama.cpp on Android only, and only in th
 - R63 · Random forms: `RandomKindsTest` and `WhenKindsTest` pass.
 - R64 · Seeded random draws: `RecurrenceCasesTest` compares the draws with the spike's own SplitMix64 in Python and in its Java, and checks the random kinds' properties.
 - R65 · DTSTART and set times: `RecurrenceCasesTest.theNineFixedRulesGiveTheOwnerAppsOccurrences` and `aStartTheRuleDoesNotMatchIsNotAnOccurrence` cover an unaligned start, a cron rule from midnight and a month end, and `CronTest.severalLinesAreOneRuleTheirUnion` a rule set.
-- R66 · Times are floating: An `UNTIL` ending in `Z` is read as local.
+- R66 · Times are floating: `RecurrenceCasesTest.anUntilEndingInZIsReadAsLocal_SPEC_R66` reads an `UNTIL` ending in `Z` as the same local time without it, and expands it to that day.
 - R67 · The expander: `RecurrenceCasesTest` and the expander's ported tests refuse each row's rule and pass the fixed rules.
 - R68 · Cron is input only: `CronTest` passes.
 - R69 · One recurrence engine: Tasks, events, reminders and habits all expand through `com.hazia.factotum.core.recurrence`, with no second expander in `core/` or `data/`.
@@ -2717,32 +2705,32 @@ Background, not a rule: Equipoise runs llama.cpp on Android only, and only in th
 - R74 · Answers are edits: `OccurrenceEditSyncTest` answers each way, answers differently on two devices, and is refused an update.
 - R75 · Series edits: `OccurrenceEditsTest` renames a series with a moved occurrence.
 - R76 · Habit fields in an edit: An edit carrying `sort_order`, `rule_patch` and `pause` round-trips through the folder unchanged.
-- R77 · Edits reach reminders: `OccurrenceEditSyncTest.aSkippedOccurrenceDoesNotFireAndAMovedOneFiresAtItsNewTime` and `anAddedOccurrenceOnAWholeDayItemFiresAtTheAnchor` pass, and a retimed occurrence and an added one given a time fire at their times.
-- R79 · Trackers move across as they are: `HabitCasesTest.trackerAndReadingRulesHold` refuses a reading breaking each rule.
+- R77 · Edits reach reminders: `OccurrenceEditSyncTest.aSkippedOccurrenceDoesNotFireAndAMovedOneFiresAtItsNewTime`, `anAddedOccurrenceOnAWholeDayItemFiresAtTheAnchor`, `aRetimedOccurrenceFiresAtItsNewTimeWithoutBeingMoved` and `anAddedOccurrenceGivenATimeOnAWholeDayItemFiresAtThatTime` pass.
+- R79 · Trackers move across as they are: `HabitCasesTest.trackerAndReadingRulesHold` refuses a row breaking each rule: a reading with two values or none, a rating of 0 or 6 on a reading or a default, a unit on a yes/no or rating tracker, and a default of any kind on a CHOICE tracker.
 - R80 · A habit is an item over a tracker: The 8 cases of `decisions/cases/06-habit.jsonl` pass (`HabitCasesTest`), with the owner's answers.
 - R81 · No streaks in Habits: No table or column stores a streak or missed-day count, and presence (R82) returns none.
 - R82 · Presence: `HabitPresenceTest` and `HabitCasesTest` pass.
-- R83 · Habit types and Logs: `HabitCasesTest` Logs a number habit with and without a value, a rating habit (refused without one) and a yes/no habit without one.
+- R83 · Habit types and Logs: `HabitCasesTest` Logs a number habit with and without a value, a rating habit (refused without one) and a yes/no habit without one, and `aYesNoHabitLoggedWithAnExplicitValueKeepsIt` keeps an explicit no and an explicit yes.
 - R84 · Deleting a tracker: `HabitCasesTest` and `VocabularyTest` delete, restore and purge a tracker with habits and goals.
-- R85 · Habit columns: `HabitCasesTest` changes a details column and a schedule column on two devices and gets a question only for the schedule.
+- R85 · Habit columns: `HabitCasesTest.habitColumnsChangedOnTwoDevicesAskOnlyForTheSchedule` changes a details column on two devices with no question, then a schedule column on two devices with one.
 - R86 · Pause: `PlannerCasesTest.twoHabitsOnOneTrackerPauseOnTheirOwn` passes.
 - R87 · Rolling habits: `HabitCasesTest` rolls a habit by days and by a month.
-- R88 · Logged occurrences are quiet: `HabitCasesTest.aLogNamingNoOccurrenceQuietsOnlyOneOfTheDays` Logs one dose of three, and the other two stay due.
+- R88 · Logged occurrences are quiet: `HabitCasesTest.aLogNamingNoOccurrenceQuietsOnlyOneOfTheDays` Logs one dose of three, the other two still fire that day, and the next day's first fires as usual.
 - R89 · Time blocks: `PlannerCasesTest` makes a database on two devices and finds the same five blocks.
 - R90 · The week planner: `PlannerTest` and `PlannerCasesTest` pass.
 - R91 · A confirmed week: `PlannerCasesTest` confirms a week, then applies an earlier skip and a later time, and both reach it.
 - R92 · PLANNED habits: `PlannerTest` and `PlannerCasesTest` pass.
 - R93 · Placing an occurrence: `PlannerCasesTest` (a set time in a block, an edit's block, a slot's block) and `PlannerTest` (a set time outside every block, the habit's block, `overlappingBlocksAreReportedOncePerOverlappingPair`) pass.
-- R94 · Timed and whole-day occurrences: `PlannerCasesTest.aWholeDayOccurrenceIsPausedOnItsOwnDateWhenTheDayStartsLater` passes, and a timed occurrence before the day boundary belongs to the day before.
-- R95 · An occurrence's block and order: An occurrence's block moved on one device while the other retimes the series gives no question.
+- R94 · Timed and whole-day occurrences: `PlannerCasesTest.aWholeDayOccurrenceIsPausedOnItsOwnDateWhenTheDayStartsLater` and `aTimedOccurrenceBeforeTheDayStartBelongsToTheDayBefore` (a pause and its reminder read an occurrence before the day start as the day before's) pass.
+- R95 · An occurrence's block and order: `OccurrenceEditSyncTest.anOccurrencesBlockMovedOnTwoDevicesMergesWithoutAQuestion` moves an occurrence's block on one device while the other retimes it, and moves another's block on both, with no question and one result on both devices; `PlannerTest.habitsInABlockFollowTheirManualOrderThenTheirId` passes.
 - R96 · Reminders on an "n a day" habit: `PlannerCasesTest` fires each occurrence at its block's start and an unblocked one at the anchor.
-- R97 · Activities: `TimeCasesTest.activitiesKeepTheirOrderAndTheirColumnsStayTheirs` makes and orders activities, and reordering one moves it.
+- R97 · Activities: `TimeCasesTest.activitiesKeepTheirOrderAndTheirColumnsStayTheirs` makes and orders activities, and `reorderingAnActivityMovesItBetweenItsNewNeighbours` moves one to a fractional key between two others.
 - R98 · One span table, several timers: The 9 cases of `decisions/cases/07-timelog.jsonl` pass (`TimeCasesTest`), two of them as later rulings changed them: `chronicle-activity-delete-refused` as R104, and `chronicle-activity-and-category-totals` without its category half (R117).
-- R99 · Span field groups: `TimeCasesTest.aCommentWrittenOnOneDeviceDoesNotReopenATimerStoppedOnAnother` and the stale keep or start test pass, and each of the five groups written on a different device survives.
-- R100 · A span's end is checked where it is written: `TimeCasesTest` refuses an end before the start locally, and a merged span ending before its start counts as nothing.
+- R99 · Span field groups: `TimeCasesTest.aCommentWrittenOnOneDeviceDoesNotReopenATimerStoppedOnAnother`, `aStaleKeepOrStartEditDoesNotReopenOrReviveASpan` and `eachOfASpansFiveGroupsWrittenOnADifferentDeviceSurvives` (five devices, one group each) pass.
+- R100 · A span's end is checked where it is written: `TimeCasesTest.tendrilExactlyOneOwner_aSpanHasOneOwnerOfAKindThatIsTimed` refuses an end before the start locally, and `aMergedSpanEndingBeforeItStartsCountsAsNothing` counts a span merged to end before its start as nothing.
 - R101 · Day totals: `TimeTotalsTest` and `TimeCasesTest` pass. Not checked: amounts in the total wait for the amount table.
 - R102 · Time is an activity's: spans and amounts: An amount added on a picked day syncs to a peer and counts in that day's total, and no tracker accepts a time unit.
-- R103 · Goals on tracked time: `TimeTotalsTest` checks each window's bounds, and a goal is reached in each window through `ActivityRepository`.
+- R103 · Goals on tracked time: `TimeTotalsTest.goalWindowsAreTheDayTheWeekFromMondayTheMonthFromThe1stAndAMilestones400Days` checks each window's bounds, and `TimeCasesTest.aGoalIsReachedInEachWindowThroughTheRepository` reaches a day, week, month and milestone goal through `ActivityRepository`, each counting only its window.
 - R104 · Deleting an activity: `VocabularyTest` and `TimeCasesTest` delete, restore and purge an activity with a running timer.
 - R105 · What ends a running timer: `TimeCasesTest` and `RowTasksTest` run each event with a timer running, locally and through an import.
 - R106 · A timer past its limit asks: A span past 3x its activity's usual length is listed by `runningLong`, and each answer ends or keeps it as its words say (`TimeCasesTest`).
