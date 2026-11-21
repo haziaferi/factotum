@@ -287,3 +287,13 @@ Not a source of current rules: `Factotum SPEC.md` is. One line per change, newes
 - 2026-10-16 · R120 · changed · the timer limit no longer a setting · owner · b2e8278
 - 2026-11-21 · R04 · changed · folded into the spec from jobs.md, cells condensed · builder
 - 2026-11-21 · spec · migrated · rules from v0.40's sections, log and amendments; old file at 541abf9 · builder · 541abf9
+- 2026-11-21 · R18 · changed · Acceptance names the every-table round trip; outbox and peer rows checked · builder
+- 2026-11-21 · R22 · changed · Acceptance names the NaN and infinity line test · builder
+- 2026-11-21 · R27 · changed · Acceptance names the registry-read count test · builder
+- 2026-11-21 · R34 · changed · Acceptance names the recovered rows and DEVICE defaults test · builder
+- 2026-11-21 · R36 · changed · Acceptance names the firing-leaves-the-outbox-empty test · builder
+- 2026-11-21 · R40 · changed · Acceptance names the shrunk-file test · builder
+- 2026-11-21 · R48 · changed · Acceptance names the details and status no-question test · builder
+- 2026-11-21 · R50 · changed · Acceptance names the two-device completion test · builder
+- 2026-11-21 · R120 · changed · Acceptance names the every-key scope, default and sync test · builder
+- 2026-11-21 · R121 · changed · Acceptance names the DEVICE_PREF-stays-local test · builder

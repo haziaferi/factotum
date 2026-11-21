@@ -506,11 +506,11 @@ One app that does what Tendril, Chronicle, Mnemo and Equipoise do, over one data
 | Page notices | `page_notice` | R144 |
 | Other | `checklist`, `checklist_item`, `habit_block`, `setting` (PERSONAL keys only), `purge_registry` | R183, R89, R121, R27 |
 
-**Evidence:** Not checked: no test round-trips every synced table (`FolderSyncTest` covers `item`, `reminder` and purges), and no test reads the export triggers back.
+**Evidence:** `FolderSyncTest.everySyncedTableIsQueuedForExportAndRoundTrips` kills mutant `a synced table with no export trigger` (`tools/mutants.py`, slice `gapA`), 2026-11-21. No repository writes a `tracker_choice` row; the test writes one through `LocalWrites`.
 
-**Acceptance:** `FactotumDatabase.kt:220` checks at open that every synced table has its `RowTable`, `SchemaTriggers` makes an export trigger for each, and every synced table round-trips through export and import.
+**Acceptance:** `FactotumDatabase.kt:220` checks at open that every synced table has its `RowTable`, and `FolderSyncTest.everySyncedTableIsQueuedForExportAndRoundTrips` makes a row in every synced table, finds each table in the outbox, and reads the same rows on a peer after sync.
 
-**Since:** 2026-10-04 · builder · migrated
+**Since:** 2026-11-21 · builder · migrated
 
 ### D-R19 · Local stores, never synced
 
@@ -562,11 +562,11 @@ One app that does what Tendril, Chronicle, Mnemo and Equipoise do, over one data
 
 **Why:** 5 and 5L would otherwise differ; NaN never equals itself, and JSON cannot carry it.
 
-**Evidence:** Not checked: no test feeds a NaN or infinite Double through the codec; decoding goes through `Group` (`Row.kt:17`).
+**Evidence:** Decoding goes through `Group` (`Row.kt:17`); `RecordCodecTest.aLineCarryingANaNOrAnInfiniteDoubleIsRefused` kills mutant `a group takes an infinite Double` (`tools/mutants.py`, slice `gapA`), 2026-11-21.
 
-**Acceptance:** `RecordCodecTest.aLineThatIsNotARecordIsRefused` refuses a value of another type and `ClockAndIdTest.aGroupRefusesADoubleThatNeverEqualsItself` a NaN; a NaN or infinite Double in an imported line is refused.
+**Acceptance:** `RecordCodecTest.aLineThatIsNotARecordIsRefused` refuses a value of another type, `ClockAndIdTest.aGroupRefusesADoubleThatNeverEqualsItself` a NaN, and `RecordCodecTest.aLineCarryingANaNOrAnInfiniteDoubleIsRefused` a line carrying NaN or an infinite Double.
 
-**Since:** 2026-10-01 · builder · migrated
+**Since:** 2026-11-21 · builder · migrated
 
 ### D-R23 · When a person is asked
 
@@ -620,11 +620,11 @@ One app that does what Tendril, Chronicle, Mnemo and Equipoise do, over one data
 
 **Why:** The registry never shrinks.
 
-**Evidence:** ADR 01. Not checked: no test counts registry reads; the lookup by id is `StagedStore.kt:151`.
+**Evidence:** ADR 01; the lookup by id is `StagedStore.kt:151`. `FolderSyncTest.anImportTouchingOnePurgedIdReadsOneRegistryRow` counts the rows read through the driver (`RegistryReads`) and kills mutant `the registry loaded whole` (`tools/mutants.py`, slice `gapA`), 2026-11-21.
 
-**Acceptance:** The purge case of `decisions/cases/01-sync.jsonl` passes (`SyncCasesTest.tendrilPurgeHolds`), and an import touching one purged id reads one registry row.
+**Acceptance:** The purge case of `decisions/cases/01-sync.jsonl` passes (`SyncCasesTest.tendrilPurgeHolds`), and `FolderSyncTest.anImportTouchingOnePurgedIdReadsOneRegistryRow` reads one registry row for an import touching one of 30 purged ids.
 
-**Since:** 2026-10-01 · owner · migrated
+**Since:** 2026-11-21 · owner · migrated
 
 ### D-R28 · A purge undone by a later edit
 
@@ -722,11 +722,11 @@ One app that does what Tendril, Chronicle, Mnemo and Equipoise do, over one data
 
 **Rule:** A database made anew after a corrupt one was set aside reads this device's own folder files on its first import, so its data and settings come back with no peer. Its DEVICE settings go back to their defaults.
 
-**Evidence:** ADR 09; `FolderSync` takes `recovered=true` after a recovery. Not checked: no test checks the rows after a recovery; `DatabaseRecoveryTest` checks only the recovery order.
+**Evidence:** ADR 09; `FolderSync` takes `recovered=true` after a recovery, and `DatabaseRecoveryTest` checks the recovery order. `SettingsCasesTest.aRecoveredDeviceGetsItsRowsBackFromItsOwnFilesAndItsDeviceSettingsStartAtTheirDefaults` kills mutant `a recovery reads only peers` (`tools/mutants.py`, slice `gapA`), 2026-11-21.
 
-**Acceptance:** `SettingsCasesTest.aDeviceWhoseDatabaseWasRecoveredGetsItsSettingsBackFromItsOwnFiles` recovers a device alone and finds its PERSONAL settings again, and its rows come back too.
+**Acceptance:** `SettingsCasesTest.aDeviceWhoseDatabaseWasRecoveredGetsItsSettingsBackFromItsOwnFiles` recovers a device alone and finds its PERSONAL settings again, and `aRecoveredDeviceGetsItsRowsBackFromItsOwnFilesAndItsDeviceSettingsStartAtTheirDefaults` finds its rows again and its DEVICE settings at their defaults.
 
-**Since:** 2026-10-02 · builder · migrated
+**Since:** 2026-11-21 · builder · migrated
 
 ### D-R35 · Device logs in the folder
 
@@ -764,11 +764,11 @@ One app that does what Tendril, Chronicle, Mnemo and Equipoise do, over one data
 | Synced files are compact JSON | never pretty-printed | R35 |
 | The device-id file is excluded from Android Auto Backup and device transfer | two devices never share an identity | R32 |
 
-**Evidence:** `decisions/verify/13-folder/workload.md`. Not checked: no test reads the outbox after a firing (no firing path writes: `firings()` only reads); `exportAfterQuiet` has no production caller (R38); the Auto Backup exclusion is not built.
+**Evidence:** `decisions/verify/13-folder/workload.md`. `firings()` only reads; `FolderSyncTest.aReminderFiringLeavesTheOutboxEmpty` kills mutant `a firing writes its reminder` (`tools/mutants.py`, slice `gapA`), 2026-11-21. Not checked: `exportAfterQuiet` has no production caller (R38); the Auto Backup exclusion is not built.
 
-**Acceptance:** `ExportTimingTest.aBurstOfWritesExportsOnceThirtySecondsAfterTheLast` (debounce), `DirectorySyncFolderTest.aReplaceLandsWholeAndLeavesNoTemporaryFile` (atomic replace) and `RecordCodecTest.aRecordIsOneCompactLine` (compact JSON) pass; a reminder firing leaves the outbox empty; the Auto Backup exclusion is checked with the Android shell.
+**Acceptance:** `ExportTimingTest.aBurstOfWritesExportsOnceThirtySecondsAfterTheLast` (debounce), `DirectorySyncFolderTest.aReplaceLandsWholeAndLeavesNoTemporaryFile` (atomic replace), `RecordCodecTest.aRecordIsOneCompactLine` (compact JSON) and `FolderSyncTest.aReminderFiringLeavesTheOutboxEmpty` (a firing writes nothing) pass; the Auto Backup exclusion is checked with the Android shell.
 
-**Since:** 2026-10-01 · owner · migrated
+**Since:** 2026-11-21 · owner · migrated
 
 ### D-R37 · Conflict copies
 
@@ -808,11 +808,11 @@ One app that does what Tendril, Chronicle, Mnemo and Equipoise do, over one data
 
 **Rule:** Read positions are per file, in bytes, and local to the device. A peer file is read only once it has grown, a last line with no newline is left for a later read, and a file that shrank (a torn SAF write) is read again from the start.
 
-**Evidence:** Not checked: no test shrinks a file (`FolderSync.kt:103`).
+**Evidence:** `FolderSync.kt:103` reads a shorter file from its start; `FolderSyncTest.aFileThatShrankIsReadAgainFromTheStart` kills mutant `a shrunk file read from the old position` (`tools/mutants.py`, slice `gapA`), 2026-11-21.
 
-**Acceptance:** `FolderSyncTest.aPeerFileIsReadOnlyWhenItHasGrown` and `aLineStillBeingWrittenWaitsForItsNewline` pass, and a file that shrank is read again from the start.
+**Acceptance:** `FolderSyncTest.aPeerFileIsReadOnlyWhenItHasGrown`, `aLineStillBeingWrittenWaitsForItsNewline` and `aFileThatShrankIsReadAgainFromTheStart` pass.
 
-**Since:** 2026-10-01 · owner · migrated
+**Since:** 2026-11-21 · owner · migrated
 
 ### D-R41 · Lines this version cannot read
 
@@ -896,11 +896,11 @@ One app that does what Tendril, Chronicle, Mnemo and Equipoise do, over one data
 | status | status, importance, `capacity_rank` | merges silently |
 | details | `kind`, `title`, `parent_id` | merges silently |
 
-**Evidence:** ADR 02 names schedule and status; the columns it leaves unassigned form the third group, `details`, which merges silently like everything but the schedule. Not checked: no test changes the details and status groups on two devices and asserts no question.
+**Evidence:** ADR 02 names schedule and status; the columns it leaves unassigned form the third group, `details`, which merges silently like everything but the schedule. `FolderSyncTest.theDetailsAndStatusGroupsChangedOnTwoDevicesMergeWithNoQuestion` kills mutant `details and status ask` (`tools/mutants.py`, slice `gapA`), 2026-11-21.
 
-**Acceptance:** `FolderSyncTest.anAnswerSettlesTheQuestionOnBothDevices` asks for a schedule clash, and the details and status groups changed on two devices merge with no question.
+**Acceptance:** `FolderSyncTest.anAnswerSettlesTheQuestionOnBothDevices` asks for a schedule clash, and `theDetailsAndStatusGroupsChangedOnTwoDevicesMergeWithNoQuestion` merges the details and status groups changed on two devices with no question, the later write standing.
 
-**Since:** 2026-10-02 · owner · migrated
+**Since:** 2026-11-21 · owner · migrated
 
 ### D-R49 · Kind rules are triggers
 
@@ -916,13 +916,13 @@ One app that does what Tendril, Chronicle, Mnemo and Equipoise do, over one data
 
 **Rule:** Resolving an occurrence writes a `completion` row, DONE or SKIPPED, naming the occurrence by its date-time (the series' own, or an added one's), so two occurrences on one day are resolved apart. Two devices resolving one occurrence leave two rows, and reads take the later stamp per occurrence.
 
-**Evidence:** Not checked: no test resolves one occurrence on two devices; reads take the later stamp in `ItemRepository.kt:216`.
+**Evidence:** Reads take the later stamp in `ItemRepository.kt:216`; `FolderSyncTest.oneOccurrenceResolvedOnTwoDevicesReadsOneResultTheLater` kills mutant `the earlier completion read` (`tools/mutants.py`, slice `gapA`), 2026-11-21.
 
-**Acceptance:** One occurrence resolved on two devices reads one result, the later.
+**Acceptance:** `FolderSyncTest.oneOccurrenceResolvedOnTwoDevicesReadsOneResultTheLater` resolves one occurrence on two devices, keeps two log rows and reads one result, the later.
 
 **Not:** A unique key per occurrence: the second device's row would fail to import.
 
-**Since:** 2026-10-02 · owner · migrated
+**Since:** 2026-11-21 · owner · migrated
 
 ### D-R51 · Subtasks go with their parent
 
@@ -1768,21 +1768,21 @@ One app that does what Tendril, Chronicle, Mnemo and Equipoise do, over one data
 | Tendril's AI key | `ai_key` | SECRET | none | R121 |
 | Equipoise's endpoint key | `llm_endpoint_key` | SECRET | none | R121 |
 
-**Evidence:** Owner's answers 2026-10-02 (day boundary, reminders switch, app lock); decision 14 (regulation). Keys and defaults checked against `core/src/commonMain/kotlin/com/hazia/factotum/core/settings/Settings.kt` on 2026-11-21, which also declares keys this spec does not rule on: `long_run_hours` (see R106), `burnout_threshold`, `crisis_contacts`, `default_alert_mode`, `first_run_done`, `sync_folder`, `window_frame` and `llm_model`. Not checked: no test reads the defaults of `app_lock_grace_seconds`, `llm_endpoint_key`, `onboarding_answer`, `mixed_mode` and `sleep_tracker`, and only `day_start` is synced in one.
+**Evidence:** Owner's answers 2026-10-02 (day boundary, reminders switch, app lock); decision 14 (regulation). Keys and defaults checked against `core/src/commonMain/kotlin/com/hazia/factotum/core/settings/Settings.kt` on 2026-11-21, which also declares keys this spec does not rule on: `long_run_hours` (see R106), `burnout_threshold`, `crisis_contacts`, `default_alert_mode`, `first_run_done`, `sync_folder`, `window_frame` and `llm_model`. `SettingsCasesTest.eachSettingKeyHasItsScopeAndDefaultAndThePersonalOnesSync` kills mutants `Mixed mode kept per device` and `the app lock grace defaults to 5 s` (`tools/mutants.py`, slice `gapA`), 2026-11-21.
 
-**Acceptance:** `SettingsCasesTest` reads each key's default and syncs the PERSONAL ones.
+**Acceptance:** `SettingsCasesTest.eachSettingKeyHasItsScopeAndDefaultAndThePersonalOnesSync` reads each key's scope and default in the table and syncs the PERSONAL ones to a second device.
 
-**Since:** 2026-10-16 · owner · migrated
+**Since:** 2026-11-21 · owner · migrated
 
 ### D-R121 · Where each scope lives
 
 **Rule:** PERSONAL settings are rows of the synced `setting` table, one field group each, later stamp first, with the id `setting:<key>`, so two devices that set one key apart write one row; a key this version does not know travels as it came. DEVICE_PREF and DEVICE_STATE live in a local `device_setting` table no export reads. SECRET keys go to a `SecretStore`, backed by the Keystore and DPAPI in the shells.
 
-**Evidence:** Tendril's `SecretStore` and `FileAiKeyStore` are the code to port; Tendril's AI key and Equipoise's endpoint key are two secrets. Not checked: the Keystore and DPAPI stores come with the shells. Not checked: no test reads the folder for a DEVICE_PREF value.
+**Evidence:** Tendril's `SecretStore` and `FileAiKeyStore` are the code to port; Tendril's AI key and Equipoise's endpoint key are two secrets. `SettingsCasesTest.aDevicePreferenceNeverReachesTheFolder` kills mutant `a device preference written to the synced table` (`tools/mutants.py`, slice `gapA`), 2026-11-21. Not checked: the Keystore and DPAPI stores come with the shells.
 
-**Acceptance:** `SettingsCasesTest` sets one key on two devices and reads one row, and a DEVICE_PREF value never reaches the folder.
+**Acceptance:** `SettingsCasesTest.aPersonalSettingChangedOnTwoDevicesKeepsTheLaterAndTheDefaultClearsIt` sets one key on two devices and reads one row, and `aDevicePreferenceNeverReachesTheFolder` finds no DEVICE_PREF value in the folder or the `setting` table.
 
-**Since:** 2026-10-02 · builder · migrated
+**Since:** 2026-11-21 · builder · migrated
 
 ### D-R122 · Repositories read settings on every call
 
@@ -2666,29 +2666,29 @@ Background, not a rule: Equipoise runs llama.cpp on Android only, and only in th
 - R14 · Committed schema files: `tools/schema_check.py` passes.
 - R15 · Upgrades drop the app's triggers first: A test upgrades a version 9 file holding the triggers and its child rows (`OldSchema.kt`).
 - R17 · Licensing: The `:llm` build links only `llama` and `ggml` on both platforms, and the About screen shows llama.cpp's MIT notice.
-- R18 · Synced tables: `FactotumDatabase.kt:220` checks at open that every synced table has its `RowTable`, `SchemaTriggers` makes an export trigger for each, and every synced table round-trips through export and import.
+- R18 · Synced tables: `FactotumDatabase.kt:220` checks at open that every synced table has its `RowTable`, and `FolderSyncTest.everySyncedTableIsQueuedForExportAndRoundTrips` makes a row in every synced table, finds each table in the outbox, and reads the same rows on a peer after sync.
 - R19 · Local stores, never synced: No export trigger names a store in this table, and a peer that imports a device's folder never receives one of them.
 - R20 · Folder sync for one person: `FolderSyncTest` syncs two devices through a shared folder and nothing else.
 - R21 · Identity and stamps: The 10 cases of `decisions/cases/01-sync.jsonl` pass as tests on both targets (`SyncCasesTest`): 8 hold and 2 ask a person, as hybrid+ scored.
-- R22 · Group values: `RecordCodecTest.aLineThatIsNotARecordIsRefused` refuses a value of another type and `ClockAndIdTest.aGroupRefusesADoubleThatNeverEqualsItself` a NaN; a NaN or infinite Double in an imported line is refused.
+- R22 · Group values: `RecordCodecTest.aLineThatIsNotARecordIsRefused` refuses a value of another type, `ClockAndIdTest.aGroupRefusesADoubleThatNeverEqualsItself` a NaN, and `RecordCodecTest.aLineCarryingANaNOrAnInfiniteDoubleIsRefused` a line carrying NaN or an infinite Double.
 - R23 · When a person is asked: The two asking cases of `decisions/cases/01-sync.jsonl` ask, and the other eight merge without a question (`SyncCasesTest`).
 - R24 · Answers settle the clash everywhere: `ResolutionTest` checks each answer, and `FolderSyncTest.anAnswerSettlesTheQuestionOnBothDevices` an answer settling the question on both devices.
 - R25 · The clock never goes back: `ClockAndIdTest` sets the wall clock back and gets a newer stamp.
 - R26 · Old versions do not move the base: Replaying an older version of the other side through the folder leaves the base and any pending question as they were, and the next change on the other side is still asked.
-- R27 · A permanent purge registry: The purge case of `decisions/cases/01-sync.jsonl` passes (`SyncCasesTest.tendrilPurgeHolds`), and an import touching one purged id reads one registry row.
+- R27 · A permanent purge registry: The purge case of `decisions/cases/01-sync.jsonl` passes (`SyncCasesTest.tendrilPurgeHolds`), and `FolderSyncTest.anImportTouchingOnePurgedIdReadsOneRegistryRow` reads one registry row for an import touching one of 30 purged ids.
 - R28 · A purge undone by a later edit: After a purge is undone by a peer's later edit, both devices hold the same rows under the revived one.
 - R29 · One deletion vocabulary: `VocabularyTest` walks every kind through Delete, its Trash, Restore, Delete again and Delete forever; a kind missing one does not compile or fails.
 - R30 · What Delete and Restore take: `VocabularyTest` restores each kind and checks that exactly what its deletion took comes back.
 - R31 · Delete forever: `VocabularyTest` checks that Delete forever of a live row of each kind is refused.
 - R32 · The device id: `SyncStorageTest.anUnreadableDeviceIdIsSetAsideAndReplaced` sets an unreadable id file aside and makes a new id; the Android manifest's backup rules exclude the file.
 - R33 · The composition root: Every two-device test runs through `Factotum` (`World.Device` delegates to it).
-- R34 · Recovery re-reads its own files: `SettingsCasesTest.aDeviceWhoseDatabaseWasRecoveredGetsItsSettingsBackFromItsOwnFiles` recovers a device alone and finds its PERSONAL settings again, and its rows come back too.
+- R34 · Recovery re-reads its own files: `SettingsCasesTest.aDeviceWhoseDatabaseWasRecoveredGetsItsSettingsBackFromItsOwnFiles` recovers a device alone and finds its PERSONAL settings again, and `aRecoveredDeviceGetsItsRowsBackFromItsOwnFilesAndItsDeviceSettingsStartAtTheirDefaults` finds its rows again and its DEVICE settings at their defaults.
 - R35 · Device logs in the folder: The 4 cases of `decisions/cases/13-folder.jsonl` pass through the real importer and exporter under a Syncthing double (`FolderSyncTest`).
-- R36 · Folder requirements: `ExportTimingTest.aBurstOfWritesExportsOnceThirtySecondsAfterTheLast` (debounce), `DirectorySyncFolderTest.aReplaceLandsWholeAndLeavesNoTemporaryFile` (atomic replace) and `RecordCodecTest.aRecordIsOneCompactLine` (compact JSON) pass; a reminder firing leaves the outbox empty; the Auto Backup exclusion is checked with the Android shell.
+- R36 · Folder requirements: `ExportTimingTest.aBurstOfWritesExportsOnceThirtySecondsAfterTheLast` (debounce), `DirectorySyncFolderTest.aReplaceLandsWholeAndLeavesNoTemporaryFile` (atomic replace), `RecordCodecTest.aRecordIsOneCompactLine` (compact JSON) and `FolderSyncTest.aReminderFiringLeavesTheOutboxEmpty` (a firing writes nothing) pass; the Auto Backup exclusion is checked with the Android shell.
 - R37 · Conflict copies: `FolderSyncTest.aClonedDeviceIdsClashIsMergedAndTheCopyRemoved` merges and deletes a conflict copy; after one in its own folder the device re-reads its own files and holds a new id.
 - R38 · A local outbox decides what to export: A write through any repository, and an import that changes a row, each leave the row queued for export.
 - R39 · Imports in chunks: `FolderSyncTest` imports a snapshot larger than one chunk and stops and resumes it at a chunk boundary.
-- R40 · Read positions: `FolderSyncTest.aPeerFileIsReadOnlyWhenItHasGrown` and `aLineStillBeingWrittenWaitsForItsNewline` pass, and a file that shrank is read again from the start.
+- R40 · Read positions: `FolderSyncTest.aPeerFileIsReadOnlyWhenItHasGrown`, `aLineStillBeingWrittenWaitsForItsNewline` and `aFileThatShrankIsReadAgainFromTheStart` pass.
 - R41 · Lines this version cannot read: `FolderSyncTest` skips an unreadable line, applies it after the table set changes, and drops a line that breaks its table's rules.
 - R42 · A row whose parent has not arrived waits: A completion imported before its item waits, then applies once the item arrives; one whose item was purged is dropped.
 - R43 · A deleted row takes its merge state: Purging a row with a pending question leaves no base or question behind.
@@ -2696,9 +2696,9 @@ Background, not a rule: Equipoise runs llama.cpp on Android only, and only in th
 - R45 · Folder implementations: `DirectorySyncFolderTest` passes; the SAF folder passes the same tests on a device.
 - R46 · One item table: The 9 cases of `decisions/cases/02-task.jsonl` pass as tests against the real database: eight in `ItemCasesTest`, and `tendril-reminder-fk` in `ReminderCasesTest`.
 - R47 · Names in code: No class, table or column in `core/` or `data/` is named Entry.
-- R48 · Item field groups: `FolderSyncTest.anAnswerSettlesTheQuestionOnBothDevices` asks for a schedule clash, and the details and status groups changed on two devices merge with no question.
+- R48 · Item field groups: `FolderSyncTest.anAnswerSettlesTheQuestionOnBothDevices` asks for a schedule clash, and `theDetailsAndStatusGroupsChangedOnTwoDevicesMergeWithNoQuestion` merges the details and status groups changed on two devices with no question, the later write standing.
 - R49 · Kind rules are triggers: `ItemCasesTest.sharedEventHasNoTaskState_theDatabaseRefusesIt` and `theKindRulesHoldAfterAReopen` (updates), `PlannerCasesTest.plannedAndBlockRulesHold` (inserts), `HabitCasesTest.aTaskWithoutAStatusIsRefused`, `ReminderCasesTest.aStandaloneReminderNeedsATime` and `TimeCasesTest.activitiesKeepTheirOrderAndTheirColumnsStayTheirs` pass.
-- R50 · The completion log: One occurrence resolved on two devices reads one result, the later.
+- R50 · The completion log: `FolderSyncTest.oneOccurrenceResolvedOnTwoDevicesReadsOneResultTheLater` resolves one occurrence on two devices, keeps two log rows and reads one result, the later.
 - R51 · Subtasks go with their parent: `ItemCasesTest` and `VocabularyTest` delete, restore and purge a parent with subtasks.
 - R52 · The capacity query: The query plan of the capacity query names `item_kind_date` and no table scan.
 - R53 · Reminders on any item: The 11 cases of `decisions/cases/03-reminder.jsonl` pass: ten in `ReminderCasesTest`, and `chronicle-standalone-repeats` in `RecurringItemTest`, where `shared-one-recurrence-home` is also checked across every synced table.
@@ -2765,8 +2765,8 @@ Background, not a rule: Equipoise runs llama.cpp on Android only, and only in th
 - R117 · What a label counts: `VocabularyTest.aLabelCountsTheLiveElementsCarryingItEachOnce` counts each kind once, `LabelCasesTest` reads a merged label's elements, and templates are left out.
 - R118 · Settings by scope: The 9 cases of `decisions/cases/09-settings.jsonl` pass (`SettingsCasesTest`): A and B share a folder, and C is a phone restored from A's backup.
 - R119 · A typed registry: `SettingsCasesTest` reads an unreadable value as the default and clears a value set to its default.
-- R120 · Setting keys: `SettingsCasesTest` reads each key's default and syncs the PERSONAL ones.
-- R121 · Where each scope lives: `SettingsCasesTest` sets one key on two devices and reads one row, and a DEVICE_PREF value never reaches the folder.
+- R120 · Setting keys: `SettingsCasesTest.eachSettingKeyHasItsScopeAndDefaultAndThePersonalOnesSync` reads each key's scope and default in the table and syncs the PERSONAL ones to a second device.
+- R121 · Where each scope lives: `SettingsCasesTest.aPersonalSettingChangedOnTwoDevicesKeepsTheLaterAndTheDefaultClearsIt` sets one key on two devices and reads one row, and `aDevicePreferenceNeverReachesTheFolder` finds no DEVICE_PREF value in the folder or the `setting` table.
 - R122 · Repositories read settings on every call: `SettingsCasesTest.theDayStartSetOnOneDeviceDecidesTheDayOnAnotherAtOnce` passes, and every repository that reads the day boundary takes it through a required parameter.
 - R123 · The settings part of a backup: `SettingsCasesTest` restores an old backup on a phone and keeps the newer values; a backup with app lock on leaves it off.
 - R124 · One search index: The 7 cases of `decisions/cases/10-search.jsonl` pass: the item, tracker and Log cases in `SearchCasesTest`, the page and block halves in `PageCasesTest`.

@@ -162,6 +162,25 @@ The spec already records each of these as owed:
 - the SAF folder on Android (R45);
 - a production caller for the export debounce, `exportAfterQuiet` (R38, R36).
 
+### Clauses tested afterwards (2026-11-21)
+
+Each row's test was written for the clause above, and each mutant, in `tools/mutants.py` (slices `gapA`, `gapB`, `gapC`), breaks the behaviour and is killed by that test. The rule's `Not checked:` note and Acceptance were rewritten to match, with one history row each.
+
+| Rule | Test | Mutant killed |
+|---|---|---|
+| R18 | `FolderSyncTest.everySyncedTableIsQueuedForExportAndRoundTrips` | `a synced table with no export trigger` |
+| R22 | `RecordCodecTest.aLineCarryingANaNOrAnInfiniteDoubleIsRefused` | `a group takes an infinite Double` |
+| R27 | `FolderSyncTest.anImportTouchingOnePurgedIdReadsOneRegistryRow` | `the registry loaded whole` |
+| R34 | `SettingsCasesTest.aRecoveredDeviceGetsItsRowsBackFromItsOwnFilesAndItsDeviceSettingsStartAtTheirDefaults` | `a recovery reads only peers` |
+| R36 | `FolderSyncTest.aReminderFiringLeavesTheOutboxEmpty` | `a firing writes its reminder` |
+| R40 | `FolderSyncTest.aFileThatShrankIsReadAgainFromTheStart` | `a shrunk file read from the old position` |
+| R48 | `FolderSyncTest.theDetailsAndStatusGroupsChangedOnTwoDevicesMergeWithNoQuestion` | `details and status ask` |
+| R50 | `FolderSyncTest.oneOccurrenceResolvedOnTwoDevicesReadsOneResultTheLater` | `the earlier completion read` |
+| R120 | `SettingsCasesTest.eachSettingKeyHasItsScopeAndDefaultAndThePersonalOnesSync` | `Mixed mode kept per device`, `the app lock grace defaults to 5 s` |
+| R121 | `SettingsCasesTest.aDevicePreferenceNeverReachesTheFolder` | `a device preference written to the synced table` |
+
+Found while testing: no repository writes a `tracker_choice` row, so a CHOICE tracker has no way to get its choices (R18's test writes one through `LocalWrites`).
+
 ## Drafted Acceptance lines (107)
 
 Written by the builder from each rule's wording where neither the old spec nor a test named the check. The 72 that name a test were then checked against the test bodies (above).

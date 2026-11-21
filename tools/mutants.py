@@ -72,6 +72,8 @@ REGDAO = "data/src/commonMain/kotlin/com/hazia/factotum/data/checkin/Regulation.
 LEDGER = "data/src/commonMain/kotlin/com/hazia/factotum/data/checkin/LedgerRepository.kt"
 CHART = "data/src/commonMain/kotlin/com/hazia/factotum/data/chart/ChartRepository.kt"
 CHARTS = "core/src/commonMain/kotlin/com/hazia/factotum/core/chart/Charts.kt"
+ROW = "core/src/commonMain/kotlin/com/hazia/factotum/core/sync/Row.kt"
+ITEMTABLES = "data/src/commonMain/kotlin/com/hazia/factotum/data/item/ItemTables.kt"
 
 # slice -> [(name, file, old, new, test task, tests that must fail)]
 SLICES = {
@@ -903,7 +905,37 @@ SLICES = {
         ('a deleted chart stays', CHART, '{ s -> mapOf("deleted_at" to s.hlc) }\n\n    suspend fun restore', '{ mapOf("deleted_at" to null) }\n\n    suspend fun restore',
          ":data:desktopTest", {'sourcesAddedOnTwoDevicesBothStayAndADeleteWinsOverAnEdit'}),
     ],
+    # The clauses the 2026-11-21 gap check found untested (docs/spec-migration-2026-11-21.md): sync and settings.
+    "gapA": [
+        ("a synced table with no export trigger", TRIGGERS, "for (table in SYNCED_TABLES) for (event", 'for (table in SYNCED_TABLES.filter { it != "value_pick" }) for (event',
+         ":data:desktopTest", {"everySyncedTableIsQueuedForExportAndRoundTrips"}),
+        ("a group takes an infinite Double", ROW, "(it is Double && it.isFinite())", "it is Double",
+         ":data:desktopTest", {"aLineCarryingANaNOrAnInfiniteDoubleIsRefused"}),
+        ("the registry loaded whole", STAGED, "dao.purges(chunk).forEach { registry", "dao.purges().filter { it.id in chunk }.forEach { registry",
+         ":data:desktopTest", {"anImportTouchingOnePurgedIdReadsOneRegistryRow"}),
+        ("a recovery reads only peers", FOLDER, "private var readOwn = recovered", "private var readOwn = false",
+         ":data:desktopTest", {"aRecoveredDeviceGetsItsRowsBackFromItsOwnFilesAndItsDeviceSettingsStartAtTheirDefaults"}),
+        ("a firing writes its reminder", REMREPO, "            .sortedWith(compareBy({ it.at }, { it.reminderId }))\n    }",
+         "            .sortedWith(compareBy({ it.at }, { it.reminderId }))\n            .also { fs -> fs.forEach { writes.edit(REMINDER, it.reminderId, STATUS) { emptyMap() } } }\n    }",
+         ":data:desktopTest", {"aReminderFiringLeavesTheOutboxEmpty"}),
+        ("a shrunk file read from the old position", FOLDER, "if (bytes.size < from) 0 else from.toInt()", "from.toInt()",
+         ":data:desktopTest", {"aFileThatShrankIsReadAgainFromTheStart"}),
+        ("details and status ask", ITEMTABLES, "internal val ASK_GROUPS = setOf(SCHEDULE)", "internal val ASK_GROUPS = setOf(SCHEDULE, DETAILS, STATUS)",
+         ":data:desktopTest", {"theDetailsAndStatusGroupsChangedOnTwoDevicesMergeWithNoQuestion"}),
+        ("the earlier completion read", REPO, "rows.maxBy { Stamp(it.hlc, it.device) }.status", "rows.minBy { Stamp(it.hlc, it.device) }.status",
+         ":data:desktopTest", {"oneOccurrenceResolvedOnTwoDevicesReadsOneResultTheLater"}),
+        ("Mixed mode kept per device", REGISTRY, 'Setting("mixed_mode", SettingScope.PERSONAL', 'Setting("mixed_mode", SettingScope.DEVICE_PREF',
+         ":data:desktopTest", {"eachSettingKeyHasItsScopeAndDefaultAndThePersonalOnesSync"}),
+        ("the app lock grace defaults to 5 s", REGISTRY, '"app_lock_grace_seconds", SettingScope.DEVICE_PREF, Duration.ZERO', '"app_lock_grace_seconds", SettingScope.DEVICE_PREF, 5.seconds',
+         ":data:desktopTest", {"eachSettingKeyHasItsScopeAndDefaultAndThePersonalOnesSync"}),
+        ("a device preference written to the synced table", SETTINGS, "SettingScope.PERSONAL -> writes.write(mapOf(SETTING", "SettingScope.PERSONAL, SettingScope.DEVICE_PREF -> writes.write(mapOf(SETTING",
+         ":data:desktopTest", {"aDevicePreferenceNeverReachesTheFolder"}),
+    ],
 }
+
+
+# Gradle test filters from `--tests PATTERN` (repeatable): every run, controls included, runs only those classes.
+TESTS = []
 
 
 def run(task):
@@ -911,7 +943,7 @@ def run(task):
     results = "%s/build/test-results/desktopTest" % module
     shutil.rmtree(results, ignore_errors=True)
     with open("mutants.log", "w") as log:
-        code = subprocess.call([GRADLEW, "--offline", task], stdout=log, stderr=log)
+        code = subprocess.call([GRADLEW, "--offline", task] + [a for p in TESTS for a in ("--tests", p)], stdout=log, stderr=log)
     failed = set()
     for xml in glob.glob(results + "/*.xml"):
         failed |= set(re.findall(r'testcase name="([^"\[]+)[^"]*"[^>]*>\s*<failure', open(xml, encoding="utf-8").read()))
@@ -962,6 +994,11 @@ if __name__ == "__main__":
     if "--only" in sys.argv:
         i = sys.argv.index("--only")
         only = set(sys.argv[i + 1].split("|"))
+        del sys.argv[i:i + 2]
+    # --tests "*FolderSyncTest*" narrows each run to the classes that should kill (faster; the other tests are not run).
+    while "--tests" in sys.argv:
+        i = sys.argv.index("--tests")
+        TESTS.append(sys.argv[i + 1])
         del sys.argv[i:i + 2]
     args = [a for a in sys.argv[1:] if a != "--check"]
     if "--check" in sys.argv:
