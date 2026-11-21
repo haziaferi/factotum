@@ -178,8 +178,21 @@ Each row's test was written for the clause above, and each mutant, in `tools/mut
 | R50 | `FolderSyncTest.oneOccurrenceResolvedOnTwoDevicesReadsOneResultTheLater` | `the earlier completion read` |
 | R120 | `SettingsCasesTest.eachSettingKeyHasItsScopeAndDefaultAndThePersonalOnesSync` | `Mixed mode kept per device`, `the app lock grace defaults to 5 s` |
 | R121 | `SettingsCasesTest.aDevicePreferenceNeverReachesTheFolder` | `a device preference written to the synced table` |
+| R111 | `LabelCasesTest.aStandaloneReminderCarriesOneLabelAndASecondReplacesTheFirst_SPEC_R111` | `a standalone reminder takes no label` |
+| R117 | `VocabularyTest.aTemplateCarryingALabelIsNotCounted_SPEC_R117` | `a template carrying a label is counted` |
+| R141 | `PageCasesTest.twoGroupsOfOneBlockEditedOnTwoDevicesBothStand_SPEC_R141` | `a block's attributes take its type's stamp` |
+| R143 | `PageCasesTest.withThreeDevicesEveryReplacedTextIsKeptInAHistoryAndNoticedEverywhere_SPEC_R143` | `a winning local text looks agreed, on the database` |
+| R145 | `PageCasesTest.aMoveALabelOrASubPageMadeUnderItAfterTheTrashBringsAPageBackStampedJustAboveTheTrash_SPEC_R145` | `a move leaves a trashed page in the Trash`, `a label leaves a trashed page in the Trash`, `a sub-page made under a trashed page leaves it in the Trash`, `a revival takes a fresh stamp, read back` |
+| R155 | `DatabaseCasesTest.aPropertyOptionAndViewRenamedOnTwoDevicesTakeTheLaterNameSilentlyAndShownColumnsSync_SPEC_R155` | `a rename clash is asked`, `a view's shown columns do not sync` |
+| R157 | `DatabaseCasesTest.aSelectSortsByItsOptionsOrderTextIgnoresCaseAndADateFilterReadsDates_SPEC_R157` | `a Select sorts by its options' names`, `a text sort leaves the rows as they are`, `a date cell is empty by its text` |
+| R165 | `RowTasksTest.unbindingOrTurningTasksOffOnADeviceThatHadNotSeenATrashDoesNotBringTheRowBack_SPEC_R165` | `unbinding writes the cells as a person's`, `turning tasks off writes the cells as a person's` |
+| R169 | `ImagesTest.aGifABmpAndAnAnimationAreReadWebpAndHeicRefusedAndAJpegIsWrittenAtQuality85_SPEC_R169` | `a JPEG at quality 75`, `an animation keeps its last frame`, `only JPEG and PNG are read`, `a picture the JDK cannot read is not refused as one` |
+| R173 | `CanvasCasesTest.aFrameAndACardInItMovedApartEachKeepTheirOwnLaterPosition_SPEC_R173` | `a frame drags what lies in it` |
+| R181 | `JournalLinksTemplatesTest.aTemplateIsNoDatabaseRowAndNoBoardOffersIt_SPEC_R181` | `a template made under a database is a row`, `a template carrying the doorway is a row`, `a board offers a template` |
 
-Found while testing: no repository writes a `tracker_choice` row, so a CHOICE tracker has no way to get its choices (R18's test writes one through `LocalWrites`).
+Found while testing:
+- No repository writes a `tracker_choice` row, so a CHOICE tracker has no way to get its choices (R18's test writes one through `LocalWrites`).
+- The desktop refuses no CMYK JPEG, though R169's Values and `DesktopImageScaler`'s doc comment say it does: JDK 21's ImageIO reads a four-channel JPEG, with or without an Adobe marker, and the scaler stores it. In a JDK probe the image drawn onto an RGB canvas came out black. Not built: either the refusal row changes or the scaler refuses CMYK, which is the owner's call.
 
 ## Drafted Acceptance lines (107)
 

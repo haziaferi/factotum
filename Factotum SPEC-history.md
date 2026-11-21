@@ -297,3 +297,14 @@ Not a source of current rules: `Factotum SPEC.md` is. One line per change, newes
 - 2026-11-21 · R50 · changed · Acceptance names the two-device completion test · builder
 - 2026-11-21 · R120 · changed · Acceptance names the every-key scope, default and sync test · builder
 - 2026-11-21 · R121 · changed · Acceptance names the DEVICE_PREF-stays-local test · builder
+- 2026-11-21 · R111 · changed · Acceptance names the standalone reminder label test · builder
+- 2026-11-21 · R117 · changed · Acceptance names the template-not-counted test · builder
+- 2026-11-21 · R141 · changed · Acceptance names the two-groups-of-one-block test · builder
+- 2026-11-21 · R143 · changed · Acceptance names the three-device test on the real database · builder
+- 2026-11-21 · R145 · changed · Acceptance names revive by a place, a label and a sub-page, and the revival's stamp · builder
+- 2026-11-21 · R155 · changed · Acceptance names the two-device rename and shown-columns test · builder
+- 2026-11-21 · R157 · changed · Acceptance names the Select order, text sort and date filter test · builder
+- 2026-11-21 · R165 · changed · Acceptance names the unbind and tasks-off test · builder
+- 2026-11-21 · R169 · changed · Acceptance names the GIF, BMP, animation, WebP, HEIC and quality test; CMYK not refused · builder
+- 2026-11-21 · R173 · changed · Acceptance names the frame and card moved apart test · builder
+- 2026-11-21 · R181 · changed · Acceptance names the no-row, no-picker template test · builder

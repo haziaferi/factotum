@@ -1648,11 +1648,11 @@ One app that does what Tendril, Chronicle, Mnemo and Equipoise do, over one data
 | a checklist | at most one | `label_id`, a group of its own, absent until a label is put on it |
 | a page database | one, its doorway label | R156 |
 
-**Evidence:** ADR 08; owner, 2026-10-09 (tasks, events, standalone reminders and checklists carry one too); schema 24. Not checked: no test labels a standalone reminder.
+**Evidence:** ADR 08; owner, 2026-10-09 (tasks, events, standalone reminders and checklists carry one too); schema 24.
 
-**Acceptance:** `LabelCasesTest` (one label on a habit, activity, task, event, tracker and checklist, a second replacing the first), `PageCasesTest` (many on a page) and `DatabaseCasesTest` (the doorway) pass.
+**Acceptance:** `LabelCasesTest` (one label on a habit, activity, task, event, standalone reminder, tracker and checklist, a second replacing the first; `aStandaloneReminderCarriesOneLabelAndASecondReplacesTheFirst_SPEC_R111`), `PageCasesTest` (many on a page) and `DatabaseCasesTest` (the doorway) pass.
 
-**Since:** 2026-10-09 · owner · migrated
+**Since:** 2026-11-21 · owner · migrated
 
 ### D-R112 · Label names are unique
 
@@ -1710,13 +1710,13 @@ One app that does what Tendril, Chronicle, Mnemo and Equipoise do, over one data
 
 **Rule:** A label counts the live elements carrying it, or carrying a label merged into it, each once: items, trackers, checklists, pages (not a template) and databases by their doorway (`LabelRepository.carrying`). It adds up to nothing else.
 
-**Evidence:** Owner, 2026-10-10. Not checked: no test leaves a template out (`LabelRepository.kt:150`).
+**Evidence:** Owner, 2026-10-10.
 
-**Acceptance:** `VocabularyTest.aLabelCountsTheLiveElementsCarryingItEachOnce` counts each kind once, `LabelCasesTest` reads a merged label's elements, and templates are left out.
+**Acceptance:** `VocabularyTest.aLabelCountsTheLiveElementsCarryingItEachOnce` counts each kind once, `LabelCasesTest` reads a merged label's elements, and `VocabularyTest.aTemplateCarryingALabelIsNotCounted_SPEC_R117` leaves a template out.
 
 **Not:** A label time total, and the category half of `chronicle-activity-and-category-totals`: removed by the owner on 2026-10-10.
 
-**Since:** 2026-10-10 · owner · migrated
+**Since:** 2026-11-21 · owner · migrated
 
 ## 12. Settings
 
@@ -2017,11 +2017,9 @@ One app that does what Tendril, Chronicle, Mnemo and Equipoise do, over one data
 | page | its making; its title and icon; its place under a parent; its deletion |
 | block | its making (which page; a trigger keeps it there); its type; its text with Tendril's formatting spans; its place (parent block and sort key); its attributes; its deletion |
 
-**Evidence:** Not checked: no test edits two groups of one block on two devices; `setType` and `setAttrs` have no test.
+**Acceptance:** `PageCasesTest.twoGroupsOfOneBlockEditedOnTwoDevicesBothStand_SPEC_R141` changes a block's type and text on one device and its attributes and place on another, and all four stand.
 
-**Acceptance:** `PageCasesTest` edits two groups of one block on two devices and both stand.
-
-**Since:** 2026-10-03 · builder · migrated
+**Since:** 2026-11-21 · builder · migrated
 
 ### D-R142 · Block order
 
@@ -2039,11 +2037,9 @@ One app that does what Tendril, Chronicle, Mnemo and Equipoise do, over one data
 
 **Why:** With the base read from a peer, every replaced text is kept on at least one device, with three devices too.
 
-**Evidence:** Not checked: a three-device clash on the real database, read from History.
+**Acceptance:** `PageCasesTest.theLaterTextWinsAndTheEarlierIsKeptInHistoryWithOneNoticeDismissedEverywhere` (two devices), `KeepLoserMergeTest.withThreeDevicesEveryReplacedTextIsLostSomewhereWhateverTheOrder` (three, in memory) and `PageCasesTest.withThreeDevicesEveryReplacedTextIsKeptInAHistoryAndNoticedEverywhere_SPEC_R143` (three, on the real database, read from History) pass.
 
-**Acceptance:** `PageCasesTest.theLaterTextWinsAndTheEarlierIsKeptInHistoryWithOneNoticeDismissedEverywhere` (two devices) and `KeepLoserMergeTest.withThreeDevicesEveryReplacedTextIsLostSomewhereWhateverTheOrder` (three, in memory) pass.
-
-**Since:** 2026-10-03 · owner · migrated
+**Since:** 2026-11-21 · owner · migrated
 
 ### D-R144 · The replaced-by-a-sync notice
 
@@ -2063,11 +2059,11 @@ One app that does what Tendril, Chronicle, Mnemo and Equipoise do, over one data
 
 **Why:** Every device then writes the same row, and a purge made after the edit still holds.
 
-**Evidence:** Owner's answers 2026-10-03 (a later edit brings back a deleted block; revive brings back trashed parents). Not checked: revive by a place, a label or a sub-page made under the page; no test reads a revival's stamp.
+**Evidence:** Owner's answers 2026-10-03 (a later edit brings back a deleted block; revive brings back trashed parents).
 
-**Acceptance:** `PageCasesTest.aLaterEditBringsATrashedPageBackAndAnEarlierOneDoesNot`, `aLaterEditToASubPageBringsBackItsTrashedParents` and `aLaterEditBringsADeletedBlockBack` pass.
+**Acceptance:** `PageCasesTest.aLaterEditBringsATrashedPageBackAndAnEarlierOneDoesNot`, `aLaterEditToASubPageBringsBackItsTrashedParents` and `aLaterEditBringsADeletedBlockBack` pass, and `aMoveALabelOrASubPageMadeUnderItAfterTheTrashBringsAPageBackStampedJustAboveTheTrash_SPEC_R145` brings pages back by a place, a label and a sub-page and reads each revival's stamp as the trash's time and device followed by `~`.
 
-**Since:** 2026-10-03 · owner · migrated
+**Since:** 2026-11-21 · owner · migrated
 
 ### D-R146 · The app's own writes are marked
 
@@ -2180,11 +2176,11 @@ One app that does what Tendril, Chronicle, Mnemo and Equipoise do, over one data
 
 **Rule:** A renamed property, option or view takes the later name silently, and a view's sort, filter and visible columns sync.
 
-**Evidence:** Owner's answers on databases 2026-10-03. Not checked: no test renames on two devices (`renameOption` and `renameView` have no test call), and the visible columns' sync is untested.
+**Evidence:** Owner's answers on databases 2026-10-03.
 
-**Acceptance:** A rename on two devices reads the later name with no notice, and `DatabaseCasesTest.aSortAndAFilterChangedApartBothStand` passes.
+**Acceptance:** `DatabaseCasesTest.aPropertyOptionAndViewRenamedOnTwoDevicesTakeTheLaterNameSilentlyAndShownColumnsSync_SPEC_R155` (the later names, with no notice or question, and the shown columns synced) and `aSortAndAFilterChangedApartBothStand` pass.
 
-**Since:** 2026-10-03 · owner · migrated
+**Since:** 2026-11-21 · owner · migrated
 
 ### D-R156 · A database's rows
 
@@ -2200,11 +2196,9 @@ One app that does what Tendril, Chronicle, Mnemo and Equipoise do, over one data
 
 **Rule:** A view keeps Tendril's single sort and single filter, compared by type: numbers as numbers, dates as dates, a Select by its options' order, an empty cell last either way. A filter naming an option merged since reads as the option it went into, and a setting naming a deleted property reads as none. A Board shows a column for no option first, then the live options in order, and is empty without a Select to group by; a database keeps at least one view, and a deleted view is restored or deleted forever from the Trash.
 
-**Evidence:** Not checked: a Select sorted by its options' order (`DatabaseRepository.kt:972`), a text sort and a date filter.
+**Acceptance:** `DatabaseCasesTest.aViewSortsByTypeWithEmptyLastAndFiltersByType`, `aSelectSortsByItsOptionsOrderTextIgnoresCaseAndADateFilterReadsDates_SPEC_R157` and `aDatabaseKeepsOneViewAndATrashedOnesSchemaIsNotEdited` pass.
 
-**Acceptance:** `DatabaseCasesTest.aViewSortsByTypeWithEmptyLastAndFiltersByType` and `aDatabaseKeepsOneViewAndATrashedOnesSchemaIsNotEdited` pass.
-
-**Since:** 2026-10-09 · owner · migrated
+**Since:** 2026-11-21 · owner · migrated
 
 ### D-R158 · Databases in pages
 
@@ -2281,11 +2275,9 @@ One app that does what Tendril, Chronicle, Mnemo and Equipoise do, over one data
 
 **Rule:** Bound columns read the task, so formulas, rollups, sorts and filters see it, and they are set through the task. Binding a column gives the tasks its values, and unbinding it (or turning the switch off) leaves the task's values in the cells, all stamped as the app's, so none of it brings back a row trashed elsewhere.
 
-**Evidence:** Not checked: unbinding, or turning the switch off, with a row trashed elsewhere.
+**Acceptance:** `RowTasksTest.bindingOnADeviceThatHadNotSeenATrashDoesNotBringTheRowBack` and `unbindingOrTurningTasksOffOnADeviceThatHadNotSeenATrashDoesNotBringTheRowBack_SPEC_R165` pass.
 
-**Acceptance:** `RowTasksTest.bindingOnADeviceThatHadNotSeenATrashDoesNotBringTheRowBack` passes, and unbinding does the same.
-
-**Since:** 2026-10-04 · owner · migrated
+**Since:** 2026-11-21 · owner · migrated
 
 ### D-R166 · Repeating rows and intervals
 
@@ -2330,11 +2322,11 @@ One app that does what Tendril, Chronicle, Mnemo and Equipoise do, over one data
 | desktop | what the JDK's ImageIO reads: JPEG, PNG, GIF, BMP; its size before its pixels | WebP, HEIC, CMYK JPEGs, over 100 million pixels |
 | Android | what `ImageDecoder` reads | not listed in the source |
 
-**Evidence:** Not checked: Android's scaler needs a device check of orientation with a target size, and of HEIF with transparency. No test inserts a GIF, a BMP or an animation, refuses WebP, HEIC or CMYK, or checks quality 85.
+**Evidence:** Not checked: Android's scaler needs a device check of orientation with a target size, and of HEIF with transparency. The desktop refuses no CMYK JPEG: JDK 21's ImageIO reads one, and `DesktopImageScaler` stores it (checked 2026-11-21).
 
-**Acceptance:** `ImagesTest` inserts each format on the desktop; the device check passes on Android.
+**Acceptance:** `ImagesTest.aPictureIsScaledToAt2048TurnedUprightAndStrippedOfItsMetadata` and `aGifABmpAndAnAnimationAreReadWebpAndHeicRefusedAndAJpegIsWrittenAtQuality85_SPEC_R169` pass on the desktop; the device check passes on Android.
 
-**Since:** 2026-10-04 · owner · migrated
+**Since:** 2026-11-21 · owner · migrated
 
 ### D-R170 · Pictures through the folder
 
@@ -2368,11 +2360,11 @@ One app that does what Tendril, Chronicle, Mnemo and Equipoise do, over one data
 
 **Rule:** A card moved on two devices takes the later position, and a frame and a card in it moved apart each keep their own later position. A move is written when a card is dropped, carrying its mind-map subtree; frames do not ride along. Frame membership is geometric, worked out by the screen that draws the boxes, so carrying a frame's contents is a bulk move of the cards it holds.
 
-**Evidence:** Owner's answers on the canvas 2026-10-03. Not checked: a frame and a card in it moved apart on two devices.
+**Evidence:** Owner's answers on the canvas 2026-10-03.
 
-**Acceptance:** `CanvasCasesTest` moves a card and its frame on two devices.
+**Acceptance:** `CanvasCasesTest.aCardMovedOnTwoDevicesTakesTheLaterPosition` and `aFrameAndACardInItMovedApartEachKeepTheirOwnLaterPosition_SPEC_R173` pass.
 
-**Since:** 2026-10-03 · owner · migrated
+**Since:** 2026-11-21 · owner · migrated
 
 ### D-R174 · Deleting a card
 
@@ -2452,11 +2444,11 @@ One app that does what Tendril, Chronicle, Mnemo and Equipoise do, over one data
 
 **Rule:** A template carries `is_template` in its page's making. It is kept out of the tree, rows, links, pickers and search, can be no page's parent, and is listed apart (`templates()`); the Trash shows it.
 
-**Evidence:** Owner's answers 2026-10-03. Not checked: templates kept out of database rows (`DatabaseRepository.kt:114`) and pickers (`CanvasRepository.kt:74`).
+**Evidence:** Owner's answers 2026-10-03.
 
-**Acceptance:** `JournalLinksTemplatesTest` makes a template and finds it only in `templates()` and the Trash.
+**Acceptance:** `JournalLinksTemplatesTest.aTemplateIsNotFoundNorAParentAndATrashedOneIsInTheTrash` makes a template and finds it only in `templates()` and the Trash, and `aTemplateIsNoDatabaseRowAndNoBoardOffersIt_SPEC_R181` keeps it out of a database's rows and a board's page picker.
 
-**Since:** 2026-10-03 · owner · migrated
+**Since:** 2026-11-21 · owner · migrated
 
 ### D-R182 · Copying a template
 
@@ -2756,13 +2748,13 @@ Background, not a rule: Equipoise runs llama.cpp on Android only, and only in th
 - R106 · A timer past its limit asks: A span past 3x its activity's usual length is listed by `runningLong`, and each answer ends or keeps it as its words say (`TimeCasesTest`).
 - R109 · One label vocabulary: The 10 cases of `decisions/cases/08-tagging.jsonl` pass: six in `LabelCasesTest`, `chronicle-applies-to-scope` as R110 changed it (`anyLabelGoesOnAnyElementAndEveryLiveLabelIsOffered`), and the page cases (`tendril-page-many-labels`, `tendril-page-delete-no-orphans`, the members half of `tendril-database-doorway`) in `PageCasesTest`.
 - R110 · Labels are global: `LabelCasesTest.anyLabelGoesOnAnyElementAndEveryLiveLabelIsOffered` passes.
-- R111 · How many labels each element carries: `LabelCasesTest` (one label on a habit, activity, task, event, tracker and checklist, a second replacing the first), `PageCasesTest` (many on a page) and `DatabaseCasesTest` (the doorway) pass.
+- R111 · How many labels each element carries: `LabelCasesTest` (one label on a habit, activity, task, event, standalone reminder, tracker and checklist, a second replacing the first; `aStandaloneReminderCarriesOneLabelAndASecondReplacesTheFirst_SPEC_R111`), `PageCasesTest` (many on a page) and `DatabaseCasesTest` (the doorway) pass.
 - R112 · Label names are unique: `LabelCasesTest` refuses a second label differing only in case or form.
 - R113 · Same-name labels merge: `LabelCasesTest` makes one name on two devices, syncs, and reads one label everywhere.
 - R114 · Label field groups: `LabelCasesTest` renames and recolours on two devices and both stand.
 - R115 · No foreign key on a label: `PageCasesTest` deletes a label carried by a trashed page, and the page stays trashed.
 - R116 · A label in the Trash: `LabelCasesTest.aRestoredLabelIsBackOnWhatItsDeletionTookItOffAndOneDeletedForeverReadsAsNone`, `deletingASurvivorClearsWhatCarriedTheLabelsMergedIntoItAndADeadLabelIsNotEdited` and `VocabularyTest` pass.
-- R117 · What a label counts: `VocabularyTest.aLabelCountsTheLiveElementsCarryingItEachOnce` counts each kind once, `LabelCasesTest` reads a merged label's elements, and templates are left out.
+- R117 · What a label counts: `VocabularyTest.aLabelCountsTheLiveElementsCarryingItEachOnce` counts each kind once, `LabelCasesTest` reads a merged label's elements, and `VocabularyTest.aTemplateCarryingALabelIsNotCounted_SPEC_R117` leaves a template out.
 - R118 · Settings by scope: The 9 cases of `decisions/cases/09-settings.jsonl` pass (`SettingsCasesTest`): A and B share a folder, and C is a phone restored from A's backup.
 - R119 · A typed registry: `SettingsCasesTest` reads an unreadable value as the default and clears a value set to its default.
 - R120 · Setting keys: `SettingsCasesTest.eachSettingKeyHasItsScopeAndDefaultAndThePersonalOnesSync` reads each key's scope and default in the table and syncs the PERSONAL ones to a second device.
@@ -2786,11 +2778,11 @@ Background, not a rule: Equipoise runs llama.cpp on Android only, and only in th
 - R138 · Sensory logs: `RegulationLedgerTest` writes and undoes a sensory log.
 - R139 · The burnout index: `BurnoutIndexSpikeTest`, `MaskingLoadSpikeTest` and `RegulationLedgerTest` pass.
 - R140 · Page parts are rows: The 8 cases of `decisions/cases/12-page-merge.jsonl` pass: five in `PageCasesTest`, the two cell cases in `DatabaseCasesTest`, and `shared-canvas-nodes` in `CanvasCasesTest`.
-- R141 · Page and block field groups: `PageCasesTest` edits two groups of one block on two devices and both stand.
+- R141 · Page and block field groups: `PageCasesTest.twoGroupsOfOneBlockEditedOnTwoDevicesBothStand_SPEC_R141` changes a block's type and text on one device and its attributes and place on another, and all four stand.
 - R142 · Block order: `PageCasesTest.blocksNestAndKeepTheirOrderAfterTheKeysRunOutOfRoom`, `placingBlocksNeverWritesOverAMoveOrADeletionMadeElsewhere` and `OutlineTest` pass.
-- R143 · Later text wins, earlier is kept: `PageCasesTest.theLaterTextWinsAndTheEarlierIsKeptInHistoryWithOneNoticeDismissedEverywhere` (two devices) and `KeepLoserMergeTest.withThreeDevicesEveryReplacedTextIsLostSomewhereWhateverTheOrder` (three, in memory) pass.
+- R143 · Later text wins, earlier is kept: `PageCasesTest.theLaterTextWinsAndTheEarlierIsKeptInHistoryWithOneNoticeDismissedEverywhere` (two devices), `KeepLoserMergeTest.withThreeDevicesEveryReplacedTextIsLostSomewhereWhateverTheOrder` (three, in memory) and `PageCasesTest.withThreeDevicesEveryReplacedTextIsKeptInAHistoryAndNoticedEverywhere_SPEC_R143` (three, on the real database, read from History) pass.
 - R144 · The replaced-by-a-sync notice: `PageCasesTest` makes a clash on two devices, dismisses the notice on one, and it stays dismissed on both.
-- R145 · Revive: `PageCasesTest.aLaterEditBringsATrashedPageBackAndAnEarlierOneDoesNot`, `aLaterEditToASubPageBringsBackItsTrashedParents` and `aLaterEditBringsADeletedBlockBack` pass.
+- R145 · Revive: `PageCasesTest.aLaterEditBringsATrashedPageBackAndAnEarlierOneDoesNot`, `aLaterEditToASubPageBringsBackItsTrashedParents` and `aLaterEditBringsADeletedBlockBack` pass, and `aMoveALabelOrASubPageMadeUnderItAfterTheTrashBringsAPageBackStampedJustAboveTheTrash_SPEC_R145` brings pages back by a place, a label and a sub-page and reads each revival's stamp as the trash's time and device followed by `~`.
 - R146 · The app's own writes are marked: `CanvasCasesTest` deletes a card and its parent on two devices and neither comes back.
 - R147 · Trash, restore and delete forever for pages: `PageCasesTest` and `VocabularyTest` trash, restore and purge a page tree.
 - R148 · What a merge can leave: `PageCasesTest` makes a cycle on two devices and reads both pages at the top.
@@ -2800,9 +2792,9 @@ Background, not a rule: Equipoise runs llama.cpp on Android only, and only in th
 - R152 · A cell is kept when replaced: `DatabaseCasesTest` (`shared-cell-loser-recoverable`) passes, and two picks made apart both stand.
 - R153 · A property in the Trash: `VocabularyTest` and `DatabaseCasesTest` delete, restore and purge a column and a relation pair.
 - R154 · Select options: `DatabaseCasesTest` deletes, picks again, merges and restores options.
-- R155 · Renames take the later name: A rename on two devices reads the later name with no notice, and `DatabaseCasesTest.aSortAndAFilterChangedApartBothStand` passes.
+- R155 · Renames take the later name: `DatabaseCasesTest.aPropertyOptionAndViewRenamedOnTwoDevicesTakeTheLaterNameSilentlyAndShownColumnsSync_SPEC_R155` (the later names, with no notice or question, and the shown columns synced) and `aSortAndAFilterChangedApartBothStand` pass.
 - R156 · A database's rows: `DatabaseCasesTest` and `PageCasesTest` read the members, trash and revive a database.
-- R157 · Views: `DatabaseCasesTest.aViewSortsByTypeWithEmptyLastAndFiltersByType` and `aDatabaseKeepsOneViewAndATrashedOnesSchemaIsNotEdited` pass.
+- R157 · Views: `DatabaseCasesTest.aViewSortsByTypeWithEmptyLastAndFiltersByType`, `aSelectSortsByItsOptionsOrderTextIgnoresCaseAndADateFilterReadsDates_SPEC_R157` and `aDatabaseKeepsOneViewAndATrashedOnesSchemaIsNotEdited` pass.
 - R158 · Databases in pages: The cases of `decisions/cases/16-databases.jsonl` pass against the real database.
 - R159 · Formulas and rollups: `FormulaLexerTest`, `FormulaParserTest`, `FormulaTypeCheckerTest`, `FormulaDependencyGraphTest`, `FormulaEvaluatorTest`, `FormulaKeysTest` and `FormulaColumnsTest` pass.
 - R160 · A formula is checked when written: `FormulaColumnsTest` is refused in each case.
@@ -2810,15 +2802,15 @@ Background, not a rule: Equipoise runs llama.cpp on Android only, and only in th
 - R162 · Database rows as tasks: `RowTasksTest` passes.
 - R163 · A row task's life is its page's: `RowTasksTest` trashes, restores and purges from each side.
 - R164 · Row-task clashes: `RowTasksTest` makes each clash on two devices.
-- R165 · Bound columns read the task: `RowTasksTest.bindingOnADeviceThatHadNotSeenATrashDoesNotBringTheRowBack` passes, and unbinding does the same.
+- R165 · Bound columns read the task: `RowTasksTest.bindingOnADeviceThatHadNotSeenATrashDoesNotBringTheRowBack` and `unbindingOrTurningTasksOffOnADeviceThatHadNotSeenATrashDoesNotBringTheRowBack_SPEC_R165` pass.
 - R166 · Repeating rows and intervals: `IntervalTest` and `RowTasksTest` pass.
 - R167 · Rows changed: A write that adds a page to a database through the screens is followed by `rowsChanged()`, and the new row has its task.
 - R168 · Pictures in pages: `ImagesTest` passes.
-- R169 · Inserting a picture: `ImagesTest` inserts each format on the desktop; the device check passes on Android.
+- R169 · Inserting a picture: `ImagesTest.aPictureIsScaledToAt2048TurnedUprightAndStrippedOfItsMetadata` and `aGifABmpAndAnAnimationAreReadWebpAndHeicRefusedAndAJpegIsWrittenAtQuality85_SPEC_R169` pass on the desktop; the device check passes on Android.
 - R170 · Pictures through the folder: `ImagesTest` syncs a picture to a peer, damages a copy, and reads a waiting placeholder.
 - R171 · Collecting pictures: `ImagesTest` collects the folder copy after 30 days unnamed and keeps the device copy History names.
 - R172 · Canvas tables: `CanvasCasesTest` (`shared-canvas-nodes`) passes.
-- R173 · Moving cards: `CanvasCasesTest` moves a card and its frame on two devices.
+- R173 · Moving cards: `CanvasCasesTest.aCardMovedOnTwoDevicesTakesTheLaterPosition` and `aFrameAndACardInItMovedApartEachKeepTheirOwnLaterPosition_SPEC_R173` pass.
 - R174 · Deleting a card: `CanvasCasesTest` and `VocabularyTest` delete, revive, restore and purge a card with lines and children.
 - R175 · Page cards: `CanvasCasesTest` reads a page card in each of the four states.
 - R176 · Canvas History: `CanvasCasesTest` replaces a card's text on two devices and restores it from History.
@@ -2826,7 +2818,7 @@ Background, not a rule: Equipoise runs llama.cpp on Android only, and only in th
 - R178 · Road Map links: `JournalLinksTemplatesTest` removes and remakes a link and links a trashed page.
 - R179 · Database relations: `JournalLinksTemplatesTest` and `DatabaseCasesTest` link rows from either side, remove and remake a link, and delete one column.
 - R180 · Blocked-by: `JournalLinksTemplatesTest` blocks a row and unblocks it by trashing the blocker.
-- R181 · Templates: `JournalLinksTemplatesTest` makes a template and finds it only in `templates()` and the Trash.
+- R181 · Templates: `JournalLinksTemplatesTest.aTemplateIsNotFoundNorAParentAndATrashedOneIsInTheTrash` makes a template and finds it only in `templates()` and the Trash, and `aTemplateIsNoDatabaseRowAndNoBoardOffersIt_SPEC_R181` keeps it out of a database's rows and a board's page picker.
 - R182 · Copying a template: `JournalLinksTemplatesTest` copies each kind and edits the copy without touching the template.
 - R183 · Checklists: `ChecklistChartTest` passes.
 - R184 · Deleting a checklist: `ChecklistChartTest` and `VocabularyTest` delete a list with an item deleted by hand, restore it, and find that item still deleted.
