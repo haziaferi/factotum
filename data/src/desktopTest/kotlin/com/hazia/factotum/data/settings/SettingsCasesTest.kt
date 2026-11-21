@@ -2,6 +2,9 @@ package com.hazia.factotum.data.settings
 
 import androidx.room.execSQL
 import androidx.room.useWriterConnection
+import com.hazia.factotum.core.checkin.MixedMode
+import com.hazia.factotum.core.checkin.OnboardingAnswer
+import com.hazia.factotum.core.settings.Setting
 import com.hazia.factotum.core.settings.SettingScope
 import com.hazia.factotum.core.settings.Settings
 import com.hazia.factotum.data.sync.World
@@ -16,6 +19,8 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertNull
+import kotlin.test.assertTrue
+import kotlin.time.Duration
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.seconds
 
@@ -264,5 +269,88 @@ class SettingsCasesTest {
         } finally {
             w.close()
         }
+    }
+
+    /** SPEC:R34: a database made anew reads this device's own files, so its rows come back with no peer, and its DEVICE settings start at their defaults. */
+    @Test
+    fun aRecoveredDeviceGetsItsRowsBackFromItsOwnFilesAndItsDeviceSettingsStartAtTheirDefaults() {
+        val w = World(tmp.root, 21)
+        try {
+            val a = w.Device("A")
+            val task = runBlocking { a.items.createTask("tax form", LocalDate(2026, 10, 5)) }
+            val label = runBlocking { a.labels.create("Home") }
+            runBlocking { a.labels.label(task, label) }
+            runBlocking { a.settings.set(Settings.SHOW_REMINDERS_ON_DAY, true) }
+            runBlocking { a.settings.set(Settings.WINDOW_FRAME, "10,10,1200,800") }
+            runBlocking { a.sync.export() }
+            a.db.close()
+            java.io.File(tmp.root, "A.db").delete()
+
+            val again = w.Device("A", recovered = true)
+            runBlocking { again.sync.import() }
+
+            assertEquals("tax form", runBlocking { again.items.item(task) }?.title)
+            assertEquals(label, runBlocking { again.labels.labelOf(task) })
+            assertEquals(false to "", runBlocking { again.settings.get(Settings.SHOW_REMINDERS_ON_DAY) to again.settings.get(Settings.WINDOW_FRAME) })
+        } finally {
+            w.close()
+        }
+    }
+
+    /** SPEC:R120: each key in the spec's table, with its scope and default; the PERSONAL ones sync. */
+    @Test
+    fun eachSettingKeyHasItsScopeAndDefaultAndThePersonalOnesSync() = World(tmp.root, 19).with { a, b, _ ->
+        fun <T> declared(setting: Setting<T>, key: String, scope: SettingScope, default: T) {
+            assertEquals(key to scope, setting.key to setting.scope, key)
+            assertEquals(default, runBlocking { a.settings.get(setting) }, key)
+        }
+        declared(Settings.DAY_START, "day_start", SettingScope.PERSONAL, LocalTime(0, 0))
+        declared(Settings.SHOW_REMINDERS_ON_DAY, "show_reminders_on_day", SettingScope.DEVICE_PREF, false)
+        declared(Settings.APP_LOCK, "app_lock", SettingScope.DEVICE_PREF, false)
+        declared(Settings.APP_LOCK_GRACE, "app_lock_grace_seconds", SettingScope.DEVICE_PREF, Duration.ZERO)
+        declared(Settings.APP_LOCK_PIN, "app_lock_pin", SettingScope.SECRET, "")
+        declared(Settings.ONBOARDING_ANSWER, "onboarding_answer", SettingScope.PERSONAL, OnboardingAnswer.MIXED)
+        declared(Settings.MIXED_MODE, "mixed_mode", SettingScope.PERSONAL, MixedMode.EVERY_TIME)
+        declared(Settings.SLEEP_TRACKER, "sleep_tracker", SettingScope.PERSONAL, "")
+        declared(Settings.AI_KEY, "ai_key", SettingScope.SECRET, "")
+        declared(Settings.LLM_ENDPOINT_KEY, "llm_endpoint_key", SettingScope.SECRET, "")
+
+        runBlocking {
+            a.settings.set(Settings.DAY_START, LocalTime(5, 0))
+            a.settings.set(Settings.ONBOARDING_ANSWER, OnboardingAnswer.LESS)
+            a.settings.set(Settings.MIXED_MODE, MixedMode.AUTO)
+            a.settings.set(Settings.SLEEP_TRACKER, "sleep")
+        }
+        settle(listOf(a, b))
+
+        assertEquals(
+            listOf(LocalTime(5, 0), OnboardingAnswer.LESS, MixedMode.AUTO, "sleep"),
+            runBlocking { listOf(b.settings.get(Settings.DAY_START), b.settings.get(Settings.ONBOARDING_ANSWER), b.settings.get(Settings.MIXED_MODE), b.settings.get(Settings.SLEEP_TRACKER)) },
+        )
+    }
+
+    /** SPEC:R121: DEVICE_PREF values live in the local `device_setting` table, which no export reads; a PERSONAL one beside them does travel. */
+    @Test
+    fun aDevicePreferenceNeverReachesTheFolder() = World(tmp.root, 20).with { a, b, _ ->
+        val prefs = listOf(Settings.SHOW_REMINDERS_ON_DAY.key, Settings.DEFAULT_ALERT_MODE.key, Settings.APP_LOCK_GRACE.key)
+        runBlocking {
+            a.settings.set(Settings.SHOW_REMINDERS_ON_DAY, true)
+            a.settings.set(Settings.DEFAULT_ALERT_MODE, "ALERT")
+            a.settings.set(Settings.APP_LOCK_GRACE, 45.seconds)
+            a.settings.set(Settings.CRISIS_CONTACTS, "Ada")
+        }
+        settle(listOf(a, b))
+
+        val folder = folderText()
+        assertTrue(Settings.CRISIS_CONTACTS.key in folder)
+        for (key in prefs) {
+            assertFalse(key in folder, key)
+            assertEquals(emptyList(), runBlocking { a.db.settingDao().settings(listOf("setting:$key")) }, key)
+        }
+        assertEquals(listOf("true", "ALERT", "45"), runBlocking { prefs.map { a.db.settingDao().deviceValue(it) } })
+        assertEquals(
+            Triple(false, "SCHEDULE", Duration.ZERO),
+            runBlocking { Triple(b.settings.get(Settings.SHOW_REMINDERS_ON_DAY), b.settings.get(Settings.DEFAULT_ALERT_MODE), b.settings.get(Settings.APP_LOCK_GRACE)) },
+        )
     }
 }
