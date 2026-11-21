@@ -1,17 +1,35 @@
 package com.hazia.factotum.data.sync
 
+import com.hazia.factotum.core.checkin.Direction
+import com.hazia.factotum.core.checkin.MaskedLevel
+import com.hazia.factotum.core.recurrence.RRule
+import com.hazia.factotum.core.recurrence.Recurrence
+import com.hazia.factotum.core.settings.Settings
 import com.hazia.factotum.core.sync.Group
 import com.hazia.factotum.core.sync.Row
 import com.hazia.factotum.core.sync.Stamp
+import com.hazia.factotum.core.time.GoalPeriod
+import com.hazia.factotum.data.SYNCED_TABLES
+import com.hazia.factotum.data.chart.ChartType
+import com.hazia.factotum.data.chart.SourceKind
 import com.hazia.factotum.data.item.Answer
 import com.hazia.factotum.data.item.DETAILS
 import com.hazia.factotum.data.item.ITEM
+import com.hazia.factotum.data.item.Outcome
 import com.hazia.factotum.data.item.Question
 import com.hazia.factotum.data.item.SCHEDULE
 import com.hazia.factotum.data.item.STATUS
 import com.hazia.factotum.data.openFactotumDatabase
+import com.hazia.factotum.data.page.PropertyType
+import com.hazia.factotum.data.page.ViewType
 import com.hazia.factotum.data.reminder.Alert
 import com.hazia.factotum.data.reminder.AlertKind
+import com.hazia.factotum.data.syncedTables
+import com.hazia.factotum.data.tracker.TRACKER_CHOICE
+import com.hazia.factotum.data.tracker.TrackerChoiceEntity
+import com.hazia.factotum.data.tracker.TrackerType
+import com.hazia.factotum.data.tracker.toRow
+import com.hazia.factotum.core.checkin.Outcome as RegulationOutcome
 import kotlinx.coroutines.runBlocking
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDate
@@ -455,6 +473,200 @@ class FolderSyncTest {
         for (d in listOf(a, b)) {
             val times = runBlocking { d.reminders.firings() }.map { it.at.time }
             assertEquals(listOf(LocalTime(9, 0), LocalTime(10, 0)), times, d.name)
+        }
+    }
+
+    /**
+     * SPEC:R18: every synced table has its export trigger, and its rows reach a peer whole. A row is
+     * made in each through the repositories (a CHOICE tracker's choice straight through the writes,
+     * as no repository makes one), and a title changed on both devices makes the notice.
+     */
+    @Test
+    fun everySyncedTableIsQueuedForExportAndRoundTrips() {
+        val w = world()
+        val a = w.Device("A")
+        val b = w.Device("B")
+        val queued = mutableSetOf<String>()
+        fun World.Device.queue() { queued += runBlocking { db.syncDao().outbox() }.mapNotNull { it.table } }
+        val noon = LocalDateTime(MONDAY, LocalTime(12, 0))
+        val notes = runBlocking {
+            a.settings.set(Settings.CRISIS_CONTACTS, "Ada")
+            val home = a.labels.create("Home")
+            val mood = a.trackers.create("Mood", TrackerType.CHOICE)
+            val calm = "choice-calm"
+            a.writes.write(mapOf(TRACKER_CHOICE to listOf(calm))) { store ->
+                val s = a.clock.tick()
+                a.writes.merger.created(store, TrackerChoiceEntity(calm, mood, "calm", null, 0, null, s.hlc, s.device).toRow())
+            }
+            a.trackers.log(mood, noon, choiceId = calm)
+            a.habits.addBlock(480, 540, "Morning")
+            val walk = a.items.createTask("walk", MONDAY, LocalTime(9, 0), recurrence = Recurrence.Rule(requireNotNull(RRule.parse("FREQ=DAILY"))))
+            a.items.resolve(walk, LocalDateTime(MONDAY, LocalTime(9, 0)), Outcome.DONE)
+            a.reminders.add(walk, -5)
+            a.occurrences.skip(walk, LocalDateTime(TUESDAY, LocalTime(9, 0)))
+            val reading = a.activities.create("Reading")
+            a.time.logManual(reading, LocalDateTime(MONDAY, LocalTime(8, 0)), LocalDateTime(MONDAY, LocalTime(9, 0)))
+            a.activities.addGoal(reading, GoalPeriod.DAY, 30)
+            val checkIn = a.checkIns.record(noon, energy = 0.2, pleasantness = 0.8)
+            a.regulation.record(checkIn, Direction.DOWN, "rest", RegulationOutcome.HELPED, noon)
+            a.ledger.logSensory(noon, 0.2, 0.4, 0.6, 0.5, 0.1)
+            a.ledger.setMasked(MONDAY, MaskedLevel.SOME)
+            val notes = a.pages.create("Notes")
+            a.pages.addBlock(notes, content = "first line")
+            a.labels.labelPage(notes, home)
+            val trips = a.databases.create("Trips")
+            val people = a.databases.create("People")
+            val status = a.databases.addProperty(trips, "Status", PropertyType.SELECT)
+            val done = a.databases.addOption(status, "done")
+            val tags = a.databases.addProperty(trips, "Tags", PropertyType.MULTI_SELECT)
+            val urgent = a.databases.addOption(tags, "urgent")
+            val with = a.databases.addRelation(trips, "With", people)
+            val rome = a.pages.create("Rome", parentId = trips)
+            val ada = a.pages.create("Ada", parentId = people)
+            a.databases.setOption(rome, status, done)
+            a.databases.pick(rome, tags, urgent)
+            a.databases.link(rome, with, ada)
+            a.databases.addView(trips, "Board", ViewType.BOARD)
+            a.relations.relate(notes, rome)
+            val canvas = a.canvases.create("Ideas")
+            val one = a.canvases.addText(canvas, 0.0, 0.0, "one")
+            val two = a.canvases.addText(canvas, 100.0, 0.0, "two")
+            a.canvases.addEdge(one, two)
+            val packing = a.checklists.create("Packing")
+            a.checklists.addItem(packing, "passport")
+            a.charts.create(ChartType.LINE, 30, listOf(SourceKind.ACTIVITY to reading))
+            notes
+        }
+        a.queue()
+        w.settle(listOf(a, b))
+
+        // A title changed on both devices: the earlier is kept, and its notice is a synced row.
+        w.syncthing.now = 10
+        runBlocking { a.pages.rename(notes, "Notes from A") }
+        w.syncthing.now = 20
+        runBlocking { b.pages.rename(notes, "Notes from B") }
+        a.export()
+        b.export()
+        w.syncthing.session("A", "B")
+        for (d in listOf(a, b)) {
+            d.import()
+            d.queue()
+        }
+        w.settle(listOf(a, b))
+
+        assertEquals(SYNCED_TABLES.toSet(), queued)
+        for (table in SYNCED_TABLES) {
+            val held = runBlocking { a.db.syncedTables().getValue(table).all() }.sortedBy { it.id }
+            assertTrue(held.isNotEmpty(), "no $table row was made")
+            assertEquals(held, runBlocking { b.db.syncedTables().getValue(table).all() }.sortedBy { it.id }, table)
+        }
+    }
+
+    /** SPEC:R27: the registry never shrinks, so it is looked up by id, never loaded whole: an import touching one purged id reads one registry row. */
+    @Test
+    fun anImportTouchingOnePurgedIdReadsOneRegistryRow() {
+        val w = world()
+        val a = w.Device("A")
+        val reads = RegistryReads()
+        val b = w.Device("B", open = reads::database)
+        val ids = (0 until 30).map { a.create() }
+        val late = a.rows().getValue(ids.first())
+        ids.forEach(a::purge)
+        a.export()
+        w.syncthing.session("A", "B")
+        b.import()
+        assertEquals(30, runBlocking { b.db.syncDao().purges() }.size)
+
+        // An old copy of one purged row turns up in another file: the import looks up that id alone.
+        w.syncthing.folder("B").replace(FolderLayout.segment("X", 0), "${RecordCodec.encode(RowRecord(late))}\n".encodeToByteArray())
+        reads.rows.set(0)
+        assertEquals(ImportReport(changed = 0, skipped = 0), b.import())
+
+        assertEquals(1, reads.rows.get())
+        assertTrue(b.rows().isEmpty())
+    }
+
+    /** SPEC:R36, requirement 1: a firing is device state, so working out the next firings writes nothing that syncs. */
+    @Test
+    fun aReminderFiringLeavesTheOutboxEmpty() {
+        val w = world()
+        val a = w.Device("A")
+        val task = runBlocking { a.items.createTask("call", MONDAY, LocalTime(14, 0)) }
+        runBlocking { a.reminders.add(task, -5) }
+        runBlocking { a.reminders.createStandalone("take pills", MONDAY, LocalTime(8, 0)) }
+        a.export()
+        assertEquals(emptyList(), runBlocking { a.db.syncDao().outbox() })
+
+        val due = runBlocking { a.reminders.firings() }
+        val later = runBlocking { a.reminders.firings(after = due.first().at) }
+
+        assertEquals(listOf(LocalTime(8, 0), LocalTime(13, 55)), due.map { it.at.time })
+        assertEquals(listOf(LocalTime(13, 55)), later.map { it.at.time })
+        assertEquals(emptyList(), runBlocking { a.db.syncDao().outbox() })
+    }
+
+    /** SPEC:R40: a file shorter than what was read was rewritten under the reader (a torn SAF write), so it is read again from its start. */
+    @Test
+    fun aFileThatShrankIsReadAgainFromTheStart() {
+        val w = world()
+        val memory = MemoryTable()
+        val b = w.Device("B", extra = mapOf(ITEM to memory))
+        val path = FolderLayout.segment("A", 0)
+        val folder = w.syncthing.folder("B")
+        folder.replace(path, "${line("first")}\n${line("second")}\n".encodeToByteArray())
+        b.import()
+        assertEquals(setOf("first", "second"), memory.rows.keys)
+
+        val shorter = "${line("z")}\n".encodeToByteArray()
+        folder.replace(path, shorter)
+        b.import()
+
+        assertNotNull(memory.rows["z"])
+        assertEquals(shorter.size.toLong(), runBlocking { b.db.syncDao().reads() }.single().readBytes)
+    }
+
+    /** SPEC:R48: only the schedule asks; the details and status groups changed on two devices merge silently, the later write standing. */
+    @Test
+    fun theDetailsAndStatusGroupsChangedOnTwoDevicesMergeWithNoQuestion() {
+        val w = world()
+        val a = w.Device("A")
+        val b = w.Device("B")
+        val row = a.create()
+        w.settle(listOf(a, b))
+
+        w.syncthing.now = 10
+        runBlocking { a.items.rename(row, "from A"); a.items.setImportance(row, 1) }
+        w.syncthing.now = 20
+        runBlocking { b.items.rename(row, "from B"); b.items.setImportance(row, 3) }
+        w.settle(listOf(a, b))
+
+        for (d in listOf(a, b)) {
+            assertEquals(emptyList(), runBlocking { d.items.questions() }, d.name)
+            val item = assertNotNull(runBlocking { d.items.item(row) }, d.name)
+            assertEquals("from B", item.title, d.name)
+            assertEquals(3L, item.importance, d.name)
+        }
+    }
+
+    /** SPEC:R50: one occurrence resolved on two devices leaves two log rows, and reads take the later stamp. */
+    @Test
+    fun oneOccurrenceResolvedOnTwoDevicesReadsOneResultTheLater() {
+        val w = world()
+        val a = w.Device("A")
+        val b = w.Device("B")
+        val nine = LocalDateTime(MONDAY, LocalTime(9, 0))
+        val task = runBlocking { a.items.createTask("plants", MONDAY, LocalTime(9, 0)) }
+        w.settle(listOf(a, b))
+
+        w.syncthing.now = 10
+        runBlocking { b.items.resolve(task, nine, Outcome.SKIPPED) }
+        w.syncthing.now = 20
+        runBlocking { a.items.resolve(task, nine, Outcome.DONE) }
+        w.settle(listOf(a, b))
+
+        for (d in listOf(a, b)) {
+            assertEquals(2, runBlocking { d.db.itemDao().completionsOf(task) }.size, d.name)
+            assertEquals(mapOf(nine to Outcome.DONE), runBlocking { d.items.outcomes(task) }, d.name)
         }
     }
 
