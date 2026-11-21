@@ -174,6 +174,75 @@ class DatabaseCasesTest {
     }
 
     @Test
+    fun aPropertyOptionAndViewRenamedOnTwoDevicesTakeTheLaterNameSilentlyAndShownColumnsSync_SPEC_R155() = two(12) { a, b ->
+        syncthing.now = 1_000
+        val trips = go { a.databases.create("Trips") }
+        val status = go { a.databases.addProperty(trips, "Status", PropertyType.SELECT) }
+        val nights = go { a.databases.addProperty(trips, "Nights", PropertyType.NUMBER) }
+        val todo = go { a.databases.addOption(status, "To do") }
+        val view = go { a.databases.views(trips) }.single().id
+        val rome = go { a.pages.create("Rome", parentId = trips) }
+        settle(listOf(a, b))
+        syncthing.now = 2_000
+        go { a.databases.renameProperty(status, "State") }
+        go { a.databases.renameOption(todo, "Open") }
+        go { a.databases.renameView(view, "All trips") }
+        go { a.databases.setShown(view, listOf(nights, status)) }
+        syncthing.now = 3_000
+        go { b.databases.renameProperty(status, "Phase") }
+        go { b.databases.renameOption(todo, "Planned") }
+        go { b.databases.renameView(view, "Every trip") }
+        settle(listOf(a, b))
+
+        for (d in listOf(a, b)) {
+            assertEquals(mapOf(status to "Phase", nights to "Nights"), go { d.databases.properties(trips) }.associate { it.id to it.name }, d.name)
+            assertEquals(listOf("Planned"), go { d.databases.options(status) }.map { it.name }, d.name)
+            val v = go { d.databases.views(trips) }.single()
+            assertEquals("Every trip" to listOf(nights, status), v.name to v.shown, d.name)
+            assertEquals(emptyList(), go { d.pages.notices(trips) } + go { d.pages.notices(rome) }, d.name)
+            assertEquals(emptyList(), go { d.items.questions() }, d.name)
+        }
+    }
+
+    @Test
+    fun aSelectSortsByItsOptionsOrderTextIgnoresCaseAndADateFilterReadsDates_SPEC_R157() {
+        val trips = go { databases.create("Trips") }
+        val status = go { databases.addProperty(trips, "Status", PropertyType.SELECT) }
+        val note = go { databases.addProperty(trips, "Note", PropertyType.TEXT) }
+        val start = go { databases.addProperty(trips, "Start", PropertyType.TEXT) }
+        // Option order To do, Doing, Done; by name it would be Doing, Done, To do.
+        val todo = go { databases.addOption(status, "To do") }
+        val doing = go { databases.addOption(status, "Doing") }
+        val done = go { databases.addOption(status, "Done") }
+        listOf("Rome", "Milan", "Bari", "Pisa").forEach { t -> go { pages.create(t, parentId = trips) } }
+        // In the rows' own order, so a sort that did nothing would leave them as they are.
+        val rows = go { databases.members(trips) }
+        val title = go { rows.associateWith { pages.page(it)!!.title } }
+        listOf(done, todo, doing).zip(rows).forEach { (o, p) -> go { databases.setOption(p, status, o) } }
+        listOf("cherry", "Banana", "apple").zip(rows).forEach { (t, p) -> go { databases.setText(p, note, t) } }
+        // Typed in as text, then made a Date column: one cell reads as no date.
+        listOf("2026-11-02", "next week", "2026-10-30").zip(rows).forEach { (t, p) -> go { databases.setText(p, start, t) } }
+        go { databases.setType(start, PropertyType.DATE) }
+        val view = go { databases.views(trips) }.single().id
+        val titles = { go { databases.rows(view) }.map { it.title } }
+        val names = { order: List<Int> -> order.map { title.getValue(rows[it]) } }
+
+        go { databases.setSort(view, status) }
+        assertEquals(names(listOf(1, 2, 0, 3)), titles())
+        go { databases.moveOption(done, null) }
+        assertEquals(names(listOf(0, 1, 2, 3)), titles())
+        go { databases.setSort(view, note) }
+        assertEquals(names(listOf(2, 1, 0, 3)), titles())
+        go { databases.setSort(view, note, descending = true) }
+        assertEquals(names(listOf(0, 1, 2, 3)), titles())
+
+        go { databases.setFilter(view, start, FilterOp.EQUALS, "2026-11-02") }
+        assertEquals(names(listOf(0)), titles())
+        go { databases.setFilter(view, start, FilterOp.IS_EMPTY) }
+        assertEquals(setOf(rows[1], rows[3]), go { databases.rows(view) }.map { it.pageId }.toSet())
+    }
+
+    @Test
     fun multiSelectPicksMadeApartBothStay() = two(5) { a, b ->
         syncthing.now = 1_000
         val trips = go { a.databases.create("Trips") }
