@@ -1,0 +1,48 @@
+# Version updates, once a week. Security updates come separately, as soon as an advisory is published,
+# once Dependabot alerts and security updates are on in the repository's settings. GitHub reads no
+# Gradle file itself: alerts see the Gradle dependencies dependency-submission.yml sends.
+version: 2
+
+updates:
+  # libs.versions.toml, the Gradle wrapper and the plugins it names.
+  - package-ecosystem: gradle
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    # A release waits a week before it is offered: a broken or hijacked one is usually pulled by then.
+    cooldown:
+      default-days: 7
+    open-pull-requests-limit: 5
+    groups:
+      # Kotlin and KSP move together. A new Kotlin can break the CodeQL job until CodeQL supports it
+      # (about two to three weeks after a release); the failing check is the signal to wait.
+      # A dependency joins the first group it matches, and "org.jetbrains.kotlin*" would also take
+      # every org.jetbrains.kotlinx library: these patterns name the compiler's artifacts and plugins only.
+      kotlin:
+        patterns:
+          - "org.jetbrains.kotlin:*"
+          - "org.jetbrains.kotlin.*"
+          - "com.google.devtools.ksp*"
+      android-gradle-plugin:
+        patterns:
+          - "com.android*"
+      androidx:
+        patterns:
+          - "androidx.*"
+      kotlinx:
+        patterns:
+          - "org.jetbrains.kotlinx*"
+
+  # The workflows' actions, pinned by SHA: Dependabot moves the SHA and the version comment beside it.
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    cooldown:
+      default-days: 7
+    groups:
+      actions:
+        patterns:
+          - "*"
