@@ -33,3 +33,9 @@ jobs:
           java-version: "21"
 
       - uses: gradle/actions/dependency-submission@8da46b539cd8fe6ab27ca75128919a18d757604c # v6.4.1
+        env:
+          # What the app runs with is scoped 'runtime': the Android app's debug build (the one installed)
+          # and release build, the libraries' Android and desktop targets, and the Windows shell.
+          # Everything else (the Gradle plugins, lint, KSP processors, tests) is scoped 'development', so
+          # an alert in a build tool is told apart from one in the app.
+          DEPENDENCY_GRAPH_RUNTIME_INCLUDE_CONFIGURATIONS: "^(debugRuntimeClasspath|releaseRuntimeClasspath|androidRuntimeClasspath|desktopRuntimeClasspath|runtimeClasspath)$"
