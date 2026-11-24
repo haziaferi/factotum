@@ -57,7 +57,7 @@ class DesktopImageScaler : ImageScaler {
      */
     private fun decode(bytes: ByteArray): BufferedImage {
         if (jpegChannels(bytes) == CMYK_CHANNELS) throw IOException("a CMYK JPEG")
-        val input =ImageIO.createImageInputStream(ByteArrayInputStream(bytes)) ?: throw IOException("no input")
+        val input = ImageIO.createImageInputStream(ByteArrayInputStream(bytes)) ?: throw IOException("no input")
         input.use {
             val reader = ImageIO.getImageReaders(input).asSequence().firstOrNull() ?: throw IOException("no reader")
             try {
