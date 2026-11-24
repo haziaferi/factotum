@@ -40,7 +40,7 @@ Evidence lives in `decisions/`: one ADR per decision, with the verified `file:li
 | D-R24 | Answers settle the clash everywhere | 4. Sync |
 | D-R25 | The clock never goes back | 4. Sync |
 | D-R26 | Old versions do not move the base | 4. Sync |
-| D-R27 | A permanent purge registry | 4. Sync |
+| O-R27 | A permanent purge registry | 4. Sync |
 | D-R28 | A purge undone by a later edit | 4. Sync |
 | D-R29 | One deletion vocabulary | 4. Sync |
 | D-R30 | What Delete and Restore take | 4. Sync |
@@ -156,9 +156,9 @@ Evidence lives in `decisions/`: one ADR per decision, with the verified `file:li
 | D-R140 | Page parts are rows | 15. Pages |
 | D-R141 | Page and block field groups | 15. Pages |
 | D-R142 | Block order | 15. Pages |
-| D-R143 | Later text wins, earlier is kept | 15. Pages |
+| O-R143 | Later text wins, earlier is kept | 15. Pages |
 | D-R144 | The replaced-by-a-sync notice | 15. Pages |
-| D-R145 | Revive | 15. Pages |
+| O-R145 | Revive | 15. Pages |
 | D-R146 | The app's own writes are marked | 15. Pages |
 | D-R147 | Trash, restore and delete forever for pages | 15. Pages |
 | D-R148 | What a merge can leave | 15. Pages |
@@ -614,17 +614,17 @@ One app that does what Tendril, Chronicle, Mnemo and Equipoise do, over one data
 
 **Since:** 2026-10-02 · builder · migrated
 
-### D-R27 · A permanent purge registry
+### O-R27 · A permanent purge registry
 
 **Rule:** A purge is recorded in one `purge_registry` table that never expires. An import re-checks only the registry entries it added or lowered, and the registry is looked up by id (`SyncStore.purge(id)`), never loaded whole; only a snapshot reads all of it.
 
-**Why:** The registry never shrinks.
+**Why:** A device away longer than any expiry would bring a purged row back, as Chronicle's 90-day collection does. The registry never shrinks, so it is read by id.
 
 **Evidence:** ADR 01; the lookup by id is `StagedStore.kt:151`. `FolderSyncTest.anImportTouchingOnePurgedIdReadsOneRegistryRow` counts the rows read through the driver (`RegistryReads`) and kills mutant `the registry loaded whole` (`tools/mutants.py`, slice `gapA`), 2026-11-21.
 
 **Acceptance:** The purge case of `decisions/cases/01-sync.jsonl` passes (`SyncCasesTest.tendrilPurgeHolds`), and `FolderSyncTest.anImportTouchingOnePurgedIdReadsOneRegistryRow` reads one registry row for an import touching one of 30 purged ids.
 
-**Since:** 2026-11-21 · owner · migrated
+**Since:** 2026-11-24 · owner · agreed rewording
 
 ### D-R28 · A purge undone by a later edit
 
@@ -2019,15 +2019,15 @@ One app that does what Tendril, Chronicle, Mnemo and Equipoise do, over one data
 
 **Since:** 2026-10-03 · owner · migrated
 
-### D-R143 · Later text wins, earlier is kept
+### O-R143 · Later text wins, earlier is kept
 
 **Rule:** On a clash within one keep-loser group (a page's title, a block's text, a cell, a card's text, a line's label, a picture), the later version wins and the replaced one is kept. The merge hands every version that both sides changed since their base to a local `sync_lost` table, its base being the newest version read from a peer, not the winner. After every import, each becomes a MERGE version in that device's History and a synced notice (R144), unless the text it lost to says the same.
 
-**Why:** With the base read from a peer, every replaced text is kept on at least one device, with three devices too.
+**Why:** Nothing typed is lost to a sync: the replaced text stays in History, and a notice says so. With the base read from a peer, every replaced text is kept on at least one device, with three devices too.
 
 **Acceptance:** `PageCasesTest.theLaterTextWinsAndTheEarlierIsKeptInHistoryWithOneNoticeDismissedEverywhere` (two devices), `KeepLoserMergeTest.withThreeDevicesEveryReplacedTextIsLostSomewhereWhateverTheOrder` (three, in memory) and `PageCasesTest.withThreeDevicesEveryReplacedTextIsKeptInAHistoryAndNoticedEverywhere_SPEC_R143` (three, on the real database, read from History) pass.
 
-**Since:** 2026-11-21 · owner · migrated
+**Since:** 2026-11-24 · owner · agreed rewording
 
 ### D-R144 · The replaced-by-a-sync notice
 
@@ -2041,17 +2041,19 @@ One app that does what Tendril, Chronicle, Mnemo and Equipoise do, over one data
 
 **Since:** 2026-10-03 · owner · migrated
 
-### D-R145 · Revive
+### O-R145 · Revive
 
-**Rule:** A later edit to any part of a trashed page brings it back, as a deliberate exception to R21's group rule, for pages only. After every import, a trashed page comes back when its title, its place, a block, a label, or a live sub-page moved or made under it carries a stamp later than its deletion, and brings back its trashed parents; a deleted block comes back when one of its groups does. A revival is stamped just above the deletion it undoes (that stamp's time, its device followed by `~`).
+**Rule:** A later edit to any part of a trashed page brings it back, for pages only. After every import, a trashed page comes back when its title, its place, a block, a label, or a live sub-page moved or made under it carries a stamp later than its deletion, and brings back its trashed parents; a deleted block comes back when one of its groups does. A revival is stamped just above the deletion it undoes (that stamp's time, its device followed by `~`).
 
-**Why:** Every device then writes the same row, and a purge made after the edit still holds.
+**Why:** A later edit brings a page back from the Trash, as Tendril does, and nothing typed is lost; it can be trashed again. The revival's stamp makes every device write the same row, and a purge made after the edit still holds.
 
 **Evidence:** Owner's answers 2026-10-03 (a later edit brings back a deleted block; revive brings back trashed parents).
 
 **Acceptance:** `PageCasesTest.aLaterEditBringsATrashedPageBackAndAnEarlierOneDoesNot`, `aLaterEditToASubPageBringsBackItsTrashedParents` and `aLaterEditBringsADeletedBlockBack` pass, and `aMoveALabelOrASubPageMadeUnderItAfterTheTrashBringsAPageBackStampedJustAboveTheTrash_SPEC_R145` brings pages back by a place, a label and a sub-page and reads each revival's stamp as the trash's time and device followed by `~`.
 
-**Since:** 2026-11-21 · owner · migrated
+**Not:** A deletion beating a later edit to another part of the page, as R21's group rule has it for other rows: the edit would sit in the Trash.
+
+**Since:** 2026-11-24 · owner · agreed rewording
 
 ### D-R146 · The app's own writes are marked
 

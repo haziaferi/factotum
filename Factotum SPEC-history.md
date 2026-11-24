@@ -328,3 +328,9 @@ Not a source of current rules: `Factotum SPEC.md` is. One line per change, newes
 - 2026-11-24 · R155 · changed · Wording and the 2026-11-21 Acceptance confirmed by the owner · owner
 - 2026-11-24 · R165 · changed · Wording and the 2026-11-21 Acceptance confirmed by the owner · owner
 - 2026-11-24 · R181 · changed · Wording and the 2026-11-21 Acceptance confirmed by the owner · owner
+- 2026-11-24 · R27 · kind · D → O · owner
+- 2026-11-24 · R27 · changed · Why gives the owner's reason from ADR 01: no expiry, so no purged row comes back · owner
+- 2026-11-24 · R143 · kind · D → O · owner
+- 2026-11-24 · R143 · changed · Why gives the owner's reason: nothing typed is lost to a sync · owner
+- 2026-11-24 · R145 · kind · D → O · owner
+- 2026-11-24 · R145 · changed · Why gives the owner's reasons (ADR 12, answers 1 and 3); the R21 exception moves from Rule to Not · owner
