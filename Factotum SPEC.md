@@ -1471,15 +1471,15 @@ One app that does what Tendril, Chronicle, Mnemo and Equipoise do, over one data
 
 ### D-R97 · Activities
 
-**Rule:** An activity is an item of kind ACTIVITY, with no dates and optionally an icon and a colour. An activity or a habit has a manual `sort_order`, fractional as Tendril's, which the planner follows inside a block.
+**Rule:** An activity is an item of kind ACTIVITY, with no dates and optionally an icon and a colour. An activity or a habit has a manual `sort_order`, fractional as Tendril's, in the details group (R48). Activities are listed in it; the planner follows a habit's inside a block, then its id.
 
-**Evidence:** ADR 07 (`decisions/07-timelog.md`), activity-item; `com.hazia.factotum.data.time`.
+**Evidence:** ADR 07 (`decisions/07-timelog.md`), activity-item; `com.hazia.factotum.data.time`. The planner places habits only (`Planner.kt:114`); activities list by `sort_order`, an empty one last, then id (`ItemDao.kt:184`); checked 2026-11-24.
 
-**Acceptance:** `TimeCasesTest.activitiesKeepTheirOrderAndTheirColumnsStayTheirs` makes and orders activities, and `reorderingAnActivityMovesItBetweenItsNewNeighbours` moves one to a fractional key between two others.
+**Acceptance:** `TimeCasesTest.activitiesKeepTheirOrderAndTheirColumnsStayTheirs` makes and orders activities, `reorderingAnActivityMovesItBetweenItsNewNeighbours` moves one to a fractional key between two others, and `PlannerTest.habitsInABlockFollowTheirManualOrderThenTheirId` orders a block's habits by `sort_order`, then id.
 
-**Not:** An `archived` flag: dropped with schema 24 (owner, 2026-10-09), as the Trash replaces archiving (R29).
+**Not:** An `archived` flag: dropped with schema 24 (owner, 2026-10-09), as the Trash replaces archiving (R29). The planner placing activities: an activity has no dates to place (owner, 2026-11-24).
 
-**Since:** 2026-11-21 · owner · migrated
+**Since:** 2026-11-24 · owner · agreed rewording
 
 ### D-R98 · One span table, several timers
 
@@ -2729,7 +2729,7 @@ Background, not a rule: Equipoise runs llama.cpp on Android only, and only in th
 - R94 · Timed and whole-day occurrences: `PlannerCasesTest.aWholeDayOccurrenceIsPausedOnItsOwnDateWhenTheDayStartsLater` and `aTimedOccurrenceBeforeTheDayStartBelongsToTheDayBefore` (a pause and its reminder read an occurrence before the day start as the day before's) pass.
 - R95 · An occurrence's block and order: `OccurrenceEditSyncTest.anOccurrencesBlockMovedOnTwoDevicesMergesWithoutAQuestion` moves an occurrence's block on one device while the other retimes it, and moves another's block on both, with no question and one result on both devices; `PlannerTest.habitsInABlockFollowTheirManualOrderThenTheirId` passes.
 - R96 · Reminders on an "n a day" habit: `PlannerCasesTest` fires each occurrence at its block's start and an unblocked one at the anchor.
-- R97 · Activities: `TimeCasesTest.activitiesKeepTheirOrderAndTheirColumnsStayTheirs` makes and orders activities, and `reorderingAnActivityMovesItBetweenItsNewNeighbours` moves one to a fractional key between two others.
+- R97 · Activities: `TimeCasesTest.activitiesKeepTheirOrderAndTheirColumnsStayTheirs` makes and orders activities, `reorderingAnActivityMovesItBetweenItsNewNeighbours` moves one to a fractional key between two others, and `PlannerTest.habitsInABlockFollowTheirManualOrderThenTheirId` orders a block's habits by `sort_order`, then id.
 - R98 · One span table, several timers: The 9 cases of `decisions/cases/07-timelog.jsonl` pass (`TimeCasesTest`), two of them as later rulings changed them: `chronicle-activity-delete-refused` as R104, and `chronicle-activity-and-category-totals` without its category half (R117).
 - R99 · Span field groups: `TimeCasesTest.aCommentWrittenOnOneDeviceDoesNotReopenATimerStoppedOnAnother`, `aStaleKeepOrStartEditDoesNotReopenOrReviveASpan` and `eachOfASpansFiveGroupsWrittenOnADifferentDeviceSurvives` (five devices, one group each) pass.
 - R100 · A span's end is checked where it is written: `TimeCasesTest.tendrilExactlyOneOwner_aSpanHasOneOwnerOfAKindThatIsTimed` refuses an end before the start locally, and `aMergedSpanEndingBeforeItStartsCountsAsNothing` counts a span merged to end before its start as nothing.
