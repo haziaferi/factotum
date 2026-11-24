@@ -138,6 +138,8 @@ class TimeCasesTest {
         assertFailsWith<IllegalArgumentException> { runBlocking { items.purge(reading) } }
 
         runBlocking { activities.delete(reading) }
+        // In the Trash too, ItemRepository leaves an activity's Delete forever to ActivityRepository.
+        assertFailsWith<IllegalArgumentException> { runBlocking { items.purge(reading) } }
         assertTrue(runBlocking { db.timeDao().spans(listOf(span)) }.single().deletedAt != null)
         assertTrue(runBlocking { db.trackerDao().goals(listOf(goal)) }.single().deletedAt != null)
         assertEquals(listOf(untimed), runBlocking { activities.activities() }.map { it.id })
