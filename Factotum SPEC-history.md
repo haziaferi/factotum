@@ -341,3 +341,4 @@ Not a source of current rules: `Factotum SPEC.md` is. One line per change, newes
 - 2026-11-24 · R120 · changed · seven keys added as coded, crisis_contacts PERSONAL; long_run_hours left to R106; test checks them · owner
 - 2026-11-24 · R169 · changed · the desktop reads TIFF and WBMP too, as its ImageIO does; the test reads both · owner
 - 2026-11-24 · R157 · changed · text sorts and filters ignore case, as coded; the test filters in capitals · owner
+- 2026-11-24 · R173 · changed · the screen works out frame membership; Acceptance adds dragging a frame through one moveNodes · owner

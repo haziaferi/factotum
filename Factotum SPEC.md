@@ -2364,11 +2364,11 @@ One app that does what Tendril, Chronicle, Mnemo and Equipoise do, over one data
 
 **Rule:** A card moved on two devices takes the later position, and a frame and a card in it moved apart each keep their own later position. A move is written when a card is dropped, carrying its mind-map subtree; frames do not ride along. Frame membership is geometric, worked out by the screen that draws the boxes, so carrying a frame's contents is a bulk move of the cards it holds.
 
-**Evidence:** Owner's answers on the canvas 2026-10-03.
+**Evidence:** Owner's answers on the canvas 2026-10-03, confirmed 2026-11-24. `CanvasRepository.kt:108` (`moveNode`) carries only the mind-map subtree; `CanvasRepository.kt:129` (`moveNodes`) is the bulk move. Not checked: no screen works out frame membership yet; `moveNodes` is the bulk move it calls.
 
-**Acceptance:** `CanvasCasesTest.aCardMovedOnTwoDevicesTakesTheLaterPosition` and `aFrameAndACardInItMovedApartEachKeepTheirOwnLaterPosition_SPEC_R173` pass.
+**Acceptance:** `CanvasCasesTest.aCardMovedOnTwoDevicesTakesTheLaterPosition` and `aFrameAndACardInItMovedApartEachKeepTheirOwnLaterPosition_SPEC_R173` pass. Dragging a frame on the canvas screen moves the cards inside its box through one `moveNodes` call.
 
-**Since:** 2026-11-21 · owner · migrated
+**Since:** 2026-11-24 · owner · agreed rewording
 
 ### D-R174 · Deleting a card
 
@@ -2814,7 +2814,7 @@ Background, not a rule: Equipoise runs llama.cpp on Android only, and only in th
 - R170 · Pictures through the folder: `ImagesTest` syncs a picture to a peer, damages a copy, and reads a waiting placeholder.
 - R171 · Collecting pictures: `ImagesTest` collects the folder copy after 30 days unnamed and keeps the device copy History names.
 - R172 · Canvas tables: `CanvasCasesTest` (`shared-canvas-nodes`) passes.
-- R173 · Moving cards: `CanvasCasesTest.aCardMovedOnTwoDevicesTakesTheLaterPosition` and `aFrameAndACardInItMovedApartEachKeepTheirOwnLaterPosition_SPEC_R173` pass.
+- R173 · Moving cards: `CanvasCasesTest.aCardMovedOnTwoDevicesTakesTheLaterPosition` and `aFrameAndACardInItMovedApartEachKeepTheirOwnLaterPosition_SPEC_R173` pass. Dragging a frame on the canvas screen moves the cards inside its box through one `moveNodes` call.
 - R174 · Deleting a card: `CanvasCasesTest` and `VocabularyTest` delete, revive, restore and purge a card with lines and children.
 - R175 · Page cards: `CanvasCasesTest` reads a page card in each of the four states.
 - R176 · Canvas History: `CanvasCasesTest` replaces a card's text on two devices and restores it from History.
