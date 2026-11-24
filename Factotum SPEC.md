@@ -886,21 +886,24 @@ One app that does what Tendril, Chronicle, Mnemo and Equipoise do, over one data
 
 ### D-R48 · Item field groups
 
-**Rule:** An item's columns merge in the groups below; only the schedule group asks a person on a clash (R23). Other rules add columns to these groups where they say so.
+**Rule:** An item's columns merge in the four groups below, and only the schedule group asks a person on a clash (R23). Every other group merges silently, the later write standing.
 
 **Values:**
 
-| Group | Columns | On a clash |
-|---|---|---|
-| schedule | dates, times, due date, recurrence, `deleted_at` | asks |
-| status | status, importance, `capacity_rank` | merges silently |
-| details | `kind`, `title`, `parent_id` | merges silently |
+| Group | Columns | On a clash | Rules |
+|---|---|---|---|
+| schedule | dates, times, `due_date`, `deleted_at`, recurrence, `pause_from`, `pause_until`, `duration_min` | asks | R62, R85 |
+| status | `status`, `importance`, `capacity_rank` | merges silently | R52 |
+| details | `kind`, `title`, `parent_id`, `tracker_id`, `block_id`, `icon`, `color`, `sort_order` | merges silently | R85, R97 |
+| labelled | `label_id` | merges silently | R111 |
 
-**Evidence:** ADR 02 names schedule and status; the columns it leaves unassigned form the third group, `details`, which merges silently like everything but the schedule. `FolderSyncTest.theDetailsAndStatusGroupsChangedOnTwoDevicesMergeWithNoQuestion` kills mutant `details and status ask` (`tools/mutants.py`, slice `gapA`), 2026-11-21.
+**Evidence:** ADR 02 names schedule and status; the details group was the builder's, confirmed by the owner on 2026-11-24. Columns checked against `ItemTables.kt:48` on 2026-11-24. `FolderSyncTest.theDetailsAndStatusGroupsChangedOnTwoDevicesMergeWithNoQuestion` kills mutant `details and status ask` (`tools/mutants.py`, slice `gapA`), 2026-11-21.
 
 **Acceptance:** `FolderSyncTest.anAnswerSettlesTheQuestionOnBothDevices` asks for a schedule clash, and `theDetailsAndStatusGroupsChangedOnTwoDevicesMergeWithNoQuestion` merges the details and status groups changed on two devices with no question, the later write standing.
 
-**Since:** 2026-11-21 · owner · migrated
+**Not:** Keeping a replaced item title in History with a notice, as a page title is kept (R143): the owner chose the silent merge on 2026-11-24. Asking a person on a title clash: a question for a rare, small clash.
+
+**Since:** 2026-11-24 · owner · agreed rewording
 
 ### D-R49 · Kind rules are triggers
 
