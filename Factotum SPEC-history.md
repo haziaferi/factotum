@@ -337,3 +337,4 @@ Not a source of current rules: `Factotum SPEC.md` is. One line per change, newes
 - 2026-11-24 · R27 · changed · Acceptance names the held-purge test: a purge already held changes nothing, an earlier one lowers it · owner
 - 2026-11-24 · R48 · changed · details group confirmed; Values list all four groups and every column, labelled added; title keep-loser in Not · owner
 - 2026-11-24 · R97 · changed · the planner follows a habit's order only; sort_order in R48's details group; Acceptance names the PlannerTest · owner
+- 2026-11-24 · R36 · changed · Acceptance requires the production wiring: shells export only through exportAfterQuiet; the manifest excludes the device-id file · owner

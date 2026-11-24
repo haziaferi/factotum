@@ -764,11 +764,11 @@ One app that does what Tendril, Chronicle, Mnemo and Equipoise do, over one data
 | Synced files are compact JSON | never pretty-printed | R35 |
 | The device-id file is excluded from Android Auto Backup and device transfer | two devices never share an identity | R32 |
 
-**Evidence:** `decisions/verify/13-folder/workload.md`. `firings()` only reads; `FolderSyncTest.aReminderFiringLeavesTheOutboxEmpty` kills mutant `a firing writes its reminder` (`tools/mutants.py`, slice `gapA`), 2026-11-21. Not checked: `exportAfterQuiet` has no production caller (R38); the Auto Backup exclusion is not built.
+**Evidence:** `decisions/verify/13-folder/workload.md`. `firings()` only reads; `FolderSyncTest.aReminderFiringLeavesTheOutboxEmpty` kills mutant `a firing writes its reminder` (`tools/mutants.py`, slice `gapA`), 2026-11-21. Not checked: `exportAfterQuiet` has no production caller (R38), and the Auto Backup exclusion is not built: `android/src/main/AndroidManifest.xml` holds an empty `<application />` (checked 2026-11-24).
 
-**Acceptance:** `ExportTimingTest.aBurstOfWritesExportsOnceThirtySecondsAfterTheLast` (debounce), `DirectorySyncFolderTest.aReplaceLandsWholeAndLeavesNoTemporaryFile` (atomic replace), `RecordCodecTest.aRecordIsOneCompactLine` (compact JSON) and `FolderSyncTest.aReminderFiringLeavesTheOutboxEmpty` (a firing writes nothing) pass; the Auto Backup exclusion is checked with the Android shell.
+**Acceptance:** `ExportTimingTest.aBurstOfWritesExportsOnceThirtySecondsAfterTheLast` (debounce), `DirectorySyncFolderTest.aReplaceLandsWholeAndLeavesNoTemporaryFile` (atomic replace), `RecordCodecTest.aRecordIsOneCompactLine` (compact JSON) and `FolderSyncTest.aReminderFiringLeavesTheOutboxEmpty` (a firing writes nothing) pass. In each shell, every export starts through `exportAfterQuiet` (R38), with no other production call to the export. The Android manifest's `dataExtractionRules` and `fullBackupContent` both exclude the device-id file (R32).
 
-**Since:** 2026-11-21 · owner · migrated
+**Since:** 2026-11-24 · owner · agreed rewording
 
 ### D-R37 · Conflict copies
 
@@ -2669,7 +2669,7 @@ Background, not a rule: Equipoise runs llama.cpp on Android only, and only in th
 - R33 · The composition root: Every two-device test runs through `Factotum` (`World.Device` delegates to it).
 - R34 · Recovery re-reads its own files: `SettingsCasesTest.aDeviceWhoseDatabaseWasRecoveredGetsItsSettingsBackFromItsOwnFiles` recovers a device alone and finds its PERSONAL settings again, and `aRecoveredDeviceGetsItsRowsBackFromItsOwnFilesAndItsDeviceSettingsStartAtTheirDefaults` finds its rows again and its DEVICE settings at their defaults.
 - R35 · Device logs in the folder: The 4 cases of `decisions/cases/13-folder.jsonl` pass through the real importer and exporter under a Syncthing double (`FolderSyncTest`).
-- R36 · Folder requirements: `ExportTimingTest.aBurstOfWritesExportsOnceThirtySecondsAfterTheLast` (debounce), `DirectorySyncFolderTest.aReplaceLandsWholeAndLeavesNoTemporaryFile` (atomic replace), `RecordCodecTest.aRecordIsOneCompactLine` (compact JSON) and `FolderSyncTest.aReminderFiringLeavesTheOutboxEmpty` (a firing writes nothing) pass; the Auto Backup exclusion is checked with the Android shell.
+- R36 · Folder requirements: `ExportTimingTest.aBurstOfWritesExportsOnceThirtySecondsAfterTheLast` (debounce), `DirectorySyncFolderTest.aReplaceLandsWholeAndLeavesNoTemporaryFile` (atomic replace), `RecordCodecTest.aRecordIsOneCompactLine` (compact JSON) and `FolderSyncTest.aReminderFiringLeavesTheOutboxEmpty` (a firing writes nothing) pass. In each shell, every export starts through `exportAfterQuiet` (R38), with no other production call to the export. The Android manifest's `dataExtractionRules` and `fullBackupContent` both exclude the device-id file (R32).
 - R37 · Conflict copies: `FolderSyncTest.aClonedDeviceIdsClashIsMergedAndTheCopyRemoved` merges and deletes a conflict copy; after one in its own folder the device re-reads its own files and holds a new id.
 - R38 · A local outbox decides what to export: A write through any repository, and an import that changes a row, each leave the row queued for export.
 - R39 · Imports in chunks: `FolderSyncTest` imports a snapshot larger than one chunk and stops and resumes it at a chunk boundary.
