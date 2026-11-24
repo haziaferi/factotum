@@ -1,0 +1,74 @@
+name: CodeQL
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  schedule:
+    # Mondays: new queries reach code that has not changed.
+    - cron: "23 4 * * 1"
+  workflow_dispatch:
+
+# Each action is pinned to a commit, its release named beside it: a tag can be moved, a commit cannot.
+permissions: {}
+
+concurrency:
+  group: codeql-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  analyze:
+    name: analyze (${{ matrix.language }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    permissions:
+      contents: read
+      security-events: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - language: actions
+            build-mode: none
+          - language: python
+            build-mode: none
+          # Kotlin is read only from a compile CodeQL watches: build-mode none reads Java alone.
+          - language: java-kotlin
+            build-mode: manual
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - if: matrix.language == 'java-kotlin'
+        uses: actions/setup-java@d1374f8ac74474200d16ef8ecee22c7ae7a51880 # v6.3.0
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      # Dependencies only: this job never writes the cache the Tests job fills.
+      - if: matrix.language == 'java-kotlin'
+        uses: gradle/actions/setup-gradle@8da46b539cd8fe6ab27ca75128919a18d757604c # v6.4.1
+        with:
+          cache-read-only: true
+
+      - uses: github/codeql-action/init@915412ff23e8b7659517e607487dbeae018f2934 # v4.39.5
+        with:
+          languages: ${{ matrix.language }}
+          build-mode: ${{ matrix.build-mode }}
+          queries: security-extended
+
+      # The main source sets only, so tests are not scanned: commonMain, jvmCommon, desktopMain,
+      # androidMain and Room's KSP output, through the desktop and Android compiles. CodeQL sees only
+      # a compiler that runs in front of it, so nothing comes from Gradle's build cache (on in
+      # gradle.properties), a Gradle daemon or a Kotlin daemon, and every task runs.
+      - if: matrix.build-mode == 'manual'
+        name: Compile for CodeQL
+        run: >-
+          ./gradlew --no-daemon --no-build-cache --rerun-tasks
+          -Pkotlin.compiler.execution.strategy=in-process -Pkotlin.incremental=false
+          :core:compileKotlinDesktop :data:compileKotlinDesktop :data:compileAndroidMain
+
+      - uses: github/codeql-action/analyze@915412ff23e8b7659517e607487dbeae018f2934 # v4.39.5
+        with:
+          category: "/language:${{ matrix.language }}"
