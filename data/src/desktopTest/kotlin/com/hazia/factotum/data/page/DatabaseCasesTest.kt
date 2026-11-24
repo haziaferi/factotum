@@ -236,6 +236,12 @@ class DatabaseCasesTest {
         go { databases.setSort(view, note, descending = true) }
         assertEquals(names(listOf(0, 1, 2, 3)), titles())
 
+        // Text ignores case in a filter too: "is" and "contains", typed in capitals.
+        go { databases.setFilter(view, note, FilterOp.EQUALS, "BANANA") }
+        assertEquals(names(listOf(1)), titles())
+        go { databases.setFilter(view, note, FilterOp.CONTAINS, "APP") }
+        assertEquals(names(listOf(2)), titles())
+
         go { databases.setFilter(view, start, FilterOp.EQUALS, "2026-11-02") }
         assertEquals(names(listOf(0)), titles())
         go { databases.setFilter(view, start, FilterOp.IS_EMPTY) }

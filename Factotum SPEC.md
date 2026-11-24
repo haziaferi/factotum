@@ -2196,11 +2196,13 @@ One app that does what Tendril, Chronicle, Mnemo and Equipoise do, over one data
 
 ### D-R157 · Views
 
-**Rule:** A view keeps Tendril's single sort and single filter, compared by type: numbers as numbers, dates as dates, a Select by its options' order, an empty cell last either way. A filter naming an option merged since reads as the option it went into, and a setting naming a deleted property reads as none. A Board shows a column for no option first, then the live options in order, and is empty without a Select to group by; a database keeps at least one view, and a deleted view is restored or deleted forever from the Trash.
+**Rule:** A view keeps Tendril's single sort and single filter, compared by type: numbers as numbers, dates as dates, a Select by its options' order, text ignoring case, an empty cell last either way. A filter naming an option merged since reads as the option it went into, and a setting naming a deleted property reads as none. A Board shows a column for no option first, then the live options in order, and is empty without a Select to group by; a database keeps at least one view, and a deleted view is restored or deleted forever from the Trash.
 
-**Acceptance:** `DatabaseCasesTest.aViewSortsByTypeWithEmptyLastAndFiltersByType`, `aSelectSortsByItsOptionsOrderTextIgnoresCaseAndADateFilterReadsDates_SPEC_R157` and `aDatabaseKeepsOneViewAndATrashedOnesSchemaIsNotEdited` pass.
+**Evidence:** Text sorts compare in lower case (`DatabaseRepository.kt:973`), and "is" and "contains" ignore case (`:986`, `:996`); the test kills mutants `a text sort minds case`, `a text filter minds case` and `a text contains filter minds case` (`tools/mutants.py`, slice `gapC`), 2026-11-24.
 
-**Since:** 2026-11-21 · owner · migrated
+**Acceptance:** `DatabaseCasesTest.aViewSortsByTypeWithEmptyLastAndFiltersByType`, `aSelectSortsByItsOptionsOrderTextIgnoresCaseAndADateFilterReadsDates_SPEC_R157` and `aDatabaseKeepsOneViewAndATrashedOnesSchemaIsNotEdited` pass; the second sorts text in mixed case and filters it with "is" and "contains" typed in capitals.
+
+**Since:** 2026-11-24 · owner · agreed rewording
 
 ### D-R158 · Databases in pages
 
@@ -2796,7 +2798,7 @@ Background, not a rule: Equipoise runs llama.cpp on Android only, and only in th
 - R154 · Select options: `DatabaseCasesTest` deletes, picks again, merges and restores options.
 - R155 · Renames take the later name: `DatabaseCasesTest.aPropertyOptionAndViewRenamedOnTwoDevicesTakeTheLaterNameSilentlyAndShownColumnsSync_SPEC_R155` (the later names, with no notice or question, and the shown columns synced) and `aSortAndAFilterChangedApartBothStand` pass.
 - R156 · A database's rows: `DatabaseCasesTest` and `PageCasesTest` read the members, trash and revive a database.
-- R157 · Views: `DatabaseCasesTest.aViewSortsByTypeWithEmptyLastAndFiltersByType`, `aSelectSortsByItsOptionsOrderTextIgnoresCaseAndADateFilterReadsDates_SPEC_R157` and `aDatabaseKeepsOneViewAndATrashedOnesSchemaIsNotEdited` pass.
+- R157 · Views: `DatabaseCasesTest.aViewSortsByTypeWithEmptyLastAndFiltersByType`, `aSelectSortsByItsOptionsOrderTextIgnoresCaseAndADateFilterReadsDates_SPEC_R157` and `aDatabaseKeepsOneViewAndATrashedOnesSchemaIsNotEdited` pass; the second sorts text in mixed case and filters it with "is" and "contains" typed in capitals.
 - R158 · Databases in pages: The cases of `decisions/cases/16-databases.jsonl` pass against the real database.
 - R159 · Formulas and rollups: `FormulaLexerTest`, `FormulaParserTest`, `FormulaTypeCheckerTest`, `FormulaDependencyGraphTest`, `FormulaEvaluatorTest`, `FormulaKeysTest` and `FormulaColumnsTest` pass.
 - R160 · A formula is checked when written: `FormulaColumnsTest` is refused in each case.
