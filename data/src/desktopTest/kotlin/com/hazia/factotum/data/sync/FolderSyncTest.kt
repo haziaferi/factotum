@@ -586,6 +586,39 @@ class FolderSyncTest {
         assertTrue(b.rows().isEmpty())
     }
 
+    /**
+     * SPEC:R27: an import re-checks only the registry entries it added or lowered. A purge this
+     * device already holds, at its stamp or a later one, changes nothing and is not exported again;
+     * an earlier one lowers the entry.
+     */
+    @Test
+    fun aPurgeAlreadyHeldChangesNothingAndAnEarlierOneLowersIt() {
+        val w = world()
+        val a = w.Device("A")
+        val b = w.Device("B")
+        val id = a.create()
+        a.purge(id)
+        a.export()
+        w.syncthing.session("A", "B")
+        b.import()
+        fun registry() = runBlocking { b.db.syncDao().purges() }.map { it.id to it.stamp() }
+        val held = registry().single().second
+        val folder = w.syncthing.folder("B")
+        fun arrives(seq: Long, stamp: Stamp): ImportReport {
+            folder.replace(FolderLayout.segment("X", seq), "${RecordCodec.encode(PurgeRecord(id, stamp))}\n".encodeToByteArray())
+            return b.import()
+        }
+
+        // The same purge again, as a replayed log brings it, and a later one made by a device that never heard of it.
+        assertEquals(ImportReport(changed = 0, skipped = 0), arrives(0L, held))
+        assertEquals(ImportReport(changed = 0, skipped = 0), arrives(1L, Stamp(held.hlc + 1, "X")))
+        assertEquals(listOf(id to held), registry())
+
+        val earlier = Stamp(held.hlc - 1, "X")
+        assertEquals(ImportReport(changed = 1, skipped = 0), arrives(2L, earlier))
+        assertEquals(listOf(id to earlier), registry())
+    }
+
     /** SPEC:R36, requirement 1: a firing is device state, so working out the next firings writes nothing that syncs. */
     @Test
     fun aReminderFiringLeavesTheOutboxEmpty() {

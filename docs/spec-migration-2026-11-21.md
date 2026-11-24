@@ -170,7 +170,7 @@ Each row's test was written for the clause above, and each mutant, in `tools/mut
 |---|---|---|
 | R18 | `FolderSyncTest.everySyncedTableIsQueuedForExportAndRoundTrips` | `a synced table with no export trigger` |
 | R22 | `RecordCodecTest.aLineCarryingANaNOrAnInfiniteDoubleIsRefused` | `a group takes an infinite Double` |
-| R27 | `FolderSyncTest.anImportTouchingOnePurgedIdReadsOneRegistryRow` | `the registry loaded whole` |
+| R27 | `FolderSyncTest.anImportTouchingOnePurgedIdReadsOneRegistryRow`; `FolderSyncTest.aPurgeAlreadyHeldChangesNothingAndAnEarlierOneLowersIt` (2026-11-24) | `the registry loaded whole`; `a held purge is re-checked`, `a held purge is never lowered` |
 | R34 | `SettingsCasesTest.aRecoveredDeviceGetsItsRowsBackFromItsOwnFilesAndItsDeviceSettingsStartAtTheirDefaults` | `a recovery reads only peers` |
 | R36 | `FolderSyncTest.aReminderFiringLeavesTheOutboxEmpty` | `a firing writes its reminder` |
 | R40 | `FolderSyncTest.aFileThatShrankIsReadAgainFromTheStart` | `a shrunk file read from the old position` |

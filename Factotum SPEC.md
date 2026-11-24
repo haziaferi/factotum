@@ -620,9 +620,9 @@ One app that does what Tendril, Chronicle, Mnemo and Equipoise do, over one data
 
 **Why:** A device away longer than any expiry would bring a purged row back, as Chronicle's 90-day collection does. The registry never shrinks, so it is read by id.
 
-**Evidence:** ADR 01; the lookup by id is `StagedStore.kt:151`. `FolderSyncTest.anImportTouchingOnePurgedIdReadsOneRegistryRow` counts the rows read through the driver (`RegistryReads`) and kills mutant `the registry loaded whole` (`tools/mutants.py`, slice `gapA`), 2026-11-21.
+**Evidence:** ADR 01; the lookup by id is `StagedStore.kt:151`. `FolderSyncTest.anImportTouchingOnePurgedIdReadsOneRegistryRow` counts the rows read through the driver (`RegistryReads`) and kills mutant `the registry loaded whole` (`tools/mutants.py`, slice `gapA`), 2026-11-21. The import skips a purge it holds at the same or an earlier stamp (`Merge.kt:66`); `FolderSyncTest.aPurgeAlreadyHeldChangesNothingAndAnEarlierOneLowersIt` kills mutants `a held purge is re-checked` and `a held purge is never lowered` (slice `gapA`), 2026-11-24.
 
-**Acceptance:** The purge case of `decisions/cases/01-sync.jsonl` passes (`SyncCasesTest.tendrilPurgeHolds`), and `FolderSyncTest.anImportTouchingOnePurgedIdReadsOneRegistryRow` reads one registry row for an import touching one of 30 purged ids.
+**Acceptance:** The purge case of `decisions/cases/01-sync.jsonl` passes (`SyncCasesTest.tendrilPurgeHolds`), `FolderSyncTest.anImportTouchingOnePurgedIdReadsOneRegistryRow` reads one registry row for an import touching one of 30 purged ids, and `FolderSyncTest.aPurgeAlreadyHeldChangesNothingAndAnEarlierOneLowersIt` imports a purge already held, at its stamp and at a later one, with nothing changed, and an earlier one that lowers the entry.
 
 **Since:** 2026-11-24 · owner · agreed rewording
 
@@ -2657,7 +2657,7 @@ Background, not a rule: Equipoise runs llama.cpp on Android only, and only in th
 - R24 · Answers settle the clash everywhere: `ResolutionTest` checks each answer, and `FolderSyncTest.anAnswerSettlesTheQuestionOnBothDevices` an answer settling the question on both devices.
 - R25 · The clock never goes back: `ClockAndIdTest` sets the wall clock back and gets a newer stamp.
 - R26 · Old versions do not move the base: Replaying an older version of the other side through the folder leaves the base and any pending question as they were, and the next change on the other side is still asked.
-- R27 · A permanent purge registry: The purge case of `decisions/cases/01-sync.jsonl` passes (`SyncCasesTest.tendrilPurgeHolds`), and `FolderSyncTest.anImportTouchingOnePurgedIdReadsOneRegistryRow` reads one registry row for an import touching one of 30 purged ids.
+- R27 · A permanent purge registry: The purge case of `decisions/cases/01-sync.jsonl` passes (`SyncCasesTest.tendrilPurgeHolds`), `FolderSyncTest.anImportTouchingOnePurgedIdReadsOneRegistryRow` reads one registry row for an import touching one of 30 purged ids, and `FolderSyncTest.aPurgeAlreadyHeldChangesNothingAndAnEarlierOneLowersIt` imports a purge already held, at its stamp and at a later one, with nothing changed, and an earlier one that lowers the entry.
 - R28 · A purge undone by a later edit: After a purge is undone by a peer's later edit, both devices hold the same rows under the revived one.
 - R29 · One deletion vocabulary: `VocabularyTest` walks every kind through Delete, its Trash, Restore, Delete again and Delete forever; a kind missing one does not compile or fails.
 - R30 · What Delete and Restore take: `VocabularyTest` restores each kind and checks that exactly what its deletion took comes back.

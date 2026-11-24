@@ -334,3 +334,4 @@ Not a source of current rules: `Factotum SPEC.md` is. One line per change, newes
 - 2026-11-24 · R143 · changed · Why gives the owner's reason: nothing typed is lost to a sync · owner
 - 2026-11-24 · R145 · kind · D → O · owner
 - 2026-11-24 · R145 · changed · Why gives the owner's reasons (ADR 12, answers 1 and 3); the R21 exception moves from Rule to Not · owner
+- 2026-11-24 · R27 · changed · Acceptance names the held-purge test: a purge already held changes nothing, an earlier one lowers it · owner
