@@ -812,7 +812,7 @@ One app that does what Tendril, Chronicle, Mnemo and Equipoise do, over one data
 
 **Acceptance:** `FolderSyncTest.aPeerFileIsReadOnlyWhenItHasGrown`, `aLineStillBeingWrittenWaitsForItsNewline` and `aFileThatShrankIsReadAgainFromTheStart` pass.
 
-**Since:** 2026-11-21 · owner · migrated
+**Since:** 2026-11-24 · owner · agreed rewording
 
 ### D-R41 · Lines this version cannot read
 
@@ -922,7 +922,7 @@ One app that does what Tendril, Chronicle, Mnemo and Equipoise do, over one data
 
 **Not:** A unique key per occurrence: the second device's row would fail to import.
 
-**Since:** 2026-11-21 · owner · migrated
+**Since:** 2026-11-24 · owner · agreed rewording
 
 ### D-R51 · Subtasks go with their parent
 
@@ -1640,7 +1640,7 @@ One app that does what Tendril, Chronicle, Mnemo and Equipoise do, over one data
 
 **Acceptance:** `LabelCasesTest` (one label on a habit, activity, task, event, standalone reminder, tracker and checklist, a second replacing the first; `aStandaloneReminderCarriesOneLabelAndASecondReplacesTheFirst_SPEC_R111`), `PageCasesTest` (many on a page) and `DatabaseCasesTest` (the doorway) pass.
 
-**Since:** 2026-11-21 · owner · migrated
+**Since:** 2026-11-24 · owner · agreed rewording
 
 ### D-R112 · Label names are unique
 
@@ -1704,7 +1704,7 @@ One app that does what Tendril, Chronicle, Mnemo and Equipoise do, over one data
 
 **Not:** A label time total, and the category half of `chronicle-activity-and-category-totals`: removed by the owner on 2026-10-10.
 
-**Since:** 2026-11-21 · owner · migrated
+**Since:** 2026-11-24 · owner · agreed rewording
 
 ## 12. Settings
 
@@ -2168,7 +2168,7 @@ One app that does what Tendril, Chronicle, Mnemo and Equipoise do, over one data
 
 **Acceptance:** `DatabaseCasesTest.aPropertyOptionAndViewRenamedOnTwoDevicesTakeTheLaterNameSilentlyAndShownColumnsSync_SPEC_R155` (the later names, with no notice or question, and the shown columns synced) and `aSortAndAFilterChangedApartBothStand` pass.
 
-**Since:** 2026-11-21 · owner · migrated
+**Since:** 2026-11-24 · owner · agreed rewording
 
 ### D-R156 · A database's rows
 
@@ -2265,7 +2265,7 @@ One app that does what Tendril, Chronicle, Mnemo and Equipoise do, over one data
 
 **Acceptance:** `RowTasksTest.bindingOnADeviceThatHadNotSeenATrashDoesNotBringTheRowBack` and `unbindingOrTurningTasksOffOnADeviceThatHadNotSeenATrashDoesNotBringTheRowBack_SPEC_R165` pass.
 
-**Since:** 2026-11-21 · owner · migrated
+**Since:** 2026-11-24 · owner · agreed rewording
 
 ### D-R166 · Repeating rows and intervals
 
@@ -2436,7 +2436,7 @@ One app that does what Tendril, Chronicle, Mnemo and Equipoise do, over one data
 
 **Acceptance:** `JournalLinksTemplatesTest.aTemplateIsNotFoundNorAParentAndATrashedOneIsInTheTrash` makes a template and finds it only in `templates()` and the Trash, and `aTemplateIsNoDatabaseRowAndNoBoardOffersIt_SPEC_R181` keeps it out of a database's rows and a board's page picker.
 
-**Since:** 2026-11-21 · owner · migrated
+**Since:** 2026-11-24 · owner · agreed rewording
 
 ### D-R182 · Copying a template
 
