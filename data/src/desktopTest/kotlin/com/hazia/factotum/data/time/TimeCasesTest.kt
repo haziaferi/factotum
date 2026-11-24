@@ -138,6 +138,8 @@ class TimeCasesTest {
         assertFailsWith<IllegalArgumentException> { runBlocking { items.purge(reading) } }
 
         runBlocking { activities.delete(reading) }
+        // In the Trash too, ItemRepository leaves an activity's Delete forever to ActivityRepository.
+        assertFailsWith<IllegalArgumentException> { runBlocking { items.purge(reading) } }
         assertTrue(runBlocking { db.timeDao().spans(listOf(span)) }.single().deletedAt != null)
         assertTrue(runBlocking { db.trackerDao().goals(listOf(goal)) }.single().deletedAt != null)
         assertEquals(listOf(untimed), runBlocking { activities.activities() }.map { it.id })
@@ -328,6 +330,93 @@ class TimeCasesTest {
         }
     }
 
+    // SPEC:R99
+    @Test
+    fun eachOfASpansFiveGroupsWrittenOnADifferentDeviceSurvives() {
+        val w = World(tmp.root, 8)
+        try {
+            val devices = listOf("A", "B", "C", "D", "E").map { w.Device(it) }
+            val (a, b, c, d, e) = devices
+            val reading = runBlocking { a.activities.create("Reading") }
+            val span = runBlocking { a.time.start(reading, at(5, 20)) }
+            w.settle(devices)
+
+            runBlocking {
+                a.time.edit(span, at(5, 19, 30), null, null)
+                b.time.stop(span, at(5, 22))
+                c.time.delete(span)
+                d.time.keep(span, at(5, 21))
+                e.time.edit(span, at(5, 20), null, "chapter 3")
+            }
+            w.settle(devices)
+
+            for (device in devices) {
+                val s = runBlocking { device.db.timeDao().spans(listOf(span)) }.single()
+                assertEquals(listOf("2026-10-05T19:30", "2026-10-05T22:00", "2026-10-05T21:00", "chapter 3"), listOf(s.startedAt, s.endedAt, s.keptAt, s.comment), device.name)
+                assertTrue(s.deletedAt != null, device.name)
+            }
+        } finally {
+            w.close()
+        }
+    }
+
+    // SPEC:R100
+    @Test
+    fun aMergedSpanEndingBeforeItStartsCountsAsNothing() {
+        val w = World(tmp.root, 9)
+        try {
+            val a = w.Device("A")
+            val b = w.Device("B")
+            val reading = runBlocking { a.activities.create("Reading") }
+            runBlocking { a.time.logManual(reading, at(5, 9), at(5, 9, 10)) }
+            val span = runBlocking { a.time.start(reading, at(5, 20)) }
+            w.settle(listOf(a, b))
+
+            // Each check passes where it is written; merged, the span ends half an hour before it starts.
+            runBlocking { a.time.edit(span, at(5, 21), null, null) }
+            runBlocking { b.time.stop(span, at(5, 20, 30)) }
+            w.settle(listOf(a, b))
+
+            for (d in listOf(a, b)) {
+                val s = runBlocking { d.db.timeDao().spans(listOf(span)) }.single()
+                assertEquals("2026-10-05T21:00" to "2026-10-05T20:30", s.startedAt to s.endedAt, d.name)
+                assertEquals(10 * 60L, runBlocking { d.time.total(listOf(monday), at(6, 12)) }, d.name)
+            }
+        } finally {
+            w.close()
+        }
+    }
+
+    // SPEC:R103
+    @Test
+    fun aGoalIsReachedInEachWindowThroughTheRepository() {
+        val reading = runBlocking { activities.create("Reading") }
+        fun log(date: LocalDate, minutes: Int) = runBlocking { time.logManual(reading, LocalDateTime(date, kotlinx.datetime.LocalTime(10, 0)), LocalDateTime(date, kotlinx.datetime.LocalTime(10, minutes))) }
+        val today = LocalDate(2026, 10, 8)
+        log(LocalDate(2025, 9, 3), 9) // a day before the milestone's 400
+        log(LocalDate(2025, 9, 4), 7) // the milestone's first day
+        log(LocalDate(2026, 9, 30), 50) // before the month
+        log(LocalDate(2026, 10, 1), 20) // the month's first day
+        log(LocalDate(2026, 10, 4), 10) // the Sunday before the week
+        log(monday, 15)
+        log(LocalDate(2026, 10, 7), 5)
+        log(today, 30)
+        now = at(8, 12)
+
+        val goals = listOf(
+            runBlocking { activities.addGoal(reading, GoalPeriod.DAY, 30) } to 30L,
+            runBlocking { activities.addGoal(reading, GoalPeriod.WEEK, 50) } to 50L,
+            runBlocking { activities.addGoal(reading, GoalPeriod.MONTH, 80) } to 80L,
+            runBlocking { activities.addGoal(reading, GoalPeriod.DAY, 137, milestone = true) } to 137L,
+        )
+
+        for ((goal, minutes) in goals) {
+            val progress = runBlocking { activities.progress(goal, today, now) }
+            assertEquals(TimeGoalProgress(minutes, minutes), progress, goal)
+            assertTrue(progress.minutes >= progress.targetMinutes, goal)
+        }
+    }
+
     @Test
     fun aTaskFinishedOnAnotherDeviceStopsTheTimerHereWhenItArrives() {
         val w = World(tmp.root, 7)
@@ -427,6 +516,23 @@ class TimeCasesTest {
         refused("UPDATE item SET color = 1 WHERE id = '$report'")
         refused("UPDATE item SET sort_order = 1.0 WHERE id = '$report'")
         refused("UPDATE item SET start_date = '2026-10-05' WHERE id = '$reading'")
+    }
+
+    // SPEC:R97
+    @Test
+    fun reorderingAnActivityMovesItBetweenItsNewNeighbours() {
+        val chess = runBlocking { activities.create("Chess") }
+        val reading = runBlocking { activities.create("Reading") }
+        val piano = runBlocking { activities.create("Piano") }
+        runBlocking { items.setSortOrder(piano, 1.0) }
+        runBlocking { items.setSortOrder(reading, 2.0) }
+        runBlocking { items.setSortOrder(chess, 3.0) }
+
+        // Fractional, as Tendril's: chess goes between piano and reading without renumbering them.
+        runBlocking { items.setSortOrder(chess, 1.5) }
+
+        assertEquals(listOf(piano, chess, reading), runBlocking { activities.activities() }.map { it.id })
+        assertEquals(listOf(1.0, 1.5, 2.0), runBlocking { activities.activities() }.map { it.sortOrder })
     }
 
     private fun refused(sql: String) {

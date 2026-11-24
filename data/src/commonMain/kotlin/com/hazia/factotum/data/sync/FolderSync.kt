@@ -329,7 +329,7 @@ internal fun completeLines(bytes: ByteArray, from: Int): List<Line> {
     return lines
 }
 
-/** Runs [action] once [touches] has been quiet for [quietMillis], so a burst of writes makes one export (§3.13 requirement 2). */
+/** Runs [action] once [touches] has been quiet for [quietMillis], so a burst of writes makes one export (SPEC:R36, requirement 2). */
 @OptIn(FlowPreview::class)
 internal fun CoroutineScope.exportAfterQuiet(touches: Flow<Unit>, quietMillis: Long, action: suspend () -> Unit): Job =
     launch { touches.debounce(quietMillis).collect { action() } }

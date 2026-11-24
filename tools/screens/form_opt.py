@@ -11,7 +11,7 @@ The typed line while the list is open (owner: score each):
   title     the parse applied: the line keeps only the title, and the values move into the list's rows
   underline the parsed words underlined in the line, no chips
   highlight the parsed words highlighted, no chips
-Each list holds the kind's fields with their current values (SPEC §3.2-3.7 and the ledger), then Kind and Templates,
+Each list holds the kind's fields with their current values (SPEC R46 to R106, and the ledger, R137), then Kind and Templates,
 which ⋯ also carries (owner: ⋯ replaces Details).
 
 Measures (all from the render, as capture_v2):

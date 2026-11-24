@@ -23,9 +23,9 @@ enum class TrackerType { NUMBER, BOOLEAN, RATING, CHOICE }
 data class Tracker(val id: String, val name: String, val type: TrackerType)
 
 /**
- * Trackers (Chronicle's, SPEC §0.1.5) as far as habits need them: making one, Logging on it and
+ * Trackers (Chronicle's, SPEC:R79) as far as habits need them: making one, Logging on it and
  * undoing a Log, its goals, and deleting it, which takes the habits that use it (owner,
- * 2026-10-02). The rest of the Trackers module comes with it in §7 step 3.
+ * 2026-10-02). The rest of the Trackers module comes with the sole-owner modules (SPEC:R195).
  */
 internal class TrackerRepository(
     db: FactotumDatabase,

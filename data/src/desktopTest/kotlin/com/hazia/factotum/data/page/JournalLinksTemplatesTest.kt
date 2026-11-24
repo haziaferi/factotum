@@ -435,6 +435,30 @@ class JournalLinksTemplatesTest {
     }
 
     @Test
+    fun aTemplateIsNoDatabaseRowAndNoBoardOffersIt_SPEC_R181() {
+        val trips = go { databases.create("Trips") }
+        val travel = go { labels.create("travel") }
+        go { databases.setDoorway(trips, travel) }
+        val rome = go { pages.create("Rome", parentId = trips) }
+        val notes = go { pages.create("Packing notes") }
+        go { labels.labelPage(notes, travel) }
+        // One template carries the doorway label, and one was moved under the database.
+        val labelled = go { templates.saveAsTemplate(notes) }
+        go { labels.labelPage(labelled, travel) }
+        val under = go { templates.saveAsTemplate(rome) }
+        go { pages.move(under, trips) }
+        assertEquals(trips, go { pages.page(under) }!!.parentId)
+
+        assertEquals(listOf(rome, notes).sorted(), go { databases.members(trips) })
+        val view = go { databases.views(trips) }.single().id
+        assertEquals(setOf(rome, notes), go { databases.rows(view) }.map { it.pageId }.toSet())
+        val board = go { canvases.create("Plan") }
+        assertFailsWith<IllegalArgumentException> { go { canvases.addPageCard(board, labelled, 0.0, 0.0) } }
+        go { canvases.addPageCard(board, notes, 0.0, 0.0) }
+        assertEquals(listOf(notes), go { canvases.nodes(board) }.map { it.pageRef })
+    }
+
+    @Test
     fun aJournalDaysWritingIsFoundUnderItsDate() {
         val dayPage = go { journal.day(day) }
         go { pages.addBlock(dayPage, content = "Walked to the harbour") }

@@ -50,10 +50,17 @@ internal class World(private val dir: File, seed: Int, private val segmentBytes:
     /**
      * [id] is the sync identity; two devices given the same one model a cloned device id.
      * [extra] adds tables, or replaces a real one, for rows written straight into the folder.
+     * [open] opens the database file, for a test that watches what the driver reads.
      */
-    inner class Device(val name: String, val id: String = name, extra: Map<String, RowTable> = emptyMap(), recovered: Boolean = false) {
+    inner class Device(
+        val name: String,
+        val id: String = name,
+        extra: Map<String, RowTable> = emptyMap(),
+        recovered: Boolean = false,
+        open: (File) -> FactotumDatabase = { openFactotumDatabase(it).database },
+    ) {
         val clock = HybridClock(id, { syncthing.now })
-        val db = openFactotumDatabase(File(dir, "$name.db")).database.also { opened += it }
+        val db = open(File(dir, "$name.db")).also { opened += it }
         private val tables = db.syncedTables() + extra
         private var made = 0
         /** This device's secret store: a map, as the Keystore or DPAPI would hold it apart from everything else. */

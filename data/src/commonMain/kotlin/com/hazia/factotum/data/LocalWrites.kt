@@ -11,9 +11,9 @@ import com.hazia.factotum.data.sync.StagedStore
 import com.hazia.factotum.data.sync.saveClock
 
 /**
- * How every repository writes (SPEC §5.3): one transaction that loads the rows it touches, runs
+ * How every repository writes (SPEC:R12): one transaction that loads the rows it touches, runs
  * the change through the same staged merge as an import, writes it back, and saves [clock] with it
- * (§3.1). The triggers then queue the rows for export.
+ * (SPEC:R25). The triggers then queue the rows for export.
  */
 internal class LocalWrites(private val db: FactotumDatabase, val clock: HybridClock) {
     val merger = Merger(clock, ASK_GROUPS, KEEP_LOSER_GROUPS)

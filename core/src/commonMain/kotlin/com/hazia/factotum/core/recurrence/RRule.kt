@@ -20,8 +20,8 @@ data class WeekdayNum(val ordinal: Int?, val day: DayOfWeek)
  * which handled whole days only, and extended to the times of day ADR 04 requires: `MINUTELY`,
  * `HOURLY`, `BYHOUR`, `BYMINUTE` and `BYSETPOS`, with `UNTIL` to the second.
  *
- * Times are local and floating: a rule rings at the same wall-clock time in any time zone (SPEC
- * §3.4). **Strict on purpose**, as Tendril's was: a rule with a part this does not implement parses
+ * Times are local and floating: a rule rings at the same wall-clock time in any time zone (SPEC:R66).
+ * **Strict on purpose**, as Tendril's was: a rule with a part this does not implement parses
  * to null, because ignoring a limiter adds occurrences that do not exist, and a phantom occurrence
  * is believed where a missing one is noticed.
  */
@@ -109,7 +109,7 @@ data class RRule(
         private fun numbers(raw: String?, valid: (Int) -> Boolean): List<Int>? =
             raw?.split(',')?.map { it.trim().toIntOrNull()?.takeIf(valid) ?: return null } ?: emptyList()
 
-        /** `20261101` (the whole day) or `20261101T235900`, with or without `Z`: times are floating local (§3.4). */
+        /** `20261101` (the whole day) or `20261101T235900`, with or without `Z`: times are floating local (SPEC:R66). */
         private fun parseUntil(raw: String): LocalDateTime? {
             val m = UNTIL.matchEntire(raw.trim()) ?: return null
             val (y, mo, d, h, mi, s) = m.destructured
@@ -144,7 +144,7 @@ fun RRule.format(): String = buildList {
  * The occurrences of this rule starting at [start] (DTSTART) that fall in `[from, to)`.
  *
  * Unlike RFC 5545, [start] is an occurrence only when it matches the rule: Factotum aligns it to
- * the rule (SPEC §3.4), and a converted cron rule starts at midnight, which must not ring.
+ * the rule (SPEC:R65), and a converted cron rule starts at midnight, which must not ring.
  *
  * Without `COUNT` the walk starts at the period holding [from]; with it, at [start], because
  * `COUNT` counts the whole series.

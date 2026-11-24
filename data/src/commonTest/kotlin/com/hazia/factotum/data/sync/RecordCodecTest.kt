@@ -50,6 +50,16 @@ class RecordCodecTest {
         }
     }
 
+    /** SPEC:R22: a group value is a finite Double, so a line carrying NaN or an infinity is refused, like any line that is not a record. */
+    @Test
+    fun aLineCarryingANaNOrAnInfiniteDoubleIsRefused() {
+        for (number in listOf("NaN", "Infinity", "-Infinity", "1e999", "-1e999")) {
+            val line = """{"t":"item","id":"x","g":{"a":{"h":1,"d":"A","v":{"n":$number}}}}"""
+            assertFailsWith<IllegalArgumentException>(line) { RecordCodec.decode(line) }
+        }
+        assertEquals(1.5, (RecordCodec.decode("""{"t":"item","id":"x","g":{"a":{"h":1,"d":"A","v":{"n":1.5}}}}""") as RowRecord).row.groups.getValue("a").values["n"])
+    }
+
     @Test
     fun onlyNewlineTerminatedLinesAreRead() {
         val bytes = "one\ntwo\nthr".encodeToByteArray()

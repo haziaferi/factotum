@@ -12,6 +12,7 @@ import com.hazia.factotum.data.isConstraintViolation
 import com.hazia.factotum.data.item.HabitRepository
 import com.hazia.factotum.data.item.ItemRepository
 import com.hazia.factotum.data.openFactotumDatabase
+import com.hazia.factotum.data.reminder.ReminderRepository
 import com.hazia.factotum.data.sync.World
 import com.hazia.factotum.data.sync.loadClock
 import com.hazia.factotum.data.time.ActivityRepository
@@ -22,6 +23,7 @@ import com.hazia.factotum.data.tracker.TrackerType
 import kotlinx.coroutines.runBlocking
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.LocalTime
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -46,6 +48,7 @@ class LabelCasesTest {
     private lateinit var trackers: TrackerRepository
     private lateinit var activities: ActivityRepository
     private lateinit var time: TimeRepository
+    private lateinit var reminders: ReminderRepository
 
     @Before fun open() {
         db = openFactotumDatabase(File(tmp.root, "labels.db")).database
@@ -58,6 +61,7 @@ class LabelCasesTest {
         trackers = TrackerRepository(db, writes, newId)
         activities = ActivityRepository(db, writes, newId, FixedSettings())
         time = TimeRepository(db, writes, newId, FixedSettings())
+        reminders = ReminderRepository(db, writes, newId, FixedSettings())
     }
 
     @After fun close() = db.close()
@@ -101,6 +105,19 @@ class LabelCasesTest {
         runBlocking { labels.label(talk, study) }
         assertEquals(study, labelOf(report))
         assertEquals(study, labelOf(talk))
+    }
+
+    @Test
+    fun aStandaloneReminderCarriesOneLabelAndASecondReplacesTheFirst_SPEC_R111() {
+        val health = runBlocking { labels.create("Health") }
+        val home = runBlocking { labels.create("Home") }
+        val pills = runBlocking { reminders.createStandalone("take pills", monday, LocalTime(8, 0)) }
+
+        runBlocking { labels.label(pills, health) }
+        assertEquals(health, labelOf(pills))
+        runBlocking { labels.label(pills, home) }
+        assertEquals(home, labelOf(pills))
+        assertEquals(0 to 1, runBlocking { labels.carrying(health) to labels.carrying(home) })
     }
 
     @Test

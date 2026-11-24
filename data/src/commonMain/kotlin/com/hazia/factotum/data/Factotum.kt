@@ -34,12 +34,12 @@ import com.hazia.factotum.data.tracker.TrackerRepository
 import kotlinx.datetime.LocalDateTime
 
 /**
- * The data layer as one device runs it (§5): every repository over one database, and sync over
+ * The data layer as one device runs it (SPEC:R33): every repository over one database, and sync over
  * one folder, wired in the one order the rules need. Each shell builds this once, from its own
  * database, folder, secret store, picture store and scaler; tests build it the same way. What
- * the shells see of it waits for the screens (§10.1).
+ * the shells see of it waits for the screens (SPEC:R187).
  *
- * - [export] publishes the pictures the logs will name, then writes the logs (§3.13).
+ * - [export] publishes the pictures the logs will name, then writes the logs (SPEC:R170).
  * - [import] reads the logs and settles what peers wrote, then fetches and collects pictures.
  * - [rowsChanged] runs after a local write that changes which pages are rows of a database (a page
  *   made, moved, trashed or restored, a label put on or taken off, a doorway set), so their tasks

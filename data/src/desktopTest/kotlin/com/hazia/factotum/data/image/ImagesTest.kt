@@ -73,6 +73,47 @@ class ImagesTest {
     }
 
     @Test
+    fun aGifABmpAndAnAnimationAreReadWebpHeicAndCmykRefusedAndAJpegIsWrittenAtQuality85_SPEC_R169() {
+        val scaler = DesktopImageScaler()
+        for (format in listOf("gif", "bmp", "tiff")) {
+            val stored = scaler.scale(encode(picture(30, 20, Color.GREEN), format).also { assertTrue(it.isNotEmpty(), format) })
+            assertEquals(listOf(30, 20, "jpg"), listOf(stored.width, stored.height, stored.format), format)
+            assertTrue(Color(read(stored.bytes).getRGB(15, 10)).green > 200, format)
+        }
+        // A WBMP is one bit a pixel: a white one is read and stored white.
+        val white = BufferedImage(30, 20, BufferedImage.TYPE_BYTE_BINARY).apply { createGraphics().apply { color = Color.WHITE; fillRect(0, 0, 30, 20); dispose() } }
+        val wbmp = scaler.scale(encode(white, "wbmp").also { assertTrue(it.isNotEmpty(), "wbmp") })
+        assertEquals(listOf(30, 20, "jpg"), listOf(wbmp.width, wbmp.height, wbmp.format))
+        assertTrue(Color(read(wbmp.bytes).getRGB(15, 10)).let { it.red > 200 && it.green > 200 && it.blue > 200 }, "wbmp")
+        // An animation keeps its first frame: red, then blue.
+        val animation = gifFrames(picture(16, 16, Color.RED), picture(16, 16, Color.BLUE))
+        assertEquals(2, ImageIO.getImageReadersByFormatName("gif").next().run { input = ImageIO.createImageInputStream(ByteArrayInputStream(animation)); getNumImages(true) })
+        val first = read(scaler.scale(animation).bytes)
+        assertTrue(Color(first.getRGB(8, 8)).let { it.red > 200 && it.blue < 60 }, "the first frame is kept")
+
+        // What the JDK cannot read: WebP and HEIC, by their headers. A CMYK JPEG, which JDK 21 reads
+        // without turning it into RGB, is refused too: bare, with an Adobe marker, and as YCCK.
+        val webp = "RIFF".toByteArray() + byteArrayOf(26, 0, 0, 0) + "WEBPVP8 ".toByteArray() + ByteArray(18)
+        val heic = byteArrayOf(0, 0, 0, 24) + "ftypheic".toByteArray() + ByteArray(4) + "mif1heic".toByteArray()
+        val cmyk = cmykJpeg()
+        val refused = listOf("WebP" to webp, "HEIC" to heic, "CMYK" to cmyk, "Adobe CMYK" to withAdobe(cmyk, 0), "YCCK" to withAdobe(cmyk, 2))
+        for ((name, bytes) in refused) {
+            val e = assertFailsWith<IllegalArgumentException>(name) { scaler.scale(bytes) }
+            assertEquals("not a picture this device can read", e.message, name)
+        }
+        // A JPEG of one channel, grey, is read.
+        val grey = BufferedImage(12, 12, BufferedImage.TYPE_BYTE_GRAY).apply { createGraphics().apply { color = Color.GRAY; fillRect(0, 0, 12, 12); dispose() } }
+        assertEquals(listOf(12, 12, "jpg"), scaler.scale(encode(grey, "jpg")).let { listOf(it.width, it.height, it.format) })
+
+        // A JPEG is written at quality 85: the quantization tables the JDK's writer uses at 0.85.
+        val photo = scaler.scale(encode(picture(64, 64, Color.ORANGE), "png"))
+        assertEquals("jpg", photo.format)
+        val at85 = ByteArrayOutputStream().also { writeJpeg(picture(8, 8, Color.ORANGE), 0.85f, it) }.toByteArray()
+        assertTrue(quantization(at85).size >= 65)
+        assertEquals(quantization(at85), quantization(photo.bytes))
+    }
+
+    @Test
     fun aPictureInsertedOnOneDeviceShowsOnTheOtherAndIsStoredOnce() = two(1) { a, b ->
         syncthing.now = day
         val page = go { a.pages.create("Garden") }
@@ -344,6 +385,73 @@ class ImagesTest {
     private fun encode(image: BufferedImage, format: String) = ByteArrayOutputStream().also { ImageIO.write(image, format, it) }.toByteArray()
 
     private fun read(bytes: ByteArray) = requireNotNull(ImageIO.read(ByteArrayInputStream(bytes)))
+
+    /** An animated GIF of [frames], in order. */
+    private fun gifFrames(vararg frames: BufferedImage): ByteArray {
+        val writer = ImageIO.getImageWritersByFormatName("gif").next()
+        val out = ByteArrayOutputStream()
+        try {
+            ImageIO.createImageOutputStream(out).use { stream ->
+                writer.output = stream
+                writer.prepareWriteSequence(null)
+                for (f in frames) writer.writeToSequence(javax.imageio.IIOImage(f, null, null), null)
+                writer.endWriteSequence()
+            }
+        } finally {
+            writer.dispose()
+        }
+        return out.toByteArray()
+    }
+
+    /** A JPEG of four channels, cyan and black at none, magenta and yellow at 200: a red CMYK picture, with no Adobe marker. */
+    private fun cmykJpeg(): ByteArray {
+        val raster = java.awt.image.Raster.createInterleavedRaster(java.awt.image.DataBuffer.TYPE_BYTE, 8, 8, 4, null)
+        for (y in 0 until 8) for (x in 0 until 8) raster.setPixel(x, y, intArrayOf(0, 200, 200, 0))
+        val writer = ImageIO.getImageWritersByFormatName("jpg").next()
+        val out = ByteArrayOutputStream()
+        try {
+            ImageIO.createImageOutputStream(out).use { stream ->
+                writer.output = stream
+                writer.write(null, javax.imageio.IIOImage(raster, null, null), null)
+            }
+        } finally {
+            writer.dispose()
+        }
+        return out.toByteArray()
+    }
+
+    /** [jpeg] with an Adobe APP14 marker of [transform] just after its start: 0 says CMYK, 2 says YCCK. */
+    private fun withAdobe(jpeg: ByteArray, transform: Int): ByteArray {
+        val adobe = listOf(0xFF, 0xEE, 0, 14) + "Adobe".map { it.code } + listOf(0, 100, 0, 0, 0, 0, transform)
+        return jpeg.copyOfRange(0, 2) + adobe.map { it.toByte() }.toByteArray() + jpeg.copyOfRange(2, jpeg.size)
+    }
+
+    private fun writeJpeg(image: BufferedImage, quality: Float, out: ByteArrayOutputStream) {
+        val writer = ImageIO.getImageWritersByFormatName("jpg").next()
+        try {
+            val param = writer.defaultWriteParam.apply { compressionMode = javax.imageio.ImageWriteParam.MODE_EXPLICIT; compressionQuality = quality }
+            ImageIO.createImageOutputStream(out).use { stream ->
+                writer.output = stream
+                writer.write(null, javax.imageio.IIOImage(image, null, null), param)
+            }
+        } finally {
+            writer.dispose()
+        }
+    }
+
+    /** The bodies of [jpeg]'s DQT segments, its quantization tables, up to its first scan. */
+    private fun quantization(jpeg: ByteArray): List<Int> {
+        val out = mutableListOf<Int>()
+        var i = 2
+        while (i + 4 <= jpeg.size && jpeg[i] == 0xFF.toByte()) {
+            val marker = jpeg[i + 1].toInt() and 0xFF
+            val length = ((jpeg[i + 2].toInt() and 0xFF) shl 8) or (jpeg[i + 3].toInt() and 0xFF)
+            if (marker == 0xDA) break
+            if (marker == 0xDB) for (k in i + 4 until i + 2 + length) out += jpeg[k].toInt() and 0xFF
+            i += 2 + length
+        }
+        return out
+    }
 
     /** [jpeg] with an APP1 EXIF segment saying [orientation] put just after its start. */
     private fun withExif(jpeg: ByteArray, orientation: Int): ByteArray {

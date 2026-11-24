@@ -10,10 +10,10 @@ import androidx.room.Query
 import androidx.room.Upsert
 
 /**
- * Chronicle's trackers, which move across as they are (SPEC §0.1.5): `TrackerEntity`,
+ * Chronicle's trackers, which move across as they are (SPEC:R79): `TrackerEntity`,
  * `TrackerChoiceEntity`, `EntryEntity` (now `tracker_reading`, ADR 02's name) and `GoalEntity`.
  * Chronicle stamps whole rows, so each table is one ADR 01 group. Two changes: a reading's time
- * is a floating local date-time, as every time in Factotum is (§3.4), and the creation time is
+ * is a floating local date-time, as every time in Factotum is (SPEC:R66), and the creation time is
  * the ULID's own. A tracker's category is ADR 08's label.
  */
 @Entity(tableName = "tracker", indices = [Index("label_id")])

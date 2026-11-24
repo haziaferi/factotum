@@ -1,4 +1,4 @@
-"""SPEC §9.2: measure Tendril's calendar-habit rules through Factotum's stored form.
+"""Spike 2 (SPEC R92, R65): measure Tendril's calendar-habit rules through Factotum's stored form.
 
     python tools/spikes/planner_check.py
 

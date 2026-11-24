@@ -1,7 +1,7 @@
 package com.hazia.factotum.core.formula
 
 /**
- * Tendril's formula language (ADR 12, §7 step 3): its tokens, its syntax tree and its parser.
+ * Tendril's formula language (ADR 12, SPEC:R159): its tokens, its syntax tree and its parser.
  * A property is named `prop("…")`; what is between the quotes is a key, a property's name as a
  * person types it and its id as Factotum stores it ([rewriteKeys]), so a rename never breaks a
  * formula (owner, 2026-10-03). Precedence, loosest first: `or`, `and`, `==` `!=`, `<` `<=` `>`

@@ -170,7 +170,7 @@ def steps(v):
     tasks = [
         (["Preset Tomorrow"] + time_09[0], time_09[1], time_09[2]),
         (["Day 9"] + time_1430[0], time_1430[1], time_1430[2]),
-        (["Preset Next week"], 0, 0),  # a date with no time is a whole-day item (SPEC §3.2): no all-day tap
+        (["Preset Next week"], 0, 0),  # a date with no time is a whole-day item (SPEC R94): no all-day tap
         (["Preset Today"] + time_15[0] + end_1h[0], time_15[1] + end_1h[1], time_15[2] + end_1h[2]),
         (["Time field"], 11, 0) if e == "cron" else (["Repeat (T1.6)", "Every weekday (T1.6)"] + time_09[0], time_09[1], time_09[2]),
     ]

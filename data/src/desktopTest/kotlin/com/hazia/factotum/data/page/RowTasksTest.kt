@@ -351,6 +351,26 @@ class RowTasksTest {
     }
 
     @Test
+    fun unbindingOrTurningTasksOffOnADeviceThatHadNotSeenATrashDoesNotBringTheRowBack_SPEC_R165() = two(15) { a, b ->
+        syncthing.now = 1_000
+        val unbound = a.chores()
+        val off = a.chores()
+        for (c in listOf(unbound, off)) go { a.rowTasks.setDate(c.bins, oct5, DateScope.SERIES) }
+        settle(listOf(a, b))
+        syncthing.now = 2_000
+        go { a.pages.trash(unbound.bins) }
+        go { a.pages.trash(off.bins) }
+        syncthing.now = 3_000
+        go { b.rowTasks.unbind(unbound.date) }
+        go { b.rowTasks.setRowsAsTasks(off.db, false) }
+        // B wrote the tasks' dates into the cells, stamped as the app's.
+        for (c in listOf(unbound, off)) assertEquals("2026-10-05", go { b.db.databaseDao().values(listOf(valueId(c.bins, c.date))) }.single().value)
+        settle(listOf(a, b))
+
+        for (d in listOf(a, b)) for (c in listOf(unbound, off)) assertEquals(true, go { d.pages.page(c.bins) }?.trashed, d.name)
+    }
+
+    @Test
     fun turningRowsAsTasksOffLetsGoOfAColumnASyncLeftBound() = two(14) { a, b ->
         syncthing.now = 1_000
         val c = a.chores()

@@ -272,6 +272,36 @@ class HabitCasesTest {
         refused("UPDATE tracker SET type = 'TEXT' WHERE id = '$tracker'")
         refused("UPDATE tracker SET unit = 'CUSTOM' WHERE id = '$tracker'")
         refused("UPDATE item SET tracker_id = NULL WHERE id = '$water'")
+
+        // SPEC:R79: a rating from 1 to 5, a unit only on a number tracker, and no default on a CHOICE tracker.
+        val mood = runBlocking { habits.create("mood", monday, type = TrackerType.RATING) }
+        val moodTracker = runBlocking { items.item(mood) }!!.trackerId!!
+        val rated = runBlocking { habits.log(mood, at(5, 9), rating = 4) }
+        refused("UPDATE tracker_reading SET rating_value = 6 WHERE id = '$rated'")
+        refused("UPDATE tracker_reading SET rating_value = 0 WHERE id = '$rated'")
+        refused("UPDATE tracker SET default_rating = 6 WHERE id = '$moodTracker'")
+        val meditate = runBlocking { items.item(habits.create("meditate", monday)) }!!.trackerId!!
+        refused("UPDATE tracker SET unit = 'HOURS' WHERE id = '$meditate'")
+        refused("UPDATE tracker SET unit = 'HOURS' WHERE id = '$moodTracker'")
+        val colour = runBlocking { trackers.create("colour", TrackerType.CHOICE) }
+        refused("UPDATE tracker SET default_number = 1.0 WHERE id = '$colour'")
+        refused("UPDATE tracker SET default_bool = 1 WHERE id = '$colour'")
+        refused("UPDATE tracker SET default_rating = 3 WHERE id = '$colour'")
+    }
+
+    // SPEC:R83
+    @Test
+    fun aYesNoHabitLoggedWithAnExplicitValueKeepsIt() {
+        val meditate = runBlocking { habits.create("meditate", monday) }
+        val tracker = runBlocking { items.item(meditate) }!!.trackerId!!
+
+        runBlocking { habits.log(meditate, at(5, 7), yes = false) }
+        runBlocking { habits.log(meditate, at(6, 7), yes = true) }
+        runBlocking { habits.log(meditate, at(7, 7)) }
+
+        assertEquals(listOf(false, true, true), runBlocking { trackers.logs(tracker) }.sortedBy { it.at }.map { it.yes })
+        assertEquals(2, runBlocking { habits.presence(meditate, LocalDate(2026, 10, 14)) }.daysThisMonth)
+        assertFailsWith<IllegalArgumentException> { runBlocking { habits.log(meditate, at(8, 7), rating = 4) } }
     }
 
     @Test
@@ -282,6 +312,34 @@ class HabitCasesTest {
         runBlocking { habits.log(meds, at(5, 9, 5)) }
 
         assertEquals(at(5, 13), runBlocking { reminders.firings(after = at(5, 8)) }.single { it.reminderId == reminder }.at)
+        // SPEC:R88: one dose of three Logged leaves the other two due, and the next day is untouched.
+        assertEquals(at(5, 18), runBlocking { reminders.firings(after = at(5, 13)) }.single { it.reminderId == reminder }.at)
+        assertEquals(at(6, 9), runBlocking { reminders.firings(after = at(5, 18)) }.single { it.reminderId == reminder }.at)
+    }
+
+    // SPEC:R85
+    @Test
+    fun habitColumnsChangedOnTwoDevicesAskOnlyForTheSchedule() {
+        val w = World(tmp.root, 3)
+        try {
+            val a = w.Device("A")
+            val b = w.Device("B")
+            val water = runBlocking { a.habits.create("water", monday, LocalTime(8, 0), everyTwoDays(), blockId = "block-morning") }
+            w.settle(listOf(a, b))
+
+            runBlocking { a.writes.edit(ITEM, water, DETAILS) { mapOf("block_id" to "block-evening") } }
+            runBlocking { b.writes.edit(ITEM, water, DETAILS) { mapOf("block_id" to "block-midday") } }
+            w.settle(listOf(a, b))
+            for (d in listOf(a, b)) assertEquals(emptyList(), runBlocking { d.items.questions() }, d.name)
+            assertEquals(runBlocking { a.items.item(water) }!!.blockId, runBlocking { b.items.item(water) }!!.blockId)
+
+            runBlocking { a.habits.pause(water, LocalDate(2026, 10, 12)) }
+            runBlocking { b.writes.edit(ITEM, water, SCHEDULE) { mapOf("duration_min" to 20L) } }
+            w.settle(listOf(a, b))
+            for (d in listOf(a, b)) assertEquals(listOf(Question(water, SCHEDULE)), runBlocking { d.items.questions() }, d.name)
+        } finally {
+            w.close()
+        }
     }
 
     @Test

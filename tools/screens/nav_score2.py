@@ -134,7 +134,7 @@ for _name, _hubs in HUBS.items():
 TODAY_ROW = ["calendar day/week/month", "confirm the week (planner)"]
 ROUTINES_ROW = MANAGE + ["tracker detail and charts", "build a saved chart", "goals", "time totals"]
 CHECKIN_ROW = ["check-in", "ledger (masking)", "sensory log", "stability trend", "ledger/sensory history"]
-# A database is a page made into one (§3.12): it lives in the tree, so no row or sheet lists "databases".
+# A database is a page made into one (SPEC R150): it lives in the tree, so no row or sheet lists "databases".
 PAGES_ROW = ["today's journal", "past journal days", "templates", "Road Map"]
 LAUNCHER = [n for n in ALL_NAMES if n not in ("capture", "search", "tick a task", "today's agenda", "edit an item",
             "edit one occurrence", "page History", "sync folder", "backup", "app lock", "open a page", "canvas", "database view",

@@ -119,6 +119,39 @@ class CanvasCasesTest {
     }
 
     @Test
+    fun aFrameAndACardInItMovedApartEachKeepTheirOwnLaterPosition_SPEC_R173() = two(9) { a, b ->
+        syncthing.now = 1_000
+        val board = go { a.canvases.create("Plan") }
+        val frame = go { a.canvases.addFrame(board, 0.0, 0.0, 200.0, 200.0, "Group") }
+        val note = go { a.canvases.addText(board, 20.0, 20.0, "note") }
+        settle(listOf(a, b))
+        // B moves the card out of the frame; later, A moves the frame alone.
+        syncthing.now = 2_000
+        go { b.canvases.moveNode(note, 300.0, 300.0) }
+        syncthing.now = 3_000
+        go { a.canvases.moveNode(frame, 50.0, 50.0) }
+        settle(listOf(a, b))
+        for (d in listOf(a, b)) {
+            assertEquals(50.0 to 50.0, d.card(board, frame).let { it.x to it.y }, d.name)
+            assertEquals(300.0 to 300.0, d.card(board, note).let { it.x to it.y }, d.name)
+        }
+
+        // A carries the frame with the card back in it, a bulk move; later, B moves the card by hand.
+        go { a.canvases.moveNode(note, 70.0, 70.0) }
+        settle(listOf(a, b))
+        syncthing.now = 4_000
+        go { a.canvases.moveNode(frame, 100.0, 100.0) }
+        go { a.canvases.moveNodes(board, mapOf(note to (120.0 to 120.0))) }
+        syncthing.now = 5_000
+        go { b.canvases.moveNode(note, 90.0, 90.0) }
+        settle(listOf(a, b))
+        for (d in listOf(a, b)) {
+            assertEquals(100.0 to 100.0, d.card(board, frame).let { it.x to it.y }, d.name)
+            assertEquals(90.0 to 90.0, d.card(board, note).let { it.x to it.y }, d.name)
+        }
+    }
+
+    @Test
     fun movingACardCarriesItsSubtreeButNotItsFrames() {
         val board = go { canvases.create("Plan") }
         val root = go { canvases.addText(board, 0.0, 0.0, "root") }

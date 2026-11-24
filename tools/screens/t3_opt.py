@@ -64,7 +64,7 @@ doc, header, desk_doc, key_of, small_of, seen_count, dclutter = M2.doc, M2.heade
 
 # ==== Part habits: T3.1 the Habits list ========================================================================================
 """
-  The sample: Tue 13 Oct 2026 (the day of the captures), six placeholder habits. Presence follows SPEC §3.6: the days
+  The sample: Tue 13 Oct 2026 (the day of the captures), six placeholder habits. Presence follows SPEC R82: the days
   this month, the last date and the usual time, withheld below 3 days; no streaks.
   presence  none (as Tendril's list), count ("9 days in Oct"), last ("Last Sat · usually 07:30"), dots (a dot per day
             of the month so far, filled when logged; an empty dot is a day not logged), count_last (both lines' facts
@@ -1581,7 +1581,7 @@ def score_measure2(v):
 
 # ==== Part acts: T3b.2 the Activities list (P4 Measuring, taps first; owner, 2026-10-13) ==========================================
 """
-  Activities are timed: ▶ starts a session, ■ ends it; several may run at once (SPEC §3.7). Scored as T3b.1c was: taps
+  Activities are timed: ▶ starts a session, ■ ends it; several may run at once (SPEC R98). Scored as T3b.1c was: taps
   first (within 0.25 a log at both sizes), every item's typical use weighted by how often, the scrolls to reach it from
   where it sits (or a search, 3), at 12 and 30 items, the worse counting.
   Owner's answers (2026-10-13): half the sessions are live, half added afterwards; score every place for running timers;
@@ -3482,7 +3482,7 @@ def score_run3(v):
   guilt-laden); axes Taps, Calm (the register: ambient, non-judgmental), Glance (progress readable without opening anything),
   Consistency; scored against more than one control (owner, 2026-10-16): the apps with a similar purpose, surveyed on the phone
   (geometry and labels only, _screens-sources/t3/goals/notes.md) or read from their code.
-  The goal model is Chronicle's (SPEC §3.7): on an activity or a tracker, recurring (a day, a week from Monday, a month from the
+  The goal model is Chronicle's (SPEC R103): on an activity or a tracker, recurring (a day, a week from Monday, a month from the
   1st) or a milestone (the last 400 days).
   place  page (a Goals section on the item's page, as T3b.4g's running view) / screen (a Goals screen in the Hub) / both
   shows  plain ("20 of 30 min today") / bar (plain + a thin bar) / ring (a ring round the number) / percent ("67%")

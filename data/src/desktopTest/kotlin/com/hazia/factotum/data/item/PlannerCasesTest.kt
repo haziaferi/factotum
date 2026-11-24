@@ -194,6 +194,28 @@ class PlannerCasesTest {
         assertEquals(listOf(5, 6), days)
     }
 
+    // SPEC:R94
+    @Test
+    fun aTimedOccurrenceBeforeTheDayStartBelongsToTheDayBefore() {
+        var n = 0
+        val writes = LocalWrites(db, runBlocking { db.syncDao().loadClock("A") { 1_000 } })
+        val newId = { "owl-${n++}" }
+        val nightOwl = HabitRepository(db, writes, newId, FixedSettings(LocalTime(4, 0)))
+        val owlOccurrences = OccurrenceRepository(db, writes, newId, FixedSettings(LocalTime(4, 0)))
+        val owlReminders = ReminderRepository(db, writes, newId, FixedSettings(LocalTime(4, 0)))
+        val pill = runBlocking { nightOwl.create("night pill", monday, LocalTime(1, 30), daily()) }
+        val reminder = runBlocking { owlReminders.add(pill, 0) }
+
+        // From the 7th: the 01:30 of the 7th is still the 6th's, so only the 8th's on are paused.
+        runBlocking { nightOwl.pause(pill, day(7)) }
+
+        val at = runBlocking { owlOccurrences.occurrences(pill, LocalDateTime(day(5), LocalTime(0, 0)), LocalDateTime(day(10), LocalTime(0, 0))) }.map { it.at }
+        assertEquals((5..7).map { LocalDateTime(day(it), LocalTime(1, 30)) }, at)
+        val last = runBlocking { owlReminders.firings(after = LocalDateTime(day(6), LocalTime(2, 0))) }.single { it.reminderId == reminder }.at
+        assertEquals(LocalDateTime(day(7), LocalTime(1, 30)), last)
+        assertEquals(emptyList(), runBlocking { owlReminders.firings(after = last) })
+    }
+
     @Test
     fun aPausedHabitAndOneWhoseTrackerIsDeletedAreNotPlanned() {
         val water = runBlocking { habits.create("water", monday, recurrence = daily(), blockId = "block-morning") }

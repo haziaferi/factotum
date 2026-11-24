@@ -23,7 +23,7 @@ data class SavedChart(val id: String, val type: ChartType, val name: String?, va
 
 /**
  * One source's days on a chart, oldest first. An activity's day is its whole minutes, 0 when none
- * were tracked, each span counting on the personal day it started (§3.7; Chronicle cut a session at
+ * were tracked, each span counting on the personal day it started (SPEC:R101; Chronicle cut a session at
  * the day's edge); a tracker's day is the mean of its readings that day (Chronicle's values), null when it
  * had none, so a screen chooses how to draw a day with no reading (decision 14 waits on that). A
  * source deleted since has a null [name] and draws nothing. [goalLine] is its live recurring goal as

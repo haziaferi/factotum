@@ -94,6 +94,17 @@ class RecurrenceCasesTest {
     }
 
     @Test
+    fun anUntilEndingInZIsReadAsLocal_SPEC_R66() {
+        val utc = assertNotNull(RRule.parse("FREQ=DAILY;UNTIL=20261007T090000Z"))
+        val local = assertNotNull(RRule.parse("FREQ=DAILY;UNTIL=20261007T090000"))
+        val start = LocalDateTime(2026, 10, 5, 9, 0)
+
+        assertEquals(LocalDateTime(2026, 10, 7, 9, 0), utc.until)
+        assertEquals(local, utc)
+        assertEquals((5..7).map { LocalDateTime(2026, 10, it, 9, 0) }, utc.occurrences(start, start, LocalDateTime(2026, 11, 1, 0, 0)))
+    }
+
+    @Test
     fun aStartTheRuleDoesNotMatchIsNotAnOccurrence() {
         val rule = assertNotNull(RRule.parse("FREQ=WEEKLY;BYDAY=MO"))
         val wednesday = LocalDateTime(2026, 10, 7, 9, 0)

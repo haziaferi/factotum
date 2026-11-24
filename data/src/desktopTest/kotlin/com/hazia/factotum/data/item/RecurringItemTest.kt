@@ -198,6 +198,7 @@ class RecurringItemTest {
 
         refused("UPDATE item SET rand_min_days = 3 WHERE id = '$id'")
         refused("UPDATE item SET window_start = '10:00' WHERE id = '$id'")
+        refused("UPDATE item SET recurrence_kind = 'RANDOM_TIMES', window_days = 1, window_count = 2 WHERE id = '$id'")
         refused("UPDATE item SET recurrence_kind = 'RULE_SET', rrule = 'FREQ=DAILY' WHERE id = '$id'")
         refused("UPDATE item SET recurrence_kind = 'RANDOM_WINDOW', window_days = 1, window_start = '12:00', window_end = '10:00' WHERE id = '$id'")
     }

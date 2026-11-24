@@ -29,7 +29,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNull
 
-/** Chronicle's checklists and saved charts (§7 step 3), with the owner's answers of 2026-10-03 (decision 14). */
+/** Chronicle's checklists and saved charts (SPEC:R183), with the owner's answers of 2026-10-03 (decision 14). */
 class ChecklistChartTest {
 
     @get:Rule val tmp = TemporaryFolder()

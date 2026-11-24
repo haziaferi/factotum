@@ -176,6 +176,18 @@ class VocabularyTest {
     }
 
     @Test
+    fun aTemplateCarryingALabelIsNotCounted_SPEC_R117() = one {
+        val home = go { labels.create("Home") }
+        val page = go { pages.create("Weekly review") }
+        go { labels.labelPage(page, home) }
+        val template = go { templates.saveAsTemplate(page) }
+        go { labels.labelPage(template, home) }
+
+        assertEquals(listOf("Home"), go { labels.labelsOfPage(template) }.map { it.name })
+        assertEquals(1, go { labels.carrying(home) })
+    }
+
+    @Test
     fun aLabelDeletedForeverReadsAsNoneEverywhere() = one {
         val home = go { labels.create("Home") }
         val task = go { items.createTask("bins", oct5) }
