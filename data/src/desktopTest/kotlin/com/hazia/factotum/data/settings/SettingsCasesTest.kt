@@ -314,18 +314,32 @@ class SettingsCasesTest {
         declared(Settings.SLEEP_TRACKER, "sleep_tracker", SettingScope.PERSONAL, "")
         declared(Settings.AI_KEY, "ai_key", SettingScope.SECRET, "")
         declared(Settings.LLM_ENDPOINT_KEY, "llm_endpoint_key", SettingScope.SECRET, "")
+        declared(Settings.BURNOUT_THRESHOLD, "burnout_threshold", SettingScope.PERSONAL, 0.5)
+        declared(Settings.CRISIS_CONTACTS, "crisis_contacts", SettingScope.PERSONAL, "")
+        declared(Settings.DEFAULT_ALERT_MODE, "default_alert_mode", SettingScope.DEVICE_PREF, "SCHEDULE")
+        declared(Settings.FIRST_RUN_DONE, "first_run_done", SettingScope.DEVICE_STATE, false)
+        declared(Settings.SYNC_FOLDER, "sync_folder", SettingScope.DEVICE_STATE, "")
+        declared(Settings.WINDOW_FRAME, "window_frame", SettingScope.DEVICE_STATE, "")
+        declared(Settings.LLM_MODEL, "llm_model", SettingScope.DEVICE_STATE, "")
 
         runBlocking {
             a.settings.set(Settings.DAY_START, LocalTime(5, 0))
             a.settings.set(Settings.ONBOARDING_ANSWER, OnboardingAnswer.LESS)
             a.settings.set(Settings.MIXED_MODE, MixedMode.AUTO)
             a.settings.set(Settings.SLEEP_TRACKER, "sleep")
+            a.settings.set(Settings.BURNOUT_THRESHOLD, 0.7)
+            a.settings.set(Settings.CRISIS_CONTACTS, "Ada 555-0100")
         }
         settle(listOf(a, b))
 
         assertEquals(
-            listOf(LocalTime(5, 0), OnboardingAnswer.LESS, MixedMode.AUTO, "sleep"),
-            runBlocking { listOf(b.settings.get(Settings.DAY_START), b.settings.get(Settings.ONBOARDING_ANSWER), b.settings.get(Settings.MIXED_MODE), b.settings.get(Settings.SLEEP_TRACKER)) },
+            listOf(LocalTime(5, 0), OnboardingAnswer.LESS, MixedMode.AUTO, "sleep", 0.7, "Ada 555-0100"),
+            runBlocking {
+                listOf(
+                    b.settings.get(Settings.DAY_START), b.settings.get(Settings.ONBOARDING_ANSWER), b.settings.get(Settings.MIXED_MODE),
+                    b.settings.get(Settings.SLEEP_TRACKER), b.settings.get(Settings.BURNOUT_THRESHOLD), b.settings.get(Settings.CRISIS_CONTACTS),
+                )
+            },
         )
     }
 

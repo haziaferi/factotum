@@ -190,7 +190,7 @@ Each row's test was written for the clause above, and each mutant, in `tools/mut
 | R103 | `TimeCasesTest.aGoalIsReachedInEachWindowThroughTheRepository` | `every goal counts its week`, `a milestone counts only its period` |
 | R111 | `LabelCasesTest.aStandaloneReminderCarriesOneLabelAndASecondReplacesTheFirst_SPEC_R111` | `a standalone reminder takes no label` |
 | R117 | `VocabularyTest.aTemplateCarryingALabelIsNotCounted_SPEC_R117` | `a template carrying a label is counted` |
-| R120 | `SettingsCasesTest.eachSettingKeyHasItsScopeAndDefaultAndThePersonalOnesSync` | `Mixed mode kept per device`, `the app lock grace defaults to 5 s` |
+| R120 | `SettingsCasesTest.eachSettingKeyHasItsScopeAndDefaultAndThePersonalOnesSync` (seven keys added 2026-11-24) | `Mixed mode kept per device`, `the app lock grace defaults to 5 s`; `crisis contacts kept per device`, `the burnout threshold defaults to 0.6`, `the default alert mode synced`, `the sync folder rides in a backup` |
 | R121 | `SettingsCasesTest.aDevicePreferenceNeverReachesTheFolder` | `a device preference written to the synced table` |
 | R141 | `PageCasesTest.twoGroupsOfOneBlockEditedOnTwoDevicesBothStand_SPEC_R141` | `a block's attributes take its type's stamp` |
 | R143 | `PageCasesTest.withThreeDevicesEveryReplacedTextIsKeptInAHistoryAndNoticedEverywhere_SPEC_R143` | `a winning local text looks agreed, on the database` |

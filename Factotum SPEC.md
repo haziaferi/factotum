@@ -1758,12 +1758,21 @@ One app that does what Tendril, Chronicle, Mnemo and Equipoise do, over one data
 | the sleep tracker | `sleep_tracker` | PERSONAL | none | R139 |
 | Tendril's AI key | `ai_key` | SECRET | none | R121 |
 | Equipoise's endpoint key | `llm_endpoint_key` | SECRET | none | R121 |
+| the burnout threshold, 0 to 1 | `burnout_threshold` | PERSONAL | 0.5 | R139 |
+| crisis contacts, as written | `crisis_contacts` | PERSONAL | none | R20 |
+| a new reminder's alert mode | `default_alert_mode` | DEVICE_PREF | `SCHEDULE` | R53 |
+| first-run questions asked here | `first_run_done` | DEVICE_STATE | off | R121 |
+| this device's sync folder | `sync_folder` | DEVICE_STATE | none | R45 |
+| the desktop window's place and size | `window_frame` | DEVICE_STATE | none | R121 |
+| this device's language model | `llm_model` | DEVICE_STATE | none | R06 |
 
-**Evidence:** Owner's answers 2026-10-02 (day boundary, reminders switch, app lock); decision 14 (regulation). Keys and defaults checked against `core/src/commonMain/kotlin/com/hazia/factotum/core/settings/Settings.kt` on 2026-11-21, which also declares keys this spec does not rule on: `long_run_hours` (see R106), `burnout_threshold`, `crisis_contacts`, `default_alert_mode`, `first_run_done`, `sync_folder`, `window_frame` and `llm_model`. `SettingsCasesTest.eachSettingKeyHasItsScopeAndDefaultAndThePersonalOnesSync` kills mutants `Mixed mode kept per device` and `the app lock grace defaults to 5 s` (`tools/mutants.py`, slice `gapA`), 2026-11-21.
+**Evidence:** Owner's answers 2026-10-02 (day boundary, reminders switch, app lock); decision 14 (regulation); owner, 2026-11-24 (the last seven rows as coded, crisis contacts syncing to every device). Keys and defaults checked against `core/src/commonMain/kotlin/com/hazia/factotum/core/settings/Settings.kt` on 2026-11-24, which also declares `long_run_hours`, the PERSONAL timer limit R106 replaced; it goes when R106's limit is built. `SettingsCasesTest.eachSettingKeyHasItsScopeAndDefaultAndThePersonalOnesSync` kills mutants `Mixed mode kept per device` and `the app lock grace defaults to 5 s` (2026-11-21), and `crisis contacts kept per device`, `the burnout threshold defaults to 0.6`, `the default alert mode synced` and `the sync folder rides in a backup` (2026-11-24; `tools/mutants.py`, slice `gapA`).
 
 **Acceptance:** `SettingsCasesTest.eachSettingKeyHasItsScopeAndDefaultAndThePersonalOnesSync` reads each key's scope and default in the table and syncs the PERSONAL ones to a second device.
 
-**Since:** 2026-11-21 · owner · migrated
+**Not:** Crisis contacts kept per device, out of the folder: the owner chose to have them on every device (2026-11-24); the folder reaches only the person's own devices (R20).
+
+**Since:** 2026-11-24 · owner · agreed rewording
 
 ### D-R121 · Where each scope lives
 
