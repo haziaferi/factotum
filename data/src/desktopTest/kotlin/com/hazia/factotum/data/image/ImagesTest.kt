@@ -75,11 +75,16 @@ class ImagesTest {
     @Test
     fun aGifABmpAndAnAnimationAreReadWebpHeicAndCmykRefusedAndAJpegIsWrittenAtQuality85_SPEC_R169() {
         val scaler = DesktopImageScaler()
-        for (format in listOf("gif", "bmp")) {
-            val stored = scaler.scale(encode(picture(30, 20, Color.GREEN), format))
+        for (format in listOf("gif", "bmp", "tiff")) {
+            val stored = scaler.scale(encode(picture(30, 20, Color.GREEN), format).also { assertTrue(it.isNotEmpty(), format) })
             assertEquals(listOf(30, 20, "jpg"), listOf(stored.width, stored.height, stored.format), format)
             assertTrue(Color(read(stored.bytes).getRGB(15, 10)).green > 200, format)
         }
+        // A WBMP is one bit a pixel: a white one is read and stored white.
+        val white = BufferedImage(30, 20, BufferedImage.TYPE_BYTE_BINARY).apply { createGraphics().apply { color = Color.WHITE; fillRect(0, 0, 30, 20); dispose() } }
+        val wbmp = scaler.scale(encode(white, "wbmp").also { assertTrue(it.isNotEmpty(), "wbmp") })
+        assertEquals(listOf(30, 20, "jpg"), listOf(wbmp.width, wbmp.height, wbmp.format))
+        assertTrue(Color(read(wbmp.bytes).getRGB(15, 10)).let { it.red > 200 && it.green > 200 && it.blue > 200 }, "wbmp")
         // An animation keeps its first frame: red, then blue.
         val animation = gifFrames(picture(16, 16, Color.RED), picture(16, 16, Color.BLUE))
         assertEquals(2, ImageIO.getImageReadersByFormatName("gif").next().run { input = ImageIO.createImageInputStream(ByteArrayInputStream(animation)); getNumImages(true) })

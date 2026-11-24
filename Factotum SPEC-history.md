@@ -339,3 +339,4 @@ Not a source of current rules: `Factotum SPEC.md` is. One line per change, newes
 - 2026-11-24 · R97 · changed · the planner follows a habit's order only; sort_order in R48's details group; Acceptance names the PlannerTest · owner
 - 2026-11-24 · R36 · changed · Acceptance requires the production wiring: shells export only through exportAfterQuiet; the manifest excludes the device-id file · owner
 - 2026-11-24 · R120 · changed · seven keys added as coded, crisis_contacts PERSONAL; long_run_hours left to R106; test checks them · owner
+- 2026-11-24 · R169 · changed · the desktop reads TIFF and WBMP too, as its ImageIO does; the test reads both · owner
