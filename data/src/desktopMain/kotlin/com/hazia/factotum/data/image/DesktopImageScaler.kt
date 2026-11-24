@@ -13,7 +13,7 @@ import javax.imageio.ImageIO
 import javax.imageio.ImageWriteParam
 
 /**
- * The desktop's [ImageScaler], on the JDK's ImageIO: JPEG, PNG, GIF (its first frame) and BMP. It
+ * The desktop's [ImageScaler], on the JDK's ImageIO: JPEG, PNG, GIF (its first frame), BMP, TIFF and WBMP. It
  * writes no metadata, so a photo's camera details and location stay behind (answer 34). What the
  * JDK cannot read (WebP, HEIC) is refused as not a picture this device can read, and so is a CMYK
  * JPEG, which the JDK reads without turning its colours into RGB, so it would be stored black.
