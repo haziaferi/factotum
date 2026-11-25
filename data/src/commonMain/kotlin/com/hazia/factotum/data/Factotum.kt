@@ -35,12 +35,13 @@ import kotlinx.datetime.LocalDateTime
 
 /**
  * The data layer as one device runs it (SPEC:R33): every repository over one database, and sync over
- * one folder, wired in the one order the rules need. Each shell builds this once, from its own
- * database, folder, secret store, picture store and scaler; tests build it the same way. What
- * the shells see of it waits for the screens (SPEC:R187).
+ * one folder, wired in the one order the rules need. Each shell builds this from its own database,
+ * folder, secret store, picture store and scaler: once at start, and again only under a new device
+ * id (SPEC:R37); tests build it the same way. What the shells see of it waits for the screens (SPEC:R187).
  *
  * - [export] publishes the pictures the logs will name, then writes the logs (SPEC:R170).
  * - [import] reads the logs and settles what peers wrote, then fetches and collects pictures.
+ * - [newIdOwed] says this device's id was found cloned and must be replaced (SPEC:R37).
  * - [rowsChanged] runs after a local write that changes which pages are rows of a database (a page
  *   made, moved, trashed or restored, a label put on or taken off, a doorway set), so their tasks
  *   follow at once (rows as tasks).

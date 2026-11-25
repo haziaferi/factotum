@@ -1046,7 +1046,12 @@ SLICES = {
     "r37": [
         ("a clash in its own folder owes no new id", FOLDER, "if (shared) dao.oweNewId(IdOwedEntity(device = device))",
          "if (false) dao.oweNewId(IdOwedEntity(device = device))", ":data:desktopTest",
-         {"aClonedIdIsOwedANewOneUntilTheDeviceRunsUnderAnother"}),
+         {"aClonedIdIsOwedANewOneUntilTheDeviceRunsUnderAnother", "aClonedIdIsOwedBeforeItsConflictCopyIsDeleted"}),
+        ("the debt is held only after its copy goes", FOLDER,
+         "            if (shared) dao.oweNewId(IdOwedEntity(device = device))\n            for (name in names) {",
+         "            for (name in names) {\n                if (shared && FolderLayout.isConflictCopy(name)) "
+         "folder.delete(\"$dir/$name\").also { dao.oweNewId(IdOwedEntity(device = device)) }",
+         ":data:desktopTest", {"aClonedIdIsOwedBeforeItsConflictCopyIsDeleted"}),
         ("an id owed by another device is owed here too", FOLDER, "lock.withLock { dao.idOwedBy() == device }",
          "lock.withLock { dao.idOwedBy() != null }", ":data:desktopTest", {"aClonedIdIsOwedANewOneUntilTheDeviceRunsUnderAnother"}),
         ("a new id exports only what is new", FOLDER, "if (dao.idOwedBy()?.let { it != device } == true) return publishAllUnderNewId()",

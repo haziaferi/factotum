@@ -234,6 +234,31 @@ class FolderSyncTest {
         assertFalse(runBlocking { b.app.newIdOwed() })
     }
 
+    /** SPEC:R37: the debt is in the database before the copy is deleted, so a stop at the delete keeps it. */
+    @Test
+    fun aClonedIdIsOwedBeforeItsConflictCopyIsDeleted() {
+        val w = world()
+        val a = w.Device("A")
+        val clone = w.Device("A'", id = "A")
+        a.create()
+        w.syncthing.now = 5
+        clone.create()
+        a.export()
+        clone.export()
+        w.syncthing.session("A", "A'")
+        val folder = w.syncthing.folder("A")
+        val stopsAtDelete = object : SyncFolder by folder {
+            override fun delete(path: String) = throw IllegalStateException("stopped at the delete")
+        }
+
+        assertFailsWith<IllegalStateException> {
+            runBlocking { FolderSync(a.db, stopsAtDelete, "A", a.clock, a.db.syncedTables()).import() }
+        }
+
+        assertEquals("A", runBlocking { a.db.syncDao().idOwedBy() })
+        assertTrue(w.syncthing.paths("A").any { ".sync-conflict-" in it })
+    }
+
     @Test
     fun aPurgeReachesAPeerAndOutlivesCompaction() {
         // Segments of one line, compacted every two, so three edits compact.
