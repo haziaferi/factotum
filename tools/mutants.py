@@ -16,6 +16,7 @@ GRADLEW = os.path.abspath("gradlew.bat" if os.name == "nt" else "gradlew")
 MERGE = "core/src/commonMain/kotlin/com/hazia/factotum/core/sync/Merge.kt"
 OPEN = "data/src/jvmCommon/kotlin/com/hazia/factotum/data/OpenDatabase.kt"
 DEVICEID = "data/src/jvmCommon/kotlin/com/hazia/factotum/data/DeviceId.kt"
+FACTOTUM = "data/src/commonMain/kotlin/com/hazia/factotum/data/Factotum.kt"
 FOLDER = "data/src/commonMain/kotlin/com/hazia/factotum/data/sync/FolderSync.kt"
 STAGED = "data/src/commonMain/kotlin/com/hazia/factotum/data/sync/StagedStore.kt"
 CODEC = "data/src/commonMain/kotlin/com/hazia/factotum/data/sync/Records.kt"
@@ -1061,6 +1062,50 @@ SLICES = {
         ("a renewed id leaves the old file in place", DEVICEID,
          "Files.move(tmp, file.toPath(), StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE)\n    return id",
          "Files.delete(tmp)\n    return id", ":data:desktopTest", {"aRenewedDeviceIdReplacesTheOldOneForGood"}),
+    ],
+    # SPEC:R203, 2026-11-25: a choice tracker's choices, kept as a database's Select options are.
+    "r203": [
+        ("a choice's name is taken again in other capitals", TRACKERS, "labelKey(it.label) == labelKey(clean)", "it.label == clean",
+         ":data:desktopTest", {"choicesAreAddedRenamedRecolouredAndMovedAndANameIsTakenOnce"}),
+        ("any tracker takes choices", TRACKERS, "require(it.type == TrackerType.CHOICE.name)", "require(true)",
+         ":data:desktopTest", {"choicesAreAddedRenamedRecolouredAndMovedAndANameIsTakenOnce"}),
+        ("a Log picks a deleted choice", TRACKERS, "?.takeIf { end -> choices.any { it.id == end && it.deletedAt == null } }", "",
+         ":data:desktopTest", {"aLogPicksALiveChoiceOfItsOwnTracker"}),
+        ("a restore takes a name in use", TRACKERS, "uniqueChoice(c.trackerId, c.label, except = id)", "c.label",
+         ":data:desktopTest", {"aDeletedChoiceWaitsInTheTrashItsLogsKeepItAndItIsRestoredOrDeletedForever"}),
+        ("a live choice is deleted forever", TRACKERS, "        choosing(trashedChoice(id).trackerId)\n        mapOf(TRACKER_CHOICE", "        mapOf(TRACKER_CHOICE",
+         ":data:desktopTest", {"aDeletedChoiceWaitsInTheTrashItsLogsKeepItAndItIsRestoredOrDeletedForever"}),
+        ("a Logged choice stays in the Trash", TRACKERS, "if (logged.byHand && logged > gone) found[c.id] = gone", "if (false) found[c.id] = gone",
+         ":data:desktopTest", {"aChoiceLoggedAfterItsDeleteOnADeviceThatHadNotSeenItComesBack"}),
+        ("a Log before the delete brings it back", TRACKERS, "logged.byHand && logged > gone", "logged.byHand",
+         ":data:desktopTest", {"aLogMadeBeforeTheDeleteLeavesTheChoiceInTheTrash"}),
+        ("choices of one name stay apart", TRACKERS, ".values.filter { it.size > 1 }", ".values.filter { it.size > 99 }",
+         ":data:desktopTest", {"twoChoicesOfOneNameMadeOnTwoDevicesMergeIntoTheFirstEverywhere"}),
+        ("the choice made last survives a merge", TRACKERS, "val first = same.minOf { it.id }", "val first = same.maxOf { it.id }",
+         ":data:desktopTest", {"twoChoicesOfOneNameMadeOnTwoDevicesMergeIntoTheFirstEverywhere"}),
+        ("a merged choice's Logs read as itself", TRACKERS, "copy(choiceId = resolve(it.choiceId) ?: it.choiceId)", "copy(choiceId = it.choiceId)",
+         ":data:desktopTest", {"twoChoicesOfOneNameMadeOnTwoDevicesMergeIntoTheFirstEverywhere"}),
+        ("choices do not settle after an import", FACTOTUM, "        trackers.settleChoices()\n", "",
+         ":data:desktopTest", {"twoChoicesOfOneNameMadeOnTwoDevicesMergeIntoTheFirstEverywhere", "aChoiceLoggedAfterItsDeleteOnADeviceThatHadNotSeenItComesBack"}),
+        ("a move rewrites every choice", TRACKERS, "orders = if (room != null) mapOf(id to room)", "orders = if (false) mapOf(id to 0L)",
+         ":data:desktopTest", {"aMoveWritesOnlyTheMovedChoiceSoARenameElsewhereStands"}),
+        ("a tie leaves the moved choice no place", TRACKERS, "next - before > 1", "next - before >= 0",
+         ":data:desktopTest", {"twoChoicesAddedAtOnceOnTwoDevicesTieAndAMoveBetweenThemRenumbers"}),
+        ("a renumber puts the moved choice last", TRACKERS, ".apply { add(at, id) }", ".apply { add(id) }",
+         ":data:desktopTest", {"twoChoicesAddedAtOnceOnTwoDevicesTieAndAMoveBetweenThemRenumbers"}),
+        ("a trashed tracker takes choices", TRACKERS, '?.takeIf { it.deletedAt == null }) { "no tracker $trackerId" }\n', ') { "no tracker $trackerId" }\n',
+         ":data:desktopTest", {"aTrashedTrackersChoicesWaitForItsRestore"}),
+        ("a trashed tracker's choice is restored", TRACKERS, "        choosing(c.trackerId)\n", "",
+         ":data:desktopTest", {"aTrashedTrackersChoicesWaitForItsRestore"}),
+        ("a trashed tracker's choice is deleted forever", TRACKERS, "choosing(trashedChoice(id).trackerId)", "trashedChoice(id)",
+         ":data:desktopTest", {"aTrashedTrackersChoicesWaitForItsRestore"}),
+        ("a merged choice is deleted forever", TRACKERS, "takeIf { it.deletedAt != null && it.mergedInto == null }) { \"choice $id is not in the Trash\" }",
+         "takeIf { it.deletedAt != null }) { \"choice $id is not in the Trash\" }",
+         ":data:desktopTest", {"twoChoicesOfOneNameMadeOnTwoDevicesMergeIntoTheFirstEverywhere"}),
+        ("a Log of a merged choice is refused", TRACKERS, "requireNotNull(chainEnd(choices)(c)?.takeIf", "requireNotNull(c.takeIf",
+         ":data:desktopTest", {"twoChoicesOfOneNameMadeOnTwoDevicesMergeIntoTheFirstEverywhere"}),
+        ("a Log of a merged choice leaves its first in the Trash", TRACKERS, "val c = byId[resolve(r.choiceId)] ?: continue", "val c = byId[r.choiceId] ?: continue",
+         ":data:desktopTest", {"aLogOfAMergedChoiceAfterItsSurvivorsDeleteBringsTheSurvivorBack"}),
     ],
 }
 

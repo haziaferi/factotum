@@ -343,3 +343,5 @@ Not a source of current rules: `Factotum SPEC.md` is. One line per change, newes
 - 2026-11-24 · R157 · changed · text sorts and filters ignore case, as coded; the test filters in capitals · owner
 - 2026-11-24 · R173 · changed · the screen works out frame membership; Acceptance adds dragging a frame through one moveNodes · owner
 - 2026-11-25 · R37 · changed · a new id owed is held in the database; the shell renews and rebuilds; the new id's first export is a snapshot · owner
+- 2026-11-25 · R203 · added · a choice tracker's choices kept as Select options are; duplicates merge into the first · owner
+- 2026-11-25 · R18 · changed · the round-trip test makes its choice through addChoice; check line cited anew · builder

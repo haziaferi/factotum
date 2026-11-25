@@ -56,6 +56,8 @@ internal data class TrackerChoiceEntity(
     @ColumnInfo(name = "deleted_at") val deletedAt: Long?,
     val hlc: Long,
     val device: String,
+    /** Set when a sync left it a second choice of its tracker's with one name: the choice it was merged into (SPEC:R203). */
+    @ColumnInfo(name = "merged_into") val mergedInto: String? = null,
 )
 
 /**
@@ -125,6 +127,14 @@ internal interface TrackerDao {
 
     @Query("SELECT * FROM tracker_choice ORDER BY id")
     suspend fun allChoices(): List<TrackerChoiceEntity>
+
+    /** Every choice of [trackerId], deleted and merged ones too. */
+    @Query("SELECT * FROM tracker_choice WHERE tracker_id = :trackerId ORDER BY id")
+    suspend fun choicesOf(trackerId: String): List<TrackerChoiceEntity>
+
+    /** The live readings that name one of [choiceIds]. */
+    @Query("SELECT * FROM tracker_reading WHERE choice_id IN (:choiceIds) AND deleted_at IS NULL")
+    suspend fun readingsPicking(choiceIds: List<String>): List<TrackerReadingEntity>
 
     @Upsert
     suspend fun putChoices(rows: List<TrackerChoiceEntity>)
