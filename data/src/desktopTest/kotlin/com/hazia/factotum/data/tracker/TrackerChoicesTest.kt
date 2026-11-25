@@ -176,16 +176,25 @@ class TrackerChoicesTest {
         val a = w.Device("A")
         val mood = runBlocking { a.trackers.create("Mood", TrackerType.CHOICE) }
         val calm = runBlocking { a.trackers.addChoice(mood, "calm") }
+        val sad = runBlocking { a.trackers.addChoice(mood, "sad") }
+        val dull = runBlocking { a.trackers.addChoice(mood, "dull") }
+        runBlocking { a.trackers.deleteChoice(sad) }
+        runBlocking { a.trackers.deleteChoice(dull) }
         runBlocking { a.trackers.delete(mood) }
         for (attempt in listOf<suspend () -> Unit>(
             { a.trackers.addChoice(mood, "tense") },
             { a.trackers.renameChoice(calm, "glad") },
             { a.trackers.deleteChoice(calm) },
+            { a.trackers.restoreChoice(sad) },
+            { a.trackers.purgeChoice(dull) },
         )) assertFailsWith<IllegalArgumentException> { runBlocking { attempt() } }
 
         runBlocking { a.trackers.restore(mood) }
         runBlocking { a.trackers.addChoice(mood, "tense") }
-        assertEquals(listOf("calm", "tense"), a.labels(mood))
+        runBlocking { a.trackers.restoreChoice(sad) }
+        runBlocking { a.trackers.purgeChoice(dull) }
+        assertEquals(listOf("calm", "sad", "tense"), a.labels(mood))
+        assertEquals(emptyList(), runBlocking { a.trackers.trashedChoices(mood) })
     }
 
     // SPEC:R203

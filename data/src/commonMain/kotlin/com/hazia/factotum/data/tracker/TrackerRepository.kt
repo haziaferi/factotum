@@ -188,9 +188,12 @@ internal class TrackerRepository(
     suspend fun trashedChoices(trackerId: String): List<TrackerChoice> =
         dao.choicesOf(choosing(trackerId).id).filter { it.deletedAt != null && it.mergedInto == null }.sortedBy { it.id }.map { it.toChoice() }
 
-    /** "Delete forever", from the Trash: the purge travels, and the Logs that picked it keep its id. */
+    /**
+     * "Delete forever", from the Trash of a live tracker, as its Trash is listed only then: the purge
+     * travels, and the Logs that picked it keep its id.
+     */
     suspend fun purgeChoice(id: String) = writes.write({
-        trashedChoice(id)
+        choosing(trashedChoice(id).trackerId)
         mapOf(TRACKER_CHOICE to listOf(id))
     }) { store, _ -> writes.merger.purge(store, id) }
 
