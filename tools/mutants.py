@@ -1063,7 +1063,7 @@ SLICES = {
          "Files.move(tmp, file.toPath(), StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE)\n    return id",
          "Files.delete(tmp)\n    return id", ":data:desktopTest", {"aRenewedDeviceIdReplacesTheOldOneForGood"}),
     ],
-    # SPEC:R203, 2026-11-25: a choice tracker's choices, kept as a database's Select options are.
+    # SPEC:R203, 2026-11-25: a choice tracker's choices, kept as a database's Select options are, a deleted one still read on its Logs.
     "r203": [
         ("a choice's name is taken again in other capitals", TRACKERS, "labelKey(it.label) == labelKey(clean)", "it.label == clean",
          ":data:desktopTest", {"choicesAreAddedRenamedRecolouredAndMovedAndANameIsTakenOnce"}),
@@ -1101,6 +1101,10 @@ SLICES = {
          ":data:desktopTest", {"aTrashedTrackersChoicesWaitForItsRestore"}),
         ("a merged choice is deleted forever", TRACKERS, "takeIf { it.deletedAt != null && it.mergedInto == null }) { \"choice $id is not in the Trash\" }",
          "takeIf { it.deletedAt != null }) { \"choice $id is not in the Trash\" }",
+         ":data:desktopTest", {"twoChoicesOfOneNameMadeOnTwoDevicesMergeIntoTheFirstEverywhere"}),
+        ("a merge stops at a first deleted forever", TRACKERS,
+         "generateSequence(start?.takeIf { it in byId }) { id -> byId[id]?.mergedInto }.take(choices.size + 1).lastOrNull()",
+         "generateSequence(start?.let(byId::get)) { it.mergedInto?.let(byId::get) }.take(choices.size + 1).lastOrNull()?.id",
          ":data:desktopTest", {"twoChoicesOfOneNameMadeOnTwoDevicesMergeIntoTheFirstEverywhere"}),
         ("a Log of a merged choice is refused", TRACKERS, "requireNotNull(chainEnd(choices)(c)?.takeIf", "requireNotNull(c.takeIf",
          ":data:desktopTest", {"twoChoicesOfOneNameMadeOnTwoDevicesMergeIntoTheFirstEverywhere"}),

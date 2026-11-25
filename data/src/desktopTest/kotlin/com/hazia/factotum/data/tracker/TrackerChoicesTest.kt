@@ -12,7 +12,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
-/** A CHOICE tracker's choices, kept as a database's Select options are (SPEC:R203; owner, 2026-11-25). */
+/** A CHOICE tracker's choices, kept as a database's Select options are, a deleted one still read on its Logs (SPEC:R203; owner, 2026-11-25). */
 class TrackerChoicesTest {
 
     @get:Rule val tmp = TemporaryFolder()
@@ -142,6 +142,11 @@ class TrackerChoicesTest {
         }
         runBlocking { a.trackers.log(mood, noon, choiceId = merged) }
         assertEquals(listOf(second, survivor, survivor).sorted(), runBlocking { a.db.trackerDao().liveReadingsOf(listOf(mood)) }.mapNotNull { it.choiceId }.sorted())
+
+        // Deleted forever, the first still names every Log that went into it.
+        runBlocking { a.trackers.deleteChoice(survivor) }
+        runBlocking { a.trackers.purgeChoice(survivor) }
+        assertEquals(listOf(survivor, survivor, survivor), a.picked(mood))
     }
 
     // SPEC:R203

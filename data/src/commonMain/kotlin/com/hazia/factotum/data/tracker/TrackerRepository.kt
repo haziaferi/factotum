@@ -32,8 +32,8 @@ data class TrackerChoice(val id: String, val label: String, val color: Long?)
 /**
  * Trackers (Chronicle's, SPEC:R79) as far as habits need them: making one, Logging on it and
  * undoing a Log, its goals, and deleting it, which takes the habits that use it (owner,
- * 2026-10-02); and a CHOICE tracker's choices, kept as a database's Select options are
- * (SPEC:R203). The rest of the Trackers module comes with the sole-owner modules (SPEC:R195).
+ * 2026-10-02); and a CHOICE tracker's choices, kept as a database's Select options are,
+ * except that a deleted one still reads on its Logs (SPEC:R203). The rest of the Trackers module comes with the sole-owner modules (SPEC:R195).
  */
 internal class TrackerRepository(
     db: FactotumDatabase,
@@ -199,8 +199,9 @@ internal class TrackerRepository(
 
     /**
      * After every import (SPEC:R203), as Select options settle: a choice in the Trash comes back when
-     * a person Logged it after it was deleted, on a device that had not seen the delete; then live
-     * choices of one tracker a sync left with one name merge into the one made first. Both are
+     * a person Logged it, or a choice merged into it, after it was deleted, on a device that had not
+     * seen the delete; then live choices of one tracker a sync left with one name merge into the
+     * lowest id, the one made first. Both are
      * stamped [automatic]ally from what caused them, so every device writes the same rows.
      */
     suspend fun settleChoices() {
@@ -329,12 +330,13 @@ private val choiceOrder = compareBy<TrackerChoiceEntity>({ it.sortOrder }, { it.
 private fun TrackerChoiceEntity.toChoice() = TrackerChoice(id, label, colorArgb)
 
 /**
- * Follows [choices]' merges from a choice id to the last one held, live or in the Trash, so a Log
- * of a merged choice reads as the one it went into; an id no choice has reads as none.
+ * Follows [choices]' merges from a choice id to the last id they lead to, live, in the Trash or
+ * deleted forever, so a Log of a merged choice reads as the one it went into, even once that one
+ * is deleted forever; an id no choice has reads as none.
  */
 private fun chainEnd(choices: List<TrackerChoiceEntity>): (String?) -> String? {
     val byId = choices.associateBy { it.id }
-    return { start -> generateSequence(start?.let(byId::get)) { it.mergedInto?.let(byId::get) }.take(choices.size + 1).lastOrNull()?.id }
+    return { start -> generateSequence(start?.takeIf { it in byId }) { id -> byId[id]?.mergedInto }.take(choices.size + 1).lastOrNull() }
 }
 
 internal fun TrackerReadingEntity.toLog() =
