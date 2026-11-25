@@ -42,6 +42,7 @@ import com.hazia.factotum.data.tracker.readingTable
 import com.hazia.factotum.data.tracker.trackerTable
 import com.hazia.factotum.data.sync.BaseEntity
 import com.hazia.factotum.data.sync.ClockEntity
+import com.hazia.factotum.data.sync.IdOwedEntity
 import com.hazia.factotum.data.sync.KnownTablesEntity
 import com.hazia.factotum.data.sync.OutboxEntity
 import com.hazia.factotum.data.sync.PurgeEntity
@@ -161,7 +162,7 @@ import com.hazia.factotum.data.sync.LostEntity
         PageCanvasEntity::class, CanvasNodeEntity::class, CanvasEdgeEntity::class, PageRelationEntity::class, RelationLinkEntity::class,
         ChecklistEntity::class, ChecklistItemEntity::class, SavedChartEntity::class, ChartSourceEntity::class,
         SensoryLogEntity::class, MaskingEntryEntity::class, RegulationEventEntity::class, PendingOutcomeEntity::class,
-        BlobSeenEntity::class,
+        BlobSeenEntity::class, IdOwedEntity::class,
     ],
     version = SCHEMA_VERSION,
     exportSchema = true,
@@ -171,7 +172,7 @@ import com.hazia.factotum.data.sync.LostEntity
         AutoMigration(from = 8, to = 9), AutoMigration(from = 9, to = 10), AutoMigration(from = 10, to = 11), AutoMigration(from = 11, to = 12), AutoMigration(from = 12, to = 13),
         AutoMigration(from = 13, to = 14), AutoMigration(from = 14, to = 15), AutoMigration(from = 15, to = 16), AutoMigration(from = 16, to = 17), AutoMigration(from = 17, to = 18), AutoMigration(from = 18, to = 19), AutoMigration(from = 19, to = 20), AutoMigration(from = 20, to = 21), AutoMigration(from = 21, to = 22),
         AutoMigration(from = 22, to = 23), AutoMigration(from = 23, to = 24, spec = DropArchived::class),
-        AutoMigration(from = 24, to = 25, spec = DropLabelScope::class),
+        AutoMigration(from = 24, to = 25, spec = DropLabelScope::class), AutoMigration(from = 25, to = 26),
     ],
 )
 @ConstructedBy(FactotumDatabaseConstructor::class)
@@ -251,4 +252,4 @@ expect object FactotumDatabaseConstructor : RoomDatabaseConstructor<FactotumData
 const val DATABASE_NAME = "factotum.db"
 
 /** The schema's version; a file below it is upgraded by Room's migrations on open. */
-internal const val SCHEMA_VERSION = 25
+internal const val SCHEMA_VERSION = 26

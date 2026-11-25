@@ -112,5 +112,12 @@ internal class Factotum(
 
     suspend fun import(): ImportReport = sync.import().also { blobSync.exchange() }
 
+    /**
+     * Whether this device must take a new id (SPEC:R37). The shell asks at start and after each
+     * import; when it must, it writes a new id with `renewDeviceId` and builds this again over the
+     * same database and folder, with a clock loaded for the new id.
+     */
+    suspend fun newIdOwed(): Boolean = sync.newIdOwed()
+
     suspend fun rowsChanged() = rowTasks.settle()
 }

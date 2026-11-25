@@ -2,6 +2,7 @@ package com.hazia.factotum.data
 
 import com.hazia.factotum.core.sync.Stamp
 import com.hazia.factotum.core.sync.Ulid
+import com.hazia.factotum.data.sync.IdOwedEntity
 import com.hazia.factotum.data.sync.PurgeEntity
 import com.hazia.factotum.data.sync.loadClock
 import com.hazia.factotum.data.sync.saveClock
@@ -71,5 +72,30 @@ class SyncStorageTest {
         assertTrue(Ulid.isValid(id))
         assertNotEquals("garbled", id)
         assertEquals("garbled", File(file.path + UNOPENABLE_SUFFIX + 9).readText())
+    }
+
+    /** SPEC:R37: the shell's step once a clone is found; the new id is the one every later start reads. */
+    @Test
+    fun aRenewedDeviceIdReplacesTheOldOneForGood() {
+        val file = File(tmp.root, "device.id")
+        val old = deviceId(file)
+
+        val renewed = renewDeviceId(file)
+
+        assertTrue(Ulid.isValid(renewed))
+        assertNotEquals(old, renewed)
+        assertEquals(renewed, deviceId(file))
+        assertEquals(listOf("device.id"), tmp.root.list()!!.toList(), "a temporary file was left behind")
+    }
+
+    /** SPEC:R37: a new id owed outlives the app stopping before the shell takes one. */
+    @Test
+    fun anOwedIdOutlivesAReopen() {
+        val file = File(tmp.root, DATABASE_NAME)
+        withDatabase(file) { it.syncDao().oweNewId(IdOwedEntity(device = "A")) }
+
+        val owed = withDatabase(file) { it.syncDao().idOwedBy() }
+
+        assertEquals("A", owed)
     }
 }

@@ -27,6 +27,17 @@ internal data class ClockEntity(
     @ColumnInfo(name = "last_hlc") val lastHlc: Long,
 )
 
+/**
+ * The id this device must give up (SPEC:R37): a conflict copy in its own folder showed another device
+ * writing under it. One row, local only, written before the copy is deleted and kept until the
+ * device runs under another id.
+ */
+@Entity(tableName = "sync_id_owed")
+internal data class IdOwedEntity(
+    @PrimaryKey val id: Int = 0,
+    val device: String,
+)
+
 /** The last stamp both sides agreed on for an asking group (ADR 01); local only. */
 @Entity(tableName = "sync_base", primaryKeys = ["id", "grp"])
 internal data class BaseEntity(
@@ -125,6 +136,15 @@ internal interface SyncDao {
 
     @Upsert
     suspend fun saveClock(clock: ClockEntity)
+
+    @Upsert
+    suspend fun oweNewId(owed: IdOwedEntity)
+
+    @Query("SELECT device FROM sync_id_owed WHERE id = 0")
+    suspend fun idOwedBy(): String?
+
+    @Query("DELETE FROM sync_id_owed")
+    suspend fun clearIdOwed()
 
     @Query("SELECT * FROM sync_base WHERE id IN (:ids)")
     suspend fun bases(ids: List<String>): List<BaseEntity>
