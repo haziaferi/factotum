@@ -330,12 +330,13 @@ private val choiceOrder = compareBy<TrackerChoiceEntity>({ it.sortOrder }, { it.
 private fun TrackerChoiceEntity.toChoice() = TrackerChoice(id, label, colorArgb)
 
 /**
- * Follows [choices]' merges from a choice id to the last one held, live or in the Trash, so a Log
- * of a merged choice reads as the one it went into; an id no choice has reads as none.
+ * Follows [choices]' merges from a choice id to the last id they lead to, live, in the Trash or
+ * deleted forever, so a Log of a merged choice reads as the one it went into, even once that one
+ * is deleted forever; an id no choice has reads as none.
  */
 private fun chainEnd(choices: List<TrackerChoiceEntity>): (String?) -> String? {
     val byId = choices.associateBy { it.id }
-    return { start -> generateSequence(start?.let(byId::get)) { it.mergedInto?.let(byId::get) }.take(choices.size + 1).lastOrNull()?.id }
+    return { start -> generateSequence(start?.takeIf { it in byId }) { id -> byId[id]?.mergedInto }.take(choices.size + 1).lastOrNull() }
 }
 
 internal fun TrackerReadingEntity.toLog() =
