@@ -12,7 +12,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
-/** A CHOICE tracker's choices, kept as a database's Select options are (SPEC:R203; owner, 2026-11-25). */
+/** A CHOICE tracker's choices, kept as a database's Select options are, a deleted one still read on its Logs (SPEC:R203; owner, 2026-11-25). */
 class TrackerChoicesTest {
 
     @get:Rule val tmp = TemporaryFolder()

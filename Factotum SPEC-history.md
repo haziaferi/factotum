@@ -345,3 +345,4 @@ Not a source of current rules: `Factotum SPEC.md` is. One line per change, newes
 - 2026-11-25 · R37 · changed · a new id owed is held in the database; the shell renews and rebuilds; the new id's first export is a snapshot · owner
 - 2026-11-25 · R203 · added · a choice tracker's choices kept as Select options are; duplicates merge into the first · owner
 - 2026-11-25 · R18 · changed · the round-trip test makes its choice through addChoice; check line cited anew · builder
+- 2026-11-25 · R203 · changed · cites R154; a deleted choice still reads on its Logs; a revival comes from a device that had not seen the delete · owner

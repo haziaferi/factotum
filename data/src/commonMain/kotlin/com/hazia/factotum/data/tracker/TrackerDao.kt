@@ -56,7 +56,7 @@ internal data class TrackerChoiceEntity(
     @ColumnInfo(name = "deleted_at") val deletedAt: Long?,
     val hlc: Long,
     val device: String,
-    /** Set when a sync left it a second choice of its tracker's with one name: the choice it was merged into (SPEC:R203). */
+    /** Set when a sync left it a second choice of its tracker's with one name: the lowest id of that name, which it was merged into (SPEC:R203). */
     @ColumnInfo(name = "merged_into") val mergedInto: String? = null,
 )
 

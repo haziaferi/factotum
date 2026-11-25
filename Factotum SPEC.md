@@ -1291,7 +1291,7 @@ One app that does what Tendril, Chronicle, Mnemo and Equipoise do, over one data
 
 ### D-R203 · A choice tracker's choices
 
-**Rule:** A CHOICE tracker's choices are kept as a database's Select options are (R155): added, renamed, recoloured, moved, deleted to the Trash, restored and deleted forever, each name taken once per tracker, ignoring case. After every import, a choice in the Trash comes back when a person Logged it, or a choice merged into it, after its delete, and live choices a sync left with one name merge into the lowest id, the one made first. A Log picks a live choice of its own tracker, and keeps the id it picked, read through merges.
+**Rule:** A CHOICE tracker's choices are added, renamed, recoloured, moved, deleted to the Trash, restored and deleted forever as a database's Select options are (R154), each name taken once per tracker, ignoring case; unlike a deleted option, which reads as none, a deleted choice still reads on the Logs that picked it. A Log picks a live choice of its own tracker and keeps the id it picked, read through merges. After every import, a choice in the Trash comes back when a device that had not seen its delete Logged it, or a choice merged into it, after the delete, and live choices a sync left with one name merge into the lowest id, the one made first.
 
 **Why:** A CHOICE tracker had no way to get its choices, and one person's choices are a list they reorder and prune like any Select.
 
@@ -1302,17 +1302,17 @@ One app that does what Tendril, Chronicle, Mnemo and Equipoise do, over one data
 | a name a live choice of the tracker has, ignoring case | refused on add, rename and restore |
 | a choice on a trashed tracker or one that is not CHOICE | refused |
 | a move | writes the moved choice only, between its neighbours' places; all are renumbered only when no place is left between two |
-| a deleted choice | leaves the list; its Logs keep it, and no new Log picks it |
-| a Log of a trashed choice, or of a choice merged into it, by hand, stamped after the delete | the choice comes back, stamped automatically from its delete |
+| a deleted choice | leaves the list, and a device that has seen the delete refuses a new Log of it; the Logs that picked it still read it |
+| a Log of a trashed choice, or of a choice merged into it, by hand, on a device that had not seen the delete, stamped after it | the choice comes back, stamped automatically from its delete |
 | two live choices of one tracker and one name after a sync | the one with the higher id goes, `merged_into` the first, stamped automatically; its Logs read as the first |
 | a merged choice | not in the Trash, so neither restored nor deleted forever; a new Log naming it picks the choice it went into |
-| a choice deleted forever | the purge travels; its Logs keep its id |
+| a choice deleted forever | the purge travels; its Logs keep its id, which names no choice from then on |
 
 **Evidence:** `TrackerRepository.kt` (`addChoice` to `settleChoices`), run after each import by `Factotum.kt`; `merged_into` added in Schema 27. A choice is one field group (R79), so a rename and a move of one choice on two devices keep the later of the two. Owner's answers 2026-11-25: the Select options' set of writes, and duplicates merge into the first.
 
 **Acceptance:** `TrackerChoicesTest` adds, renames, recolours and moves choices and refuses a taken name, a blank one and a choice on a NUMBER tracker, and on a trashed tracker until its restore; refuses a Log of a deleted choice or another tracker's; restores and deletes forever from the Trash, with Logs keeping the id; merges two choices of one name made on two devices into the first on both, refuses to restore or delete forever the merged one, and Logs it as the first; brings back a choice Logged after its delete, directly or through a choice merged into it, but not one Logged before it or Logged and undone; keeps a rename made elsewhere when a move lands; and renumbers when a move falls between two tied places.
 
-**Not:** Merging duplicates by rewriting the Logs' `choice_id`: every device would write the Logs again, and a Log keeps the id it picked. Keeping both duplicates: the owner chose the merge (2026-11-25).
+**Not:** Merging duplicates by rewriting the Logs' `choice_id`: every device would write the Logs again, and a Log keeps the id it picked. Keeping both duplicates: the owner chose the merge (2026-11-25). Reading a deleted choice as none on its Logs, as a deleted option reads (R154): a Log records what was picked then, and without its choice it would hold no value.
 
 **Since:** 2026-11-25 · owner · agreed rewording
 

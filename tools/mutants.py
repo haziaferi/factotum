@@ -1063,7 +1063,7 @@ SLICES = {
          "Files.move(tmp, file.toPath(), StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE)\n    return id",
          "Files.delete(tmp)\n    return id", ":data:desktopTest", {"aRenewedDeviceIdReplacesTheOldOneForGood"}),
     ],
-    # SPEC:R203, 2026-11-25: a choice tracker's choices, kept as a database's Select options are.
+    # SPEC:R203, 2026-11-25: a choice tracker's choices, kept as a database's Select options are, a deleted one still read on its Logs.
     "r203": [
         ("a choice's name is taken again in other capitals", TRACKERS, "labelKey(it.label) == labelKey(clean)", "it.label == clean",
          ":data:desktopTest", {"choicesAreAddedRenamedRecolouredAndMovedAndANameIsTakenOnce"}),

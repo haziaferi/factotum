@@ -92,10 +92,10 @@ internal class Factotum(
 
     /**
      * The rules that follow from what peers wrote, after every import, in this order: duplicate
-     * labels merge (ADR 08); a tracker's choices come back or merge (SPEC:R203); finished timers
-     * end (ADR 07); a row task's clash with its page's trash is settled before revive reads it;
-     * pages keep what a sync replaced and revive; options and cards settle; rows' tasks follow
-     * their rows.
+     * labels merge (ADR 08); a tracker's choices come back or merge into the first (SPEC:R203);
+     * finished timers end (ADR 07); a row task's clash with its page's trash is settled before
+     * revive reads it; pages keep what a sync replaced and revive; options and cards settle; rows'
+     * tasks follow their rows.
      */
     val sync = FolderSync(db, folder, device, clock, tables, segmentBytes, snapshotEvery, recovered = recovered, afterImport = {
         labels.mergeDuplicates()
