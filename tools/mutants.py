@@ -1093,6 +1093,15 @@ SLICES = {
          ":data:desktopTest", {"twoChoicesAddedAtOnceOnTwoDevicesTieAndAMoveBetweenThemRenumbers"}),
         ("a renumber puts the moved choice last", TRACKERS, ".apply { add(at, id) }", ".apply { add(id) }",
          ":data:desktopTest", {"twoChoicesAddedAtOnceOnTwoDevicesTieAndAMoveBetweenThemRenumbers"}),
+        ("a trashed tracker takes choices", TRACKERS, '?.takeIf { it.deletedAt == null }) { "no tracker $trackerId" }\n', ') { "no tracker $trackerId" }\n',
+         ":data:desktopTest", {"aTrashedTrackersChoicesWaitForItsRestore"}),
+        ("a merged choice is deleted forever", TRACKERS, "takeIf { it.deletedAt != null && it.mergedInto == null }) { \"choice $id is not in the Trash\" }",
+         "takeIf { it.deletedAt != null }) { \"choice $id is not in the Trash\" }",
+         ":data:desktopTest", {"twoChoicesOfOneNameMadeOnTwoDevicesMergeIntoTheFirstEverywhere"}),
+        ("a Log of a merged choice is refused", TRACKERS, "requireNotNull(chainEnd(choices)(c)?.takeIf", "requireNotNull(c.takeIf",
+         ":data:desktopTest", {"twoChoicesOfOneNameMadeOnTwoDevicesMergeIntoTheFirstEverywhere"}),
+        ("a Log of a merged choice leaves its first in the Trash", TRACKERS, "val c = byId[resolve(r.choiceId)] ?: continue", "val c = byId[r.choiceId] ?: continue",
+         ":data:desktopTest", {"aLogOfAMergedChoiceAfterItsSurvivorsDeleteBringsTheSurvivorBack"}),
     ],
 }
 

@@ -133,6 +133,59 @@ class TrackerChoicesTest {
             assertEquals(emptyList(), runBlocking { d.trackers.trashedChoices(mood) }, d.name)
         }
         assertEquals(runBlocking { a.db.trackerDao().choicesOf(mood) }, runBlocking { b.db.trackerDao().choicesOf(mood) })
+
+        // The merged choice is not in the Trash, and a Log naming it picks the first.
+        val merged = maxOf(first, second)
+        runBlocking { a.trackers.renameChoice(survivor, "glad") }
+        for (attempt in listOf<suspend () -> Unit>({ a.trackers.restoreChoice(merged) }, { a.trackers.purgeChoice(merged) })) {
+            assertFailsWith<IllegalArgumentException> { runBlocking { attempt() } }
+        }
+        runBlocking { a.trackers.log(mood, noon, choiceId = merged) }
+        assertEquals(listOf(second, survivor, survivor).sorted(), runBlocking { a.db.trackerDao().liveReadingsOf(listOf(mood)) }.mapNotNull { it.choiceId }.sorted())
+    }
+
+    // SPEC:R203
+    @Test
+    fun aLogOfAMergedChoiceAfterItsSurvivorsDeleteBringsTheSurvivorBack() {
+        val a = w.Device("A")
+        val b = w.Device("B")
+        val c = w.Device("C")
+        val mood = runBlocking { a.trackers.create("Mood", TrackerType.CHOICE) }
+        w.settle(listOf(a, b, c))
+
+        // C holds B's choice only; A's, made first, takes it in a merge C has not seen.
+        val merged = runBlocking { b.trackers.addChoice(mood, "Calm") }
+        w.settle(listOf(b, c))
+        val first = runBlocking { a.trackers.addChoice(mood, "calm") }
+        w.settle(listOf(a, b))
+        w.syncthing.now += 1_000
+        runBlocking { a.trackers.deleteChoice(first) }
+        w.syncthing.now += 1_000
+        runBlocking { c.trackers.log(mood, noon, choiceId = merged) }
+        w.settle(listOf(a, b, c))
+
+        for (d in listOf(a, b, c)) {
+            assertEquals(listOf(first), runBlocking { d.trackers.choices(mood) }.map { it.id }, d.name)
+            assertEquals(listOf(first), d.picked(mood), d.name)
+        }
+    }
+
+    // SPEC:R203
+    @Test
+    fun aTrashedTrackersChoicesWaitForItsRestore() {
+        val a = w.Device("A")
+        val mood = runBlocking { a.trackers.create("Mood", TrackerType.CHOICE) }
+        val calm = runBlocking { a.trackers.addChoice(mood, "calm") }
+        runBlocking { a.trackers.delete(mood) }
+        for (attempt in listOf<suspend () -> Unit>(
+            { a.trackers.addChoice(mood, "tense") },
+            { a.trackers.renameChoice(calm, "glad") },
+            { a.trackers.deleteChoice(calm) },
+        )) assertFailsWith<IllegalArgumentException> { runBlocking { attempt() } }
+
+        runBlocking { a.trackers.restore(mood) }
+        runBlocking { a.trackers.addChoice(mood, "tense") }
+        assertEquals(listOf("calm", "tense"), a.labels(mood))
     }
 
     // SPEC:R203
