@@ -25,10 +25,7 @@ import com.hazia.factotum.data.page.ViewType
 import com.hazia.factotum.data.reminder.Alert
 import com.hazia.factotum.data.reminder.AlertKind
 import com.hazia.factotum.data.syncedTables
-import com.hazia.factotum.data.tracker.TRACKER_CHOICE
-import com.hazia.factotum.data.tracker.TrackerChoiceEntity
 import com.hazia.factotum.data.tracker.TrackerType
-import com.hazia.factotum.data.tracker.toRow
 import com.hazia.factotum.core.checkin.Outcome as RegulationOutcome
 import kotlinx.coroutines.runBlocking
 import kotlinx.datetime.DateTimeUnit
@@ -568,11 +565,7 @@ class FolderSyncTest {
             a.settings.set(Settings.CRISIS_CONTACTS, "Ada")
             val home = a.labels.create("Home")
             val mood = a.trackers.create("Mood", TrackerType.CHOICE)
-            val calm = "choice-calm"
-            a.writes.write(mapOf(TRACKER_CHOICE to listOf(calm))) { store ->
-                val s = a.clock.tick()
-                a.writes.merger.created(store, TrackerChoiceEntity(calm, mood, "calm", null, 0, null, s.hlc, s.device).toRow())
-            }
+            val calm = a.trackers.addChoice(mood, "calm")
             a.trackers.log(mood, noon, choiceId = calm)
             a.habits.addBlock(480, 540, "Morning")
             val walk = a.items.createTask("walk", MONDAY, LocalTime(9, 0), recurrence = Recurrence.Rule(requireNotNull(RRule.parse("FREQ=DAILY"))))

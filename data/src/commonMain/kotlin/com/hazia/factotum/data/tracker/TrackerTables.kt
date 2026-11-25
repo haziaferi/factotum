@@ -66,10 +66,15 @@ internal fun Row.toTrackerEntity() = Values(this).run {
 
 internal fun TrackerChoiceEntity.toRow() = whole(TRACKER_CHOICE, id, hlc, device, mapOf(
     "tracker_id" to trackerId, "label" to label, "color_argb" to colorArgb, "sort_order" to sortOrder, "deleted_at" to deletedAt,
+    "merged_into" to mergedInto,
 ))
 
+/** A row written before Schema 27 has no `merged_into`, and reads as merged into none. */
 internal fun Row.toChoiceEntity() = Values(this).run {
-    TrackerChoiceEntity(id, s("tracker_id"), s("label"), lOrNull("color_argb"), l("sort_order"), lOrNull("deleted_at"), group.stamp.hlc, group.stamp.device)
+    TrackerChoiceEntity(
+        id, s("tracker_id"), s("label"), lOrNull("color_argb"), l("sort_order"), lOrNull("deleted_at"), group.stamp.hlc, group.stamp.device,
+        sOrNull("merged_into"),
+    )
 }
 
 internal fun TrackerReadingEntity.toRow() = whole(TRACKER_READING, id, hlc, device, mapOf(

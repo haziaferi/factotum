@@ -203,7 +203,7 @@ Each row's test was written for the clause above, and each mutant, in `tools/mut
 | R181 | `JournalLinksTemplatesTest.aTemplateIsNoDatabaseRowAndNoBoardOffersIt_SPEC_R181` | `a template made under a database is a row`, `a template carrying the doorway is a row`, `a board offers a template` |
 
 Found while testing:
-- No repository writes a `tracker_choice` row, so a CHOICE tracker has no way to get its choices (R18's test writes one through `LocalWrites`).
+- No repository writes a `tracker_choice` row, so a CHOICE tracker has no way to get its choices (R18's test writes one through `LocalWrites`). Built 2026-11-25 at the owner's word as R203: choices are kept as Select options are, and duplicates a sync leaves merge into the first.
 - The desktop refused no CMYK JPEG, though R169's Values and `DesktopImageScaler`'s doc comment said it did: JDK 21's ImageIO reads a four-channel JPEG, with or without an Adobe marker, and the scaler stored it. In a JDK probe the image drawn onto an RGB canvas came out black. Built 2026-11-22 at the owner's word: the scaler refuses a JPEG whose frame header names four channels (CMYK, or YCCK with an Adobe marker), and the R169 test refuses all three.
 
 ## Drafted Acceptance lines (107)

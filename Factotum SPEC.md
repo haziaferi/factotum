@@ -93,6 +93,7 @@ Evidence lives in `decisions/`: one ADR per decision, with the verified `file:li
 | D-R77 | Edits reach reminders | 8. Occurrence edits |
 | D-R78 | Every edit is kept | 8. Occurrence edits |
 | D-R79 | Trackers move across as they are | 9. Habits and trackers |
+| D-R203 | A choice tracker's choices | 9. Habits and trackers |
 | D-R80 | A habit is an item over a tracker | 9. Habits and trackers |
 | D-R81 | No streaks in Habits | 9. Habits and trackers |
 | D-R82 | Presence | 9. Habits and trackers |
@@ -499,18 +500,18 @@ One app that does what Tendril, Chronicle, Mnemo and Equipoise do, over one data
 | Area | Tables | Rules |
 |---|---|---|
 | Items | `item` (TASK, EVENT, REMINDER, HABIT, ACTIVITY), `completion`, `reminder`, `occurrence_edit`, `time_span` | R46, R53, R71, R98 |
-| Trackers | `tracker`, `tracker_choice`, `tracker_reading`, `goal`, `saved_chart`, `chart_source` | R79, R186 |
+| Trackers | `tracker`, `tracker_choice`, `tracker_reading`, `goal`, `saved_chart`, `chart_source` | R79, R186, R203 |
 | Check-in and regulation | `check_in`, `sensory_log`, `masking_entry`, `regulation_event` | R129, R135 |
 | Pages | `page`, `block`, `page_database`, `property`, `property_option`, `property_value`, `value_pick`, `page_view`, `page_canvas`, `canvas_node`, `canvas_edge`, `page_relation`, `relation_link` | R140, R150, R172, R178, R179 |
 | Labels | `label`, `page_label` | R109 |
 | Page notices | `page_notice` | R144 |
 | Other | `checklist`, `checklist_item`, `habit_block`, `setting` (PERSONAL keys only), `purge_registry` | R183, R89, R121, R27 |
 
-**Evidence:** `FolderSyncTest.everySyncedTableIsQueuedForExportAndRoundTrips` kills mutant `a synced table with no export trigger` (`tools/mutants.py`, slice `gapA`), 2026-11-21. No repository writes a `tracker_choice` row; the test writes one through `LocalWrites`.
+**Evidence:** `FolderSyncTest.everySyncedTableIsQueuedForExportAndRoundTrips` kills mutant `a synced table with no export trigger` (`tools/mutants.py`, slice `gapA`), 2026-11-21. The test makes its `tracker_choice` row with `TrackerRepository.addChoice` (R203).
 
-**Acceptance:** `FactotumDatabase.kt:220` checks at open that every synced table has its `RowTable`, and `FolderSyncTest.everySyncedTableIsQueuedForExportAndRoundTrips` makes a row in every synced table, finds each table in the outbox, and reads the same rows on a peer after sync.
+**Acceptance:** `FactotumDatabase.kt:222` checks at open that every synced table has its `RowTable`, and `FolderSyncTest.everySyncedTableIsQueuedForExportAndRoundTrips` makes a row in every synced table, finds each table in the outbox, and reads the same rows on a peer after sync.
 
-**Since:** 2026-11-21 · builder · migrated
+**Since:** 2026-11-25 · builder · migrated
 
 ### D-R19 · Local stores, never synced
 
@@ -1287,6 +1288,32 @@ One app that does what Tendril, Chronicle, Mnemo and Equipoise do, over one data
 **Acceptance:** `HabitCasesTest.trackerAndReadingRulesHold` refuses a row breaking each rule: a reading with two values or none, a rating of 0 or 6 on a reading or a default, a unit on a yes/no or rating tracker, and a default of any kind on a CHOICE tracker.
 
 **Since:** 2026-11-21 · builder · migrated
+
+### D-R203 · A choice tracker's choices
+
+**Rule:** A CHOICE tracker's choices are kept as a database's Select options are (R155): added, renamed, recoloured, moved, deleted to the Trash, restored and deleted forever, each name taken once per tracker, ignoring case. After every import, a choice in the Trash comes back when a person Logged it after its delete, and live choices a sync left with one name merge into the one made first. A Log picks a live choice of its own tracker, and keeps the id it picked, read through merges.
+
+**Why:** A CHOICE tracker had no way to get its choices, and one person's choices are a list they reorder and prune like any Select.
+
+**Values:**
+
+| Case | What happens |
+|---|---|
+| a name a live choice of the tracker has, ignoring case | refused on add, rename and restore |
+| a choice on a trashed tracker or one that is not CHOICE | refused |
+| a move | writes the moved choice only, between its neighbours' places; all are renumbered only when no place is left between two |
+| a deleted choice | leaves the list; its Logs keep it, and no new Log picks it |
+| a Log of a trashed choice, by hand, stamped after the delete | the choice comes back, stamped automatically from its delete |
+| two live choices of one tracker and one name after a sync | the one with the higher id goes, `merged_into` the first, stamped automatically; its Logs read as the first |
+| a choice deleted forever | the purge travels; its Logs keep its id |
+
+**Evidence:** `TrackerRepository.kt` (`addChoice` to `settleChoices`), run after each import by `Factotum.kt`; `merged_into` added in Schema 27. A choice is one field group (R79), so a rename and a move of one choice on two devices keep the later of the two. Owner's answers 2026-11-25: the Select options' set of writes, and duplicates merge into the first.
+
+**Acceptance:** `TrackerChoicesTest` adds, renames, recolours and moves choices and refuses a taken name, a blank one and a choice on a NUMBER tracker; refuses a Log of a deleted choice or another tracker's; restores and deletes forever from the Trash, with Logs keeping the id; merges two choices of one name made on two devices into the first on both; brings back a choice Logged after its delete but not one Logged before it or Logged and undone; keeps a rename made elsewhere when a move lands; and renumbers when a move falls between two tied places.
+
+**Not:** Merging duplicates by rewriting the Logs' `choice_id`: every device would write the Logs again, and a Log keeps the id it picked. Keeping both duplicates: the owner chose the merge (2026-11-25).
+
+**Since:** 2026-11-25 · owner · agreed rewording
 
 ### D-R80 · A habit is an item over a tracker
 
@@ -2674,7 +2701,7 @@ Background, not a rule: Equipoise runs llama.cpp on Android only, and only in th
 - R14 · Committed schema files: `tools/schema_check.py` passes.
 - R15 · Upgrades drop the app's triggers first: A test upgrades a version 9 file holding the triggers and its child rows (`OldSchema.kt`).
 - R17 · Licensing: The `:llm` build links only `llama` and `ggml` on both platforms, and the About screen shows llama.cpp's MIT notice.
-- R18 · Synced tables: `FactotumDatabase.kt:220` checks at open that every synced table has its `RowTable`, and `FolderSyncTest.everySyncedTableIsQueuedForExportAndRoundTrips` makes a row in every synced table, finds each table in the outbox, and reads the same rows on a peer after sync.
+- R18 · Synced tables: `FactotumDatabase.kt:222` checks at open that every synced table has its `RowTable`, and `FolderSyncTest.everySyncedTableIsQueuedForExportAndRoundTrips` makes a row in every synced table, finds each table in the outbox, and reads the same rows on a peer after sync.
 - R19 · Local stores, never synced: No export trigger names a store in this table, and a peer that imports a device's folder never receives one of them.
 - R20 · Folder sync for one person: `FolderSyncTest` syncs two devices through a shared folder and nothing else.
 - R21 · Identity and stamps: The 10 cases of `decisions/cases/01-sync.jsonl` pass as tests on both targets (`SyncCasesTest`): 8 hold and 2 ask a person, as hybrid+ scored.
@@ -2735,6 +2762,7 @@ Background, not a rule: Equipoise runs llama.cpp on Android only, and only in th
 - R76 · Habit fields in an edit: An edit carrying `sort_order`, `rule_patch` and `pause` round-trips through the folder unchanged.
 - R77 · Edits reach reminders: `OccurrenceEditSyncTest.aSkippedOccurrenceDoesNotFireAndAMovedOneFiresAtItsNewTime`, `anAddedOccurrenceOnAWholeDayItemFiresAtTheAnchor`, `aRetimedOccurrenceFiresAtItsNewTimeWithoutBeingMoved` and `anAddedOccurrenceGivenATimeOnAWholeDayItemFiresAtThatTime` pass.
 - R79 · Trackers move across as they are: `HabitCasesTest.trackerAndReadingRulesHold` refuses a row breaking each rule: a reading with two values or none, a rating of 0 or 6 on a reading or a default, a unit on a yes/no or rating tracker, and a default of any kind on a CHOICE tracker.
+- R203 · A choice tracker's choices: `TrackerChoicesTest` adds, renames, recolours and moves choices and refuses a taken name, a blank one and a choice on a NUMBER tracker; refuses a Log of a deleted choice or another tracker's; restores and deletes forever from the Trash, with Logs keeping the id; merges two choices of one name made on two devices into the first on both; brings back a choice Logged after its delete but not one Logged before it or Logged and undone; keeps a rename made elsewhere when a move lands; and renumbers when a move falls between two tied places.
 - R80 · A habit is an item over a tracker: The 8 cases of `decisions/cases/06-habit.jsonl` pass (`HabitCasesTest`), with the owner's answers.
 - R81 · No streaks in Habits: No table or column stores a streak or missed-day count, and presence (R82) returns none.
 - R82 · Presence: `HabitPresenceTest` and `HabitCasesTest` pass.
