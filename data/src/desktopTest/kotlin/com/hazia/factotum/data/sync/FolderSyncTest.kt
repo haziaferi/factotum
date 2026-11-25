@@ -44,7 +44,9 @@ import kotlin.random.Random
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 /** ADR 13's cases (`decisions/cases/13-folder.jsonl`) through the real importer, exporter and item table. */
@@ -182,6 +184,79 @@ class FolderSyncTest {
         assertNotNull(a.rows()[mine])
         assertNotNull(a.rows()[theirs])
         assertTrue(w.syncthing.paths("A").none { ".sync-conflict-" in it })
+    }
+
+    /**
+     * SPEC:R37: a clash in its own folder leaves the device owing a new id, held in its database
+     * before the copy is deleted, so stopping before the shell takes one does not lose it. Built again
+     * under a new id it owes nothing; its first export starts the new folder with a snapshot of
+     * everything, since what it wrote under the old id is in no file a peer reads (the clone's writing
+     * won the clash, and the copy is gone). It reads the old folder, still the clone's, as a peer's,
+     * and no clash follows.
+     */
+    @Test
+    fun aClonedIdIsOwedANewOneUntilTheDeviceRunsUnderAnother() {
+        val w = world()
+        val a = w.Device("A")
+        val clone = w.Device("A'", id = "A")
+        val mine = a.create()
+        w.syncthing.now = 5
+        val theirs = clone.create()
+        a.export()
+        clone.export()
+        assertFalse(runBlocking { a.app.newIdOwed() })
+        w.syncthing.session("A", "A'")
+
+        a.import()
+
+        assertTrue(runBlocking { a.app.newIdOwed() })
+        assertEquals("A", runBlocking { a.db.syncDao().idOwedBy() })
+        // The import changed nothing more, yet the debt stays until another id runs.
+        a.import()
+        assertTrue(runBlocking { a.app.newIdOwed() })
+
+        // The shell writes a new id file and builds the device again, over the same database and folder.
+        a.db.close()
+        val renewed = w.Device("A", id = "A2", rowIds = "A2")
+        assertFalse(runBlocking { renewed.app.newIdOwed() })
+
+        w.syncthing.now = 9
+        val later = renewed.create()
+        val b = w.Device("B")
+        val copies = w.syncthing.conflictCopies
+        w.settle(listOf(renewed, clone, b))
+
+        assertEquals(copies, w.syncthing.conflictCopies, "a clash after the new id")
+        assertTrue(w.syncthing.paths("B").any { it.startsWith("devices/A2/snapshot-") })
+        assertNull(runBlocking { renewed.db.syncDao().idOwedBy() }, "the debt outlived the first export under the new id")
+        for (d in listOf(renewed, clone, b)) assertEquals(setOf(mine, theirs, later), d.rows().keys, d.name)
+        // A copy in another device's folder is merged, and owes nothing.
+        assertFalse(runBlocking { b.app.newIdOwed() })
+    }
+
+    /** SPEC:R37: the debt is in the database before the copy is deleted, so a stop at the delete keeps it. */
+    @Test
+    fun aClonedIdIsOwedBeforeItsConflictCopyIsDeleted() {
+        val w = world()
+        val a = w.Device("A")
+        val clone = w.Device("A'", id = "A")
+        a.create()
+        w.syncthing.now = 5
+        clone.create()
+        a.export()
+        clone.export()
+        w.syncthing.session("A", "A'")
+        val folder = w.syncthing.folder("A")
+        val stopsAtDelete = object : SyncFolder by folder {
+            override fun delete(path: String) = throw IllegalStateException("stopped at the delete")
+        }
+
+        assertFailsWith<IllegalStateException> {
+            runBlocking { FolderSync(a.db, stopsAtDelete, "A", a.clock, a.db.syncedTables()).import() }
+        }
+
+        assertEquals("A", runBlocking { a.db.syncDao().idOwedBy() })
+        assertTrue(w.syncthing.paths("A").any { ".sync-conflict-" in it })
     }
 
     @Test

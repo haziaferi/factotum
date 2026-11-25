@@ -158,7 +158,7 @@ These are missing tests, not spec errors. The spec keeps each clause as its crit
 
 The spec already records each of these as owed:
 - the device-id file's Auto Backup exclusion (R32, R36);
-- a new device id after a conflict copy in its own folder (R37);
+- a new device id after a conflict copy in its own folder (R37): the data layer's part built 2026-11-25 (the debt, `renewDeviceId`, the snapshot under the new id); the shells' rebuild is still owed;
 - the SAF folder on Android (R45);
 - a production caller for the export debounce, `exportAfterQuiet` (R38, R36).
 

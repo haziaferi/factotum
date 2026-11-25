@@ -76,6 +76,13 @@ internal class FolderSync(
         (report + retryWaiting()).also { afterImport() }
     }
 
+    /**
+     * Whether this device must take a new id (SPEC:R37): an import found a conflict copy in its own
+     * folder, so another device writes under the same one. It stays owed, across restarts, until the
+     * device runs under another id, whose first export pays it off.
+     */
+    suspend fun newIdOwed(): Boolean = lock.withLock { dao.idOwedBy() == device }
+
     private suspend fun readFiles(): ImportReport {
         forgetReadsIfTablesChanged()
         val held = dao.reads().associate { it.path to it.readBytes }
@@ -87,6 +94,9 @@ internal class FolderSync(
             // A clash in this device's own files means another device writes under the same id: the
             // winning side of the clash is then not this device's writing, so read all of it.
             val shared = owner == device && names.any(FolderLayout::isConflictCopy)
+            // The new id this owes (SPEC:R37) is held before any copy is deleted: stopped in between,
+            // the copy is still there and is found again.
+            if (shared) dao.oweNewId(IdOwedEntity(device = device))
             for (name in names) {
                 val path = "$dir/$name"
                 val copy = FolderLayout.isConflictCopy(name)
@@ -238,8 +248,12 @@ internal class FolderSync(
         return record.takeIf { it !is RowRecord || tables[it.row.table]?.fits(it.row) == true }
     }
 
-    /** Appends every row and purge in the outbox to this device's log, then compacts it if due. */
+    /**
+     * Appends every row and purge in the outbox to this device's log, then compacts it if due. The
+     * first export under a new id (SPEC:R37) instead writes a snapshot of everything it holds.
+     */
     suspend fun export(): Unit = lock.withLock {
+        if (dao.idOwedBy()?.let { it != device } == true) return publishAllUnderNewId()
         val pending = dao.outbox()
         if (pending.isEmpty()) return
         val dir = FolderLayout.dir(device)
@@ -272,6 +286,23 @@ internal class FolderSync(
             // Not [seq] itself: after a crash mid-compaction the new snapshot can take the old one's name.
             snapshots.filter { it != seq }.forEach { folder.delete(FolderLayout.snapshot(device, it)) }
         }
+    }
+
+    /**
+     * What this device wrote under its old id is in no file another device reads: the clone's writing
+     * won the clash, and the copy is gone. So the new folder starts with a snapshot of everything held,
+     * the outbox included; only then is the debt paid off. A line written meanwhile stays queued and is
+     * exported again, harmlessly.
+     */
+    private suspend fun publishAllUnderNewId() {
+        val dir = FolderLayout.dir(device)
+        val names = folder.list(dir)
+        names.filter { it.startsWith(TEMP_PREFIX) }.forEach { folder.delete("$dir/$it") }
+        val seq = (names.mapNotNull(FolderLayout::segmentSeq) + names.mapNotNull(FolderLayout::snapshotSeq)).maxOrNull()?.plus(1) ?: 0
+        val upTo = dao.outbox().maxOfOrNull { it.n }
+        folder.replace(FolderLayout.snapshot(device, seq), snapshotOfEverything())
+        upTo?.let { dao.clearOutbox(it) }
+        dao.clearIdOwed()
     }
 
     /** One line per id: its row if a table holds it, else its purge. An id can be queued with and without its table. */

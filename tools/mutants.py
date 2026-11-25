@@ -15,6 +15,7 @@ import sys
 GRADLEW = os.path.abspath("gradlew.bat" if os.name == "nt" else "gradlew")
 MERGE = "core/src/commonMain/kotlin/com/hazia/factotum/core/sync/Merge.kt"
 OPEN = "data/src/jvmCommon/kotlin/com/hazia/factotum/data/OpenDatabase.kt"
+DEVICEID = "data/src/jvmCommon/kotlin/com/hazia/factotum/data/DeviceId.kt"
 FOLDER = "data/src/commonMain/kotlin/com/hazia/factotum/data/sync/FolderSync.kt"
 STAGED = "data/src/commonMain/kotlin/com/hazia/factotum/data/sync/StagedStore.kt"
 CODEC = "data/src/commonMain/kotlin/com/hazia/factotum/data/sync/Records.kt"
@@ -1040,6 +1041,26 @@ SLICES = {
          ":data:desktopTest", {"aGoalIsReachedInEachWindowThroughTheRepository"}),
         ("a milestone counts only its period", ACTIVITIES, 'goal.kind == "MILESTONE", today)', 'false, today)',
          ":data:desktopTest", {"aGoalIsReachedInEachWindowThroughTheRepository"}),
+    ],
+    # SPEC:R37, 2026-11-25: a cloned id is owed a new one, held in the database until another id runs.
+    "r37": [
+        ("a clash in its own folder owes no new id", FOLDER, "if (shared) dao.oweNewId(IdOwedEntity(device = device))",
+         "if (false) dao.oweNewId(IdOwedEntity(device = device))", ":data:desktopTest",
+         {"aClonedIdIsOwedANewOneUntilTheDeviceRunsUnderAnother", "aClonedIdIsOwedBeforeItsConflictCopyIsDeleted"}),
+        ("the debt is held only after its copy goes", FOLDER,
+         "            if (shared) dao.oweNewId(IdOwedEntity(device = device))\n            for (name in names) {",
+         "            for (name in names) {\n                if (shared && FolderLayout.isConflictCopy(name)) "
+         "folder.delete(\"$dir/$name\").also { dao.oweNewId(IdOwedEntity(device = device)) }",
+         ":data:desktopTest", {"aClonedIdIsOwedBeforeItsConflictCopyIsDeleted"}),
+        ("an id owed by another device is owed here too", FOLDER, "lock.withLock { dao.idOwedBy() == device }",
+         "lock.withLock { dao.idOwedBy() != null }", ":data:desktopTest", {"aClonedIdIsOwedANewOneUntilTheDeviceRunsUnderAnother"}),
+        ("a new id exports only what is new", FOLDER, "if (dao.idOwedBy()?.let { it != device } == true) return publishAllUnderNewId()",
+         "if (false) return publishAllUnderNewId()", ":data:desktopTest", {"aClonedIdIsOwedANewOneUntilTheDeviceRunsUnderAnother"}),
+        ("a debt paid off stays in the database", FOLDER, "        upTo?.let { dao.clearOutbox(it) }\n        dao.clearIdOwed()",
+         "        upTo?.let { dao.clearOutbox(it) }", ":data:desktopTest", {"aClonedIdIsOwedANewOneUntilTheDeviceRunsUnderAnother"}),
+        ("a renewed id leaves the old file in place", DEVICEID,
+         "Files.move(tmp, file.toPath(), StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE)\n    return id",
+         "Files.delete(tmp)\n    return id", ":data:desktopTest", {"aRenewedDeviceIdReplacesTheOldOneForGood"}),
     ],
 }
 

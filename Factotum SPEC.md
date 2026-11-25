@@ -772,15 +772,27 @@ One app that does what Tendril, Chronicle, Mnemo and Equipoise do, over one data
 
 ### D-R37 · Conflict copies
 
-**Rule:** Readers merge, then delete, any `.sync-conflict-` copy. A conflict copy in a device's own folder also makes it re-read its own files, because the side that won the clash is not its own writing. On finding such a copy, the device also takes a new id.
+**Rule:** Readers merge, then delete, any `.sync-conflict-` copy. A copy in a device's own folder also makes it re-read its own files, because the side that won the clash is not its own writing, and leaves it owing a new id, held in its database from before the copy is deleted until the device runs under another id. The shell then writes a new id and builds the data layer again over the same database and folder, and the first export under the new id is a snapshot of everything the device holds.
 
-**Why:** A conflict copy in a device's own folder means a cloned device id, and only a new id for one of the two devices ends the clashes.
+**Why:** A conflict copy in a device's own folder means a cloned device id, and only a new id for one of the two devices ends the clashes. The debt is held, not only reported, so stopping between the clash and the new id cannot lose it once the copy is gone. The snapshot is needed because what the device wrote under its old id is in no file a peer reads: the clone's writing won the clash, and the copy is deleted.
 
-**Evidence:** Not checked: taking a new id is not built; it needs the app's identity wiring. `DeviceId.kt:16` makes a new id only for an unreadable file, and the re-read is shown only through the Syncthing double's tie-break.
+**Values:**
 
-**Acceptance:** `FolderSyncTest.aClonedDeviceIdsClashIsMergedAndTheCopyRemoved` merges and deletes a conflict copy; after one in its own folder the device re-reads its own files and holds a new id.
+| Step | Where |
+|---|---|
+| The debt, one local row of the device id given up | `sync_id_owed` (`IdOwedEntity`, Schema 26) |
+| Held before any copy in its own folder is deleted | `FolderSync.kt:99` |
+| Asked by the shell at start and after each import | `Factotum.newIdOwed` (`FolderSync.kt:84`): owed only while the row names this device's id |
+| A new id, moved over the old file in one step | `renewDeviceId` (`DeviceId.kt:39`) |
+| The first export under another id: a snapshot of everything, then the debt cleared | `FolderSync.kt:256`, `publishAllUnderNewId` |
 
-**Since:** 2026-10-01 · owner · migrated
+**Evidence:** The data layer is built as in Values (2026-11-25). Not checked: no shell exists yet to ask `newIdOwed`, renew and build again, so the test does that step by hand.
+
+**Acceptance:** `FolderSyncTest.aClonedDeviceIdsClashIsMergedAndTheCopyRemoved` merges and deletes a conflict copy. `FolderSyncTest.aClonedIdIsOwedANewOneUntilTheDeviceRunsUnderAnother`: after one in its own folder the device owes a new id across imports; built again under a new id it owes none, its folder starts with a snapshot, and the clone and a third device hold every row with no further clash. `FolderSyncTest.aClonedIdIsOwedBeforeItsConflictCopyIsDeleted`: an import stopped at the copy's delete leaves the debt held. `SyncStorageTest.anOwedIdOutlivesAReopen` and `SyncStorageTest.aRenewedDeviceIdReplacesTheOldOneForGood` cover the debt and the id file. Each shell asks `newIdOwed` at start and after each import and, while owed, renews and builds again.
+
+**Not:** Factotum swapping its own id, clock and sync in place: every repository's writer would need a replaceable clock. Only reporting the clash: a stop before the new id would forget it until the next clash.
+
+**Since:** 2026-11-25 · owner · agreed rewording
 
 ### D-R38 · A local outbox decides what to export
 
@@ -2681,7 +2693,7 @@ Background, not a rule: Equipoise runs llama.cpp on Android only, and only in th
 - R34 · Recovery re-reads its own files: `SettingsCasesTest.aDeviceWhoseDatabaseWasRecoveredGetsItsSettingsBackFromItsOwnFiles` recovers a device alone and finds its PERSONAL settings again, and `aRecoveredDeviceGetsItsRowsBackFromItsOwnFilesAndItsDeviceSettingsStartAtTheirDefaults` finds its rows again and its DEVICE settings at their defaults.
 - R35 · Device logs in the folder: The 4 cases of `decisions/cases/13-folder.jsonl` pass through the real importer and exporter under a Syncthing double (`FolderSyncTest`).
 - R36 · Folder requirements: `ExportTimingTest.aBurstOfWritesExportsOnceThirtySecondsAfterTheLast` (debounce), `DirectorySyncFolderTest.aReplaceLandsWholeAndLeavesNoTemporaryFile` (atomic replace), `RecordCodecTest.aRecordIsOneCompactLine` (compact JSON) and `FolderSyncTest.aReminderFiringLeavesTheOutboxEmpty` (a firing writes nothing) pass. In each shell, every export starts through `exportAfterQuiet` (R38), with no other production call to the export. The Android manifest's `dataExtractionRules` and `fullBackupContent` both exclude the device-id file (R32).
-- R37 · Conflict copies: `FolderSyncTest.aClonedDeviceIdsClashIsMergedAndTheCopyRemoved` merges and deletes a conflict copy; after one in its own folder the device re-reads its own files and holds a new id.
+- R37 · Conflict copies: `FolderSyncTest.aClonedDeviceIdsClashIsMergedAndTheCopyRemoved` merges and deletes a conflict copy. `FolderSyncTest.aClonedIdIsOwedANewOneUntilTheDeviceRunsUnderAnother`: after one in its own folder the device owes a new id across imports; built again under a new id it owes none, its folder starts with a snapshot, and the clone and a third device hold every row with no further clash. `FolderSyncTest.aClonedIdIsOwedBeforeItsConflictCopyIsDeleted`: an import stopped at the copy's delete leaves the debt held. `SyncStorageTest.anOwedIdOutlivesAReopen` and `SyncStorageTest.aRenewedDeviceIdReplacesTheOldOneForGood` cover the debt and the id file. Each shell asks `newIdOwed` at start and after each import and, while owed, renews and builds again.
 - R38 · A local outbox decides what to export: A write through any repository, and an import that changes a row, each leave the row queued for export.
 - R39 · Imports in chunks: `FolderSyncTest` imports a snapshot larger than one chunk and stops and resumes it at a chunk boundary.
 - R40 · Read positions: `FolderSyncTest.aPeerFileIsReadOnlyWhenItHasGrown`, `aLineStillBeingWrittenWaitsForItsNewline` and `aFileThatShrankIsReadAgainFromTheStart` pass.

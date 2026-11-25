@@ -51,6 +51,8 @@ internal class World(private val dir: File, seed: Int, private val segmentBytes:
      * [id] is the sync identity; two devices given the same one model a cloned device id.
      * [extra] adds tables, or replaces a real one, for rows written straight into the folder.
      * [open] opens the database file, for a test that watches what the driver reads.
+     * [rowIds] starts the ids of rows it makes: a device built again over the same database, under a
+     * new sync identity, gives another so its rows do not reuse the ids its first build gave.
      */
     inner class Device(
         val name: String,
@@ -58,6 +60,7 @@ internal class World(private val dir: File, seed: Int, private val segmentBytes:
         extra: Map<String, RowTable> = emptyMap(),
         recovered: Boolean = false,
         open: (File) -> FactotumDatabase = { openFactotumDatabase(it).database },
+        rowIds: String = name,
     ) {
         val clock = HybridClock(id, { syncthing.now })
         val db = open(File(dir, "$name.db")).also { opened += it }
@@ -70,7 +73,7 @@ internal class World(private val dir: File, seed: Int, private val segmentBytes:
         var now = LocalDateTime(2026, 10, 5, 12, 0)
         /** The production wiring, over this device's database and its copy of the folder. */
         val app = Factotum(
-            db, syncthing.folder(name), id, clock, secrets, blobs, DesktopImageScaler(), { "$name-${made++}" }, { syncthing.now }, { now },
+            db, syncthing.folder(name), id, clock, secrets, blobs, DesktopImageScaler(), { "$rowIds-${made++}" }, { syncthing.now }, { now },
             recovered = recovered, tables = tables, segmentBytes = segmentBytes, snapshotEvery = snapshotEvery,
         )
         val writes = app.writes
