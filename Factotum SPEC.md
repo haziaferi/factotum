@@ -77,6 +77,7 @@ Evidence lives in `decisions/`: one ADR per decision, with the verified `file:li
 | D-R59 | A standalone reminder's last reminder | 6. Reminders |
 | D-R60 | Alarms and missed occurrences | 6. Reminders |
 | D-R61 | A force-stopped app says so | 6. Reminders |
+| Q-R206 | A force-stop that leaves no trace | 6. Reminders |
 | D-R62 | Recurrence kinds | 7. Recurrence |
 | D-R63 | Random forms | 7. Recurrence |
 | D-R64 | Seeded random draws | 7. Recurrence |
@@ -1112,16 +1113,30 @@ One app that does what Tendril, Chronicle, Mnemo and Equipoise do, over one data
 
 **Why:** A force-stopped app loses its alarms until it is next opened; this is a platform limit, not a defect.
 
-**Evidence:** Spike 5 (`docs/spikes-2026-10-01.md`). Device half, on the API 32 emulator, 2026-11-26 (`ForceStopOnDeviceTest`, run by `tools/device/run.sh`):
-- A force-stop (`am force-stop`, the call Settings' "Force stop" makes) removes the app's alarms but not its PendingIntents, so asking for one (`FLAG_NO_CREATE`) cannot tell that the alarms are gone.
-- The next start reads the stop from `getHistoricalProcessExitReasons`: reason `REASON_USER_REQUESTED`, description "stop <package> due to from pid <n>".
-- A test run's own end records the same reason, described "… due to finished inst", and keeps the alarms. So the description, not the reason, tells a force-stop.
+**Evidence:** Spike 5 (`docs/spikes-2026-10-01.md`). Device half, on the API 32 emulator, 2026-11-26 (`ForceStopOnDeviceTest`, run by `tools/device/run.sh`; Settings' button pressed by hand):
+- Force-stopped while running, by Settings' "Force stop" or `am force-stop`: the alarm is removed. The next start reads an exit record: reason `REASON_USER_REQUESTED`, description "stop <package> due to from pid <n>".
+- Force-stopped while not running, by either: the alarm is removed, and no exit record is written, since no process ended. The next start reads nothing.
+- No force-stop (the control, a test run's own end): the alarm is kept. The exit record has the same reason, described "… due to finished inst".
 
-Not checked: the notice and the alarms set again, which wait for reminders on Android; a phone; a swipe from Recents.
+- In every case the alarm's PendingIntent stays, so asking for it (`FLAG_NO_CREATE`) cannot tell that the alarm is gone.
+- The reason code cannot tell a force-stop either; only the description can, and that text is undocumented.
+- So on API 32 a force-stop of an app that is not running leaves no trace the app can read: R206 asks how R61 is met then.
+
+Not checked: a phone; Android 15 and later, which is documented to cancel PendingIntents in the stopped state and to add `ApplicationStartInfo.wasForceStopped()`; the notice and the alarms set again, which wait for reminders on Android; other ends of a process (a swipe from Recents, a low-memory kill, an update).
 
 **Acceptance:** On a device, force-stopping the app and opening it again shows the notice, and the alarms are set again.
 
 **Since:** 2026-11-26 · owner · migrated
+
+### Q-R206 · A force-stop that leaves no trace
+
+**Rule:** How does the app meet R61 when it was force-stopped while not running, which on Android 11 to 14 leaves nothing it can read at its next start?
+
+**Default:** Every start sets every alarm again, so the alarms are right whatever happened. The notice shows when the exit history records a force-stop, and on Android 15 and later when `ApplicationStartInfo.wasForceStopped()` says so. A force-stop of an idle app on Android 11 to 14 goes unsaid. This changes R61's Acceptance to the cases a device can tell.
+
+**Why:** The sides: setting alarms again on every start is cheap and always right, but says nothing; a heartbeat alarm that writes when it fires would reveal the cancellation when it fails to, at the cost of a wake-up a day and a delay of up to a day before the notice.
+
+**Since:** 2026-11-26 · builder
 
 ## 7. Recurrence
 
@@ -2734,25 +2749,27 @@ Background, not a rule: Equipoise runs llama.cpp on Android only, and only in th
 **Rule:** The app's triggers, installed from a database callback as Chronicle does on Android, install and fire on the Android driver as they do on the desktop one.
 
 **Evidence:** Spike 3: on the desktop it holds (every trigger test runs on the bundled driver). Device half, on the API 32 emulator (SQLite 3.32.2), 2026-11-26: `TriggersOnDeviceTest` opens the app's database as the app does (`openFactotumDatabase(context)`, the framework driver).
-- All 183 triggers are there after an open, and the same set after a second open.
+- After an open, the database holds exactly the 183 triggers the callback makes (`SchemaTriggers.names`).
+- A trigger dropped by hand is back after the next open.
 - A rule trigger and the span-owner trigger refuse their rows.
 - A raw write, as an import makes, reaches the outbox and the search index.
+- `tools/device/mutants.py` breaks each install in turn, and the named tests fail every time.
 
 Not checked: a phone, and Android 11.
 
 **Acceptance:** `tools/device/run.sh <serial>` passes `TriggersOnDeviceTest` on a device.
 
-**Since:** 2026-11-26 · builder
+**Since:** 2026-11-26 · builder · migrated
 
 ### A-R197 · The search index on the phones
 
 **Rule:** The phones' own SQLite (3.28 on Android 11, the minimum) makes the FTS4 index with `remove_diacritics=2`.
 
-**Evidence:** Spike 1, desktop half (2026-10-03). Device half, on the API 32 emulator, 2026-11-26 (`SearchIndexOnDeviceTest`): its SQLite 3.32.2 makes the index, finds "Café Müller" by "cafe", "CAFÉ" and "MULLER", and follows a rename and a delete. Not checked: Android 11's SQLite 3.28 itself, which the owner left for the emulator to stand in for (SQLite added `remove_diacritics=2` in 3.27.0); a phone.
+**Evidence:** Spike 1, desktop half (2026-10-03). Device half, on the API 32 emulator, 2026-11-26 (`SearchIndexOnDeviceTest`): its SQLite 3.32.2 makes the index and folds "Café Müller Hồ" for "cafe", "CAFÉ", "MULLER" and "ho". The "ồ" carries two marks, which only `remove_diacritics=2` folds. The index entry follows a rename and leaves with a delete, read from the index itself, since the search also hides deleted rows. Not checked: Android 11's SQLite 3.28 itself, which the owner left for the emulator to stand in for (SQLite added `remove_diacritics=2` in 3.27.0); a phone.
 
 **Not:** FTS5 in place of FTS4: the API 32 emulator's SQLite has no FTS5 ("no such module: fts5").
 
-**Since:** 2026-11-26 · builder
+**Since:** 2026-11-26 · builder · migrated
 
 ## Acceptance list
 

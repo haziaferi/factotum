@@ -17,8 +17,9 @@ kotlin {
         compileSdk = libs.versions.compileSdk.get().toInt()
         minSdk = libs.versions.minSdk.get().toInt()
         withHostTest {}
-        // SPEC:R61, R196, R197: what only a phone can answer, run on a device or emulator by hand
-        // (`connectedAndroidDeviceTest`); CI has no device.
+        // SPEC:R61, R196, R197: what only a phone can answer, run by hand on one device with
+        // `tools/device/run.sh <serial>`, not `connectedAndroidDeviceTest`, which runs on every
+        // attached device; CI only builds them.
         withDeviceTest {
             instrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         }

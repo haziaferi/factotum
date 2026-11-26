@@ -354,5 +354,6 @@ Not a source of current rules: `Factotum SPEC.md` is. One line per change, newes
 - 2026-11-26 · R34 · changed · a database reads its own files at its first finished import, in whichever run; its own versions read back are skipped · builder
 - 2026-11-26 · R196 · kind · A → D: every trigger installs and fires on the API 32 emulator's framework driver · builder
 - 2026-11-26 · R197 · changed · the API 32 emulator's SQLite 3.32.2 makes and folds the index and has no FTS5; Android 11 not run · builder
-- 2026-11-26 · R61 · changed · on the emulator a force-stop drops the alarms, keeps PendingIntents; the exit description tells it · builder
+- 2026-11-26 · R61 · changed · on the emulator a force-stop drops the alarms, keeps PendingIntents; only a running app's stop is recorded · builder
+- 2026-11-26 · R206 · added · how R61 is met when a force-stop of an idle app leaves no trace (Android 11 to 14) · builder
 - 2026-11-26 · R193 · changed · the device halves of spikes 1, 3 and 5 ran on the API 32 emulator · builder

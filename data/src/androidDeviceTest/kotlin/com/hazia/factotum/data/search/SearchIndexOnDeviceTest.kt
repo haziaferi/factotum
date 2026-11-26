@@ -39,19 +39,28 @@ class SearchIndexOnDeviceTest {
         assertTrue("fts4" in sql.lowercase() && "remove_diacritics=2" in sql, sql)
     }
 
+    /** What the index holds for [id], read past the search's own filter on deleted rows. */
+    private fun indexed(id: String) =
+        d.read("SELECT f.text FROM search_key k JOIN search_fts f ON f.docid = k.doc WHERE k.row_key = '$id'") { it.getText(0) }
+
     @Test
     fun accentsAndCaseFoldAndTheIndexFollowsEveryWrite() {
-        val pills = runBlocking { d.reminders.createStandalone("Café Müller pills", LocalDate(2026, 10, 5), LocalTime(8, 0)) }
+        // "ồ" carries two marks, which only remove_diacritics=2 folds (1 leaves it).
+        val pills = runBlocking { d.reminders.createStandalone("Café Müller Hồ pills", LocalDate(2026, 10, 5), LocalTime(8, 0)) }
 
         assertEquals(listOf(pills), ids("cafe"))
         assertEquals(listOf(pills), ids("MULLER"))
         assertEquals(listOf(pills), ids("CAFÉ"))
+        assertEquals(listOf(pills), ids("ho"))
 
         runBlocking { d.items.rename(pills, "Tea pills") }
+        assertEquals(listOf("Tea pills"), indexed(pills))
         assertEquals(emptyList(), ids("cafe"))
         assertEquals(listOf(pills), ids("tea"))
 
+        // A delete is a tombstone, which the search also filters out: the index itself must let it go.
         runBlocking { d.items.delete(pills) }
+        assertEquals(emptyList(), indexed(pills))
         assertEquals(emptyList(), ids("tea"))
     }
 }

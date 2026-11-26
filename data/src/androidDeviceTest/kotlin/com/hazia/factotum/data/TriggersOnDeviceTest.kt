@@ -2,7 +2,6 @@ package com.hazia.factotum.data
 
 import androidx.room.useReaderConnection
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.hazia.factotum.data.search.searchTriggers
 import com.hazia.factotum.data.tracker.TrackerType
 import kotlinx.coroutines.runBlocking
 import kotlinx.datetime.LocalDate
@@ -27,15 +26,13 @@ class TriggersOnDeviceTest {
 
     private fun triggers() = d.read("SELECT name FROM sqlite_master WHERE type = 'trigger'") { it.getText(0) }.toSet()
 
+    /** Exactly the set the callback makes: none missing, and none left from an older schema. */
     @Test
     fun everyTriggerTheOpenMakesIsThere() {
-        val outbox = SYNCED_TABLES.flatMap { t -> listOf("insert", "update", "delete").map { "${t}_outbox_$it" } } + listOf("purge_outbox_insert", "purge_outbox_update")
-        val search = searchTriggers.mapNotNull { Regex("^CREATE TRIGGER (\\w+)").find(it)?.groupValues?.get(1) }
-        val rules = listOf("item_rules_insert", "reminder_rules_update", "occurrence_edit_once", "time_span_owner_fixed", "block_made_fixed")
         val held = triggers()
-        report("R196 triggers=${held.size} sqlite=${d.read("SELECT sqlite_version()") { it.getText(0) }.single()}")
+        report("R196 triggers=${held.size} of ${SchemaTriggers.names.size} sqlite=${d.read("SELECT sqlite_version()") { it.getText(0) }.single()}")
 
-        assertTrue(held.containsAll(outbox + search + rules), "missing: ${(outbox + search + rules) - held}")
+        assertEquals(SchemaTriggers.names, held)
     }
 
     @Test
@@ -64,17 +61,18 @@ class TriggersOnDeviceTest {
         assertEquals(1, d.read("SELECT docid FROM search_fts WHERE search_fts MATCH 'quantum'") { it.getLong(0) }.size)
     }
 
-    /** The triggers are made again on every open (SchemaTriggers.onOpen), so a second open finds the same set. */
+    /** The triggers are made again on every open (SchemaTriggers.onOpen): one dropped by hand is back after the next. */
     @Test
-    fun aSecondOpenKeepsTheSameTriggers() {
-        val first = triggers()
+    fun theNextOpenMakesADroppedTriggerAgain() {
+        d.write("DROP TRIGGER item_rules_insert")
+        assertTrue("item_rules_insert" !in triggers())
         d.db.close()
         val again = openFactotumDatabase(context).database
         try {
             val second = runBlocking {
                 again.useReaderConnection { c -> c.usePrepared("SELECT name FROM sqlite_master WHERE type = 'trigger'") { s -> buildSet { while (s.step()) add(s.getText(0)) } } }
             }
-            assertEquals(first, second)
+            assertEquals(SchemaTriggers.names, second)
         } finally {
             again.close()
         }
