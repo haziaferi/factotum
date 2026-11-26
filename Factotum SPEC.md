@@ -79,6 +79,7 @@ Evidence lives in `decisions/`: one ADR per decision, with the verified `file:li
 | D-R61 | A force-stopped app says so | 6. Reminders |
 | Q-R206 | A force-stop that leaves no trace | 6. Reminders |
 | D-R207 | The exact-alarm permission | 6. Reminders |
+| Q-R208 | Notification and full-screen permissions | 6. Reminders |
 | D-R62 | Recurrence kinds | 7. Recurrence |
 | D-R63 | Random forms | 7. Recurrence |
 | D-R64 | Seeded random draws | 7. Recurrence |
@@ -1145,7 +1146,7 @@ Not checked: a phone; Android 15 and later, which is documented to cancel Pendin
 
 **Why:** R60's alarms use `setAlarmClock`, which fails without an exact-alarm permission. `USE_EXACT_ALARM` cannot be taken away, and Play's limit on it does not bind an app that is never distributed (R09).
 
-**Evidence:** Android's alarm guide (`developer.android.com/develop/background-work/services/alarms/schedule`) and its Android 14 change page (`developer.android.com/about/versions/14/changes/schedule-exact-alarms`), read 2026-11-26: `setAlarmClock` throws `SecurityException` without the permission on Android 12 and later; revoking `SCHEDULE_EXACT_ALARM` stops the app and cancels its future exact alarms; a grant sends the broadcast above. Android 11, the oldest supported (`minSdk` 30), needs no permission. Not checked: nothing is built or ran on a device; declaring `SCHEDULE_EXACT_ALARM` with `maxSdkVersion="32"` beside `USE_EXACT_ALARM`.
+**Evidence:** Android's alarm guide (`developer.android.com/develop/background-work/services/alarms/schedule`) and its Android 14 change page (`developer.android.com/about/versions/14/changes/schedule-exact-alarms`), read 2026-11-26: `setAlarmClock` throws `SecurityException` without the permission on Android 12 and later; revoking `SCHEDULE_EXACT_ALARM` stops the app and cancels its future exact alarms; a grant sends the broadcast above. Android 13's feature page (`developer.android.com/about/versions/13/features`): `USE_EXACT_ALARM` is new in Android 13 and granted automatically. Android 11, the oldest supported (`minSdk` 30), needs no permission. Not checked: that Android 12 grants `SCHEDULE_EXACT_ALARM` by default, which the pages imply only by saying Android 14 stopped pre-granting it (the `Api32_Alarm` emulator can show it); nothing is built or ran on a device (R61's probe used an inexact alarm); declaring `SCHEDULE_EXACT_ALARM` with `maxSdkVersion="32"` beside `USE_EXACT_ALARM`.
 
 **Acceptance:** On Android 13 or later, a fresh install sets an alarm through `setAlarmClock` without asking for anything. On Android 12 with exact alarms turned off in Settings, the next start says so, and turning them on again sets the alarms again.
 
@@ -1154,6 +1155,18 @@ Not checked: a phone; Android 15 and later, which is documented to cancel Pendin
 - Inexact alarms: they need no permission, but break R60's "rings at its time".
 
 **Since:** 2026-11-26 · owner · agreed rewording
+
+### Q-R208 · Notification and full-screen permissions
+
+**Rule:** How does the Android app get leave to show its reminders (`POST_NOTIFICATIONS`, a runtime permission from Android 13) and to ring an alarm over the lock screen (`USE_FULL_SCREEN_INTENT`), and what does it do when either is off?
+
+**Default:** The manifest declares both. On Android 13 and later the app asks for notifications the first time a reminder is set, not at first open. At each start it asks `areNotificationsEnabled()` and `canUseFullScreenIntent()`; when either is off, it says so inside the app, as R207 does for exact alarms. This changes when the app first asks for anything, and whether an alarm rings full screen or only as a notification.
+
+**Why:** The sides: without notifications, R60's NOTIFICATION reminders stay silent and an ALARM has nothing to show; without the full-screen intent, an alarm shows only as a heads-up notification. Asking at first open is simpler, but asks before the person knows why.
+
+**Evidence:** Android's notification-permission page (`developer.android.com/develop/ui/views/notifications/notification-permission`) and its Android 14 behaviour changes (`developer.android.com/about/versions/14/behavior-changes-14`), read 2026-11-26: a denied notification permission blocks every channel; for apps targeting Android 14, the full-screen intent is limited to calling and alarm apps, and the user can turn it off. Not checked: whether Android 14 grants `USE_FULL_SCREEN_INTENT` to an app installed outside Play, since the page covers only Play's policy; nothing is built or ran on a device.
+
+**Since:** 2026-11-26 · builder
 
 ## 7. Recurrence
 
