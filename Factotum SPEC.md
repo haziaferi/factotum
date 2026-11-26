@@ -211,7 +211,7 @@ Evidence lives in `decisions/`: one ADR per decision, with the verified `file:li
 | D-R189 | Settings in two sections | 17. Screens |
 | D-R190 | Fixed words | 17. Screens |
 | D-R191 | Navigation | 17. Screens |
-| Q-R209 | The Hub's groups and the icons | 17. Screens |
+| Q-R209 | The Hub's groups, its switch and the icons | 17. Screens |
 | Q-R192 | Palette, type, shapes and density | 17. Screens |
 | D-R193 | Build order | 18. Phasing and validation |
 | D-R194 | Schema slices | 18. Phasing and validation |
@@ -250,7 +250,7 @@ Evidence lives in `decisions/`: one ADR per decision, with the verified `file:li
 | Tracker | A measured quantity, Chronicle's model (R79) |
 | Reading | One value logged on a tracker, `TrackerReading` |
 | Log | A reading made by marking a habit; the word on screen (R190) |
-| Hub | The bar's centre destination: a sheet holding every screen not on the bar (R191) |
+| Hub | The bar's centre destination: a sheet of every module's screens on cards (R191) |
 | Activity | An item of kind ACTIVITY that holds tracked time (R97) |
 | Span | One timed interval on a task, habit or activity, a `time_span` row |
 | Amount | Untimed time added to an activity on a picked day (R102) |
@@ -2721,38 +2721,39 @@ Not checked: a phone; Android 15 and later, which is documented to cancel Pendin
 
 ### D-R191 · Navigation
 
-**Rule:** The phone's bar is Today · Calendar · Hub · Pages · a fifth slot, and Windows shows the same destinations in a rail. The Hub opens a sheet that holds every screen not on the bar; the header holds Search, edit and Settings, top right. What each part holds is below; the Hub's groups and the icons are R209.
+**Rule:** The phone's bar is Today · Calendar · Hub · Pages · a fifth slot, and Windows shows the same destinations in a rail. The Hub opens a sheet that holds every module's screens on cards, the six behind the Settings glyph apart; the header holds Search, edit and Settings, top right. What each part holds is below; the Hub's groups, its switch's scope and the icons are R209.
 
 **Values:**
 
 | Part | Holds |
 |---|---|
-| The bar | Today · Calendar · Hub · Pages · the fifth slot, which is "Check-in" by default and can be pinned to any screen in Edit home |
+| The bar | Today · Calendar · Hub · Pages · the fifth slot, which is "Check-in" by default and can be pinned to any screen in Edit home, on each device apart, as Edit home is |
+| The Windows rail | the bar's five down the left, with Settings at its foot |
 | The Hub's own symbol | a hexagon with a centre dot, on a tonal circle that is always on |
-| The Hub sheet | the capture line (T1.3 v4, decision 17), then one column of cards, one per group, each listing its screens; every screen shows above the bar, on Windows too |
+| The Hub sheet | the capture line (T1.3 v4, decision 17), then one column of cards, one per group, each listing its screens; every screen shows above the bar. On Windows it is a panel beside the rail, and hides nothing either |
 | The Hub's Pinned and recent | the person's choice, off by default: a switch in the Hub's ⋯ |
 | A long press on the Hub | goes straight to capture |
 | The header, top right | the Search glyph, the edit glyph (a selection, and the screen's own edits, such as Edit home on Today) and the Settings glyph |
 | The Settings glyph | Settings (one tap from Today), Labels, Time blocks, Calendars, Trash and About (two taps) |
 
-**Evidence:** Decision 15 (`decisions/15-screens.md`, owner 2026-10-07: the bar and the Hub's symbol); decision 17 (`decisions/17-screens-t1.md`: T1.1 A′, owner 2026-10-07; T1.4 A0, owner 2026-10-08; T1.8 N, owner 2026-10-09); decision 19 T3b.6c (owner 2026-10-27: Pinned and recent off by default). `docs/screens/t0/nav-home.md` scores this bar at 279.5 steps a week with 30 screens within two taps, against 276.0 for the best scored. Not checked: not built.
+**Evidence:** Decision 15 (`decisions/15-screens.md`, owner 2026-10-07: the bar and the Hub's symbol); decision 17 (`decisions/17-screens-t1.md`: T1.1 A′, owner 2026-10-07; T1.4 A0, owner 2026-10-08; T1.8 N, owner 2026-10-09); decision 19 T3b.6c (owner 2026-10-27: Pinned and recent off by default). `docs/screens/t0/nav-home.md` scores this bar at 279.5 steps a week with 30 screens within two taps, against 276.0 for the best scored; `tools/screens/nav_score2.py` weighs each screen by R04's cadences (several a day 35, daily 7, weekly 1, when noticed 2). The Windows rail and panel are as drawn in T1.1 A′ and T1.4 A0 (`tools/screens/kit.py`, `tier_t1.py`), which also draw Ctrl+1 to Ctrl+5 on the rail; no ruling names those keys. Not checked: not built.
 
 **Acceptance:** On a fresh install the bar reads Today · Calendar · Hub · Pages · Check-in, and Edit home pins the fifth slot to another screen. The Hub opens from the bar with the capture line and every group's screens above the bar, and no Pinned and recent until its switch is on. The Settings glyph's screens are one tap (Settings) or two from Today.
 
 **Not:**
 - Routines in the fifth slot: drawn by the 2026-10-06 re-score; the owner made Check-in the default on 2026-10-07.
 - An App card on the Hub: its screens moved behind the Settings glyph (2026-10-08).
-- P7's module grid as a tab: 59 more steps a week than A+, and 7 screens within two taps (decision 15).
+- P7's module grid as a tab: 59 more steps a week than the bar it was scored against, and 7 screens within two taps (decision 15).
 
 **Since:** 2026-11-26 · owner · migrated
 
-### Q-R209 · The Hub's groups and the icons
+### Q-R209 · The Hub's groups, its switch and the icons
 
-**Rule:** How are the Hub's cards grouped, and what are the icons of the bar, the header and the Hub's screens?
+**Rule:** How are the Hub's cards grouped; does the Pinned and recent switch follow the person or stay on the device; and what are the icons of the bar, the header and the Hub's screens?
 
-**Default:** The cards follow the purpose map (`docs/screens/purpose-map.md`), one per purpose, leaving out Catch and find (the Hub itself and capture) and Looking after the app (behind the Settings glyph): What's next, Daily basics, Measuring, Looking back, Noticing myself, Planning the week, Writing and knowing. The icons: none proposed: the owner ruled on 2026-10-07 that type and icons are scored after the screens, and the Hub's hexagon is the one fixed (R191). This changes the Hub's five cards drawn in T1.4 (Calendar, Routines, Check-in, Pages, Review) into seven.
+**Default:** The cards follow the purpose map (`docs/screens/purpose-map.md`), one per purpose, leaving out Catch and find (the Hub itself and capture) and Looking after the app (behind the Settings glyph): What's next, Daily basics, Measuring, Looking back, Noticing myself, Planning the week, Writing and knowing. This changes the Hub's five cards drawn in T1.4 (Calendar, Routines, Check-in, Pages, Review) into seven. The switch stays on the device, a DEVICE_PREF (R118), as Edit home does. The icons: none proposed: the owner ruled on 2026-10-07 that type and icons are scored after the screens, and the Hub's hexagon is the one fixed (R191).
 
-**Why:** The sides: grouping by purpose is what the owner asked for on 2026-10-13, since the map "decides how the Hub's elements are grouped" once settled; grouping by module keeps the names the bar uses (Calendar, Pages) and the module palettes of R192 (Calendar, Routines, check-in). Seven cards make a longer sheet than five, which T1.4 fitted above the bar.
+**Why:** The sides: on 2026-10-13 the owner ruled that the purpose map, once settled, decides how the Hub is grouped; grouping by module keeps the names the bar uses (Calendar, Pages) and the module palettes of R192 (Calendar, Routines, check-in). Seven cards make a longer sheet than five, which T1.4 fitted above the bar, and the map is still a draft. A switch that follows the person turns the list on for the phone and the desktop at once, though each screen is a different size.
 
 **Evidence:** `docs/screens/purpose-map.md` lists the Hub sheet as "approved (groups to redo from this map)"; the map is a draft, refined as the tiers go.
 
