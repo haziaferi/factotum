@@ -2745,7 +2745,7 @@ Not checked: a phone; Android 15 and later, which is documented to cancel Pendin
 - An App card on the Hub: its screens moved behind the Settings glyph (2026-10-08).
 - P7's module grid as a tab: 59 more steps a week than the bar it was scored against, and 7 screens within two taps (decision 15).
 
-**Since:** 2026-11-26 · owner · migrated
+**Since:** 2026-11-26 · owner · agreed rewording
 
 ### Q-R209 · The Hub's groups, its switch and the icons
 
