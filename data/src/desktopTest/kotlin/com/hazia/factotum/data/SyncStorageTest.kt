@@ -74,7 +74,7 @@ class SyncStorageTest {
         assertEquals("garbled", File(file.path + UNOPENABLE_SUFFIX + 9).readText())
     }
 
-    /** SPEC:R37: the shell's step once a clone is found; the new id is the one every later start reads. */
+    /** SPEC:R37: the shell's step once a clone is found (on Windows, `syncPass`); the new id is the one every later start reads. */
     @Test
     fun aRenewedDeviceIdReplacesTheOldOneForGood() {
         val file = File(tmp.root, "device.id")

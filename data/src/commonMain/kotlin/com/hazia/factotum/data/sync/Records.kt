@@ -25,7 +25,7 @@ internal data class RowRecord(val row: Row) : Record
 internal data class PurgeRecord(val id: String, val stamp: Stamp) : Record
 
 /**
- * Compact JSON, one record per line (SPEC:R36, requirement 4):
+ * Compact JSON, never pretty-printed, one record per line (SPEC:R36, requirement 4):
  * `{"t":table,"id":id,"g":{group:{"h":hlc,"d":device,"v":{field:value},"s":[hlc,device]}}}`
  * for a row (`s` only on an answered clash), and `{"p":id,"h":hlc,"d":device}` for a purge.
  *

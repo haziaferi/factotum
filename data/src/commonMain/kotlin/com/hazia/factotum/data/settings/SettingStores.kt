@@ -81,3 +81,15 @@ interface SecretStore {
     fun get(key: String): String?
     fun put(key: String, value: String?)
 }
+
+/**
+ * The shells' store until the first feature that needs a secret (SPEC:R205): it holds none and
+ * refuses to save one, so no secret can reach a file before the Keystore and DPAPI stores exist.
+ */
+object RefusingSecretStore : SecretStore {
+    override fun get(key: String): String? = null
+
+    override fun put(key: String, value: String?) {
+        check(value == null) { "no secret store yet: $key cannot be saved" }
+    }
+}

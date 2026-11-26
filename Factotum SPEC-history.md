@@ -346,3 +346,9 @@ Not a source of current rules: `Factotum SPEC.md` is. One line per change, newes
 - 2026-11-25 · R203 · added · a choice tracker's choices kept as Select options are; duplicates merge into the first · owner
 - 2026-11-25 · R18 · changed · the round-trip test makes its choice through addChoice; check line cited anew · builder
 - 2026-11-25 · R203 · changed · cites R154; a deleted choice still reads on its Logs; a revival comes from a device that had not seen the delete; a purged first names its merged Logs · owner
+- 2026-11-26 · R204 · added · each device's database, id file, pictures and pass lock; on Windows all in %LOCALAPPDATA%\Factotum · owner
+- 2026-11-26 · R205 · added · until the screens the Windows app runs one sync pass at a time and exits, printing one line; the shells refuse secrets · owner
+- 2026-11-26 · R32 · changed · the Android backup rules exclude the device-id file; AndroidBackupRulesTest checks them · builder
+- 2026-11-26 · R36 · changed · the Windows sync pass's closing export is the one export outside exportAfterQuiet · owner
+- 2026-11-26 · R37 · changed · the Windows sync pass asks newIdOwed at start and after its import, renews and builds again · owner
+- 2026-11-26 · R34 · changed · a database reads its own files at its first finished import, in whichever run; its own versions read back are skipped · builder

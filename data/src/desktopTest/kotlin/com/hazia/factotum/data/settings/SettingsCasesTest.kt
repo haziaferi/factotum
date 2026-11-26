@@ -262,7 +262,7 @@ class SettingsCasesTest {
             a.db.close()
             java.io.File(tmp.root, "A.db").delete()
 
-            val again = w.Device("A", recovered = true)
+            val again = w.Device("A")
             runBlocking { again.sync.import() }
 
             assertEquals(LocalTime(4, 0) to "Ada", runBlocking { again.settings.get(Settings.DAY_START) to again.settings.get(Settings.CRISIS_CONTACTS) })
@@ -286,7 +286,7 @@ class SettingsCasesTest {
             a.db.close()
             java.io.File(tmp.root, "A.db").delete()
 
-            val again = w.Device("A", recovered = true)
+            val again = w.Device("A")
             runBlocking { again.sync.import() }
 
             assertEquals("tax form", runBlocking { again.items.item(task) }?.title)

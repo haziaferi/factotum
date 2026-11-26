@@ -65,3 +65,7 @@ jobs:
 
       - name: Build the shells
         run: ./gradlew :android:assembleDebug :windows:assemble
+
+      # SPEC:R205: the Windows app's printed lines and exit codes.
+      - name: Test the Windows app
+        run: ./gradlew :windows:test

@@ -76,6 +76,10 @@ CHART = "data/src/commonMain/kotlin/com/hazia/factotum/data/chart/ChartRepositor
 CHARTS = "core/src/commonMain/kotlin/com/hazia/factotum/core/chart/Charts.kt"
 ROW = "core/src/commonMain/kotlin/com/hazia/factotum/core/sync/Row.kt"
 ITEMTABLES = "data/src/commonMain/kotlin/com/hazia/factotum/data/item/ItemTables.kt"
+SYNCPASS = "data/src/jvmCommon/kotlin/com/hazia/factotum/data/SyncPass.kt"
+BACKUPRULES = "android/src/main/res/xml/backup_rules.xml"
+EXTRACTRULES = "android/src/main/res/xml/data_extraction_rules.xml"
+WINMAIN = "windows/src/main/kotlin/com/hazia/factotum/windows/Main.kt"
 
 # slice ->[(name, file, old, new, test task, tests that must fail)]
 SLICES = {
@@ -102,7 +106,7 @@ SLICES = {
          ":data:desktopTest", {"androidFiles1y_aYearKeepsEachDeviceToItsSegmentsAndOneSnapshot", "aPurgeReachesAPeerAndOutlivesCompaction"}),
         ("unfinished last line read", FOLDER, "    return lines\n}", "    if (start < bytes.size) lines += Line(bytes.decodeToString(start, bytes.size), bytes.size)\n    return lines\n}",
          ":data:desktopTest", {"aLineStillBeingWrittenWaitsForItsNewline", "onlyNewlineTerminatedLinesAreRead"}),
-        ("positions kept when the tables change", FOLDER, "        dao.clearReads()\n        dao.saveKnownTables", "        dao.saveKnownTables",
+        ("positions kept when the tables change", FOLDER, "        if (known != names) dao.clearReads()\n", "",
          ":data:desktopTest", {"aLineForATableThisVersionLacksIsReadAgainOnceItHasIt"}),
         ("one transaction per file, not per chunk", FOLDER, "lines.chunked(MERGE_LINES)", "listOf(lines).filter { it.isNotEmpty() }",
          ":data:desktopTest", {"aBigFileIsMergedInChunksEachWithItsReadPosition"}),
@@ -481,7 +485,7 @@ SLICES = {
          ":data:desktopTest", {"theDayStartSetOnOneDeviceDecidesTheDayOnAnotherAtOnce"}),
         ("timers ignore the limit setting", TIMEREPO, "        val limit = personal.longRun()\n", "        val limit = com.hazia.factotum.core.time.LONG_RUN\n",
          ":data:desktopTest", {"theLongTimerLimitIsOneSettingForEveryDevice"}),
-        ("a recovered device skips its own files", FOLDER, "(owner != device || readOwn)", "owner != device",
+        ("a recovered device skips its own files", FOLDER, "(owner != device || own)", "owner != device",
          ":data:desktopTest", {"aDeviceWhoseDatabaseWasRecoveredGetsItsSettingsBackFromItsOwnFiles"}),
     ],
     "10": [
@@ -899,8 +903,9 @@ SLICES = {
          ":data:desktopTest", {"aPurgeAlreadyHeldChangesNothingAndAnEarlierOneLowersIt"}),
         ("a held purge is never lowered", MERGE, "if (known != null && stamp >= known) continue", "if (known != null) continue",
          ":data:desktopTest", {"aPurgeAlreadyHeldChangesNothingAndAnEarlierOneLowersIt"}),
-        ("a recovery reads only peers", FOLDER, "private var readOwn = recovered", "private var readOwn = false",
-         ":data:desktopTest", {"aRecoveredDeviceGetsItsRowsBackFromItsOwnFilesAndItsDeviceSettingsStartAtTheirDefaults"}),
+        ("a recovery reads only peers", FOLDER, "val own = readOwn || known == null", "val own = readOwn",
+         ":data:desktopTest", {"aRecoveredDeviceGetsItsRowsBackFromItsOwnFilesAndItsDeviceSettingsStartAtTheirDefaults",
+                               "aRecoveredDatabaseGetsItsRowsBackAtTheFirstPassThatKnowsTheFolder"}),
         ("a firing writes its reminder", REMREPO, "            .sortedWith(compareBy({ it.at }, { it.reminderId }))\n    }",
          "            .sortedWith(compareBy({ it.at }, { it.reminderId }))\n            .also { fs -> fs.forEach { writes.edit(REMINDER, it.reminderId, STATUS) { emptyMap() } } }\n    }",
          ":data:desktopTest", {"aReminderFiringLeavesTheOutboxEmpty"}),
@@ -1111,6 +1116,53 @@ SLICES = {
         ("a Log of a merged choice leaves its first in the Trash", TRACKERS, "val c = byId[resolve(r.choiceId)] ?: continue", "val c = byId[r.choiceId] ?: continue",
          ":data:desktopTest", {"aLogOfAMergedChoiceAfterItsSurvivorsDeleteBringsTheSurvivorBack"}),
     ],
+    # SPEC:R205, R32, 2026-11-26: the Windows app's sync pass, and the Android backup rules that keep the device id at home.
+    "r205": [
+        ("a given folder is not saved", SYNCPASS, "    if (path != saved) settings.set(Settings.SYNC_FOLDER, path)\n", "",
+         ":data:desktopTest", {"aFolderGivenOnceIsSavedAndEveryLaterPassSyncsWithIt"}),
+        ("a missing folder is made", SYNCPASS, 'if (!File(path).isDirectory) throw SyncPassRefused("No sync folder at $path.")', "File(path).mkdirs()",
+         ":data:desktopTest", {"aFolderThatDoesNotExistIsRefusedNeitherMadeNorSaved"}),
+        ("two passes run at once", SYNCPASS, '        } ?: throw SyncPassRefused("Another sync pass is running.")\n', "        }\n",
+         ":data:desktopTest", {"aSecondPassWhileOneRunsIsRefused"}),
+        ("the pass does not ask after its import", SYNCPASS, "    val changed = app.import().changed\n    renewIfOwed()\n", "    val changed = app.import().changed\n",
+         ":data:desktopTest", {"aClonedIdFoundByTheImportIsRenewedAndEverythingPublishedUnderTheNewOne"}),
+        ("the pass builds again under the old id", SYNCPASS, "        device = renewDeviceId(files.deviceId, wallMillis)\n", "        renewDeviceId(files.deviceId, wallMillis)\n",
+         ":data:desktopTest", {"aClonedIdFoundByTheImportIsRenewedAndEverythingPublishedUnderTheNewOne", "aDebtLeftByAStoppedPassIsPaidByTheNext"}),
+        ("the first import is marked before it reads", FOLDER, "        if (known != names) dao.clearReads()\n",
+         "        if (known != names) { dao.clearReads(); dao.saveKnownTables(KnownTablesEntity(names = names)) }\n",
+         ":data:desktopTest", {"aFirstImportStoppedPartWayReadsItsOwnFilesAgain"}),
+        ("a device's own change read back moves its base", MERGE, "            if (own && theirs.stamp <= mine.stamp) continue\n", "",
+         ":core:desktopTest", {"aDevicesOwnChangeReadBackDoesNotHideALaterClash", "aDevicesTwoOwnChangesReadBackAskNothing"}),
+        ("a device's own older change read back is asked about", MERGE, "if (own && theirs.stamp <= mine.stamp) continue", "if (own && theirs.stamp == mine.stamp) continue",
+         ":core:desktopTest", {"aDevicesTwoOwnChangesReadBackAskNothing"}),
+        ("own files are read as a peer's", FOLDER, "path, own = owner == device)", "path, own = false)",
+         ":data:desktopTest", {"anAnswerSettlesTheQuestionOnBothDevices"}),
+        ("the shells save a secret", STORES, 'check(value == null) { "no secret store yet: $key cannot be saved" }', "Unit",
+         ":data:desktopTest", {"theShellsSecretStoreHoldsNoneAndRefusesToSaveOne"}),
+        ("the debt is paid only after the import", SYNCPASS, "    renewIfOwed()\n    val changed", "    val changed",
+         ":data:desktopTest", {"aDebtIsPaidBeforeTheImportSoTheClonesWritingArrivesInTheSamePass"}),
+        ("a relative folder is saved as typed", SYNCPASS, "given?.let { File(it).absoluteFile.normalize().path }", "given",
+         ":data:desktopTest", {"aRelativeFolderIsSavedAsAWholePath"}),
+        ("a relative folder keeps its ..", SYNCPASS, "File(it).absoluteFile.normalize().path", "File(it).absolutePath",
+         ":data:desktopTest", {"aRelativeFolderIsSavedAsAWholePath"}),
+        ("a held lock file stops the pass with a stack trace", SYNCPASS,
+         '} catch (_: FileNotFoundException) {\n        throw SyncPassRefused("Another program holds ${lock.path} open.")',
+         "} catch (e: FileNotFoundException) {\n        throw e",
+         ":data:desktopTest", {"aLockFileAnotherProgramHoldsRefusesThePass"}),
+        ("one row is printed as rows", WINMAIN, 'if (report.changed == 1) "1 row" else ', "",
+         ":windows:test", {"oneChangedRowIsPrintedAsOneRow"}),
+        ("a refusal exits with 0", WINMAIN, "        err.println(e.message)\n        return 1", "        err.println(e.message)\n        return 0",
+         ":windows:test", {"everyCaseExitsAndPrintsAsR205Lists"}),
+        ("a trailing quote is kept", WINMAIN, '?.removeSuffix("\\"")', "",
+         ":windows:test", {"aQuoteLeftByATrailingBackslashIsDropped"}),
+        ("the launcher's trailing space is kept", WINMAIN, "?.trimEnd()?.removeSuffix", "?.removeSuffix",
+         ":windows:test", {"aQuoteLeftByATrailingBackslashIsDropped"}),
+        ("Auto Backup takes the device id", BACKUPRULES, 'path="device-id"', 'path="device_id"',
+         ":data:desktopTest", {"autoBackupLeavesTheDeviceIdOut"}),
+        ("device transfer takes the device id", EXTRACTRULES,
+         '    <device-transfer>\n        <exclude domain="file" path="device-id" />\n    </device-transfer>', "    <device-transfer />",
+         ":data:desktopTest", {"cloudBackupAndDeviceTransferLeaveTheDeviceIdOut"}),
+    ],
 }
 
 
@@ -1119,8 +1171,9 @@ TESTS = []
 
 
 def run(task):
-    module = task.split(":")[1]
-    results = "%s/build/test-results/desktopTest" % module
+    # `:data:desktopTest` reports in data/build/test-results/desktopTest, `:windows:test` in windows/build/test-results/test.
+    _, module, name = task.split(":")
+    results = "%s/build/test-results/%s" % (module, name)
     shutil.rmtree(results, ignore_errors=True)
     with open("mutants.log", "w") as log:
         code = subprocess.call([GRADLEW, "--offline", task] + [a for p in TESTS for a in ("--tests", p)], stdout=log, stderr=log)

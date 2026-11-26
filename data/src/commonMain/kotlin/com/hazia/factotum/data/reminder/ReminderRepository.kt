@@ -113,9 +113,10 @@ internal class ReminderRepository(
      * When each live reminder fires next, after [after] if given. A firing is an occurrence of the
      * item (its start, or each time its recurrence gives, ADR 04) at the occurrence's time (or the
      * start of its block that day for an "n a day" habit, owner 2026-10-02; else the reminder's
-     * anchor for a whole-day item, else midnight), moved by the offset in wall-clock minutes. An occurrence resolved in the completion log does not fire, nor does any once the
-     * item is done, skipped or deleted. A snooze replaces the one firing it snoozed. Nothing here
-     * writes (SPEC:R36, requirement 1).
+     * anchor for a whole-day item, else midnight), moved by the offset in wall-clock minutes. An
+     * occurrence resolved in the completion log does not fire, nor does any once the item is done,
+     * skipped or deleted. A snooze replaces the one firing it snoozed. Nothing here writes, so a
+     * firing leaves nothing to sync (SPEC:R36, requirement 1).
      */
     suspend fun firings(after: LocalDateTime? = null): List<Firing> {
         val sources = dao.firingSources()

@@ -114,6 +114,38 @@ class ResolutionTest {
         assertEquals("dB2", a.store.asked("x", SCHEDULE)?.values?.get("due"))
     }
 
+    /**
+     * A first import reads this device's own files too (SPEC:R34), so A meets its own change again:
+     * no peer has seen it, so B's change is still a clash.
+     */
+    @Test
+    fun aDevicesOwnChangeReadBackDoesNotHideALaterClash() {
+        val (a, b) = pairWithX()
+        a.edit("x", 10, SCHEDULE, "due" to "dA")
+        a.merger.import(a.store, listOf(a.store.rows.getValue("x")), emptyMap(), own = true)
+        b.edit("x", 11, SCHEDULE, "due" to "dB")
+        a.importFrom(b, 12)
+
+        assertTrue(a.asked("x"))
+        assertEquals("dA", a.due())
+    }
+
+    /** A edited x twice before its first import: reading both back asks nothing, and B's change still clashes. */
+    @Test
+    fun aDevicesTwoOwnChangesReadBackAskNothing() {
+        val (a, b) = pairWithX()
+        a.edit("x", 10, SCHEDULE, "due" to "dA1")
+        val first = a.store.rows.getValue("x")
+        a.edit("x", 11, SCHEDULE, "due" to "dA2")
+        a.merger.import(a.store, listOf(first, a.store.rows.getValue("x")), emptyMap(), own = true)
+
+        assertFalse(a.asked("x"))
+        assertEquals("dA2", a.due())
+        b.edit("x", 12, SCHEDULE, "due" to "dB")
+        a.importFrom(b, 13)
+        assertTrue(a.asked("x"))
+    }
+
     @Test
     fun aNewEditAfterAnAnswerIsAskedAgain() {
         val (a, b) = clash()

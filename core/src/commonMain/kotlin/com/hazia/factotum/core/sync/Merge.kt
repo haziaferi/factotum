@@ -58,7 +58,12 @@ class Merger(private val clock: HybridClock, private val askGroups: Set<String>,
         store.remove(id)
     }
 
-    fun import(store: SyncStore, rows: Iterable<Row>, purges: Map<String, Stamp>) {
+    /**
+     * [own] says the rows come from this device's own files (SPEC:R34): a version there no newer than
+     * the one it holds is its own writing echoed back, which no other side has seen, so it must
+     * neither move a base nor be asked about as a peer's change.
+     */
+    fun import(store: SyncStore, rows: Iterable<Row>, purges: Map<String, Stamp>, own: Boolean = false) {
         purges.values.forEach(clock::observe)
         // Entries already held were applied when they arrived; only new or earlier ones need a sweep.
         for ((id, stamp) in purges) {
@@ -79,13 +84,13 @@ class Merger(private val clock: HybridClock, private val askGroups: Set<String>,
             if (local == null) {
                 created(store, incoming)
             } else {
-                val merged = mergeRow(store, local, incoming)
+                val merged = mergeRow(store, local, incoming, own)
                 if (merged != local) store.put(merged)
             }
         }
     }
 
-    private fun mergeRow(store: SyncStore, local: Row, incoming: Row): Row {
+    private fun mergeRow(store: SyncStore, local: Row, incoming: Row, own: Boolean): Row {
         val merged = local.groups.toMutableMap()
         for ((name, theirs) in incoming.groups) {
             val mine = merged[name]
@@ -95,6 +100,9 @@ class Merger(private val clock: HybridClock, private val askGroups: Set<String>,
                 if (name in baseGroups) store.putBase(local.id, name, theirs.stamp)
                 continue
             }
+            // Read as a peer's, the same version would make a later change from a peer look uncontested
+            // ("both changed it alike"), and an earlier one would ask about the device's own two edits.
+            if (own && theirs.stamp <= mine.stamp) continue
             if (name !in baseGroups) {
                 if (theirs.stamp > mine.stamp) merged[name] = theirs
                 continue
