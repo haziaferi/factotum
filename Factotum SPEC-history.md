@@ -358,3 +358,4 @@ Not a source of current rules: `Factotum SPEC.md` is. One line per change, newes
 - 2026-11-26 · R206 · added · how R61 is met when a force-stop of an idle app leaves no trace (Android 11 to 14) · builder
 - 2026-11-26 · R193 · changed · the device halves of spikes 1, 3 and 5 ran on the API 32 emulator · builder
 - 2026-11-26 · R207 · added · which exact-alarm permission the Android app declares, and what it does without one · builder
+- 2026-11-26 · R207 · kind · Q → D: USE_EXACT_ALARM, plus SCHEDULE_EXACT_ALARM for Android 12, as proposed · owner

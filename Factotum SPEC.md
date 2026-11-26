@@ -78,7 +78,7 @@ Evidence lives in `decisions/`: one ADR per decision, with the verified `file:li
 | D-R60 | Alarms and missed occurrences | 6. Reminders |
 | D-R61 | A force-stopped app says so | 6. Reminders |
 | Q-R206 | A force-stop that leaves no trace | 6. Reminders |
-| Q-R207 | The exact-alarm permission | 6. Reminders |
+| D-R207 | The exact-alarm permission | 6. Reminders |
 | D-R62 | Recurrence kinds | 7. Recurrence |
 | D-R63 | Random forms | 7. Recurrence |
 | D-R64 | Seeded random draws | 7. Recurrence |
@@ -1139,17 +1139,21 @@ Not checked: a phone; Android 15 and later, which is documented to cancel Pendin
 
 **Since:** 2026-11-26 · builder
 
-### Q-R207 · The exact-alarm permission
+### D-R207 · The exact-alarm permission
 
-**Rule:** Which permission lets the Android app set its exact alarms (R60's `setAlarmClock`), and what does it do when it may not?
+**Rule:** The Android app's manifest declares `USE_EXACT_ALARM`, which Android 13 and later grant at install and the user cannot revoke, and `SCHEDULE_EXACT_ALARM` for Android 12, where it is granted by default. At each start the app asks `canScheduleExactAlarms()`; when the answer is no, it says so, and it sets its alarms again on `ACTION_SCHEDULE_EXACT_ALARM_PERMISSION_STATE_CHANGED`.
 
-**Default:** The manifest declares `USE_EXACT_ALARM`, which Android 13 and later grant at install and the user cannot revoke, and `SCHEDULE_EXACT_ALARM` for Android 12, where it is granted by default. Play's limit on `USE_EXACT_ALARM` does not bind an app that is never distributed (R09). At each start the app asks `canScheduleExactAlarms()`; when the answer is no, it says so and sets the alarms again on `ACTION_SCHEDULE_EXACT_ALARM_PERMISSION_STATE_CHANGED`. This changes the manifest, and whether the app ever asks for the permission.
+**Why:** R60's alarms use `setAlarmClock`, which fails without an exact-alarm permission. `USE_EXACT_ALARM` cannot be taken away, and Play's limit on it does not bind an app that is never distributed (R09).
 
-**Why:** The sides: `USE_EXACT_ALARM` cannot be taken away, but Play keeps it for alarm-clock and calendar apps; `SCHEDULE_EXACT_ALARM` alone is denied by default on fresh installs on Android 14 and can be revoked at any time, which stops the app and cancels its exact alarms, as a force-stop does (R61). Inexact alarms need neither, but break R60's "rings at its time".
+**Evidence:** Android's alarm guide (`developer.android.com/develop/background-work/services/alarms/schedule`) and its Android 14 change page (`developer.android.com/about/versions/14/changes/schedule-exact-alarms`), read 2026-11-26: `setAlarmClock` throws `SecurityException` without the permission on Android 12 and later; revoking `SCHEDULE_EXACT_ALARM` stops the app and cancels its future exact alarms; a grant sends the broadcast above. Android 11, the oldest supported (`minSdk` 30), needs no permission. Not checked: nothing is built or ran on a device; declaring `SCHEDULE_EXACT_ALARM` with `maxSdkVersion="32"` beside `USE_EXACT_ALARM`.
 
-**Evidence:** Android's alarm guide (`developer.android.com/develop/background-work/services/alarms/schedule`) and its Android 14 change page (`developer.android.com/about/versions/14/changes/schedule-exact-alarms`), read 2026-11-26: `setAlarmClock` throws `SecurityException` without the permission on Android 12 and later; revoking `SCHEDULE_EXACT_ALARM` stops the app and cancels its future exact alarms; a grant sends the broadcast above. Android 11, the oldest supported (`minSdk` 30), needs no permission. Not checked: nothing ran on a device; declaring `SCHEDULE_EXACT_ALARM` with `maxSdkVersion="32"` beside `USE_EXACT_ALARM`.
+**Acceptance:** On Android 13 or later, a fresh install sets an alarm through `setAlarmClock` without asking for anything. On Android 12 with exact alarms turned off in Settings, the next start says so, and turning them on again sets the alarms again.
 
-**Since:** 2026-11-26 · builder
+**Not:**
+- `SCHEDULE_EXACT_ALARM` alone: Android 14 denies it by default on fresh installs, and revoking it stops the app and cancels its exact alarms, as a force-stop does (R61).
+- Inexact alarms: they need no permission, but break R60's "rings at its time".
+
+**Since:** 2026-11-26 · owner · agreed rewording
 
 ## 7. Recurrence
 
@@ -2846,6 +2850,7 @@ Not checked: a phone, and Android 11.
 - R59 · A standalone reminder's last reminder: `ReminderCasesTest` deletes the last reminder and keeps both on a clash.
 - R60 · Alarms and missed occurrences: On each platform an alarm set before the app is closed rings (Android) or is shown at the next start (Windows), and a missed NOTIFICATION fires once.
 - R61 · A force-stopped app says so: On a device, force-stopping the app and opening it again shows the notice, and the alarms are set again.
+- R207 · The exact-alarm permission: On Android 13 or later, a fresh install sets an alarm through `setAlarmClock` without asking for anything. On Android 12 with exact alarms turned off in Settings, the next start says so, and turning them on again sets the alarms again.
 - R62 · Recurrence kinds: The 11 cases of `decisions/cases/04-recurrence.jsonl` pass (`RecurrenceCasesTest`): the 9 fixed rules match, occurrence by occurrence, the truth `tools/recurrence_sim.py` computes from the owner apps' rules (written as a fixture by `tools/recurrence_fixtures.py`), Mnemo's three through the cron converter.
 - R63 · Random forms: `RandomKindsTest` and `WhenKindsTest` pass.
 - R64 · Seeded random draws: `RecurrenceCasesTest` compares the draws with the spike's own SplitMix64 in Python and in its Java, and checks the random kinds' properties.
