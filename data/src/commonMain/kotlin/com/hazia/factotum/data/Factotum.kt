@@ -60,8 +60,6 @@ internal class Factotum(
     wallMillis: () -> Long,
     /** The wall clock as a local date-time, for the rules that read the day (time, rows as tasks). */
     private val now: () -> LocalDateTime,
-    /** The database was made anew after a corrupt one was set aside (`DatabaseOpen.recovered`). */
-    recovered: Boolean = false,
     tables: Map<String, RowTable> = db.syncedTables(),
     segmentBytes: Int = 16 * 1024,
     snapshotEvery: Int = 64,
@@ -98,7 +96,7 @@ internal class Factotum(
      * revive reads it; pages keep what a sync replaced and revive; options and cards settle; rows'
      * tasks follow their rows.
      */
-    val sync = FolderSync(db, folder, device, clock, tables, segmentBytes, snapshotEvery, recovered = recovered, afterImport = {
+    val sync = FolderSync(db, folder, device, clock, tables, segmentBytes, snapshotEvery, afterImport = {
         labels.mergeDuplicates()
         trackers.settleChoices()
         time.endFinished(now())

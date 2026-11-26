@@ -502,6 +502,7 @@ One app that does what Tendril, Chronicle, Mnemo and Equipoise do, over one data
 | database | `%LOCALAPPDATA%\Factotum\factotum.db` | `factotum.db` in the app's database folder |
 | device id | `%LOCALAPPDATA%\Factotum\device-id` | `device-id` in the app's files |
 | pictures | `%LOCALAPPDATA%\Factotum\pictures\` | set with the Android data layer |
+| the lock a running sync pass holds (R205) | `%LOCALAPPDATA%\Factotum\sync-pass.lock` | none |
 
 **Evidence:** `DeviceFiles.inFolder` (`SyncPass.kt`) and `windows/src/main/kotlin/com/hazia/factotum/windows/Main.kt`; `openFactotumDatabase(context)` uses `getDatabasePath`; the Android backup rules name `device-id` in the `file` domain (R32). Owner's answer 2026-11-26. Not checked: the Android shell does not build the data layer yet, so nothing writes its device-id file.
 
@@ -517,18 +518,21 @@ One app that does what Tendril, Chronicle, Mnemo and Equipoise do, over one data
 
 **Values:**
 
-| Case | What the pass does |
-|---|---|
-| no folder given or saved | opens or recovers the database, makes the device id, and exits |
-| a folder given | saves it, then syncs with it |
-| no folder given, one saved | syncs with the saved one |
-| the folder does not exist | refuses, and saves and makes nothing |
-| a new id owed at start or after the import | writes a new id, builds the data layer again, and exports a snapshot under it |
-| a secret to be saved | refused: the shells' store holds none until the first feature that needs a secret brings the DPAPI and Keystore stores |
+| Case | What the pass does | What it prints |
+|---|---|---|
+| no folder given or saved | opens or recovers the database, makes the device id, and exits | "No sync folder yet: give one as the argument." |
+| a folder given | saves it, then syncs with it | "Synced with <folder>: <n> rows changed." |
+| no folder given, one saved | syncs with the saved one | the same |
+| the folder does not exist | refuses, saves and makes nothing, and exits with 1 | "No sync folder at <folder>." |
+| more than one argument | exits with 2 | "Usage: factotum [sync folder]" |
+| another pass is running (one started by hand during a scheduled one) | refuses, touches nothing, and exits with 1 | "Another sync pass is running." |
+| a new id owed at start or after the import | writes a new id, builds the data layer again, and exports a snapshot under it | " This device took a new id." after the sync line |
+| the database was recovered, losing `sync_folder` | its first pass given the folder again reads the device's own files too (R34) | the sync line |
+| a secret to be saved | refused: the shells' store holds none until the first feature that needs a secret brings the DPAPI and Keystore stores | none |
 
 **Evidence:** `syncPass` (`data/src/jvmCommon/kotlin/com/hazia/factotum/data/SyncPass.kt`) and `windows/src/main/kotlin/com/hazia/factotum/windows/Main.kt`; it runs with `gradlew :windows:run --args="<sync folder>"`. Owner's answers 2026-11-26.
 
-**Acceptance:** `SyncPassTest` passes: `aPassWithNoFolderOnlyOpensTheDatabaseAndMakesTheDeviceId`, `aFolderGivenOnceIsSavedAndEveryLaterPassSyncsWithIt`, `aFolderThatDoesNotExistIsRefusedNeitherMadeNorSaved`, `aClonedIdFoundByTheImportIsRenewedAndEverythingPublishedUnderTheNewOne`, `aDebtLeftByAStoppedPassIsPaidByTheNext` and `theShellsSecretStoreHoldsNoneAndRefusesToSaveOne`.
+**Acceptance:** `SyncPassTest` passes: `aPassWithNoFolderOnlyOpensTheDatabaseAndMakesTheDeviceId`, `aFolderGivenOnceIsSavedAndEveryLaterPassSyncsWithIt`, `aFolderThatDoesNotExistIsRefusedNeitherMadeNorSaved`, `aSecondPassWhileOneRunsIsRefused`, `aClonedIdFoundByTheImportIsRenewedAndEverythingPublishedUnderTheNewOne`, `aDebtLeftByAStoppedPassIsPaidByTheNext`, `aRecoveredDatabaseGetsItsRowsBackAtTheFirstPassThatKnowsTheFolder` and `theShellsSecretStoreHoldsNoneAndRefusesToSaveOne`.
 
 **Not:** A process that keeps running and syncs: until the screens nothing writes locally, so it would only import.
 
@@ -768,11 +772,13 @@ One app that does what Tendril, Chronicle, Mnemo and Equipoise do, over one data
 
 **Rule:** A database made anew after a corrupt one was set aside reads this device's own folder files on its first import, so its data and settings come back with no peer. Its DEVICE settings go back to their defaults.
 
-**Evidence:** ADR 09; `FolderSync` takes `recovered=true` after a recovery, and `DatabaseRecoveryTest` checks the recovery order. `SettingsCasesTest.aRecoveredDeviceGetsItsRowsBackFromItsOwnFilesAndItsDeviceSettingsStartAtTheirDefaults` kills mutant `a recovery reads only peers` (`tools/mutants.py`, slice `gapA`), 2026-11-21.
+**Evidence:** ADR 09; `DatabaseRecoveryTest` checks the recovery order. `FolderSync` reads this device's own files while the database holds no known-tables row, and writes that row only once the import's read is done, so the first import is the first one that finishes, in whichever run; a database file lost by hand comes back the same way (2026-11-26). A line from its own files holding the very version the device already has is skipped (`Merger.import`, `own`): no peer has seen it, so taking it as agreed would hide a later clash (ADR 01), as for a device that wrote before its first import; `ResolutionTest.aDevicesOwnChangeReadBackDoesNotHideALaterClash` kills `a device's own change read back moves its base` and `FolderSyncTest.anAnswerSettlesTheQuestionOnBothDevices` kills `own files are read as a peer's` (slice `r205`). `SettingsCasesTest.aRecoveredDeviceGetsItsRowsBackFromItsOwnFilesAndItsDeviceSettingsStartAtTheirDefaults` and `SyncPassTest.aRecoveredDatabaseGetsItsRowsBackAtTheFirstPassThatKnowsTheFolder` kill mutant `a recovery reads only peers` (slice `gapA`); `SyncPassTest.aFirstImportStoppedPartWayReadsItsOwnFilesAgain` kills `the first import is marked before it reads` (slice `r205`).
 
-**Acceptance:** `SettingsCasesTest.aDeviceWhoseDatabaseWasRecoveredGetsItsSettingsBackFromItsOwnFiles` recovers a device alone and finds its PERSONAL settings again, and `aRecoveredDeviceGetsItsRowsBackFromItsOwnFilesAndItsDeviceSettingsStartAtTheirDefaults` finds its rows again and its DEVICE settings at their defaults.
+**Acceptance:** `SettingsCasesTest.aDeviceWhoseDatabaseWasRecoveredGetsItsSettingsBackFromItsOwnFiles` recovers a device alone and finds its PERSONAL settings again, and `aRecoveredDeviceGetsItsRowsBackFromItsOwnFilesAndItsDeviceSettingsStartAtTheirDefaults` finds its rows again and its DEVICE settings at their defaults. `SyncPassTest.aRecoveredDatabaseGetsItsRowsBackAtTheFirstPassThatKnowsTheFolder` finds them at a later run, and `aFirstImportStoppedPartWayReadsItsOwnFilesAgain` after a first import stopped part way. `ResolutionTest.aDevicesOwnChangeReadBackDoesNotHideALaterClash` still asks about a peer's later change after the device reads its own back.
 
-**Since:** 2026-11-21 · builder · migrated
+**Not:** A recovery flag held in memory for the run that recovered: on Windows that run knows no sync folder, since `sync_folder` was in the corrupt database, so the flag ended with it and the device's own files were never read.
+
+**Since:** 2026-11-26 · builder · migrated
 
 ### D-R35 · Device logs in the folder
 
@@ -2748,7 +2754,7 @@ Background, not a rule: Equipoise runs llama.cpp on Android only, and only in th
 - R15 · Upgrades drop the app's triggers first: A test upgrades a version 9 file holding the triggers and its child rows (`OldSchema.kt`).
 - R17 · Licensing: The `:llm` build links only `llama` and `ggml` on both platforms, and the About screen shows llama.cpp's MIT notice.
 - R204 · Where each device keeps its files: `DEVICE_ID_FILE` is `device-id`, and `AndroidBackupRulesTest` finds that name excluded from every Android backup; the Windows app gives `DeviceFiles.inFolder` the folder `%LOCALAPPDATA%\Factotum`.
-- R205 · The Windows app before the screens: `SyncPassTest` passes: `aPassWithNoFolderOnlyOpensTheDatabaseAndMakesTheDeviceId`, `aFolderGivenOnceIsSavedAndEveryLaterPassSyncsWithIt`, `aFolderThatDoesNotExistIsRefusedNeitherMadeNorSaved`, `aClonedIdFoundByTheImportIsRenewedAndEverythingPublishedUnderTheNewOne`, `aDebtLeftByAStoppedPassIsPaidByTheNext` and `theShellsSecretStoreHoldsNoneAndRefusesToSaveOne`.
+- R205 · The Windows app before the screens: `SyncPassTest` passes: `aPassWithNoFolderOnlyOpensTheDatabaseAndMakesTheDeviceId`, `aFolderGivenOnceIsSavedAndEveryLaterPassSyncsWithIt`, `aFolderThatDoesNotExistIsRefusedNeitherMadeNorSaved`, `aSecondPassWhileOneRunsIsRefused`, `aClonedIdFoundByTheImportIsRenewedAndEverythingPublishedUnderTheNewOne`, `aDebtLeftByAStoppedPassIsPaidByTheNext`, `aRecoveredDatabaseGetsItsRowsBackAtTheFirstPassThatKnowsTheFolder` and `theShellsSecretStoreHoldsNoneAndRefusesToSaveOne`.
 - R18 · Synced tables: `FactotumDatabase.kt:222` checks at open that every synced table has its `RowTable`, and `FolderSyncTest.everySyncedTableIsQueuedForExportAndRoundTrips` makes a row in every synced table, finds each table in the outbox, and reads the same rows on a peer after sync.
 - R19 · Local stores, never synced: No export trigger names a store in this table, and a peer that imports a device's folder never receives one of them.
 - R20 · Folder sync for one person: `FolderSyncTest` syncs two devices through a shared folder and nothing else.
@@ -2765,7 +2771,7 @@ Background, not a rule: Equipoise runs llama.cpp on Android only, and only in th
 - R31 · Delete forever: `VocabularyTest` checks that Delete forever of a live row of each kind is refused.
 - R32 · The device id: `SyncStorageTest.anUnreadableDeviceIdIsSetAsideAndReplaced` sets an unreadable id file aside and makes a new id; `AndroidBackupRulesTest` finds the file excluded from Auto Backup, cloud backup and device transfer.
 - R33 · The composition root: Every two-device test runs through `Factotum` (`World.Device` delegates to it).
-- R34 · Recovery re-reads its own files: `SettingsCasesTest.aDeviceWhoseDatabaseWasRecoveredGetsItsSettingsBackFromItsOwnFiles` recovers a device alone and finds its PERSONAL settings again, and `aRecoveredDeviceGetsItsRowsBackFromItsOwnFilesAndItsDeviceSettingsStartAtTheirDefaults` finds its rows again and its DEVICE settings at their defaults.
+- R34 · Recovery re-reads its own files: `SettingsCasesTest.aDeviceWhoseDatabaseWasRecoveredGetsItsSettingsBackFromItsOwnFiles` recovers a device alone and finds its PERSONAL settings again, and `aRecoveredDeviceGetsItsRowsBackFromItsOwnFilesAndItsDeviceSettingsStartAtTheirDefaults` finds its rows again and its DEVICE settings at their defaults. `SyncPassTest.aRecoveredDatabaseGetsItsRowsBackAtTheFirstPassThatKnowsTheFolder` finds them at a later run, and `aFirstImportStoppedPartWayReadsItsOwnFilesAgain` after a first import stopped part way. `ResolutionTest.aDevicesOwnChangeReadBackDoesNotHideALaterClash` still asks about a peer's later change after the device reads its own back.
 - R35 · Device logs in the folder: The 4 cases of `decisions/cases/13-folder.jsonl` pass through the real importer and exporter under a Syncthing double (`FolderSyncTest`).
 - R36 · Folder requirements: `ExportTimingTest.aBurstOfWritesExportsOnceThirtySecondsAfterTheLast` (debounce), `DirectorySyncFolderTest.aReplaceLandsWholeAndLeavesNoTemporaryFile` (atomic replace), `RecordCodecTest.aRecordIsOneCompactLine` (compact JSON) and `FolderSyncTest.aReminderFiringLeavesTheOutboxEmpty` (a firing writes nothing) pass. In each shell, every export after a local write starts through `exportAfterQuiet` (R38); the one other production call to the export closes the Windows sync pass (R205). The Android manifest's `dataExtractionRules` and `fullBackupContent` both exclude the device-id file (R32).
 - R37 · Conflict copies: `FolderSyncTest.aClonedDeviceIdsClashIsMergedAndTheCopyRemoved` merges and deletes a conflict copy. `FolderSyncTest.aClonedIdIsOwedANewOneUntilTheDeviceRunsUnderAnother`: after one in its own folder the device owes a new id across imports; built again under a new id it owes none, its folder starts with a snapshot, and the clone and a third device hold every row with no further clash. `FolderSyncTest.aClonedIdIsOwedBeforeItsConflictCopyIsDeleted`: an import stopped at the copy's delete leaves the debt held. `SyncStorageTest.anOwedIdOutlivesAReopen` and `SyncStorageTest.aRenewedDeviceIdReplacesTheOldOneForGood` cover the debt and the id file. Each shell asks `newIdOwed` at start and after each import and, while owed, renews and builds again.

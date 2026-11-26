@@ -1,6 +1,7 @@
 package com.hazia.factotum.windows
 
 import com.hazia.factotum.data.DeviceFiles
+import com.hazia.factotum.data.SyncPassRefused
 import com.hazia.factotum.data.image.DesktopImageScaler
 import com.hazia.factotum.data.openFactotumDatabase
 import com.hazia.factotum.data.syncPass
@@ -14,7 +15,7 @@ import kotlin.system.exitProcess
  */
 fun main(args: Array<String>) {
     if (args.size > 1) {
-        System.err.println("usage: factotum [sync folder]")
+        System.err.println("Usage: factotum [sync folder]")
         exitProcess(2)
     }
     val local = System.getenv("LOCALAPPDATA")
@@ -24,8 +25,8 @@ fun main(args: Array<String>) {
     }
     val report = try {
         syncPass(DeviceFiles.inFolder(File(local, "Factotum")), ::openFactotumDatabase, DesktopImageScaler(), args.firstOrNull())
-    } catch (e: IllegalArgumentException) {
-        // A sync folder that does not exist: say so, without a stack trace.
+    } catch (e: SyncPassRefused) {
+        // Another pass running, or a sync folder that does not exist: say so, without a stack trace.
         System.err.println(e.message)
         exitProcess(1)
     }

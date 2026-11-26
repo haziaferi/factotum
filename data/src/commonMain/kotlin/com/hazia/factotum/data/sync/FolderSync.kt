@@ -46,14 +46,9 @@ internal class FolderSync(
      * runs whether or not this import changed anything, so a step a crash cut short is done next time.
      */
     private val afterImport: suspend () -> Unit = {},
-    /**
-     * The database was just made anew after a corrupt one was set aside (`DatabaseOpen.recovered`):
-     * the first import reads this device's own files too, so what it wrote, settings included, comes
-     * back from the folder even with no peer (ADR 09).
-     */
-    recovered: Boolean = false,
 ) {
-    private var readOwn = recovered
+    /** Set when a purge is taken back: the next read takes this device's own files too. */
+    private var readOwn = false
     private var undidPurge = false
     private val dao = db.syncDao()
     private val merger = Merger(clock, ASK_GROUPS, KEEP_LOSER_GROUPS)
@@ -85,7 +80,15 @@ internal class FolderSync(
     suspend fun newIdOwed(): Boolean = lock.withLock { dao.idOwedBy() == device }
 
     private suspend fun readFiles(): ImportReport {
-        forgetReadsIfTablesChanged()
+        val names = tables.keys.sorted().joinToString(",")
+        val known = dao.knownTables()
+        // A table added or removed since the last import: every file is read again from its start.
+        if (known != names) dao.clearReads()
+        // A database's first import reads this device's own files too (SPEC:R34), so one made anew
+        // under an id that already wrote, after a recovery or a lost file, gets back what it wrote,
+        // settings included, even with no peer. The tables are marked known only once the read is
+        // done, so a first import stopped part way, or a run that never reached one, reads them again.
+        val own = readOwn || known == null
         val held = dao.reads().associate { it.path to it.readBytes }
         val present = mutableListOf<String>()
         var report = ImportReport(0, 0)
@@ -105,27 +108,21 @@ internal class FolderSync(
                 if (copy || (data && shared)) {
                     report += merge(completeLines(folder.read(path) ?: continue, 0), path = null)
                     if (copy) folder.delete(path)
-                } else if (data && (owner != device || readOwn)) {
+                } else if (data && (owner != device || own)) {
                     present += path
                     val from = held[path] ?: 0
                     // Unchanged since the last read: a peer's snapshot is read once, not on every import.
                     if (folder.size(path) == from) continue
                     val bytes = folder.read(path) ?: continue
                     // Shorter than what was read: rewritten under us (a torn SAF write); read it again.
-                    report += merge(completeLines(bytes, if (bytes.size < from) 0 else from.toInt()), path)
+                    report += merge(completeLines(bytes, if (bytes.size < from) 0 else from.toInt()), path, own = owner == device)
                 }
             }
         }
         dao.keepReads(present)
+        if (known != names) dao.saveKnownTables(KnownTablesEntity(names = names))
         readOwn = false
         return report
-    }
-
-    private suspend fun forgetReadsIfTablesChanged() {
-        val names = tables.keys.sorted().joinToString(",")
-        if (dao.knownTables() == names) return
-        dao.clearReads()
-        dao.saveKnownTables(KnownTablesEntity(names = names))
     }
 
     /**
@@ -136,7 +133,7 @@ internal class FolderSync(
      * Sync gives no order between files, so a line can name a parent that is not here yet: it
      * waits for it ([retryWaiting]). One whose parent was purged will never apply, and is dropped.
      */
-    private suspend fun merge(lines: List<Line>, path: String?): ImportReport {
+    private suspend fun merge(lines: List<Line>, path: String?, own: Boolean = false): ImportReport {
         var report = ImportReport(0, 0)
         for (chunk in lines.chunked(MERGE_LINES)) {
             val readable = chunk.mapNotNull { line -> readable(line.text)?.let { line.text to it } }
@@ -144,7 +141,7 @@ internal class FolderSync(
             val sorted = sortByParents(readable)
             var dropped = sorted.dropped.size
             val changed = try {
-                apply(sorted.ready.map { it.second }, position, waiting = sorted.waiting)
+                apply(sorted.ready.map { it.second }, position, waiting = sorted.waiting, own = own)
             } catch (e: Exception) {
                 if (!isConstraintViolation(e)) throw e
                 // A backstop: some line was refused although its parents seemed here. Apply the
@@ -152,7 +149,7 @@ internal class FolderSync(
                 // or breaks its table's rules, and is dropped.
                 var applied = 0
                 val refused = mutableListOf<Pair<String, Record>>()
-                for (line in sorted.ready) applyOne(line.second)?.let { applied += it } ?: run { refused += line }
+                for (line in sorted.ready) applyOne(line.second, own)?.let { applied += it } ?: run { refused += line }
                 val again = sortByParents(refused)
                 dropped += again.dropped.size + again.ready.size
                 applied + apply(emptyList(), position, waiting = sorted.waiting + again.waiting)
@@ -188,15 +185,18 @@ internal class FolderSync(
         return ByParents(ready, waiting, dropped)
     }
 
-    /** One transaction: merges [records], then saves [position], the [waiting] lines and the clock. */
-    private suspend fun apply(records: List<Record>, position: ReadEntity?, waiting: List<String> = emptyList()): Int {
+    /**
+     * One transaction: merges [records], then saves [position], the [waiting] lines and the clock.
+     * [own] marks records from this device's own files, read at a first import (SPEC:R34).
+     */
+    private suspend fun apply(records: List<Record>, position: ReadEntity?, waiting: List<String> = emptyList(), own: Boolean = false): Int {
         val rows = records.filterIsInstance<RowRecord>().map { it.row }
         val purges = mutableMapOf<String, Stamp>()
         for (p in records.filterIsInstance<PurgeRecord>()) purges[p.id] = minOf(p.stamp, purges[p.id] ?: p.stamp)
         return db.useWriterConnection { connection ->
             connection.immediateTransaction {
                 val store = StagedStore.load(dao, tables, rows.groupBy({ it.table }, { it.id }), purges.keys)
-                merger.import(store, rows, purges)
+                merger.import(store, rows, purges, own)
                 store.flush(dao, tables)
                 position?.let { dao.putRead(it) }
                 dao.wait(waiting.map { WaitingEntity(line = it) })
@@ -208,8 +208,8 @@ internal class FolderSync(
     }
 
     /** Merges one [record] in its own transaction; null when a constraint refuses it. */
-    private suspend fun applyOne(record: Record): Int? = try {
-        apply(listOf(record), position = null)
+    private suspend fun applyOne(record: Record, own: Boolean = false): Int? = try {
+        apply(listOf(record), position = null, own = own)
     } catch (e: Exception) {
         if (!isConstraintViolation(e)) throw e
         null

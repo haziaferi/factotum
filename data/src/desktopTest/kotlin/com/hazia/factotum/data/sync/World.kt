@@ -58,7 +58,6 @@ internal class World(private val dir: File, seed: Int, private val segmentBytes:
         val name: String,
         val id: String = name,
         extra: Map<String, RowTable> = emptyMap(),
-        recovered: Boolean = false,
         open: (File) -> FactotumDatabase = { openFactotumDatabase(it).database },
         rowIds: String = name,
     ) {
@@ -74,7 +73,7 @@ internal class World(private val dir: File, seed: Int, private val segmentBytes:
         /** The production wiring, over this device's database and its copy of the folder. */
         val app = Factotum(
             db, syncthing.folder(name), id, clock, secrets, blobs, DesktopImageScaler(), { "$rowIds-${made++}" }, { syncthing.now }, { now },
-            recovered = recovered, tables = tables, segmentBytes = segmentBytes, snapshotEvery = snapshotEvery,
+            tables = tables, segmentBytes = segmentBytes, snapshotEvery = snapshotEvery,
         )
         val writes = app.writes
         val settings = app.settings

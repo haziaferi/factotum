@@ -7,13 +7,16 @@ import com.hazia.factotum.data.item.ITEM
 import com.hazia.factotum.data.settings.MemorySecretStore
 import com.hazia.factotum.data.settings.RefusingSecretStore
 import com.hazia.factotum.data.sync.DirectorySyncFolder
+import com.hazia.factotum.data.sync.FolderSync
 import com.hazia.factotum.data.sync.IdOwedEntity
+import com.hazia.factotum.data.sync.SyncFolder
 import com.hazia.factotum.data.sync.loadClock
 import kotlinx.coroutines.runBlocking
 import kotlinx.datetime.LocalDateTime
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import java.io.File
+import java.io.RandomAccessFile
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -90,10 +93,26 @@ class SyncPassTest {
         val a = device("A")
         val missing = File(tmp.root, "unplugged/Factotum")
 
-        assertFailsWith<IllegalArgumentException> { pass(a, missing) }
+        val refused = assertFailsWith<SyncPassRefused> { pass(a, missing) }
 
+        assertEquals("No sync folder at ${missing.path}.", refused.message)
         assertFalse(missing.exists(), "the pass made the folder")
         assertNull(pass(a).folder, "the refused folder was saved")
+    }
+
+    /** A pass started while another runs (by hand during a scheduled one) is refused, and touches nothing. */
+    @Test
+    fun aSecondPassWhileOneRunsIsRefused() {
+        val folder = tmp.newFolder("sync")
+        val a = device("A")
+        pass(a, folder)
+
+        val refused = RandomAccessFile(File(a.database.parentFile, PASS_LOCK), "rw").channel.use { running ->
+            running.lock().use { assertFailsWith<SyncPassRefused> { pass(a) } }
+        }
+
+        assertEquals("Another sync pass is running.", refused.message)
+        assertEquals(folder.path, pass(a).folder, "the lock outlived the pass that held it")
     }
 
     /** SPEC:R37: a clone's conflict copy in this device's own folder makes the pass take a new id and publish everything under it. */
@@ -140,6 +159,50 @@ class SyncPassTest {
         assertNotEquals(old, report.device)
         assertTrue(File(folder, "devices/${report.device}").list()!!.any { it.startsWith("snapshot-") }, "no snapshot under the new id")
         assertNull(withDatabase(a) { it.syncDao().idOwedBy() })
+    }
+
+    /**
+     * SPEC:R34: a corrupt database is set aside, and with it this device's `sync_folder`, so the pass
+     * that recovers knows no folder. The first pass that knows one again still reads the device's own
+     * files, and its rows come back with no peer.
+     */
+    @Test
+    fun aRecoveredDatabaseGetsItsRowsBackAtTheFirstPassThatKnowsTheFolder() {
+        val folder = tmp.newFolder("sync")
+        val a = device("A")
+        val task = writeTask(a, "tax form")
+        pass(a, folder)
+        a.database.writeBytes("this is not a database\n".toByteArray())
+
+        val recovering = pass(a)
+        val next = pass(a, folder)
+
+        assertNull(recovering.folder, "the folder outlived the corrupt database")
+        assertEquals(setOf(task), items(a))
+        assertTrue(next.changed > 0)
+    }
+
+    /** SPEC:R34: a first import stopped part way leaves its own files unread, and the next import reads them. */
+    @Test
+    fun aFirstImportStoppedPartWayReadsItsOwnFilesAgain() {
+        val folder = tmp.newFolder("sync")
+        val a = device("A")
+        val task = writeTask(a, "tax form")
+        pass(a, folder)
+        a.database.delete()
+        val stopsAtRead = object : SyncFolder by DirectorySyncFolder(folder) {
+            override fun read(path: String): ByteArray? = throw IllegalStateException("stopped at the read")
+        }
+        withDatabase(a) { db ->
+            val id = deviceId(a.deviceId)
+            assertFailsWith<IllegalStateException> {
+                FolderSync(db, stopsAtRead, id, db.syncDao().loadClock(id, System::currentTimeMillis), db.syncedTables()).import()
+            }
+        }
+
+        pass(a, folder)
+
+        assertEquals(setOf(task), items(a))
     }
 
     @Test
