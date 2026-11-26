@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPEC:R32: Auto Backup on Android 11. The device-id file is in the app's files (R204). -->
+<full-backup-content>
+    <exclude domain="file" path="device-id" />
+</full-backup-content>

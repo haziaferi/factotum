@@ -79,7 +79,8 @@ internal class FolderSync(
     /**
      * Whether this device must take a new id (SPEC:R37): an import found a conflict copy in its own
      * folder, so another device writes under the same one. It stays owed, across restarts, until the
-     * device runs under another id, whose first export pays it off.
+     * device runs under another id, whose first export pays it off. The shell asks at start and after
+     * each import (on Windows, `syncPass`).
      */
     suspend fun newIdOwed(): Boolean = lock.withLock { dao.idOwedBy() == device }
 
@@ -360,7 +361,10 @@ internal fun completeLines(bytes: ByteArray, from: Int): List<Line> {
     return lines
 }
 
-/** Runs [action] once [touches] has been quiet for [quietMillis], so a burst of writes makes one export (SPEC:R36, requirement 2). */
+/**
+ * Runs [action] once [touches] has been quiet for [quietMillis], so a burst of writes makes one export
+ * (SPEC:R36, requirement 2). The one export that starts elsewhere closes the Windows sync pass (SPEC:R205).
+ */
 @OptIn(FlowPreview::class)
 internal fun CoroutineScope.exportAfterQuiet(touches: Flow<Unit>, quietMillis: Long, action: suspend () -> Unit): Job =
     launch { touches.debounce(quietMillis).collect { action() } }

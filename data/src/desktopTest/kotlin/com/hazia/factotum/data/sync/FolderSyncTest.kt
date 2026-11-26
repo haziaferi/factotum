@@ -189,7 +189,8 @@ class FolderSyncTest {
      * under a new id it owes nothing; its first export starts the new folder with a snapshot of
      * everything, since what it wrote under the old id is in no file a peer reads (the clone's writing
      * won the clash, and the copy is gone). It reads the old folder, still the clone's, as a peer's,
-     * and no clash follows.
+     * and no clash follows. The shell's step is taken by hand here; `SyncPassTest` runs it through
+     * the Windows pass.
      */
     @Test
     fun aClonedIdIsOwedANewOneUntilTheDeviceRunsUnderAnother() {

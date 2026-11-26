@@ -31,6 +31,8 @@ Evidence lives in `decisions/`: one ADR per decision, with the verified `file:li
 | D-R15 | Upgrades drop the app's triggers first | 2. Scope, platform and build |
 | D-R16 | Imports are hybrid and reviewed | 2. Scope, platform and build |
 | D-R17 | Licensing | 2. Scope, platform and build |
+| D-R204 | Where each device keeps its files | 2. Scope, platform and build |
+| D-R205 | The Windows app before the screens | 2. Scope, platform and build |
 | D-R18 | Synced tables | 3. Data model |
 | D-R19 | Local stores, never synced | 3. Data model |
 | D-R20 | Folder sync for one person | 4. Sync |
@@ -489,6 +491,49 @@ One app that does what Tendril, Chronicle, Mnemo and Equipoise do, over one data
 
 **Since:** 2026-10-01 · builder · migrated
 
+### D-R204 · Where each device keeps its files
+
+**Rule:** Each device keeps its database, its device-id file and its pictures outside the sync folder, in the places below. On Windows all three sit in `%LOCALAPPDATA%\Factotum`.
+
+**Values:**
+
+| File | Windows | Android |
+|---|---|---|
+| database | `%LOCALAPPDATA%\Factotum\factotum.db` | `factotum.db` in the app's database folder |
+| device id | `%LOCALAPPDATA%\Factotum\device-id` | `device-id` in the app's files |
+| pictures | `%LOCALAPPDATA%\Factotum\pictures\` | set with the Android data layer |
+
+**Evidence:** `DeviceFiles.inFolder` (`SyncPass.kt`) and `windows/src/main/kotlin/com/hazia/factotum/windows/Main.kt`; `openFactotumDatabase(context)` uses `getDatabasePath`; the Android backup rules name `device-id` in the `file` domain (R32). Owner's answer 2026-11-26. Not checked: the Android shell does not build the data layer yet, so nothing writes its device-id file.
+
+**Acceptance:** `DEVICE_ID_FILE` is `device-id`, and `AndroidBackupRulesTest` finds that name excluded from every Android backup; the Windows app gives `DeviceFiles.inFolder` the folder `%LOCALAPPDATA%\Factotum`.
+
+**Not:** `~\.factotum`, a dot-folder in the home folder as Tendril's Windows app used: the owner chose `%LOCALAPPDATA%`, where Windows keeps app data that stays on one machine.
+
+**Since:** 2026-11-26 · owner · agreed rewording
+
+### D-R205 · The Windows app before the screens
+
+**Rule:** Until the screens are built (R193, step 4), the Windows app runs one sync pass and exits. A pass opens the database, imports from the sync folder, takes a new device id if one is owed (R37), exports, and closes. The sync folder is the app's one argument, saved as this device's `sync_folder` for later passes; a folder that does not exist is refused, never made.
+
+**Values:**
+
+| Case | What the pass does |
+|---|---|
+| no folder given or saved | opens or recovers the database, makes the device id, and exits |
+| a folder given | saves it, then syncs with it |
+| no folder given, one saved | syncs with the saved one |
+| the folder does not exist | refuses, and saves and makes nothing |
+| a new id owed at start or after the import | writes a new id, builds the data layer again, and exports a snapshot under it |
+| a secret to be saved | refused: the shells' store holds none until the first feature that needs a secret brings the DPAPI and Keystore stores |
+
+**Evidence:** `syncPass` (`data/src/jvmCommon/kotlin/com/hazia/factotum/data/SyncPass.kt`) and `windows/src/main/kotlin/com/hazia/factotum/windows/Main.kt`; it runs with `gradlew :windows:run --args="<sync folder>"`. Owner's answers 2026-11-26.
+
+**Acceptance:** `SyncPassTest` passes: `aPassWithNoFolderOnlyOpensTheDatabaseAndMakesTheDeviceId`, `aFolderGivenOnceIsSavedAndEveryLaterPassSyncsWithIt`, `aFolderThatDoesNotExistIsRefusedNeitherMadeNorSaved`, `aClonedIdFoundByTheImportIsRenewedAndEverythingPublishedUnderTheNewOne`, `aDebtLeftByAStoppedPassIsPaidByTheNext` and `theShellsSecretStoreHoldsNoneAndRefusesToSaveOne`.
+
+**Not:** A process that keeps running and syncs: until the screens nothing writes locally, so it would only import.
+
+**Since:** 2026-11-26 · owner · agreed rewording
+
 ## 3. Data model
 
 ### D-R18 · Synced tables
@@ -694,11 +739,11 @@ One app that does what Tendril, Chronicle, Mnemo and Equipoise do, over one data
 
 **Rule:** The device id lives in its own file, written atomically, and is not a setting. An unreadable file is set aside and a new id made. The file is excluded from Android Auto Backup and device transfer, so two devices never share an identity.
 
-**Evidence:** ADR 09; ADR 13 requirement 5 (`decisions/verify/13-folder/workload.md`). Not checked: the Auto Backup exclusion needs the Android shell, which has no code. `android/src/main/AndroidManifest.xml` declares no backup rules.
+**Evidence:** ADR 09; ADR 13 requirement 5 (`decisions/verify/13-folder/workload.md`). The manifest names `res/xml/backup_rules.xml` (Android 11) and `res/xml/data_extraction_rules.xml` (Android 12 on), which exclude `device-id` in the `file` domain (R204), 2026-11-26. Not checked: a backup restored to a second phone.
 
-**Acceptance:** `SyncStorageTest.anUnreadableDeviceIdIsSetAsideAndReplaced` sets an unreadable id file aside and makes a new id; the Android manifest's backup rules exclude the file.
+**Acceptance:** `SyncStorageTest.anUnreadableDeviceIdIsSetAsideAndReplaced` sets an unreadable id file aside and makes a new id; `AndroidBackupRulesTest` finds the file excluded from Auto Backup, cloud backup and device transfer.
 
-**Since:** 2026-10-01 · builder · migrated
+**Since:** 2026-11-26 · builder · migrated
 
 ### D-R33 · The composition root
 
@@ -765,11 +810,11 @@ One app that does what Tendril, Chronicle, Mnemo and Equipoise do, over one data
 | Synced files are compact JSON | never pretty-printed | R35 |
 | The device-id file is excluded from Android Auto Backup and device transfer | two devices never share an identity | R32 |
 
-**Evidence:** `decisions/verify/13-folder/workload.md`. `firings()` only reads; `FolderSyncTest.aReminderFiringLeavesTheOutboxEmpty` kills mutant `a firing writes its reminder` (`tools/mutants.py`, slice `gapA`), 2026-11-21. Not checked: `exportAfterQuiet` has no production caller (R38), and the Auto Backup exclusion is not built: `android/src/main/AndroidManifest.xml` holds an empty `<application />` (checked 2026-11-24).
+**Evidence:** `decisions/verify/13-folder/workload.md`. `firings()` only reads; `FolderSyncTest.aReminderFiringLeavesTheOutboxEmpty` kills mutant `a firing writes its reminder` (`tools/mutants.py`, slice `gapA`), 2026-11-21. The Android backup rules exclude the device-id file (R32, 2026-11-26). Not checked: `exportAfterQuiet` has no production caller (R38).
 
-**Acceptance:** `ExportTimingTest.aBurstOfWritesExportsOnceThirtySecondsAfterTheLast` (debounce), `DirectorySyncFolderTest.aReplaceLandsWholeAndLeavesNoTemporaryFile` (atomic replace), `RecordCodecTest.aRecordIsOneCompactLine` (compact JSON) and `FolderSyncTest.aReminderFiringLeavesTheOutboxEmpty` (a firing writes nothing) pass. In each shell, every export starts through `exportAfterQuiet` (R38), with no other production call to the export. The Android manifest's `dataExtractionRules` and `fullBackupContent` both exclude the device-id file (R32).
+**Acceptance:** `ExportTimingTest.aBurstOfWritesExportsOnceThirtySecondsAfterTheLast` (debounce), `DirectorySyncFolderTest.aReplaceLandsWholeAndLeavesNoTemporaryFile` (atomic replace), `RecordCodecTest.aRecordIsOneCompactLine` (compact JSON) and `FolderSyncTest.aReminderFiringLeavesTheOutboxEmpty` (a firing writes nothing) pass. In each shell, every export after a local write starts through `exportAfterQuiet` (R38); the one other production call to the export closes the Windows sync pass (R205). The Android manifest's `dataExtractionRules` and `fullBackupContent` both exclude the device-id file (R32).
 
-**Since:** 2026-11-24 · owner · agreed rewording
+**Since:** 2026-11-26 · owner · agreed rewording
 
 ### D-R37 · Conflict copies
 
@@ -787,13 +832,13 @@ One app that does what Tendril, Chronicle, Mnemo and Equipoise do, over one data
 | A new id, moved over the old file in one step | `renewDeviceId` (`DeviceId.kt:39`) |
 | The first export under another id: a snapshot of everything, then the debt cleared | `FolderSync.kt:256`, `publishAllUnderNewId` |
 
-**Evidence:** The data layer is built as in Values (2026-11-25). Not checked: no shell exists yet to ask `newIdOwed`, renew and build again, so the test does that step by hand.
+**Evidence:** The data layer is built as in Values (2026-11-25). The Windows sync pass asks `newIdOwed` at start and after its import and, while owed, renews and builds again (`SyncPassTest`, R205, 2026-11-26). Not checked: the Android shell does not build the data layer yet.
 
 **Acceptance:** `FolderSyncTest.aClonedDeviceIdsClashIsMergedAndTheCopyRemoved` merges and deletes a conflict copy. `FolderSyncTest.aClonedIdIsOwedANewOneUntilTheDeviceRunsUnderAnother`: after one in its own folder the device owes a new id across imports; built again under a new id it owes none, its folder starts with a snapshot, and the clone and a third device hold every row with no further clash. `FolderSyncTest.aClonedIdIsOwedBeforeItsConflictCopyIsDeleted`: an import stopped at the copy's delete leaves the debt held. `SyncStorageTest.anOwedIdOutlivesAReopen` and `SyncStorageTest.aRenewedDeviceIdReplacesTheOldOneForGood` cover the debt and the id file. Each shell asks `newIdOwed` at start and after each import and, while owed, renews and builds again.
 
 **Not:** Factotum swapping its own id, clock and sync in place: every repository's writer would need a replaceable clock. Only reporting the clash: a stop before the new id would forget it until the next clash.
 
-**Since:** 2026-11-25 · owner · agreed rewording
+**Since:** 2026-11-26 · owner · agreed rewording
 
 ### D-R38 · A local outbox decides what to export
 
@@ -2702,6 +2747,8 @@ Background, not a rule: Equipoise runs llama.cpp on Android only, and only in th
 - R14 · Committed schema files: `tools/schema_check.py` passes.
 - R15 · Upgrades drop the app's triggers first: A test upgrades a version 9 file holding the triggers and its child rows (`OldSchema.kt`).
 - R17 · Licensing: The `:llm` build links only `llama` and `ggml` on both platforms, and the About screen shows llama.cpp's MIT notice.
+- R204 · Where each device keeps its files: `DEVICE_ID_FILE` is `device-id`, and `AndroidBackupRulesTest` finds that name excluded from every Android backup; the Windows app gives `DeviceFiles.inFolder` the folder `%LOCALAPPDATA%\Factotum`.
+- R205 · The Windows app before the screens: `SyncPassTest` passes: `aPassWithNoFolderOnlyOpensTheDatabaseAndMakesTheDeviceId`, `aFolderGivenOnceIsSavedAndEveryLaterPassSyncsWithIt`, `aFolderThatDoesNotExistIsRefusedNeitherMadeNorSaved`, `aClonedIdFoundByTheImportIsRenewedAndEverythingPublishedUnderTheNewOne`, `aDebtLeftByAStoppedPassIsPaidByTheNext` and `theShellsSecretStoreHoldsNoneAndRefusesToSaveOne`.
 - R18 · Synced tables: `FactotumDatabase.kt:222` checks at open that every synced table has its `RowTable`, and `FolderSyncTest.everySyncedTableIsQueuedForExportAndRoundTrips` makes a row in every synced table, finds each table in the outbox, and reads the same rows on a peer after sync.
 - R19 · Local stores, never synced: No export trigger names a store in this table, and a peer that imports a device's folder never receives one of them.
 - R20 · Folder sync for one person: `FolderSyncTest` syncs two devices through a shared folder and nothing else.
@@ -2716,11 +2763,11 @@ Background, not a rule: Equipoise runs llama.cpp on Android only, and only in th
 - R29 · One deletion vocabulary: `VocabularyTest` walks every kind through Delete, its Trash, Restore, Delete again and Delete forever; a kind missing one does not compile or fails.
 - R30 · What Delete and Restore take: `VocabularyTest` restores each kind and checks that exactly what its deletion took comes back.
 - R31 · Delete forever: `VocabularyTest` checks that Delete forever of a live row of each kind is refused.
-- R32 · The device id: `SyncStorageTest.anUnreadableDeviceIdIsSetAsideAndReplaced` sets an unreadable id file aside and makes a new id; the Android manifest's backup rules exclude the file.
+- R32 · The device id: `SyncStorageTest.anUnreadableDeviceIdIsSetAsideAndReplaced` sets an unreadable id file aside and makes a new id; `AndroidBackupRulesTest` finds the file excluded from Auto Backup, cloud backup and device transfer.
 - R33 · The composition root: Every two-device test runs through `Factotum` (`World.Device` delegates to it).
 - R34 · Recovery re-reads its own files: `SettingsCasesTest.aDeviceWhoseDatabaseWasRecoveredGetsItsSettingsBackFromItsOwnFiles` recovers a device alone and finds its PERSONAL settings again, and `aRecoveredDeviceGetsItsRowsBackFromItsOwnFilesAndItsDeviceSettingsStartAtTheirDefaults` finds its rows again and its DEVICE settings at their defaults.
 - R35 · Device logs in the folder: The 4 cases of `decisions/cases/13-folder.jsonl` pass through the real importer and exporter under a Syncthing double (`FolderSyncTest`).
-- R36 · Folder requirements: `ExportTimingTest.aBurstOfWritesExportsOnceThirtySecondsAfterTheLast` (debounce), `DirectorySyncFolderTest.aReplaceLandsWholeAndLeavesNoTemporaryFile` (atomic replace), `RecordCodecTest.aRecordIsOneCompactLine` (compact JSON) and `FolderSyncTest.aReminderFiringLeavesTheOutboxEmpty` (a firing writes nothing) pass. In each shell, every export starts through `exportAfterQuiet` (R38), with no other production call to the export. The Android manifest's `dataExtractionRules` and `fullBackupContent` both exclude the device-id file (R32).
+- R36 · Folder requirements: `ExportTimingTest.aBurstOfWritesExportsOnceThirtySecondsAfterTheLast` (debounce), `DirectorySyncFolderTest.aReplaceLandsWholeAndLeavesNoTemporaryFile` (atomic replace), `RecordCodecTest.aRecordIsOneCompactLine` (compact JSON) and `FolderSyncTest.aReminderFiringLeavesTheOutboxEmpty` (a firing writes nothing) pass. In each shell, every export after a local write starts through `exportAfterQuiet` (R38); the one other production call to the export closes the Windows sync pass (R205). The Android manifest's `dataExtractionRules` and `fullBackupContent` both exclude the device-id file (R32).
 - R37 · Conflict copies: `FolderSyncTest.aClonedDeviceIdsClashIsMergedAndTheCopyRemoved` merges and deletes a conflict copy. `FolderSyncTest.aClonedIdIsOwedANewOneUntilTheDeviceRunsUnderAnother`: after one in its own folder the device owes a new id across imports; built again under a new id it owes none, its folder starts with a snapshot, and the clone and a third device hold every row with no further clash. `FolderSyncTest.aClonedIdIsOwedBeforeItsConflictCopyIsDeleted`: an import stopped at the copy's delete leaves the debt held. `SyncStorageTest.anOwedIdOutlivesAReopen` and `SyncStorageTest.aRenewedDeviceIdReplacesTheOldOneForGood` cover the debt and the id file. Each shell asks `newIdOwed` at start and after each import and, while owed, renews and builds again.
 - R38 · A local outbox decides what to export: A write through any repository, and an import that changes a row, each leave the row queued for export.
 - R39 · Imports in chunks: `FolderSyncTest` imports a snapshot larger than one chunk and stops and resumes it at a chunk boundary.

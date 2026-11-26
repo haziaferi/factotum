@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SPEC:R32: cloud backup and device transfer on Android 12 and later. The device-id file is in the app's files (R204). -->
+<data-extraction-rules>
+    <cloud-backup>
+        <exclude domain="file" path="device-id" />
+    </cloud-backup>
+    <device-transfer>
+        <exclude domain="file" path="device-id" />
+    </device-transfer>
+</data-extraction-rules>

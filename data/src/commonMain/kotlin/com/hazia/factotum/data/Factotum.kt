@@ -37,7 +37,8 @@ import kotlinx.datetime.LocalDateTime
  * The data layer as one device runs it (SPEC:R33): every repository over one database, and sync over
  * one folder, wired in the one order the rules need. Each shell builds this from its own database,
  * folder, secret store, picture store and scaler: once at start, and again only under a new device
- * id (SPEC:R37); tests build it the same way. What the shells see of it waits for the screens (SPEC:R187).
+ * id (SPEC:R37); tests build it the same way. Until the screens (SPEC:R187), the Windows app builds it
+ * only for one sync pass (`syncPass`, SPEC:R205).
  *
  * - [export] publishes the pictures the logs will name, then writes the logs (SPEC:R170).
  * - [import] reads the logs and settles what peers wrote, then fetches and collects pictures.
@@ -116,8 +117,8 @@ internal class Factotum(
     suspend fun import(): ImportReport = sync.import().also { blobSync.exchange() }
 
     /**
-     * Whether this device must take a new id (SPEC:R37). The shell asks at start and after each
-     * import; when it must, it writes a new id with `renewDeviceId` and builds this again over the
+     * Whether this device must take a new id (SPEC:R37). The shell (on Windows, `syncPass`) asks at
+     * start and after each import; when it must, it writes a new id with `renewDeviceId` and builds this again over the
      * same database and folder, with a clock loaded for the new id.
      */
     suspend fun newIdOwed(): Boolean = sync.newIdOwed()

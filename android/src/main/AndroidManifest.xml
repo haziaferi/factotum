@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-    <application />
+    <!-- SPEC:R32: the device-id file stays out of Auto Backup (fullBackupContent, Android 11)
+         and out of cloud backup and device transfer (dataExtractionRules, Android 12 on). -->
+    <application
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules" />
 </manifest>

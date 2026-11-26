@@ -76,6 +76,9 @@ CHART = "data/src/commonMain/kotlin/com/hazia/factotum/data/chart/ChartRepositor
 CHARTS = "core/src/commonMain/kotlin/com/hazia/factotum/core/chart/Charts.kt"
 ROW = "core/src/commonMain/kotlin/com/hazia/factotum/core/sync/Row.kt"
 ITEMTABLES = "data/src/commonMain/kotlin/com/hazia/factotum/data/item/ItemTables.kt"
+SYNCPASS = "data/src/jvmCommon/kotlin/com/hazia/factotum/data/SyncPass.kt"
+BACKUPRULES = "android/src/main/res/xml/backup_rules.xml"
+EXTRACTRULES = "android/src/main/res/xml/data_extraction_rules.xml"
 
 # slice ->[(name, file, old, new, test task, tests that must fail)]
 SLICES = {
@@ -1110,6 +1113,24 @@ SLICES = {
          ":data:desktopTest", {"twoChoicesOfOneNameMadeOnTwoDevicesMergeIntoTheFirstEverywhere"}),
         ("a Log of a merged choice leaves its first in the Trash", TRACKERS, "val c = byId[resolve(r.choiceId)] ?: continue", "val c = byId[r.choiceId] ?: continue",
          ":data:desktopTest", {"aLogOfAMergedChoiceAfterItsSurvivorsDeleteBringsTheSurvivorBack"}),
+    ],
+    # SPEC:R205, R32, 2026-11-26: the Windows app's sync pass, and the Android backup rules that keep the device id at home.
+    "r205": [
+        ("a given folder is not saved", SYNCPASS, "    if (given != null) settings.set(Settings.SYNC_FOLDER, given)\n", "",
+         ":data:desktopTest", {"aFolderGivenOnceIsSavedAndEveryLaterPassSyncsWithIt"}),
+        ("a missing folder is made", SYNCPASS, 'require(File(path).isDirectory) { "no sync folder at $path" }', "File(path).mkdirs()",
+         ":data:desktopTest", {"aFolderThatDoesNotExistIsRefusedNeitherMadeNorSaved"}),
+        ("the pass does not ask after its import", SYNCPASS, "    val changed = app.import().changed\n    renewIfOwed()\n", "    val changed = app.import().changed\n",
+         ":data:desktopTest", {"aClonedIdFoundByTheImportIsRenewedAndEverythingPublishedUnderTheNewOne"}),
+        ("the pass builds again under the old id", SYNCPASS, "        device = renewDeviceId(files.deviceId, wallMillis)\n", "        renewDeviceId(files.deviceId, wallMillis)\n",
+         ":data:desktopTest", {"aClonedIdFoundByTheImportIsRenewedAndEverythingPublishedUnderTheNewOne", "aDebtLeftByAStoppedPassIsPaidByTheNext"}),
+        ("the shells save a secret", STORES, 'check(value == null) { "no secret store yet: $key cannot be saved" }', "Unit",
+         ":data:desktopTest", {"theShellsSecretStoreHoldsNoneAndRefusesToSaveOne"}),
+        ("Auto Backup takes the device id", BACKUPRULES, 'path="device-id"', 'path="device_id"',
+         ":data:desktopTest", {"autoBackupLeavesTheDeviceIdOut"}),
+        ("device transfer takes the device id", EXTRACTRULES,
+         '    <device-transfer>\n        <exclude domain="file" path="device-id" />\n    </device-transfer>', "    <device-transfer />",
+         ":data:desktopTest", {"cloudBackupAndDeviceTransferLeaveTheDeviceIdOut"}),
     ],
 }
 

@@ -7,6 +7,12 @@ import java.nio.file.Files
 import java.nio.file.StandardCopyOption
 
 /**
+ * The device-id file's name (SPEC:R204): beside the database on Windows, in the app's files on
+ * Android, where the backup rules keep it out of Auto Backup and device transfer (SPEC:R32).
+ */
+const val DEVICE_ID_FILE = "device-id"
+
+/**
  * This device's sync identity (ADR 01), kept in its own [file] (ADR 09): not a setting and not
  * in the database, so neither a settings reset nor a recovered database gives the device a new one.
  *

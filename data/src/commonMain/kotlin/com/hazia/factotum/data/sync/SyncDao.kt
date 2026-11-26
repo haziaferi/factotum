@@ -30,7 +30,7 @@ internal data class ClockEntity(
 /**
  * The id this device must give up (SPEC:R37): a conflict copy in its own folder showed another device
  * writing under it. One row, local only, written before the copy is deleted and kept until the
- * device runs under another id.
+ * device runs under another id, which the shell starts (on Windows, `syncPass`).
  */
 @Entity(tableName = "sync_id_owed")
 internal data class IdOwedEntity(
