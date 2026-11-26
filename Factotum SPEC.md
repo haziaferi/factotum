@@ -77,6 +77,7 @@ Evidence lives in `decisions/`: one ADR per decision, with the verified `file:li
 | D-R59 | A standalone reminder's last reminder | 6. Reminders |
 | D-R60 | Alarms and missed occurrences | 6. Reminders |
 | D-R61 | A force-stopped app says so | 6. Reminders |
+| Q-R206 | A force-stop that leaves no trace | 6. Reminders |
 | D-R62 | Recurrence kinds | 7. Recurrence |
 | D-R63 | Random forms | 7. Recurrence |
 | D-R64 | Seeded random draws | 7. Recurrence |
@@ -212,7 +213,7 @@ Evidence lives in `decisions/`: one ADR per decision, with the verified `file:li
 | D-R193 | Build order | 18. Phasing and validation |
 | D-R194 | Schema slices | 18. Phasing and validation |
 | D-R195 | Sole-owner module order | 18. Phasing and validation |
-| A-R196 | Triggers on the Android driver | 18. Phasing and validation |
+| D-R196 | Triggers on the Android driver | 18. Phasing and validation |
 | A-R197 | The search index on the phones | 18. Phasing and validation |
 | D-R198 | Importing data from the source apps | Out of scope |
 | D-R199 | A sync server, accounts or cloud storage | Out of scope |
@@ -1112,11 +1113,30 @@ One app that does what Tendril, Chronicle, Mnemo and Equipoise do, over one data
 
 **Why:** A force-stopped app loses its alarms until it is next opened; this is a platform limit, not a defect.
 
-**Evidence:** Spike 5 (`docs/spikes-2026-10-01.md`). Not checked: detection needs the Android shell and a device.
+**Evidence:** Spike 5 (`docs/spikes-2026-10-01.md`). Device half, on the API 32 emulator, 2026-11-26 (`ForceStopOnDeviceTest`, run by `tools/device/run.sh`; Settings' button pressed by hand):
+- Force-stopped while running, by Settings' "Force stop" or `am force-stop`: the alarm is removed. The next start reads an exit record: reason `REASON_USER_REQUESTED`, description "stop <package> due to from pid <n>".
+- Force-stopped while not running, by either: the alarm is removed, and no exit record is written, since no process ended. The next start reads nothing.
+- No force-stop (the control, a test run's own end): the alarm is kept. The exit record has the same reason, described "… due to finished inst".
+
+- In every case the alarm's PendingIntent stays, so asking for it (`FLAG_NO_CREATE`) cannot tell that the alarm is gone.
+- The reason code cannot tell a force-stop either; only the description can, and that text is undocumented.
+- So on API 32 a force-stop of an app that is not running leaves no trace the app can read: R206 asks how R61 is met then.
+
+Not checked: a phone; Android 15 and later, which is documented to cancel PendingIntents in the stopped state and to add `ApplicationStartInfo.wasForceStopped()`; the notice and the alarms set again, which wait for reminders on Android; other ends of a process (a swipe from Recents, a low-memory kill, an update).
 
 **Acceptance:** On a device, force-stopping the app and opening it again shows the notice, and the alarms are set again.
 
-**Since:** 2026-10-02 · owner · migrated
+**Since:** 2026-11-26 · owner · migrated
+
+### Q-R206 · A force-stop that leaves no trace
+
+**Rule:** How does the app meet R61 when it was force-stopped while not running, which on Android 11 to 14 leaves nothing it can read at its next start?
+
+**Default:** Every start sets every alarm again, so the alarms are right whatever happened. The notice shows when the exit history records a force-stop, and on Android 15 and later when `ApplicationStartInfo.wasForceStopped()` says so. A force-stop of an idle app on Android 11 to 14 goes unsaid. This changes R61's Acceptance to the cases a device can tell.
+
+**Why:** The sides: setting alarms again on every start is cheap and always right, but says nothing; a heartbeat alarm that writes when it fires would reveal the cancellation when it fails to, at the cost of a wake-up a day and a delay of up to a day before the notice.
+
+**Since:** 2026-11-26 · builder
 
 ## 7. Recurrence
 
@@ -2698,11 +2718,11 @@ Background, not a rule: Equipoise runs llama.cpp on Android only, and only in th
 | 3 | the sole-owner modules, in the order of R195 | not stated |
 | 4 | the screens, after R187 settles each tier | not stated; a tier is built only once agreed |
 
-**Evidence:** Owner, 2026-10-01. Steps 1 to 3 were built by 2026-10-04; the device halves of spikes 1, 3 and 5 wait for the Android shell (R197, R196, R61).
+**Evidence:** Owner, 2026-10-01. Steps 1 to 3 were built by 2026-10-04. The device halves of spikes 1, 3 and 5 ran on the API 32 emulator on 2026-11-26 (R197, R196, R61).
 
 **Acceptance:** No `:ui` screen code exists before step 4 begins, and every slice of step 2 has its cases passing (R194).
 
-**Since:** 2026-10-04 · owner · migrated
+**Since:** 2026-11-26 · owner · migrated
 
 ### D-R194 · Schema slices
 
@@ -2724,21 +2744,32 @@ Background, not a rule: Equipoise runs llama.cpp on Android only, and only in th
 
 **Since:** 2026-10-04 · owner · migrated
 
-### A-R196 · Triggers on the Android driver
+### D-R196 · Triggers on the Android driver
 
 **Rule:** The app's triggers, installed from a database callback as Chronicle does on Android, install and fire on the Android driver as they do on the desktop one.
 
-**Evidence:** Spike 3: on the desktop it holds (every trigger test runs on the bundled driver). Not checked: the device half runs with the Android shell, which has no code.
+**Evidence:** Spike 3: on the desktop it holds (every trigger test runs on the bundled driver). Device half, on the API 32 emulator (SQLite 3.32.2), 2026-11-26: `TriggersOnDeviceTest` opens the app's database as the app does (`openFactotumDatabase(context)`, the framework driver).
+- After an open, the database holds exactly the 183 triggers the callback makes (`SchemaTriggers.names`).
+- A trigger dropped by hand is back after the next open.
+- A rule trigger and the span-owner trigger refuse their rows.
+- A raw write, as an import makes, reaches the outbox and the search index.
+- `tools/device/mutants.py` breaks each install in turn, and the named tests fail every time.
 
-**Since:** 2026-10-03 · builder · migrated
+Not checked: a phone, and Android 11.
+
+**Acceptance:** `tools/device/run.sh <serial>` passes `TriggersOnDeviceTest` on a device.
+
+**Since:** 2026-11-26 · builder · migrated
 
 ### A-R197 · The search index on the phones
 
 **Rule:** The phones' own SQLite (3.28 on Android 11, the minimum) makes the FTS4 index with `remove_diacritics=2`.
 
-**Evidence:** Spike 1, desktop half (2026-10-03). Not checked: the phones' half, and whether they have FTS5, are measured with the Android shell.
+**Evidence:** Spike 1, desktop half (2026-10-03). Device half, on the API 32 emulator, 2026-11-26 (`SearchIndexOnDeviceTest`): its SQLite 3.32.2 makes the index and folds "Café Müller Hồ" for "cafe", "CAFÉ", "MULLER" and "ho". The "ồ" carries two marks, which only `remove_diacritics=2` folds. The index entry follows a rename and leaves with a delete, read from the index itself, since the search also hides deleted rows. Not checked: Android 11's SQLite 3.28 itself, which the owner left for the emulator to stand in for (SQLite added `remove_diacritics=2` in 3.27.0); a phone.
 
-**Since:** 2026-10-03 · builder · migrated
+**Not:** FTS5 in place of FTS4: the API 32 emulator's SQLite has no FTS5 ("no such module: fts5").
+
+**Since:** 2026-11-26 · builder · migrated
 
 ## Acceptance list
 
@@ -2931,6 +2962,7 @@ Background, not a rule: Equipoise runs llama.cpp on Android only, and only in th
 - R190 · Fixed words: The screens' wording uses each word only in its meaning.
 - R193 · Build order: No `:ui` screen code exists before step 4 begins, and every slice of step 2 has its cases passing (R194).
 - R194 · Schema slices: Every case of every `decisions/cases/*.jsonl` file has a passing test, counted fresh from the JUnit XML (`tools/test_summary.py`).
+- R196 · Triggers on the Android driver: `tools/device/run.sh <serial>` passes `TriggersOnDeviceTest` on a device.
 - R198 · Importing data from the source apps: No code in `core/`, `data/`, `android/` or `windows/` reads a source app's database or sync files.
 - R199 · A sync server, accounts or cloud storage: No code opens a network connection for sync.
 - R200 · Source mechanisms not carried over: No table or column of those names exists in `data/schemas/`.

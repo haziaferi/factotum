@@ -287,4 +287,8 @@ internal object SchemaTriggers : RoomDatabase.Callback() {
         searchTriggers.forEach(connection::execSQL)
         rebuildSearchIfStale(connection)
     }
+
+    /** Every trigger [onOpen] makes, by name; the device tests hold the Android driver to it (SPEC:R196). */
+    val names: Set<String>
+        get() = (statements + searchTriggers).mapNotNull { Regex("^CREATE TRIGGER (\\w+)").find(it)?.groupValues?.get(1) }.toSet()
 }

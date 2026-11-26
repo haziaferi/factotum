@@ -17,6 +17,12 @@ kotlin {
         compileSdk = libs.versions.compileSdk.get().toInt()
         minSdk = libs.versions.minSdk.get().toInt()
         withHostTest {}
+        // SPEC:R61, R196, R197: what only a phone can answer, run by hand on one device with
+        // `tools/device/run.sh <serial>`, not `connectedAndroidDeviceTest`, which runs on every
+        // attached device; CI only builds them.
+        withDeviceTest {
+            instrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        }
     }
 
     jvm("desktop")
@@ -50,6 +56,12 @@ kotlin {
         getByName("androidHostTest").dependencies {
             implementation(libs.junit)
             implementation(libs.robolectric)
+        }
+        getByName("androidDeviceTest").dependencies {
+            implementation(kotlin("test"))
+            implementation(libs.junit)
+            implementation(libs.androidx.test.runner)
+            implementation(libs.androidx.test.ext.junit)
         }
     }
 }
