@@ -78,6 +78,8 @@ Evidence lives in `decisions/`: one ADR per decision, with the verified `file:li
 | D-R60 | Alarms and missed occurrences | 6. Reminders |
 | D-R61 | A force-stopped app says so | 6. Reminders |
 | Q-R206 | A force-stop that leaves no trace | 6. Reminders |
+| D-R207 | The exact-alarm permission | 6. Reminders |
+| D-R208 | Notification and full-screen permissions | 6. Reminders |
 | D-R62 | Recurrence kinds | 7. Recurrence |
 | D-R63 | Random forms | 7. Recurrence |
 | D-R64 | Seeded random draws | 7. Recurrence |
@@ -1137,6 +1139,36 @@ Not checked: a phone; Android 15 and later, which is documented to cancel Pendin
 **Why:** The sides: setting alarms again on every start is cheap and always right, but says nothing; a heartbeat alarm that writes when it fires would reveal the cancellation when it fails to, at the cost of a wake-up a day and a delay of up to a day before the notice.
 
 **Since:** 2026-11-26 · builder
+
+### D-R207 · The exact-alarm permission
+
+**Rule:** The Android app's manifest declares `USE_EXACT_ALARM`, which Android 13 and later grant at install and the user cannot revoke, and `SCHEDULE_EXACT_ALARM` for Android 12, where it is granted by default. At each start the app asks `canScheduleExactAlarms()`; when the answer is no, it says so, and it sets its alarms again on `ACTION_SCHEDULE_EXACT_ALARM_PERMISSION_STATE_CHANGED`.
+
+**Why:** R60's alarms use `setAlarmClock`, which fails without an exact-alarm permission. `USE_EXACT_ALARM` cannot be taken away, and Play's limit on it does not bind an app that is never distributed (R09).
+
+**Evidence:** Android's alarm guide (`developer.android.com/develop/background-work/services/alarms/schedule`) and its Android 14 change page (`developer.android.com/about/versions/14/changes/schedule-exact-alarms`), read 2026-11-26: `setAlarmClock` throws `SecurityException` without the permission on Android 12 and later; revoking `SCHEDULE_EXACT_ALARM` stops the app and cancels its future exact alarms; a grant sends the broadcast above. Android 13's feature page (`developer.android.com/about/versions/13/features`): `USE_EXACT_ALARM` is new in Android 13 and granted automatically. Android 11, the oldest supported (`minSdk` 30), needs no permission. Not checked: that Android 12 grants `SCHEDULE_EXACT_ALARM` by default, which the pages imply only by saying Android 14 stopped pre-granting it (the `Api32_Alarm` emulator can show it); nothing is built or ran on a device (R61's probe used an inexact alarm); declaring `SCHEDULE_EXACT_ALARM` with `maxSdkVersion="32"` beside `USE_EXACT_ALARM`.
+
+**Acceptance:** On Android 13 or later, a fresh install sets an alarm through `setAlarmClock` without asking for anything. On Android 12 with exact alarms turned off in Settings, the next start says so, and turning them on again sets the alarms again.
+
+**Not:**
+- `SCHEDULE_EXACT_ALARM` alone: Android 14 denies it by default on fresh installs, and revoking it stops the app and cancels its exact alarms, as a force-stop does (R61).
+- Inexact alarms: they need no permission, but break R60's "rings at its time".
+
+**Since:** 2026-11-26 · owner · agreed rewording
+
+### D-R208 · Notification and full-screen permissions
+
+**Rule:** The Android app's manifest declares `POST_NOTIFICATIONS` and `USE_FULL_SCREEN_INTENT`. On Android 13 and later it asks for notifications the first time it has something to notify, not at first open: when a reminder is set on this device, or at the first open after a sync brings one (R20) or a job R04 pushes as a notification arrives. At each start it asks `areNotificationsEnabled()`, and on Android 14 and later `canUseFullScreenIntent()`; when either is off, it says so inside the app, as R207 does for exact alarms.
+
+**Why:** Without notifications, R60's NOTIFICATION reminders stay silent and an ALARM has nothing to show; without the full-screen intent, an alarm shows only as a heads-up notification, not over the lock screen.
+
+**Evidence:** Android's notification-permission page (`developer.android.com/develop/ui/views/notifications/notification-permission`) and its Android 14 behaviour changes (`developer.android.com/about/versions/14/behavior-changes-14`), read 2026-11-26: a denied notification permission blocks every channel; for apps targeting Android 14, the full-screen intent is limited to calling and alarm apps, and the user can turn it off. Not checked: whether Android 14 grants `USE_FULL_SCREEN_INTENT` to an app installed outside Play, since the page covers only Play's policy; nothing is built or ran on a device.
+
+**Acceptance:** On Android 13 or later, a fresh install asks for notifications when its first reminder is set, and not before; a fresh install that syncs a folder already holding reminders asks at the first open after the import. With notifications, or on Android 14 full-screen alarms, turned off in Settings, the next start says which is off.
+
+**Not:** Asking at first open: it asks before the person knows why.
+
+**Since:** 2026-11-26 · owner · agreed rewording
 
 ## 7. Recurrence
 
@@ -2833,6 +2865,8 @@ Not checked: a phone, and Android 11.
 - R59 · A standalone reminder's last reminder: `ReminderCasesTest` deletes the last reminder and keeps both on a clash.
 - R60 · Alarms and missed occurrences: On each platform an alarm set before the app is closed rings (Android) or is shown at the next start (Windows), and a missed NOTIFICATION fires once.
 - R61 · A force-stopped app says so: On a device, force-stopping the app and opening it again shows the notice, and the alarms are set again.
+- R207 · The exact-alarm permission: On Android 13 or later, a fresh install sets an alarm through `setAlarmClock` without asking for anything. On Android 12 with exact alarms turned off in Settings, the next start says so, and turning them on again sets the alarms again.
+- R208 · Notification and full-screen permissions: On Android 13 or later, a fresh install asks for notifications when its first reminder is set, and not before; a fresh install that syncs a folder already holding reminders asks at the first open after the import. With notifications, or on Android 14 full-screen alarms, turned off in Settings, the next start says which is off.
 - R62 · Recurrence kinds: The 11 cases of `decisions/cases/04-recurrence.jsonl` pass (`RecurrenceCasesTest`): the 9 fixed rules match, occurrence by occurrence, the truth `tools/recurrence_sim.py` computes from the owner apps' rules (written as a fixture by `tools/recurrence_fixtures.py`), Mnemo's three through the cron converter.
 - R63 · Random forms: `RandomKindsTest` and `WhenKindsTest` pass.
 - R64 · Seeded random draws: `RecurrenceCasesTest` compares the draws with the spike's own SplitMix64 in Python and in its Java, and checks the random kinds' properties.
