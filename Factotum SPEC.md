@@ -1158,13 +1158,13 @@ Not checked: a phone; Android 15 and later, which is documented to cancel Pendin
 
 ### D-R208 · Notification and full-screen permissions
 
-**Rule:** The Android app's manifest declares `POST_NOTIFICATIONS` and `USE_FULL_SCREEN_INTENT`. On Android 13 and later it asks for notifications the first time a reminder is set, not at first open. At each start it asks `areNotificationsEnabled()`, and on Android 14 and later `canUseFullScreenIntent()`; when either is off, it says so inside the app, as R207 does for exact alarms.
+**Rule:** The Android app's manifest declares `POST_NOTIFICATIONS` and `USE_FULL_SCREEN_INTENT`. On Android 13 and later it asks for notifications the first time it has something to notify, not at first open: when a reminder is set on this device, or at the first open after a sync brings one (R20) or a job R04 pushes as a notification arrives. At each start it asks `areNotificationsEnabled()`, and on Android 14 and later `canUseFullScreenIntent()`; when either is off, it says so inside the app, as R207 does for exact alarms.
 
 **Why:** Without notifications, R60's NOTIFICATION reminders stay silent and an ALARM has nothing to show; without the full-screen intent, an alarm shows only as a heads-up notification, not over the lock screen.
 
 **Evidence:** Android's notification-permission page (`developer.android.com/develop/ui/views/notifications/notification-permission`) and its Android 14 behaviour changes (`developer.android.com/about/versions/14/behavior-changes-14`), read 2026-11-26: a denied notification permission blocks every channel; for apps targeting Android 14, the full-screen intent is limited to calling and alarm apps, and the user can turn it off. Not checked: whether Android 14 grants `USE_FULL_SCREEN_INTENT` to an app installed outside Play, since the page covers only Play's policy; nothing is built or ran on a device.
 
-**Acceptance:** On Android 13 or later, a fresh install asks for notifications when its first reminder is set, and not before. With notifications, or on Android 14 full-screen alarms, turned off in Settings, the next start says which is off.
+**Acceptance:** On Android 13 or later, a fresh install asks for notifications when its first reminder is set, and not before; a fresh install that syncs a folder already holding reminders asks at the first open after the import. With notifications, or on Android 14 full-screen alarms, turned off in Settings, the next start says which is off.
 
 **Not:** Asking at first open: it asks before the person knows why.
 
@@ -2866,7 +2866,7 @@ Not checked: a phone, and Android 11.
 - R60 · Alarms and missed occurrences: On each platform an alarm set before the app is closed rings (Android) or is shown at the next start (Windows), and a missed NOTIFICATION fires once.
 - R61 · A force-stopped app says so: On a device, force-stopping the app and opening it again shows the notice, and the alarms are set again.
 - R207 · The exact-alarm permission: On Android 13 or later, a fresh install sets an alarm through `setAlarmClock` without asking for anything. On Android 12 with exact alarms turned off in Settings, the next start says so, and turning them on again sets the alarms again.
-- R208 · Notification and full-screen permissions: On Android 13 or later, a fresh install asks for notifications when its first reminder is set, and not before. With notifications, or on Android 14 full-screen alarms, turned off in Settings, the next start says which is off.
+- R208 · Notification and full-screen permissions: On Android 13 or later, a fresh install asks for notifications when its first reminder is set, and not before; a fresh install that syncs a folder already holding reminders asks at the first open after the import. With notifications, or on Android 14 full-screen alarms, turned off in Settings, the next start says which is off.
 - R62 · Recurrence kinds: The 11 cases of `decisions/cases/04-recurrence.jsonl` pass (`RecurrenceCasesTest`): the 9 fixed rules match, occurrence by occurrence, the truth `tools/recurrence_sim.py` computes from the owner apps' rules (written as a fixture by `tools/recurrence_fixtures.py`), Mnemo's three through the cron converter.
 - R63 · Random forms: `RandomKindsTest` and `WhenKindsTest` pass.
 - R64 · Seeded random draws: `RecurrenceCasesTest` compares the draws with the spike's own SplitMix64 in Python and in its Java, and checks the random kinds' properties.
