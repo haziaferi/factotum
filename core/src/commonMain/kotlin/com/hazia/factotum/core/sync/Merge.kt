@@ -59,8 +59,9 @@ class Merger(private val clock: HybridClock, private val askGroups: Set<String>,
     }
 
     /**
-     * [own] says the rows come from this device's own files (SPEC:R34): a version it holds as it is
-     * there is its own writing echoed back, which no other side has seen, so it must not move a base.
+     * [own] says the rows come from this device's own files (SPEC:R34): a version there no newer than
+     * the one it holds is its own writing echoed back, which no other side has seen, so it must
+     * neither move a base nor be asked about as a peer's change.
      */
     fun import(store: SyncStore, rows: Iterable<Row>, purges: Map<String, Stamp>, own: Boolean = false) {
         purges.values.forEach(clock::observe)
@@ -99,8 +100,9 @@ class Merger(private val clock: HybridClock, private val askGroups: Set<String>,
                 if (name in baseGroups) store.putBase(local.id, name, theirs.stamp)
                 continue
             }
-            // Read as "both changed it alike", it would make a later change from a peer look uncontested.
-            if (own && theirs.stamp == mine.stamp) continue
+            // Read as a peer's, the same version would make a later change from a peer look uncontested
+            // ("both changed it alike"), and an earlier one would ask about the device's own two edits.
+            if (own && theirs.stamp <= mine.stamp) continue
             if (name !in baseGroups) {
                 if (theirs.stamp > mine.stamp) merged[name] = theirs
                 continue

@@ -351,4 +351,4 @@ Not a source of current rules: `Factotum SPEC.md` is. One line per change, newes
 - 2026-11-26 · R32 · changed · the Android backup rules exclude the device-id file; AndroidBackupRulesTest checks them · builder
 - 2026-11-26 · R36 · changed · the Windows sync pass's closing export is the one export outside exportAfterQuiet · owner
 - 2026-11-26 · R37 · changed · the Windows sync pass asks newIdOwed at start and after its import, renews and builds again · owner
-- 2026-11-26 · R34 · changed · a database reads its own files at its first finished import, in whichever run; its own version read back moves no base · builder
+- 2026-11-26 · R34 · changed · a database reads its own files at its first finished import, in whichever run; its own versions read back are skipped · builder

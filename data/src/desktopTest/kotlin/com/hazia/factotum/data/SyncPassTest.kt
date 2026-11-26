@@ -100,7 +100,11 @@ class SyncPassTest {
         assertNull(pass(a).folder, "the refused folder was saved")
     }
 
-    /** A pass started while another runs (by hand during a scheduled one) is refused, and touches nothing. */
+    /**
+     * A pass started while another runs (by hand during a scheduled one) is refused, and touches nothing.
+     * The lock is held here in the same process; another process's lock refuses the same way, checked
+     * by hand on Windows on 2026-11-26 (R205's Evidence).
+     */
     @Test
     fun aSecondPassWhileOneRunsIsRefused() {
         val folder = tmp.newFolder("sync")
@@ -159,6 +163,59 @@ class SyncPassTest {
         assertNotEquals(old, report.device)
         assertTrue(File(folder, "devices/${report.device}").list()!!.any { it.startsWith("snapshot-") }, "no snapshot under the new id")
         assertNull(withDatabase(a) { it.syncDao().idOwedBy() })
+    }
+
+    /**
+     * SPEC:R37: the old id's files hold the clone's writing, which won the clash. A debt is paid before
+     * the import, so that import reads them as a peer's, in the same pass; under the old id it would
+     * skip them as its own.
+     */
+    @Test
+    fun aDebtIsPaidBeforeTheImportSoTheClonesWritingArrivesInTheSamePass() {
+        val folder = tmp.newFolder("sync")
+        val folderClone = tmp.newFolder("syncClone")
+        val a = device("A")
+        val clone = device("clone")
+        val old = pass(a, folder).device
+        clone.deviceId.parentFile.mkdirs()
+        a.deviceId.copyTo(clone.deviceId)
+        val theirs = writeTask(clone, "theirs")
+        pass(clone, folderClone)
+        // Syncthing kept the clone's files as the winners; the pass that found the copy stopped before its new id.
+        File(folderClone, "devices/$old").copyRecursively(File(folder, "devices/$old"), overwrite = true)
+        withDatabase(a) { it.syncDao().oweNewId(IdOwedEntity(device = old)) }
+
+        val report = pass(a)
+
+        assertTrue(report.renewed)
+        assertEquals(setOf(theirs), items(a))
+    }
+
+    /** A folder given as a relative path is saved whole: a later pass, a scheduled one above all, starts elsewhere. */
+    @Test
+    fun aRelativeFolderIsSavedAsAWholePath() {
+        val folder = tmp.newFolder("sync")
+        val a = device("A")
+        val relative = File("").absoluteFile.toPath().relativize(folder.toPath()).toString()
+
+        val report = pass(a, File(relative))
+
+        assertEquals(folder.absolutePath, report.folder)
+        assertEquals(folder.absolutePath, pass(a).folder)
+    }
+
+    /** Another program holding the lock file itself (Windows then refuses to open it) refuses the pass with its own sentence. */
+    @Test
+    fun aLockFileAnotherProgramHoldsRefusesThePass() {
+        val a = device("A")
+        a.database.parentFile.mkdirs()
+        val lock = File(a.database.parentFile, PASS_LOCK)
+        // A folder in the lock file's place opens no more than a file another program holds, on every system.
+        lock.mkdir()
+
+        val refused = assertFailsWith<SyncPassRefused> { pass(a) }
+
+        assertEquals("Another program holds ${lock.path} open.", refused.message)
     }
 
     /**

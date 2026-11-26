@@ -12,6 +12,7 @@ import com.hazia.factotum.data.sync.loadClock
 import com.hazia.factotum.data.time.localNow
 import kotlinx.coroutines.runBlocking
 import java.io.File
+import java.io.FileNotFoundException
 import java.io.RandomAccessFile
 import java.nio.channels.OverlappingFileLockException
 
@@ -58,7 +59,15 @@ fun syncPass(
     wallMillis: () -> Long = System::currentTimeMillis,
 ): SyncPassReport {
     val dir = requireNotNull(files.database.absoluteFile.parentFile) { "no folder for ${files.database}" }.apply { mkdirs() }
-    RandomAccessFile(File(dir, PASS_LOCK), "rw").channel.use { channel ->
+    val lock = File(dir, PASS_LOCK)
+    // Another pass opens the file too and only its lock refuses; another program (a virus scanner,
+    // a backup) can hold the file itself, and Windows then refuses to open it at all.
+    val file = try {
+        RandomAccessFile(lock, "rw")
+    } catch (_: FileNotFoundException) {
+        throw SyncPassRefused("Another program holds ${lock.path} open.")
+    }
+    file.channel.use { channel ->
         // Null from another process; this process's own lock throws instead.
         val held = try {
             channel.tryLock()
@@ -87,9 +96,11 @@ private suspend fun pass(
     val db = opened.database
     var device = deviceId(files.deviceId, wallMillis)
     val settings = SettingsRepository(db, LocalWrites(db, db.syncDao().loadClock(device, wallMillis)), secrets)
-    val path = given ?: settings.get(Settings.SYNC_FOLDER).ifEmpty { null } ?: return SyncPassReport(device, null, 0, false)
+    val saved = settings.get(Settings.SYNC_FOLDER).ifEmpty { null }
+    // Saved whole, and without `..`: a later pass, a scheduled one above all, starts in another folder.
+    val path = given?.let { File(it).absoluteFile.normalize().path } ?: saved ?: return SyncPassReport(device, null, 0, false)
     if (!File(path).isDirectory) throw SyncPassRefused("No sync folder at $path.")
-    if (given != null) settings.set(Settings.SYNC_FOLDER, given)
+    if (path != saved) settings.set(Settings.SYNC_FOLDER, path)
 
     val folder = DirectorySyncFolder(File(path))
     val blobs = DirectoryBlobStore(files.pictures)

@@ -130,6 +130,22 @@ class ResolutionTest {
         assertEquals("dA", a.due())
     }
 
+    /** A edited x twice before its first import: reading both back asks nothing, and B's change still clashes. */
+    @Test
+    fun aDevicesTwoOwnChangesReadBackAskNothing() {
+        val (a, b) = pairWithX()
+        a.edit("x", 10, SCHEDULE, "due" to "dA1")
+        val first = a.store.rows.getValue("x")
+        a.edit("x", 11, SCHEDULE, "due" to "dA2")
+        a.merger.import(a.store, listOf(first, a.store.rows.getValue("x")), emptyMap(), own = true)
+
+        assertFalse(a.asked("x"))
+        assertEquals("dA2", a.due())
+        b.edit("x", 12, SCHEDULE, "due" to "dB")
+        a.importFrom(b, 13)
+        assertTrue(a.asked("x"))
+    }
+
     @Test
     fun aNewEditAfterAnAnswerIsAskedAgain() {
         val (a, b) = clash()

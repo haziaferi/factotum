@@ -15,4 +15,6 @@ application {
 
 dependencies {
     implementation(project(":data"))
+    testImplementation(kotlin("test"))
+    testImplementation(libs.junit)
 }
