@@ -305,6 +305,7 @@ class SettingsCasesTest {
             assertEquals(default, runBlocking { a.settings.get(setting) }, key)
         }
         declared(Settings.DAY_START, "day_start", SettingScope.PERSONAL, LocalTime(0, 0))
+        declared(Settings.LONG_RUN, "long_run_hours", SettingScope.PERSONAL, 12.hours)
         declared(Settings.SHOW_REMINDERS_ON_DAY, "show_reminders_on_day", SettingScope.DEVICE_PREF, false)
         declared(Settings.APP_LOCK, "app_lock", SettingScope.DEVICE_PREF, false)
         declared(Settings.APP_LOCK_GRACE, "app_lock_grace_seconds", SettingScope.DEVICE_PREF, Duration.ZERO)
