@@ -5,7 +5,6 @@ import android.app.AlarmManager
 import android.app.ApplicationExitInfo
 import android.app.PendingIntent
 import android.content.Intent
-import android.os.Build
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import org.junit.Assume.assumeTrue
@@ -85,7 +84,8 @@ class ForceStopOnDeviceTest {
         val description = last.first().description.orEmpty()
         when (step) {
             "read-stopped" -> {
-                assertTrue(description.startsWith("stop ${context.packageName} due to from pid"), description)
+                // Android 16 puts "[FORCE STOP] " before every description, a run's own end included.
+                assertTrue("stop ${context.packageName} due to from pid" in description, description)
                 assertEquals(emptyList(), set, "the force-stop left the alarm set")
             }
             "read-stopped-idle" -> {
@@ -97,9 +97,9 @@ class ForceStopOnDeviceTest {
                 assertTrue(set.isNotEmpty(), "a run's plain end lost the alarm")
             }
         }
-        // On API 32 the PendingIntent outlives a force-stop, so asking for it (FLAG_NO_CREATE)
-        // cannot tell one. Android 15 is documented to cancel it in the stopped state; recorded only.
-        if (Build.VERSION.SDK_INT < 35) assertNotNull(held)
+        // On API 32 the PendingIntent mostly outlives a force-stop, but not always (gone in 3 of 18 reads,
+        // 2026-11-27), so asking for it (FLAG_NO_CREATE) cannot tell one; recorded only. Android 15
+        // is documented to cancel it in the stopped state.
         held?.let { alarms.cancel(it); it.cancel() }
     }
 }

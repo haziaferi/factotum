@@ -70,7 +70,7 @@ jobs:
       - name: Test the Windows app
         run: ./gradlew :windows:test
 
-      # SPEC:R61, R196, R197: the device tests need a device to run (tools/device/run.sh); here they
+      # SPEC:R61, R196, R197, R206: the device tests need a device to run (tools/device/run.sh); here they
       # are only built, so a change elsewhere cannot leave them broken unnoticed.
       - name: Build the device tests
         run: ./gradlew :data:assembleAndroidDeviceTest

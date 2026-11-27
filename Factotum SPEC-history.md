@@ -375,3 +375,6 @@ Not a source of current rules: `Factotum SPEC.md` is. One line per change, newes
 - 2026-11-27 · R107 · changed · deleted spans left out, last by start, an unreadable run skipped, the kept limit never moved · builder
 - 2026-11-27 · R108 · changed · the setting as it reads at the start; a one-off task with 3 spans takes R107's limit · builder
 - 2026-11-27 · R120 · changed · its new row says spans, the glossary's term · builder
+- 2026-11-27 · R206 · changed · proposed: a daily sentinel job, which a force-stop cancels running or idle, read at each start · builder
+- 2026-11-27 · R61 · changed · Evidence: the PendingIntent is unsteady on API 32, gone on API 36; API 36 marks every end "[FORCE STOP]" · builder
+- 2026-11-27 · R207 · changed · Evidence: the exact-alarm permissions and setAlarmClock checked on the API 32 and 36 emulators · builder
