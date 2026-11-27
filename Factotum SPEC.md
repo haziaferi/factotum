@@ -143,7 +143,7 @@ Evidence lives in `decisions/`: one ADR per decision, with the verified `file:li
 | D-R121 | Where each scope lives | 12. Settings |
 | D-R122 | Repositories read settings on every call | 12. Settings |
 | D-R123 | The settings part of a backup | 12. Settings |
-| Q-R210 | DEVICE settings in Android's own backup | 12. Settings |
+| D-R210 | DEVICE settings in Android's own backup | 12. Settings |
 | D-R124 | One search index | 13. Search |
 | D-R125 | What search indexes | 13. Search |
 | D-R126 | Kept current by triggers | 13. Search |
@@ -1993,32 +1993,31 @@ The job's state is asserted from 2026-11-27's last API 32 run on; the API 36 run
 
 **Since:** 2026-10-02 · owner · migrated
 
-### Q-R210 · DEVICE settings in Android's own backup
+### D-R210 · DEVICE settings in Android's own backup
 
-**Rule:** How does a DEVICE_STATE value stay on the device that set it (R118), when Android's Auto Backup, cloud backup and device transfer copy the whole database to another phone; and do they carry the DEVICE_PREF values, as the settings part of the app's own backup does (R123)?
+**Rule:** At each start, before the import, the app compares this device's id (R32) with the device a DEVICE_STATE value `device_state_owner` names, and acts on the case below; a new id R37 takes is written to that value as it is taken. So DEVICE_STATE that Android's Auto Backup, cloud backup or device transfer carries to another phone is cleared there before anything reads it. DEVICE_PREF values travel in Android's backup as in the app's own (R118), and app lock reads as off while this device holds no PIN it can read (R123).
 
-**Default:** At each start, before the import, the app compares this device's id (R32) with the one a DEVICE_STATE value `device_state_owner` names; when they differ, it clears every DEVICE_STATE value and writes this id, so a restored phone starts as R34's recovered database does. A new id that R37 owes is written to the value as it is taken, so it clears nothing. R206's sentinel value goes with the rest before R206 reads it, so a restored phone shows no notice, as R206 already ensures by naming the device. DEVICE_PREF values travel in Android's backup, and app lock reads as off while this device holds no PIN (R123). The backup rules stay as they are. This adds a row to R120, and to `SettingsCasesTest` a case where a database opened under another device's id has its DEVICE_STATE at the defaults and keeps its DEVICE_PREF.
-
-**Why:** The sides:
-- A database file of its own for `device_setting`, excluded in the `database` domain of both rule files: nothing leaves, with no rule at start; but it is a second Room database with its own migrations, version 27's rows move out of the main file, and DEVICE_PREF must stay behind in the main file or stop travelling.
-- A `BackupAgent` whose `onRestoreFinished` clears DEVICE_STATE: Android's own signal of a restore; but it needs `android:backupAgent` with `fullBackupOnly`, runs in a restricted process, and has no Windows twin.
-- Clearing at start on another id (the default): one rule in the data layer for both shells, tested on the desktop as R34 is; but an unreadable id file (R32) also clears this device's own DEVICE_STATE, so its first-run questions and its sync folder are asked again, as after R34's recovery.
-- The whole database out of Android's backup: a restored phone then fills from the sync folder (R34), and starts empty when it has none.
+**Why:** One rule in the data layer serves both shells, is tested on the desktop as R34 is, and leaves the backup rules as they are. Without it, a restored phone skips its first-run questions (`first_run_done`), keeps the old phone's `sync_folder`, which it may not have been given access to (R45), and its `llm_model`, which it may not hold (R06), and has app lock on with no PIN, against R123. The cost: an unreadable id file clears this device's own DEVICE_STATE too, so its first-run questions and its sync folder are asked again, as after R34's recovery; and DEVICE_STATE still rides in Android's backup, unread.
 
 **Values:**
 
-| Setting | Scope | On a phone restored from Android's backup, with the rules of 2026-11-27 |
-|---|---|---|
-| `first_run_done` | DEVICE_STATE | on, so the restored phone skips its first-run questions |
-| `sync_folder` | DEVICE_STATE | the old phone's folder, which this phone may not have been given access to (R45) |
-| `window_frame` | DEVICE_STATE | none: only the desktop sets it |
-| `llm_model` | DEVICE_STATE | the old phone's model, which this phone may not hold (R06) |
-| `app_lock` | DEVICE_PREF | on, with no PIN on this phone, against R123 |
-| `app_lock_grace_seconds`, `show_reminders_on_day`, `default_alert_mode` | DEVICE_PREF | as on the old phone, as R118 has DEVICE_PREF travel |
+| At start, `device_state_owner` | What the app does |
+|---|---|
+| none: a new database, R34's recovery, or one from before this rule | writes this id, and clears nothing |
+| names this id | nothing |
+| names the id that `sync_id_owed` holds: R37's renewal, stopped before its value was written | writes this id, and clears nothing |
+| names another id: a phone restored from Android's backup, or this device after an unreadable id file (R32) | clears every DEVICE_STATE value, R206's sentinel value with them, then writes this id |
 
-**Evidence:** `FactotumDatabase.kt:251` names the database `factotum.db`; `OpenDatabase.android.kt:9` opens it at `getDatabasePath`, Android's `database` domain; `SettingStores.kt:35` keeps `device_setting` in it. Room's default journal mode, write-ahead logging, puts `factotum.db-wal` and `factotum.db-shm` beside it. `backup_rules.xml:4` and `data_extraction_rules.xml:5` and `:8` exclude only `device-id`, in the `file` domain, and name no `database` path; Android's Auto Backup guide (`developer.android.com/identity/data/autobackup`, read 2026-11-27) backs up every file in the database folder by default. So all three files ride in Auto Backup, cloud backup and device transfer. `AndroidBackupRulesTest` checks the `device-id` exclusion only. Not checked: the three files on a device, and the journal mode Room takes over `KeepFileOnCorruptionDriver`; a restore to a second phone; whether a `database` exclude also covers the `-wal` and `-shm` files (AOSP's `FullBackup.java`, read in part, appears to add `-journal` and `-wal` only); that the PIN's Keystore key stays on its phone; nothing of the Android data layer, sync folder or app lock is built (R204).
+**Evidence:** Owner, 2026-11-27: the proposed default, as it suits real cases and contradicts no rule. `FolderSync.kt:306` clears `sync_id_owed` only after the first export under the new id, so a renewal stopped part way still shows there. `FactotumDatabase.kt:251` names the database `factotum.db`; `OpenDatabase.android.kt:9` opens it at `getDatabasePath`, Android's `database` domain; `SettingStores.kt:35` keeps `device_setting` in it. Room's default journal mode, write-ahead logging, puts `factotum.db-wal` and `factotum.db-shm` beside it. `backup_rules.xml:4` and `data_extraction_rules.xml:5` and `:8` exclude only `device-id`, in the `file` domain, and name no `database` path; Android's Auto Backup guide (`developer.android.com/identity/data/autobackup`, read 2026-11-27) backs up every file in the database folder by default. So all three files ride in Auto Backup, cloud backup and device transfer. `AndroidBackupRulesTest` checks the `device-id` exclusion only. Not checked: not built (`device_state_owner` joins R120 when it is declared); the three files on a device, and the journal mode Room takes over `KeepFileOnCorruptionDriver`; a restore to a second phone; that the PIN's Keystore key stays on its phone; nothing of the Android data layer, sync folder or app lock is built (R204).
 
-**Since:** 2026-11-27 · builder
+**Acceptance:** `SettingsCasesTest` opens a database under another device's id and finds its DEVICE_STATE at the defaults and its DEVICE_PREF kept; a database with no `device_state_owner`, and one whose value names the id `sync_id_owed` holds, keep their DEVICE_STATE; app lock reads as off with no PIN. `SyncPassTest` keeps `sync_folder` after a renewed id (R37) and after a first pass over a database from before this rule.
+
+**Not:**
+- A database file of its own for `device_setting`, excluded in the `database` domain of both rule files: a second Room database with its own migrations, version 27's rows moved out of the main file, and whether the exclusion covers its `-wal` and `-shm` files unchecked (AOSP's `FullBackup.java`, read in part, appears to add `-journal` and `-wal` only).
+- A `BackupAgent` whose `onRestoreFinished` clears DEVICE_STATE: it needs `android:backupAgent` with `fullBackupOnly`, runs in a restricted process, and has no Windows twin.
+- The whole database out of Android's backup: a restored phone with no sync folder would start empty.
+
+**Since:** 2026-11-27 · owner · agreed rewording
 
 ## 13. Search
 
@@ -3030,6 +3029,7 @@ Not checked: a phone, and Android 11.
 - R121 · Where each scope lives: `SettingsCasesTest.aPersonalSettingChangedOnTwoDevicesKeepsTheLaterAndTheDefaultClearsIt` sets one key on two devices and reads one row, and `aDevicePreferenceNeverReachesTheFolder` finds no DEVICE_PREF value in the folder or the `setting` table.
 - R122 · Repositories read settings on every call: `SettingsCasesTest.theDayStartSetOnOneDeviceDecidesTheDayOnAnotherAtOnce` passes, and every repository that reads the day boundary takes it through a required parameter.
 - R123 · The settings part of a backup: `SettingsCasesTest` restores an old backup on a phone and keeps the newer values; a backup with app lock on leaves it off.
+- R210 · DEVICE settings in Android's own backup: `SettingsCasesTest` opens a database under another device's id and finds its DEVICE_STATE at the defaults and its DEVICE_PREF kept; a database with no `device_state_owner`, and one whose value names the id `sync_id_owed` holds, keep their DEVICE_STATE; app lock reads as off with no PIN. `SyncPassTest` keeps `sync_folder` after a renewed id (R37) and after a first pass over a database from before this rule.
 - R124 · One search index: The 7 cases of `decisions/cases/10-search.jsonl` pass: the item, tracker and Log cases in `SearchCasesTest`, the page and block halves in `PageCasesTest`.
 - R125 · What search indexes: `SearchCasesTest`, `PageCasesTest` and `ChecklistChartTest` find each source.
 - R126 · Kept current by triggers: `SearchCasesTest` finds a row written by an import, and an index emptied by hand is rebuilt at the next open.
