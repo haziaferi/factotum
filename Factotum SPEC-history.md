@@ -372,3 +372,6 @@ Not a source of current rules: `Factotum SPEC.md` is. One line per change, newes
 - 2026-11-27 · R106 · changed · the limit is the span's own, set when its timer starts (R107, R108) · owner
 - 2026-11-27 · R120 · changed · `long_run_hours` is a row again, as R108's limit · owner
 - 2026-11-27 · R122 · changed · repositories also read R108's timer limit on every call · builder
+- 2026-11-27 · R107 · changed · deleted spans left out, last by start, an unreadable run skipped, the kept limit never moved · builder
+- 2026-11-27 · R108 · changed · the setting as it reads at the start; a one-off task with 3 spans takes R107's limit · builder
+- 2026-11-27 · R120 · changed · its new row says spans, the glossary's term · builder

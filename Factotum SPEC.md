@@ -127,7 +127,7 @@ Evidence lives in `decisions/`: one ADR per decision, with the verified `file:li
 | D-R105 | What ends a running timer | 10. Time |
 | D-R106 | A timer past its limit asks | 10. Time |
 | D-R107 | An item's usual length | 10. Time |
-| D-R108 | The limit before 3 sessions | 10. Time |
+| D-R108 | The limit before 3 spans | 10. Time |
 | D-R109 | One label vocabulary | 11. Labels |
 | D-R110 | Labels are global | 11. Labels |
 | D-R111 | How many labels each element carries | 11. Labels |
@@ -1735,39 +1735,39 @@ Not checked: a phone; Android 15 and later, which is documented to cancel Pendin
 
 ### D-R107 · An item's usual length
 
-**Rule:** An item's usual length is the median length of its last 10 ended sessions of at least a minute, timed live or entered by hand, once it has 3; with an even count, the mean of the middle two. A timer's limit is worked out when it starts and kept on its span, from the first row below that applies. Tasks, habits and activities follow the same rule, each over its own sessions.
+**Rule:** An item's usual length is the median length of its counted spans: the last 10 by start that have ended, are not deleted and last at least a minute, timed live or entered by hand, once it has 3; with an even count, the mean of the middle two. A timer's limit is worked out when it starts, from the first row below that applies, and kept on its span; a later span, edit or setting never moves it. Tasks, habits and activities follow the same rule, each over its own spans.
 
-**Why:** The median keeps one forgotten timer from moving the limit: among nine sessions of 45 minutes, a forgotten one of 10 hours moves the mean to 100 minutes and its limit to 5 h, while the median stays at 45 minutes. A session under a minute is an accidental start or a timer ended as it began, and would pull the median toward nothing. A limit kept on the span is the same on every device, so they ask at the same moment and end it at the same point, as decision 09 wanted of the 12 h setting.
+**Why:** The median keeps one forgotten timer from moving the limit: among nine spans of 45 minutes, a forgotten one of 10 hours moves the mean to 100 minutes and its limit to 5 h, while the median stays at 45 minutes. A span under a minute is an accidental start or a timer ended as it began, and would pull the median toward nothing. A limit kept on the span is the same on every device, so they ask at the same moment and end it at the same point, as decision 09 wanted of the 12 h setting.
 
 **Values:**
 
 | A timer started | Its limit |
 |---|---|
-| on a paced run | 3x the run's length |
-| on an item with 3 counted sessions or more | 3x the usual length |
+| on a paced run whose length reads | 3x the run's length |
+| on an item with 3 counted spans or more | 3x the usual length |
 | otherwise | R108 |
 
-**Evidence:** `TimeRepository.kt:175`: timers run on tasks, habits and activities. `planned_run` holds Chronicle's `RunStamp` text, whose second field is the run's length in seconds (`RunStamp.kt:25`). Decision 19 T3b.3 scored the limit with a placeholder usual length of 45 minutes. Chronicle and Tendril compute no usual length, and no session data from either app is in the project. Not checked: not built (`time_span` has no column for the limit); the formula is not tried against real sessions.
+**Evidence:** `TimeRepository.kt:175`: timers run on tasks, habits and activities. `planned_run` holds Chronicle's `RunStamp` text, whose second field is the run's length in seconds; text it does not read decodes to nothing (`RunStamp.kt:25`). Decision 19 T3b.3 scored the limit with a placeholder usual length of 45 minutes. Chronicle and Tendril compute no usual length, and no session data from either app is in the project. Not checked: not built (`time_span` has no column for the limit; written once with `started_at`, it would sit in the span's start group, `TimeRepository.kt:164`); the formula is not tried against real spans.
 
-**Acceptance:** In `TimeCasesTest`, an item with ended sessions of 45, 45, 50 and 600 minutes and one of 30 seconds starts a timer whose limit is 142.5 minutes; a paced run of 25 minutes gets 75 minutes; a span imported on a second device keeps the limit it started with, though that device holds other sessions of the item.
+**Acceptance:** In `TimeCasesTest`, an item with ended spans of 45, 45, 50 and 600 minutes, one of 30 seconds and a deleted one starts a timer whose limit is 142.5 minutes; a paced run of 25 minutes gets 75 minutes; a span imported on a second device keeps the limit it started with, though that device holds other spans of the item; changing `long_run_hours` leaves a running span's limit as it was.
 
 **Not:**
-- A mean of the sessions: one forgotten timer moves it.
-- A limit worked out on each check: two devices that have not synced every session disagree about when to ask.
+- A mean of the spans: one forgotten timer moves it.
+- A limit worked out on each check: two devices that have not synced every span disagree about when to ask.
 
 **Since:** 2026-11-27 · owner · agreed rewording
 
-### D-R108 · The limit before 3 sessions
+### D-R108 · The limit before 3 spans
 
-**Rule:** A timer on an item with fewer than 3 counted sessions (R107) takes 3x a habit's `duration_min` (R85) when it is above 0, otherwise the PERSONAL `long_run_hours` setting (R120), 12 h by default. A one-off task always takes this limit, and so does a span with no limit kept, started by a version before R107.
+**Rule:** A timer on an item with fewer than 3 counted spans (R107) takes 3x a habit's `duration_min` (R85) when it is above 0, otherwise the PERSONAL `long_run_hours` setting (R120), 12 h by default, as it reads when the timer starts. A span with no limit kept, started by a version before R107, reads the setting on each check.
 
-**Why:** 12 h agrees on every device and seldom asks about a first session that was only long; it catches a forgotten first timer late.
+**Why:** 12 h agrees on every device and seldom asks about a first span that was only long; it catches a forgotten first timer late.
 
-**Evidence:** `Settings.kt:42` (`long_run_hours`, PERSONAL, 12 h, at least 1) and `TimeTotals.kt:74`; `ItemDao.kt:60` (`duration_min`); `HabitRepository.kt:156` reads a missing duration as 0. Not checked: not built; how many items reach 3 sessions, and how soon.
+**Evidence:** `Settings.kt:42` (`long_run_hours`, PERSONAL, 12 h, at least 1) and `TimeTotals.kt:74`; `ItemDao.kt:60` (`duration_min`); `HabitRepository.kt:156` reads a missing duration as 0. Not checked: not built; how many items reach 3 spans, and how soon.
 
-**Acceptance:** In `TimeCasesTest`, a new activity's first timer is listed by `runningLong` after 12 h, and after 2 h once the setting is 2 h; a habit with `duration_min` 20 is listed after 60 minutes, and one with 0 after the setting's limit.
+**Acceptance:** In `TimeCasesTest`, a new activity's first timer is listed by `runningLong` after 12 h, and after 2 h when the setting was 2 h as it started; a habit with `duration_min` 20 is listed after 60 minutes, and one with 0 after the setting's limit; a one-off task timed 3 times takes R107's limit on its fourth.
 
-**Not:** A shorter fixed value: it asks about a first session that was only long.
+**Not:** A shorter fixed value: it asks about a first span that was only long.
 
 **Since:** 2026-11-27 · owner · agreed rewording
 
@@ -1919,7 +1919,7 @@ Not checked: a phone; Android 15 and later, which is documented to cancel Pendin
 | Setting | Key | Scope | Default | Rules |
 |---|---|---|---|---|
 | the personal day boundary | `day_start` | PERSONAL | midnight | R94 |
-| a timer's limit before its item has 3 sessions | `long_run_hours` | PERSONAL | 12 h | R108 |
+| a timer's limit before its item has 3 spans | `long_run_hours` | PERSONAL | 12 h | R108 |
 | standalone reminders on the day view | `show_reminders_on_day` | DEVICE_PREF | off | R55 |
 | app lock | `app_lock` | DEVICE_PREF | off | R123 |
 | app lock grace | `app_lock_grace_seconds` | DEVICE_PREF | 0 s | R123 |
@@ -2969,8 +2969,8 @@ Not checked: a phone, and Android 11.
 - R104 · Deleting an activity: `VocabularyTest` and `TimeCasesTest` delete, restore and purge an activity with a running timer.
 - R105 · What ends a running timer: `TimeCasesTest` and `RowTasksTest` run each event with a timer running, locally and through an import.
 - R106 · A timer past its limit asks: A span past its own limit is listed by `runningLong`, and each answer ends or keeps it as its words say (`TimeCasesTest`).
-- R107 · An item's usual length: In `TimeCasesTest`, an item with ended sessions of 45, 45, 50 and 600 minutes and one of 30 seconds starts a timer whose limit is 142.5 minutes; a paced run of 25 minutes gets 75 minutes; a span imported on a second device keeps the limit it started with, though that device holds other sessions of the item.
-- R108 · The limit before 3 sessions: In `TimeCasesTest`, a new activity's first timer is listed by `runningLong` after 12 h, and after 2 h once the setting is 2 h; a habit with `duration_min` 20 is listed after 60 minutes, and one with 0 after the setting's limit.
+- R107 · An item's usual length: In `TimeCasesTest`, an item with ended spans of 45, 45, 50 and 600 minutes, one of 30 seconds and a deleted one starts a timer whose limit is 142.5 minutes; a paced run of 25 minutes gets 75 minutes; a span imported on a second device keeps the limit it started with, though that device holds other spans of the item; changing `long_run_hours` leaves a running span's limit as it was.
+- R108 · The limit before 3 spans: In `TimeCasesTest`, a new activity's first timer is listed by `runningLong` after 12 h, and after 2 h when the setting was 2 h as it started; a habit with `duration_min` 20 is listed after 60 minutes, and one with 0 after the setting's limit; a one-off task timed 3 times takes R107's limit on its fourth.
 - R109 · One label vocabulary: The 10 cases of `decisions/cases/08-tagging.jsonl` pass: six in `LabelCasesTest`, `chronicle-applies-to-scope` as R110 changed it (`anyLabelGoesOnAnyElementAndEveryLiveLabelIsOffered`), and the page cases (`tendril-page-many-labels`, `tendril-page-delete-no-orphans`, the members half of `tendril-database-doorway`) in `PageCasesTest`.
 - R110 · Labels are global: `LabelCasesTest.anyLabelGoesOnAnyElementAndEveryLiveLabelIsOffered` passes.
 - R111 · How many labels each element carries: `LabelCasesTest` (one label on a habit, activity, task, event, standalone reminder, tracker and checklist, a second replacing the first; `aStandaloneReminderCarriesOneLabelAndASecondReplacesTheFirst_SPEC_R111`), `PageCasesTest` (many on a page) and `DatabaseCasesTest` (the doorway) pass.
