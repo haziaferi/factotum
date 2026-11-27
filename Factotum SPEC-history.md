@@ -367,3 +367,8 @@ Not a source of current rules: `Factotum SPEC.md` is. One line per change, newes
 - 2026-11-26 · R191 · changed · the owner confirmed the wording, with the rail, the per-device slot and the R04 citation · owner
 - 2026-11-27 · R107 · changed · proposed: 3x the median of the last 10 sessions, a paced run's length first, kept on the span · builder
 - 2026-11-27 · R108 · changed · proposed: 3x a habit's duration, else the 12 h setting, until 3 sessions · builder
+- 2026-11-27 · R107 · kind · Q → D: as proposed, sessions under a minute left out, for tasks, habits and activities · owner
+- 2026-11-27 · R108 · kind · Q → D: as proposed, a duration of 0 and a span with no limit kept taking the setting · owner
+- 2026-11-27 · R106 · changed · the limit is the span's own, set when its timer starts (R107, R108) · owner
+- 2026-11-27 · R120 · changed · `long_run_hours` is a row again, as R108's limit · owner
+- 2026-11-27 · R122 · changed · repositories also read R108's timer limit on every call · builder
