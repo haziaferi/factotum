@@ -1735,19 +1735,27 @@ Not checked: a phone; Android 15 and later, which is documented to cancel Pendin
 
 ### Q-R107 · An activity's usual length
 
-**Rule:** How is an activity's usual length computed, for the limit of R106?
+**Rule:** How is an activity's usual length computed, for the limit of R106, and is it the same for a timer on a task or a habit?
 
-**Default:** none proposed: decision 19 T3b.3 leaves it owed to the data layer, with no formula.
+**Default:** The median length of the item's last 10 ended sessions, live or entered by hand, once it has 3; a timer started on a paced run takes the run's length instead. The limit, 3x that length, is worked out when the timer starts and kept on the span, so every device asks at the same moment and ends it at the same point. Tasks and habits use the same rule over their own sessions. Changes: R106 reads the item's usual length, `runningLong` and `stopAtLimit` read the span's own limit, and `time_span` gains a column for it.
 
-**Since:** 2026-10-16 · owner · migrated
+**Why:** A median or a mean: one forgotten 10-hour session among nine of 45 minutes moves the mean to 100 minutes, and its limit from 2 h 15 to 5 h, while the median stays at 45 minutes. How many sessions: more is steadier, fewer follows a change of habit sooner. Kept on the span or worked out on each check: kept agrees across devices, as decision 09 wanted of the 12 h setting; worked out on each check follows an edit to an older session, but two devices that have not synced every session disagree about when to ask.
+
+**Evidence:** `TimeRepository.kt:175`: timers run on tasks, habits and activities. `planned_run` holds Chronicle's `RunStamp` text, whose second field is the run's length in seconds (`RunStamp.kt:25`). Decision 19 T3b.3 scored the limit with a placeholder usual length of 45 minutes. Chronicle and Tendril compute no usual length, and no session data from either app is in the project. Not checked: the formula against real sessions.
+
+**Since:** 2026-11-27 · builder
 
 ### Q-R108 · The limit before any session
 
 **Rule:** What limit applies to an activity's timer before the activity has any sessions to take a usual length from?
 
-**Default:** none proposed: decision 19 T3b.3 leaves it owed to the data layer, with no value.
+**Default:** Until the item has 3 ended sessions (R107): 3x a habit's `duration_min` (R85) when it has one, otherwise the PERSONAL `long_run_hours` setting, 12 h by default. A one-off task always takes this limit, as it has no earlier sessions. Changes: the setting stays, as this fallback only, and keeps its place in Settings.
 
-**Since:** 2026-10-16 · owner · migrated
+**Why:** 12 h is decision 09's value and agrees on every device, but it lets a forgotten first timer run for half a day before the ask; a shorter fixed value catches it sooner, but asks about a first session that was only long.
+
+**Evidence:** `Settings.kt:42` (`long_run_hours`, PERSONAL, 12 h, at least 1) and `TimeTotals.kt:74`; `ItemDao.kt:60` (`duration_min`). Not checked: how many items reach 3 sessions, and how soon.
+
+**Since:** 2026-11-27 · builder
 
 ## 11. Labels
 

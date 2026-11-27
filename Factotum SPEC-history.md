@@ -365,3 +365,5 @@ Not a source of current rules: `Factotum SPEC.md` is. One line per change, newes
 - 2026-11-26 · R191 · kind · Q → D: the bar, the Hub and the header as decisions 15, 17 and 19 recorded them · owner
 - 2026-11-26 · R209 · added · the Hub's groups, its switch's scope and the icons, split from R191 · builder
 - 2026-11-26 · R191 · changed · the owner confirmed the wording, with the rail, the per-device slot and the R04 citation · owner
+- 2026-11-27 · R107 · changed · proposed: 3x the median of the last 10 sessions, a paced run's length first, kept on the span · builder
+- 2026-11-27 · R108 · changed · proposed: 3x a habit's duration, else the 12 h setting, until 3 sessions · builder
