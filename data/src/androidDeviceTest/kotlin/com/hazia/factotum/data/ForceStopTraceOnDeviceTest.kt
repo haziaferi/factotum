@@ -33,7 +33,8 @@ class ForceStopTraceJob : JobService() {
  * SPEC:R206: what a force-stop of an app that is not running leaves for its next start to read,
  * beyond R61's exit history: a pending job, an alarm clock, a PendingIntent, and on Android 15 and
  * later `ApplicationStartInfo.wasForceStopped()`. Each step is its own `am instrument` run
- * (`tools/device/run.sh`); this probe reports and asserts nothing.
+ * (`tools/device/run.sh`). Every trace is reported; only the sentinel job is asserted, the one
+ * R206 reads.
  */
 @RunWith(AndroidJUnit4::class)
 class ForceStopTraceOnDeviceTest {
@@ -73,8 +74,12 @@ class ForceStopTraceOnDeviceTest {
         val exit = am.getHistoricalProcessExitReasons(null, 0, 1).firstOrNull()
         val start = if (Build.VERSION.SDK_INT >= 35) StartReasons.read(am) else "n/a"
         val held = probe(PendingIntent.FLAG_NO_CREATE)
-        report("R206 $step: API=${Build.VERSION.SDK_INT} job=${jobs.getPendingJob(206) != null} clock=${clock()} intent=${held != null} exit=${exit?.description} start=$start")
+        val pending = jobs.getPendingJob(206) != null
+        report("R206 $step: API=${Build.VERSION.SDK_INT} job=$pending clock=${clock()} intent=${held != null} exit=${exit?.description} start=$start")
         jobs.cancel(206)
         held?.let { alarms.cancel(it); it.cancel() }
+        // The sentinel: a force-stop, running or idle, cancels the job; nothing else here does.
+        val stopped = step == "read-stopped" || step == "read-stopped-idle"
+        kotlin.test.assertEquals(!stopped, pending, "the sentinel job after $step")
     }
 }

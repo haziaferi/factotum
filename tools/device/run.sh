@@ -66,7 +66,9 @@ step6 read-updated theNextStartReadsEachTrace check; expect "R206 read-updated:"
 # so the lines so far are printed first.
 echo "--- reported before the reboot"; reported
 step6 arm arm check; sleep 2
-adb reboot; adb wait-for-device; until [ "$(adb shell getprop sys.boot_completed | tr -d '\r')" = 1 ]; do sleep 2; done; sleep 5
+adb reboot; adb wait-for-device; until [ "$(adb shell getprop sys.boot_completed | tr -d '\r')" = 1 ]; do sleep 2; done
+# Booted is not ready: wait until the package manager lists the test runner again.
+until adb shell pm list instrumentation 2>/dev/null | grep -q "$PKG"; do sleep 2; done; sleep 5
 step6 read-rebooted theNextStartReadsEachTrace check; expect "R206 read-rebooted:"
 
 echo "--- reported"

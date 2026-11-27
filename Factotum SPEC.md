@@ -77,7 +77,7 @@ Evidence lives in `decisions/`: one ADR per decision, with the verified `file:li
 | D-R59 | A standalone reminder's last reminder | 6. Reminders |
 | D-R60 | Alarms and missed occurrences | 6. Reminders |
 | D-R61 | A force-stopped app says so | 6. Reminders |
-| Q-R206 | A force-stop that leaves no trace | 6. Reminders |
+| D-R206 | How a force-stop is told | 6. Reminders |
 | D-R207 | The exact-alarm permission | 6. Reminders |
 | D-R208 | Notification and full-screen permissions | 6. Reminders |
 | D-R62 | Recurrence kinds | 7. Recurrence |
@@ -1132,13 +1132,11 @@ Not checked: a phone; `ApplicationStartInfo.wasForceStopped()` (Android 15), who
 
 **Since:** 2026-11-27 · owner · migrated
 
-### Q-R206 · A force-stop that leaves no trace
+### D-R206 · How a force-stop is told
 
-**Rule:** How does the app meet R61 when it was force-stopped while not running, which on Android 11 to 14 leaves nothing it can read at its next start?
+**Rule:** The Android app keeps a sentinel: a periodic daily job, persisted across a reboot, that does nothing. At each start, when a DEVICE_STATE flag (R118) says this device set the sentinel and the job is not pending, the app shows R61's notice; every start sets the sentinel, the flag and every alarm. The manifest declares the job's service and `RECEIVE_BOOT_COMPLETED`, which a persisted job needs.
 
-**Default:** The app keeps a sentinel: a daily job that does nothing, persisted across a reboot. Android cancels it on a force-stop, whether the app was running or not, and keeps it on a plain end, an update and a reboot. At each start, when this device set the sentinel before (a DEVICE_STATE flag) and it is no longer pending, the app shows R61's notice; then it sets the sentinel and every alarm again. Changes: R61 is met in both cases on every version tested, and neither the exit history nor `wasForceStopped()` is read.
-
-**Why:** The sides: the sentinel tells both cases on API 32 and 36, for one idle job a day, a `JobService` and `RECEIVE_BOOT_COMPLETED` in the manifest; the exit history is free but misses an idle app, and reads undocumented text that API 36 changed; a heartbeat alarm that writes when it fires would tell only after a day, at a wake-up a day. "Clear data" also cancels the job, but it clears the flag too, so it reads as a first start.
+**Why:** Android cancels the job on a force-stop, whether the app was running or not, and keeps it on a plain end, an update and a reboot, so it tells R61's case on every version tested, at one idle job a day. "Clear data" also cancels the job, but it clears the flag too, so it reads as a first start. A reboot clears the alarms but not the job; the alarms come back at boot by ADR 04's late-fire rule (R60).
 
 **Evidence:** `ForceStopTraceOnDeviceTest`, run by `tools/device/run.sh` on the API 32 emulator (five runs; the job periodic and persisted from the third, the update case in the fifth) and the API 36 emulator (two runs; the update case in the second), 2026-11-27. Every run that held a case gave the same:
 - A plain end (the control): the sentinel job pending, the alarm clock (`setAlarmClock`) set.
@@ -1147,9 +1145,17 @@ Not checked: a phone; `ApplicationStartInfo.wasForceStopped()` (Android 15), who
 - The same APK installed over it: the job pending, the alarm clock set.
 - A reboot: the job pending, the alarm clock gone, as every alarm is.
 
-Not checked: a phone; API 33 to 35; a job that has run once stays pending (a periodic job should); other ends of a process (a swipe from Recents, a low-memory kill).
+Not checked: not built (the flag joins R120 when it is declared); a phone; API 33 to 35; a job that has run once stays pending (a periodic job should); other ends of a process (a swipe from Recents, a low-memory kill).
 
-**Since:** 2026-11-27 · builder
+**Acceptance:** `ForceStopTraceOnDeviceTest`, run by `tools/device/run.sh`, finds the job gone after a force-stop of a running and of an idle app, and pending after a plain end, an update and a reboot. On a device, the app shows R61's notice after either force-stop, and not after a reboot, an update, a first start or "Clear data".
+
+**Not:**
+- The exit history: it misses a force-stop of an idle app, and reads undocumented text that Android 16 changed.
+- `ApplicationStartInfo.wasForceStopped()`: Android 15 and later only, and not seen in a test run.
+- The alarm's PendingIntent: it outlives a force-stop on API 32 in most runs, not all.
+- A heartbeat alarm that writes when it fires: it tells only after a day, at a wake-up a day.
+
+**Since:** 2026-11-27 · owner · agreed rewording
 
 ### D-R207 · The exact-alarm permission
 
@@ -2931,6 +2937,7 @@ Not checked: a phone, and Android 11.
 - R59 · A standalone reminder's last reminder: `ReminderCasesTest` deletes the last reminder and keeps both on a clash.
 - R60 · Alarms and missed occurrences: On each platform an alarm set before the app is closed rings (Android) or is shown at the next start (Windows), and a missed NOTIFICATION fires once.
 - R61 · A force-stopped app says so: On a device, force-stopping the app and opening it again shows the notice, and the alarms are set again.
+- R206 · How a force-stop is told: `ForceStopTraceOnDeviceTest`, run by `tools/device/run.sh`, finds the job gone after a force-stop of a running and of an idle app, and pending after a plain end, an update and a reboot. On a device, the app shows R61's notice after either force-stop, and not after a reboot, an update, a first start or "Clear data".
 - R207 · The exact-alarm permission: On Android 13 or later, a fresh install sets an alarm through `setAlarmClock` without asking for anything. On Android 12 with exact alarms turned off in Settings, the next start says so, and turning them on again sets the alarms again.
 - R208 · Notification and full-screen permissions: On Android 13 or later, a fresh install asks for notifications when its first reminder is set, and not before; a fresh install that syncs a folder already holding reminders asks at the first open after the import. With notifications, or on Android 14 full-screen alarms, turned off in Settings, the next start says which is off.
 - R62 · Recurrence kinds: The 11 cases of `decisions/cases/04-recurrence.jsonl` pass (`RecurrenceCasesTest`): the 9 fixed rules match, occurrence by occurrence, the truth `tools/recurrence_sim.py` computes from the owner apps' rules (written as a fixture by `tools/recurrence_fixtures.py`), Mnemo's three through the cron converter.

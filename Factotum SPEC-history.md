@@ -378,3 +378,4 @@ Not a source of current rules: `Factotum SPEC.md` is. One line per change, newes
 - 2026-11-27 · R206 · changed · proposed: a daily sentinel job, which a force-stop cancels running or idle, read at each start · builder
 - 2026-11-27 · R61 · changed · Evidence: the PendingIntent is unsteady on API 32, gone on API 36; API 36 marks every end "[FORCE STOP]" · builder
 - 2026-11-27 · R207 · changed · Evidence: the exact-alarm permissions and setAlarmClock checked on the API 32 and 36 emulators · builder
+- 2026-11-27 · R206 · kind · Q → D: the sentinel job, read at each start, as proposed · owner
