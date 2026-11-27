@@ -77,7 +77,7 @@ Evidence lives in `decisions/`: one ADR per decision, with the verified `file:li
 | D-R59 | A standalone reminder's last reminder | 6. Reminders |
 | D-R60 | Alarms and missed occurrences | 6. Reminders |
 | D-R61 | A force-stopped app says so | 6. Reminders |
-| Q-R206 | A force-stop that leaves no trace | 6. Reminders |
+| D-R206 | How a force-stop is told | 6. Reminders |
 | D-R207 | The exact-alarm permission | 6. Reminders |
 | D-R208 | Notification and full-screen permissions | 6. Reminders |
 | D-R62 | Recurrence kinds | 7. Recurrence |
@@ -1102,14 +1102,14 @@ One app that does what Tendril, Chronicle, Mnemo and Equipoise do, over one data
 
 | Platform | ALARM | NOTIFICATION | A missed one |
 |---|---|---|---|
-| Android | held by the OS through `setAlarmClock`; rings even while the app is dead | fires at its time | an ALARM rings; a NOTIFICATION fires once, late, then continues |
+| Android | held by the OS through `setAlarmClock`; rings even while the app is dead; set again at boot, which clears every alarm | fires at its time | an ALARM rings; a NOTIFICATION fires once, late, at boot or the next start, then continues |
 | Windows | the app lives in the tray; a toast keeps ringing, as its nag settings say, until dismissed | not ruled on | an ALARM missed while the app was not running is shown once at the next start, since nothing holds an alarm then |
 
-**Evidence:** ADR 04; owner's answer 2026-10-04 for Windows, as Tendril's desktop does. Not checked: both shells' alarm code is not built.
+**Evidence:** ADR 04 (`decisions/04-recurrence.md`: a missed fire is delivered once, late, when the phone boots or the app next starts; a missed ALARM rings as soon as the phone boots); owner's answer 2026-10-04 for Windows, as Tendril's desktop does. On the API 32 and API 36 emulators a reboot cleared an alarm clock (`ForceStopTraceOnDeviceTest`, 2026-11-27). Not checked: both shells' alarm code is not built.
 
-**Acceptance:** On each platform an alarm set before the app is closed rings (Android) or is shown at the next start (Windows), and a missed NOTIFICATION fires once.
+**Acceptance:** On each platform an alarm set before the app is closed rings (Android) or is shown at the next start (Windows), and a missed NOTIFICATION fires once. On Android an alarm set before a reboot rings after it.
 
-**Since:** 2026-10-04 · owner · migrated
+**Since:** 2026-11-27 · owner · migrated
 
 ### D-R61 · A force-stopped app says so
 
@@ -1122,25 +1122,40 @@ One app that does what Tendril, Chronicle, Mnemo and Equipoise do, over one data
 - Force-stopped while not running, by either: the alarm is removed, and no exit record is written, since no process ended. The next start reads nothing.
 - No force-stop (the control, a test run's own end): the alarm is kept. The exit record has the same reason, described "… due to finished inst".
 
-- In every case the alarm's PendingIntent stays, so asking for it (`FLAG_NO_CREATE`) cannot tell that the alarm is gone.
-- The reason code cannot tell a force-stop either; only the description can, and that text is undocumented.
-- So on API 32 a force-stop of an app that is not running leaves no trace the app can read: R206 asks how R61 is met then.
+- On API 32 the alarm's PendingIntent mostly stays after a force-stop, but was gone in 3 of 18 reads over five runs (2026-11-27), so asking for it (`FLAG_NO_CREATE`) cannot tell that the alarm is gone. On API 36 it is gone after either force-stop and kept on a plain end, as Android 15 documents.
+- The reason code cannot tell a force-stop either; only the description can, and that text is undocumented. On API 36 every description starts "[FORCE STOP]", a plain end's included.
+- So on API 32 a force-stop of an app that is not running leaves no trace in the exit history; R206 holds how R61 is met.
 
-Not checked: a phone; Android 15 and later, which is documented to cancel PendingIntents in the stopped state and to add `ApplicationStartInfo.wasForceStopped()`; the notice and the alarms set again, which wait for reminders on Android; other ends of a process (a swipe from Recents, a low-memory kill, an update).
+Not checked: a phone; `ApplicationStartInfo.wasForceStopped()` (Android 15), whose history held no entry for a test run's start on API 36; the notice and the alarms set again, which wait for reminders on Android; other ends of a process (a swipe from Recents, a low-memory kill).
 
 **Acceptance:** On a device, force-stopping the app and opening it again shows the notice, and the alarms are set again.
 
-**Since:** 2026-11-26 · owner · migrated
+**Since:** 2026-11-27 · owner · migrated
 
-### Q-R206 · A force-stop that leaves no trace
+### D-R206 · How a force-stop is told
 
-**Rule:** How does the app meet R61 when it was force-stopped while not running, which on Android 11 to 14 leaves nothing it can read at its next start?
+**Rule:** The Android app keeps a sentinel: a periodic daily job, persisted across a reboot, under an id no other job of the app uses, that does nothing. At each start, when a DEVICE_STATE value (R118) names this device's id (R32) as the one that set the sentinel and the job is not pending, the app shows R61's notice; every start sets the sentinel, that value and every alarm. The manifest declares the job's service and `RECEIVE_BOOT_COMPLETED`, which a persisted job needs.
 
-**Default:** Every start sets every alarm again, so the alarms are right whatever happened. The notice shows when the exit history records a force-stop, and on Android 15 and later when `ApplicationStartInfo.wasForceStopped()` says so. A force-stop of an idle app on Android 11 to 14 goes unsaid. This changes R61's Acceptance to the cases a device can tell.
+**Why:** Android cancels the job on a force-stop, whether the app was running or not, and keeps it on a plain end, an update and a reboot, so it tells R61's case on every version tested, at one idle job a day. The value names the device because Android's own backup carries the database, this value with it, to a restored phone, which has no job and a new device id (R32); a plain flag would show the notice there. "Clear data" cancels the job and clears the value, so it reads as a first start. A reboot clears the alarms but not the job; the alarms come back at boot (R60).
 
-**Why:** The sides: setting alarms again on every start is cheap and always right, but says nothing; a heartbeat alarm that writes when it fires would reveal the cancellation when it fails to, at the cost of a wake-up a day and a delay of up to a day before the notice.
+**Evidence:** `ForceStopTraceOnDeviceTest`, run by `tools/device/run.sh` on the API 32 emulator (five runs; the job periodic and persisted from the third, the update case in the fifth) and the API 36 emulator (two runs; the update case in the second), 2026-11-27. Every run that held a case gave the same:
+- A plain end (the control): the sentinel job pending, the alarm clock (`setAlarmClock`) set.
+- Force-stopped while not running: the job gone, the alarm clock gone.
+- Force-stopped while running: the job gone, the alarm clock gone.
+- The same APK installed over it: the job pending, the alarm clock set.
+- A reboot: the job pending, the alarm clock gone, as every alarm is.
 
-**Since:** 2026-11-26 · builder
+The job's state is asserted from 2026-11-27's last API 32 run on; the API 36 runs reported the same values. `backup_rules.xml` and `data_extraction_rules.xml` exclude only `device-id`, so the database is in Android's backup (R32). Not checked: not built (the value joins R120 when it is declared); a phone; API 33 to 35; a job that has run once stays pending (a periodic job should); "Clear data"; a restore to a second phone; whether revoking `SCHEDULE_EXACT_ALARM` on Android 12 (R207) cancels the job too; other ends of a process (a swipe from Recents, a low-memory kill).
+
+**Acceptance:** `ForceStopTraceOnDeviceTest`, run by `tools/device/run.sh`, finds the job gone after a force-stop of a running and of an idle app, and pending after a plain end, an update and a reboot. On a device, the app shows R61's notice after either force-stop, and not after a reboot, an update, a first start, "Clear data" or a restore from Android's backup.
+
+**Not:**
+- The exit history: it misses a force-stop of an idle app, and reads undocumented text that Android 16 changed.
+- `ApplicationStartInfo.wasForceStopped()`: Android 15 and later only, and not seen in a test run.
+- The alarm's PendingIntent: it outlives a force-stop on API 32 in most runs, not all.
+- A heartbeat alarm that writes when it fires: it tells only after a day, at a wake-up a day.
+
+**Since:** 2026-11-27 · owner · agreed rewording
 
 ### D-R207 · The exact-alarm permission
 
@@ -1148,7 +1163,7 @@ Not checked: a phone; Android 15 and later, which is documented to cancel Pendin
 
 **Why:** R60's alarms use `setAlarmClock`, which fails without an exact-alarm permission. `USE_EXACT_ALARM` cannot be taken away, and Play's limit on it does not bind an app that is never distributed (R09).
 
-**Evidence:** Android's alarm guide (`developer.android.com/develop/background-work/services/alarms/schedule`) and its Android 14 change page (`developer.android.com/about/versions/14/changes/schedule-exact-alarms`), read 2026-11-26: `setAlarmClock` throws `SecurityException` without the permission on Android 12 and later; revoking `SCHEDULE_EXACT_ALARM` stops the app and cancels its future exact alarms; a grant sends the broadcast above. Android 13's feature page (`developer.android.com/about/versions/13/features`): `USE_EXACT_ALARM` is new in Android 13 and granted automatically. Android 11, the oldest supported (`minSdk` 30), needs no permission. Not checked: that Android 12 grants `SCHEDULE_EXACT_ALARM` by default, which the pages imply only by saying Android 14 stopped pre-granting it (the `Api32_Alarm` emulator can show it); nothing is built or ran on a device (R61's probe used an inexact alarm); declaring `SCHEDULE_EXACT_ALARM` with `maxSdkVersion="32"` beside `USE_EXACT_ALARM`.
+**Evidence:** Android's alarm guide (`developer.android.com/develop/background-work/services/alarms/schedule`) and its Android 14 change page (`developer.android.com/about/versions/14/changes/schedule-exact-alarms`), read 2026-11-26: `setAlarmClock` throws `SecurityException` without the permission on Android 12 and later; revoking `SCHEDULE_EXACT_ALARM` stops the app and cancels its future exact alarms; a grant sends the broadcast above. Android 13's feature page (`developer.android.com/about/versions/13/features`): `USE_EXACT_ALARM` is new in Android 13 and granted automatically. Android 11, the oldest supported (`minSdk` 30), needs no permission. On the API 32 and API 36 emulators (`ForceStopTraceOnDeviceTest`, 2026-11-27), a fresh install of a test APK that declares `SCHEDULE_EXACT_ALARM` with `maxSdkVersion="32"` beside `USE_EXACT_ALARM` reads `canScheduleExactAlarms()` as true and sets an alarm clock through `setAlarmClock` without asking. Not checked: a phone; API 31; the app's own manifest, which is not built.
 
 **Acceptance:** On Android 13 or later, a fresh install sets an alarm through `setAlarmClock` without asking for anything. On Android 12 with exact alarms turned off in Settings, the next start says so, and turning them on again sets the alarms again.
 
@@ -1156,7 +1171,7 @@ Not checked: a phone; Android 15 and later, which is documented to cancel Pendin
 - `SCHEDULE_EXACT_ALARM` alone: Android 14 denies it by default on fresh installs, and revoking it stops the app and cancels its exact alarms, as a force-stop does (R61).
 - Inexact alarms: they need no permission, but break R60's "rings at its time".
 
-**Since:** 2026-11-26 · owner · agreed rewording
+**Since:** 2026-11-27 · owner · agreed rewording
 
 ### D-R208 · Notification and full-screen permissions
 
@@ -2920,8 +2935,9 @@ Not checked: a phone, and Android 11.
 - R57 · Snooze syncs: `ReminderCasesTest` snoozes on one device, reads the snooze on the other, then reschedules and gets the new time.
 - R58 · A reminder needs a start date: `ReminderCasesTest` is refused in each of the three cases and keeps the synced reminder silent.
 - R59 · A standalone reminder's last reminder: `ReminderCasesTest` deletes the last reminder and keeps both on a clash.
-- R60 · Alarms and missed occurrences: On each platform an alarm set before the app is closed rings (Android) or is shown at the next start (Windows), and a missed NOTIFICATION fires once.
+- R60 · Alarms and missed occurrences: On each platform an alarm set before the app is closed rings (Android) or is shown at the next start (Windows), and a missed NOTIFICATION fires once. On Android an alarm set before a reboot rings after it.
 - R61 · A force-stopped app says so: On a device, force-stopping the app and opening it again shows the notice, and the alarms are set again.
+- R206 · How a force-stop is told: `ForceStopTraceOnDeviceTest`, run by `tools/device/run.sh`, finds the job gone after a force-stop of a running and of an idle app, and pending after a plain end, an update and a reboot. On a device, the app shows R61's notice after either force-stop, and not after a reboot, an update, a first start, "Clear data" or a restore from Android's backup.
 - R207 · The exact-alarm permission: On Android 13 or later, a fresh install sets an alarm through `setAlarmClock` without asking for anything. On Android 12 with exact alarms turned off in Settings, the next start says so, and turning them on again sets the alarms again.
 - R208 · Notification and full-screen permissions: On Android 13 or later, a fresh install asks for notifications when its first reminder is set, and not before; a fresh install that syncs a folder already holding reminders asks at the first open after the import. With notifications, or on Android 14 full-screen alarms, turned off in Settings, the next start says which is off.
 - R62 · Recurrence kinds: The 11 cases of `decisions/cases/04-recurrence.jsonl` pass (`RecurrenceCasesTest`): the 9 fixed rules match, occurrence by occurrence, the truth `tools/recurrence_sim.py` computes from the owner apps' rules (written as a fixture by `tools/recurrence_fixtures.py`), Mnemo's three through the cron converter.
