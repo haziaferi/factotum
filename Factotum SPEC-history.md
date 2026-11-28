@@ -384,3 +384,5 @@ Not a source of current rules: `Factotum SPEC.md` is. One line per change, newes
 - 2026-11-27 · R210 · added · how DEVICE_STATE stays off a phone restored from Android's backup, and whether it carries DEVICE_PREF · builder
 - 2026-11-27 · R210 · kind · Q → D: clear DEVICE_STATE at start under another id, as proposed · owner
 - 2026-11-27 · R210 · changed · no value, or R37's renewal stopped part way, clears nothing · builder
+- 2026-11-28 · R210 · changed · checked before any DEVICE_STATE read; R37 writes the value before the id file, so a restore mid-debt clears · builder
+- 2026-11-28 · R118 · changed · Evidence: Android's backup copies DEVICE_STATE, which R210 clears on arrival · builder

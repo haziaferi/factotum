@@ -1910,13 +1910,13 @@ The job's state is asserted from 2026-11-27's last API 32 run on; the API 36 run
 | DEVICE_STATE | local, never leaves the device | no |
 | SECRET | the Keystore or DPAPI | not in the settings part (R123); a full backup is not ruled on |
 
-**Evidence:** ADR 09 (`decisions/09-settings.md`), scoped-live, the owner's pick against the recommendation; `com.hazia.factotum.core.settings`, `com.hazia.factotum.data.settings`.
+**Evidence:** ADR 09 (`decisions/09-settings.md`), scoped-live, the owner's pick against the recommendation; `com.hazia.factotum.core.settings`, `com.hazia.factotum.data.settings`. Android's own backup copies the whole database, DEVICE_STATE with it; R210 clears it on the phone it reaches, before it is read.
 
 **Acceptance:** The 9 cases of `decisions/cases/09-settings.jsonl` pass (`SettingsCasesTest`): A and B share a folder, and C is a phone restored from A's backup.
 
 **Not:** The four source apps' settings stores: replaced by this one.
 
-**Since:** 2026-10-01 · owner · migrated
+**Since:** 2026-11-28 · owner · migrated
 
 ### D-R119 · A typed registry
 
@@ -1995,7 +1995,7 @@ The job's state is asserted from 2026-11-27's last API 32 run on; the API 36 run
 
 ### D-R210 · DEVICE settings in Android's own backup
 
-**Rule:** At each start, before the import, the app compares this device's id (R32) with the device a DEVICE_STATE value `device_state_owner` names, and acts on the case below; a new id R37 takes is written to that value as it is taken. So DEVICE_STATE that Android's Auto Backup, cloud backup or device transfer carries to another phone is cleared there before anything reads it. DEVICE_PREF values travel in Android's backup as in the app's own (R118), and app lock reads as off while this device holds no PIN it can read (R123).
+**Rule:** At each start, before any DEVICE_STATE value is read, the app compares this device's id (R32) with the device a DEVICE_STATE value `device_state_owner` names, and acts on the case below; R37's renewal writes its new id to that value before it writes the id file. So DEVICE_STATE that Android's Auto Backup, cloud backup or device transfer carries to another phone is cleared there before anything reads it. DEVICE_PREF values travel in Android's backup as in the app's own (R118), and app lock reads as off while this device holds no PIN it can read (R123).
 
 **Why:** One rule in the data layer serves both shells, is tested on the desktop as R34 is, and leaves the backup rules as they are. Without it, a restored phone skips its first-run questions (`first_run_done`), keeps the old phone's `sync_folder`, which it may not have been given access to (R45), and its `llm_model`, which it may not hold (R06), and has app lock on with no PIN, against R123. The cost: an unreadable id file clears this device's own DEVICE_STATE too, so its first-run questions and its sync folder are asked again, as after R34's recovery; and DEVICE_STATE still rides in Android's backup, unread.
 
@@ -2003,21 +2003,21 @@ The job's state is asserted from 2026-11-27's last API 32 run on; the API 36 run
 
 | At start, `device_state_owner` | What the app does |
 |---|---|
-| none: a new database, R34's recovery, or one from before this rule | writes this id, and clears nothing |
+| none: a new database, R34's recovery, or a Windows database from before this rule (Android has none: its data layer comes after this rule, R204) | writes this id, and clears nothing |
 | names this id | nothing |
-| names the id that `sync_id_owed` holds: R37's renewal, stopped before its value was written | writes this id, and clears nothing |
+| names another id while `sync_id_owed` holds this one: R37's renewal, stopped after its value was written and before its id file | clears nothing; the renewal, still owed, runs again and writes the value again |
 | names another id: a phone restored from Android's backup, or this device after an unreadable id file (R32) | clears every DEVICE_STATE value, R206's sentinel value with them, then writes this id |
 
-**Evidence:** Owner, 2026-11-27: the proposed default, as it suits real cases and contradicts no rule. `FolderSync.kt:306` clears `sync_id_owed` only after the first export under the new id, so a renewal stopped part way still shows there. `FactotumDatabase.kt:251` names the database `factotum.db`; `OpenDatabase.android.kt:9` opens it at `getDatabasePath`, Android's `database` domain; `SettingStores.kt:35` keeps `device_setting` in it. Room's default journal mode, write-ahead logging, puts `factotum.db-wal` and `factotum.db-shm` beside it. `backup_rules.xml:4` and `data_extraction_rules.xml:5` and `:8` exclude only `device-id`, in the `file` domain, and name no `database` path; Android's Auto Backup guide (`developer.android.com/identity/data/autobackup`, read 2026-11-27) backs up every file in the database folder by default. So all three files ride in Auto Backup, cloud backup and device transfer. `AndroidBackupRulesTest` checks the `device-id` exclusion only. Not checked: not built (`device_state_owner` joins R120 when it is declared); the three files on a device, and the journal mode Room takes over `KeepFileOnCorruptionDriver`; a restore to a second phone; that the PIN's Keystore key stays on its phone; nothing of the Android data layer, sync folder or app lock is built (R204).
+**Evidence:** Owner, 2026-11-27: the proposed default, as it suits real cases and contradicts no rule. `FolderSync.kt:80` takes a new id as owed when `sync_id_owed` names this device's id, and `FolderSync.kt:306` clears it only after the first export under the new id; a restored phone's new id is never the one it names, so a restore taken while the old phone owed a new id is still told from a renewal. `SyncPass.kt:99` reads `sync_folder` before the import, and R206 reads its value at start. `FactotumDatabase.kt:251` names the database `factotum.db`; `OpenDatabase.android.kt:9` opens it at `getDatabasePath`, Android's `database` domain; `SettingStores.kt:35` keeps `device_setting` in it. Room's default journal mode, write-ahead logging, puts `factotum.db-wal` and `factotum.db-shm` beside it. `backup_rules.xml:4` and `data_extraction_rules.xml:5` and `:8` exclude only `device-id`, in the `file` domain, and name no `database` path; Android's Auto Backup guide (`developer.android.com/identity/data/autobackup`, read 2026-11-27) backs up every file in the database folder by default. So all three files ride in Auto Backup, cloud backup and device transfer. `AndroidBackupRulesTest` checks the `device-id` exclusion only. Not checked: not built (`device_state_owner` joins R120, and R205's cases a row for an unreadable id file, which then asks for the folder again, when it is built); the three files on a device, and the journal mode Room takes over `KeepFileOnCorruptionDriver`; a restore to a second phone; that the PIN's Keystore key stays on its phone; nothing of the Android data layer, sync folder or app lock is built (R204).
 
-**Acceptance:** `SettingsCasesTest` opens a database under another device's id and finds its DEVICE_STATE at the defaults and its DEVICE_PREF kept; a database with no `device_state_owner`, and one whose value names the id `sync_id_owed` holds, keep their DEVICE_STATE; app lock reads as off with no PIN. `SyncPassTest` keeps `sync_folder` after a renewed id (R37) and after a first pass over a database from before this rule.
+**Acceptance:** `SettingsCasesTest` opens a database under another device's id and finds its DEVICE_STATE at the defaults and its DEVICE_PREF kept; a database with no `device_state_owner`, and one whose value names another id while `sync_id_owed` holds this one, keep their DEVICE_STATE; one whose `sync_id_owed` names the value's id, not this one, is cleared; app lock reads as off with no PIN. `SyncPassTest` keeps `sync_folder` after a renewed id (R37), after a renewal stopped between its value and its id file, and after a first pass over a database from before this rule.
 
 **Not:**
 - A database file of its own for `device_setting`, excluded in the `database` domain of both rule files: a second Room database with its own migrations, version 27's rows moved out of the main file, and whether the exclusion covers its `-wal` and `-shm` files unchecked (AOSP's `FullBackup.java`, read in part, appears to add `-journal` and `-wal` only).
 - A `BackupAgent` whose `onRestoreFinished` clears DEVICE_STATE: it needs `android:backupAgent` with `fullBackupOnly`, runs in a restricted process, and has no Windows twin.
 - The whole database out of Android's backup: a restored phone with no sync folder would start empty.
 
-**Since:** 2026-11-27 · owner · agreed rewording
+**Since:** 2026-11-28 · owner · agreed rewording
 
 ## 13. Search
 
@@ -3029,7 +3029,7 @@ Not checked: a phone, and Android 11.
 - R121 · Where each scope lives: `SettingsCasesTest.aPersonalSettingChangedOnTwoDevicesKeepsTheLaterAndTheDefaultClearsIt` sets one key on two devices and reads one row, and `aDevicePreferenceNeverReachesTheFolder` finds no DEVICE_PREF value in the folder or the `setting` table.
 - R122 · Repositories read settings on every call: `SettingsCasesTest.theDayStartSetOnOneDeviceDecidesTheDayOnAnotherAtOnce` passes, and every repository that reads the day boundary takes it through a required parameter.
 - R123 · The settings part of a backup: `SettingsCasesTest` restores an old backup on a phone and keeps the newer values; a backup with app lock on leaves it off.
-- R210 · DEVICE settings in Android's own backup: `SettingsCasesTest` opens a database under another device's id and finds its DEVICE_STATE at the defaults and its DEVICE_PREF kept; a database with no `device_state_owner`, and one whose value names the id `sync_id_owed` holds, keep their DEVICE_STATE; app lock reads as off with no PIN. `SyncPassTest` keeps `sync_folder` after a renewed id (R37) and after a first pass over a database from before this rule.
+- R210 · DEVICE settings in Android's own backup: `SettingsCasesTest` opens a database under another device's id and finds its DEVICE_STATE at the defaults and its DEVICE_PREF kept; a database with no `device_state_owner`, and one whose value names another id while `sync_id_owed` holds this one, keep their DEVICE_STATE; one whose `sync_id_owed` names the value's id, not this one, is cleared; app lock reads as off with no PIN. `SyncPassTest` keeps `sync_folder` after a renewed id (R37), after a renewal stopped between its value and its id file, and after a first pass over a database from before this rule.
 - R124 · One search index: The 7 cases of `decisions/cases/10-search.jsonl` pass: the item, tracker and Log cases in `SearchCasesTest`, the page and block halves in `PageCasesTest`.
 - R125 · What search indexes: `SearchCasesTest`, `PageCasesTest` and `ChecklistChartTest` find each source.
 - R126 · Kept current by triggers: `SearchCasesTest` finds a row written by an import, and an index emptied by hand is rebuilt at the next open.
