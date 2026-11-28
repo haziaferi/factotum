@@ -381,3 +381,8 @@ Not a source of current rules: `Factotum SPEC.md` is. One line per change, newes
 - 2026-11-27 · R206 · kind · Q → D: the sentinel job, read at each start, as proposed · owner
 - 2026-11-27 · R206 · changed · the value names the device id, so a restore from Android's backup is not read as a force-stop · builder
 - 2026-11-27 · R60 · changed · Android sets its alarms again at boot, as ADR 04 rules; a reboot clears them · builder
+- 2026-11-27 · R210 · added · how DEVICE_STATE stays off a phone restored from Android's backup, and whether it carries DEVICE_PREF · builder
+- 2026-11-27 · R210 · kind · Q → D: clear DEVICE_STATE at start under another id, as proposed · owner
+- 2026-11-27 · R210 · changed · no value, or R37's renewal stopped part way, clears nothing · builder
+- 2026-11-28 · R210 · changed · checked before any DEVICE_STATE read; R37 writes the value before the id file, so a restore mid-debt clears · builder
+- 2026-11-28 · R118 · changed · Evidence: Android's backup copies DEVICE_STATE, which R210 clears on arrival · builder
